@@ -1,19 +1,16 @@
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type WheelEvent,
+} from "react";
+import { LocateFixed, Minus, Plus } from "lucide-react";
 import type { Entity, EntityType, GraphEdge } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
-
-const TYPE_COLOR: Record<EntityType, string> = {
-  model: "var(--graph-node-model)",
-  agent: "var(--graph-node-agent)",
-  paper: "var(--graph-node-paper)",
-  benchmark: "var(--graph-node-benchmark)",
-  company: "var(--graph-node-company)",
-  framework: "var(--graph-node-framework)",
-  dataset: "var(--graph-node-paper)",
-  api: "var(--graph-node-framework)",
-  tool: "var(--graph-node-framework)",
-  application: "var(--graph-node-agent)",
-};
+import { NODE_TYPE_META, type NodeShape } from "@/components/graph/config";
 
 const RADIUS: Record<EntityType, number> = {
   model: 22,
@@ -28,23 +25,54 @@ const RADIUS: Record<EntityType, number> = {
   application: 14,
 };
 
-interface Node {
+interface PositionedNode {
   entity: Entity;
   x: number;
   y: number;
 }
 
-const roundCoordinate = (value: number) => Number(value.toFixed(3));
+interface Viewport {
+  x: number;
+  y: number;
+  scale: number;
+}
 
-// Deterministic radial layout: center = GPT (or first), others by orbit based on type
-function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[] {
-  const cx = w / 2;
-  const cy = h / 2;
+type Interaction =
+  | {
+      kind: "pan";
+      pointerId: number;
+      clientX: number;
+      clientY: number;
+      viewport: Viewport;
+      moved: boolean;
+    }
+  | {
+      kind: "node";
+      pointerId: number;
+      nodeId: string;
+      clientX: number;
+      clientY: number;
+      position: { x: number; y: number };
+      moved: boolean;
+    };
+
+const roundCoordinate = (value: number) => Number(value.toFixed(3));
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function layout(
+  entities: Entity[],
+  centerId?: string,
+  width = 900,
+  height = 560,
+): PositionedNode[] {
+  if (!entities.length) return [];
+  const centerX = width / 2;
+  const centerY = height / 2;
   const center =
-    entities.find((e) => e.id === centerId) ??
-    entities.find((e) => e.type === "model") ??
+    entities.find((entity) => entity.id === centerId) ??
+    entities.find((entity) => entity.type === "model") ??
     entities[0];
-  const others = entities.filter((e) => e.id !== center.id);
+  const others = entities.filter((entity) => entity.id !== center.id);
 
   const orbits: Record<EntityType, number> = {
     model: 180,
@@ -60,15 +88,15 @@ function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[]
   };
 
   const buckets = new Map<EntityType, Entity[]>();
-  for (const e of others) {
-    const arr = buckets.get(e.type) ?? [];
-    arr.push(e);
-    buckets.set(e.type, arr);
+  for (const entity of others) {
+    const bucket = buckets.get(entity.type) ?? [];
+    bucket.push(entity);
+    buckets.set(entity.type, bucket);
   }
 
-  const nodes: Node[] = [{ entity: center, x: cx, y: cy }];
-  for (const [type, arr] of buckets) {
-    const r = orbits[type] ?? 220;
+  const nodes: PositionedNode[] = [{ entity: center, x: centerX, y: centerY }];
+  for (const [type, bucket] of buckets) {
+    const radius = orbits[type] ?? 220;
     const startAngle = (
       {
         model: -Math.PI / 2,
@@ -83,17 +111,74 @@ function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[]
         tool: -Math.PI / 3,
       } as Record<EntityType, number>
     )[type];
-    arr.forEach((e, i) => {
-      const step = (Math.PI * 1.2) / Math.max(arr.length, 2);
-      const angle = startAngle + (i - (arr.length - 1) / 2) * step;
+    bucket.forEach((entity, index) => {
+      const step = (Math.PI * 1.2) / Math.max(bucket.length, 2);
+      const angle = startAngle + (index - (bucket.length - 1) / 2) * step;
       nodes.push({
-        entity: e,
-        x: roundCoordinate(cx + Math.cos(angle) * r),
-        y: roundCoordinate(cy + Math.sin(angle) * r),
+        entity,
+        x: roundCoordinate(centerX + Math.cos(angle) * radius),
+        y: roundCoordinate(centerY + Math.sin(angle) * radius),
       });
     });
   }
   return nodes;
+}
+
+function shapePoints(shape: NodeShape, radius: number) {
+  if (shape === "diamond") return `0,${-radius} ${radius},0 0,${radius} ${-radius},0`;
+  if (shape === "hexagon") {
+    return Array.from({ length: 6 }, (_, index) => {
+      const angle = (Math.PI / 3) * index - Math.PI / 2;
+      return `${roundCoordinate(Math.cos(angle) * radius)},${roundCoordinate(Math.sin(angle) * radius)}`;
+    }).join(" ");
+  }
+  return "";
+}
+
+function NodeMark({
+  shape,
+  radius,
+  color,
+  selected,
+}: {
+  shape: NodeShape;
+  radius: number;
+  color: string;
+  selected: boolean;
+}) {
+  const common = {
+    fill: color,
+    stroke: selected ? "#fff" : "rgba(255,255,255,0.45)",
+    strokeWidth: selected ? 2.5 : 1,
+  };
+  if (shape === "circle") return <circle r={radius} {...common} />;
+  if (shape === "square") {
+    return (
+      <rect x={-radius} y={-radius} width={radius * 2} height={radius * 2} rx={4} {...common} />
+    );
+  }
+  return <polygon points={shapePoints(shape, radius)} {...common} />;
+}
+
+function edgeAppearance(edge: GraphEdge, active: boolean) {
+  if (active) {
+    return { stroke: "#fff", opacity: 0.95, width: 3, dash: undefined };
+  }
+  if (edge.confidence === "conflict") {
+    return {
+      stroke: "var(--conflict)",
+      opacity: 0.9,
+      width: 2,
+      dash: "10 3 2 3",
+    };
+  }
+  if (edge.confidence === "unverified") {
+    return { stroke: "var(--graph-edge)", opacity: 0.55, width: 1.5, dash: "2 6" };
+  }
+  if (edge.confidence === "inferred") {
+    return { stroke: "var(--graph-edge)", opacity: 0.7, width: 1.5, dash: "7 5" };
+  }
+  return { stroke: "var(--graph-edge)", opacity: 0.55, width: 1.25, dash: undefined };
 }
 
 export function KnowledgeGraph({
@@ -102,40 +187,239 @@ export function KnowledgeGraph({
   entityIds,
   centerId,
   height = 560,
-  onSelect,
-  selectedId,
+  onSelectNode,
+  onSelectEdge,
+  selectedNodeId,
+  selectedEdgeId,
+  highlightedNodeIds = [],
+  highlightedEdgeIds = [],
+  focusNodeId,
+  canvasWidth = 900,
 }: {
   entities: Entity[];
   relations: GraphEdge[];
   entityIds?: string[];
   centerId?: string;
   height?: number;
-  onSelect?: (e: Entity) => void;
-  selectedId?: string | null;
+  onSelectNode?: (entity: Entity) => void;
+  onSelectEdge?: (edge: GraphEdge) => void;
+  selectedNodeId?: string | null;
+  selectedEdgeId?: string | null;
+  highlightedNodeIds?: string[];
+  highlightedEdgeIds?: string[];
+  focusNodeId?: string | null;
+  canvasWidth?: number;
 }) {
-  const { lang } = useApp();
-  const [hover, setHover] = useState<string | null>(null);
+  const { lang, t } = useApp();
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const interactionRef = useRef<Interaction | null>(null);
+  const lastFocusedRef = useRef<string | null>(null);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [viewport, setViewport] = useState<Viewport>({ x: 0, y: 0, scale: 1 });
+
   const visibleEntities = useMemo(
-    () => (entityIds ? entities.filter((e) => entityIds.includes(e.id)) : entities),
+    () => (entityIds ? entities.filter((entity) => entityIds.includes(entity.id)) : entities),
     [entities, entityIds],
   );
-  const w = 900;
-  const nodes = useMemo(
-    () => layout(visibleEntities, centerId, w, height),
-    [visibleEntities, centerId, height],
+  const width = canvasWidth;
+  const baseNodes = useMemo(
+    () => layout(visibleEntities, centerId, width, height),
+    [visibleEntities, centerId, height, width],
   );
-  const posMap = new Map(nodes.map((n) => [n.entity.id, n]));
-  const edges = relations.filter((r) => posMap.has(r.fromId) && posMap.has(r.toId));
+  const nodes = useMemo(
+    () =>
+      baseNodes.map((node) => ({
+        ...node,
+        ...(positions[node.entity.id] ?? {}),
+      })),
+    [baseNodes, positions],
+  );
+  const positionById = useMemo(() => new Map(nodes.map((node) => [node.entity.id, node])), [nodes]);
+  const edges = useMemo(
+    () =>
+      relations.filter(
+        (relation) => positionById.has(relation.fromId) && positionById.has(relation.toId),
+      ),
+    [positionById, relations],
+  );
+  const highlightedNodes = useMemo(() => new Set(highlightedNodeIds), [highlightedNodeIds]);
+  const highlightedEdges = useMemo(() => new Set(highlightedEdgeIds), [highlightedEdgeIds]);
+
+  useEffect(() => {
+    if (!focusNodeId || focusNodeId === lastFocusedRef.current) return;
+    const node = baseNodes.find((item) => item.entity.id === focusNodeId);
+    if (!node) return;
+    lastFocusedRef.current = focusNodeId;
+    setViewport((current) => ({
+      ...current,
+      x: width / 2 - node.x * current.scale,
+      y: height / 2 - node.y * current.scale,
+    }));
+  }, [baseNodes, focusNodeId, height, width]);
+
+  const resetViewport = () => {
+    setViewport({ x: 0, y: 0, scale: 1 });
+    setPositions({});
+  };
+
+  const zoomAtCenter = (factor: number) => {
+    setViewport((current) => {
+      const scale = clamp(current.scale * factor, 0.45, 2.8);
+      const worldX = (width / 2 - current.x) / current.scale;
+      const worldY = (height / 2 - current.y) / current.scale;
+      return {
+        scale,
+        x: width / 2 - worldX * scale,
+        y: height / 2 - worldY * scale,
+      };
+    });
+  };
+
+  const onWheel = (event: WheelEvent<SVGSVGElement>) => {
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const cursorX = ((event.clientX - rect.left) / rect.width) * width;
+    const cursorY = ((event.clientY - rect.top) / rect.height) * height;
+    setViewport((current) => {
+      const scale = clamp(current.scale * (event.deltaY < 0 ? 1.12 : 0.89), 0.45, 2.8);
+      const worldX = (cursorX - current.x) / current.scale;
+      const worldY = (cursorY - current.y) / current.scale;
+      return {
+        scale,
+        x: cursorX - worldX * scale,
+        y: cursorY - worldY * scale,
+      };
+    });
+  };
+
+  const beginPan = (event: PointerEvent<SVGSVGElement>) => {
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    interactionRef.current = {
+      kind: "pan",
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      viewport,
+      moved: false,
+    };
+  };
+
+  const beginNodeDrag = (event: PointerEvent<SVGGElement>, node: PositionedNode) => {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    svgRef.current?.setPointerCapture(event.pointerId);
+    interactionRef.current = {
+      kind: "node",
+      pointerId: event.pointerId,
+      nodeId: node.entity.id,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      position: { x: node.x, y: node.y },
+      moved: false,
+    };
+  };
+
+  const moveInteraction = (event: PointerEvent<SVGSVGElement>) => {
+    const interaction = interactionRef.current;
+    if (!interaction || interaction.pointerId !== event.pointerId) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const deltaX = ((event.clientX - interaction.clientX) / rect.width) * width;
+    const deltaY = ((event.clientY - interaction.clientY) / rect.height) * height;
+    if (Math.abs(deltaX) + Math.abs(deltaY) > 2) interaction.moved = true;
+
+    if (interaction.kind === "pan") {
+      setViewport({
+        ...interaction.viewport,
+        x: interaction.viewport.x + deltaX,
+        y: interaction.viewport.y + deltaY,
+      });
+      return;
+    }
+
+    setPositions((current) => ({
+      ...current,
+      [interaction.nodeId]: {
+        x: roundCoordinate(interaction.position.x + deltaX / viewport.scale),
+        y: roundCoordinate(interaction.position.y + deltaY / viewport.scale),
+      },
+    }));
+  };
+
+  const finishInteraction = (event: PointerEvent<SVGSVGElement>) => {
+    if (interactionRef.current?.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    window.setTimeout(() => {
+      interactionRef.current = null;
+    }, 0);
+  };
+
+  const selectNode = (entity: Entity) => {
+    if (interactionRef.current?.moved) return;
+    onSelectNode?.(entity);
+  };
+
+  const onNodeKeyDown = (event: KeyboardEvent<SVGGElement>, entity: Entity) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onSelectNode?.(entity);
+  };
+
+  const onEdgeKeyDown = (event: KeyboardEvent<SVGLineElement>, edge: GraphEdge) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onSelectEdge?.(edge);
+  };
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden border border-white/10 bg-graph-bg">
-      <svg viewBox={`0 0 ${w} ${height}`} className="w-full h-auto block">
+    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
+      <div className="absolute right-3 top-3 z-10 flex rounded-md border border-white/15 bg-graph-surface/90 p-1 shadow-lg">
+        <button
+          type="button"
+          onClick={() => zoomAtCenter(1.2)}
+          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          aria-label={t("放大图谱", "Zoom in")}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => zoomAtCenter(0.82)}
+          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          aria-label={t("缩小图谱", "Zoom out")}
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={resetViewport}
+          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          aria-label={t("重置图谱视图", "Reset graph view")}
+        >
+          <LocateFixed className="h-4 w-4" />
+        </button>
+      </div>
+
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${width} ${height}`}
+        className="block h-auto w-full touch-none select-none"
+        onWheel={onWheel}
+        onPointerDown={beginPan}
+        onPointerMove={moveInteraction}
+        onPointerUp={finishInteraction}
+        onPointerCancel={finishInteraction}
+        aria-label={t("可交互 AI 知识图谱", "Interactive AI knowledge graph")}
+      >
         <defs>
-          <radialGradient id="glow" cx="50%" cy="50%">
+          <radialGradient id="graph-glow" cx="50%" cy="50%">
             <stop offset="0%" stopColor="#fff" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </radialGradient>
-          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path
               d="M 40 0 L 0 0 0 40"
               fill="none"
@@ -144,68 +428,122 @@ export function KnowledgeGraph({
             />
           </pattern>
         </defs>
-        <rect width={w} height={height} fill="url(#grid)" />
-        <circle cx={w / 2} cy={height / 2} r={280} fill="url(#glow)" />
+        <rect width={width} height={height} fill="url(#graph-grid)" />
 
-        {edges.map((r) => {
-          const a = posMap.get(r.fromId)!;
-          const b = posMap.get(r.toId)!;
-          const active =
-            hover && (hover === r.fromId || hover === r.toId)
-              ? true
-              : selectedId && (selectedId === r.fromId || selectedId === r.toId)
-                ? true
-                : false;
-          return (
-            <line
-              key={r.id}
-              x1={a.x}
-              y1={a.y}
-              x2={b.x}
-              y2={b.y}
-              stroke={active ? "var(--graph-node-model)" : "var(--graph-edge)"}
-              strokeOpacity={active ? 0.9 : 0.35}
-              strokeWidth={active ? 1.5 : 1}
-              strokeDasharray={r.confidence === "unverified" ? "4 4" : undefined}
-            />
-          );
-        })}
+        <g transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.scale})`}>
+          <circle cx={width / 2} cy={height / 2} r={280} fill="url(#graph-glow)" />
 
-        {nodes.map((n) => {
-          const color = TYPE_COLOR[n.entity.type];
-          const r = RADIUS[n.entity.type];
-          const isSelected = selectedId === n.entity.id;
-          const isHover = hover === n.entity.id;
-          return (
-            <g
-              key={n.entity.id}
-              transform={`translate(${n.x} ${n.y})`}
-              className="cursor-pointer"
-              onMouseEnter={() => setHover(n.entity.id)}
-              onMouseLeave={() => setHover(null)}
-              onClick={() => onSelect?.(n.entity)}
-            >
-              <circle r={r + 6} fill={color} opacity={isHover || isSelected ? 0.25 : 0.1} />
-              <circle
-                r={r}
-                fill={color}
-                stroke={isSelected ? "#fff" : "rgba(255,255,255,0.35)"}
-                strokeWidth={isSelected ? 2 : 1}
-              />
-              <text
-                y={r + 16}
-                textAnchor="middle"
-                fill="rgba(255,255,255,0.92)"
-                fontSize="12"
-                fontWeight={500}
-                style={{ pointerEvents: "none" }}
+          {edges.map((edge) => {
+            const from = positionById.get(edge.fromId)!;
+            const to = positionById.get(edge.toId)!;
+            const active =
+              highlightedEdges.has(edge.id) ||
+              selectedEdgeId === edge.id ||
+              Boolean(
+                hoveredNodeId && (hoveredNodeId === edge.fromId || hoveredNodeId === edge.toId),
+              );
+            const appearance = edgeAppearance(edge, active);
+            return (
+              <g key={edge.id}>
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke={appearance.stroke}
+                  strokeOpacity={appearance.opacity}
+                  strokeWidth={appearance.width}
+                  strokeDasharray={appearance.dash}
+                  vectorEffect="non-scaling-stroke"
+                  pointerEvents="none"
+                />
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke="transparent"
+                  strokeWidth={14}
+                  vectorEffect="non-scaling-stroke"
+                  className="cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={t("查看关系证据", "Inspect relationship evidence")}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelectEdge?.(edge);
+                  }}
+                  onKeyDown={(event) => onEdgeKeyDown(event, edge)}
+                />
+              </g>
+            );
+          })}
+
+          {nodes.map((node) => {
+            const meta = NODE_TYPE_META[node.entity.type];
+            const radius = RADIUS[node.entity.type];
+            const isSelected = selectedNodeId === node.entity.id;
+            const isHighlighted = highlightedNodes.has(node.entity.id);
+            const isHovered = hoveredNodeId === node.entity.id;
+            return (
+              <g
+                key={node.entity.id}
+                transform={`translate(${node.x} ${node.y})`}
+                className="cursor-grab outline-none focus-visible:[&>path]:stroke-white active:cursor-grabbing"
+                role="button"
+                tabIndex={0}
+                aria-label={`${pick(node.entity.name, lang)} · ${pick(meta.label, lang)}`}
+                onMouseEnter={() => setHoveredNodeId(node.entity.id)}
+                onMouseLeave={() => setHoveredNodeId(null)}
+                onFocus={() => setHoveredNodeId(node.entity.id)}
+                onBlur={() => setHoveredNodeId(null)}
+                onPointerDown={(event) => beginNodeDrag(event, node)}
+                onClick={() => selectNode(node.entity)}
+                onKeyDown={(event) => onNodeKeyDown(event, node.entity)}
               >
-                {pick(n.entity.name, lang)}
-              </text>
-            </g>
-          );
-        })}
+                <circle
+                  r={radius + 9}
+                  fill={meta.color}
+                  opacity={isHovered || isSelected || isHighlighted ? 0.28 : 0.08}
+                />
+                {isHighlighted && (
+                  <circle
+                    r={radius + 5}
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth={2}
+                    strokeDasharray="3 3"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )}
+                <NodeMark
+                  shape={meta.shape}
+                  radius={radius}
+                  color={meta.color}
+                  selected={isSelected}
+                />
+                <text
+                  y={radius + 18}
+                  textAnchor="middle"
+                  fill="rgba(255,255,255,0.94)"
+                  fontSize="12"
+                  fontWeight={500}
+                  style={{ pointerEvents: "none" }}
+                >
+                  {pick(node.entity.name, lang)}
+                </text>
+              </g>
+            );
+          })}
+        </g>
       </svg>
+      <p className="sr-only">
+        {t(
+          "使用鼠标滚轮缩放，拖动画布平移，拖动节点调整位置。节点也可通过键盘选择。",
+          "Use the wheel to zoom, drag the canvas to pan, and drag nodes to reposition. Nodes are keyboard selectable.",
+        )}
+      </p>
     </div>
   );
 }
