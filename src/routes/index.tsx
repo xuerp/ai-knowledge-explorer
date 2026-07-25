@@ -1,7 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Clock, Radar, TrendingUp, Bookmark } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader, SectionHeading, EntityChip, ConfidenceChip, DemoBadge } from "@/components/common";
+import {
+  PageHeader,
+  SectionHeading,
+  EntityChip,
+  ConfidenceChip,
+  DemoBadge,
+} from "@/components/common";
 import {
   ENTITIES,
   FOLLOWING,
@@ -196,7 +202,10 @@ function HomePage() {
               <li>
                 <Link to="/ask" className="group block text-sm text-foreground hover:text-signal">
                   <span className="text-signal mr-2 font-mono text-xs">01</span>
-                  {t("对比 GPT-5 与 Claude 4.5 在代码任务上的差异", "Compare GPT-5 vs Claude 4.5 on code")}
+                  {t(
+                    "对比 GPT-5 与 Claude 4.5 在代码任务上的差异",
+                    "Compare GPT-5 vs Claude 4.5 on code",
+                  )}
                 </Link>
               </li>
               <li>

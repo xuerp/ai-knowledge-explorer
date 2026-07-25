@@ -42,7 +42,10 @@ const INTENSITY_META = {
     icon: Zap,
     zh: "即时",
     en: "Instant",
-    desc: { zh: "重大变化与传闻立即出现在首页。", en: "Major changes show up on the home immediately." },
+    desc: {
+      zh: "重大变化与传闻立即出现在首页。",
+      en: "Major changes show up on the home immediately.",
+    },
   },
 } as const;
 
@@ -72,7 +75,10 @@ function FollowingPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-xl font-semibold">
-              {t("关注对象", "You follow")} <span className="text-muted-foreground text-base font-sans font-normal ml-2">{items.length}</span>
+              {t("关注对象", "You follow")}{" "}
+              <span className="text-muted-foreground text-base font-sans font-normal ml-2">
+                {items.length}
+              </span>
             </h2>
             <DemoBadge />
           </div>
@@ -95,7 +101,8 @@ function FollowingPage() {
                       <span className="chip">{pick(ENTITY_TYPE_LABELS[e.type], lang)}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {t("关注理由", "Reason")}: {pick(it.reason, lang)} · {t("加入于", "Since")} {it.addedAt}
+                      {t("关注理由", "Reason")}: {pick(it.reason, lang)} · {t("加入于", "Since")}{" "}
+                      {it.addedAt}
                     </p>
                   </div>
 
@@ -109,7 +116,9 @@ function FollowingPage() {
                           onClick={() => setIntensity(it.entityId, k)}
                           className={
                             "inline-flex items-center gap-1 px-2 h-8 rounded text-xs " +
-                            (active ? "bg-signal text-signal-foreground" : "text-ink-soft hover:text-foreground")
+                            (active
+                              ? "bg-signal text-signal-foreground"
+                              : "text-ink-soft hover:text-foreground")
                           }
                           title={pick(INTENSITY_META[k].desc, lang)}
                         >
@@ -142,7 +151,9 @@ function FollowingPage() {
                 <div key={e.id} className="paper-card p-4 flex items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-foreground truncate">{pick(e.name, lang)}</div>
-                    <div className="text-xs text-muted-foreground">{pick(ENTITY_TYPE_LABELS[e.type], lang)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {pick(ENTITY_TYPE_LABELS[e.type], lang)}
+                    </div>
                   </div>
                   <Button
                     size="sm"
@@ -203,7 +214,8 @@ function FollowingPage() {
               to="/"
               className="text-sm text-signal hover:underline inline-flex items-center gap-1"
             >
-              {t("回到首页看今日更新", "Back to today's updates")} <ArrowRight className="h-3.5 w-3.5" />
+              {t("回到首页看今日更新", "Back to today's updates")}{" "}
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </aside>

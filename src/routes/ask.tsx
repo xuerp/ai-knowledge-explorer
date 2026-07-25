@@ -11,7 +11,10 @@ export const Route = createFileRoute("/ask")({
   head: () => ({
     meta: [
       { title: "AI 研究 · AI Radar" },
-      { name: "description", content: "基于知识图谱的 AI 问答：事实、推断、未核验与冲突分开呈现。" },
+      {
+        name: "description",
+        content: "基于知识图谱的 AI 问答：事实、推断、未核验与冲突分开呈现。",
+      },
       { property: "og:title", content: "AI Radar · AI 研究" },
       { property: "og:description", content: "有依据的 AI 回答。" },
     ],
@@ -20,12 +23,18 @@ export const Route = createFileRoute("/ask")({
 });
 
 const SAMPLE_QUESTIONS = [
-  { zh: "GPT-5 与 Claude 4.5 在代码任务上谁更强？", en: "GPT-5 vs Claude 4.5 on code — which is better?" },
-  { zh: "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？", en: "Is DeepSeek R2 really 10× cheaper than GPT-5?" },
+  {
+    zh: "GPT-5 与 Claude 4.5 在代码任务上谁更强？",
+    en: "GPT-5 vs Claude 4.5 on code — which is better?",
+  },
+  {
+    zh: "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？",
+    en: "Is DeepSeek R2 really 10× cheaper than GPT-5?",
+  },
   { zh: "MCP 协议目前有哪些已知集成？", en: "Which integrations does MCP have today?" },
 ];
 
-export function AskPage() {
+function AskPage() {
   const { t, lang } = useApp();
   const [q, setQ] = useState(pick(SAMPLE_QUESTIONS[0], lang));
   const [answered, setAnswered] = useState(true);
@@ -46,7 +55,10 @@ export function AskPage() {
 
       <div className="max-w-4xl mx-auto px-4 md:px-6 py-8">
         <form
-          onSubmit={(e) => { e.preventDefault(); setAnswered(true); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setAnswered(true);
+          }}
           className="paper-card p-4 flex flex-col gap-3"
         >
           <div className="flex items-center gap-2 text-xs text-muted-foreground">

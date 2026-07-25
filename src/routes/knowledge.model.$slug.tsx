@@ -12,7 +12,13 @@ import {
   Layers,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { DemoBadge, ConfidenceChip, SectionHeading, SourceRow, EntityChip } from "@/components/common";
+import {
+  DemoBadge,
+  ConfidenceChip,
+  SectionHeading,
+  SourceRow,
+  EntityChip,
+} from "@/components/common";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import {
   CLAIMS,
@@ -78,7 +84,9 @@ function EntityDetail() {
       <div className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-            <Link to="/knowledge" className="hover:text-signal">{t("知识库", "Knowledge")}</Link>
+            <Link to="/knowledge" className="hover:text-signal">
+              {t("知识库", "Knowledge")}
+            </Link>
             <span>/</span>
             <span>{pick(ENTITY_TYPE_LABELS[e.type], lang)}</span>
             <span>/</span>
@@ -93,9 +101,7 @@ function EntityDetail() {
                     <Building2 className="h-3 w-3" /> {e.vendor}
                   </span>
                 )}
-                {e.latestVersion && (
-                  <span className="chip font-mono">{e.latestVersion}</span>
-                )}
+                {e.latestVersion && <span className="chip font-mono">{e.latestVersion}</span>}
                 <DemoBadge />
               </div>
               <h1 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
@@ -192,7 +198,9 @@ function EntityDetail() {
                         <td className="py-2.5 pr-4 font-mono text-foreground">{m.value}</td>
                         <td className="py-2.5 pr-4 text-ink-soft">{m.benchmark}</td>
                         <td className="py-2.5 pr-4 text-muted-foreground">{m.date}</td>
-                        <td className="py-2.5 pr-4"><ConfidenceChip level={m.confidence} /></td>
+                        <td className="py-2.5 pr-4">
+                          <ConfidenceChip level={m.confidence} />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -229,7 +237,9 @@ function EntityDetail() {
                 <div key={r.id} className="paper-card p-3 flex items-center gap-3">
                   <span className="chip">{RELATION_LABEL[r.kind][lang]}</span>
                   <span className="text-sm text-foreground truncate">{pick(other.name, lang)}</span>
-                  <div className="ml-auto"><ConfidenceChip level={r.confidence} /></div>
+                  <div className="ml-auto">
+                    <ConfidenceChip level={r.confidence} />
+                  </div>
                 </div>
               );
             })}
@@ -252,7 +262,9 @@ function EntityDetail() {
                 <span className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full bg-signal ring-4 ring-background" />
                 <div className="flex flex-wrap items-baseline gap-3 mb-1">
                   <time className="font-mono text-sm text-signal">{ev.date}</time>
-                  <h4 className="font-serif font-semibold text-foreground">{pick(ev.title, lang)}</h4>
+                  <h4 className="font-serif font-semibold text-foreground">
+                    {pick(ev.title, lang)}
+                  </h4>
                   <ConfidenceChip level={ev.confidence} />
                 </div>
                 <p className="text-sm text-ink-soft leading-relaxed">{pick(ev.summary, lang)}</p>
@@ -294,26 +306,35 @@ function EntityDetail() {
                 <tbody className="divide-y divide-border">
                   <tr className="bg-signal/5">
                     <td className="py-3 px-4 font-medium text-foreground">{pick(e.name, lang)}</td>
-                    <td className="py-3 px-4 font-mono text-foreground">{e.latestVersion ?? "—"}</td>
+                    <td className="py-3 px-4 font-mono text-foreground">
+                      {e.latestVersion ?? "—"}
+                    </td>
                     <td className="py-3 px-4 text-ink-soft">{e.tags.slice(0, 3).join(" · ")}</td>
                     <td className="py-3 px-4 text-muted-foreground">{e.lastUpdatedAt}</td>
                   </tr>
-                  {competitors.map((c) => c && (
-                    <tr key={c.id}>
-                      <td className="py-3 px-4">
-                        <Link
-                          to="/knowledge/model/$slug"
-                          params={{ slug: c.slug }}
-                          className="text-foreground hover:text-signal"
-                        >
-                          {pick(c.name, lang)}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-4 font-mono text-foreground">{c.latestVersion ?? "—"}</td>
-                      <td className="py-3 px-4 text-ink-soft">{c.tags.slice(0, 3).join(" · ")}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{c.lastUpdatedAt}</td>
-                    </tr>
-                  ))}
+                  {competitors.map(
+                    (c) =>
+                      c && (
+                        <tr key={c.id}>
+                          <td className="py-3 px-4">
+                            <Link
+                              to="/knowledge/model/$slug"
+                              params={{ slug: c.slug }}
+                              className="text-foreground hover:text-signal"
+                            >
+                              {pick(c.name, lang)}
+                            </Link>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-foreground">
+                            {c.latestVersion ?? "—"}
+                          </td>
+                          <td className="py-3 px-4 text-ink-soft">
+                            {c.tags.slice(0, 3).join(" · ")}
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">{c.lastUpdatedAt}</td>
+                        </tr>
+                      ),
+                  )}
                 </tbody>
               </table>
             </div>
@@ -338,9 +359,18 @@ function EntityDetail() {
               </TabsList>
               <TabsContent value="suggested" className="mt-4 space-y-2">
                 {[
-                  t(`${pick(e.name, "zh")} 与 Claude 4.5 在代码任务上的差异？`, `Compare ${pick(e.name, "en")} vs Claude 4.5 on code`),
-                  t(`${pick(e.name, "zh")} 最近 30 天最重要的更新？`, `Most important updates in the last 30 days`),
-                  t(`${pick(e.name, "zh")} 有哪些争议或未核验说法？`, `What claims about it are unverified or disputed?`),
+                  t(
+                    `${pick(e.name, "zh")} 与 Claude 4.5 在代码任务上的差异？`,
+                    `Compare ${pick(e.name, "en")} vs Claude 4.5 on code`,
+                  ),
+                  t(
+                    `${pick(e.name, "zh")} 最近 30 天最重要的更新？`,
+                    `Most important updates in the last 30 days`,
+                  ),
+                  t(
+                    `${pick(e.name, "zh")} 有哪些争议或未核验说法？`,
+                    `What claims about it are unverified or disputed?`,
+                  ),
                 ].map((q, i) => (
                   <Link
                     key={i}
@@ -357,11 +387,17 @@ function EntityDetail() {
                 <div className="flex gap-2">
                   <input
                     disabled
-                    placeholder={t("演示版：请到 AI 研究页面提问", "Demo: use the Ask page for full flow")}
+                    placeholder={t(
+                      "演示版：请到 AI 研究页面提问",
+                      "Demo: use the Ask page for full flow",
+                    )}
                     className="flex-1 h-10 px-3 rounded-md border border-input bg-muted/40 text-sm"
                   />
                   <Button asChild>
-                    <Link to="/ask"><Send className="h-4 w-4" />{t("去提问", "Go ask")}</Link>
+                    <Link to="/ask">
+                      <Send className="h-4 w-4" />
+                      {t("去提问", "Go ask")}
+                    </Link>
                   </Button>
                 </div>
               </TabsContent>
@@ -380,13 +416,13 @@ function EntityDetail() {
             )}
           />
           <div className="paper-card divide-y divide-border">
-            {SOURCES.map((s) => <SourceRow key={s.id} sourceId={s.id} />)}
+            {SOURCES.map((s) => (
+              <SourceRow key={s.id} sourceId={s.id} />
+            ))}
           </div>
           <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {t("阅读模式", "Reading mode")}:
-            {" "}
-            <span className="font-mono">{mode}</span>
+            {t("阅读模式", "Reading mode")}: <span className="font-mono">{mode}</span>
             {" · "}
             {t("三种深度共享同一图谱知识。", "Three depths share the same graph knowledge.")}
           </p>
@@ -415,7 +451,7 @@ const RELATION_LABEL: Record<string, { zh: string; en: string }> = {
   "based-on": { zh: "基于", en: "Based on" },
   "competes-with": { zh: "竞品", en: "Competes with" },
   "benchmarked-on": { zh: "评测于", en: "Benchmarked on" },
-  "uses": { zh: "使用", en: "Uses" },
+  uses: { zh: "使用", en: "Uses" },
   "cited-by": { zh: "引用者", en: "Cited by" },
   "part-of": { zh: "属于", en: "Part of" },
   "successor-of": { zh: "继任", en: "Successor of" },
