@@ -196,7 +196,16 @@ function AskPage() {
               )}
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 flex flex-wrap gap-x-5 gap-y-2">
+              {researchAnswer && (
+                <Link
+                  to="/research/$id"
+                  params={{ id: researchAnswer.id }}
+                  className="text-sm font-medium text-signal hover:underline"
+                >
+                  {t("打开完整研究记录 →", "Open full research record →")}
+                </Link>
+              )}
               <Link
                 to="/knowledge/model/$slug"
                 params={{ slug: "gpt" }}

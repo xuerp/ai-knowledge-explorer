@@ -2,6 +2,24 @@
 @source "../src";
 @import "tw-animate-css";
 
+@media print {
+  .print-hidden,
+  header:has(nav),
+  nav {
+    display: none !important;
+  }
+
+  .print-report {
+    color: #111 !important;
+    background: #fff !important;
+  }
+
+  .print-report .paper-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

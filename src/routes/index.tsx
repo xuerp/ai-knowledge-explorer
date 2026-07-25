@@ -214,6 +214,7 @@ function HomePage() {
                   "未核验内容不会直接进入正式图谱",
                   "Unverified content is never auto-published",
                 )}
+                to="/admin/review-demo"
               />
             </div>
           </section>
@@ -315,14 +316,16 @@ function GraphChange({
   icon,
   title,
   desc,
+  to = "/graph",
 }: {
   icon: React.ReactNode;
   title: string;
   desc: string;
+  to?: "/graph" | "/admin/review-demo";
 }) {
   return (
     <Link
-      to="/graph"
+      to={to}
       className="paper-card p-4 hover:border-signal/50 transition-colors flex flex-col gap-2"
     >
       <div className="flex items-center gap-2">
