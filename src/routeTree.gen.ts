@@ -15,6 +15,7 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as FollowingRouteImport } from './routes/following'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
 import { Route as ResearchIdRouteImport } from './routes/research.$id'
 import { Route as ShareIdRouteImport } from './routes/share.$id'
@@ -50,6 +51,11 @@ const KnowledgeRoute = KnowledgeRouteImport.update({
   path: '/knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminReviewDemoRoute = AdminReviewDemoRouteImport.update({
   id: '/admin/review-demo',
   path: '/admin/review-demo',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/onboarding'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/onboarding'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/onboarding'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   FollowingRoute: typeof FollowingRoute
   GraphRoute: typeof GraphRoute
   KnowledgeRoute: typeof KnowledgeRouteWithChildren
+  OnboardingRoute: typeof OnboardingRoute
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
   ResearchIdRoute: typeof ResearchIdRoute
   ShareIdRoute: typeof ShareIdRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/knowledge'
       fullPath: '/knowledge'
       preLoaderRoute: typeof KnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/review-demo': {
@@ -253,6 +273,7 @@ const rootRouteChildren: RootRouteChildren = {
   FollowingRoute: FollowingRoute,
   GraphRoute: GraphRoute,
   KnowledgeRoute: KnowledgeRouteWithChildren,
+  OnboardingRoute: OnboardingRoute,
   AdminReviewDemoRoute: AdminReviewDemoRoute,
   ResearchIdRoute: ResearchIdRoute,
   ShareIdRoute: ShareIdRoute,

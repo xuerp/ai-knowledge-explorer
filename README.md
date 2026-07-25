@@ -6,20 +6,46 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 
 ## 当前已实现
 
-- 首页、知识库、实体详情、2D 图谱、证据化问答、关注管理和模型对比。
+- 首页、知识库、实体详情、模型对比、证据化问答和关注管理。
+- 生产级 2D 图谱：搜索定位、时间 / 类型 / 关系 / 可信度筛选、缩放、平移、节点拖拽、邻域展开、最短路径高亮、边证据检查器和列表替代视图。
+- 私密研究记录与公开分享页，支持逐结论引用、Markdown 下载和浏览器打印 / PDF。
+- `/admin/review-demo` 只读审核后台：来源健康度、同步运行、候选 Claim、冲突风险和半自动审核流水线。
+- 三步兴趣初始化，以及可查看、修改、暂停、清空的本地个性化画像。
+- PWA manifest、安装入口、应用壳缓存、离线回退和最后缓存时间提示。
 - 中文 / English、通俗 / 产品 / 技术阅读模式、明暗主题。
-- 语言、阅读模式和主题的本地持久化及跨标签页同步。
+- 语言、阅读模式、主题、关注和个性化设置的本地持久化。
 - 强类型领域模型，包括 Entity、Claim、Evidence、Timeline、Graph、Research、Review 和 Sync。
 - 可替换的 `KnowledgeRepository`：未配置 API 时读取演示 adapter，配置后只读取真实 API，不静默回退。
 - loading、error、offline、cached、stale、unverified 和 conflict 的统一状态语义。
 - 390px、1024px 和 1440px 响应式布局。
+- 生产构建、TypeScript、ESLint 和领域 / 图谱 / PWA 自动测试。
 
 ## 仍为演示或尚未实现
 
 - 当前没有真实采集、数据库、审核写操作、认证或模型调用。
 - AI 研究答案来自强类型演示快照，不会伪装为在线模型输出。
-- 图谱是确定性 2D 演示布局；缩放、拖拽、路径搜索和证据抽屉属于下一阶段。
-- `/admin/review-demo`、PWA、离线缓存时间、私密研究和公开分享尚未完成。
+- 审核后台严格只读，不提供抓取、批准、拒绝、删除或发布操作。
+- 关注提醒与每日摘要尚未连接真实站内通知和事务邮件服务。
+- 公开分享页当前读取演示快照；尚未连接真实发布权限与持久化 URL。
+- PWA 在生产环境注册 Service Worker；正式安装和离线能力需要 HTTPS 部署验证。
+- 登录、跨设备同步、真实公开部署和隔离的 3D 实验仍在后续范围。
+
+## 主要演示入口
+
+| 路径                                 | 用途                     |
+| ------------------------------------ | ------------------------ |
+| `/`                                  | 个性化变化与全行业必看   |
+| `/knowledge`                         | 分类浏览实体             |
+| `/knowledge/model/gpt`               | GPT 六段式实体档案       |
+| `/graph`                             | 完整交互式 2D 知识图谱   |
+| `/ask`                               | 证据化 AI 研究           |
+| `/research/research-demo-gpt-claude` | 私密研究记录与导出       |
+| `/share/research-demo-gpt-claude`    | 主动公开的研究页         |
+| `/following`                         | 关注、提醒强度与兴趣画像 |
+| `/onboarding`                        | 兴趣初始化               |
+| `/admin/review-demo`                 | 只读数据治理与审核后台   |
+
+三分钟演示路径见 [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)，架构与数据可信闭环见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
 
 ## 本地开发
 
@@ -56,6 +82,19 @@ GET {VITE_API_BASE_URL}/api/snapshot
 
 真实 API 请求失败时显示错误状态，不会用演示数据伪装成实时响应。
 
+## PWA 与离线
+
+生产构建包含：
+
+```text
+public/manifest.webmanifest
+public/sw.js
+public/offline.html
+public/icon.svg
+```
+
+Service Worker 只缓存同源 GET 页面和静态资源，不缓存 `/api/` 请求，也不会在网络失败时把演示数据冒充成实时 API。已访问页面可以离线打开；页面顶部会明确显示离线状态和最后在线缓存时间。
+
 ## 关键目录
 
 ```text
@@ -64,7 +103,7 @@ src/
 ├─ data/         # 明确标记的演示 adapter
 ├─ services/     # API / repository 边界
 ├─ hooks/        # React Query 接入
-├─ components/   # 共享 UI、状态与图谱
+├─ components/   # 共享 UI、状态、图谱、研究报告与 PWA 状态
 └─ routes/       # TanStack Start 文件路由
 ```
 
