@@ -6,11 +6,12 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 
 ## 当前已实现
 
-- 首页、知识库、实体详情、模型对比、证据化问答和关注管理。
+- 首页、知识库、实体详情、模型对比、证据化问答、关注管理和可标记已读的站内通知。
 - 生产级 2D 图谱：搜索定位、时间 / 类型 / 关系 / 可信度筛选、缩放、平移、节点拖拽、邻域展开、最短路径高亮、边证据检查器和列表替代视图。
 - 私密研究记录与公开分享页，支持逐结论引用、Markdown 下载和浏览器打印 / PDF。
 - `/admin/review-demo` 只读审核后台：来源健康度、同步运行、候选 Claim、冲突风险和半自动审核流水线。
 - 三步兴趣初始化，以及可查看、修改、暂停、清空的本地个性化画像。
+- 每日邮件摘要偏好设置；演示版只在本机持久化并明确提示尚未连接投递服务。
 - PWA manifest、安装入口、应用壳缓存、离线回退和最后缓存时间提示。
 - 中文 / English、通俗 / 产品 / 技术阅读模式、明暗主题。
 - 语言、阅读模式、主题、关注和个性化设置的本地持久化。
@@ -45,7 +46,7 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 | `/onboarding`                        | 兴趣初始化               |
 | `/admin/review-demo`                 | 只读数据治理与审核后台   |
 
-三分钟演示路径见 [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)，架构与数据可信闭环见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+三分钟演示路径见 [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)，架构与数据可信闭环见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)，逐项交付边界见 [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md)。
 
 ## 本地开发
 

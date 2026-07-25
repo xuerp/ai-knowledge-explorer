@@ -9,6 +9,9 @@ import {
   RotateCcw,
   SlidersHorizontal,
   X,
+  Mail,
+  CheckCheck,
+  Inbox,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
@@ -20,12 +23,17 @@ import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
+  readNotificationPreferences,
   readFollowing,
   readPersonalization,
+  writeNotificationPreferences,
   writeFollowing,
   writePersonalization,
+  type NotificationPreferences,
   type PersonalizationPreferences,
 } from "@/lib/personalization";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/following")({
   head: () => ({
@@ -68,6 +76,8 @@ function FollowingPage() {
   const snapshotQuery = useKnowledgeSnapshot();
   const [items, setItems] = useState<FollowPreference[]>([]);
   const [personalization, setPersonalization] = useState<PersonalizationPreferences | null>(null);
+  const [notificationPreferences, setNotificationPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [storageReady, setStorageReady] = useState(false);
   const hydrated = useRef(false);
 
@@ -85,6 +95,7 @@ function FollowingPage() {
       }));
     setItems([...storedFollowing, ...selectedFromOnboarding]);
     setPersonalization(storedPersonalization);
+    setNotificationPreferences(readNotificationPreferences());
     hydrated.current = true;
     setStorageReady(true);
   }, [snapshotQuery.data]);
@@ -98,6 +109,11 @@ function FollowingPage() {
     if (!storageReady || !personalization) return;
     writePersonalization(personalization);
   }, [personalization, storageReady]);
+
+  useEffect(() => {
+    if (!storageReady || !notificationPreferences) return;
+    writeNotificationPreferences(notificationPreferences);
+  }, [notificationPreferences, storageReady]);
 
   const setIntensity = (id: string, intensity: FollowPreference["intensity"]) => {
     setItems((prev) => prev.map((it) => (it.entityId === id ? { ...it, intensity } : it)));
@@ -125,6 +141,34 @@ function FollowingPage() {
   const suggestions = entities
     .filter((e) => !items.some((it) => it.entityId === e.id) && e.type !== "company")
     .slice(0, 6);
+  const notifications = snapshotQuery.data.notifications;
+  const readNotificationIds = notificationPreferences?.readNotificationIds ?? [];
+  const unreadCount = notifications.filter(
+    (notification) => !notification.readAt && !readNotificationIds.includes(notification.id),
+  ).length;
+  const markNotificationRead = (notificationId: string) =>
+    setNotificationPreferences((current) =>
+      current && !current.readNotificationIds.includes(notificationId)
+        ? {
+            ...current,
+            readNotificationIds: [...current.readNotificationIds, notificationId],
+          }
+        : current,
+    );
+  const markAllNotificationsRead = () =>
+    setNotificationPreferences((current) =>
+      current
+        ? {
+            ...current,
+            readNotificationIds: Array.from(
+              new Set([
+                ...current.readNotificationIds,
+                ...notifications.map((notification) => notification.id),
+              ]),
+            ),
+          }
+        : current,
+    );
 
   return (
     <AppShell>
@@ -135,9 +179,83 @@ function FollowingPage() {
           "Define what shows up on your home. Each item supports silent, digest or instant alerts.",
         )}
       />
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
+      <div className="mx-auto grid min-w-0 max-w-5xl gap-8 px-4 py-8 md:px-6 lg:grid-cols-3">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
+          <section className="space-y-3" aria-labelledby="notification-inbox-title">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Inbox className="h-4 w-4 text-signal" />
+                <h2 id="notification-inbox-title" className="font-serif text-xl font-semibold">
+                  {t("站内通知", "In-app notifications")}
+                </h2>
+                <span className="rounded-full bg-signal/10 px-2 py-0.5 text-xs font-medium text-signal">
+                  {t(`${unreadCount} 条未读`, `${unreadCount} unread`)}
+                </span>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                disabled={!unreadCount}
+                onClick={markAllNotificationsRead}
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                {t("全部标为已读", "Mark all read")}
+              </Button>
+            </div>
+            <div className="paper-card divide-y divide-border">
+              {notifications.map((notification) => {
+                const entity = findEntity(notification.entityId);
+                const change = snapshotQuery.data!.changes.find(
+                  (item) => item.id === notification.changeId,
+                );
+                if (!entity || !change) return null;
+                const isRead =
+                  Boolean(notification.readAt) || readNotificationIds.includes(notification.id);
+                return (
+                  <Link
+                    key={notification.id}
+                    to="/knowledge/model/$slug"
+                    params={{ slug: entity.slug }}
+                    onClick={() => markNotificationRead(notification.id)}
+                    className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-accent/50"
+                  >
+                    <span
+                      className={
+                        "mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full " +
+                        (isRead ? "bg-border" : "bg-signal")
+                      }
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {pick(entity.name, lang)}
+                        </span>
+                        {notification.priority === "important" && (
+                          <span className="chip">{t("重要", "Important")}</span>
+                        )}
+                        <time className="ml-auto text-xs text-muted-foreground">
+                          {notification.createdAt.slice(0, 10)}
+                        </time>
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                        {pick(change.summary, lang)}
+                      </p>
+                    </div>
+                    <ArrowRight className="mt-1 hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+                  </Link>
+                );
+              })}
+              {!notifications.length && (
+                <div className="p-6 text-center text-sm text-muted-foreground">
+                  {t("当前没有站内通知。", "No in-app notifications yet.")}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <div className="pt-4 flex items-center justify-between">
             <h2 className="font-serif text-xl font-semibold">
               {t("关注对象", "You follow")}{" "}
               <span className="text-muted-foreground text-base font-sans font-normal ml-2">
@@ -161,8 +279,8 @@ function FollowingPage() {
               const e = findEntity(it.entityId);
               if (!e) return null;
               return (
-                <div key={it.entityId} className="p-5 flex flex-wrap items-center gap-4">
-                  <div className="min-w-0 flex-1">
+                <div key={it.entityId} className="flex min-w-0 flex-wrap items-center gap-4 p-5">
+                  <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
                     <div className="flex items-center gap-2 mb-1">
                       <Link
                         to="/knowledge/model/$slug"
@@ -179,7 +297,7 @@ function FollowingPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-1 rounded-md border border-border p-1 bg-muted/40">
+                  <div className="grid min-w-0 flex-1 grid-cols-3 items-center gap-1 rounded-md border border-border bg-muted/40 p-1 sm:flex sm:flex-none">
                     {(["silent", "digest", "instant"] as const).map((k) => {
                       const Icon = INTENSITY_META[k].icon;
                       const active = it.intensity === k;
@@ -188,7 +306,7 @@ function FollowingPage() {
                           key={k}
                           onClick={() => setIntensity(it.entityId, k)}
                           className={
-                            "inline-flex items-center gap-1 px-2 h-8 rounded text-xs " +
+                            "inline-flex h-8 min-w-0 items-center justify-center gap-1 rounded px-1 text-xs sm:px-2 " +
                             (active
                               ? "bg-signal text-signal-foreground"
                               : "text-ink-soft hover:text-foreground")
@@ -267,7 +385,7 @@ function FollowingPage() {
           </section>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="min-w-0 space-y-6">
           <div className="paper-card p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -399,6 +517,82 @@ function FollowingPage() {
               {t("回到首页看今日更新", "Back to today's updates")}{" "}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
+          </div>
+
+          <div className="paper-card p-5">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-signal" />
+              <h3 className="font-serif font-semibold">
+                {t("每日邮件摘要", "Daily email digest")}
+              </h3>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "保存希望接收摘要的邮箱与时间。当前仅保存本机偏好，邮件投递服务尚未接入。",
+                "Save the address and time you prefer. This demo stores settings locally; delivery is not connected.",
+              )}
+            </p>
+            <div className="mt-4 flex items-start justify-between gap-3">
+              <div>
+                <Label htmlFor="daily-email-enabled">{t("启用每日摘要", "Enable digest")}</Label>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {t("仅用于前端交互验收", "For frontend interaction validation only")}
+                </p>
+              </div>
+              <Switch
+                id="daily-email-enabled"
+                checked={notificationPreferences?.dailyEmailEnabled ?? false}
+                onCheckedChange={(dailyEmailEnabled) =>
+                  setNotificationPreferences((current) =>
+                    current ? { ...current, dailyEmailEnabled } : current,
+                  )
+                }
+              />
+            </div>
+            <div className="mt-4 space-y-3">
+              <div>
+                <Label htmlFor="digest-email">{t("接收邮箱", "Email address")}</Label>
+                <Input
+                  id="digest-email"
+                  type="email"
+                  className="mt-1.5"
+                  value={notificationPreferences?.email ?? ""}
+                  placeholder="you@example.com"
+                  disabled={!notificationPreferences?.dailyEmailEnabled}
+                  onChange={(event) =>
+                    setNotificationPreferences((current) =>
+                      current ? { ...current, email: event.target.value } : current,
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="digest-hour">{t("发送时间", "Delivery time")}</Label>
+                <Input
+                  id="digest-hour"
+                  type="time"
+                  className="mt-1.5"
+                  value={notificationPreferences?.digestHour ?? "08:00"}
+                  disabled={!notificationPreferences?.dailyEmailEnabled}
+                  onChange={(event) =>
+                    setNotificationPreferences((current) =>
+                      current ? { ...current, digestHour: event.target.value } : current,
+                    )
+                  }
+                />
+              </div>
+            </div>
+            <p className="mt-3 rounded-md border border-dashed border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+              {notificationPreferences?.dailyEmailEnabled && notificationPreferences.email.trim()
+                ? t(
+                    `已在本机保存：每天 ${notificationPreferences.digestHour} 发送至 ${notificationPreferences.email.trim()}。尚未产生真实邮件。`,
+                    `Saved on this device: ${notificationPreferences.digestHour} to ${notificationPreferences.email.trim()}. No real email is sent yet.`,
+                  )
+                : t(
+                    "启用后填写邮箱即可预览完整设置状态。",
+                    "Enable the digest and enter an address to preview the configured state.",
+                  )}
+            </p>
           </div>
         </aside>
       </div>
