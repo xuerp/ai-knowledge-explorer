@@ -27,6 +27,7 @@ import {
 import { useApp, pick } from "@/lib/app-context";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Entity } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/knowledge/model/$slug")({
   loader: ({ params }) => {
@@ -50,7 +51,7 @@ export const Route = createFileRoute("/knowledge/model/$slug")({
 });
 
 function EntityDetail() {
-  const { entity: e } = Route.useLoaderData();
+  const { entity: e } = Route.useLoaderData() as { entity: Entity };
   const { t, lang, mode } = useApp();
 
   // Local graph: this entity + neighbors

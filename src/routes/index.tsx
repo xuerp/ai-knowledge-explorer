@@ -193,33 +193,28 @@ function HomePage() {
               )}
             </p>
             <ul className="space-y-3">
-              {[
-                {
-                  q: t("对比 GPT-5 与 Claude 4.5 在代码任务上的差异", "Compare GPT-5 vs Claude 4.5 on code"),
-                  path: "/ask" as const,
-                },
-                {
-                  q: t("DeepSeek R2 的开源生态", "DeepSeek R2 open-source ecosystem"),
-                  path: "/knowledge/model/deepseek" as const,
-                },
-                {
-                  q: t("MCP 与 LangChain 的关系", "How MCP relates to LangChain"),
-                  path: "/graph" as const,
-                },
-              ].map((it, i) => (
-                <li key={i}>
-                  <Link
-                    to={it.path as any}
-                    params={it.path.includes("$") ? { slug: "deepseek" } : undefined}
-                    className="group block text-sm text-foreground hover:text-signal"
-                  >
-                    <span className="text-signal mr-2 font-mono text-xs">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    {it.q}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link to="/ask" className="group block text-sm text-foreground hover:text-signal">
+                  <span className="text-signal mr-2 font-mono text-xs">01</span>
+                  {t("对比 GPT-5 与 Claude 4.5 在代码任务上的差异", "Compare GPT-5 vs Claude 4.5 on code")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/knowledge/model/$slug"
+                  params={{ slug: "deepseek" }}
+                  className="group block text-sm text-foreground hover:text-signal"
+                >
+                  <span className="text-signal mr-2 font-mono text-xs">02</span>
+                  {t("DeepSeek R2 的开源生态", "DeepSeek R2 open-source ecosystem")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/graph" className="group block text-sm text-foreground hover:text-signal">
+                  <span className="text-signal mr-2 font-mono text-xs">03</span>
+                  {t("MCP 与 LangChain 的关系", "How MCP relates to LangChain")}
+                </Link>
+              </li>
             </ul>
           </div>
 
