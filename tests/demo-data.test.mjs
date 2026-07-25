@@ -15,6 +15,8 @@ const vite = await createServer({
 const { CLAIMS, ENTITIES, FOLLOWING, RECENT_CHANGES, RELATIONS, SOURCES, TIMELINE } =
   await vite.ssrLoadModule("/src/lib/demo-data.ts");
 const { DEMO_KNOWLEDGE_SNAPSHOT } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
+const { expandNeighborhood, filterGraphEdges, findShortestPath } =
+  await vite.ssrLoadModule("/src/domain/graph.ts");
 
 after(async () => {
   await vite.close();
@@ -80,4 +82,90 @@ test("the demo adapter exposes a complete, explicitly labelled snapshot", () => 
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.interestProfile.length >= 3);
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, ENTITIES.length);
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.edges.length, RELATIONS.length);
+});
+
+test("graph filters support explicit empty and combined selections", () => {
+  assert.deepEqual(
+    filterGraphEdges(RELATIONS, { relationKinds: new Set() }),
+    [],
+    "an empty selected relation set must hide every edge",
+  );
+
+  const verifiedDevelopers = filterGraphEdges(RELATIONS, {
+    relationKinds: new Set(["developed-by"]),
+    confidences: new Set(["verified"]),
+  });
+  assert.ok(verifiedDevelopers.length > 0);
+  assert.ok(
+    verifiedDevelopers.every(
+      (edge) => edge.kind === "developed-by" && edge.confidence === "verified",
+    ),
+  );
+});
+
+test("graph neighborhoods expand one layer at a time", () => {
+  const edges = [
+    {
+      id: "a-b",
+      fromId: "a",
+      toId: "b",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+    {
+      id: "b-c",
+      fromId: "b",
+      toId: "c",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+    {
+      id: "c-d",
+      fromId: "c",
+      toId: "d",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+  ];
+
+  assert.deepEqual([...expandNeighborhood(edges, "a", 1)].sort(), ["a", "b"]);
+  assert.deepEqual([...expandNeighborhood(edges, "a", 2)].sort(), ["a", "b", "c"]);
+});
+
+test("shortest path returns ordered nodes and edges, or null when disconnected", () => {
+  const edges = [
+    {
+      id: "a-b",
+      fromId: "a",
+      toId: "b",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+    {
+      id: "b-c",
+      fromId: "b",
+      toId: "c",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+    {
+      id: "a-d",
+      fromId: "a",
+      toId: "d",
+      kind: "uses",
+      confidence: "verified",
+      sourceIds: [],
+    },
+  ];
+
+  assert.deepEqual(findShortestPath(edges, "a", "c"), {
+    nodeIds: ["a", "b", "c"],
+    edgeIds: ["a-b", "b-c"],
+  });
+  assert.equal(findShortestPath(edges, "a", "missing"), null);
 });
