@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge, ConfidenceChip } from "@/components/common";
-import { ENTITIES, ENTITY_TYPE_LABELS } from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { DataStatePanel } from "@/components/data-state";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import { useApp, pick } from "@/lib/app-state";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useState } from "react";
 
 export const Route = createFileRoute("/compare")({
@@ -19,14 +21,31 @@ export const Route = createFileRoute("/compare")({
 
 function ComparePage() {
   const { t, lang } = useApp();
-  const models = ENTITIES.filter((e) => e.type === "model");
+  const snapshotQuery = useKnowledgeSnapshot();
   const [selected, setSelected] = useState<string[]>(["e-gpt", "e-claude", "e-deepseek"]);
+  const models = (snapshotQuery.data?.entities ?? []).filter((e) => e.type === "model");
   const chosen = models.filter((m) => selected.includes(m.id));
 
   const toggle = (id: string) =>
     setSelected((p) =>
       p.includes(id) ? p.filter((x) => x !== id) : p.length < 4 ? [...p, id] : p,
     );
+
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "对比数据加载失败" : "正在加载对比",
+            snapshotQuery.error ? "Comparison failed to load" : "Loading comparison",
+          )}
+          description={t("请稍后重试。", "Please retry shortly.")}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>

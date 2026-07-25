@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { ENTITIES, RELATIONS, type Entity, type EntityType } from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import type { Entity, EntityType, GraphEdge } from "@/domain/types";
+import { useApp, pick } from "@/lib/app-state";
 
 const TYPE_COLOR: Record<EntityType, string> = {
   model: "var(--graph-node-model)",
@@ -97,12 +97,16 @@ function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[]
 }
 
 export function KnowledgeGraph({
+  entities,
+  relations,
   entityIds,
   centerId,
   height = 560,
   onSelect,
   selectedId,
 }: {
+  entities: Entity[];
+  relations: GraphEdge[];
   entityIds?: string[];
   centerId?: string;
   height?: number;
@@ -111,14 +115,17 @@ export function KnowledgeGraph({
 }) {
   const { lang } = useApp();
   const [hover, setHover] = useState<string | null>(null);
-  const entities = useMemo(
-    () => (entityIds ? ENTITIES.filter((e) => entityIds.includes(e.id)) : ENTITIES),
-    [entityIds],
+  const visibleEntities = useMemo(
+    () => (entityIds ? entities.filter((e) => entityIds.includes(e.id)) : entities),
+    [entities, entityIds],
   );
   const w = 900;
-  const nodes = useMemo(() => layout(entities, centerId, w, height), [entities, centerId, height]);
+  const nodes = useMemo(
+    () => layout(visibleEntities, centerId, w, height),
+    [visibleEntities, centerId, height],
+  );
   const posMap = new Map(nodes.map((n) => [n.entity.id, n]));
-  const edges = RELATIONS.filter((r) => posMap.has(r.fromId) && posMap.has(r.toId));
+  const edges = relations.filter((r) => posMap.has(r.fromId) && posMap.has(r.toId));
 
   return (
     <div className="relative w-full rounded-xl overflow-hidden border border-white/10 bg-graph-bg">
@@ -202,12 +209,3 @@ export function KnowledgeGraph({
     </div>
   );
 }
-
-export const NODE_TYPES: { type: EntityType; zh: string; en: string }[] = [
-  { type: "model", zh: "模型", en: "Model" },
-  { type: "company", zh: "公司", en: "Company" },
-  { type: "framework", zh: "框架 / 协议", en: "Framework" },
-  { type: "benchmark", zh: "评测", en: "Benchmark" },
-  { type: "paper", zh: "论文", en: "Paper" },
-  { type: "application", zh: "应用", en: "Application" },
-];

@@ -8,14 +8,10 @@ import {
   ConfidenceChip,
   DemoBadge,
 } from "@/components/common";
-import {
-  ENTITIES,
-  FOLLOWING,
-  RECENT_CHANGES,
-  ENTITY_TYPE_LABELS,
-  findEntity,
-} from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import { useApp, pick } from "@/lib/app-state";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +30,36 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { t, lang } = useApp();
+  const snapshotQuery = useKnowledgeSnapshot();
+
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "首页数据加载失败" : "正在加载首页",
+            snapshotQuery.error ? "Home data failed to load" : "Loading home",
+          )}
+          description={t(
+            "请检查连接后重试。演示数据不会冒充实时数据。",
+            "Check the connection and retry. Demo data will never masquerade as live data.",
+          )}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
+
+  const {
+    entities: ENTITIES,
+    following: FOLLOWING,
+    changes: RECENT_CHANGES,
+    graph,
+    reviewCandidates,
+    meta,
+  } = snapshotQuery.data;
+  const findEntity = (id: string) => ENTITIES.find((entity) => entity.id === id);
   const followingIds = FOLLOWING.map((f) => f.entityId);
   const personalChanges = RECENT_CHANGES.filter((c) => followingIds.includes(c.entityId));
   const industryChanges = RECENT_CHANGES.slice(0, 6);
@@ -47,7 +73,8 @@ function HomePage() {
           "AI Radar is a continuously updated, sourced, time-aware knowledge graph of the AI ecosystem.",
         )}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <DataFreshnessBadge meta={meta} />
             <Link
               to="/knowledge"
               className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-signal text-signal-foreground text-sm font-medium hover:opacity-90"
@@ -166,18 +193,27 @@ function HomePage() {
             <div className="grid sm:grid-cols-3 gap-3">
               <GraphChange
                 icon={<Sparkles className="h-4 w-4 text-signal" />}
-                title={t("新增实体 3 个", "3 new entities")}
-                desc="MCP 1.0 · Qwen3-Max · Cursor Agent Orchestration"
+                title={t(
+                  `新增事件 ${RECENT_CHANGES.filter((change) => change.kind === "new").length} 条`,
+                  `${RECENT_CHANGES.filter((change) => change.kind === "new").length} new events`,
+                )}
+                desc={t("来自当前演示快照", "From the current demo snapshot")}
               />
               <GraphChange
                 icon={<TrendingUp className="h-4 w-4 text-signal" />}
-                title={t("关系更新 8 条", "8 relation updates")}
-                desc={t("GPT-5 新增基准 SWE-bench Verified", "GPT-5 → SWE-bench Verified")}
+                title={t(`图谱关系 ${graph.edges.length} 条`, `${graph.edges.length} graph edges`)}
+                desc={t("每条关系均绑定可信度与证据", "Every edge carries confidence and evidence")}
               />
               <GraphChange
                 icon={<Radar className="h-4 w-4 text-signal" />}
-                title={t("待审核 12 条", "12 pending review")}
-                desc={t("社区传闻已进入低置信度队列", "Community rumors queued as low confidence")}
+                title={t(
+                  `待处理审核 ${reviewCandidates.length} 条`,
+                  `${reviewCandidates.length} review candidates`,
+                )}
+                desc={t(
+                  "未核验内容不会直接进入正式图谱",
+                  "Unverified content is never auto-published",
+                )}
               />
             </div>
           </section>

@@ -3,10 +3,13 @@ import { useMemo, useState } from "react";
 import { Search, Filter, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
+import { DataStatePanel } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ENTITIES, ENTITY_TYPE_LABELS, type EntityType } from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import type { EntityType } from "@/domain/types";
+import { useApp, pick } from "@/lib/app-state";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/knowledge")({
   head: () => ({
@@ -27,13 +30,15 @@ const TYPES: EntityType[] = ["model", "company", "framework", "benchmark", "pape
 
 function KnowledgePage() {
   const { t, lang } = useApp();
+  const snapshotQuery = useKnowledgeSnapshot();
   const [q, setQ] = useState("");
   const [types, setTypes] = useState<EntityType[]>([]);
   const [origin, setOrigin] = useState<"all" | "中国" | "美国">("all");
+  const entities = snapshotQuery.data?.entities;
 
   const filtered = useMemo(() => {
     const kw = q.trim().toLowerCase();
-    return ENTITIES.filter((e) => {
+    return (entities ?? []).filter((e) => {
       if (types.length && !types.includes(e.type)) return false;
       if (origin !== "all" && e.origin?.zh !== origin) return false;
       if (!kw) return true;
@@ -44,10 +49,26 @@ function KnowledgePage() {
         e.tags.some((t) => t.toLowerCase().includes(kw))
       );
     });
-  }, [q, types, origin]);
+  }, [entities, q, types, origin]);
 
   const toggleType = (t: EntityType) =>
     setTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "知识库加载失败" : "正在加载知识库",
+            snapshotQuery.error ? "Knowledge base failed to load" : "Loading knowledge base",
+          )}
+          description={t("请检查数据服务后重试。", "Check the data service and retry.")}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
