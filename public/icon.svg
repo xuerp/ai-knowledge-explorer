@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AI Radar">
+  <rect width="512" height="512" rx="112" fill="#0b111b"/>
+  <g fill="none" stroke="#e65f32" stroke-linecap="round">
+    <circle cx="256" cy="256" r="158" stroke-width="28"/>
+    <circle cx="256" cy="256" r="92" stroke-width="24" opacity=".9"/>
+    <path d="M256 256 372 142" stroke-width="30"/>
+  </g>
+  <circle cx="256" cy="256" r="25" fill="#f8f4eb"/>
+  <circle cx="372" cy="142" r="30" fill="#e65f32" stroke="#f8f4eb" stroke-width="12"/>
+</svg>

@@ -1,6 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Bell, BellOff, Zap, ArrowRight, Trash2 } from "lucide-react";
+import {
+  Bell,
+  BellOff,
+  Zap,
+  ArrowRight,
+  Trash2,
+  RotateCcw,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
@@ -9,6 +18,14 @@ import type { FollowPreference } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  readFollowing,
+  readPersonalization,
+  writeFollowing,
+  writePersonalization,
+  type PersonalizationPreferences,
+} from "@/lib/personalization";
 
 export const Route = createFileRoute("/following")({
   head: () => ({
@@ -49,15 +66,38 @@ const INTENSITY_META = {
 function FollowingPage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const initialFollowing = snapshotQuery.data?.following;
-  const [items, setItems] = useState<FollowPreference[]>(() => initialFollowing ?? []);
-  const hydrated = useRef(Boolean(initialFollowing));
+  const [items, setItems] = useState<FollowPreference[]>([]);
+  const [personalization, setPersonalization] = useState<PersonalizationPreferences | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+  const hydrated = useRef(false);
 
   useEffect(() => {
     if (hydrated.current || !snapshotQuery.data) return;
-    setItems(snapshotQuery.data.following);
+    const storedPersonalization = readPersonalization(snapshotQuery.data.interestProfile);
+    const storedFollowing = readFollowing(snapshotQuery.data.following);
+    const selectedFromOnboarding = storedPersonalization.selectedEntityIds
+      .filter((id) => !storedFollowing.some((item) => item.entityId === id))
+      .map<FollowPreference>((entityId) => ({
+        entityId,
+        intensity: "digest",
+        addedAt: new Date().toISOString().slice(0, 10),
+        reason: { zh: "兴趣初始化中选择", en: "Selected during onboarding" },
+      }));
+    setItems([...storedFollowing, ...selectedFromOnboarding]);
+    setPersonalization(storedPersonalization);
     hydrated.current = true;
+    setStorageReady(true);
   }, [snapshotQuery.data]);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    writeFollowing(items);
+  }, [items, storageReady]);
+
+  useEffect(() => {
+    if (!storageReady || !personalization) return;
+    writePersonalization(personalization);
+  }, [personalization, storageReady]);
 
   const setIntensity = (id: string, intensity: FollowPreference["intensity"]) => {
     setItems((prev) => prev.map((it) => (it.entityId === id ? { ...it, intensity } : it)));
@@ -104,7 +144,16 @@ function FollowingPage() {
                 {items.length}
               </span>
             </h2>
-            <DemoBadge />
+            <div className="flex items-center gap-2">
+              <DemoBadge />
+              <Link
+                to="/onboarding"
+                className="hidden h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-foreground hover:bg-accent sm:inline-flex"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                {t("重新设置兴趣", "Edit interests")}
+              </Link>
+            </div>
           </div>
 
           <div className="paper-card divide-y divide-border">
@@ -164,6 +213,22 @@ function FollowingPage() {
                 </div>
               );
             })}
+            {!items.length && (
+              <div className="p-8 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    "你还没有关注任何对象。可以从下方推荐中添加，或重新设置兴趣。",
+                    "You do not follow anything yet. Add a suggestion or edit your interests.",
+                  )}
+                </p>
+                <Link
+                  to="/onboarding"
+                  className="mt-3 inline-flex text-sm font-medium text-signal hover:underline"
+                >
+                  {t("开始兴趣初始化", "Start onboarding")} →
+                </Link>
+              </div>
+            )}
           </div>
 
           <section className="mt-8">
@@ -204,7 +269,26 @@ function FollowingPage() {
 
         <aside className="space-y-6">
           <div className="paper-card p-5">
-            <h3 className="font-serif font-semibold mb-3">{t("兴趣画像", "Interest profile")}</h3>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-serif font-semibold">{t("兴趣画像", "Interest profile")}</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {personalization?.updatedAt
+                    ? t(
+                        `本机更新于 ${personalization.updatedAt.slice(0, 10)}`,
+                        `Updated on this device ${personalization.updatedAt.slice(0, 10)}`,
+                      )
+                    : t("来自演示快照", "From demo snapshot")}
+                </p>
+              </div>
+              <Link
+                to="/onboarding"
+                className="grid h-8 w-8 place-items-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+                aria-label={t("编辑兴趣", "Edit interests")}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </Link>
+            </div>
             <p className="text-sm text-muted-foreground mb-4">
               {t(
                 "系统根据你的关注、浏览与提问自动总结你的兴趣，也可以手动修正。",
@@ -212,17 +296,97 @@ function FollowingPage() {
               )}
             </p>
             <div className="space-y-3">
-              {snapshotQuery.data.interestProfile.map((item) => (
+              {(personalization?.interests ?? snapshotQuery.data.interestProfile).map((item) => (
                 <div key={item.id}>
-                  <div className="flex justify-between text-xs mb-1">
+                  <div className="flex items-center justify-between gap-2 text-xs mb-1">
                     <span className="text-foreground">{pick(item.label, lang)}</span>
-                    <span className="text-muted-foreground font-mono">{item.score}</span>
+                    <span className="flex items-center gap-1">
+                      <span className="text-muted-foreground font-mono">{item.score}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPersonalization((current) =>
+                            current
+                              ? {
+                                  ...current,
+                                  interests: current.interests.filter(
+                                    (interest) => interest.id !== item.id,
+                                  ),
+                                }
+                              : current,
+                          )
+                        }
+                        className="grid h-5 w-5 place-items-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
+                        aria-label={t(
+                          `移除兴趣 ${pick(item.label, lang)}`,
+                          `Remove interest ${pick(item.label, lang)}`,
+                        )}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
                   </div>
                   <div className="h-1.5 rounded bg-muted overflow-hidden">
                     <div className="h-full bg-signal" style={{ width: `${item.score}%` }} />
                   </div>
                 </div>
               ))}
+              {!(personalization?.interests ?? snapshotQuery.data.interestProfile).length && (
+                <p className="rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
+                  {t(
+                    "兴趣画像已清空，首页仍会保留全行业重要事件。",
+                    "Your profile is empty; major industry events remain visible.",
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="mt-5 flex items-start justify-between gap-3 border-t border-border pt-4">
+              <div>
+                <div className="text-sm font-medium text-foreground">
+                  {t("行为学习", "Behavior learning")}
+                </div>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                  {t(
+                    "暂停后不再根据浏览行为调整画像。",
+                    "Pause to stop adapting from browsing behavior.",
+                  )}
+                </p>
+              </div>
+              <Switch
+                checked={personalization?.behaviorLearning ?? false}
+                onCheckedChange={(behaviorLearning) =>
+                  setPersonalization((current) =>
+                    current ? { ...current, behaviorLearning } : current,
+                  )
+                }
+                aria-label={t("行为学习", "Behavior learning")}
+              />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setPersonalization((current) =>
+                    current ? { ...current, interests: [] } : current,
+                  )
+                }
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {t("清空画像", "Clear profile")}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  setPersonalization(readPersonalization(snapshotQuery.data!.interestProfile))
+                }
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                {t("重新读取本机设置", "Reload device settings")}
+              </Button>
             </div>
           </div>
 

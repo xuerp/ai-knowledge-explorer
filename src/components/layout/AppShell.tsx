@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { TopNav } from "./TopNav";
 import { BottomNav } from "./BottomNav";
+import { PwaStatus } from "@/components/pwa-status";
 
 export function AppShell({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   return (
@@ -11,6 +12,7 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
       }
     >
       <TopNav dark={dark} />
+      <PwaStatus dark={dark} />
       <main className="flex-1 pb-24 md:pb-8">{children}</main>
       <BottomNav />
       <footer className="hidden md:block border-t border-border">

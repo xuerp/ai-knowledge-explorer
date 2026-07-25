@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
+import { readFile } from "node:fs/promises";
 import test, { after } from "node:test";
 import { createServer } from "vite";
 
@@ -168,4 +169,19 @@ test("shortest path returns ordered nodes and edges, or null when disconnected",
     edgeIds: ["a-b", "b-c"],
   });
   assert.equal(findShortestPath(edges, "a", "missing"), null);
+});
+
+test("PWA manifest and service worker expose an offline application shell", async () => {
+  const manifest = JSON.parse(
+    await readFile(path.resolve(process.cwd(), "public/manifest.webmanifest"), "utf8"),
+  );
+  const serviceWorker = await readFile(path.resolve(process.cwd(), "public/sw.js"), "utf8");
+  const offlinePage = await readFile(path.resolve(process.cwd(), "public/offline.html"), "utf8");
+
+  assert.equal(manifest.start_url, "/");
+  assert.equal(manifest.display, "standalone");
+  assert.ok(manifest.icons.length > 0);
+  assert.match(serviceWorker, /offline\.html/);
+  assert.match(serviceWorker, /caches\.open/);
+  assert.match(offlinePage, /最后在线缓存/);
 });
