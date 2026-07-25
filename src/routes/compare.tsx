@@ -32,7 +32,10 @@ function ComparePage() {
     <AppShell>
       <PageHeader
         title={t("并排对比", "Compare")}
-        subtitle={t("最多选择 4 个模型，比较能力、指标与最近更新。", "Pick up to 4 models to compare capabilities and recent updates.")}
+        subtitle={t(
+          "最多选择 4 个模型，比较能力、指标与最近更新。",
+          "Pick up to 4 models to compare capabilities and recent updates.",
+        )}
       />
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-6">
         <div className="flex flex-wrap gap-2">
@@ -60,7 +63,11 @@ function ComparePage() {
                 <th className="text-left py-3 px-4 font-medium w-40">{t("对象", "Attribute")}</th>
                 {chosen.map((m) => (
                   <th key={m.id} className="text-left py-3 px-4 font-medium">
-                    <Link to="/knowledge/model/$slug" params={{ slug: m.slug }} className="hover:text-signal">
+                    <Link
+                      to="/knowledge/model/$slug"
+                      params={{ slug: m.slug }}
+                      className="hover:text-signal"
+                    >
                       {pick(m.name, lang)}
                     </Link>
                   </th>
@@ -68,14 +75,25 @@ function ComparePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <Row label={t("类型", "Type")} values={chosen.map((m) => pick(ENTITY_TYPE_LABELS[m.type], lang))} />
+              <Row
+                label={t("类型", "Type")}
+                values={chosen.map((m) => pick(ENTITY_TYPE_LABELS[m.type], lang))}
+              />
               <Row label={t("厂商", "Vendor")} values={chosen.map((m) => m.vendor ?? "—")} />
-              <Row label={t("最新版本", "Latest")} values={chosen.map((m) => m.latestVersion ?? "—")} />
-              <Row label={t("首次发布", "First released")} values={chosen.map((m) => m.firstReleasedAt ?? "—")} />
+              <Row
+                label={t("最新版本", "Latest")}
+                values={chosen.map((m) => m.latestVersion ?? "—")}
+              />
+              <Row
+                label={t("首次发布", "First released")}
+                values={chosen.map((m) => m.firstReleasedAt ?? "—")}
+              />
               <Row label={t("最近更新", "Updated")} values={chosen.map((m) => m.lastUpdatedAt)} />
               <Row label={t("标签", "Tags")} values={chosen.map((m) => m.tags.join(" · "))} />
               <tr>
-                <td className="py-3 px-4 text-muted-foreground align-top">{t("能力样本", "Capabilities")}</td>
+                <td className="py-3 px-4 text-muted-foreground align-top">
+                  {t("能力样本", "Capabilities")}
+                </td>
                 {chosen.map((m) => (
                   <td key={m.id} className="py-3 px-4 align-top">
                     <ul className="space-y-1.5">
@@ -103,7 +121,9 @@ function Row({ label, values }: { label: string; values: string[] }) {
     <tr>
       <td className="py-3 px-4 text-muted-foreground">{label}</td>
       {values.map((v, i) => (
-        <td key={i} className="py-3 px-4 text-foreground">{v}</td>
+        <td key={i} className="py-3 px-4 text-foreground">
+          {v}
+        </td>
       ))}
     </tr>
   );

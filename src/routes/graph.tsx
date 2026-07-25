@@ -60,7 +60,9 @@ function GraphPage() {
       <div className="bg-graph-bg text-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2"><DemoBadge /></div>
+            <div className="flex items-center gap-2 mb-2">
+              <DemoBadge />
+            </div>
             <h1 className="font-serif text-3xl font-semibold tracking-tight">
               {t("2D 知识图谱", "2D Knowledge Graph")}
             </h1>
@@ -106,13 +108,7 @@ function GraphPage() {
                 <Clock className="h-3 w-3" />
                 {t("时间范围", "Time range")}: {year[0]} – {year[1]}
               </div>
-              <Slider
-                value={year}
-                onValueChange={setYear}
-                min={2015}
-                max={2026}
-                step={1}
-              />
+              <Slider value={year} onValueChange={setYear} min={2015} max={2026} step={1} />
             </div>
           </div>
 
@@ -152,7 +148,9 @@ function GraphPage() {
                           <span className="text-white/50 text-xs w-20 shrink-0">
                             {RELATION_LABEL[r.kind][lang]}
                           </span>
-                          <span className="text-white flex-1 truncate">{pick(other.name, lang)}</span>
+                          <span className="text-white flex-1 truncate">
+                            {pick(other.name, lang)}
+                          </span>
                           <ConfidenceChip level={r.confidence} />
                         </li>
                       );
@@ -199,7 +197,7 @@ const RELATION_LABEL: Record<string, { zh: string; en: string }> = {
   "based-on": { zh: "基于", en: "Based on" },
   "competes-with": { zh: "竞品", en: "Competes" },
   "benchmarked-on": { zh: "评测", en: "Bench" },
-  "uses": { zh: "使用", en: "Uses" },
+  uses: { zh: "使用", en: "Uses" },
   "cited-by": { zh: "被引", en: "Cited" },
   "part-of": { zh: "属于", en: "Part of" },
   "successor-of": { zh: "继任", en: "Succeeds" },

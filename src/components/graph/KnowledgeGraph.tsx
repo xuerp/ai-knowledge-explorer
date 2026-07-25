@@ -34,6 +34,8 @@ interface Node {
   y: number;
 }
 
+const roundCoordinate = (value: number) => Number(value.toFixed(3));
+
 // Deterministic radial layout: center = GPT (or first), others by orbit based on type
 function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[] {
   const cx = w / 2;
@@ -67,22 +69,28 @@ function layout(entities: Entity[], centerId?: string, w = 900, h = 560): Node[]
   const nodes: Node[] = [{ entity: center, x: cx, y: cy }];
   for (const [type, arr] of buckets) {
     const r = orbits[type] ?? 220;
-    const startAngle = ({
-      model: -Math.PI / 2,
-      company: Math.PI,
-      framework: Math.PI / 4,
-      benchmark: -Math.PI / 4,
-      paper: (3 * Math.PI) / 4,
-      application: (-3 * Math.PI) / 4,
-      agent: Math.PI / 2,
-      dataset: Math.PI,
-      api: Math.PI / 3,
-      tool: -Math.PI / 3,
-    } as Record<EntityType, number>)[type];
+    const startAngle = (
+      {
+        model: -Math.PI / 2,
+        company: Math.PI,
+        framework: Math.PI / 4,
+        benchmark: -Math.PI / 4,
+        paper: (3 * Math.PI) / 4,
+        application: (-3 * Math.PI) / 4,
+        agent: Math.PI / 2,
+        dataset: Math.PI,
+        api: Math.PI / 3,
+        tool: -Math.PI / 3,
+      } as Record<EntityType, number>
+    )[type];
     arr.forEach((e, i) => {
       const step = (Math.PI * 1.2) / Math.max(arr.length, 2);
       const angle = startAngle + (i - (arr.length - 1) / 2) * step;
-      nodes.push({ entity: e, x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
+      nodes.push({
+        entity: e,
+        x: roundCoordinate(cx + Math.cos(angle) * r),
+        y: roundCoordinate(cy + Math.sin(angle) * r),
+      });
     });
   }
   return nodes;
@@ -121,7 +129,12 @@ export function KnowledgeGraph({
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </radialGradient>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+            <path
+              d="M 40 0 L 0 0 0 40"
+              fill="none"
+              stroke="rgba(255,255,255,0.04)"
+              strokeWidth="1"
+            />
           </pattern>
         </defs>
         <rect width={w} height={height} fill="url(#grid)" />
@@ -165,11 +178,7 @@ export function KnowledgeGraph({
               onMouseLeave={() => setHover(null)}
               onClick={() => onSelect?.(n.entity)}
             >
-              <circle
-                r={r + 6}
-                fill={color}
-                opacity={isHover || isSelected ? 0.25 : 0.1}
-              />
+              <circle r={r + 6} fill={color} opacity={isHover || isSelected ? 0.25 : 0.1} />
               <circle
                 r={r}
                 fill={color}

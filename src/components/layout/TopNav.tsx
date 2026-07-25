@@ -30,7 +30,7 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
       className={
         "sticky top-0 z-30 border-b " +
         (dark
-          ? "border-white/10 bg-graph-bg/85 backdrop-blur"
+          ? "border-white/10 bg-graph-bg/85 text-white backdrop-blur"
           : "border-border bg-background/85 backdrop-blur")
       }
     >
@@ -52,7 +52,7 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
                 key={item.to}
                 to={item.to}
                 className={
-                  "px-3 h-9 inline-flex items-center rounded-md text-sm transition-colors " +
+                  "px-3 h-9 inline-flex items-center whitespace-nowrap rounded-md text-sm transition-colors " +
                   (active
                     ? "bg-accent text-accent-foreground font-medium"
                     : "text-ink-soft hover:text-foreground hover:bg-accent/60")
@@ -68,7 +68,7 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
 
         <Link
           to="/knowledge"
-          className="hidden sm:flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-card text-sm text-muted-foreground hover:text-foreground w-56 lg:w-72"
+          className="hidden xl:flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-card text-sm text-muted-foreground hover:text-foreground w-72"
         >
           <Search className="h-4 w-4" />
           <span>{t("搜索 模型 · Agent · 论文…", "Search models, agents, papers…")}</span>
@@ -86,13 +86,12 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuLabel>{t("阅读模式", "Reading mode")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={mode}
-              onValueChange={(v) => setMode(v as typeof mode)}
-            >
+            <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
               <DropdownMenuRadioItem value="general">{t("通俗", "General")}</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="product">{t("产品", "Product")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="technical">{t("技术", "Technical")}</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="technical">
+                {t("技术", "Technical")}
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
