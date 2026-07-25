@@ -9,38 +9,154 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as GraphRouteImport } from './routes/graph'
+import { Route as FollowingRouteImport } from './routes/following'
+import { Route as CompareRouteImport } from './routes/compare'
+import { Route as AskRouteImport } from './routes/ask'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KnowledgeModelSlugRouteImport } from './routes/knowledge.model.$slug'
 
+const KnowledgeRoute = KnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GraphRoute = GraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FollowingRoute = FollowingRouteImport.update({
+  id: '/following',
+  path: '/following',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KnowledgeModelSlugRoute = KnowledgeModelSlugRouteImport.update({
+  id: '/model/$slug',
+  path: '/model/$slug',
+  getParentRoute: () => KnowledgeRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/compare': typeof CompareRoute
+  '/following': typeof FollowingRoute
+  '/graph': typeof GraphRoute
+  '/knowledge': typeof KnowledgeRouteWithChildren
+  '/knowledge/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/compare': typeof CompareRoute
+  '/following': typeof FollowingRoute
+  '/graph': typeof GraphRoute
+  '/knowledge': typeof KnowledgeRouteWithChildren
+  '/knowledge/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ask': typeof AskRoute
+  '/compare': typeof CompareRoute
+  '/following': typeof FollowingRoute
+  '/graph': typeof GraphRoute
+  '/knowledge': typeof KnowledgeRouteWithChildren
+  '/knowledge/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ask'
+    | '/compare'
+    | '/following'
+    | '/graph'
+    | '/knowledge'
+    | '/knowledge/model/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/ask'
+    | '/compare'
+    | '/following'
+    | '/graph'
+    | '/knowledge'
+    | '/knowledge/model/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/ask'
+    | '/compare'
+    | '/following'
+    | '/graph'
+    | '/knowledge'
+    | '/knowledge/model/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AskRoute: typeof AskRoute
+  CompareRoute: typeof CompareRoute
+  FollowingRoute: typeof FollowingRoute
+  GraphRoute: typeof GraphRoute
+  KnowledgeRoute: typeof KnowledgeRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/knowledge': {
+      id: '/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/graph': {
+      id: '/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof GraphRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/following': {
+      id: '/following'
+      path: '/following'
+      fullPath: '/following'
+      preLoaderRoute: typeof FollowingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +164,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/knowledge/model/$slug': {
+      id: '/knowledge/model/$slug'
+      path: '/model/$slug'
+      fullPath: '/knowledge/model/$slug'
+      preLoaderRoute: typeof KnowledgeModelSlugRouteImport
+      parentRoute: typeof KnowledgeRoute
+    }
   }
 }
 
+interface KnowledgeRouteChildren {
+  KnowledgeModelSlugRoute: typeof KnowledgeModelSlugRoute
+}
+
+const KnowledgeRouteChildren: KnowledgeRouteChildren = {
+  KnowledgeModelSlugRoute: KnowledgeModelSlugRoute,
+}
+
+const KnowledgeRouteWithChildren = KnowledgeRoute._addFileChildren(
+  KnowledgeRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AskRoute: AskRoute,
+  CompareRoute: CompareRoute,
+  FollowingRoute: FollowingRoute,
+  GraphRoute: GraphRoute,
+  KnowledgeRoute: KnowledgeRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
