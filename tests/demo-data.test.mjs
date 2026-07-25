@@ -185,3 +185,16 @@ test("PWA manifest and service worker expose an offline application shell", asyn
   assert.match(serviceWorker, /caches\.open/);
   assert.match(offlinePage, /最后在线缓存/);
 });
+
+test("notification preferences stay local and do not imply delivery", async () => {
+  const source = await readFile(path.resolve(process.cwd(), "src/lib/personalization.ts"), "utf8");
+  const followingRoute = await readFile(
+    path.resolve(process.cwd(), "src/routes/following.tsx"),
+    "utf8",
+  );
+
+  assert.match(source, /ai-radar\.notification-preferences\.v1/);
+  assert.match(source, /readNotificationIds/);
+  assert.match(followingRoute, /邮件投递服务尚未接入/);
+  assert.match(followingRoute, /markAllNotificationsRead/);
+});

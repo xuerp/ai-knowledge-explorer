@@ -2,6 +2,7 @@ import type { FollowPreference, InterestProfileItem } from "@/domain/types";
 
 export const PERSONALIZATION_STORAGE_KEY = "ai-radar.personalization.v1";
 export const FOLLOWING_STORAGE_KEY = "ai-radar.following.v1";
+export const NOTIFICATION_PREFERENCES_STORAGE_KEY = "ai-radar.notification-preferences.v1";
 
 export interface PersonalizationPreferences {
   version: 1;
@@ -11,6 +12,16 @@ export interface PersonalizationPreferences {
   description: string;
   behaviorLearning: boolean;
   interests: InterestProfileItem[];
+  updatedAt: string;
+}
+
+export interface NotificationPreferences {
+  version: 1;
+  inAppEnabled: boolean;
+  dailyEmailEnabled: boolean;
+  email: string;
+  digestHour: string;
+  readNotificationIds: string[];
   updatedAt: string;
 }
 
@@ -101,4 +112,50 @@ export function readFollowing(fallback: FollowPreference[]): FollowPreference[] 
 
 export function writeFollowing(items: FollowPreference[]) {
   window.localStorage.setItem(FOLLOWING_STORAGE_KEY, JSON.stringify(items));
+}
+
+export const createDefaultNotificationPreferences = (): NotificationPreferences => ({
+  version: 1,
+  inAppEnabled: true,
+  dailyEmailEnabled: false,
+  email: "",
+  digestHour: "08:00",
+  readNotificationIds: [],
+  updatedAt: new Date(0).toISOString(),
+});
+
+export function readNotificationPreferences(): NotificationPreferences {
+  const fallback = createDefaultNotificationPreferences();
+  if (typeof window === "undefined") return fallback;
+  const raw = window.localStorage.getItem(NOTIFICATION_PREFERENCES_STORAGE_KEY);
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw) as Partial<NotificationPreferences>;
+    if (parsed.version !== 1) return fallback;
+    return {
+      ...fallback,
+      ...parsed,
+      email: typeof parsed.email === "string" ? parsed.email : "",
+      digestHour:
+        typeof parsed.digestHour === "string" && /^\d{2}:\d{2}$/.test(parsed.digestHour)
+          ? parsed.digestHour
+          : fallback.digestHour,
+      readNotificationIds: Array.isArray(parsed.readNotificationIds)
+        ? parsed.readNotificationIds.filter((value): value is string => typeof value === "string")
+        : [],
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+export function writeNotificationPreferences(preferences: NotificationPreferences) {
+  window.localStorage.setItem(
+    NOTIFICATION_PREFERENCES_STORAGE_KEY,
+    JSON.stringify({
+      ...preferences,
+      version: 1,
+      updatedAt: new Date().toISOString(),
+    } satisfies NotificationPreferences),
+  );
 }
