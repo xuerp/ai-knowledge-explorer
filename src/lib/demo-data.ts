@@ -1,92 +1,33 @@
-// Central strongly-typed demo data for AI Radar. All facts marked as demo.
-export type EntityType =
-  | "model"
-  | "agent"
-  | "framework"
-  | "paper"
-  | "benchmark"
-  | "company"
-  | "dataset"
-  | "api"
-  | "tool"
-  | "application";
+// Central demo fixtures for AI Radar. Domain contracts live in src/domain/types.ts.
+import type {
+  ChangeItem,
+  Claim,
+  Confidence,
+  Entity,
+  EntityType,
+  FollowItem,
+  Lang,
+  ReadingMode,
+  Relation,
+  Source,
+  Theme,
+  TimelineEvent,
+} from "@/domain/types";
 
-export type Confidence = "verified" | "inferred" | "unverified" | "conflict";
-
-export type ReadingMode = "general" | "product" | "technical";
-export type Lang = "zh" | "en";
-export type Theme = "light" | "dark";
-
-export interface Source {
-  id: string;
-  title: { zh: string; en: string };
-  url: string;
-  publisher: string;
-  publishedAt: string; // ISO
-  collectedAt: string;
-  verifiedAt?: string;
-  type: "official" | "paper" | "news" | "community" | "benchmark";
-}
-
-export interface Claim {
-  id: string;
-  text: { zh: string; en: string; technical?: { zh: string; en: string } };
-  confidence: Confidence;
-  sourceIds: string[];
-  updatedAt: string;
-}
-
-export interface TimelineEvent {
-  id: string;
-  date: string;
-  title: { zh: string; en: string };
-  summary: { zh: string; en: string };
-  kind: "release" | "update" | "paper" | "benchmark" | "incident" | "deprecation";
-  sourceIds: string[];
-  confidence: Confidence;
-}
-
-export interface Relation {
-  id: string;
-  fromId: string;
-  toId: string;
-  kind:
-    | "developed-by"
-    | "based-on"
-    | "competes-with"
-    | "benchmarked-on"
-    | "uses"
-    | "cited-by"
-    | "part-of"
-    | "successor-of";
-  label?: { zh: string; en: string };
-  confidence: Confidence;
-  sourceIds: string[];
-}
-
-export interface Entity {
-  id: string;
-  type: EntityType;
-  slug: string;
-  name: { zh: string; en: string };
-  aliases?: string[];
-  summary: { zh: string; en: string };
-  vendor?: string;
-  origin?: { zh: string; en: string };
-  status: "active" | "deprecated" | "preview" | "rumor";
-  tags: string[];
-  latestVersion?: string;
-  firstReleasedAt?: string;
-  lastUpdatedAt: string;
-  capabilities?: Array<{ zh: string; en: string; confidence: Confidence }>;
-  metrics?: Array<{
-    name: string;
-    value: string;
-    benchmark: string;
-    date: string;
-    confidence: Confidence;
-  }>;
-}
+export type {
+  ChangeItem,
+  Claim,
+  Confidence,
+  Entity,
+  EntityType,
+  FollowItem,
+  Lang,
+  ReadingMode,
+  Relation,
+  Source,
+  Theme,
+  TimelineEvent,
+} from "@/domain/types";
 
 export const SOURCES: Source[] = [
   {
@@ -712,15 +653,6 @@ export const RELATIONS: Relation[] = [
   },
 ];
 
-export interface ChangeItem {
-  id: string;
-  entityId: string;
-  date: string;
-  summary: { zh: string; en: string };
-  kind: "new" | "updated" | "deprecated" | "benchmark" | "rumor";
-  confidence: Confidence;
-}
-
 export const RECENT_CHANGES: ChangeItem[] = [
   {
     id: "ch1",
@@ -809,13 +741,6 @@ export const RECENT_CHANGES: ChangeItem[] = [
   },
 ];
 
-export interface FollowItem {
-  entityId: string;
-  intensity: "silent" | "digest" | "instant";
-  addedAt: string;
-  reason: { zh: string; en: string };
-}
-
 export const FOLLOWING: FollowItem[] = [
   {
     entityId: "e-gpt",
@@ -852,23 +777,3 @@ export const FOLLOWING: FollowItem[] = [
 export const findEntity = (id: string) => ENTITIES.find((e) => e.id === id);
 export const findEntityBySlug = (slug: string) => ENTITIES.find((e) => e.slug === slug);
 export const findSource = (id: string) => SOURCES.find((s) => s.id === id);
-
-export const ENTITY_TYPE_LABELS: Record<EntityType, { zh: string; en: string }> = {
-  model: { zh: "模型", en: "Model" },
-  agent: { zh: "Agent", en: "Agent" },
-  framework: { zh: "框架", en: "Framework" },
-  paper: { zh: "论文", en: "Paper" },
-  benchmark: { zh: "评测", en: "Benchmark" },
-  company: { zh: "公司", en: "Company" },
-  dataset: { zh: "数据集", en: "Dataset" },
-  api: { zh: "API", en: "API" },
-  tool: { zh: "工具", en: "Tool" },
-  application: { zh: "应用", en: "Application" },
-};
-
-export const CONFIDENCE_LABELS: Record<Confidence, { zh: string; en: string }> = {
-  verified: { zh: "已核验事实", en: "Verified" },
-  inferred: { zh: "基于证据的推断", en: "Inferred" },
-  unverified: { zh: "未核验", en: "Unverified" },
-  conflict: { zh: "存在冲突", en: "Conflict" },
-};

@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Library, Network, Sparkles, Bookmark } from "lucide-react";
-import { useApp } from "@/lib/app-context";
+import { useApp } from "@/lib/app-state";
 
 const NAV = [
   { to: "/", icon: Home, zh: "首页", en: "Home" },

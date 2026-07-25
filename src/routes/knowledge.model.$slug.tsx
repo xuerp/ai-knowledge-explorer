@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Building2,
   Calendar,
@@ -20,26 +20,19 @@ import {
   EntityChip,
 } from "@/components/common";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
-import {
-  CLAIMS,
-  ENTITIES,
-  ENTITY_TYPE_LABELS,
-  RELATIONS,
-  SOURCES,
-  TIMELINE,
-  findEntity,
-  findEntityBySlug,
-} from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import { useApp, pick } from "@/lib/app-state";
+import { knowledgeRepository } from "@/services/knowledge-repository";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Entity } from "@/lib/demo-data";
+import type { Entity, KnowledgeSnapshot } from "@/domain/types";
 
 export const Route = createFileRoute("/knowledge/model/$slug")({
-  loader: ({ params }) => {
-    const entity = findEntityBySlug(params.slug);
+  loader: async ({ params }) => {
+    const snapshot = await knowledgeRepository.getSnapshot();
+    const entity = snapshot.entities.find((item) => item.slug === params.slug);
     if (!entity) throw notFound();
-    return { entity };
+    return { entity, snapshot };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "未找到 · AI Radar" }] };
@@ -57,22 +50,30 @@ export const Route = createFileRoute("/knowledge/model/$slug")({
 });
 
 function EntityDetail() {
-  const { entity: e } = Route.useLoaderData() as { entity: Entity };
+  const { entity: e, snapshot } = Route.useLoaderData() as {
+    entity: Entity;
+    snapshot: KnowledgeSnapshot;
+  };
   const { t, lang, mode } = useApp();
+  const { entities, evidence, claims: allClaims, timeline: allTimeline, graph } = snapshot;
+  const relations = graph.edges;
+  const findEntity = (id: string) => entities.find((entity) => entity.id === id);
 
   // Local graph: this entity + neighbors
   const neighborIds = useMemo(() => {
     const ids = new Set<string>([e.id]);
-    RELATIONS.forEach((r) => {
+    relations.forEach((r) => {
       if (r.fromId === e.id) ids.add(r.toId);
       if (r.toId === e.id) ids.add(r.fromId);
     });
     return Array.from(ids);
-  }, [e.id]);
+  }, [e.id, relations]);
 
-  const timeline = TIMELINE[e.id] ?? [];
-  const claims = CLAIMS.filter((c) => c.sourceIds.some((sid) => SOURCES.find((s) => s.id === sid)));
-  const relatedRelations = RELATIONS.filter((r) => r.fromId === e.id || r.toId === e.id);
+  const timeline = allTimeline[e.id] ?? [];
+  const claims = allClaims.filter((c) =>
+    c.sourceIds.some((sourceId) => evidence.some((source) => source.id === sourceId)),
+  );
+  const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
 
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
@@ -228,7 +229,13 @@ function EntityDetail() {
               </Link>
             }
           />
-          <KnowledgeGraph entityIds={neighborIds} centerId={e.id} height={420} />
+          <KnowledgeGraph
+            entities={entities}
+            relations={relations}
+            entityIds={neighborIds}
+            centerId={e.id}
+            height={420}
+          />
           <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {relatedRelations.slice(0, 6).map((r) => {
               const other = findEntity(r.fromId === e.id ? r.toId : r.fromId);
@@ -416,8 +423,8 @@ function EntityDetail() {
             )}
           />
           <div className="paper-card divide-y divide-border">
-            {SOURCES.map((s) => (
-              <SourceRow key={s.id} sourceId={s.id} />
+            {evidence.map((source) => (
+              <SourceRow key={source.id} source={source} />
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1">

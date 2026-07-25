@@ -1,16 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell, BellOff, Zap, ArrowRight, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
-import {
-  ENTITIES,
-  ENTITY_TYPE_LABELS,
-  FOLLOWING,
-  findEntity,
-  type FollowItem,
-} from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { DataStatePanel } from "@/components/data-state";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import type { FollowPreference } from "@/domain/types";
+import { useApp, pick } from "@/lib/app-state";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/following")({
@@ -51,16 +48,43 @@ const INTENSITY_META = {
 
 function FollowingPage() {
   const { t, lang } = useApp();
-  const [items, setItems] = useState<FollowItem[]>(FOLLOWING);
+  const snapshotQuery = useKnowledgeSnapshot();
+  const initialFollowing = snapshotQuery.data?.following;
+  const [items, setItems] = useState<FollowPreference[]>(() => initialFollowing ?? []);
+  const hydrated = useRef(Boolean(initialFollowing));
 
-  const setIntensity = (id: string, intensity: FollowItem["intensity"]) => {
+  useEffect(() => {
+    if (hydrated.current || !snapshotQuery.data) return;
+    setItems(snapshotQuery.data.following);
+    hydrated.current = true;
+  }, [snapshotQuery.data]);
+
+  const setIntensity = (id: string, intensity: FollowPreference["intensity"]) => {
     setItems((prev) => prev.map((it) => (it.entityId === id ? { ...it, intensity } : it)));
   };
   const remove = (id: string) => setItems((prev) => prev.filter((it) => it.entityId !== id));
 
-  const suggestions = ENTITIES.filter(
-    (e) => !items.some((it) => it.entityId === e.id) && e.type !== "company",
-  ).slice(0, 6);
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "关注列表加载失败" : "正在加载关注列表",
+            snapshotQuery.error ? "Following failed to load" : "Loading following",
+          )}
+          description={t("请稍后重试。", "Please retry shortly.")}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
+
+  const entities = snapshotQuery.data.entities;
+  const findEntity = (id: string) => entities.find((entity) => entity.id === id);
+  const suggestions = entities
+    .filter((e) => !items.some((it) => it.entityId === e.id) && e.type !== "company")
+    .slice(0, 6);
 
   return (
     <AppShell>
@@ -188,20 +212,14 @@ function FollowingPage() {
               )}
             </p>
             <div className="space-y-3">
-              {[
-                { label: t("开源模型", "Open-source"), value: 82 },
-                { label: t("Agent 与协议", "Agents & protocols"), value: 68 },
-                { label: t("推理与代码", "Reasoning & code"), value: 74 },
-                { label: t("多模态", "Multimodal"), value: 45 },
-                { label: t("中国生态", "Chinese ecosystem"), value: 60 },
-              ].map((r) => (
-                <div key={r.label}>
+              {snapshotQuery.data.interestProfile.map((item) => (
+                <div key={item.id}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-foreground">{r.label}</span>
-                    <span className="text-muted-foreground font-mono">{r.value}</span>
+                    <span className="text-foreground">{pick(item.label, lang)}</span>
+                    <span className="text-muted-foreground font-mono">{item.score}</span>
                   </div>
                   <div className="h-1.5 rounded bg-muted overflow-hidden">
-                    <div className="h-full bg-signal" style={{ width: `${r.value}%` }} />
+                    <div className="h-full bg-signal" style={{ width: `${item.score}%` }} />
                   </div>
                 </div>
               ))}

@@ -1,14 +1,8 @@
 import { type ReactNode } from "react";
 import { Info, ShieldCheck, HelpCircle, AlertTriangle, ExternalLink } from "lucide-react";
-import { useApp, pick } from "@/lib/app-context";
-import {
-  CONFIDENCE_LABELS,
-  ENTITY_TYPE_LABELS,
-  type Confidence,
-  type Entity,
-  type Source,
-  findSource,
-} from "@/lib/demo-data";
+import { useApp, pick } from "@/lib/app-state";
+import { CONFIDENCE_LABELS, ENTITY_TYPE_LABELS } from "@/domain/labels";
+import type { Confidence, Entity, Source } from "@/domain/types";
 import { Link } from "@tanstack/react-router";
 
 export function DemoBadge({ className = "" }: { className?: string }) {
@@ -92,10 +86,8 @@ export function EntityChip({ entity }: { entity: Entity }) {
   );
 }
 
-export function SourceRow({ sourceId }: { sourceId: string }) {
-  const src = findSource(sourceId) as Source | undefined;
+export function SourceRow({ source: src }: { source: Source }) {
   const { lang, t } = useApp();
-  if (!src) return null;
   return (
     <a
       href={src.url}

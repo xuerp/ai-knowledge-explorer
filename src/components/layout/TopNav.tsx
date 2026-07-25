@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Radar, Search, Moon, Sun, Languages, BookOpen } from "lucide-react";
-import { useApp } from "@/lib/app-context";
+import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

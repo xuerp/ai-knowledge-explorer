@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles, ShieldCheck, Info, HelpCircle, AlertTriangle } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader, DemoBadge, SourceRow, ConfidenceChip } from "@/components/common";
-import { useApp, pick } from "@/lib/app-context";
+import { PageHeader, DemoBadge } from "@/components/common";
+import { DataStatePanel } from "@/components/data-state";
+import { useApp, pick } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
-import { CLAIMS, SOURCES, findSource } from "@/lib/demo-data";
+import type { Evidence, LocalizedText } from "@/domain/types";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
@@ -22,26 +24,48 @@ export const Route = createFileRoute("/ask")({
   component: AskPage,
 });
 
-const SAMPLE_QUESTIONS = [
-  {
-    zh: "GPT-5 与 Claude 4.5 在代码任务上谁更强？",
-    en: "GPT-5 vs Claude 4.5 on code — which is better?",
-  },
-  {
-    zh: "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？",
-    en: "Is DeepSeek R2 really 10× cheaper than GPT-5?",
-  },
-  { zh: "MCP 协议目前有哪些已知集成？", en: "Which integrations does MCP have today?" },
-];
+const EMPTY_RESEARCH_QUESTIONS: LocalizedText[] = [];
 
 function AskPage() {
   const { t, lang } = useApp();
-  const [q, setQ] = useState(pick(SAMPLE_QUESTIONS[0], lang));
+  const snapshotQuery = useKnowledgeSnapshot();
+  const researchQuestions = snapshotQuery.data?.researchQuestions ?? EMPTY_RESEARCH_QUESTIONS;
+  const initialQuestion = researchQuestions[0] ? pick(researchQuestions[0], lang) : "";
+  const [q, setQ] = useState(initialQuestion);
   const [answered, setAnswered] = useState(true);
+  const questionHydrated = useRef(Boolean(initialQuestion));
 
-  const factClaims = CLAIMS.filter((c) => c.confidence === "verified");
-  const inferredClaims = CLAIMS.filter((c) => c.confidence === "inferred");
-  const unverifiedClaims = CLAIMS.filter((c) => c.confidence === "unverified");
+  useEffect(() => {
+    if (questionHydrated.current || !researchQuestions[0]) return;
+    setQ(pick(researchQuestions[0], lang));
+    questionHydrated.current = true;
+  }, [lang, researchQuestions]);
+
+  const claims = snapshotQuery.data?.claims ?? [];
+  const evidence = snapshotQuery.data?.evidence ?? [];
+  const factClaims = claims.filter((c) => c.confidence === "verified");
+  const inferredClaims = claims.filter((c) => c.confidence === "inferred");
+  const unverifiedClaims = claims.filter((c) => c.confidence === "unverified");
+
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "研究数据加载失败" : "正在加载研究数据",
+            snapshotQuery.error ? "Research data failed to load" : "Loading research data",
+          )}
+          description={t(
+            "没有证据时不会生成伪答案，请重试。",
+            "No answer will be fabricated without evidence. Please retry.",
+          )}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
+  const researchAnswer = snapshotQuery.data.researchAnswers[0];
 
   return (
     <AppShell>
@@ -73,14 +97,14 @@ function AskPage() {
             placeholder={t("输入你的研究问题…", "Type your research question…")}
           />
           <div className="flex flex-wrap items-center gap-2">
-            {SAMPLE_QUESTIONS.map((s, i) => (
+            {researchQuestions.map((question, index) => (
               <button
-                key={i}
+                key={`${question.en}-${index}`}
                 type="button"
-                onClick={() => setQ(pick(s, lang))}
+                onClick={() => setQ(pick(question, lang))}
                 className="chip hover:border-signal/50 hover:text-foreground"
               >
-                {pick(s, lang)}
+                {pick(question, lang)}
               </button>
             ))}
             <Button type="submit" className="ml-auto">
@@ -95,10 +119,9 @@ function AskPage() {
               {t("回答", "Answer")}
             </div>
             <p className="font-serif text-2xl leading-relaxed text-foreground">
-              {t(
-                "在最新公开评测中，GPT-5 于 SWE-bench Verified 上取得 62.4% 的通过率，略高于 Claude 4.5 Sonnet；但在多轮代码修复任务的稳定性上，两者互有胜负。",
-                "In the latest public benchmarks, GPT-5 reaches 62.4% pass rate on SWE-bench Verified — slightly above Claude 4.5 Sonnet. For multi-turn code-repair stability, they trade wins.",
-              )}
+              {researchAnswer
+                ? pick(researchAnswer.summary, lang)
+                : t("当前证据不足，无法生成结论。", "There is not enough evidence to answer.")}
             </p>
 
             {/* Fact */}
@@ -108,7 +131,13 @@ function AskPage() {
               tint="verified"
             >
               {factClaims.map((c) => (
-                <ClaimRow key={c.id} zh={c.text.zh} en={c.text.en} sourceIds={c.sourceIds} />
+                <ClaimRow
+                  key={c.id}
+                  zh={c.text.zh}
+                  en={c.text.en}
+                  sourceIds={c.sourceIds}
+                  evidence={evidence}
+                />
               ))}
             </AnswerBlock>
 
@@ -119,7 +148,13 @@ function AskPage() {
               tint="inferred"
             >
               {inferredClaims.map((c) => (
-                <ClaimRow key={c.id} zh={c.text.zh} en={c.text.en} sourceIds={c.sourceIds} />
+                <ClaimRow
+                  key={c.id}
+                  zh={c.text.zh}
+                  en={c.text.en}
+                  sourceIds={c.sourceIds}
+                  evidence={evidence}
+                />
               ))}
             </AnswerBlock>
 
@@ -130,7 +165,13 @@ function AskPage() {
               tint="unverified"
             >
               {unverifiedClaims.map((c) => (
-                <ClaimRow key={c.id} zh={c.text.zh} en={c.text.en} sourceIds={c.sourceIds} />
+                <ClaimRow
+                  key={c.id}
+                  zh={c.text.zh}
+                  en={c.text.en}
+                  sourceIds={c.sourceIds}
+                  evidence={evidence}
+                />
               ))}
             </AnswerBlock>
 
@@ -144,6 +185,7 @@ function AskPage() {
                 zh="A 来源称 GPT-5 上下文为 400K，B 来源称 1M。"
                 en="Source A reports 400K context for GPT-5; Source B claims 1M."
                 sourceIds={["s-openai-gpt5", "s-community-rumor"]}
+                evidence={evidence}
               />
             </AnswerBlock>
 
@@ -198,14 +240,24 @@ function AnswerBlock({
   );
 }
 
-function ClaimRow({ zh, en, sourceIds }: { zh: string; en: string; sourceIds: string[] }) {
+function ClaimRow({
+  zh,
+  en,
+  sourceIds,
+  evidence,
+}: {
+  zh: string;
+  en: string;
+  sourceIds: string[];
+  evidence: Evidence[];
+}) {
   const { lang } = useApp();
   return (
     <div>
       <p className="text-sm text-foreground leading-relaxed">{lang === "zh" ? zh : en}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {sourceIds.map((id) => {
-          const s = findSource(id);
+          const s = evidence.find((item) => item.id === id);
           if (!s) return null;
           return (
             <a

@@ -2,17 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { X, ArrowRight, Filter, Clock } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { KnowledgeGraph, NODE_TYPES } from "@/components/graph/KnowledgeGraph";
+import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
+import { NODE_TYPES } from "@/components/graph/config";
 import { DemoBadge, ConfidenceChip } from "@/components/common";
-import {
-  ENTITIES,
-  ENTITY_TYPE_LABELS,
-  RELATIONS,
-  findEntity,
-  type Entity,
-  type EntityType,
-} from "@/lib/demo-data";
-import { useApp, pick } from "@/lib/app-context";
+import { DataStatePanel } from "@/components/data-state";
+import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import type { Entity, EntityType } from "@/domain/types";
+import { useApp, pick } from "@/lib/app-state";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { Slider } from "@/components/ui/slider";
 
 export const Route = createFileRoute("/graph")({
@@ -29,6 +26,7 @@ export const Route = createFileRoute("/graph")({
 
 function GraphPage() {
   const { t, lang } = useApp();
+  const snapshotQuery = useKnowledgeSnapshot();
   const [selected, setSelected] = useState<Entity | null>(null);
   const [enabled, setEnabled] = useState<Record<EntityType, boolean>>({
     model: true,
@@ -44,15 +42,40 @@ function GraphPage() {
   });
   const [year, setYear] = useState([2017, 2026]);
 
-  const ids = ENTITIES.filter(
-    (e) =>
-      enabled[e.type] &&
-      (!e.firstReleasedAt || parseInt(e.firstReleasedAt.slice(0, 4)) <= year[1]) &&
-      parseInt(e.lastUpdatedAt.slice(0, 4)) >= year[0],
-  ).map((e) => e.id);
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell dark>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t(
+            snapshotQuery.error ? "图谱加载失败" : "正在加载图谱",
+            snapshotQuery.error ? "Graph failed to load" : "Loading graph",
+          )}
+          description={t(
+            "请稍后重试，现有页面不会伪装成实时数据。",
+            "Retry shortly; the UI will not disguise missing data as live.",
+          )}
+          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+        />
+      </AppShell>
+    );
+  }
+
+  const { entities, graph } = snapshotQuery.data;
+  const relations = graph.edges;
+  const findEntity = (id: string) => entities.find((entity) => entity.id === id);
+
+  const ids = entities
+    .filter(
+      (e) =>
+        enabled[e.type] &&
+        (!e.firstReleasedAt || parseInt(e.firstReleasedAt.slice(0, 4)) <= year[1]) &&
+        parseInt(e.lastUpdatedAt.slice(0, 4)) >= year[0],
+    )
+    .map((e) => e.id);
 
   const selectedRelations = selected
-    ? RELATIONS.filter((r) => r.fromId === selected.id || r.toId === selected.id)
+    ? relations.filter((r) => r.fromId === selected.id || r.toId === selected.id)
     : [];
 
   return (
@@ -98,6 +121,8 @@ function GraphPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8 grid lg:grid-cols-[1fr_320px] gap-4">
           <div className="space-y-3">
             <KnowledgeGraph
+              entities={entities}
+              relations={relations}
               entityIds={ids}
               onSelect={(e) => setSelected(e)}
               selectedId={selected?.id}
