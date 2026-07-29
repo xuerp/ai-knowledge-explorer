@@ -11,7 +11,7 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
         (dark ? "bg-graph-bg text-foreground" : "bg-background text-foreground")
       }
     >
-      <TopNav dark={dark} />
+      <TopNav />
       <PwaStatus dark={dark} />
       <main className="flex-1 pb-24 md:pb-8">{children}</main>
       <BottomNav />

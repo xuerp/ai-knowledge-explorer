@@ -21,19 +21,12 @@ const NAV = [
   { to: "/following", zh: "关注", en: "Following" },
 ] as const;
 
-export function TopNav({ dark = false }: { dark?: boolean }) {
+export function TopNav() {
   const { lang, setLang, theme, setTheme, mode, setMode, t } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <header
-      className={
-        "sticky top-0 z-30 border-b " +
-        (dark
-          ? "border-white/10 bg-graph-bg/92 text-white backdrop-blur"
-          : "border-border bg-white/95 backdrop-blur")
-      }
-    >
+    <header className="sticky top-0 z-30 border-b border-border bg-card/95 text-foreground backdrop-blur">
       <div className="page-container h-14 flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <Diamond className="h-4 w-4 fill-signal text-signal" />

@@ -248,7 +248,7 @@
 .graph-light-page .text-white\/70,
 .graph-light-page .text-white\/65,
 .graph-light-page .text-white\/60 {
-  color: #334155 !important;
+  color: var(--color-foreground) !important;
 }
 
 .graph-light-page .text-white\/55,
@@ -256,7 +256,7 @@
 .graph-light-page .text-white\/45,
 .graph-light-page .text-white\/40,
 .graph-light-page .text-white\/35 {
-  color: #667085 !important;
+  color: var(--color-muted-foreground) !important;
 }
 
 .graph-light-page .border-white\/10,
@@ -286,4 +286,8 @@
 
 .graph-light-page input::placeholder {
   color: var(--color-muted-foreground) !important;
+}
+
+.graph-light-page .bg-signal.text-white {
+  color: #ffffff !important;
 }

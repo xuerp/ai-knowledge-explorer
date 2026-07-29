@@ -33,14 +33,15 @@ function KnowledgePage() {
   const snapshotQuery = useKnowledgeSnapshot();
   const [q, setQ] = useState("");
   const [types, setTypes] = useState<EntityType[]>([]);
-  const [origin, setOrigin] = useState<"all" | "中国" | "美国">("all");
+  const [region, setRegion] = useState<"all" | "domestic" | "overseas">("all");
   const entities = snapshotQuery.data?.entities;
 
   const filtered = useMemo(() => {
     const kw = q.trim().toLowerCase();
     return (entities ?? []).filter((e) => {
       if (types.length && !types.includes(e.type)) return false;
-      if (origin !== "all" && e.origin?.zh !== origin) return false;
+      if (region === "domestic" && e.origin?.zh !== "中国") return false;
+      if (region === "overseas" && (!e.origin || e.origin.zh === "中国")) return false;
       if (!kw) return true;
       return (
         e.name.zh.toLowerCase().includes(kw) ||
@@ -49,7 +50,7 @@ function KnowledgePage() {
         e.tags.some((t) => t.toLowerCase().includes(kw))
       );
     });
-  }, [entities, q, types, origin]);
+  }, [entities, q, types, region]);
 
   const toggleType = (t: EntityType) =>
     setTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -75,8 +76,8 @@ function KnowledgePage() {
       <PageHeader
         title={t("知识库", "Knowledge base")}
         subtitle={t(
-          "所有实体、关系与证据的入口。选择类型、来源国家、发布时间来快速定位你要研究的对象。",
-          "Entry point to every entity, relation and evidence. Filter by type, origin and time.",
+          "所有实体、具体版本、关系与证据的入口。按类型、国内/海外和关键词定位研究对象。",
+          "Entry point to entities, concrete versions, relations and evidence. Filter by type and region.",
         )}
       />
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 grid md:grid-cols-[240px_1fr] gap-8">
@@ -106,25 +107,25 @@ function KnowledgePage() {
           </div>
           <div className="paper-card p-4">
             <div className="text-xs uppercase tracking-widest text-signal font-medium mb-3">
-              {t("来源国家", "Origin")}
+              {t("地域", "Region")}
             </div>
             <div className="flex flex-col gap-1">
-              {(["all", "中国", "美国"] as const).map((o) => (
+              {(["all", "domestic", "overseas"] as const).map((o) => (
                 <button
                   key={o}
-                  onClick={() => setOrigin(o)}
+                  onClick={() => setRegion(o)}
                   className={
                     "text-left text-sm px-2 py-1.5 rounded-md " +
-                    (origin === o
+                    (region === o
                       ? "bg-signal/10 text-signal font-medium"
                       : "text-ink-soft hover:bg-accent")
                   }
                 >
                   {o === "all"
                     ? t("全部", "All")
-                    : o === "中国"
-                      ? t("中国", "China")
-                      : t("美国", "United States")}
+                    : o === "domestic"
+                      ? t("国内", "Domestic")
+                      : t("海外", "Overseas")}
                 </button>
               ))}
             </div>
@@ -162,7 +163,7 @@ function KnowledgePage() {
               onClick={() => {
                 setQ("");
                 setTypes([]);
-                setOrigin("all");
+                setRegion("all");
               }}
             >
               {t("重置", "Reset")}

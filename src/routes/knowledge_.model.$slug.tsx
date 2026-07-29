@@ -75,6 +75,11 @@ function EntityDetail() {
     c.sourceIds.some((sourceId) => evidence.some((source) => source.id === sourceId)),
   );
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
+  const childVersions = relations
+    .filter((relation) => relation.kind === "part-of" && relation.toId === e.id)
+    .map((relation) => findEntity(relation.fromId))
+    .filter((entity): entity is Entity => Boolean(entity))
+    .sort((a, b) => (a.firstReleasedAt ?? "").localeCompare(b.firstReleasedAt ?? ""));
 
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
@@ -186,7 +191,7 @@ function EntityDetail() {
                   value={e.status === "active" ? t("已发布 / 活跃", "Released / active") : e.status}
                 />
                 <ProfileField
-                  label={t("来源国家/地区", "Origin")}
+                  label={t("地域归属", "Region")}
                   value={e.origin ? pick(e.origin, lang) : "—"}
                 />
                 <ProfileField label={t("标签", "Tags")} value={e.tags.join(" · ")} wide />
@@ -198,22 +203,57 @@ function EntityDetail() {
                 {t("技术规格与核心能力", "Technical profile")}
               </h3>
               <dl className="mb-5 grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
-                <ProfileField
-                  label={t("实体类型", "Entity type")}
-                  value={pick(ENTITY_TYPE_LABELS[e.type], lang)}
-                />
-                <ProfileField label={t("最后核验", "Last verified")} value={e.lastUpdatedAt} mono />
-                <ProfileField
-                  label={t("知识图谱关系", "Graph relations")}
-                  value={t(
-                    `${relatedRelations.length} 条已建模关系`,
-                    `${relatedRelations.length} modelled edges`,
-                  )}
-                />
-                <ProfileField
-                  label={t("资料状态", "Evidence status")}
-                  value={t("证据可追溯", "Traceable evidence")}
-                />
+                {e.specs ? (
+                  <>
+                    <ProfileField
+                      label={t("上下文窗口", "Context window")}
+                      value={e.specs.contextWindow ?? "—"}
+                      mono
+                    />
+                    <ProfileField
+                      label={t("输入价格", "Input price")}
+                      value={e.specs.inputPrice ?? "—"}
+                      mono
+                    />
+                    <ProfileField
+                      label={t("输出价格", "Output price")}
+                      value={e.specs.outputPrice ?? "—"}
+                      mono
+                    />
+                    <ProfileField
+                      label={t("输入模态", "Modalities")}
+                      value={e.specs.modalities ?? "—"}
+                    />
+                    <ProfileField
+                      label={t("工具与 Agent", "Tools & agents")}
+                      value={e.specs.toolUse ?? "—"}
+                    />
+                    <ProfileField
+                      label={t("可用范围", "Availability")}
+                      value={e.specs.availability ?? "—"}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ProfileField
+                      label={t("实体类型", "Entity type")}
+                      value={pick(ENTITY_TYPE_LABELS[e.type], lang)}
+                    />
+                    <ProfileField
+                      label={t("最后核验", "Last verified")}
+                      value={e.lastUpdatedAt}
+                      mono
+                    />
+                    <ProfileField
+                      label={t("已收录具体版本", "Concrete versions")}
+                      value={t(`${childVersions.length} 个`, `${childVersions.length} versions`)}
+                    />
+                    <ProfileField
+                      label={t("资料状态", "Evidence status")}
+                      value={t("证据可追溯", "Traceable evidence")}
+                    />
+                  </>
+                )}
               </dl>
               <div className="border-t border-border pt-4">
                 <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -265,14 +305,84 @@ function EntityDetail() {
           )}
         </section>
 
-        {/* 2. 局部图谱 */}
+        {childVersions.length > 0 && (
+          <section>
+            <SectionHeading
+              eyebrow="02"
+              title={t("版本谱系与迭代差异", "Version lineage and iteration changes")}
+              description={t(
+                "系列不是一个模糊的大标签：每个版本分别记录发布时间、上下文、价格和能力变化。",
+                "Each release records its own date, context, price and capability changes.",
+              )}
+              action={
+                <Link
+                  to="/compare"
+                  className="inline-flex items-center gap-1 text-sm text-signal hover:underline"
+                >
+                  {t("进入具体版本对比", "Compare concrete versions")}{" "}
+                  <ArrowLeftRight className="h-3 w-3" />
+                </Link>
+              }
+            />
+            <div className="paper-card overflow-x-auto">
+              <table className="min-w-[900px] w-full text-sm">
+                <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-medium">{t("版本", "Version")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("发布日期", "Released")}</th>
+                    <th className="px-4 py-3 text-left font-medium">{t("上下文", "Context")}</th>
+                    <th className="px-4 py-3 text-left font-medium">
+                      {t("输入 / 输出价格", "Input / output price")}
+                    </th>
+                    <th className="px-4 py-3 text-left font-medium">
+                      {t("主要变化", "Main change")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {childVersions.map((version) => (
+                    <tr key={version.id} className="hover:bg-accent/30">
+                      <td className="px-4 py-4">
+                        <Link
+                          to="/knowledge/model/$slug"
+                          params={{ slug: version.slug }}
+                          className="font-semibold text-signal hover:underline"
+                        >
+                          {pick(version.name, lang)}
+                        </Link>
+                        <div className="mt-1 font-mono text-[11px] text-muted-foreground">
+                          {version.latestVersion}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 font-mono text-xs">{version.firstReleasedAt}</td>
+                      <td className="px-4 py-4">{version.specs?.contextWindow ?? "—"}</td>
+                      <td className="px-4 py-4">
+                        <div>{version.specs?.inputPrice ?? "—"}</div>
+                        <div className="mt-1 text-muted-foreground">
+                          {version.specs?.outputPrice ?? "—"}
+                        </div>
+                      </td>
+                      <td className="max-w-sm px-4 py-4 text-ink-soft">
+                        {version.capabilities?.[0]
+                          ? pick(version.capabilities[0], lang)
+                          : pick(version.summary, lang)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* 局部图谱 */}
         <section>
           <SectionHeading
-            eyebrow="02"
+            eyebrow={childVersions.length > 0 ? "03" : "02"}
             title={t("局部知识图谱", "Local knowledge graph")}
             description={t(
-              `以 ${pick(e.name, "zh")} 为中心的相关实体与关系。`,
-              `Entities & relations centered on ${pick(e.name, "en")}.`,
+              `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
+              `Use it to inspect lineage, vendor, protocols, benchmarks and competitors around ${pick(e.name, "en")}.`,
             )}
             action={
               <Link
@@ -309,14 +419,14 @@ function EntityDetail() {
           </div>
         </section>
 
-        {/* 3. Timeline */}
+        {/* Timeline */}
         <section>
           <SectionHeading
-            eyebrow="03"
-            title={t("时间线", "Timeline")}
+            eyebrow={childVersions.length > 0 ? "04" : "03"}
+            title={t("版本演进时间线", "Version evolution timeline")}
             description={t(
-              "所有历史状态都会保留，不会用最新值覆盖过去。",
-              "All historical states preserved — the latest value never overwrites the past.",
+              "每次迭代明确记录功能、上下文和价格变化；不会用最新值覆盖历史状态。",
+              "Each iteration records capability, context and price changes without overwriting history.",
             )}
           />
           <ol className="relative border-l-2 border-border ml-3 space-y-6">
@@ -343,11 +453,11 @@ function EntityDetail() {
           </ol>
         </section>
 
-        {/* 4. Compare */}
+        {/* Compare */}
         <section>
           <SectionHeading
-            eyebrow="04"
-            title={t("与竞品对比", "Competitor comparison")}
+            eyebrow={childVersions.length > 0 ? "05" : "04"}
+            title={t("进入具体版本对比", "Compare concrete versions")}
             action={
               <Link
                 to="/compare"
@@ -406,10 +516,10 @@ function EntityDetail() {
           </div>
         </section>
 
-        {/* 5. AI 问答 */}
+        {/* AI 问答 */}
         <section>
           <SectionHeading
-            eyebrow="05"
+            eyebrow={childVersions.length > 0 ? "06" : "05"}
             title={t("AI 问答", "Ask AI")}
             description={t(
               "所有 AI 回答均基于本页图谱数据，事实 / 推断 / 未核验分开呈现。",
@@ -470,10 +580,10 @@ function EntityDetail() {
           </div>
         </section>
 
-        {/* 6. 来源 */}
+        {/* 来源 */}
         <section>
           <SectionHeading
-            eyebrow="06"
+            eyebrow={childVersions.length > 0 ? "07" : "06"}
             title={t("来源", "Sources")}
             description={t(
               "每条事实至少一个来源。列表按发布时间倒序。",

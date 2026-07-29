@@ -102,6 +102,14 @@ export interface EntitySummary {
 
 export interface EntityDetail extends EntitySummary {
   aliases?: string[];
+  specs?: {
+    contextWindow?: string;
+    inputPrice?: string;
+    outputPrice?: string;
+    modalities?: string;
+    toolUse?: string;
+    availability?: string;
+  };
   capabilities?: Array<LocalizedText & { confidence: Confidence }>;
   metrics?: Array<{
     name: string;
