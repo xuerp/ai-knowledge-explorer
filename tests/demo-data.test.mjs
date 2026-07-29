@@ -66,6 +66,31 @@ test("all graph and preference references resolve", () => {
   }
 });
 
+test("concrete model versions are extensible and linked to a valid family", () => {
+  const entityById = new Map(ENTITIES.map((entity) => [entity.id, entity]));
+  const versions = ENTITIES.filter((entity) => entity.familyId);
+
+  assert.ok(versions.length >= 12, "demo catalog should cover multiple model families");
+
+  for (const version of versions) {
+    const family = entityById.get(version.familyId);
+    assert.ok(family, `${version.id} references missing family ${version.familyId}`);
+    assert.equal(version.type, "model", `${version.id} must be a model`);
+    assert.equal(family.type, "model", `${version.familyId} must be a model family`);
+    assert.ok(version.specs, `${version.id} must include version-level specs`);
+    assert.ok(version.firstReleasedAt, `${version.id} must include a release date`);
+    assert.ok(
+      RELATIONS.some(
+        (relation) =>
+          relation.kind === "part-of" &&
+          relation.fromId === version.id &&
+          relation.toId === version.familyId,
+      ),
+      `${version.id} must have a part-of relation to ${version.familyId}`,
+    );
+  }
+});
+
 test("evidence carries provenance timestamps and safe links", () => {
   for (const source of SOURCES) {
     assert.match(source.url, /^https:\/\//, `${source.id} must use HTTPS`);

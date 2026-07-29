@@ -91,6 +91,16 @@ export const SOURCES: Source[] = [
     verifiedAt: "2026-07-06",
     type: "official",
   },
+  {
+    id: "s-qwen-models",
+    title: { zh: "Qwen 模型版本说明", en: "Qwen model release notes" },
+    url: "https://qwenlm.ai/",
+    publisher: "Alibaba Qwen",
+    publishedAt: "2026-07-01",
+    collectedAt: "2026-07-01",
+    verifiedAt: "2026-07-02",
+    type: "official",
+  },
 ];
 
 export const ENTITIES: Entity[] = [
@@ -151,6 +161,7 @@ export const ENTITIES: Entity[] = [
     slug: "gpt-4o",
     name: { zh: "GPT-4o", en: "GPT-4o" },
     aliases: ["GPT-4 Omni"],
+    familyId: "e-gpt",
     vendor: "OpenAI",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -181,6 +192,7 @@ export const ENTITIES: Entity[] = [
     type: "model",
     slug: "gpt-4-5",
     name: { zh: "GPT-4.5 Preview", en: "GPT-4.5 Preview" },
+    familyId: "e-gpt",
     vendor: "OpenAI",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -211,6 +223,7 @@ export const ENTITIES: Entity[] = [
     type: "model",
     slug: "gpt-5",
     name: { zh: "GPT-5", en: "GPT-5" },
+    familyId: "e-gpt",
     vendor: "OpenAI",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -274,6 +287,7 @@ export const ENTITIES: Entity[] = [
     type: "model",
     slug: "claude-3-5-sonnet",
     name: { zh: "Claude 3.5 Sonnet", en: "Claude 3.5 Sonnet" },
+    familyId: "e-claude",
     vendor: "Anthropic",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -303,6 +317,7 @@ export const ENTITIES: Entity[] = [
     type: "model",
     slug: "claude-4-sonnet",
     name: { zh: "Claude 4 Sonnet", en: "Claude 4 Sonnet" },
+    familyId: "e-claude",
     vendor: "Anthropic",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -332,6 +347,7 @@ export const ENTITIES: Entity[] = [
     type: "model",
     slug: "claude-4-5-sonnet",
     name: { zh: "Claude 4.5 Sonnet", en: "Claude 4.5 Sonnet" },
+    familyId: "e-claude",
     vendor: "Anthropic",
     origin: { zh: "美国", en: "United States" },
     summary: {
@@ -382,6 +398,92 @@ export const ENTITIES: Entity[] = [
     latestVersion: "Gemini 2.5 Pro",
     firstReleasedAt: "2023-12-06",
     lastUpdatedAt: "2026-07-05",
+    capabilities: [
+      { zh: "超长上下文分析", en: "Ultra-long context analysis", confidence: "verified" },
+      { zh: "原生音视频多模态", en: "Native audio-video multimodality", confidence: "verified" },
+      {
+        zh: "搜索增强与代码执行",
+        en: "Search grounding and code execution",
+        confidence: "verified",
+      },
+    ],
+  },
+  {
+    id: "e-gemini-15-pro",
+    type: "model",
+    slug: "gemini-1-5-pro",
+    name: { zh: "Gemini 1.5 Pro", en: "Gemini 1.5 Pro" },
+    familyId: "e-gemini",
+    vendor: "Google DeepMind",
+    origin: { zh: "美国", en: "United States" },
+    summary: {
+      zh: "Gemini 系列率先把超长上下文带入稳定产品形态的版本，适合长文档、代码库和长视频分析。",
+      en: "The Gemini release that brought ultra-long context into a stable product for documents, codebases and long video.",
+    },
+    status: "active",
+    tags: ["具体版本", "Gemini版本", "长上下文", "多模态"],
+    latestVersion: "gemini-1.5-pro-002",
+    firstReleasedAt: "2024-02-15",
+    lastUpdatedAt: "2024-09-24",
+    specs: {
+      contextWindow: "2M tokens",
+      inputPrice: "$1.25 / 1M tokens（演示）",
+      outputPrice: "$5.00 / 1M tokens（演示）",
+      modalities: "文本 · 图像 · 音频 · 视频",
+      toolUse: "函数调用 · 代码执行",
+      availability: "Gemini API · Vertex AI",
+    },
+    capabilities: [
+      {
+        zh: "超长文档与代码库分析",
+        en: "Long-document and codebase analysis",
+        confidence: "verified",
+      },
+      { zh: "长视频理解", en: "Long-video understanding", confidence: "verified" },
+    ],
+  },
+  {
+    id: "e-gemini-25-pro",
+    type: "model",
+    slug: "gemini-2-5-pro",
+    name: { zh: "Gemini 2.5 Pro", en: "Gemini 2.5 Pro" },
+    familyId: "e-gemini",
+    vendor: "Google DeepMind",
+    origin: { zh: "美国", en: "United States" },
+    summary: {
+      zh: "在长上下文基础上增加思考模式、代码和复杂多模态推理，是 Gemini 系列当前演示旗舰版本。",
+      en: "Adds thinking, coding and complex multimodal reasoning on top of long context; the current demo Gemini flagship.",
+    },
+    status: "active",
+    tags: ["具体版本", "Gemini版本", "推理", "多模态"],
+    latestVersion: "gemini-2.5-pro-20260705",
+    firstReleasedAt: "2025-03-25",
+    lastUpdatedAt: "2026-07-05",
+    specs: {
+      contextWindow: "2M tokens",
+      inputPrice: "$1.25 / 1M tokens（演示）",
+      outputPrice: "$10.00 / 1M tokens（演示）",
+      modalities: "文本 · 图像 · 音频 · 视频",
+      toolUse: "函数调用 · 代码执行 · 搜索增强",
+      availability: "Gemini API · Vertex AI · Gemini",
+    },
+    capabilities: [
+      {
+        zh: "可控思考与复杂推理",
+        en: "Controllable thinking and complex reasoning",
+        confidence: "verified",
+      },
+      {
+        zh: "长视频与跨模态检索",
+        en: "Long-video and cross-modal retrieval",
+        confidence: "verified",
+      },
+      {
+        zh: "代码执行与搜索增强",
+        en: "Code execution and search grounding",
+        confidence: "verified",
+      },
+    ],
   },
   {
     id: "e-deepseek",
@@ -399,6 +501,71 @@ export const ENTITIES: Entity[] = [
     latestVersion: "DeepSeek R2",
     firstReleasedAt: "2023-11-29",
     lastUpdatedAt: "2026-05-30",
+    capabilities: [
+      { zh: "数学与代码推理", en: "Math and code reasoning", confidence: "verified" },
+      { zh: "开放权重部署", en: "Open-weight deployment", confidence: "verified" },
+      { zh: "低成本 MoE 推理", en: "Cost-efficient MoE inference", confidence: "inferred" },
+    ],
+  },
+  {
+    id: "e-deepseek-v3",
+    type: "model",
+    slug: "deepseek-v3",
+    name: { zh: "DeepSeek-V3", en: "DeepSeek-V3" },
+    familyId: "e-deepseek",
+    vendor: "深度求索",
+    origin: { zh: "中国", en: "China" },
+    summary: {
+      zh: "DeepSeek 的通用 MoE 基座版本，重点优化训练效率、中文、代码与开放权重部署。",
+      en: "DeepSeek's general MoE foundation release focused on training efficiency, Chinese, code and open-weight deployment.",
+    },
+    status: "active",
+    tags: ["具体版本", "DeepSeek版本", "MoE", "开放权重"],
+    latestVersion: "deepseek-v3-20250324",
+    firstReleasedAt: "2024-12-26",
+    lastUpdatedAt: "2025-03-24",
+    specs: {
+      contextWindow: "128K tokens",
+      inputPrice: "API 或自托管（随平台变化）",
+      outputPrice: "API 或自托管（随平台变化）",
+      modalities: "文本",
+      toolUse: "函数调用 · JSON 输出",
+      availability: "API · 开放权重",
+    },
+    capabilities: [
+      { zh: "高效 MoE 推理", en: "Efficient MoE inference", confidence: "verified" },
+      { zh: "中文与代码生成", en: "Chinese and code generation", confidence: "verified" },
+    ],
+  },
+  {
+    id: "e-deepseek-r2",
+    type: "model",
+    slug: "deepseek-r2",
+    name: { zh: "DeepSeek-R2", en: "DeepSeek-R2" },
+    familyId: "e-deepseek",
+    vendor: "深度求索",
+    origin: { zh: "中国", en: "China" },
+    summary: {
+      zh: "面向数学、代码与长链推理的演示版本，在开放权重与低部署成本方向延续 DeepSeek 路线。",
+      en: "A demo release for math, code and long-chain reasoning, continuing DeepSeek's open-weight and low-cost deployment strategy.",
+    },
+    status: "preview",
+    tags: ["具体版本", "DeepSeek版本", "推理", "开放权重", "演示"],
+    latestVersion: "deepseek-r2-preview",
+    firstReleasedAt: "2026-05-30",
+    lastUpdatedAt: "2026-05-30",
+    specs: {
+      contextWindow: "256K tokens（演示）",
+      inputPrice: "开放权重 / API（演示）",
+      outputPrice: "开放权重 / API（演示）",
+      modalities: "文本",
+      toolUse: "函数调用 · 代码沙箱 · Agent 编排",
+      availability: "预览 API · 开放权重计划",
+    },
+    capabilities: [
+      { zh: "数学与代码深度推理", en: "Deep reasoning for math and code", confidence: "verified" },
+      { zh: "低成本私有化部署", en: "Low-cost private deployment", confidence: "inferred" },
+    ],
   },
   {
     id: "e-qwen",
@@ -416,6 +583,80 @@ export const ENTITIES: Entity[] = [
     latestVersion: "Qwen3-Max",
     firstReleasedAt: "2023-08-03",
     lastUpdatedAt: "2026-07-01",
+    capabilities: [
+      {
+        zh: "中文与多语言理解",
+        en: "Chinese and multilingual understanding",
+        confidence: "verified",
+      },
+      { zh: "代码与结构化输出", en: "Code and structured output", confidence: "verified" },
+      { zh: "开放权重与企业 API", en: "Open weights and enterprise APIs", confidence: "verified" },
+    ],
+  },
+  {
+    id: "e-qwen-25-max",
+    type: "model",
+    slug: "qwen-2-5-max",
+    name: { zh: "Qwen2.5-Max", en: "Qwen2.5-Max" },
+    familyId: "e-qwen",
+    vendor: "阿里巴巴",
+    origin: { zh: "中国", en: "China" },
+    summary: {
+      zh: "Qwen2.5 系列的大规模 MoE 版本，强化中文、代码、结构化输出与企业 API 场景。",
+      en: "A large MoE Qwen2.5 release for Chinese, code, structured output and enterprise APIs.",
+    },
+    status: "active",
+    tags: ["具体版本", "Qwen版本", "MoE", "代码"],
+    latestVersion: "qwen-max-2025-01-25",
+    firstReleasedAt: "2025-01-29",
+    lastUpdatedAt: "2025-01-29",
+    specs: {
+      contextWindow: "128K tokens",
+      inputPrice: "随地区与云平台计费",
+      outputPrice: "随地区与云平台计费",
+      modalities: "文本",
+      toolUse: "函数调用 · 结构化输出",
+      availability: "百炼 API",
+    },
+    capabilities: [
+      {
+        zh: "中文与企业知识任务",
+        en: "Chinese and enterprise knowledge tasks",
+        confidence: "verified",
+      },
+      { zh: "代码与结构化输出", en: "Code and structured output", confidence: "verified" },
+    ],
+  },
+  {
+    id: "e-qwen-3-max",
+    type: "model",
+    slug: "qwen-3-max",
+    name: { zh: "Qwen3-Max", en: "Qwen3-Max" },
+    familyId: "e-qwen",
+    vendor: "阿里巴巴",
+    origin: { zh: "中国", en: "China" },
+    summary: {
+      zh: "Qwen 系列当前演示旗舰版本，把混合推理、多语言、代码与 Agent 工具调用整合到统一版本。",
+      en: "The current demo Qwen flagship combining hybrid reasoning, multilingual code and agentic tool use.",
+    },
+    status: "active",
+    tags: ["具体版本", "Qwen版本", "混合推理", "Agent", "演示"],
+    latestVersion: "qwen3-max-20260701",
+    firstReleasedAt: "2026-07-01",
+    lastUpdatedAt: "2026-07-01",
+    specs: {
+      contextWindow: "256K tokens（演示）",
+      inputPrice: "随地区与云平台计费（演示）",
+      outputPrice: "随地区与云平台计费（演示）",
+      modalities: "文本 · 图像",
+      toolUse: "并行工具调用 · Agent 编排",
+      availability: "百炼 API · 通义千问",
+    },
+    capabilities: [
+      { zh: "快速 / 深度混合推理", en: "Hybrid fast and deep reasoning", confidence: "verified" },
+      { zh: "多语言代码 Agent", en: "Multilingual coding agents", confidence: "verified" },
+      { zh: "中文多模态理解", en: "Chinese multimodal understanding", confidence: "inferred" },
+    ],
   },
   {
     id: "e-kimi",
@@ -789,12 +1030,96 @@ export const TIMELINE: Record<string, TimelineEvent[]> = {
       confidence: "verified",
     },
   ],
+  "e-gemini": [
+    {
+      id: "t-gemini-15-pro",
+      date: "2024-02-15",
+      title: { zh: "Gemini 1.5 Pro：超长上下文", en: "Gemini 1.5 Pro: ultra-long context" },
+      summary: {
+        zh: "上下文扩展到 2M tokens，新增长视频、代码库和大规模文档分析；演示价格为输入 $1.25、输出 $5 / 百万 tokens。",
+        en: "Expanded to 2M tokens for long video, codebases and large documents; demo pricing of $1.25/$5 per 1M tokens.",
+      },
+      kind: "release",
+      sourceIds: ["s-google-gemini"],
+      confidence: "verified",
+    },
+    {
+      id: "t-gemini-25-pro",
+      date: "2025-03-25",
+      title: { zh: "Gemini 2.5 Pro：思考与代码增强", en: "Gemini 2.5 Pro: thinking and code" },
+      summary: {
+        zh: "在长上下文上增加思考模式、代码执行与搜索增强；演示输出价格调整为 $10 / 百万 tokens。",
+        en: "Added thinking, code execution and search grounding; demo output pricing changed to $10 per 1M tokens.",
+      },
+      kind: "release",
+      sourceIds: ["s-google-gemini"],
+      confidence: "verified",
+    },
+  ],
+  "e-deepseek": [
+    {
+      id: "t-deepseek-v3",
+      date: "2024-12-26",
+      title: { zh: "DeepSeek-V3：高效 MoE 基座", en: "DeepSeek-V3: efficient MoE foundation" },
+      summary: {
+        zh: "以 MoE 架构降低训练与推理成本，强化中文和代码，并提供 API 与开放权重部署路径。",
+        en: "Used MoE to reduce training and inference cost, strengthening Chinese and code with API and open-weight deployment.",
+      },
+      kind: "release",
+      sourceIds: ["s-deepseek-r2"],
+      confidence: "verified",
+    },
+    {
+      id: "t-deepseek-r2",
+      date: "2026-05-30",
+      title: { zh: "DeepSeek-R2：推理版本预览", en: "DeepSeek-R2: reasoning preview" },
+      summary: {
+        zh: "演示版本将上下文扩至 256K，并增加代码沙箱和 Agent 编排；价格随 API 或自托管环境变化。",
+        en: "Demo release expands to 256K with code sandboxing and agent orchestration; cost depends on API or self-hosting.",
+      },
+      kind: "release",
+      sourceIds: ["s-deepseek-r2"],
+      confidence: "verified",
+    },
+  ],
+  "e-qwen": [
+    {
+      id: "t-qwen-25-max",
+      date: "2025-01-29",
+      title: { zh: "Qwen2.5-Max：企业与代码能力", en: "Qwen2.5-Max: enterprise and code" },
+      summary: {
+        zh: "强化中文、代码和结构化输出，主要通过百炼 API 提供；价格随地区和云平台计费。",
+        en: "Improved Chinese, code and structured output through Bailian APIs; pricing varies by region and cloud.",
+      },
+      kind: "release",
+      sourceIds: ["s-qwen-models"],
+      confidence: "verified",
+    },
+    {
+      id: "t-qwen-3-max",
+      date: "2026-07-01",
+      title: { zh: "Qwen3-Max：混合推理与 Agent", en: "Qwen3-Max: hybrid reasoning and agents" },
+      summary: {
+        zh: "演示版本统一快速与深度推理，新增 256K 上下文、并行工具调用和中文多模态理解。",
+        en: "Demo release unifies fast and deep reasoning with 256K context, parallel tools and Chinese multimodality.",
+      },
+      kind: "release",
+      sourceIds: ["s-qwen-models"],
+      confidence: "verified",
+    },
+  ],
   "e-gpt-4o": [],
   "e-gpt-45": [],
   "e-gpt-5": [],
   "e-claude-35": [],
   "e-claude-4": [],
   "e-claude-45": [],
+  "e-gemini-15-pro": [],
+  "e-gemini-25-pro": [],
+  "e-deepseek-v3": [],
+  "e-deepseek-r2": [],
+  "e-qwen-25-max": [],
+  "e-qwen-3-max": [],
 };
 
 TIMELINE["e-gpt-4o"] = TIMELINE["e-gpt"].filter((event) => event.id === "t-gpt-4o");
@@ -803,6 +1128,16 @@ TIMELINE["e-gpt-5"] = TIMELINE["e-gpt"].filter((event) => event.id === "t-gpt-5"
 TIMELINE["e-claude-35"] = TIMELINE["e-claude"].filter((event) => event.id === "t-c-35");
 TIMELINE["e-claude-4"] = TIMELINE["e-claude"].filter((event) => event.id === "t-c-4");
 TIMELINE["e-claude-45"] = TIMELINE["e-claude"].filter((event) => event.id === "t-c-2");
+TIMELINE["e-gemini-15-pro"] = TIMELINE["e-gemini"].filter(
+  (event) => event.id === "t-gemini-15-pro",
+);
+TIMELINE["e-gemini-25-pro"] = TIMELINE["e-gemini"].filter(
+  (event) => event.id === "t-gemini-25-pro",
+);
+TIMELINE["e-deepseek-v3"] = TIMELINE["e-deepseek"].filter((event) => event.id === "t-deepseek-v3");
+TIMELINE["e-deepseek-r2"] = TIMELINE["e-deepseek"].filter((event) => event.id === "t-deepseek-r2");
+TIMELINE["e-qwen-25-max"] = TIMELINE["e-qwen"].filter((event) => event.id === "t-qwen-25-max");
+TIMELINE["e-qwen-3-max"] = TIMELINE["e-qwen"].filter((event) => event.id === "t-qwen-3-max");
 
 export const RELATIONS: Relation[] = [
   {
@@ -1044,6 +1379,118 @@ export const RELATIONS: Relation[] = [
     kind: "competes-with",
     confidence: "verified",
     sourceIds: ["s-openai-gpt5", "s-anthropic-claude"],
+  },
+  {
+    id: "r31",
+    fromId: "e-gemini-15-pro",
+    toId: "e-gemini",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-google-gemini"],
+  },
+  {
+    id: "r32",
+    fromId: "e-gemini-25-pro",
+    toId: "e-gemini",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-google-gemini"],
+  },
+  {
+    id: "r33",
+    fromId: "e-gemini-25-pro",
+    toId: "e-gemini-15-pro",
+    kind: "successor-of",
+    confidence: "verified",
+    sourceIds: ["s-google-gemini"],
+  },
+  {
+    id: "r34",
+    fromId: "e-gemini-25-pro",
+    toId: "e-mmlu",
+    kind: "benchmarked-on",
+    confidence: "verified",
+    sourceIds: ["s-google-gemini"],
+  },
+  {
+    id: "r35",
+    fromId: "e-deepseek-v3",
+    toId: "e-deepseek",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-deepseek-r2"],
+  },
+  {
+    id: "r36",
+    fromId: "e-deepseek-r2",
+    toId: "e-deepseek",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-deepseek-r2"],
+  },
+  {
+    id: "r37",
+    fromId: "e-deepseek-r2",
+    toId: "e-deepseek-v3",
+    kind: "successor-of",
+    confidence: "inferred",
+    sourceIds: ["s-deepseek-r2"],
+  },
+  {
+    id: "r38",
+    fromId: "e-deepseek-r2",
+    toId: "e-swebench",
+    kind: "benchmarked-on",
+    confidence: "verified",
+    sourceIds: ["s-deepseek-r2", "s-swebench"],
+  },
+  {
+    id: "r39",
+    fromId: "e-qwen-25-max",
+    toId: "e-qwen",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-qwen-models"],
+  },
+  {
+    id: "r40",
+    fromId: "e-qwen-3-max",
+    toId: "e-qwen",
+    kind: "part-of",
+    confidence: "verified",
+    sourceIds: ["s-qwen-models"],
+  },
+  {
+    id: "r41",
+    fromId: "e-qwen-3-max",
+    toId: "e-qwen-25-max",
+    kind: "successor-of",
+    confidence: "verified",
+    sourceIds: ["s-qwen-models"],
+  },
+  {
+    id: "r42",
+    fromId: "e-qwen-3-max",
+    toId: "e-mmlu",
+    kind: "benchmarked-on",
+    confidence: "verified",
+    sourceIds: ["s-qwen-models"],
+  },
+  {
+    id: "r43",
+    fromId: "e-gpt-5",
+    toId: "e-gemini-25-pro",
+    kind: "competes-with",
+    confidence: "verified",
+    sourceIds: ["s-openai-gpt5", "s-google-gemini"],
+  },
+  {
+    id: "r44",
+    fromId: "e-deepseek-r2",
+    toId: "e-qwen-3-max",
+    kind: "competes-with",
+    confidence: "inferred",
+    sourceIds: ["s-deepseek-r2", "s-qwen-models"],
   },
 ];
 
