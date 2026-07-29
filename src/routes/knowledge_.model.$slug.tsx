@@ -75,10 +75,8 @@ function EntityDetail() {
     c.sourceIds.some((sourceId) => evidence.some((source) => source.id === sourceId)),
   );
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
-  const childVersions = relations
-    .filter((relation) => relation.kind === "part-of" && relation.toId === e.id)
-    .map((relation) => findEntity(relation.fromId))
-    .filter((entity): entity is Entity => Boolean(entity))
+  const childVersions = entities
+    .filter((entity) => entity.familyId === e.id)
     .sort((a, b) => (a.firstReleasedAt ?? "").localeCompare(b.firstReleasedAt ?? ""));
 
   const competitors = relatedRelations

@@ -102,6 +102,8 @@ export interface EntitySummary {
 
 export interface EntityDetail extends EntitySummary {
   aliases?: string[];
+  /** Present only on a concrete model release; points to its model-family entity. */
+  familyId?: string;
   specs?: {
     contextWindow?: string;
     inputPrice?: string;

@@ -29,7 +29,7 @@ function ComparePage() {
     (entity) => entity.type === "model",
   );
   const models = allModels.filter((model) =>
-    scope === "versions" ? model.tags.includes("具体版本") : !model.tags.includes("具体版本"),
+    scope === "versions" ? Boolean(model.familyId) : !model.familyId,
   );
   const chosen = models.filter((model) => selected.includes(model.id));
 
