@@ -12,6 +12,7 @@ import {
   Layers,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
 import {
   DemoBadge,
   ConfidenceChip,
@@ -25,7 +26,7 @@ import { useApp, pick } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Entity, KnowledgeSnapshot } from "@/domain/types";
+import type { Entity, EntityDetail, KnowledgeSnapshot } from "@/domain/types";
 
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
@@ -57,7 +58,7 @@ function EntityDetail() {
     snapshot: KnowledgeSnapshot;
   };
   const { t, lang, mode } = useApp();
-  const { entities, evidence, claims: allClaims, timeline: allTimeline, graph } = snapshot;
+  const { entities, evidence: allEvidence, timeline: allTimeline, graph } = snapshot;
   const relations = graph.edges;
   const findEntity = (id: string) => entities.find((entity) => entity.id === id);
 
@@ -73,13 +74,25 @@ function EntityDetail() {
 
   const timeline = allTimeline[e.id] ?? [];
   const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
-  const claims = allClaims.filter((c) =>
-    c.sourceIds.some((sourceId) => evidence.some((source) => source.id === sourceId)),
-  );
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
   const childVersions = entities
     .filter((entity) => entity.familyId === e.id)
     .sort((a, b) => (a.firstReleasedAt ?? "").localeCompare(b.firstReleasedAt ?? ""));
+  const parentFamily = e.familyId ? findEntity(e.familyId) : undefined;
+  const knowledge = e.knowledge ?? createVersionKnowledge(e, parentFamily);
+  const relevantSourceIds = new Set([
+    ...relatedRelations.flatMap((relation) => relation.sourceIds),
+    ...timeline.flatMap((event) => event.sourceIds),
+    ...(e.metrics ?? []).flatMap((metric) => metric.sourceIds ?? []),
+    ...knowledge.keyPoints.flatMap((point) => point.sourceIds ?? []),
+    ...(recentChange?.sourceIds ?? []),
+  ]);
+  if (e.familyId) {
+    parentFamily?.knowledge?.keyPoints.forEach((point) =>
+      point.sourceIds?.forEach((sourceId) => relevantSourceIds.add(sourceId)),
+    );
+  }
+  const evidence = allEvidence.filter((source) => relevantSourceIds.has(source.id));
 
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
@@ -119,6 +132,17 @@ function EntityDetail() {
               </p>
             </div>
             <div className="flex gap-2">
+              {knowledge.officialUrl && (
+                <a
+                  href={knowledge.officialUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {t("官方资料", "Official source")}
+                </a>
+              )}
               <Link
                 to="/graph"
                 className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border bg-card text-sm hover:bg-accent"
@@ -151,10 +175,29 @@ function EntityDetail() {
       </div>
 
       <div className="page-container space-y-12 pb-12 pt-5">
+        <KnowledgeArticle
+          knowledge={knowledge}
+          entityName={e.name}
+          sectionEyebrow="01"
+          articleLabel={
+            e.familyId
+              ? { zh: "具体版本导读", en: "Model release guide" }
+              : { zh: "模型系列导读", en: "Model family guide" }
+          }
+          articleTitle={
+            e.familyId
+              ? {
+                  zh: `${e.name.zh} 是什么版本？`,
+                  en: `Where does ${e.name.en} fit?`,
+                }
+              : undefined
+          }
+        />
+
         {/* 1. 结构化档案 */}
         <section>
           <SectionHeading
-            eyebrow="01"
+            eyebrow="02"
             title={t("结构化档案", "Structured profile")}
             description={t(
               "关于该实体的核心事实、能力与最新指标，所有条目都标注置信度与来源。",
@@ -190,10 +233,7 @@ function EntityDetail() {
                   label={t("当前状态", "Status")}
                   value={e.status === "active" ? t("已发布 / 活跃", "Released / active") : e.status}
                 />
-                <ProfileField
-                  label={t("地域归属", "Region")}
-                  value={e.origin ? pick(e.origin, lang) : "—"}
-                />
+                <ProfileField label={t("地域归属", "Region")} value={regionLabel(e, t)} />
                 <ProfileField label={t("标签", "Tags")} value={e.tags.join(" · ")} wide />
               </dl>
             </article>
@@ -308,7 +348,7 @@ function EntityDetail() {
         {childVersions.length > 0 && (
           <section>
             <SectionHeading
-              eyebrow="02"
+              eyebrow="03"
               title={t("版本谱系与迭代差异", "Version lineage and iteration changes")}
               description={t(
                 "系列不是一个模糊的大标签：每个版本分别记录发布时间、上下文、价格和能力变化。",
@@ -378,7 +418,7 @@ function EntityDetail() {
         {/* 局部图谱 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "03" : "02"}
+            eyebrow={childVersions.length > 0 ? "04" : "03"}
             title={t("局部知识图谱", "Local knowledge graph")}
             description={t(
               `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
@@ -422,7 +462,7 @@ function EntityDetail() {
         {/* Timeline */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "04" : "03"}
+            eyebrow={childVersions.length > 0 ? "05" : "04"}
             title={t("版本演进时间线", "Version evolution timeline")}
             description={t(
               "每次迭代明确记录功能、上下文和价格变化；不会用最新值覆盖历史状态。",
@@ -456,7 +496,7 @@ function EntityDetail() {
         {/* Compare */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "05" : "04"}
+            eyebrow={childVersions.length > 0 ? "06" : "05"}
             title={t("进入具体版本对比", "Compare concrete versions")}
             action={
               <Link
@@ -519,7 +559,7 @@ function EntityDetail() {
         {/* AI 问答 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "06" : "05"}
+            eyebrow={childVersions.length > 0 ? "07" : "06"}
             title={t("AI 问答", "Ask AI")}
             description={t(
               "所有 AI 回答均基于本页图谱数据，事实 / 推断 / 未核验分开呈现。",
@@ -583,7 +623,7 @@ function EntityDetail() {
         {/* 来源 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "07" : "06"}
+            eyebrow={childVersions.length > 0 ? "08" : "07"}
             title={t("来源", "Sources")}
             description={t(
               "每条事实至少一个来源。列表按发布时间倒序。",
@@ -609,6 +649,97 @@ function EntityDetail() {
       </div>
     </AppShell>
   );
+}
+
+function createVersionKnowledge(
+  entity: Entity,
+  family?: Entity,
+): NonNullable<EntityDetail["knowledge"]> {
+  const familyName = family?.name ?? { zh: "所属模型系列", en: "its model family" };
+  const release = entity.firstReleasedAt ?? "—";
+  const context = entity.specs?.contextWindow ?? "未公开";
+  const availability = entity.specs?.availability ?? "以官方平台为准";
+  const inputPrice = entity.specs?.inputPrice ?? "未公开";
+  const outputPrice = entity.specs?.outputPrice ?? "未公开";
+  const topCapabilities = (entity.capabilities ?? []).slice(0, 3);
+
+  return {
+    introduction: [
+      {
+        zh: `${entity.name.zh} 是 ${familyName.zh} 中的一个具体版本，而不是整个模型系列。它的价值要结合发布时间、上下文窗口、可用渠道、工具能力和价格一起判断。`,
+        en: `${entity.name.en} is a concrete release in ${familyName.en}, not the entire family. Its value should be judged using release date, context window, availability, tool support and price together.`,
+      },
+      entity.summary,
+    ],
+    significance: {
+      zh: `选择模型时，具体版本比系列名称更有决策价值。${entity.name.zh} 的规格代表某个时间点的产品状态，不能直接套用到同系列的更早或更新版本。`,
+      en: `Concrete releases are more useful for decisions than family names. The specifications for ${entity.name.en} describe one point in time and should not be applied to every release in the same family.`,
+    },
+    keyPoints: [
+      {
+        title: { zh: "版本位置", en: "Release position" },
+        description: {
+          zh: `属于 ${familyName.zh}；首次发布于 ${release}。`,
+          en: `Part of ${familyName.en}; first released on ${release}.`,
+        },
+      },
+      {
+        title: { zh: "上下文与渠道", en: "Context and access" },
+        description: {
+          zh: `上下文：${context}；可用渠道：${availability}。`,
+          en: `Context: ${context}; availability: ${availability}.`,
+        },
+      },
+      {
+        title: { zh: "价格快照", en: "Price snapshot" },
+        description: {
+          zh: `输入：${inputPrice}；输出：${outputPrice}。价格是页面记录时的快照，使用前应复核官方计费页。`,
+          en: `Input: ${inputPrice}; output: ${outputPrice}. Prices are snapshots and should be rechecked against the official pricing page before use.`,
+        },
+      },
+    ],
+    useCases:
+      topCapabilities.length > 0
+        ? topCapabilities.map((capability) => ({
+            title: { zh: capability.zh, en: capability.en },
+            description: {
+              zh: `当任务核心需求是“${capability.zh}”时，可将该版本纳入候选，并继续核对成本、延迟与部署限制。`,
+              en: `Shortlist this release when the task requires ${capability.en.toLowerCase()}, then verify cost, latency and deployment constraints.`,
+            },
+          }))
+        : [
+            {
+              title: { zh: "通用任务评估", en: "General task evaluation" },
+              description: {
+                zh: "先用真实业务样本进行小规模评测，再决定是否进入生产环境。",
+                en: "Evaluate with real task samples before adopting it in production.",
+              },
+            },
+          ],
+    limitations: [
+      {
+        zh: "页面中的演示价格、预览规格和未来时间数据均会明确标注；它们不能替代官方实时文档。",
+        en: "Demo prices, preview specifications and future-dated data are explicitly labeled and do not replace live official documentation.",
+      },
+      {
+        zh: "同系列不同版本的上下文、工具调用、延迟与计费可能完全不同，对比时必须选择具体版本。",
+        en: "Context, tools, latency and pricing can differ materially between releases; comparisons should use concrete versions.",
+      },
+      {
+        zh: "公开 Benchmark 只能反映部分能力，最终选择仍需要使用自己的任务、语言和数据进行评测。",
+        en: "Public benchmarks cover only part of model quality; final selection requires evaluation on your own tasks, language and data.",
+      },
+    ],
+    officialUrl: family?.knowledge?.officialUrl,
+  };
+}
+
+function regionLabel(entity: Entity, t: (zh: string, en: string) => string) {
+  if (!entity.origin) return "—";
+  return ["中国", "国内", "China", "Domestic"].includes(entity.origin.zh) ||
+    ["中国", "国内", "China", "Domestic"].includes(entity.origin.en)
+    ? t("国内", "Domestic")
+    : t("海外", "Overseas");
 }
 
 function ProfileField({

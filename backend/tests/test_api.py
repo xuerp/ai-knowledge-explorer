@@ -80,6 +80,23 @@ def test_non_model_entities_expose_editorial_knowledge_articles(client: TestClie
     assert all(point["sourceIds"] for point in knowledge["keyPoints"])
 
 
+def test_model_families_expose_editorial_guides(client: TestClient):
+    families = client.get("/api/v2/model-families")
+    assert families.status_code == 200
+    assert len(families.json()) == 8
+
+    for family in families.json():
+        entity = client.get(f"/api/v2/entities/model/{family['slug']}")
+        assert entity.status_code == 200
+        knowledge = entity.json()["knowledge"]
+        assert len(knowledge["introduction"]) >= 2
+        assert len(knowledge["keyPoints"]) >= 3
+        assert len(knowledge["useCases"]) >= 3
+        assert len(knowledge["limitations"]) >= 3
+        assert knowledge["officialUrl"].startswith("https://")
+        assert any(point.get("sourceIds") for point in knowledge["keyPoints"])
+
+
 def test_model_family_version_catalog_and_comparison(client: TestClient):
     families = client.get("/api/v2/model-families")
     assert families.status_code == 200

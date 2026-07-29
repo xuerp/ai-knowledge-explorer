@@ -85,7 +85,108 @@
           "date": "2026-07-12",
           "confidence": "inferred"
         }
-      ]
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "GPT 是 OpenAI 的通用生成式模型家族。“GPT 系列”是一个持续迭代的产品谱系，不等于某个固定模型：GPT-4o、GPT-4.5 与本演示中的 GPT-5 在速度、推理、模态、工具调用和价格上各有不同。",
+            "en": "GPT is OpenAI's general-purpose generative model family. It is an evolving lineage rather than one fixed model: GPT-4o, GPT-4.5 and the demo GPT-5 differ in speed, reasoning, modalities, tools and price."
+          },
+          {
+            "zh": "理解 GPT 的关键不是记住“第几代”，而是先确定具体版本与入口，再核对上下文、工具能力、数据政策和实时计费。ChatGPT 产品中的模型体验也不能直接等同于 API 型号。",
+            "en": "The key is not memorizing the generation number but identifying the concrete release and access channel, then checking context, tools, data policy and current pricing. A ChatGPT experience is not automatically identical to an API model."
+          }
+        ],
+        "significance": {
+          "zh": "GPT 影响了对话式 AI、代码助手和 Agent 产品的通用交互范式，也是闭源模型能力与商业化成熟度的重要参照系。",
+          "en": "GPT shaped the interaction pattern for conversational AI, coding assistants and agents, and remains a major reference point for closed-model capability and commercialization."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "它是系列，不是单一型号",
+              "en": "A family, not one model"
+            },
+            "description": {
+              "zh": "比较时应选 GPT-4o、GPT-4.5、GPT-5 等具体版本，不能只写“GPT”。",
+              "en": "Comparisons should select GPT-4o, GPT-4.5, GPT-5 or another concrete release, not just “GPT.”"
+            },
+            "sourceIds": [
+              "s-openai-gpt5"
+            ]
+          },
+          {
+            "title": {
+              "zh": "优势覆盖面广",
+              "en": "Broad capability coverage"
+            },
+            "description": {
+              "zh": "系列覆盖文本、图像、语音、代码、推理和工具调用，但各版本组合不同。",
+              "en": "The family spans text, image, audio, code, reasoning and tools, with different combinations by release."
+            },
+            "sourceIds": [
+              "s-openai-gpt5"
+            ]
+          },
+          {
+            "title": {
+              "zh": "成本差异可能很大",
+              "en": "Costs vary substantially"
+            },
+            "description": {
+              "zh": "同系列版本之间的输入、输出价格和延迟差异足以改变产品方案。",
+              "en": "Input/output pricing and latency can differ enough across releases to change the product decision."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "通用智能助手",
+              "en": "General assistants"
+            },
+            "description": {
+              "zh": "用于问答、写作、信息整理与多轮交互，需要结合检索和验证控制事实风险。",
+              "en": "For Q&A, writing, synthesis and multi-turn interaction, with retrieval and verification for factual risk."
+            }
+          },
+          {
+            "title": {
+              "zh": "代码与 Agent",
+              "en": "Code and agents"
+            },
+            "description": {
+              "zh": "用于代码生成、工具调用和工作流编排，适合具备权限边界与失败恢复的系统。",
+              "en": "For code generation, tool use and workflow orchestration in systems with permission boundaries and recovery."
+            }
+          },
+          {
+            "title": {
+              "zh": "多模态产品",
+              "en": "Multimodal products"
+            },
+            "description": {
+              "zh": "用于图像、语音和文本组合交互，但需按具体 API 核对支持的输入输出模态。",
+              "en": "For combined image, audio and text experiences, after checking the exact API modalities."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "闭源服务的模型权重、训练数据和部分评测细节不可见，能力判断需要外部验证。",
+            "en": "Weights, training data and some evaluation details are not public, so capability claims need independent validation."
+          },
+          {
+            "zh": "模型会生成错误事实；高风险场景必须增加检索、引用、规则和人工复核。",
+            "en": "Models can produce false statements; high-risk use requires retrieval, citations, rules and human review."
+          },
+          {
+            "zh": "本页 GPT-5 的未来版本数据属于演示内容，不能作为真实采购或价格依据。",
+            "en": "Future-dated GPT-5 data on this page is demo content and must not be used for procurement or pricing."
+          }
+        ],
+        "officialUrl": "https://openai.com/"
+      }
     },
     {
       "id": "e-gpt-4o",
@@ -295,7 +396,105 @@
       ],
       "latestVersion": "Claude 4.5 Sonnet",
       "firstReleasedAt": "2023-03-14",
-      "lastUpdatedAt": "2026-06-20"
+      "lastUpdatedAt": "2026-06-20",
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Claude 是 Anthropic 的通用模型家族，产品定位强调可靠性、安全对齐、长文档处理与复杂工具工作流。系列中的 Haiku、Sonnet、Opus 或不同代际通常面向不同的速度、成本与能力层级。",
+            "en": "Claude is Anthropic's general-purpose model family, positioned around reliability, safety alignment, long documents and complex tool workflows. Haiku, Sonnet, Opus and different generations target different speed, cost and capability tiers."
+          },
+          {
+            "zh": "选择 Claude 时应使用完整版本名与日期化模型 ID。只说“Claude”无法说明上下文窗口、是否支持扩展思考、Computer Use、MCP 或当前价格。",
+            "en": "A Claude decision should use a full release name and dated model ID. “Claude” alone does not specify context, extended thinking, Computer Use, MCP support or current pricing."
+          }
+        ],
+        "significance": {
+          "zh": "Claude 把长文本、代码 Agent 与安全工程结合成清晰的产品路线，是评估企业文档、软件工程和高可靠工作流时的重要候选。",
+          "en": "Claude combines long context, coding agents and safety engineering into a distinct product line, making it a key candidate for enterprise documents, software engineering and reliability-sensitive workflows."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "长文本不是唯一卖点",
+              "en": "More than long context"
+            },
+            "description": {
+              "zh": "除长文档外，Claude 系列也持续强化代码、工具使用、扩展思考与 Agent 稳定性。",
+              "en": "Beyond documents, Claude continues to develop code, tool use, extended thinking and agent reliability."
+            },
+            "sourceIds": [
+              "s-anthropic-claude"
+            ]
+          },
+          {
+            "title": {
+              "zh": "不同档位用途不同",
+              "en": "Different tiers, different jobs"
+            },
+            "description": {
+              "zh": "高能力、均衡和高速度型号不可混为一谈，应按任务难度和吞吐要求选择。",
+              "en": "High-capability, balanced and fast tiers are not interchangeable; choose by task difficulty and throughput."
+            }
+          },
+          {
+            "title": {
+              "zh": "工具权限决定风险",
+              "en": "Tool permissions define risk"
+            },
+            "description": {
+              "zh": "Computer Use 与 Agent 能力越强，越需要沙箱、最小权限、审计与人工确认。",
+              "en": "Stronger computer-use and agent capabilities require sandboxing, least privilege, audit and confirmation."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "长文档分析",
+              "en": "Long-document analysis"
+            },
+            "description": {
+              "zh": "适合合同、研究资料、政策和多文档综合，仍需核对引用是否真的支持结论。",
+              "en": "Useful for contracts, research, policy and multi-document synthesis, with citation verification."
+            }
+          },
+          {
+            "title": {
+              "zh": "软件工程 Agent",
+              "en": "Software agents"
+            },
+            "description": {
+              "zh": "适合仓库级代码理解、重构和多步骤修复，需在受控环境运行。",
+              "en": "Useful for repository-level understanding, refactoring and multi-step fixes in controlled environments."
+            }
+          },
+          {
+            "title": {
+              "zh": "企业知识工作",
+              "en": "Enterprise knowledge work"
+            },
+            "description": {
+              "zh": "适合结构化报告、分析与流程协作，可结合 MCP 接入经过授权的数据源。",
+              "en": "Useful for structured reports, analysis and workflows, with MCP-connected authorized data."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "超长上下文不保证模型能同等准确地利用每一处信息，关键事实仍需定位和复核。",
+            "en": "A long context window does not guarantee equal attention to every detail; critical facts still need verification."
+          },
+          {
+            "zh": "安全策略可能导致拒答或保守输出，需用真实业务样本评估可用性。",
+            "en": "Safety policies may cause refusals or conservative output; evaluate with real business samples."
+          },
+          {
+            "zh": "本演示中的 Claude 4.5 未来规格需以 Anthropic 正式资料为准。",
+            "en": "Future Claude 4.5 specifications in this demo must be checked against official Anthropic material."
+          }
+        ],
+        "officialUrl": "https://www.anthropic.com/claude"
+      }
     },
     {
       "id": "e-claude-35",
@@ -502,7 +701,105 @@
           "en": "Search grounding and code execution",
           "confidence": "verified"
         }
-      ]
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Gemini 是 Google DeepMind 的多模态模型家族，围绕文本、图像、音频、视频、代码和搜索增强构建。它既出现在 Gemini 消费产品中，也通过 Gemini API 与 Vertex AI 面向开发者和企业。",
+            "en": "Gemini is Google DeepMind's multimodal model family spanning text, image, audio, video, code and search grounding. It appears in the Gemini consumer product and through Gemini API and Vertex AI."
+          },
+          {
+            "zh": "系列名称下包含 Pro、Flash 等不同定位以及多个代际。评估时要区分具体版本、上下文窗口、思考能力、区域可用性和云平台计费。",
+            "en": "The family contains Pro, Flash and other tiers across generations. Evaluation must distinguish the exact release, context, thinking behavior, regional availability and cloud pricing."
+          }
+        ],
+        "significance": {
+          "zh": "Gemini 的核心价值是把原生多模态、长上下文、搜索与 Google 云生态结合，适合需要处理复杂媒体或大量上下文的产品。",
+          "en": "Gemini's core value is the combination of native multimodality, long context, search and Google Cloud, especially for media-rich or context-heavy products."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "原生多模态",
+              "en": "Native multimodality"
+            },
+            "description": {
+              "zh": "重点不只是识图，而是统一处理文本、图像、音频、视频和代码。",
+              "en": "The focus goes beyond image understanding to unified text, image, audio, video and code."
+            },
+            "sourceIds": [
+              "s-google-gemini"
+            ]
+          },
+          {
+            "title": {
+              "zh": "长上下文适合大材料",
+              "en": "Long context for large inputs"
+            },
+            "description": {
+              "zh": "可用于长视频、代码库和多文档分析，但长上下文仍不等于可靠召回。",
+              "en": "Useful for long video, codebases and document sets, though long context does not guarantee reliable recall."
+            }
+          },
+          {
+            "title": {
+              "zh": "入口影响能力",
+              "en": "Access path matters"
+            },
+            "description": {
+              "zh": "Gemini 应用、API 与 Vertex AI 的功能、配额和数据治理选项并不完全相同。",
+              "en": "Gemini app, API and Vertex AI differ in features, quotas and data-governance options."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "长视频与媒体理解",
+              "en": "Video and media understanding"
+            },
+            "description": {
+              "zh": "用于视频摘要、片段定位与跨模态问答，并需抽样核对时间点和事实。",
+              "en": "For video summary, moment retrieval and cross-modal Q&A, with sampled fact checking."
+            }
+          },
+          {
+            "title": {
+              "zh": "大规模材料分析",
+              "en": "Large-context analysis"
+            },
+            "description": {
+              "zh": "用于长文档、代码仓库和会议资料综合，适合先检索再精读的流程。",
+              "en": "For documents, repositories and meeting corpora, ideally with retrieve-then-read workflows."
+            }
+          },
+          {
+            "title": {
+              "zh": "Google 云上应用",
+              "en": "Google Cloud applications"
+            },
+            "description": {
+              "zh": "适合已经使用 Vertex AI、搜索和 Google 数据平台的企业系统。",
+              "en": "Useful for enterprise systems already using Vertex AI, search and Google data services."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "不同区域、产品入口和模型档位的可用性与限制可能不同。",
+            "en": "Availability and limits vary by region, product surface and model tier."
+          },
+          {
+            "zh": "多模态回答仍可能误读图表、视频时序或细小视觉信息。",
+            "en": "Multimodal answers can still misread charts, temporal video details or small visual elements."
+          },
+          {
+            "zh": "本页未来版本与演示价格不代表 Google 当前正式报价。",
+            "en": "Future releases and demo prices on this page do not represent Google's live official pricing."
+          }
+        ],
+        "officialUrl": "https://ai.google.dev/gemini-api/docs/models"
+      }
     },
     {
       "id": "e-gemini-15-pro",
@@ -650,7 +947,105 @@
           "en": "Cost-efficient MoE inference",
           "confidence": "inferred"
         }
-      ]
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "DeepSeek 是深度求索推出的模型家族，包含通用基座、推理与代码方向。它因开放权重、MoE 架构、中文与代码能力以及较低的部署与调用成本受到关注。",
+            "en": "DeepSeek is a model family from DeepSeek spanning general, reasoning and coding releases. It is known for open weights, MoE architecture, Chinese and code capability, and cost-efficient deployment and inference."
+          },
+          {
+            "zh": "“开放权重”并不等于可以无条件使用：许可证、硬件需求、量化损失、推理框架和运维成本都会影响实际落地。API 版本与自托管权重也可能不是同一快照。",
+            "en": "Open weights do not mean frictionless use: license, hardware, quantization, inference stack and operations all affect deployment. API releases and self-hosted weights may also be different snapshots."
+          }
+        ],
+        "significance": {
+          "zh": "DeepSeek 让前沿推理能力、开放部署和成本效率进入同一讨论框架，对私有化、国产化和高调用量场景具有代表性。",
+          "en": "DeepSeek puts frontier reasoning, open deployment and cost efficiency into one decision space, making it important for private deployment and high-volume workloads."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "开放部署选择更多",
+              "en": "More deployment choices"
+            },
+            "description": {
+              "zh": "既可使用 API，也可在许可证和资源允许时部署开放权重。",
+              "en": "Use the API or deploy open weights when licensing and infrastructure allow."
+            },
+            "sourceIds": [
+              "s-deepseek-r2"
+            ]
+          },
+          {
+            "title": {
+              "zh": "通用与推理要分开",
+              "en": "General and reasoning differ"
+            },
+            "description": {
+              "zh": "V 系列与 R 系列面向的任务、延迟和推理行为不同，不能只比较系列名。",
+              "en": "V and R releases differ in tasks, latency and reasoning behavior; compare concrete models."
+            }
+          },
+          {
+            "title": {
+              "zh": "低单价不等于低总成本",
+              "en": "Low price is not low TCO"
+            },
+            "description": {
+              "zh": "自托管还需计算 GPU、并发、监控、安全和模型更新成本。",
+              "en": "Self-hosting also includes GPU, concurrency, monitoring, security and upgrade costs."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "数学与代码推理",
+              "en": "Math and code reasoning"
+            },
+            "description": {
+              "zh": "适合可验证的数学、算法和代码任务，最好配合测试与执行环境。",
+              "en": "Useful for verifiable math, algorithms and code with tests and execution."
+            }
+          },
+          {
+            "title": {
+              "zh": "私有化部署",
+              "en": "Private deployment"
+            },
+            "description": {
+              "zh": "适合有数据边界或定制推理需求的组织，但需要成熟的模型运维能力。",
+              "en": "Useful for data-boundary or custom-inference needs, with mature model operations."
+            }
+          },
+          {
+            "title": {
+              "zh": "高调用量服务",
+              "en": "High-volume services"
+            },
+            "description": {
+              "zh": "可作为成本敏感型候选，需用真实吞吐和质量目标测算总成本。",
+              "en": "A cost-sensitive candidate when evaluated using real throughput and quality targets."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "本演示中的 DeepSeek-R2 属于预览/演示数据，不应被视为已正式发布事实。",
+            "en": "DeepSeek-R2 on this site is preview/demo data and must not be treated as a confirmed release."
+          },
+          {
+            "zh": "不同托管平台的上下文、并发、内容策略和价格可能不同。",
+            "en": "Context, concurrency, content policy and price vary by hosting provider."
+          },
+          {
+            "zh": "开放部署需要自行承担安全更新、滥用防护与输出质量监控。",
+            "en": "Open deployment requires owning security updates, abuse controls and quality monitoring."
+          }
+        ],
+        "officialUrl": "https://www.deepseek.com/"
+      }
     },
     {
       "id": "e-deepseek-v3",
@@ -794,7 +1189,105 @@
           "en": "Open weights and enterprise APIs",
           "confidence": "verified"
         }
-      ]
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Qwen（通义千问）是阿里巴巴的模型家族，覆盖通用语言、代码、视觉、音频、数学和 Agent 等方向，并同时提供开放权重与阿里云百炼 API。",
+            "en": "Qwen is Alibaba's model family spanning language, code, vision, audio, math and agents, offered through both open weights and Alibaba Cloud APIs."
+          },
+          {
+            "zh": "Qwen 的版本和尺寸很多。选择时必须说明代际、参数规模、量化版本与具体任务分支；Max API 型号和可下载开放权重也不应被视为同一个产品。",
+            "en": "Qwen has many generations and sizes. Selection should specify generation, parameter scale, quantization and task branch; Max API models and downloadable weights are not the same product."
+          }
+        ],
+        "significance": {
+          "zh": "Qwen 提供了覆盖完整、中文友好且部署方式灵活的模型生态，是国内企业 API 与开放权重路线之间的重要桥梁。",
+          "en": "Qwen offers a broad, Chinese-friendly and deployment-flexible ecosystem, bridging enterprise APIs and open-weight adoption."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "产品谱系很宽",
+              "en": "A broad product line"
+            },
+            "description": {
+              "zh": "通用、代码、视觉、音频和不同尺寸模型需要按任务分别选择。",
+              "en": "General, code, vision, audio and different sizes should be selected by task."
+            },
+            "sourceIds": [
+              "s-qwen-models"
+            ]
+          },
+          {
+            "title": {
+              "zh": "开放权重与云 API 并行",
+              "en": "Weights and cloud APIs"
+            },
+            "description": {
+              "zh": "可在本地部署部分型号，也可通过百炼调用托管版本。",
+              "en": "Some releases can be self-hosted while managed versions are available through Model Studio."
+            }
+          },
+          {
+            "title": {
+              "zh": "中文与多语言优势",
+              "en": "Chinese and multilingual focus"
+            },
+            "description": {
+              "zh": "适合中文知识、结构化输出和多语言任务，但仍需使用业务语料评测。",
+              "en": "Useful for Chinese knowledge, structured output and multilingual work, with domain evaluation."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "中文企业应用",
+              "en": "Chinese enterprise apps"
+            },
+            "description": {
+              "zh": "用于企业问答、内容处理和结构化抽取，可结合百炼生态部署。",
+              "en": "For enterprise Q&A, content processing and extraction through the Alibaba ecosystem."
+            }
+          },
+          {
+            "title": {
+              "zh": "本地与边缘部署",
+              "en": "Local and edge deployment"
+            },
+            "description": {
+              "zh": "可按硬件选择不同尺寸和量化版本，需评估速度与精度损失。",
+              "en": "Choose sizes and quantizations by hardware, evaluating speed and quality loss."
+            }
+          },
+          {
+            "title": {
+              "zh": "代码与 Agent",
+              "en": "Code and agents"
+            },
+            "description": {
+              "zh": "适合代码生成、函数调用和工作流，但需锁定具体代码分支与版本。",
+              "en": "Useful for code, function calling and workflows after selecting a concrete release."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "型号、尺寸与衍生版本过多，名称相近但能力和许可证可能不同。",
+            "en": "Many similarly named sizes and derivatives differ in capability and license."
+          },
+          {
+            "zh": "云 API 的实时价格、地域和配额应以百炼控制台为准。",
+            "en": "Live cloud pricing, regions and quotas must be checked in the official console."
+          },
+          {
+            "zh": "本页 Qwen3-Max 属于演示未来版本，不能作为正式发布信息。",
+            "en": "Qwen3-Max on this page is a future-dated demo release, not confirmed production information."
+          }
+        ],
+        "officialUrl": "https://qwenlm.ai/"
+      }
     },
     {
       "id": "e-qwen-25-max",
@@ -923,9 +1416,130 @@
         "长上下文",
         "阅读"
       ],
-      "latestVersion": "Kimi K2",
+      "latestVersion": "Kimi K3",
       "firstReleasedAt": "2023-10-09",
-      "lastUpdatedAt": "2026-06-18"
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "超长上下文知识工作",
+          "en": "Long-context knowledge work",
+          "confidence": "verified"
+        },
+        {
+          "zh": "代码与 Agent 工作流",
+          "en": "Code and agent workflows",
+          "confidence": "verified"
+        },
+        {
+          "zh": "深度推理与工具调用",
+          "en": "Deep reasoning and tool use",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Kimi 是月之暗面推出的模型与 AI 助手产品家族，早期以长文本阅读建立认知，随后扩展到开放模型、代码 Agent、视觉理解、深度推理和工具调用。",
+            "en": "Kimi is Moonshot AI's model and assistant family. It first became known for long-document reading and later expanded into open models, coding agents, vision, deep reasoning and tool use."
+          },
+          {
+            "zh": "截至本页核验时间，Kimi 官方 API 平台把 K3 列为旗舰模型，提供 1M 上下文，面向软件工程、知识工作与深度推理；K2.7 Code 与 K2.6 分别覆盖代码和通用多模态任务。",
+            "en": "At this page's verification date, Kimi's official API platform lists K3 as its flagship with a 1M context window for software engineering, knowledge work and deep reasoning, alongside K2.7 Code and K2.6."
+          }
+        ],
+        "significance": {
+          "zh": "Kimi 已从“长文档聊天工具”演进为面向知识工作和软件工程的模型平台，适合观察超长上下文如何与 Agent、代码和工具生态结合。",
+          "en": "Kimi has evolved from a long-document chat tool into a model platform for knowledge work and software engineering, combining long context with agents, code and tools."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "当前旗舰是 K3",
+              "en": "K3 is the current flagship"
+            },
+            "description": {
+              "zh": "官方平台列出的 K3 支持 1M 上下文，聚焦软件工程、知识工作和深度推理。",
+              "en": "The official platform lists K3 with a 1M context window for software engineering, knowledge work and deep reasoning."
+            },
+            "sourceIds": [
+              "s-kimi-platform"
+            ]
+          },
+          {
+            "title": {
+              "zh": "模型按任务分工",
+              "en": "Task-specific releases"
+            },
+            "description": {
+              "zh": "K3、K2.7 Code 与 K2.6 的定位不同，不能用“Kimi”一个名称替代具体模型。",
+              "en": "K3, K2.7 Code and K2.6 target different jobs; “Kimi” is not a sufficient model identifier."
+            },
+            "sourceIds": [
+              "s-kimi-platform"
+            ]
+          },
+          {
+            "title": {
+              "zh": "内置工具生态",
+              "en": "Built-in tool ecosystem"
+            },
+            "description": {
+              "zh": "官方平台提供搜索、代码执行、表格、抓取和记忆等工具，适合复杂工作流。",
+              "en": "The platform offers search, code execution, spreadsheet, fetch and memory tools for workflows."
+            },
+            "sourceIds": [
+              "s-kimi-platform"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "深度研究",
+              "en": "Deep research"
+            },
+            "description": {
+              "zh": "用于多来源资料阅读、分析和报告生成，必须保留来源并复核推断。",
+              "en": "For multi-source reading, analysis and reports with retained citations and checked inferences."
+            }
+          },
+          {
+            "title": {
+              "zh": "长代码库工程",
+              "en": "Large-codebase engineering"
+            },
+            "description": {
+              "zh": "用于仓库理解、调试和多步骤开发，需配合受控执行环境。",
+              "en": "For repository understanding, debugging and multi-step development in controlled execution."
+            }
+          },
+          {
+            "title": {
+              "zh": "文档与表格工作流",
+              "en": "Document and spreadsheet workflows"
+            },
+            "description": {
+              "zh": "适合将长上下文、表格分析和工具调用组合成知识工作流程。",
+              "en": "Useful for combining long context, spreadsheet analysis and tools into knowledge workflows."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "1M 上下文是容量上限，不代表在超长输入中对所有细节保持相同准确率。",
+            "en": "A 1M context window is a capacity limit, not a guarantee of equal accuracy across every detail."
+          },
+          {
+            "zh": "不同模型的价格、上下文与工具支持差异明显，使用前应查看官方模型目录。",
+            "en": "Price, context and tools differ materially across releases; check the official catalog before use."
+          },
+          {
+            "zh": "深度研究和 Agent 输出仍可能错误引用或执行不当，需要来源核验与权限控制。",
+            "en": "Research and agent output can still cite incorrectly or act improperly, requiring verification and permission controls."
+          }
+        ],
+        "officialUrl": "https://platform.kimi.ai/"
+      }
     },
     {
       "id": "e-doubao",
@@ -950,9 +1564,130 @@
         "C端",
         "低成本"
       ],
-      "latestVersion": "Doubao 1.5 Pro",
+      "latestVersion": "Doubao-Seed 2.0",
       "firstReleasedAt": "2024-05-15",
-      "lastUpdatedAt": "2026-06-25"
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "多模态文档与视频理解",
+          "en": "Multimodal document and video understanding",
+          "confidence": "verified"
+        },
+        {
+          "zh": "复杂指令与长链任务",
+          "en": "Complex instructions and long-horizon tasks",
+          "confidence": "verified"
+        },
+        {
+          "zh": "多档位生产部署",
+          "en": "Multi-tier production deployment",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "豆包背后的通用模型由字节跳动 Seed 团队研发，并通过豆包 App、火山方舟和字节系产品提供服务。它不只是一个聊天应用，而是一组覆盖通用、多模态、代码、语音、图像和视频生成的模型产品。",
+            "en": "The models behind Doubao are developed by ByteDance Seed and delivered through the Doubao app, Volcano Engine and ByteDance products. It is a portfolio spanning general, multimodal, code, speech, image and video models."
+          },
+          {
+            "zh": "2026 年发布的 Seed 2.0 系列面向大规模生产与复杂真实任务，包含 Pro、Lite、Mini 三个通用 Agent 档位和专用 Code 模型，强化了文档、图表、视频、长上下文与多步骤指令。",
+            "en": "The 2026 Seed 2.0 line targets large-scale production and complex real-world tasks, with Pro, Lite and Mini agent tiers plus a Code model, improving documents, charts, video, long context and multi-step instructions."
+          }
+        ],
+        "significance": {
+          "zh": "豆包体现了模型从 C 端大规模交互走向企业 MaaS、Agent 和生成媒体平台的路线，其优势需从吞吐、成本、模态和生态接入综合判断。",
+          "en": "Doubao shows a path from mass consumer interaction to enterprise MaaS, agents and generative media; its value spans throughput, cost, modalities and ecosystem integration."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "当前主线是 Seed 2.0",
+              "en": "Seed 2.0 is the current line"
+            },
+            "description": {
+              "zh": "官方资料显示其面向复杂真实任务，并提供 Pro、Lite、Mini 与 Code 四种定位。",
+              "en": "Official material positions it for complex real-world tasks with Pro, Lite, Mini and Code variants."
+            },
+            "sourceIds": [
+              "s-seed-2"
+            ]
+          },
+          {
+            "title": {
+              "zh": "多模态是核心组成",
+              "en": "Multimodality is core"
+            },
+            "description": {
+              "zh": "重点能力包括复杂文档、图表、长视频、空间与运动理解。",
+              "en": "Core capabilities include complex documents, charts, long video, spatial and motion understanding."
+            },
+            "sourceIds": [
+              "s-seed-2"
+            ]
+          },
+          {
+            "title": {
+              "zh": "档位服务生产取舍",
+              "en": "Tiers encode production tradeoffs"
+            },
+            "description": {
+              "zh": "Pro、Lite 和 Mini 用于平衡能力、速度与成本，Code 则面向软件工程。",
+              "en": "Pro, Lite and Mini balance capability, speed and cost while Code targets software engineering."
+            },
+            "sourceIds": [
+              "s-seed-2"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "企业多模态理解",
+              "en": "Enterprise multimodal understanding"
+            },
+            "description": {
+              "zh": "用于文档、图表和视频理解，适合火山方舟上的生产工作流。",
+              "en": "For document, chart and video understanding in Volcano Engine production workflows."
+            }
+          },
+          {
+            "title": {
+              "zh": "高并发智能服务",
+              "en": "High-throughput AI services"
+            },
+            "description": {
+              "zh": "通过不同档位平衡质量、延迟和成本，需用真实流量压测。",
+              "en": "Balance quality, latency and cost across tiers using realistic load tests."
+            }
+          },
+          {
+            "title": {
+              "zh": "代码与 Agent",
+              "en": "Code and agents"
+            },
+            "description": {
+              "zh": "Code 与通用 Agent 型号适合多步骤开发和工具任务，需限制执行权限。",
+              "en": "Code and agent variants support multi-step development and tools with restricted permissions."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "豆包 App、Seed 模型和火山方舟 API 是不同层次的产品，功能不能直接互相代替。",
+            "en": "The Doubao app, Seed models and Volcano Engine APIs are different product layers and are not interchangeable."
+          },
+          {
+            "zh": "官方 Benchmark 结果需要结合第三方评测和自身任务复核。",
+            "en": "Official benchmarks should be checked against third-party and task-specific evaluations."
+          },
+          {
+            "zh": "地域、合规、配额和实时价格取决于具体云服务与合同。",
+            "en": "Region, compliance, quota and live pricing depend on the cloud service and contract."
+          }
+        ],
+        "officialUrl": "https://seed.bytedance.com/en/models"
+      }
     },
     {
       "id": "e-ernie",
@@ -968,8 +1703,8 @@
         "en": "China"
       },
       "summary": {
-        "zh": "百度文心系列模型，2026 年升级为 ERNIE 5，强化了搜索增强与行业解决方案能力。",
-        "en": "Baidu's ERNIE family, upgraded to ERNIE 5 in 2026 with search-augmented and industry solutions."
+        "zh": "百度文心系列模型，当前已迭代到 ERNIE 5.1，强化 Agent、推理、搜索增强、知识与创意写作能力。",
+        "en": "Baidu's ERNIE family, now at ERNIE 5.1, with stronger agents, reasoning, search, knowledge and creative writing."
       },
       "status": "active",
       "tags": [
@@ -977,9 +1712,127 @@
         "搜索",
         "行业"
       ],
-      "latestVersion": "ERNIE 5",
+      "latestVersion": "ERNIE 5.1",
       "firstReleasedAt": "2023-03-16",
-      "lastUpdatedAt": "2026-04-10"
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "搜索增强与知识问答",
+          "en": "Search-grounded knowledge QA",
+          "confidence": "verified"
+        },
+        {
+          "zh": "Agent 与工具任务",
+          "en": "Agent and tool tasks",
+          "confidence": "verified"
+        },
+        {
+          "zh": "中文创意与行业应用",
+          "en": "Chinese creative and industry applications",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "ERNIE（文心）是百度的大模型家族，与百度搜索、知识增强、飞桨和千帆平台结合，面向对话、内容生产、Agent 和行业解决方案。",
+            "en": "ERNIE is Baidu's model family, integrated with search, knowledge grounding, PaddlePaddle and the Qianfan platform for chat, content, agents and industry solutions."
+          },
+          {
+            "zh": "ERNIE 5.1 于 2026 年 5 月正式发布，在继承 ERNIE 5.0 预训练基础的同时压缩模型规模，重点提升 Agent、推理、知识和创意写作，并强调训练与推理成本效率。",
+            "en": "ERNIE 5.1 was officially released in May 2026, inheriting ERNIE 5.0 pretraining while compressing model size and improving agents, reasoning, knowledge, creative writing and cost efficiency."
+          }
+        ],
+        "significance": {
+          "zh": "ERNIE 的差异化来自模型、搜索、中文知识和企业平台的结合，适合需要国内云服务、搜索增强或行业集成的团队重点评估。",
+          "en": "ERNIE is differentiated by the combination of models, search, Chinese knowledge and enterprise platforms, especially for teams needing domestic cloud, grounding or industry integration."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "当前版本是 ERNIE 5.1",
+              "en": "ERNIE 5.1 is current"
+            },
+            "description": {
+              "zh": "官方发布于 2026 年 5 月，强调更高参数效率与更低训练成本。",
+              "en": "Officially released in May 2026 with improved parameter and training efficiency."
+            },
+            "sourceIds": [
+              "s-ernie-51"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Agent 与推理强化",
+              "en": "Stronger agents and reasoning"
+            },
+            "description": {
+              "zh": "后训练路线面向长程 Agent、工具任务、知识与推理能力整合。",
+              "en": "Post-training targets long-horizon agents, tools, knowledge and reasoning integration."
+            },
+            "sourceIds": [
+              "s-ernie-51"
+            ]
+          },
+          {
+            "title": {
+              "zh": "百度生态是重要变量",
+              "en": "Baidu ecosystem matters"
+            },
+            "description": {
+              "zh": "搜索、千帆、飞桨和行业方案会显著影响其实际落地价值。",
+              "en": "Search, Qianfan, PaddlePaddle and industry solutions materially affect adoption value."
+            }
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "搜索增强问答",
+              "en": "Search-grounded Q&A"
+            },
+            "description": {
+              "zh": "用于需要最新中文信息和网页检索的问答，仍需展示来源并处理冲突。",
+              "en": "For current Chinese information and web-grounded Q&A with citations and conflict handling."
+            }
+          },
+          {
+            "title": {
+              "zh": "企业 Agent",
+              "en": "Enterprise agents"
+            },
+            "description": {
+              "zh": "用于工具调用、表格和行业流程，可结合千帆平台治理权限和资源。",
+              "en": "For tools, spreadsheets and industry workflows governed through Qianfan."
+            }
+          },
+          {
+            "title": {
+              "zh": "中文内容与知识",
+              "en": "Chinese content and knowledge"
+            },
+            "description": {
+              "zh": "适合中文创意写作、知识问答和行业内容，需要业务语料评测。",
+              "en": "Useful for Chinese writing, knowledge QA and industry content with domain evaluation."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "官方排行榜和内部评测不能替代独立评测与真实业务测试。",
+            "en": "Official leaderboards and internal evaluations do not replace independent and task-specific testing."
+          },
+          {
+            "zh": "不同千帆模型 ID、区域和服务档位的能力、价格与限制可能不同。",
+            "en": "Capability, price and limits vary across Qianfan model IDs, regions and service tiers."
+          },
+          {
+            "zh": "搜索增强可能继承网页来源的错误、偏差和时效问题，必须保留证据链。",
+            "en": "Search grounding can inherit source errors, bias and staleness; retain an evidence trail."
+          }
+        ],
+        "officialUrl": "https://ernie.baidu.com/"
+      }
     },
     {
       "id": "e-openai",
@@ -2221,6 +3074,45 @@
       "publishedAt": "2026-07-01",
       "collectedAt": "2026-07-01",
       "verifiedAt": "2026-07-02",
+      "type": "official"
+    },
+    {
+      "id": "s-kimi-platform",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API platform and latest models"
+      },
+      "url": "https://platform.kimi.ai/",
+      "publisher": "Moonshot AI",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-seed-2",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "ByteDance Seed 2.0 official launch"
+      },
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publisher": "ByteDance Seed",
+      "publishedAt": "2026-02-14",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-ernie-51",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "ERNIE 5.1 official release"
+      },
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release/",
+      "publisher": "Baidu ERNIE",
+      "publishedAt": "2026-05-09",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
       "type": "official"
     },
     {
