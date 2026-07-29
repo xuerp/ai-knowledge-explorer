@@ -36,6 +36,17 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 Swagger：`http://127.0.0.1:8000/docs`
 健康检查：`http://127.0.0.1:8000/health`
 
+模型目录接口：
+
+```text
+GET  /api/v2/model-families
+GET  /api/v2/model-families/{family_id}/versions
+POST /api/v2/model-versions/compare
+```
+
+具体版本通过 `familyId` 归属模型系列。新增版本只需补充实体、规格、时间线和
+`part-of` 谱系关系，知识库、详情页、图谱与对比页会自动接入。
+
 ## 首个管理员
 
 仅当 users 表为空时可执行：

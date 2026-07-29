@@ -16,6 +16,7 @@ const vite = await createServer({
 const { CLAIMS, ENTITIES, FOLLOWING, RECENT_CHANGES, RELATIONS, SOURCES, TIMELINE } =
   await vite.ssrLoadModule("/src/lib/demo-data.ts");
 const { DEMO_KNOWLEDGE_SNAPSHOT } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
+const { knowledgeRepository } = await vite.ssrLoadModule("/src/services/knowledge-repository.ts");
 const { expandNeighborhood, filterGraphEdges, findShortestPath } =
   await vite.ssrLoadModule("/src/domain/graph.ts");
 
@@ -89,6 +90,30 @@ test("concrete model versions are extensible and linked to a valid family", () =
       `${version.id} must have a part-of relation to ${version.familyId}`,
     );
   }
+});
+
+test("repository exposes family, version, timeline, and comparison queries", async () => {
+  const families = await knowledgeRepository.getModelFamilies();
+  assert.ok(families.some((entity) => entity.id === "e-qwen"));
+
+  const qwenVersions = await knowledgeRepository.getFamilyVersions("e-qwen");
+  assert.deepEqual(
+    qwenVersions.map((entity) => entity.id),
+    ["e-qwen-25-max", "e-qwen-3-max"],
+  );
+
+  const detail = await knowledgeRepository.getEntityBySlug("qwen-3-max", "model");
+  assert.equal(detail?.familyId, "e-qwen");
+  assert.ok(detail?.specs?.contextWindow);
+
+  const timeline = await knowledgeRepository.getEntityTimeline("e-qwen-3-max");
+  assert.equal(timeline.length, 1);
+
+  const comparison = await knowledgeRepository.compareModelVersions(["e-gpt-5", "e-qwen-3-max"]);
+  assert.deepEqual(
+    comparison.map((entity) => entity.id),
+    ["e-gpt-5", "e-qwen-3-max"],
+  );
 });
 
 test("evidence carries provenance timestamps and safe links", () => {

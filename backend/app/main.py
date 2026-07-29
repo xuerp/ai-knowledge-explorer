@@ -49,6 +49,7 @@ from .schemas import (
     IngestionRunView,
     KnowledgeSnapshot,
     LoginRequest,
+    ModelVersionCompareRequest,
     NotificationView,
     PublicationRecord,
     PublishedResearchView,
@@ -452,6 +453,58 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 or any(needle in alias.casefold() for alias in item.aliases or [])
             ]
         return items
+
+    @app.get("/api/v2/model-families", response_model=list[Entity])
+    def model_families(session: SessionDependency) -> list[Entity]:
+        return [
+            item
+            for item in get_public_snapshot(session).entities
+            if item.type == "model" and item.family_id is None
+        ]
+
+    @app.get("/api/v2/model-families/{family_id}/versions", response_model=list[Entity])
+    def model_family_versions(family_id: str, session: SessionDependency) -> list[Entity]:
+        snapshot = get_public_snapshot(session)
+        family = next(
+            (
+                item
+                for item in snapshot.entities
+                if item.id == family_id and item.type == "model" and item.family_id is None
+            ),
+            None,
+        )
+        if not family:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Model family not found.",
+            )
+        return sorted(
+            [item for item in snapshot.entities if item.family_id == family_id],
+            key=lambda item: item.first_released_at or "",
+        )
+
+    @app.post("/api/v2/model-versions/compare", response_model=list[Entity])
+    def compare_model_versions(
+        payload: ModelVersionCompareRequest,
+        session: SessionDependency,
+    ) -> list[Entity]:
+        if len(set(payload.version_ids)) != len(payload.version_ids):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Each compared version must be unique.",
+            )
+        snapshot = get_public_snapshot(session)
+        entity_by_id = {item.id: item for item in snapshot.entities}
+        versions: list[Entity] = []
+        for version_id in payload.version_ids:
+            entity = entity_by_id.get(version_id)
+            if not entity or entity.type != "model" or entity.family_id is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Concrete model version not found: {version_id}",
+                )
+            versions.append(entity)
+        return versions
 
     @app.get("/api/v2/entities/{entity_id}/timeline", response_model=list[TimelineEntry])
     def entity_timeline(entity_id: str, session: SessionDependency) -> list[TimelineEntry]:

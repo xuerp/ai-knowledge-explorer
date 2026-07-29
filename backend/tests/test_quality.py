@@ -73,7 +73,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     report = KnowledgeQualityGate().report(snapshot)
 
     assert report.live_ready is False
-    assert report.entity_count == 16
+    assert report.entity_count >= 28
     assert report.claim_count == 5
     assert report.claims_with_missing_evidence == []
     assert any("40 reviewed entities" in issue for issue in report.issues)

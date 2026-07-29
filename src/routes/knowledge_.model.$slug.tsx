@@ -29,8 +29,10 @@ import type { Entity, KnowledgeSnapshot } from "@/domain/types";
 
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
-    const snapshot = await knowledgeRepository.getSnapshot();
-    const entity = snapshot.entities.find((item) => item.slug === params.slug);
+    const [snapshot, entity] = await Promise.all([
+      knowledgeRepository.getSnapshot(),
+      knowledgeRepository.getEntityBySlug(params.slug, "model"),
+    ]);
     if (!entity) throw notFound();
     return { entity, snapshot };
   },

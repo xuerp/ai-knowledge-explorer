@@ -4,7 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge, ConfidenceChip } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
 import { useApp, pick } from "@/lib/app-state";
-import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
+import { useModelCatalog, useModelVersionComparison } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -22,16 +22,18 @@ type Scope = "versions" | "families";
 
 function ComparePage() {
   const { t, lang } = useApp();
-  const snapshotQuery = useKnowledgeSnapshot();
+  const catalogQuery = useModelCatalog();
   const [scope, setScope] = useState<Scope>("versions");
   const [selected, setSelected] = useState<string[]>(["e-gpt-5", "e-claude-45"]);
-  const allModels = (snapshotQuery.data?.entities ?? []).filter(
-    (entity) => entity.type === "model",
-  );
+  const allModels = catalogQuery.data ?? [];
   const models = allModels.filter((model) =>
     scope === "versions" ? Boolean(model.familyId) : !model.familyId,
   );
-  const chosen = models.filter((model) => selected.includes(model.id));
+  const comparisonQuery = useModelVersionComparison(scope === "versions" ? selected : []);
+  const chosen =
+    scope === "versions" && selected.length >= 2
+      ? (comparisonQuery.data ?? models.filter((model) => selected.includes(model.id)))
+      : models.filter((model) => selected.includes(model.id));
 
   const changeScope = (next: Scope) => {
     setScope(next);
@@ -47,17 +49,17 @@ function ComparePage() {
           : previous,
     );
 
-  if (!snapshotQuery.data) {
+  if (!catalogQuery.data) {
     return (
       <AppShell>
         <DataStatePanel
-          kind={snapshotQuery.unavailableKind}
+          kind={catalogQuery.error ? "error" : "loading"}
           title={t(
-            snapshotQuery.error ? "对比数据加载失败" : "正在加载对比",
-            snapshotQuery.error ? "Comparison failed to load" : "Loading comparison",
+            catalogQuery.error ? "对比数据加载失败" : "正在加载对比",
+            catalogQuery.error ? "Comparison failed to load" : "Loading comparison",
           )}
           description={t("请稍后重试。", "Please retry shortly.")}
-          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+          onRetry={catalogQuery.error ? () => catalogQuery.refetch() : undefined}
         />
       </AppShell>
     );

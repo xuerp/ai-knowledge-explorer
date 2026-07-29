@@ -88,6 +88,188 @@
       ]
     },
     {
+      "id": "e-gpt-4o",
+      "type": "model",
+      "slug": "gpt-4o",
+      "name": {
+        "zh": "GPT-4o",
+        "en": "GPT-4o"
+      },
+      "aliases": [
+        "GPT-4 Omni"
+      ],
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "GPT 系列的原生多模态版本，将文本、图像与语音整合进单一模型，重点改善实时交互速度与成本。",
+        "en": "A native multimodal GPT release unifying text, image, and audio, with an emphasis on latency and cost."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "GPT版本",
+        "多模态",
+        "低延迟"
+      ],
+      "latestVersion": "gpt-4o-2024-08-06",
+      "firstReleasedAt": "2024-05-13",
+      "lastUpdatedAt": "2024-08-06",
+      "specs": {
+        "contextWindow": "128K tokens",
+        "inputPrice": "$2.50 / 1M tokens",
+        "outputPrice": "$10.00 / 1M tokens",
+        "modalities": "文本 · 图像 · 音频",
+        "toolUse": "函数调用 · 结构化输出",
+        "availability": "API · ChatGPT"
+      },
+      "capabilities": [
+        {
+          "zh": "原生语音对话",
+          "en": "Native voice interaction",
+          "confidence": "verified"
+        },
+        {
+          "zh": "图像理解与生成协作",
+          "en": "Visual understanding",
+          "confidence": "verified"
+        },
+        {
+          "zh": "低延迟工具调用",
+          "en": "Low-latency tool use",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-gpt-45",
+      "type": "model",
+      "slug": "gpt-4-5",
+      "name": {
+        "zh": "GPT-4.5 Preview",
+        "en": "GPT-4.5 Preview"
+      },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "面向自然对话、知识广度与创意写作的过渡版本，推理方式更自然，但 API 成本明显高于 GPT-4o。",
+        "en": "A transitional release focused on natural conversation, broad knowledge, and writing quality, at a substantially higher API price than GPT-4o."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "GPT版本",
+        "写作",
+        "高成本"
+      ],
+      "latestVersion": "gpt-4.5-preview",
+      "firstReleasedAt": "2025-02-27",
+      "lastUpdatedAt": "2025-07-14",
+      "specs": {
+        "contextWindow": "128K tokens",
+        "inputPrice": "$75.00 / 1M tokens",
+        "outputPrice": "$150.00 / 1M tokens",
+        "modalities": "文本 · 图像",
+        "toolUse": "函数调用",
+        "availability": "API · ChatGPT Pro"
+      },
+      "capabilities": [
+        {
+          "zh": "自然对话与写作",
+          "en": "Natural conversation and writing",
+          "confidence": "verified"
+        },
+        {
+          "zh": "更低幻觉率",
+          "en": "Lower hallucination rate",
+          "confidence": "inferred"
+        },
+        {
+          "zh": "复杂指令遵循",
+          "en": "Complex instruction following",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-gpt-5",
+      "type": "model",
+      "slug": "gpt-5",
+      "name": {
+        "zh": "GPT-5",
+        "en": "GPT-5"
+      },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "GPT 系列当前演示旗舰版本，统一快速响应与深度推理，强化代码、长上下文、多模态与 Agent 工具调用。",
+        "en": "The current demo flagship GPT release, unifying fast responses and deep reasoning with stronger code, long context, multimodality, and agentic tool use."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "GPT版本",
+        "推理",
+        "Agent",
+        "多模态"
+      ],
+      "latestVersion": "gpt-5-2026-07-12",
+      "firstReleasedAt": "2026-07-12",
+      "lastUpdatedAt": "2026-07-15",
+      "specs": {
+        "contextWindow": "256K tokens（1M 未核验）",
+        "inputPrice": "$0.50 / 1M tokens（演示）",
+        "outputPrice": "$1.50 / 1M tokens（演示）",
+        "modalities": "文本 · 图像 · 音频 · 视频",
+        "toolUse": "并行工具调用 · Agent 编排",
+        "availability": "API · ChatGPT"
+      },
+      "capabilities": [
+        {
+          "zh": "自适应深度推理",
+          "en": "Adaptive deep reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "并行 Agent 工具调用",
+          "en": "Parallel agentic tool use",
+          "confidence": "verified"
+        },
+        {
+          "zh": "长视频与多模态理解",
+          "en": "Long-video multimodality",
+          "confidence": "verified"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "SWE-bench Verified",
+          "value": "62.4%",
+          "benchmark": "SWE-bench Verified",
+          "date": "2026-07-15",
+          "confidence": "verified"
+        },
+        {
+          "name": "GPQA Diamond",
+          "value": "84.1",
+          "benchmark": "GPQA",
+          "date": "2026-07-12",
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
       "id": "e-claude",
       "type": "model",
       "slug": "claude",
@@ -116,6 +298,168 @@
       "lastUpdatedAt": "2026-06-20"
     },
     {
+      "id": "e-claude-35",
+      "type": "model",
+      "slug": "claude-3-5-sonnet",
+      "name": {
+        "zh": "Claude 3.5 Sonnet",
+        "en": "Claude 3.5 Sonnet"
+      },
+      "familyId": "e-claude",
+      "vendor": "Anthropic",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "Claude 系列的重要效率版本，强化代码、视觉理解与 Artifacts 交互，在性能和价格之间取得平衡。",
+        "en": "A major efficiency release adding stronger code, vision, and Artifacts while balancing capability and price."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Claude版本",
+        "代码",
+        "Artifacts"
+      ],
+      "latestVersion": "claude-3-5-sonnet-20241022",
+      "firstReleasedAt": "2024-06-20",
+      "lastUpdatedAt": "2024-10-22",
+      "specs": {
+        "contextWindow": "200K tokens",
+        "inputPrice": "$3.00 / 1M tokens",
+        "outputPrice": "$15.00 / 1M tokens",
+        "modalities": "文本 · 图像",
+        "toolUse": "工具调用 · Computer use",
+        "availability": "API · Claude"
+      },
+      "capabilities": [
+        {
+          "zh": "代码生成与重构",
+          "en": "Code generation and refactoring",
+          "confidence": "verified"
+        },
+        {
+          "zh": "Artifacts 协作",
+          "en": "Artifacts workflow",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-claude-4",
+      "type": "model",
+      "slug": "claude-4-sonnet",
+      "name": {
+        "zh": "Claude 4 Sonnet",
+        "en": "Claude 4 Sonnet"
+      },
+      "familyId": "e-claude",
+      "vendor": "Anthropic",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "面向长时间 Agent 任务与复杂代码工程的版本，增加扩展思考和更稳定的多步骤工具调用。",
+        "en": "A release for long-running agent tasks and complex software engineering, adding extended thinking and steadier multi-step tool use."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Claude版本",
+        "Agent",
+        "扩展思考"
+      ],
+      "latestVersion": "claude-4-sonnet-20250522",
+      "firstReleasedAt": "2025-05-22",
+      "lastUpdatedAt": "2025-05-22",
+      "specs": {
+        "contextWindow": "200K tokens",
+        "inputPrice": "$3.00 / 1M tokens",
+        "outputPrice": "$15.00 / 1M tokens",
+        "modalities": "文本 · 图像",
+        "toolUse": "并行工具调用 · Computer use",
+        "availability": "API · Claude"
+      },
+      "capabilities": [
+        {
+          "zh": "扩展思考",
+          "en": "Extended thinking",
+          "confidence": "verified"
+        },
+        {
+          "zh": "长时间 Agent 任务",
+          "en": "Long-running agent tasks",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-claude-45",
+      "type": "model",
+      "slug": "claude-4-5-sonnet",
+      "name": {
+        "zh": "Claude 4.5 Sonnet",
+        "en": "Claude 4.5 Sonnet"
+      },
+      "familyId": "e-claude",
+      "vendor": "Anthropic",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "Claude 系列当前演示旗舰版本，进一步提升代码、长文档和 Agent 稳定性，并降低安全策略的误拒率。",
+        "en": "The current demo flagship Claude release with stronger code, long-document work, and agent reliability, plus fewer false safety refusals."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Claude版本",
+        "代码",
+        "Agent",
+        "长文本"
+      ],
+      "latestVersion": "claude-4-5-sonnet-20260620",
+      "firstReleasedAt": "2026-06-20",
+      "lastUpdatedAt": "2026-06-20",
+      "specs": {
+        "contextWindow": "2M tokens（预览）",
+        "inputPrice": "$3.00 / 1M tokens（演示）",
+        "outputPrice": "$15.00 / 1M tokens（演示）",
+        "modalities": "文本 · 图像",
+        "toolUse": "并行工具调用 · MCP · Computer use",
+        "availability": "API · Claude"
+      },
+      "capabilities": [
+        {
+          "zh": "超长文档理解",
+          "en": "Ultra-long document understanding",
+          "confidence": "verified"
+        },
+        {
+          "zh": "稳定的代码 Agent",
+          "en": "Reliable coding agents",
+          "confidence": "verified"
+        },
+        {
+          "zh": "MCP 工具生态",
+          "en": "MCP tool ecosystem",
+          "confidence": "verified"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "Safety false refusal",
+          "value": "-18%",
+          "benchmark": "Anthropic safety eval",
+          "date": "2026-06-20",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
       "id": "e-gemini",
       "type": "model",
       "slug": "gemini",
@@ -141,7 +485,127 @@
       ],
       "latestVersion": "Gemini 2.5 Pro",
       "firstReleasedAt": "2023-12-06",
-      "lastUpdatedAt": "2026-07-05"
+      "lastUpdatedAt": "2026-07-05",
+      "capabilities": [
+        {
+          "zh": "超长上下文分析",
+          "en": "Ultra-long context analysis",
+          "confidence": "verified"
+        },
+        {
+          "zh": "原生音视频多模态",
+          "en": "Native audio-video multimodality",
+          "confidence": "verified"
+        },
+        {
+          "zh": "搜索增强与代码执行",
+          "en": "Search grounding and code execution",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-gemini-15-pro",
+      "type": "model",
+      "slug": "gemini-1-5-pro",
+      "name": {
+        "zh": "Gemini 1.5 Pro",
+        "en": "Gemini 1.5 Pro"
+      },
+      "familyId": "e-gemini",
+      "vendor": "Google DeepMind",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "Gemini 系列率先把超长上下文带入稳定产品形态的版本，适合长文档、代码库和长视频分析。",
+        "en": "The Gemini release that brought ultra-long context into a stable product for documents, codebases and long video."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Gemini版本",
+        "长上下文",
+        "多模态"
+      ],
+      "latestVersion": "gemini-1.5-pro-002",
+      "firstReleasedAt": "2024-02-15",
+      "lastUpdatedAt": "2024-09-24",
+      "specs": {
+        "contextWindow": "2M tokens",
+        "inputPrice": "$1.25 / 1M tokens（演示）",
+        "outputPrice": "$5.00 / 1M tokens（演示）",
+        "modalities": "文本 · 图像 · 音频 · 视频",
+        "toolUse": "函数调用 · 代码执行",
+        "availability": "Gemini API · Vertex AI"
+      },
+      "capabilities": [
+        {
+          "zh": "超长文档与代码库分析",
+          "en": "Long-document and codebase analysis",
+          "confidence": "verified"
+        },
+        {
+          "zh": "长视频理解",
+          "en": "Long-video understanding",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-gemini-25-pro",
+      "type": "model",
+      "slug": "gemini-2-5-pro",
+      "name": {
+        "zh": "Gemini 2.5 Pro",
+        "en": "Gemini 2.5 Pro"
+      },
+      "familyId": "e-gemini",
+      "vendor": "Google DeepMind",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "在长上下文基础上增加思考模式、代码和复杂多模态推理，是 Gemini 系列当前演示旗舰版本。",
+        "en": "Adds thinking, coding and complex multimodal reasoning on top of long context; the current demo Gemini flagship."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Gemini版本",
+        "推理",
+        "多模态"
+      ],
+      "latestVersion": "gemini-2.5-pro-20260705",
+      "firstReleasedAt": "2025-03-25",
+      "lastUpdatedAt": "2026-07-05",
+      "specs": {
+        "contextWindow": "2M tokens",
+        "inputPrice": "$1.25 / 1M tokens（演示）",
+        "outputPrice": "$10.00 / 1M tokens（演示）",
+        "modalities": "文本 · 图像 · 音频 · 视频",
+        "toolUse": "函数调用 · 代码执行 · 搜索增强",
+        "availability": "Gemini API · Vertex AI · Gemini"
+      },
+      "capabilities": [
+        {
+          "zh": "可控思考与复杂推理",
+          "en": "Controllable thinking and complex reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "长视频与跨模态检索",
+          "en": "Long-video and cross-modal retrieval",
+          "confidence": "verified"
+        },
+        {
+          "zh": "代码执行与搜索增强",
+          "en": "Code execution and search grounding",
+          "confidence": "verified"
+        }
+      ]
     },
     {
       "id": "e-deepseek",
@@ -169,7 +633,123 @@
       ],
       "latestVersion": "DeepSeek R2",
       "firstReleasedAt": "2023-11-29",
-      "lastUpdatedAt": "2026-05-30"
+      "lastUpdatedAt": "2026-05-30",
+      "capabilities": [
+        {
+          "zh": "数学与代码推理",
+          "en": "Math and code reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "开放权重部署",
+          "en": "Open-weight deployment",
+          "confidence": "verified"
+        },
+        {
+          "zh": "低成本 MoE 推理",
+          "en": "Cost-efficient MoE inference",
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "e-deepseek-v3",
+      "type": "model",
+      "slug": "deepseek-v3",
+      "name": {
+        "zh": "DeepSeek-V3",
+        "en": "DeepSeek-V3"
+      },
+      "familyId": "e-deepseek",
+      "vendor": "深度求索",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "DeepSeek 的通用 MoE 基座版本，重点优化训练效率、中文、代码与开放权重部署。",
+        "en": "DeepSeek's general MoE foundation release focused on training efficiency, Chinese, code and open-weight deployment."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "DeepSeek版本",
+        "MoE",
+        "开放权重"
+      ],
+      "latestVersion": "deepseek-v3-20250324",
+      "firstReleasedAt": "2024-12-26",
+      "lastUpdatedAt": "2025-03-24",
+      "specs": {
+        "contextWindow": "128K tokens",
+        "inputPrice": "API 或自托管（随平台变化）",
+        "outputPrice": "API 或自托管（随平台变化）",
+        "modalities": "文本",
+        "toolUse": "函数调用 · JSON 输出",
+        "availability": "API · 开放权重"
+      },
+      "capabilities": [
+        {
+          "zh": "高效 MoE 推理",
+          "en": "Efficient MoE inference",
+          "confidence": "verified"
+        },
+        {
+          "zh": "中文与代码生成",
+          "en": "Chinese and code generation",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-deepseek-r2",
+      "type": "model",
+      "slug": "deepseek-r2",
+      "name": {
+        "zh": "DeepSeek-R2",
+        "en": "DeepSeek-R2"
+      },
+      "familyId": "e-deepseek",
+      "vendor": "深度求索",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "面向数学、代码与长链推理的演示版本，在开放权重与低部署成本方向延续 DeepSeek 路线。",
+        "en": "A demo release for math, code and long-chain reasoning, continuing DeepSeek's open-weight and low-cost deployment strategy."
+      },
+      "status": "preview",
+      "tags": [
+        "具体版本",
+        "DeepSeek版本",
+        "推理",
+        "开放权重",
+        "演示"
+      ],
+      "latestVersion": "deepseek-r2-preview",
+      "firstReleasedAt": "2026-05-30",
+      "lastUpdatedAt": "2026-05-30",
+      "specs": {
+        "contextWindow": "256K tokens（演示）",
+        "inputPrice": "开放权重 / API（演示）",
+        "outputPrice": "开放权重 / API（演示）",
+        "modalities": "文本",
+        "toolUse": "函数调用 · 代码沙箱 · Agent 编排",
+        "availability": "预览 API · 开放权重计划"
+      },
+      "capabilities": [
+        {
+          "zh": "数学与代码深度推理",
+          "en": "Deep reasoning for math and code",
+          "confidence": "verified"
+        },
+        {
+          "zh": "低成本私有化部署",
+          "en": "Low-cost private deployment",
+          "confidence": "inferred"
+        }
+      ]
     },
     {
       "id": "e-qwen",
@@ -197,7 +777,128 @@
       ],
       "latestVersion": "Qwen3-Max",
       "firstReleasedAt": "2023-08-03",
-      "lastUpdatedAt": "2026-07-01"
+      "lastUpdatedAt": "2026-07-01",
+      "capabilities": [
+        {
+          "zh": "中文与多语言理解",
+          "en": "Chinese and multilingual understanding",
+          "confidence": "verified"
+        },
+        {
+          "zh": "代码与结构化输出",
+          "en": "Code and structured output",
+          "confidence": "verified"
+        },
+        {
+          "zh": "开放权重与企业 API",
+          "en": "Open weights and enterprise APIs",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-qwen-25-max",
+      "type": "model",
+      "slug": "qwen-2-5-max",
+      "name": {
+        "zh": "Qwen2.5-Max",
+        "en": "Qwen2.5-Max"
+      },
+      "familyId": "e-qwen",
+      "vendor": "阿里巴巴",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "Qwen2.5 系列的大规模 MoE 版本，强化中文、代码、结构化输出与企业 API 场景。",
+        "en": "A large MoE Qwen2.5 release for Chinese, code, structured output and enterprise APIs."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Qwen版本",
+        "MoE",
+        "代码"
+      ],
+      "latestVersion": "qwen-max-2025-01-25",
+      "firstReleasedAt": "2025-01-29",
+      "lastUpdatedAt": "2025-01-29",
+      "specs": {
+        "contextWindow": "128K tokens",
+        "inputPrice": "随地区与云平台计费",
+        "outputPrice": "随地区与云平台计费",
+        "modalities": "文本",
+        "toolUse": "函数调用 · 结构化输出",
+        "availability": "百炼 API"
+      },
+      "capabilities": [
+        {
+          "zh": "中文与企业知识任务",
+          "en": "Chinese and enterprise knowledge tasks",
+          "confidence": "verified"
+        },
+        {
+          "zh": "代码与结构化输出",
+          "en": "Code and structured output",
+          "confidence": "verified"
+        }
+      ]
+    },
+    {
+      "id": "e-qwen-3-max",
+      "type": "model",
+      "slug": "qwen-3-max",
+      "name": {
+        "zh": "Qwen3-Max",
+        "en": "Qwen3-Max"
+      },
+      "familyId": "e-qwen",
+      "vendor": "阿里巴巴",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "Qwen 系列当前演示旗舰版本，把混合推理、多语言、代码与 Agent 工具调用整合到统一版本。",
+        "en": "The current demo Qwen flagship combining hybrid reasoning, multilingual code and agentic tool use."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "Qwen版本",
+        "混合推理",
+        "Agent",
+        "演示"
+      ],
+      "latestVersion": "qwen3-max-20260701",
+      "firstReleasedAt": "2026-07-01",
+      "lastUpdatedAt": "2026-07-01",
+      "specs": {
+        "contextWindow": "256K tokens（演示）",
+        "inputPrice": "随地区与云平台计费（演示）",
+        "outputPrice": "随地区与云平台计费（演示）",
+        "modalities": "文本 · 图像",
+        "toolUse": "并行工具调用 · Agent 编排",
+        "availability": "百炼 API · 通义千问"
+      },
+      "capabilities": [
+        {
+          "zh": "快速 / 深度混合推理",
+          "en": "Hybrid fast and deep reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "多语言代码 Agent",
+          "en": "Multilingual coding agents",
+          "confidence": "verified"
+        },
+        {
+          "zh": "中文多模态理解",
+          "en": "Chinese multimodal understanding",
+          "confidence": "inferred"
+        }
+      ]
     },
     {
       "id": "e-kimi",
@@ -513,6 +1214,19 @@
       "collectedAt": "2026-07-05",
       "verifiedAt": "2026-07-06",
       "type": "official"
+    },
+    {
+      "id": "s-qwen-models",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen model release notes"
+      },
+      "url": "https://qwenlm.ai/",
+      "publisher": "Alibaba Qwen",
+      "publishedAt": "2026-07-01",
+      "collectedAt": "2026-07-01",
+      "verifiedAt": "2026-07-02",
+      "type": "official"
     }
   ],
   "claims": [
@@ -592,8 +1306,8 @@
           "en": "GPT-1 released"
         },
         "summary": {
-          "zh": "OpenAI 首个基于 Transformer 的生成式预训练模型。",
-          "en": "OpenAI's first Transformer-based generative pre-trained model."
+          "zh": "1.17 亿参数，验证“通用预训练 + 任务微调”路线；以文本理解为主，尚无公开 API 定价。",
+          "en": "117M parameters validated general pre-training plus task fine-tuning; text-only and no public API pricing."
         },
         "kind": "release",
         "sourceIds": [
@@ -609,8 +1323,8 @@
           "en": "GPT-3 released"
         },
         "summary": {
-          "zh": "1750 亿参数，Few-shot 能力震动业界。",
-          "en": "175B parameters; few-shot capability shocked the industry."
+          "zh": "扩展到 1750 亿参数，重点变化是无需微调的 few-shot 提示能力，并开始形成按 token 计费的 API 产品形态。",
+          "en": "Scaled to 175B parameters, introduced strong few-shot prompting and established token-priced API access."
         },
         "kind": "release",
         "sourceIds": [
@@ -626,8 +1340,8 @@
           "en": "ChatGPT launched"
         },
         "summary": {
-          "zh": "5 天内突破百万用户，开启 LLM 消费者时代。",
-          "en": "1M users in 5 days; launched the consumer LLM era."
+          "zh": "将指令微调与对话界面结合，5 天内突破百万用户；模型能力从 API 组件变成普通用户可直接使用的产品。",
+          "en": "Combined instruction tuning with a chat UI, reaching 1M users in five days and turning model APIs into a consumer product."
         },
         "kind": "release",
         "sourceIds": [
@@ -643,8 +1357,42 @@
           "en": "GPT-4 released"
         },
         "summary": {
-          "zh": "多模态输入，推理能力显著提升。",
-          "en": "Multimodal inputs; notable reasoning gains."
+          "zh": "新增图像输入并显著提高复杂推理；首发提供 8K / 32K 上下文，演示归一化 API 价格约为输入 $30、输出 $60 / 百万 tokens。",
+          "en": "Added image input and stronger reasoning, with 8K/32K context; normalized launch pricing was about $30 input and $60 output per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-4o",
+        "date": "2024-05-13",
+        "title": {
+          "zh": "GPT-4o：原生全模态与成本下降",
+          "en": "GPT-4o: native omni and lower cost"
+        },
+        "summary": {
+          "zh": "文本、图像与音频走向原生统一处理，延迟明显降低；128K 上下文，演示价格为输入 $2.5、输出 $10 / 百万 tokens。",
+          "en": "Unified text, image and audio processing with lower latency; 128K context and demo pricing of $2.5 input / $10 output per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-45",
+        "date": "2025-02-27",
+        "title": {
+          "zh": "GPT-4.5：知识与自然表达增强",
+          "en": "GPT-4.5: knowledge and natural writing"
+        },
+        "summary": {
+          "zh": "重点改善知识覆盖、写作自然度与意图理解，而非单纯追求推理速度；128K 上下文，演示价格为输入 $75、输出 $150 / 百万 tokens。",
+          "en": "Focused on knowledge, natural writing and intent understanding rather than raw reasoning speed; 128K context and demo pricing of $75/$150."
         },
         "kind": "release",
         "sourceIds": [
@@ -660,8 +1408,8 @@
           "en": "GPT-5 released (demo)"
         },
         "summary": {
-          "zh": "统一的推理与多模态模型，官方称在代码、数学与长上下文任务上大幅提升。",
-          "en": "Unified reasoning + multimodal model with reported gains on code, math and long-context."
+          "zh": "统一推理、多模态与 Agent 工具调用；上下文扩至 256K、支持 8 个并行工具，演示价格为输入 $0.5、输出 $1.5 / 百万 tokens。",
+          "en": "Unified reasoning, multimodality and agentic tool use; 256K context, eight parallel tools and demo pricing of $0.5/$1.5."
         },
         "kind": "release",
         "sourceIds": [
@@ -697,8 +1445,42 @@
           "en": "Claude 1 released"
         },
         "summary": {
-          "zh": "Anthropic 首个对外产品。",
-          "en": "Anthropic's first external product."
+          "zh": "Anthropic 首个对外模型产品，以长文本、可靠对话和 Constitutional AI 路线为主要差异点。",
+          "en": "Anthropic's first public model, differentiated by long-form dialogue and Constitutional AI."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-c-35",
+        "date": "2024-06-20",
+        "title": {
+          "zh": "Claude 3.5 Sonnet：代码与性价比跃升",
+          "en": "Claude 3.5 Sonnet: coding and value"
+        },
+        "summary": {
+          "zh": "在 200K 上下文中强化代码、视觉理解和工具调用；演示价格为输入 $3、输出 $15 / 百万 tokens。",
+          "en": "Improved coding, vision and tool use in a 200K context window; demo pricing of $3/$15 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-c-4",
+        "date": "2025-05-22",
+        "title": {
+          "zh": "Claude 4 Sonnet：面向 Agent 的持续执行",
+          "en": "Claude 4 Sonnet: sustained agent execution"
+        },
+        "summary": {
+          "zh": "增强多步骤 Agent、代码仓库理解与并行工具调用；200K 上下文，演示价格维持输入 $3、输出 $15。",
+          "en": "Added stronger multi-step agents, repository understanding and parallel tools; 200K context at demo pricing of $3/$15."
         },
         "kind": "release",
         "sourceIds": [
@@ -714,12 +1496,349 @@
           "en": "Claude 4.5 Sonnet released"
         },
         "summary": {
-          "zh": "强化 Agent 与代码能力，误拒率下降 18%。",
-          "en": "Better agents & code; false refusals down 18%."
+          "zh": "上下文扩至 2M（预览），强化 Agent 与代码能力并降低误拒；演示价格为输入 $3、输出 $15 / 百万 tokens。",
+          "en": "Expanded to a 2M context preview with better agents, coding and fewer false refusals; demo pricing of $3/$15."
         },
         "kind": "release",
         "sourceIds": [
           "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gemini": [
+      {
+        "id": "t-gemini-15-pro",
+        "date": "2024-02-15",
+        "title": {
+          "zh": "Gemini 1.5 Pro：超长上下文",
+          "en": "Gemini 1.5 Pro: ultra-long context"
+        },
+        "summary": {
+          "zh": "上下文扩展到 2M tokens，新增长视频、代码库和大规模文档分析；演示价格为输入 $1.25、输出 $5 / 百万 tokens。",
+          "en": "Expanded to 2M tokens for long video, codebases and large documents; demo pricing of $1.25/$5 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gemini-25-pro",
+        "date": "2025-03-25",
+        "title": {
+          "zh": "Gemini 2.5 Pro：思考与代码增强",
+          "en": "Gemini 2.5 Pro: thinking and code"
+        },
+        "summary": {
+          "zh": "在长上下文上增加思考模式、代码执行与搜索增强；演示输出价格调整为 $10 / 百万 tokens。",
+          "en": "Added thinking, code execution and search grounding; demo output pricing changed to $10 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-deepseek": [
+      {
+        "id": "t-deepseek-v3",
+        "date": "2024-12-26",
+        "title": {
+          "zh": "DeepSeek-V3：高效 MoE 基座",
+          "en": "DeepSeek-V3: efficient MoE foundation"
+        },
+        "summary": {
+          "zh": "以 MoE 架构降低训练与推理成本，强化中文和代码，并提供 API 与开放权重部署路径。",
+          "en": "Used MoE to reduce training and inference cost, strengthening Chinese and code with API and open-weight deployment."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-deepseek-r2",
+        "date": "2026-05-30",
+        "title": {
+          "zh": "DeepSeek-R2：推理版本预览",
+          "en": "DeepSeek-R2: reasoning preview"
+        },
+        "summary": {
+          "zh": "演示版本将上下文扩至 256K，并增加代码沙箱和 Agent 编排；价格随 API 或自托管环境变化。",
+          "en": "Demo release expands to 256K with code sandboxing and agent orchestration; cost depends on API or self-hosting."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-qwen": [
+      {
+        "id": "t-qwen-25-max",
+        "date": "2025-01-29",
+        "title": {
+          "zh": "Qwen2.5-Max：企业与代码能力",
+          "en": "Qwen2.5-Max: enterprise and code"
+        },
+        "summary": {
+          "zh": "强化中文、代码和结构化输出，主要通过百炼 API 提供；价格随地区和云平台计费。",
+          "en": "Improved Chinese, code and structured output through Bailian APIs; pricing varies by region and cloud."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-qwen-models"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-qwen-3-max",
+        "date": "2026-07-01",
+        "title": {
+          "zh": "Qwen3-Max：混合推理与 Agent",
+          "en": "Qwen3-Max: hybrid reasoning and agents"
+        },
+        "summary": {
+          "zh": "演示版本统一快速与深度推理，新增 256K 上下文、并行工具调用和中文多模态理解。",
+          "en": "Demo release unifies fast and deep reasoning with 256K context, parallel tools and Chinese multimodality."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-qwen-models"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gpt-4o": [
+      {
+        "id": "t-gpt-4o",
+        "date": "2024-05-13",
+        "title": {
+          "zh": "GPT-4o：原生全模态与成本下降",
+          "en": "GPT-4o: native omni and lower cost"
+        },
+        "summary": {
+          "zh": "文本、图像与音频走向原生统一处理，延迟明显降低；128K 上下文，演示价格为输入 $2.5、输出 $10 / 百万 tokens。",
+          "en": "Unified text, image and audio processing with lower latency; 128K context and demo pricing of $2.5 input / $10 output per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gpt-45": [
+      {
+        "id": "t-gpt-45",
+        "date": "2025-02-27",
+        "title": {
+          "zh": "GPT-4.5：知识与自然表达增强",
+          "en": "GPT-4.5: knowledge and natural writing"
+        },
+        "summary": {
+          "zh": "重点改善知识覆盖、写作自然度与意图理解，而非单纯追求推理速度；128K 上下文，演示价格为输入 $75、输出 $150 / 百万 tokens。",
+          "en": "Focused on knowledge, natural writing and intent understanding rather than raw reasoning speed; 128K context and demo pricing of $75/$150."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gpt-5": [
+      {
+        "id": "t-gpt-5",
+        "date": "2026-07-12",
+        "title": {
+          "zh": "GPT-5 发布（演示）",
+          "en": "GPT-5 released (demo)"
+        },
+        "summary": {
+          "zh": "统一推理、多模态与 Agent 工具调用；上下文扩至 256K、支持 8 个并行工具，演示价格为输入 $0.5、输出 $1.5 / 百万 tokens。",
+          "en": "Unified reasoning, multimodality and agentic tool use; 256K context, eight parallel tools and demo pricing of $0.5/$1.5."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5",
+          "s-swebench"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-claude-35": [
+      {
+        "id": "t-c-35",
+        "date": "2024-06-20",
+        "title": {
+          "zh": "Claude 3.5 Sonnet：代码与性价比跃升",
+          "en": "Claude 3.5 Sonnet: coding and value"
+        },
+        "summary": {
+          "zh": "在 200K 上下文中强化代码、视觉理解和工具调用；演示价格为输入 $3、输出 $15 / 百万 tokens。",
+          "en": "Improved coding, vision and tool use in a 200K context window; demo pricing of $3/$15 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-claude-4": [
+      {
+        "id": "t-c-4",
+        "date": "2025-05-22",
+        "title": {
+          "zh": "Claude 4 Sonnet：面向 Agent 的持续执行",
+          "en": "Claude 4 Sonnet: sustained agent execution"
+        },
+        "summary": {
+          "zh": "增强多步骤 Agent、代码仓库理解与并行工具调用；200K 上下文，演示价格维持输入 $3、输出 $15。",
+          "en": "Added stronger multi-step agents, repository understanding and parallel tools; 200K context at demo pricing of $3/$15."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-claude-45": [
+      {
+        "id": "t-c-2",
+        "date": "2026-06-20",
+        "title": {
+          "zh": "Claude 4.5 Sonnet 发布",
+          "en": "Claude 4.5 Sonnet released"
+        },
+        "summary": {
+          "zh": "上下文扩至 2M（预览），强化 Agent 与代码能力并降低误拒；演示价格为输入 $3、输出 $15 / 百万 tokens。",
+          "en": "Expanded to a 2M context preview with better agents, coding and fewer false refusals; demo pricing of $3/$15."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gemini-15-pro": [
+      {
+        "id": "t-gemini-15-pro",
+        "date": "2024-02-15",
+        "title": {
+          "zh": "Gemini 1.5 Pro：超长上下文",
+          "en": "Gemini 1.5 Pro: ultra-long context"
+        },
+        "summary": {
+          "zh": "上下文扩展到 2M tokens，新增长视频、代码库和大规模文档分析；演示价格为输入 $1.25、输出 $5 / 百万 tokens。",
+          "en": "Expanded to 2M tokens for long video, codebases and large documents; demo pricing of $1.25/$5 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gemini-25-pro": [
+      {
+        "id": "t-gemini-25-pro",
+        "date": "2025-03-25",
+        "title": {
+          "zh": "Gemini 2.5 Pro：思考与代码增强",
+          "en": "Gemini 2.5 Pro: thinking and code"
+        },
+        "summary": {
+          "zh": "在长上下文上增加思考模式、代码执行与搜索增强；演示输出价格调整为 $10 / 百万 tokens。",
+          "en": "Added thinking, code execution and search grounding; demo output pricing changed to $10 per 1M tokens."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-deepseek-v3": [
+      {
+        "id": "t-deepseek-v3",
+        "date": "2024-12-26",
+        "title": {
+          "zh": "DeepSeek-V3：高效 MoE 基座",
+          "en": "DeepSeek-V3: efficient MoE foundation"
+        },
+        "summary": {
+          "zh": "以 MoE 架构降低训练与推理成本，强化中文和代码，并提供 API 与开放权重部署路径。",
+          "en": "Used MoE to reduce training and inference cost, strengthening Chinese and code with API and open-weight deployment."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-deepseek-r2": [
+      {
+        "id": "t-deepseek-r2",
+        "date": "2026-05-30",
+        "title": {
+          "zh": "DeepSeek-R2：推理版本预览",
+          "en": "DeepSeek-R2: reasoning preview"
+        },
+        "summary": {
+          "zh": "演示版本将上下文扩至 256K，并增加代码沙箱和 Agent 编排；价格随 API 或自托管环境变化。",
+          "en": "Demo release expands to 256K with code sandboxing and agent orchestration; cost depends on API or self-hosting."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-qwen-25-max": [
+      {
+        "id": "t-qwen-25-max",
+        "date": "2025-01-29",
+        "title": {
+          "zh": "Qwen2.5-Max：企业与代码能力",
+          "en": "Qwen2.5-Max: enterprise and code"
+        },
+        "summary": {
+          "zh": "强化中文、代码和结构化输出，主要通过百炼 API 提供；价格随地区和云平台计费。",
+          "en": "Improved Chinese, code and structured output through Bailian APIs; pricing varies by region and cloud."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-qwen-models"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-qwen-3-max": [
+      {
+        "id": "t-qwen-3-max",
+        "date": "2026-07-01",
+        "title": {
+          "zh": "Qwen3-Max：混合推理与 Agent",
+          "en": "Qwen3-Max: hybrid reasoning and agents"
+        },
+        "summary": {
+          "zh": "演示版本统一快速与深度推理，新增 256K 上下文、并行工具调用和中文多模态理解。",
+          "en": "Demo release unifies fast and deep reasoning with 256K context, parallel tools and Chinese multimodality."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-qwen-models"
         ],
         "confidence": "verified"
       }
@@ -734,8 +1853,44 @@
         "importance": 1
       },
       {
+        "id": "node-e-gpt-4o",
+        "entityId": "e-gpt-4o",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-gpt-45",
+        "entityId": "e-gpt-45",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-gpt-5",
+        "entityId": "e-gpt-5",
+        "type": "model",
+        "importance": 1
+      },
+      {
         "id": "node-e-claude",
         "entityId": "e-claude",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-claude-35",
+        "entityId": "e-claude-35",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-claude-4",
+        "entityId": "e-claude-4",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-claude-45",
+        "entityId": "e-claude-45",
         "type": "model",
         "importance": 1
       },
@@ -746,14 +1901,50 @@
         "importance": 1
       },
       {
+        "id": "node-e-gemini-15-pro",
+        "entityId": "e-gemini-15-pro",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-gemini-25-pro",
+        "entityId": "e-gemini-25-pro",
+        "type": "model",
+        "importance": 1
+      },
+      {
         "id": "node-e-deepseek",
         "entityId": "e-deepseek",
         "type": "model",
         "importance": 1
       },
       {
+        "id": "node-e-deepseek-v3",
+        "entityId": "e-deepseek-v3",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-deepseek-r2",
+        "entityId": "e-deepseek-r2",
+        "type": "model",
+        "importance": 1
+      },
+      {
         "id": "node-e-qwen",
         "entityId": "e-qwen",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-qwen-25-max",
+        "entityId": "e-qwen-25-max",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-qwen-3-max",
+        "entityId": "e-qwen-3-max",
         "type": "model",
         "importance": 1
       },
@@ -974,6 +2165,300 @@
         "sourceIds": [
           "s-openai-gpt5"
         ]
+      },
+      {
+        "id": "r16",
+        "fromId": "e-gpt-4o",
+        "toId": "e-gpt",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r17",
+        "fromId": "e-gpt-45",
+        "toId": "e-gpt",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r18",
+        "fromId": "e-gpt-5",
+        "toId": "e-gpt",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r19",
+        "fromId": "e-gpt-45",
+        "toId": "e-gpt-4o",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r20",
+        "fromId": "e-gpt-5",
+        "toId": "e-gpt-45",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r21",
+        "fromId": "e-gpt-5",
+        "toId": "e-openai",
+        "kind": "developed-by",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r22",
+        "fromId": "e-gpt-5",
+        "toId": "e-swebench",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-swebench"
+        ]
+      },
+      {
+        "id": "r23",
+        "fromId": "e-claude-35",
+        "toId": "e-claude",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r24",
+        "fromId": "e-claude-4",
+        "toId": "e-claude",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r25",
+        "fromId": "e-claude-45",
+        "toId": "e-claude",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r26",
+        "fromId": "e-claude-4",
+        "toId": "e-claude-35",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r27",
+        "fromId": "e-claude-45",
+        "toId": "e-claude-4",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r28",
+        "fromId": "e-claude-45",
+        "toId": "e-anthropic",
+        "kind": "developed-by",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r29",
+        "fromId": "e-claude-45",
+        "toId": "e-mcp",
+        "kind": "uses",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r30",
+        "fromId": "e-gpt-5",
+        "toId": "e-claude-45",
+        "kind": "competes-with",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5",
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r31",
+        "fromId": "e-gemini-15-pro",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r32",
+        "fromId": "e-gemini-25-pro",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r33",
+        "fromId": "e-gemini-25-pro",
+        "toId": "e-gemini-15-pro",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r34",
+        "fromId": "e-gemini-25-pro",
+        "toId": "e-mmlu",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r35",
+        "fromId": "e-deepseek-v3",
+        "toId": "e-deepseek",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ]
+      },
+      {
+        "id": "r36",
+        "fromId": "e-deepseek-r2",
+        "toId": "e-deepseek",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ]
+      },
+      {
+        "id": "r37",
+        "fromId": "e-deepseek-r2",
+        "toId": "e-deepseek-v3",
+        "kind": "successor-of",
+        "confidence": "inferred",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ]
+      },
+      {
+        "id": "r38",
+        "fromId": "e-deepseek-r2",
+        "toId": "e-swebench",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-deepseek-r2",
+          "s-swebench"
+        ]
+      },
+      {
+        "id": "r39",
+        "fromId": "e-qwen-25-max",
+        "toId": "e-qwen",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-qwen-models"
+        ]
+      },
+      {
+        "id": "r40",
+        "fromId": "e-qwen-3-max",
+        "toId": "e-qwen",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-qwen-models"
+        ]
+      },
+      {
+        "id": "r41",
+        "fromId": "e-qwen-3-max",
+        "toId": "e-qwen-25-max",
+        "kind": "successor-of",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-qwen-models"
+        ]
+      },
+      {
+        "id": "r42",
+        "fromId": "e-qwen-3-max",
+        "toId": "e-mmlu",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-qwen-models"
+        ]
+      },
+      {
+        "id": "r43",
+        "fromId": "e-gpt-5",
+        "toId": "e-gemini-25-pro",
+        "kind": "competes-with",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5",
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r44",
+        "fromId": "e-deepseek-r2",
+        "toId": "e-qwen-3-max",
+        "kind": "competes-with",
+        "confidence": "inferred",
+        "sourceIds": [
+          "s-deepseek-r2",
+          "s-qwen-models"
+        ]
       }
     ],
     "capturedAt": "2026-07-25T00:00:00Z",
@@ -1012,6 +2497,20 @@
       },
       "kind": "new",
       "confidence": "verified"
+    },
+    {
+      "id": "ch9",
+      "entityId": "e-deepseek",
+      "date": "2026-07-11",
+      "summary": {
+        "zh": "DeepSeek R2 API 输入价格下调 30%，上下文窗口扩展至 256K。",
+        "en": "DeepSeek R2 API input pricing drops 30% and context expands to 256K."
+      },
+      "kind": "updated",
+      "confidence": "inferred",
+      "sourceIds": [
+        "s-deepseek-r2"
+      ]
     },
     {
       "id": "ch4",

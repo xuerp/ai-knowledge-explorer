@@ -68,6 +68,39 @@ def test_entity_and_graph_reads_use_the_same_snapshot(client: TestClient):
     assert neighbors.json()["edges"]
 
 
+def test_model_family_version_catalog_and_comparison(client: TestClient):
+    families = client.get("/api/v2/model-families")
+    assert families.status_code == 200
+    family_ids = {item["id"] for item in families.json()}
+    assert {"e-gpt", "e-claude", "e-gemini", "e-deepseek", "e-qwen"} <= family_ids
+    assert all(item.get("familyId") is None for item in families.json())
+
+    versions = client.get("/api/v2/model-families/e-qwen/versions")
+    assert versions.status_code == 200
+    assert [item["id"] for item in versions.json()] == ["e-qwen-25-max", "e-qwen-3-max"]
+    assert all(item["familyId"] == "e-qwen" for item in versions.json())
+    assert all(item["specs"]["contextWindow"] for item in versions.json())
+
+    comparison = client.post(
+        "/api/v2/model-versions/compare",
+        json={"versionIds": ["e-gpt-5", "e-gemini-25-pro", "e-qwen-3-max"]},
+    )
+    assert comparison.status_code == 200
+    assert [item["id"] for item in comparison.json()] == [
+        "e-gpt-5",
+        "e-gemini-25-pro",
+        "e-qwen-3-max",
+    ]
+    assert all(item["familyId"] for item in comparison.json())
+
+    assert client.get("/api/v2/model-families/missing/versions").status_code == 404
+    duplicate = client.post(
+        "/api/v2/model-versions/compare",
+        json={"versionIds": ["e-gpt-5", "e-gpt-5"]},
+    )
+    assert duplicate.status_code == 422
+
+
 def test_admin_queue_requires_token(client: TestClient):
     assert client.get("/api/v2/admin/review-queue").status_code == 401
     assert (
