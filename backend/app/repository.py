@@ -63,6 +63,7 @@ class KnowledgeRepository:
                         ],
                         ensure_ascii=False,
                     ),
+                    conflict_ids_json="[]",
                     status=candidate.status,
                     created_at=_parse_datetime(candidate.created_at),
                     reviewed_at=(
@@ -134,6 +135,7 @@ class KnowledgeRepository:
             **candidate.model_dump(),
             version=row.version,
             review_reason=row.review_reason,
+            conflict_claim_ids=json.loads(row.conflict_ids_json or "[]"),
         )
 
     def publication_history(self, session: Session) -> list[PublicationRecord]:

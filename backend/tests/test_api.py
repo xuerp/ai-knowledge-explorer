@@ -17,6 +17,7 @@ def client(tmp_path: Path):
         admin_token="test-admin-token",
         cors_origins=("http://localhost:3000",),
         environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
     )
     with TestClient(create_app(settings)) as test_client:
         yield test_client
@@ -31,6 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
         "dataMode": "demo",
         "database": "sqlite",
         "adminWritesEnabled": True,
+        "authEnabled": True,
     }
 
 
@@ -146,6 +148,49 @@ def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
     assert review["claim"]["id"] not in {claim["id"] for claim in snapshot["claims"]}
     history = client.get("/api/v2/admin/publication-history", headers=headers)
     assert history.json() == []
+
+
+def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
+    legacy_headers = {"X-Admin-Token": "test-admin-token"}
+    bootstrap = client.post(
+        "/api/v2/auth/bootstrap",
+        headers=legacy_headers,
+        json={"email": "admin@example.com", "password": "correct horse battery staple"},
+    )
+    assert bootstrap.status_code == 200
+    admin_token = bootstrap.json()["accessToken"]
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+
+    me = client.get("/api/v2/auth/me", headers=admin_headers)
+    assert me.status_code == 200
+    assert me.json()["role"] == "admin"
+
+    reviewer = client.post(
+        "/api/v2/admin/users",
+        headers=admin_headers,
+        json={
+            "email": "reviewer@example.com",
+            "password": "another correct horse battery",
+            "role": "reviewer",
+        },
+    )
+    assert reviewer.status_code == 201
+
+    login = client.post(
+        "/api/v2/auth/login",
+        json={
+            "email": "reviewer@example.com",
+            "password": "another correct horse battery",
+        },
+    )
+    assert login.status_code == 200
+    reviewer_headers = {"Authorization": f"Bearer {login.json()['accessToken']}"}
+    assert client.get("/api/v2/admin/review-queue", headers=reviewer_headers).status_code == 200
+    assert client.get("/api/v2/admin/sources", headers=reviewer_headers).status_code == 403
+
+    audit = client.get("/api/v2/admin/audit-log", headers=admin_headers)
+    assert audit.status_code == 200
+    assert {item["action"] for item in audit.json()} >= {"user.bootstrap", "user.create"}
 
 
 def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestClient):
@@ -272,3 +317,100 @@ def test_dynamic_candidate_is_private_until_human_approval(client: TestClient):
     after = client.get("/api/snapshot").json()
     assert "c-ingested-capability" in {claim["id"] for claim in after["claims"]}
     assert "s-ingested-release" in {item["id"] for item in after["evidence"]}
+
+
+def test_follow_notification_digest_and_private_research_flow(client: TestClient):
+    bootstrap = client.post(
+        "/api/v2/auth/bootstrap",
+        headers={"X-Admin-Token": "test-admin-token"},
+        json={"email": "owner@example.com", "password": "correct horse battery staple"},
+    )
+    headers = {"Authorization": f"Bearer {bootstrap.json()['accessToken']}"}
+
+    followed = client.post(
+        "/api/v2/following",
+        headers=headers,
+        json={"entityId": "e-gpt", "intensity": "instant"},
+    )
+    assert followed.status_code == 200
+
+    candidate = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-gpt-notification",
+            "entityId": "e-gpt",
+            "claim": {
+                "id": "claim-gpt-notification",
+                "text": {
+                    "zh": "GPT 的演示更新已经通过人工审核。",
+                    "en": "The GPT demo update passed human review.",
+                },
+                "confidence": "verified",
+                "sourceIds": ["evidence-gpt-notification"],
+                "updatedAt": "2026-07-29",
+                "subject": "GPT",
+                "predicate": "demo-status",
+                "objectOrValue": "reviewed",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-gpt-notification",
+                    "title": {"zh": "官方更新", "en": "Official update"},
+                    "url": "https://example.com/gpt-update",
+                    "publisher": "Example",
+                    "publishedAt": "2026-07-29",
+                    "collectedAt": "2026-07-29",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert candidate.status_code == 201
+    approved = client.post(
+        "/api/v2/admin/review-queue/review-gpt-notification/approve",
+        headers=headers,
+        json={
+            "expectedVersion": candidate.json()["version"],
+            "reason": "Official evidence and entity mapping verified.",
+        },
+    )
+    assert approved.status_code == 200
+
+    notifications = client.get("/api/v2/notifications", headers=headers)
+    assert notifications.status_code == 200
+    assert notifications.json()[0]["changeId"] == "claim-gpt-notification"
+    assert notifications.json()[0]["priority"] == "important"
+
+    preferences = client.post(
+        "/api/v2/notification-preferences",
+        headers=headers,
+        json={"enabled": True, "hour": "08:30"},
+    )
+    assert preferences.status_code == 200
+    digest = client.post("/api/v2/admin/digests/run", headers=headers)
+    assert digest.json() == {"recipients": 1, "messagesQueued": 1}
+    assert client.get("/api/v2/admin/email-outbox", headers=headers).json()[0]["status"] == "queued"
+
+    research = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={"question": "GPT 最近有什么已经核验的变化？", "language": "zh"},
+    )
+    assert research.status_code == 200
+    assert research.json()["status"] == "ready"
+    assert "claim-gpt-notification" in research.json()["claimIds"]
+
+    published = client.post(
+        f"/api/v2/research/{research.json()['id']}/publish",
+        headers=headers,
+    )
+    slug = published.json()["publishedSlug"]
+    assert slug
+    shared = client.get(f"/api/v2/share/{slug}")
+    assert shared.status_code == 200
+    assert shared.json()["citations"][0]["claim"]["id"] == "claim-gpt-notification"
+    assert shared.json()["citations"][0]["evidence"][0]["publisher"] == "Example"
+    markdown = client.get(f"/api/v2/share/{slug}/markdown")
+    assert markdown.status_code == 200
+    assert "claim-gpt-notification" in markdown.text

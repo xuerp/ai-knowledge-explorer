@@ -1,0 +1,22 @@
+[
+  {"id":"gq-01","question":"GPT 与 Claude 最近一次已核验变化分别是什么？","expectedEntityIds":["e-gpt","e-claude"],"requiresTemporalEvidence":true},
+  {"id":"gq-02","question":"GPT 和 Claude 的上下文能力如何比较，证据来自哪里？","expectedEntityIds":["e-gpt","e-claude"],"requiresTemporalEvidence":true},
+  {"id":"gq-03","question":"Gemini 当前在多模态能力上有哪些已核验事实？","expectedEntityIds":["e-gemini"],"requiresTemporalEvidence":false},
+  {"id":"gq-04","question":"DeepSeek 的演化路径中有哪些重要版本事件？","expectedEntityIds":["e-deepseek"],"requiresTemporalEvidence":true},
+  {"id":"gq-05","question":"Qwen 与 Kimi 的定位和已知能力差异是什么？","expectedEntityIds":["e-qwen","e-kimi"],"requiresTemporalEvidence":false},
+  {"id":"gq-06","question":"Doubao 与 ERNIE Bot 有哪些可核验的产品差异？","expectedEntityIds":["e-doubao","e-ernie"],"requiresTemporalEvidence":false},
+  {"id":"gq-07","question":"OpenAI 开发了哪些图谱中的模型或协议？","expectedEntityIds":["e-openai","e-gpt"],"requiresTemporalEvidence":false},
+  {"id":"gq-08","question":"Anthropic 与 Claude 之间是什么关系，有哪些来源？","expectedEntityIds":["e-anthropic","e-claude"],"requiresTemporalEvidence":false},
+  {"id":"gq-09","question":"LangChain 与 Model Context Protocol 在 Agent 集成中分别扮演什么角色？","expectedEntityIds":["e-langchain","e-mcp"],"requiresTemporalEvidence":false},
+  {"id":"gq-10","question":"Cursor 与哪些模型、工具或协议存在已审核关系？","expectedEntityIds":["e-cursor"],"requiresTemporalEvidence":false},
+  {"id":"gq-11","question":"SWE-bench Verified 衡量什么，哪些实体与它有关？","expectedEntityIds":["e-swebench"],"requiresTemporalEvidence":false},
+  {"id":"gq-12","question":"MMLU-Pro 的用途是什么，相关指标的日期和来源是什么？","expectedEntityIds":["e-mmlu"],"requiresTemporalEvidence":true},
+  {"id":"gq-13","question":"Attention Is All You Need 对当前图谱实体有哪些可解释影响？","expectedEntityIds":["e-transformer-paper"],"requiresTemporalEvidence":false},
+  {"id":"gq-14","question":"Model Context Protocol 的当前状态、来源和相关工具是什么？","expectedEntityIds":["e-mcp"],"requiresTemporalEvidence":true},
+  {"id":"gq-15","question":"哪些 Claim 存在冲突或证据不足，为什么不能发布？","expectedEntityIds":[],"requiresTemporalEvidence":false},
+  {"id":"gq-16","question":"过去一年图谱中有哪些模型能力发生了变化？","expectedEntityIds":["e-gpt","e-claude","e-gemini"],"requiresTemporalEvidence":true},
+  {"id":"gq-17","question":"哪些实体之间存在竞争关系，这些关系的证据是什么？","expectedEntityIds":[],"requiresTemporalEvidence":false},
+  {"id":"gq-18","question":"如果只采用官方来源，当前能得出哪些结论？","expectedEntityIds":[],"requiresTemporalEvidence":false},
+  {"id":"gq-19","question":"当前图谱无法充分回答哪些问题？请明确证据缺口。","expectedEntityIds":[],"requiresTemporalEvidence":false},
+  {"id":"gq-20","question":"从 GPT 到相关 Benchmark、公司和工具的最短证据路径是什么？","expectedEntityIds":["e-gpt"],"requiresTemporalEvidence":false}
+]

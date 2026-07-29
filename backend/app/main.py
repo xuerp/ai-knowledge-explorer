@@ -4,31 +4,68 @@ from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .auth import AuditService, AuthService, Principal
 from .config import Settings
-from .database import Database, PublicationRecordRow, ReviewJobRecord
+from .database import (
+    Database,
+    DocumentSnapshotRecord,
+    PublicationRecordRow,
+    ReviewJobRecord,
+    SourceRecord,
+    UserRecord,
+)
+from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
+from .engagement import EngagementService
+from .extraction import ExtractionUnavailableError, StructuredExtractionService
+from .fetching import SafeHttpFetcher
 from .ingestion import IngestionService
+from .quality import KnowledgeQualityGate
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
+from .scheduler import IngestionScheduler
 from .schemas import (
+    AuditLogView,
+    BootstrapUser,
+    CandidateAssessment,
     CandidateCreate,
+    DataQualityReport,
+    DigestPreference,
+    DigestRunSummary,
     DocumentIngestRequest,
+    EmailDeliverySummary,
+    EmailOutboxView,
     Entity,
+    ExtractionRequest,
+    FollowCreate,
+    FollowView,
     GraphQuery,
     GraphSnapshot,
     HealthResponse,
     IngestionResult,
     IngestionRunView,
     KnowledgeSnapshot,
+    LoginRequest,
+    NotificationView,
     PublicationRecord,
+    PublishedResearchView,
+    ResearchCitation,
+    ResearchCreate,
+    ResearchView,
     ReviewDecision,
     ReviewQueueItem,
+    SchedulerRunSummary,
     SourceCreate,
     SourceView,
     TimelineEntry,
+    TokenResponse,
+    UserCreate,
+    UserView,
 )
-from .security import require_admin_token
+from .security import require_admin, require_reviewer, require_user
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -36,6 +73,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database = Database(app_settings.database_url)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
     ingestion = IngestionService()
+    scheduler = IngestionScheduler(
+        SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes),
+        ingestion,
+    )
+    auth = AuthService(app_settings.jwt_secret, app_settings.access_token_minutes)
+    audit = AuditService()
+    quality_gate = KnowledgeQualityGate()
+    engagement = EngagementService()
+    extraction = StructuredExtractionService(
+        app_settings.extraction_api_url,
+        app_settings.extraction_api_key,
+        app_settings.extraction_model,
+    )
+    email_delivery = EmailDeliveryService(
+        app_settings.smtp_host,
+        app_settings.smtp_port,
+        app_settings.smtp_username,
+        app_settings.smtp_password,
+        app_settings.smtp_from,
+        app_settings.smtp_starttls,
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -54,12 +112,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = app_settings
     app.state.database = database
     app.state.repository = repository
+    app.state.auth = auth
+    app.state.audit = audit
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(app_settings.cors_origins),
         allow_credentials=False,
         allow_methods=["GET", "POST"],
-        allow_headers=["Accept", "Content-Type", "X-Admin-Token"],
+        allow_headers=["Accept", "Authorization", "Content-Type", "X-Admin-Token"],
     )
 
     def get_session(request: Request):
@@ -70,7 +130,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             session.close()
 
     SessionDependency = Annotated[Session, Depends(get_session)]
-    AdminDependency = Annotated[str, Depends(require_admin_token)]
+    UserDependency = Annotated[Principal, Depends(require_user)]
+    ReviewerDependency = Annotated[Principal, Depends(require_reviewer)]
+    AdminDependency = Annotated[Principal, Depends(require_admin)]
 
     @app.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -79,8 +141,288 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             environment=app_settings.environment,
             data_mode=app_settings.data_mode,
             database=app_settings.database_url.split(":", 1)[0],
-            admin_writes_enabled=bool(app_settings.admin_token),
+            admin_writes_enabled=bool(app_settings.admin_token or auth.enabled),
+            auth_enabled=auth.enabled,
         )
+
+    @app.post("/api/v2/auth/bootstrap", response_model=TokenResponse)
+    def bootstrap_user(
+        payload: BootstrapUser,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> TokenResponse:
+        if not auth.enabled:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="AI_RADAR_JWT_SECRET must be configured before bootstrapping users.",
+            )
+        if auth.count_users(session):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Bootstrap is only available before the first user is created.",
+            )
+        user = auth.create_user(
+            session,
+            UserCreate(email=payload.email, password=payload.password, role="admin"),
+        )
+        audit.record(session, principal, "user.bootstrap", "user", user.id, {"role": "admin"})
+        session.commit()
+        return auth.issue_token(user)
+
+    @app.post("/api/v2/auth/login", response_model=TokenResponse)
+    def login(payload: LoginRequest, session: SessionDependency) -> TokenResponse:
+        if not auth.enabled:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="JWT authentication is not configured.",
+            )
+        user = auth.authenticate(session, str(payload.email), payload.password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password.",
+            )
+        return auth.issue_token(user)
+
+    @app.get("/api/v2/auth/me", response_model=UserView)
+    def me(principal: UserDependency, session: SessionDependency) -> UserView:
+        user = session.get(UserRecord, principal.subject)
+        if not user or not user.active:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        return auth.to_user_view(user)
+
+    @app.post("/api/v2/following", response_model=FollowView)
+    def follow_entity(
+        payload: FollowCreate,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> FollowView:
+        result = engagement.follow(
+            session,
+            principal.subject,
+            payload,
+            get_public_snapshot(session),
+        )
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entity not found.")
+        return result
+
+    @app.get("/api/v2/following", response_model=list[FollowView])
+    def following(
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> list[FollowView]:
+        return engagement.list_follows(session, principal.subject)
+
+    @app.get("/api/v2/notifications", response_model=list[NotificationView])
+    def notifications(
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> list[NotificationView]:
+        return engagement.list_notifications(session, principal.subject)
+
+    @app.post(
+        "/api/v2/notifications/{notification_id}/read",
+        response_model=NotificationView,
+    )
+    def mark_notification_read(
+        notification_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> NotificationView:
+        result = engagement.mark_notification_read(session, principal.subject, notification_id)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Notification not found.",
+            )
+        return result
+
+    @app.post("/api/v2/notification-preferences", response_model=UserView)
+    def update_notification_preferences(
+        payload: DigestPreference,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> UserView:
+        user = session.get(UserRecord, principal.subject)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        user.daily_digest_enabled = payload.enabled
+        user.digest_hour = payload.hour
+        session.commit()
+        return auth.to_user_view(user)
+
+    @app.post("/api/v2/research", response_model=ResearchView)
+    def create_research(
+        payload: ResearchCreate,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> ResearchView:
+        return engagement.research(
+            session,
+            principal.subject,
+            payload,
+            get_public_snapshot(session),
+        )
+
+    @app.get("/api/v2/research/{research_id}", response_model=ResearchView)
+    def research_detail(
+        research_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> ResearchView:
+        result = engagement.get_research(
+            session,
+            research_id,
+            user_id=principal.subject,
+        )
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
+        return result
+
+    @app.post("/api/v2/research/{research_id}/publish", response_model=ResearchView)
+    def publish_research(
+        research_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> ResearchView:
+        result = engagement.publish_research(session, research_id, principal.subject)
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
+        return result
+
+    def published_research_view(
+        result: ResearchView,
+        session: Session,
+    ) -> PublishedResearchView:
+        snapshot = get_public_snapshot(session)
+        evidence_by_id = {item.id: item for item in snapshot.evidence}
+        claims_by_id = {item.id: item for item in snapshot.claims}
+        citations = []
+        for claim_id in result.claim_ids:
+            claim = claims_by_id.get(claim_id)
+            if not claim:
+                continue
+            citations.append(
+                ResearchCitation(
+                    claim=claim,
+                    evidence=[
+                        evidence_by_id[evidence_id]
+                        for evidence_id in claim.source_ids
+                        if evidence_id in evidence_by_id
+                    ],
+                )
+            )
+        return PublishedResearchView(**result.model_dump(), citations=citations)
+
+    @app.get("/api/v2/share/{slug}", response_model=PublishedResearchView)
+    def public_research(slug: str, session: SessionDependency) -> PublishedResearchView:
+        result = engagement.get_research(session, "", public_slug=slug)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Published research not found.",
+            )
+        return published_research_view(result, session)
+
+    @app.get("/api/v2/share/{slug}/markdown", response_class=PlainTextResponse)
+    def public_research_markdown(slug: str, session: SessionDependency) -> str:
+        result = engagement.get_research(session, "", public_slug=slug)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Published research not found.",
+            )
+        published = published_research_view(result, session)
+        citations = "\n".join(
+            f"- `{item.claim.id}` — "
+            + ", ".join(f"[{source.publisher}]({source.url})" for source in item.evidence)
+            for item in published.citations
+        )
+        return f"# {result.question}\n\n{result.summary}\n\n## Sources\n\n{citations}\n"
+
+    @app.post("/api/v2/admin/users", response_model=UserView, status_code=status.HTTP_201_CREATED)
+    def create_user(
+        payload: UserCreate,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> UserView:
+        try:
+            user = auth.create_user(session, payload)
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A user with this email already exists.",
+            ) from error
+        audit.record(session, principal, "user.create", "user", user.id, {"role": user.role})
+        session.commit()
+        return auth.to_user_view(user)
+
+    @app.get("/api/v2/admin/audit-log", response_model=list[AuditLogView])
+    def audit_log(
+        _: AdminDependency,
+        session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    ) -> list[AuditLogView]:
+        return audit.list(session, limit)
+
+    @app.get("/api/v2/admin/data-quality", response_model=DataQualityReport)
+    def data_quality(
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> DataQualityReport:
+        return quality_gate.report(get_public_snapshot(session))
+
+    @app.post("/api/v2/admin/digests/run", response_model=DigestRunSummary)
+    def run_daily_digests(
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> DigestRunSummary:
+        result = engagement.queue_daily_digests(session)
+        audit.record(
+            session,
+            principal,
+            "digest.run",
+            "email_outbox",
+            "daily",
+            result.model_dump(by_alias=True),
+        )
+        session.commit()
+        return result
+
+    @app.get("/api/v2/admin/email-outbox", response_model=list[EmailOutboxView])
+    def email_outbox(
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> list[EmailOutboxView]:
+        return engagement.list_outbox(session)
+
+    @app.post(
+        "/api/v2/admin/email-outbox/send",
+        response_model=EmailDeliverySummary,
+    )
+    def send_email_outbox(
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> EmailDeliverySummary:
+        try:
+            result = email_delivery.send_queued(session)
+        except EmailDeliveryUnavailableError as error:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(error),
+            ) from error
+        audit.record(
+            session,
+            principal,
+            "email_outbox.send",
+            "email_outbox",
+            "queued",
+            result.model_dump(by_alias=True),
+        )
+        session.commit()
+        return result
 
     def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
         return repository.public_snapshot(session)
@@ -189,17 +531,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     def create_source(
         payload: SourceCreate,
-        _: AdminDependency,
+        principal: AdminDependency,
         session: SessionDependency,
     ) -> SourceView:
         try:
-            return ingestion.create_source(session, payload)
+            source = ingestion.create_source(session, payload)
         except IntegrityError as error:
             session.rollback()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A source with this id or normalized URL already exists.",
             ) from error
+        audit.record(session, principal, "source.create", "source", source.id)
+        session.commit()
+        return source
 
     @app.post(
         "/api/v2/admin/sources/{source_id}/snapshots",
@@ -208,12 +553,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def ingest_source_snapshot(
         source_id: str,
         payload: DocumentIngestRequest,
-        _: AdminDependency,
+        principal: AdminDependency,
         session: SessionDependency,
     ) -> IngestionResult:
         result = ingestion.ingest_document(session, source_id, payload)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        audit.record(
+            session,
+            principal,
+            "source.ingest",
+            "source",
+            source_id,
+            {"changeType": result.change_type, "snapshotId": result.snapshot_id},
+        )
+        session.commit()
         return result
 
     @app.get("/api/v2/admin/ingestion-runs", response_model=list[IngestionRunView])
@@ -225,13 +579,107 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return ingestion.list_runs(session, source_id)
 
     @app.post(
+        "/api/v2/admin/sources/{source_id}/extract",
+        response_model=list[ReviewQueueItem],
+    )
+    def extract_source_candidates(
+        source_id: str,
+        payload: ExtractionRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> list[ReviewQueueItem]:
+        source = session.get(SourceRecord, source_id)
+        if not source:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        statement = select(DocumentSnapshotRecord).where(
+            DocumentSnapshotRecord.source_id == source_id
+        )
+        if payload.snapshot_id:
+            statement = statement.where(DocumentSnapshotRecord.id == payload.snapshot_id)
+        snapshot_row = session.scalars(
+            statement.order_by(DocumentSnapshotRecord.observed_at.desc()).limit(1)
+        ).first()
+        if not snapshot_row:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No source snapshot is available for extraction.",
+            )
+        try:
+            candidates = extraction.extract(source, snapshot_row, payload.max_candidates)
+        except ExtractionUnavailableError as error:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=str(error),
+            ) from error
+        public_snapshot = get_public_snapshot(session)
+        created: list[ReviewQueueItem] = []
+        for candidate in candidates:
+            assessment = quality_gate.assess(candidate, public_snapshot)
+            if assessment.resolved_entity_id:
+                candidate = candidate.model_copy(
+                    update={"entity_id": assessment.resolved_entity_id}
+                )
+            reason = None
+            if assessment.conflicting_claim_ids:
+                reason = "Structured conflict detected against: " + ", ".join(
+                    assessment.conflicting_claim_ids
+                )
+            row = ingestion.submit_candidate(
+                session,
+                candidate,
+                queue_status=assessment.queue_status,
+                conflict_claim_ids=assessment.conflicting_claim_ids,
+                review_reason=reason,
+            )
+            if row:
+                created.append(repository.to_queue_item(row))
+        audit.record(
+            session,
+            principal,
+            "extraction.run",
+            "document_snapshot",
+            snapshot_row.id,
+            {"candidatesCreated": len(created), "sourceId": source_id},
+        )
+        session.commit()
+        return created
+
+    @app.post("/api/v2/admin/ingestion/run", response_model=SchedulerRunSummary)
+    def run_ingestion(
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> SchedulerRunSummary:
+        result = scheduler.run_due(session)
+        audit.record(
+            session,
+            principal,
+            "ingestion.run",
+            "scheduler",
+            "due-cycle",
+            result.model_dump(by_alias=True),
+        )
+        session.commit()
+        return result
+
+    @app.post(
+        "/api/v2/admin/review-candidates/assess",
+        response_model=CandidateAssessment,
+    )
+    def assess_review_candidate(
+        payload: CandidateCreate,
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> CandidateAssessment:
+        return quality_gate.assess(payload, get_public_snapshot(session))
+
+    @app.post(
         "/api/v2/admin/review-candidates",
         response_model=ReviewQueueItem,
         status_code=status.HTTP_201_CREATED,
     )
     def submit_review_candidate(
         payload: CandidateCreate,
-        _: AdminDependency,
+        principal: ReviewerDependency,
         session: SessionDependency,
     ) -> ReviewQueueItem:
         evidence_ids = {item.id for item in payload.evidence}
@@ -240,17 +688,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Every claim source id must be included in the submitted evidence.",
             )
-        row = ingestion.submit_candidate(session, payload)
+        assessment = quality_gate.assess(payload, get_public_snapshot(session))
+        if assessment.resolved_entity_id and not payload.entity_id:
+            payload = payload.model_copy(update={"entity_id": assessment.resolved_entity_id})
+        reason = None
+        if assessment.conflicting_claim_ids:
+            reason = "Structured conflict detected against: " + ", ".join(
+                assessment.conflicting_claim_ids
+            )
+        elif assessment.resolution == "ambiguous":
+            reason = "Entity resolution is ambiguous and requires human confirmation."
+        row = ingestion.submit_candidate(
+            session,
+            payload,
+            queue_status=assessment.queue_status,
+            conflict_claim_ids=assessment.conflicting_claim_ids,
+            review_reason=reason,
+        )
         if not row:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A review candidate with this id already exists.",
             )
+        audit.record(
+            session,
+            principal,
+            "review.candidate.create",
+            "review_job",
+            row.id,
+            {"claimId": row.claim_id},
+        )
+        session.commit()
         return repository.to_queue_item(row)
 
     @app.get("/api/v2/admin/review-queue", response_model=list[ReviewQueueItem])
     def review_queue(
-        _: AdminDependency,
+        _: ReviewerDependency,
         session: SessionDependency,
     ) -> list[ReviewQueueItem]:
         return repository.queue(session)
@@ -259,7 +732,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         review_id: str,
         decision: ReviewDecision,
         action: Literal["approved", "rejected"],
-        actor: str,
+        actor: Principal,
         session: Session,
     ) -> ReviewQueueItem:
         row = session.get(ReviewJobRecord, review_id)
@@ -287,14 +760,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         row.reviewed_at = datetime.now(UTC)
         row.version += 1
         if action == "approved":
+            queue_item = repository.to_queue_item(row)
             session.add(
                 PublicationRecordRow(
                     review_job_id=row.id,
                     claim_id=row.claim_id,
                     published_at=row.reviewed_at,
-                    actor=actor,
+                    actor=actor.email,
                 )
             )
+            notifications_created = engagement.notify_followers(
+                session,
+                row.entity_id,
+                row.claim_id,
+                queue_item.claim.text.zh,
+            )
+        else:
+            notifications_created = 0
+        audit.record(
+            session,
+            actor,
+            f"review.{action}",
+            "review_job",
+            row.id,
+            {
+                "claimId": row.claim_id,
+                "reason": decision.reason,
+                "notificationsCreated": notifications_created,
+            },
+        )
         session.commit()
         return repository.to_queue_item(row)
 
@@ -305,7 +799,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def approve_review(
         review_id: str,
         decision: ReviewDecision,
-        actor: AdminDependency,
+        actor: ReviewerDependency,
         session: SessionDependency,
     ) -> ReviewQueueItem:
         return decide_review(review_id, decision, "approved", actor, session)
@@ -317,7 +811,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def reject_review(
         review_id: str,
         decision: ReviewDecision,
-        actor: AdminDependency,
+        actor: ReviewerDependency,
         session: SessionDependency,
     ) -> ReviewQueueItem:
         return decide_review(review_id, decision, "rejected", actor, session)
@@ -327,7 +821,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response_model=list[PublicationRecord],
     )
     def publication_history(
-        _: AdminDependency,
+        _: ReviewerDependency,
         session: SessionDependency,
     ) -> list[PublicationRecord]:
         return repository.publication_history(session)
