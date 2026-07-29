@@ -16,6 +16,19 @@ class Settings:
     cors_origins: tuple[str, ...]
     environment: str = "development"
     data_mode: Literal["demo", "live"] = "demo"
+    jwt_secret: str | None = None
+    access_token_minutes: int = 30
+    fetch_allowed_hosts: tuple[str, ...] = ()
+    fetch_max_bytes: int = 2_000_000
+    extraction_api_url: str | None = None
+    extraction_api_key: str | None = None
+    extraction_model: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None
+    smtp_starttls: bool = True
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -46,4 +59,22 @@ class Settings:
             cors_origins=cors_origins,
             environment=os.getenv("AI_RADAR_ENVIRONMENT", "development"),
             data_mode=data_mode,
+            jwt_secret=os.getenv("AI_RADAR_JWT_SECRET") or None,
+            access_token_minutes=int(os.getenv("AI_RADAR_ACCESS_TOKEN_MINUTES", "30")),
+            fetch_allowed_hosts=tuple(
+                host.strip().lower()
+                for host in os.getenv("AI_RADAR_FETCH_ALLOWED_HOSTS", "").split(",")
+                if host.strip()
+            ),
+            fetch_max_bytes=int(os.getenv("AI_RADAR_FETCH_MAX_BYTES", "2000000")),
+            extraction_api_url=os.getenv("AI_RADAR_EXTRACTION_API_URL") or None,
+            extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
+            extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
+            smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
+            smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),
+            smtp_username=os.getenv("AI_RADAR_SMTP_USERNAME") or None,
+            smtp_password=os.getenv("AI_RADAR_SMTP_PASSWORD") or None,
+            smtp_from=os.getenv("AI_RADAR_SMTP_FROM") or None,
+            smtp_starttls=os.getenv("AI_RADAR_SMTP_STARTTLS", "true").lower()
+            in {"1", "true", "yes"},
         )

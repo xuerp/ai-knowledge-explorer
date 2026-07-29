@@ -52,6 +52,9 @@ class IngestionService:
             title=payload.title.strip(),
             publisher=payload.publisher.strip(),
             active=True,
+            fetch_enabled=payload.fetch_enabled,
+            fetch_interval_minutes=payload.fetch_interval_minutes,
+            next_fetch_at=now if payload.fetch_enabled else None,
             created_at=now,
         )
         session.add(record)
@@ -146,6 +149,10 @@ class IngestionService:
         self,
         session: Session,
         payload: CandidateCreate,
+        *,
+        queue_status: str = "pending",
+        conflict_claim_ids: list[str] | None = None,
+        review_reason: str | None = None,
     ) -> ReviewJobRecord | None:
         if session.get(ReviewJobRecord, payload.id):
             return None
@@ -160,8 +167,10 @@ class IngestionService:
                 [item.model_dump(mode="json", by_alias=True) for item in payload.evidence],
                 ensure_ascii=False,
             ),
-            status="pending",
+            conflict_ids_json=json.dumps(conflict_claim_ids or []),
+            status=queue_status,
             created_at=created_at,
+            review_reason=review_reason,
             version=1,
         )
         session.add(row)
@@ -176,6 +185,9 @@ class IngestionService:
             title=row.title,
             publisher=row.publisher,
             active=row.active,
+            fetch_enabled=row.fetch_enabled,
+            fetch_interval_minutes=row.fetch_interval_minutes,
+            next_fetch_at=row.next_fetch_at,
             created_at=row.created_at,
             last_seen_at=row.last_seen_at,
         )
