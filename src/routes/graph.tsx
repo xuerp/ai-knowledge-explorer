@@ -485,7 +485,7 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
 
           <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
             <aside className="hidden h-fit lg:block">{filterPanel}</aside>
-            <section className="min-w-0 space-y-3">
+            <section className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
               {viewMode === "graph" ? (
                 <KnowledgeGraph
                   entities={entities}
@@ -520,7 +520,11 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                   : ""}
               </p>
             </section>
-            <aside className="hidden h-fit lg:block">{inspector}</aside>
+            <aside className="hidden lg:block">
+              <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+                {inspector}
+              </div>
+            </aside>
           </div>
         </div>
       </main>
