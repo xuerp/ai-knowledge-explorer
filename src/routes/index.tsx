@@ -125,8 +125,8 @@ function HomePage() {
               return (
                 <Link
                   key={change.id}
-                  to="/knowledge/model/$slug"
-                  params={{ slug: entity.slug }}
+                  to="/knowledge/$type/$slug"
+                  params={{ type: entity.type, slug: entity.slug }}
                   className="paper-card group min-h-28 p-4 transition-colors hover:border-signal/40"
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -223,7 +223,11 @@ function UpdateCard({
           <Clock3 className="h-3 w-3" /> {change.date}
         </span>
       </div>
-      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }} className="group mt-3 block">
+      <Link
+        to="/knowledge/$type/$slug"
+        params={{ type: entity.type, slug: entity.slug }}
+        className="group mt-3 block"
+      >
         <h3
           className={`${featured ? "text-base" : "text-sm"} break-words font-semibold text-foreground`}
         >
@@ -240,8 +244,8 @@ function UpdateCard({
           "Sources attached · open the profile for evidence",
         )}
         <Link
-          to="/knowledge/model/$slug"
-          params={{ slug: entity.slug }}
+          to="/knowledge/$type/$slug"
+          params={{ type: entity.type, slug: entity.slug }}
           className="ml-auto text-signal hover:underline"
         >
           {t("查看详情", "Details")} →

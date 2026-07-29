@@ -1049,8 +1049,8 @@ function GraphInspector({
         </ul>
       </div>
       <Link
-        to="/knowledge/model/$slug"
-        params={{ slug: node.slug }}
+        to="/knowledge/$type/$slug"
+        params={{ type: node.type, slug: node.slug }}
         className="mt-5 inline-flex h-9 items-center gap-1 rounded-md bg-signal px-3 text-sm font-medium text-white hover:opacity-90"
       >
         {t("查看完整详情", "Full detail")}

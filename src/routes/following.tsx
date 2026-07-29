@@ -215,8 +215,8 @@ function FollowingPage() {
                 return (
                   <Link
                     key={notification.id}
-                    to="/knowledge/model/$slug"
-                    params={{ slug: entity.slug }}
+                    to="/knowledge/$type/$slug"
+                    params={{ type: entity.type, slug: entity.slug }}
                     onClick={() => markNotificationRead(notification.id)}
                     className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-accent/50"
                   >
@@ -283,8 +283,8 @@ function FollowingPage() {
                   <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
                     <div className="flex items-center gap-2 mb-1">
                       <Link
-                        to="/knowledge/model/$slug"
-                        params={{ slug: e.slug }}
+                        to="/knowledge/$type/$slug"
+                        params={{ type: e.type, slug: e.slug }}
                         className="font-serif text-lg font-semibold text-foreground hover:text-signal"
                       >
                         {pick(e.name, lang)}
