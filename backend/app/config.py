@@ -37,7 +37,12 @@ class Settings:
             origin.strip()
             for origin in os.getenv(
                 "AI_RADAR_CORS_ORIGINS",
-                "http://localhost:3000,http://localhost:5173,http://127.0.0.1:8080",
+                (
+                    "http://localhost:3000,http://localhost:5173,"
+                    "http://localhost:4181,http://localhost:4182,"
+                    "http://127.0.0.1:8080,http://127.0.0.1:4181,"
+                    "http://127.0.0.1:4182"
+                ),
             ).split(",")
             if origin.strip()
         )

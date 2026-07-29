@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import type { EntityType } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
-import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
+import { useEntities } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/knowledge")({
   head: () => ({
@@ -30,11 +30,11 @@ const TYPES: EntityType[] = ["model", "company", "framework", "benchmark", "pape
 
 function KnowledgePage() {
   const { t, lang } = useApp();
-  const snapshotQuery = useKnowledgeSnapshot();
+  const entitiesQuery = useEntities();
   const [q, setQ] = useState("");
   const [types, setTypes] = useState<EntityType[]>([]);
   const [region, setRegion] = useState<"all" | "domestic" | "overseas">("all");
-  const entities = snapshotQuery.data?.entities;
+  const entities = entitiesQuery.data;
 
   const filtered = useMemo(() => {
     const kw = q.trim().toLowerCase();
@@ -55,17 +55,17 @@ function KnowledgePage() {
   const toggleType = (t: EntityType) =>
     setTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
-  if (!snapshotQuery.data) {
+  if (!entitiesQuery.data) {
     return (
       <AppShell>
         <DataStatePanel
-          kind={snapshotQuery.unavailableKind}
+          kind={entitiesQuery.error ? "error" : "loading"}
           title={t(
-            snapshotQuery.error ? "知识库加载失败" : "正在加载知识库",
-            snapshotQuery.error ? "Knowledge base failed to load" : "Loading knowledge base",
+            entitiesQuery.error ? "知识库加载失败" : "正在加载知识库",
+            entitiesQuery.error ? "Knowledge base failed to load" : "Loading knowledge base",
           )}
           description={t("请检查数据服务后重试。", "Check the data service and retry.")}
-          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
+          onRetry={entitiesQuery.error ? () => entitiesQuery.refetch() : undefined}
         />
       </AppShell>
     );

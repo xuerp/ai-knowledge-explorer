@@ -68,6 +68,15 @@ class Metric(CamelModel):
     source_ids: list[str] | None = None
 
 
+class EntitySpecs(CamelModel):
+    context_window: str | None = None
+    input_price: str | None = None
+    output_price: str | None = None
+    modalities: str | None = None
+    tool_use: str | None = None
+    availability: str | None = None
+
+
 class Entity(CamelModel):
     id: str
     type: Literal[
@@ -93,6 +102,8 @@ class Entity(CamelModel):
     first_released_at: str | None = None
     last_updated_at: str
     aliases: list[str] | None = None
+    family_id: str | None = None
+    specs: EntitySpecs | None = None
     capabilities: list[Capability] | None = None
     metrics: list[Metric] | None = None
 
@@ -270,6 +281,10 @@ class GraphQuery(CamelModel):
     confidences: list[Confidence] = Field(default_factory=list)
     relation_kinds: list[str] = Field(default_factory=list)
     valid_at: str | None = None
+
+
+class ModelVersionCompareRequest(CamelModel):
+    version_ids: list[str] = Field(min_length=2, max_length=4)
 
 
 class SourceCreate(CamelModel):
