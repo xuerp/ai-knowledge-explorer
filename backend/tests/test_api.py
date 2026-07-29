@@ -146,3 +146,129 @@ def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
     assert review["claim"]["id"] not in {claim["id"] for claim in snapshot["claims"]}
     history = client.get("/api/v2/admin/publication-history", headers=headers)
     assert history.json() == []
+
+
+def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-demo-release",
+            "url": "https://Example.com/releases/#latest",
+            "title": "Example release feed",
+            "publisher": "Example",
+        },
+    )
+    assert created.status_code == 201
+    assert created.json()["url"] == "https://example.com/releases"
+
+    first = client.post(
+        "/api/v2/admin/sources/source-demo-release/snapshots",
+        headers=headers,
+        json={"content": "Version 1 introduces evidence-linked graph queries."},
+    )
+    assert first.status_code == 200
+    assert first.json()["changeType"] == "created"
+
+    duplicate = client.post(
+        "/api/v2/admin/sources/source-demo-release/snapshots",
+        headers=headers,
+        json={"content": "Version 1 introduces evidence-linked graph queries.   "},
+    )
+    assert duplicate.status_code == 200
+    assert duplicate.json()["changeType"] == "unchanged"
+    assert duplicate.json()["snapshotId"] == first.json()["snapshotId"]
+
+    changed = client.post(
+        "/api/v2/admin/sources/source-demo-release/snapshots",
+        headers=headers,
+        json={"content": "Version 2 adds a human review gate before public release."},
+    )
+    assert changed.status_code == 200
+    assert changed.json()["changeType"] == "updated"
+    assert changed.json()["previousSnapshotId"] == first.json()["snapshotId"]
+
+    runs = client.get(
+        "/api/v2/admin/ingestion-runs",
+        headers=headers,
+        params={"sourceId": "source-demo-release"},
+    )
+    assert runs.status_code == 200
+    assert {item["changeType"] for item in runs.json()} == {
+        "created",
+        "updated",
+        "unchanged",
+    }
+
+    duplicate_source = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-duplicate",
+            "url": "https://example.com/releases",
+            "title": "Duplicate release feed",
+            "publisher": "Example",
+        },
+    )
+    assert duplicate_source.status_code == 409
+
+
+def test_dynamic_candidate_is_private_until_human_approval(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    candidate_payload = {
+        "id": "review-ingested-capability",
+        "entityId": "e-gpt",
+        "claim": {
+            "id": "c-ingested-capability",
+            "text": {
+                "zh": "演示采集内容在人工批准后进入公共快照。",
+                "en": "Demo ingestion enters the public snapshot only after human approval.",
+            },
+            "confidence": "verified",
+            "sourceIds": ["s-ingested-release"],
+            "updatedAt": "2026-07-29",
+            "validFrom": "2026-07-29",
+            "observedAt": "2026-07-29",
+        },
+        "evidence": [
+            {
+                "id": "s-ingested-release",
+                "title": {
+                    "zh": "演示发布记录",
+                    "en": "Demo release record",
+                },
+                "url": "https://example.com/releases/v2",
+                "publisher": "Example",
+                "publishedAt": "2026-07-29",
+                "collectedAt": "2026-07-29",
+                "verifiedAt": "2026-07-29",
+                "type": "official",
+            }
+        ],
+    }
+    submitted = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json=candidate_payload,
+    )
+    assert submitted.status_code == 201
+    assert submitted.json()["status"] == "pending"
+
+    before = client.get("/api/snapshot").json()
+    assert "c-ingested-capability" not in {claim["id"] for claim in before["claims"]}
+    assert "s-ingested-release" not in {item["id"] for item in before["evidence"]}
+
+    approved = client.post(
+        "/api/v2/admin/review-queue/review-ingested-capability/approve",
+        headers=headers,
+        json={
+            "expectedVersion": submitted.json()["version"],
+            "reason": "The source, timestamps, and claim scope were manually checked.",
+        },
+    )
+    assert approved.status_code == 200
+
+    after = client.get("/api/snapshot").json()
+    assert "c-ingested-capability" in {claim["id"] for claim in after["claims"]}
+    assert "s-ingested-release" in {item["id"] for item in after["evidence"]}

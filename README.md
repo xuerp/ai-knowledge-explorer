@@ -19,6 +19,7 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 - 可替换的 `KnowledgeRepository`：未配置 API 时读取演示 adapter，配置后只读取真实 API，不静默回退。
 - FastAPI、Pydantic、SQLAlchemy 与 Alembic 后端基础；公共 API 会隔离未审核 Claim。
 - 受管理令牌保护的审核批准/拒绝、乐观并发控制和发布历史。
+- 来源登记、URL 规范化、文档快照、SHA-256 去重、内容 Diff 与候选 Claim 提交。
 - loading、error、offline、cached、stale、unverified 和 conflict 的统一状态语义。
 - 390px、1024px 和 1440px 响应式布局。
 - 生产构建、TypeScript、ESLint 和领域 / 图谱 / PWA 自动测试。
@@ -26,7 +27,7 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 
 ## 仍为演示或尚未实现
 
-- 当前没有真实采集、用户认证或模型调用；后端数据库与审核写入已经具备本地纵向闭环。
+- 当前没有自动联网抓取、用户认证或模型调用；后端已经具备“来源正文 → Diff → 候选 → 审核 → 发布”的本地纵向闭环。
 - AI 研究答案来自强类型演示快照，不会伪装为在线模型输出。
 - 公开审核演示页严格只读；后端已提供受保护审核 API，但尚未建设真实管理端登录页面。
 - 关注提醒与每日摘要尚未连接真实站内通知和事务邮件服务。
