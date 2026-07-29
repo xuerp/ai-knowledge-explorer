@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from pydantic.alias_generators import to_camel
 
 
@@ -265,3 +265,53 @@ class GraphQuery(CamelModel):
     confidences: list[Confidence] = Field(default_factory=list)
     relation_kinds: list[str] = Field(default_factory=list)
     valid_at: str | None = None
+
+
+class SourceCreate(CamelModel):
+    id: str = Field(min_length=3, max_length=128, pattern=r"^[a-z0-9][a-z0-9._-]+$")
+    url: HttpUrl
+    title: str = Field(min_length=3, max_length=500)
+    publisher: str = Field(min_length=2, max_length=255)
+
+
+class SourceView(CamelModel):
+    id: str
+    url: str
+    title: str
+    publisher: str
+    active: bool
+    created_at: datetime
+    last_seen_at: datetime | None = None
+
+
+class DocumentIngestRequest(CamelModel):
+    content: str = Field(min_length=20, max_length=2_000_000)
+    published_at: datetime | None = None
+
+
+class IngestionResult(CamelModel):
+    run_id: str
+    source_id: str
+    change_type: Literal["created", "updated", "unchanged"]
+    snapshot_id: str
+    content_hash: str
+    previous_snapshot_id: str | None = None
+
+
+class IngestionRunView(CamelModel):
+    id: str
+    source_id: str
+    started_at: datetime
+    finished_at: datetime
+    status: Literal["succeeded", "failed", "partial"]
+    change_type: Literal["created", "updated", "unchanged"]
+    snapshot_id: str | None = None
+    error: str | None = None
+
+
+class CandidateCreate(CamelModel):
+    id: str = Field(min_length=3, max_length=128, pattern=r"^[a-z0-9][a-z0-9._-]+$")
+    entity_id: str | None = None
+    claim: Claim
+    evidence: list[Evidence] = Field(min_length=1)
+    created_at: datetime | None = None

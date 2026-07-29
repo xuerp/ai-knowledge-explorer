@@ -13,6 +13,9 @@
 - 管理令牌保护的审核队列、批准、拒绝和发布历史。
 - 审核版本号乐观并发控制，重复决定返回 `409`。
 - 没有证据的 Claim 不允许发布。
+- 来源 URL 规范化、文档内容哈希、快照链和 created/updated/unchanged Diff。
+- 重复内容只记录采集运行，不生成重复文档快照。
+- 抽取器候选提交接口；候选 Claim 与新证据批准前保持私密。
 - 实体搜索、详情、时间线、邻域和图谱过滤查询。
 - CORS 白名单，不允许浏览器携带任意来源凭据。
 
@@ -88,10 +91,26 @@ Invoke-RestMethod `
 
 测试覆盖公共数据隔离、管理认证、实体/图谱查询、一次性审批、并发版本冲突和发布历史。
 
+还覆盖来源 URL 去重、文档快照哈希、内容 Diff、重复采集以及动态候选批准后的公共发布。
+
+## 采集入口
+
+当前接口接收已经获取的文档正文，不会绕过登录、付费墙或访问控制自行抓取：
+
+```text
+GET  /api/v2/admin/sources
+POST /api/v2/admin/sources
+POST /api/v2/admin/sources/{source_id}/snapshots
+GET  /api/v2/admin/ingestion-runs
+POST /api/v2/admin/review-candidates
+```
+
+来源正文会先规范换行和尾部空白，再计算 SHA-256。相同内容返回 `unchanged` 并复用快照；变化内容创建带 `previousSnapshotId` 的新快照。候选接口要求 Claim 的每个 `sourceId` 都在随请求提交的 Evidence 中。
+
 ## 下一阶段
 
 - PostgreSQL 正式 Schema 与可回滚部署流程。
-- 来源、文档快照、内容哈希、Diff 和采集任务表。
-- 候选实体、关系与 Claim 的结构化抽取。
+- 官方来源适配器和每 2–4 小时调度器。
+- 候选实体、关系与 Claim 的 LLM 结构化抽取。
 - 标准用户认证和基于角色的审核权限，替换单一开发管理令牌。
 - 真实研究、通知和事务邮件服务。

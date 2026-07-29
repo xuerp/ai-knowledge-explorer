@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 
 from .database import PublicationRecordRow, ReviewJobRecord
 from .schemas import (
+    Claim,
+    Evidence,
     KnowledgeSnapshot,
     LocalizedText,
     PublicationRecord,
@@ -53,6 +55,14 @@ class KnowledgeRepository:
                     claim_id=candidate.claim.id,
                     claim_json=candidate.claim.model_dump_json(by_alias=True),
                     evidence_ids_json=json.dumps(candidate.evidence_ids),
+                    evidence_json=json.dumps(
+                        [
+                            evidence.model_dump(mode="json", by_alias=True)
+                            for evidence in seed.evidence
+                            if evidence.id in candidate.evidence_ids
+                        ],
+                        ensure_ascii=False,
+                    ),
                     status=candidate.status,
                     created_at=_parse_datetime(candidate.created_at),
                     reviewed_at=(
@@ -70,6 +80,19 @@ class KnowledgeRepository:
             job.claim_id for job in jobs if job.status in OPEN_REVIEW_STATUSES | {"rejected"}
         }
         snapshot.claims = [claim for claim in snapshot.claims if claim.id not in blocked_claim_ids]
+        claim_ids = {claim.id for claim in snapshot.claims}
+        evidence_ids = {evidence.id for evidence in snapshot.evidence}
+        for job in jobs:
+            if job.status != "approved":
+                continue
+            if job.claim_id not in claim_ids:
+                snapshot.claims.append(Claim.model_validate_json(job.claim_json))
+                claim_ids.add(job.claim_id)
+            for raw_evidence in json.loads(job.evidence_json or "[]"):
+                evidence = Evidence.model_validate(raw_evidence)
+                if evidence.id not in evidence_ids:
+                    snapshot.evidence.append(evidence)
+                    evidence_ids.add(evidence.id)
         snapshot.review_candidates = []
         snapshot.sync_runs = []
         snapshot.meta.mode = self.data_mode

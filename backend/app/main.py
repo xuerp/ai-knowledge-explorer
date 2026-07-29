@@ -4,20 +4,28 @@ from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .config import Settings
 from .database import Database, PublicationRecordRow, ReviewJobRecord
+from .ingestion import IngestionService
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .schemas import (
+    CandidateCreate,
+    DocumentIngestRequest,
     Entity,
     GraphQuery,
     GraphSnapshot,
     HealthResponse,
+    IngestionResult,
+    IngestionRunView,
     KnowledgeSnapshot,
     PublicationRecord,
     ReviewDecision,
     ReviewQueueItem,
+    SourceCreate,
+    SourceView,
     TimelineEntry,
 )
 from .security import require_admin_token
@@ -27,6 +35,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or Settings.from_env()
     database = Database(app_settings.database_url)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
+    ingestion = IngestionService()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -165,6 +174,79 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             captured_at=graph.captured_at,
             valid_at=query.valid_at or graph.valid_at,
         )
+
+    @app.get("/api/v2/admin/sources", response_model=list[SourceView])
+    def list_sources(
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> list[SourceView]:
+        return ingestion.list_sources(session)
+
+    @app.post(
+        "/api/v2/admin/sources",
+        response_model=SourceView,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def create_source(
+        payload: SourceCreate,
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> SourceView:
+        try:
+            return ingestion.create_source(session, payload)
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A source with this id or normalized URL already exists.",
+            ) from error
+
+    @app.post(
+        "/api/v2/admin/sources/{source_id}/snapshots",
+        response_model=IngestionResult,
+    )
+    def ingest_source_snapshot(
+        source_id: str,
+        payload: DocumentIngestRequest,
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> IngestionResult:
+        result = ingestion.ingest_document(session, source_id, payload)
+        if not result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        return result
+
+    @app.get("/api/v2/admin/ingestion-runs", response_model=list[IngestionRunView])
+    def list_ingestion_runs(
+        _: AdminDependency,
+        session: SessionDependency,
+        source_id: Annotated[str | None, Query(alias="sourceId")] = None,
+    ) -> list[IngestionRunView]:
+        return ingestion.list_runs(session, source_id)
+
+    @app.post(
+        "/api/v2/admin/review-candidates",
+        response_model=ReviewQueueItem,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def submit_review_candidate(
+        payload: CandidateCreate,
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> ReviewQueueItem:
+        evidence_ids = {item.id for item in payload.evidence}
+        if not set(payload.claim.source_ids).issubset(evidence_ids):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Every claim source id must be included in the submitted evidence.",
+            )
+        row = ingestion.submit_candidate(session, payload)
+        if not row:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A review candidate with this id already exists.",
+            )
+        return repository.to_queue_item(row)
 
     @app.get("/api/v2/admin/review-queue", response_model=list[ReviewQueueItem])
     def review_queue(
