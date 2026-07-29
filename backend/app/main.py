@@ -42,6 +42,7 @@ from .schemas import (
     ExtractionRequest,
     FollowCreate,
     FollowView,
+    GraphEdge,
     GraphQuery,
     GraphSnapshot,
     HealthResponse,
@@ -100,6 +101,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(_: FastAPI):
         database.create_all()
         with database.session() as session:
+            repository.seed_catalog(session)
             repository.seed_review_jobs(session)
         yield
         database.dispose()
@@ -569,6 +571,100 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             captured_at=graph.captured_at,
             valid_at=query.valid_at or graph.valid_at,
         )
+
+    @app.post(
+        "/api/v2/admin/entities",
+        response_model=Entity,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def upsert_catalog_entity(
+        payload: Entity,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> Entity:
+        try:
+            entity = repository.upsert_entity(session, payload)
+            audit.record(
+                session,
+                principal,
+                "catalog.entity.upsert",
+                "entity",
+                entity.id,
+                {"slug": entity.slug, "familyId": entity.family_id},
+            )
+            session.commit()
+            return entity
+        except ValueError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(error),
+            ) from error
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Entity id or slug conflicts with an existing catalog record.",
+            ) from error
+
+    @app.post(
+        "/api/v2/admin/relations",
+        response_model=GraphEdge,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def upsert_catalog_relation(
+        payload: GraphEdge,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> GraphEdge:
+        try:
+            edge = repository.upsert_relation(session, payload)
+            audit.record(
+                session,
+                principal,
+                "catalog.relation.upsert",
+                "relation",
+                edge.id,
+                {"fromId": edge.from_id, "toId": edge.to_id, "kind": edge.kind},
+            )
+            session.commit()
+            return edge
+        except ValueError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(error),
+            ) from error
+
+    @app.post(
+        "/api/v2/admin/entities/{entity_id}/timeline",
+        response_model=TimelineEntry,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def upsert_catalog_timeline(
+        entity_id: str,
+        payload: TimelineEntry,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> TimelineEntry:
+        try:
+            entry = repository.upsert_timeline(session, entity_id, payload)
+            audit.record(
+                session,
+                principal,
+                "catalog.timeline.upsert",
+                "timeline",
+                entry.id,
+                {"entityId": entity_id, "date": entry.date},
+            )
+            session.commit()
+            return entry
+        except ValueError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(error),
+            ) from error
 
     @app.get("/api/v2/admin/sources", response_model=list[SourceView])
     def list_sources(

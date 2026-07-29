@@ -54,6 +54,55 @@ class PublicationRecordRow(Base):
     actor: Mapped[str] = mapped_column(String(128), nullable=False)
 
 
+class KnowledgeEntityRecord(Base):
+    __tablename__ = "knowledge_entities"
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    entity_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
+    family_id: Mapped[str | None] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        nullable=True,
+        index=True,
+    )
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class KnowledgeRelationRecord(Base):
+    __tablename__ = "knowledge_relations"
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    from_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        nullable=False,
+        index=True,
+    )
+    to_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        nullable=False,
+        index=True,
+    )
+    kind: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class KnowledgeTimelineRecord(Base):
+    __tablename__ = "knowledge_timeline"
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    entity_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        nullable=False,
+        primary_key=True,
+        index=True,
+    )
+    event_date: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
+    payload_json: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class SourceRecord(Base):
     __tablename__ = "sources"
 

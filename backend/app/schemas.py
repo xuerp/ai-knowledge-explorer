@@ -486,5 +486,7 @@ class DataQualityReport(CamelModel):
     relation_count: int
     core_entities_below_five_relations: list[str]
     claims_with_missing_evidence: list[str]
+    relations_with_missing_evidence: list[str]
+    timeline_entries_with_missing_evidence: list[str]
     live_ready: bool
     issues: list[str]

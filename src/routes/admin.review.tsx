@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Check, Database, LogOut, Mail, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { Braces, Check, Database, LogOut, Mail, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import {
   adminApi,
   type AdminUser,
   type AuditEntry,
+  type DataQualityReport,
   type IngestionRun,
   type OutboxEntry,
   type ReviewQueueItem,
@@ -31,6 +34,68 @@ type Workspace = {
   runs: IngestionRun[];
   audit: AuditEntry[];
   outbox: OutboxEntry[];
+  quality: DataQualityReport | null;
+};
+
+type CatalogRecordKind = "entity" | "relation" | "timeline";
+
+const catalogExamples: Record<CatalogRecordKind, string> = {
+  entity: JSON.stringify(
+    {
+      id: "e-model-version",
+      type: "model",
+      slug: "model-version",
+      name: { zh: "模型具体版本", en: "Concrete model version" },
+      summary: { zh: "填写经过核验的版本摘要。", en: "Verified release summary." },
+      vendor: "Vendor",
+      origin: { zh: "海外", en: "Overseas" },
+      status: "active",
+      tags: ["大模型", "具体版本"],
+      firstReleasedAt: "2026-07-29",
+      lastUpdatedAt: "2026-07-29",
+      familyId: "e-model-family",
+      specs: {
+        contextWindow: "128K tokens",
+        inputPrice: "待核验",
+        outputPrice: "待核验",
+        modalities: "文本",
+        toolUse: "待核验",
+        availability: "API",
+      },
+    },
+    null,
+    2,
+  ),
+  relation: JSON.stringify(
+    {
+      id: "edge-version-family",
+      fromId: "e-model-version",
+      toId: "e-model-family",
+      kind: "part-of",
+      label: { zh: "属于系列", en: "Part of family" },
+      confidence: "verified",
+      sourceIds: ["replace-with-existing-evidence-id"],
+      validFrom: "2026-07-29",
+    },
+    null,
+    2,
+  ),
+  timeline: JSON.stringify(
+    {
+      id: "timeline-model-version-release",
+      date: "2026-07-29",
+      title: { zh: "具体版本发布", en: "Concrete version released" },
+      summary: {
+        zh: "填写功能、价格与可用性变化。",
+        en: "Describe capability and pricing changes.",
+      },
+      kind: "release",
+      sourceIds: ["replace-with-existing-evidence-id"],
+      confidence: "verified",
+    },
+    null,
+    2,
+  ),
 };
 
 function AdminReviewPage() {
@@ -40,6 +105,10 @@ function AdminReviewPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [catalogKind, setCatalogKind] = useState<CatalogRecordKind>("entity");
+  const [catalogJson, setCatalogJson] = useState(catalogExamples.entity);
+  const [timelineEntityId, setTimelineEntityId] = useState("");
+  const [catalogMessage, setCatalogMessage] = useState("");
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -110,6 +179,41 @@ function AdminReviewPage() {
       await refresh(token);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Operation failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const switchCatalogKind = (kind: CatalogRecordKind) => {
+    setCatalogKind(kind);
+    setCatalogJson(catalogExamples[kind]);
+    setCatalogMessage("");
+  };
+
+  const saveCatalogRecord = async () => {
+    setBusy(true);
+    setError("");
+    setCatalogMessage("");
+    try {
+      const payload = JSON.parse(catalogJson) as unknown;
+      if (catalogKind === "entity") {
+        const saved = await adminApi.upsertEntity(token, payload as Entity);
+        setCatalogMessage(`已保存实体 ${saved.id}；公开目录会立即读取该记录。`);
+      } else if (catalogKind === "relation") {
+        const saved = await adminApi.upsertRelation(token, payload as GraphEdge);
+        setCatalogMessage(`已保存关系 ${saved.id}。`);
+      } else {
+        if (!timelineEntityId.trim()) throw new Error("请填写时间线所属的实体 ID。");
+        const saved = await adminApi.upsertTimeline(
+          token,
+          timelineEntityId.trim(),
+          payload as TimelineEntry,
+        );
+        setCatalogMessage(`已保存时间线事件 ${saved.id}。`);
+      }
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Catalog update failed.");
     } finally {
       setBusy(false);
     }
@@ -212,12 +316,29 @@ function AdminReviewPage() {
         </header>
         {error && <Notice title="操作未完成" detail={error} destructive />}
 
-        <section className="grid gap-3 sm:grid-cols-4">
+        <section className="grid gap-3 sm:grid-cols-5">
           <Metric label="审核任务" value={workspace.queue.length} />
           <Metric label="已登记信源" value={workspace.sources.length} />
           <Metric label="采集运行" value={workspace.runs.length} />
           <Metric label="邮件 Outbox" value={workspace.outbox.length} />
+          <Metric label="正式数据门槛" value={workspace.quality?.liveReady ? "通过" : "未通过"} />
         </section>
+
+        {workspace.quality && !workspace.quality.liveReady && (
+          <section className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
+            <h2 className="font-medium">正式数据验收尚未通过</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              当前 {workspace.quality.entityCount} 个实体、{workspace.quality.claimCount} 条 Claim、
+              {workspace.quality.relationCount}{" "}
+              条关系。演示和工程闭环可用，但不能据此宣称正式数据完备。
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+              {workspace.quality.issues.map((issue) => (
+                <li key={issue}>· {issue}</li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-semibold">候选队列</h2>
@@ -289,12 +410,67 @@ function AdminReviewPage() {
             }))}
           />
         </section>
+
+        {user.role === "admin" && (
+          <section className="paper-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">
+                  <Braces className="h-5 w-5 text-signal" />
+                  扩展模型目录
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                  用经过核验的数据新增或更新模型系列、具体版本、时间线和关系。具体版本填写 familyId
+                  后，知识库、详情、图谱与版本对比会自动读取。
+                </p>
+              </div>
+              <div className="flex rounded-md border border-border p-1">
+                {(["entity", "relation", "timeline"] as const).map((kind) => (
+                  <Button
+                    key={kind}
+                    size="sm"
+                    variant={catalogKind === kind ? "default" : "ghost"}
+                    onClick={() => switchCatalogKind(kind)}
+                  >
+                    {kind === "entity" ? "实体 / 版本" : kind === "relation" ? "关系" : "时间线"}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {catalogKind === "timeline" && (
+              <Input
+                className="mt-4 max-w-md"
+                aria-label="时间线所属实体 ID"
+                placeholder="时间线所属实体 ID，例如 e-gpt"
+                value={timelineEntityId}
+                onChange={(event) => setTimelineEntityId(event.target.value)}
+              />
+            )}
+            <Textarea
+              className="mt-4 min-h-72 font-mono text-xs leading-relaxed"
+              aria-label="目录 JSON"
+              spellCheck={false}
+              value={catalogJson}
+              onChange={(event) => setCatalogJson(event.target.value)}
+            />
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button onClick={saveCatalogRecord} disabled={busy}>
+                <Check />
+                校验并保存
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                相同 ID 会更新原记录；服务端会校验系列归属、端点和字段结构。
+              </span>
+            </div>
+            {catalogMessage && <p className="mt-3 text-sm text-verified">{catalogMessage}</p>}
+          </section>
+        )}
       </main>
     </AppShell>
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="paper-card p-4">
       <div className="text-xs text-muted-foreground">{label}</div>

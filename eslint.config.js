@@ -36,5 +36,12 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    files: ["src/components/ui/**/*.{ts,tsx}"],
+    rules: {
+      // shadcn-style modules intentionally co-locate component variants and helpers.
+      "react-refresh/only-export-components": "off",
+    },
+  },
   eslintPluginPrettier,
 );

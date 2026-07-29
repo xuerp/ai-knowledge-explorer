@@ -6,7 +6,7 @@ AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知
 
 前端已包含：
 
-- 首页、知识库、六段式实体详情、比较、2D 大图谱和三种阅读模式。
+- 首页、知识库、六段式实体详情、系列/具体版本比较、关系图谱和三种阅读模式。
 - 证据化研究界面、私密研究页、公开分享、Markdown 和打印/PDF。
 - 关注、通知、个性化、PWA、离线状态和中英双语。
 - `/admin/review-demo` 只读作品集后台。
@@ -17,6 +17,7 @@ AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知
 
 - FastAPI/Pydantic/SQLAlchemy/Alembic，SQLite 和 PostgreSQL。
 - JWT/RBAC、审计日志、人审门禁和不可重复发布。
+- 数据库化模型系列、具体版本、关系与时间线；管理员可增量维护，前端自动读取。
 - 安全采集、内容快照/Diff、严格结构化模型抽取、实体消歧和冲突检测。
 - 关注者通知、每日摘要 Outbox、SMTP 适配器、私密研究和主动公开分享。
 - Docker Compose、PostgreSQL CI 迁移验证、正式数据质量报告和黄金问题集。
@@ -51,17 +52,19 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 
 ## 主要入口
 
-| 路径 | 用途 |
-| --- | --- |
-| `/` | 个性化变化和行业必看 |
-| `/knowledge` | 分类浏览 |
-| `/knowledge/model/gpt` | 六段式实体档案 |
-| `/graph` | 交互式 2D 知识图谱 |
-| `/ask` | 演示研究体验 |
-| `/following` | 演示个性化体验 |
-| `/account` | 真实登录、关注、通知、摘要和私密研究 |
-| `/admin/review-demo` | 只读审核演示 |
-| `/admin/review` | 真实受保护审核工作台 |
+| 路径                   | 用途                                   |
+| ---------------------- | -------------------------------------- |
+| `/`                    | 个性化变化和行业必看                   |
+| `/knowledge`           | 分类浏览                               |
+| `/knowledge/model/gpt` | 六段式实体档案                         |
+| `/graph`               | 可解释的关系查询图谱、邻域、路径与来源 |
+| `/ask`                 | 演示研究体验                           |
+| `/following`           | 演示个性化体验                         |
+| `/account`             | 真实登录、关注、通知、摘要和私密研究   |
+| `/admin/review-demo`   | 只读审核演示                           |
+| `/admin/review`        | 真实受保护审核工作台                   |
+
+`/admin/review` 的“扩展模型目录”支持新增模型系列、具体版本、关系和时间线。具体版本使用 `familyId` 归属系列，因此以后增加 GPT、Claude、Gemini、DeepSeek、Qwen 等细分版本时无需重写页面。
 
 ## 质量检查
 
