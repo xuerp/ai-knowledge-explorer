@@ -148,6 +148,28 @@ test("every non-model knowledge entry has useful editorial content and evidence"
   }
 });
 
+test("every top-level model family has a useful guide with direct evidence", () => {
+  const sourceIds = new Set(SOURCES.map((source) => source.id));
+  const families = ENTITIES.filter((entity) => entity.type === "model" && !entity.familyId);
+
+  assert.equal(families.length, 8);
+  for (const entity of families) {
+    assert.ok(entity.knowledge, `${entity.id} must include a model-family guide`);
+    assert.ok(entity.knowledge.introduction.length >= 2, `${entity.id} needs an introduction`);
+    assert.ok(entity.knowledge.keyPoints.length >= 3, `${entity.id} needs key facts`);
+    assert.ok(entity.knowledge.useCases.length >= 3, `${entity.id} needs use cases`);
+    assert.ok(entity.knowledge.limitations.length >= 3, `${entity.id} needs decision limits`);
+    assert.match(entity.knowledge.officialUrl, /^https:\/\//, `${entity.id} needs an official URL`);
+    const citedPoints = entity.knowledge.keyPoints.filter((point) => point.sourceIds?.length);
+    assert.ok(citedPoints.length >= 1, `${entity.id} needs directly cited key facts`);
+    citedPoints
+      .flatMap((point) => point.sourceIds)
+      .forEach((id) => {
+        assert.ok(sourceIds.has(id), `${entity.id} references missing source ${id}`);
+      });
+  }
+});
+
 test("the demo adapter exposes a complete, explicitly labelled snapshot", () => {
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.meta.mode, "demo");
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.researchQuestions.length >= 3);
