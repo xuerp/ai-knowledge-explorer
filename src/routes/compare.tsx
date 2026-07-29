@@ -22,7 +22,7 @@ export const Route = createFileRoute("/compare")({
 function ComparePage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const [selected, setSelected] = useState<string[]>(["e-gpt", "e-claude", "e-deepseek"]);
+  const [selected, setSelected] = useState<string[]>(["e-gpt", "e-claude"]);
   const models = (snapshotQuery.data?.entities ?? []).filter((e) => e.type === "model");
   const chosen = models.filter((m) => selected.includes(m.id));
 
@@ -50,38 +50,69 @@ function ComparePage() {
   return (
     <AppShell>
       <PageHeader
-        title={t("并排对比", "Compare")}
+        title={t("横向对比", "Compare side by side")}
         subtitle={t(
           "最多选择 4 个模型，比较能力、指标与最近更新。",
           "Pick up to 4 models to compare capabilities and recent updates.",
         )}
       />
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-6">
-        <div className="flex flex-wrap gap-2">
+      <div className="page-container space-y-6 pb-12 pt-3">
+        <div className="paper-card flex flex-wrap items-center gap-3 p-4">
           {models.map((m) => (
             <button
               key={m.id}
               onClick={() => toggle(m.id)}
               className={
-                "chip " +
+                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm " +
                 (selected.includes(m.id)
-                  ? "!bg-signal !text-signal-foreground !border-signal"
-                  : "hover:border-signal/50")
+                  ? "border-signal bg-accent font-medium text-signal"
+                  : "border-border text-muted-foreground hover:border-signal/50")
               }
             >
+              <span
+                className={`h-3 w-3 rounded-full ${
+                  selected.includes(m.id) ? "bg-signal" : "bg-border-strong"
+                }`}
+              />
               {pick(m.name, lang)}
             </button>
           ))}
-          <DemoBadge className="ml-auto" />
+          <span className="ml-auto font-mono text-lg text-signal">VS</span>
+          <DemoBadge />
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {[
+            t("明确能力支持", "Confirmed capabilities"),
+            t("API 与上下文", "API & context"),
+            t("工具调用", "Tool use"),
+            t("多模态", "Multimodal"),
+            t("部署与开放性", "Deployment & openness"),
+            t("有来源的 Benchmark", "Sourced benchmarks"),
+          ].map((dimension, index) => (
+            <button
+              key={dimension}
+              type="button"
+              className={`h-8 rounded-md border px-3 text-xs ${
+                index === 0 || index === 2 || index === 3
+                  ? "border-signal bg-signal text-white"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {dimension}
+            </button>
+          ))}
         </div>
 
         <div className="paper-card overflow-x-auto">
           <table className="w-full text-sm min-w-[720px]">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+            <thead className="border-b border-border bg-card text-xs text-muted-foreground">
               <tr>
-                <th className="text-left py-3 px-4 font-medium w-40">{t("对象", "Attribute")}</th>
+                <th className="text-left py-4 px-5 font-medium w-52">
+                  {t("对比维度", "Dimension")}
+                </th>
                 {chosen.map((m) => (
-                  <th key={m.id} className="text-left py-3 px-4 font-medium">
+                  <th key={m.id} className="text-left py-4 px-5 font-semibold text-signal">
                     <Link
                       to="/knowledge/model/$slug"
                       params={{ slug: m.slug }}
@@ -130,6 +161,13 @@ function ComparePage() {
             </tbody>
           </table>
         </div>
+        <p className="text-xs text-unverified">
+          △{" "}
+          {t(
+            "所有 Benchmark 数据都必须绑定来源和截止时间，不作为脱离场景的通用总分。",
+            "Every benchmark is source- and date-bound; no universal score is implied.",
+          )}
+        </p>
       </div>
     </AppShell>
   );

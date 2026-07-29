@@ -1,28 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Clock, Radar, TrendingUp, Bookmark } from "lucide-react";
+import { ArrowRight, Bell, Clock3, GitBranch, Radar, ShieldCheck, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import {
-  PageHeader,
-  SectionHeading,
-  EntityChip,
-  ConfidenceChip,
-  DemoBadge,
-} from "@/components/common";
+import { ConfidenceChip, DemoBadge } from "@/components/common";
 import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
+import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import type { ChangeEvent, Entity } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AI Radar · 追踪 AI 技术生态的变化" },
+      { title: "AI Radar · 你关注的 AI，最近发生了什么" },
       {
         name: "description",
-        content: "个性化最新变化、全行业必看、今日图谱变化与继续研究，一个入口看懂 AI 技术生态。",
+        content: "可信、可追溯、具有时间维度的 AI 技术知识图谱。",
       },
-      { property: "og:title", content: "AI Radar · 首页" },
-      { property: "og:description", content: "追踪 AI 技术生态的时序知识图谱。" },
     ],
   }),
   component: HomePage,
@@ -42,8 +36,8 @@ function HomePage() {
             snapshotQuery.error ? "Home data failed to load" : "Loading home",
           )}
           description={t(
-            "请检查连接后重试。演示数据不会冒充实时数据。",
-            "Check the connection and retry. Demo data will never masquerade as live data.",
+            "请检查连接后重试；演示数据不会冒充实时结果。",
+            "Check the connection and retry. Demo data never masquerades as live data.",
           )}
           onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
         />
@@ -51,288 +45,208 @@ function HomePage() {
     );
   }
 
-  const {
-    entities: ENTITIES,
-    following: FOLLOWING,
-    changes: RECENT_CHANGES,
-    graph,
-    reviewCandidates,
-    meta,
-  } = snapshotQuery.data;
-  const findEntity = (id: string) => ENTITIES.find((entity) => entity.id === id);
-  const followingIds = FOLLOWING.map((f) => f.entityId);
-  const personalChanges = RECENT_CHANGES.filter((c) => followingIds.includes(c.entityId));
-  const industryChanges = RECENT_CHANGES.slice(0, 6);
+  const snapshot = snapshotQuery.data;
+  const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
+  const followingIds = new Set(snapshot.following.map((item) => item.entityId));
+  const related = snapshot.changes
+    .filter((change) => followingIds.has(change.entityId))
+    .slice(0, 3);
+  const industry = snapshot.changes.slice(0, 3);
+  const previewIds = snapshot.graph.nodes.slice(0, 9).map((node) => node.entityId);
 
   return (
     <AppShell>
-      <PageHeader
-        title={t("追踪 AI 技术生态的变化", "Tracking how the AI ecosystem changes")}
-        subtitle={t(
-          "AI Radar 是一个持续更新、可追溯、具有时间维度的知识图谱。看懂一个模型从哪里来、现在能做什么、与谁相关、最近发生了什么。",
-          "AI Radar is a continuously updated, sourced, time-aware knowledge graph of the AI ecosystem.",
-        )}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <DataFreshnessBadge meta={meta} />
-            <Link
-              to="/knowledge"
-              className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-signal text-signal-foreground text-sm font-medium hover:opacity-90"
-            >
-              {t("开始探索知识库", "Explore knowledge base")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+      <div className="page-container pb-12 pt-9 md:pt-11">
+        <header className="flex flex-wrap items-end justify-between gap-6">
+          <div className="min-w-0 max-w-full">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <DemoBadge />
+              <DataFreshnessBadge meta={snapshot.meta} />
+            </div>
+            <h1 className="max-w-3xl text-[1.75rem] font-bold leading-tight tracking-tight text-foreground md:text-4xl">
+              {t("你关注的 AI，最近发生了什么", "What changed in the AI you follow")}
+            </h1>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t("最后同步", "Last sync")} · {snapshot.meta.retrievedAt.slice(0, 16)} ·{" "}
+              {t("每条结论都可追溯到证据", "Every conclusion traces back to evidence")}
+            </p>
+          </div>
+          <div className="inline-flex rounded-lg border border-border bg-card p-1">
+            {["24 小时", "7 天", "30 天", "90 天"].map((range, index) => (
+              <button
+                key={range}
+                type="button"
+                className={`h-8 rounded-md px-3 text-xs ${
+                  index === 1
+                    ? "bg-signal text-signal-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        <section className="mt-8">
+          <SectionTitle
+            icon={<Bell className="h-4 w-4" />}
+            title={t("与你相关的最新变化", "Latest changes relevant to you")}
+            action={
+              <Link to="/following" className="text-xs text-signal hover:underline">
+                {t("管理关注", "Manage follows")} →
+              </Link>
+            }
+          />
+          <div className="space-y-3">
+            {related.map((change, index) => {
+              const entity = entityById.get(change.entityId);
+              if (!entity) return null;
+              return (
+                <UpdateCard
+                  key={change.id}
+                  change={change}
+                  entity={entity}
+                  featured={index === 0}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <SectionTitle
+            icon={<Sparkles className="h-4 w-4" />}
+            title={t("全行业不可错过", "Industry must-reads")}
+          />
+          <div className="grid gap-3 md:grid-cols-3">
+            {industry.map((change) => {
+              const entity = entityById.get(change.entityId);
+              if (!entity) return null;
+              return (
+                <Link
+                  key={change.id}
+                  to="/knowledge/model/$slug"
+                  params={{ slug: entity.slug }}
+                  className="paper-card group min-h-28 p-4 transition-colors hover:border-signal/40"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="chip">{pick(ENTITY_TYPE_LABELS[entity.type], lang)}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-signal" />
+                  </div>
+                  <h3 className="text-sm font-semibold">{pick(entity.name, lang)}</h3>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                    {pick(change.summary, lang)}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <SectionTitle
+            icon={<GitBranch className="h-4 w-4" />}
+            title={t("今日图谱变化", "Today's graph changes")}
+            action={
+              <span className="text-xs text-muted-foreground">
+                +{snapshot.changes.length} {t("个变化事件", "change events")} · +
+                {snapshot.graph.edges.length} {t("条关系", "relations")}
+              </span>
+            }
+          />
+          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
+            <KnowledgeGraph
+              entities={snapshot.entities}
+              relations={snapshot.graph.edges}
+              entityIds={previewIds}
+              centerId={previewIds[0]}
+              height={310}
+              canvasWidth={1120}
+            />
             <Link
               to="/graph"
-              className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border bg-card text-sm font-medium hover:bg-accent"
+              className="absolute bottom-4 right-4 inline-flex h-9 items-center gap-2 rounded-md bg-signal px-4 text-xs font-medium text-white"
             >
-              {t("打开 2D 图谱", "Open 2D graph")}
+              <Radar className="h-4 w-4" />
+              {t("进入完整图谱", "Open full graph")}
             </Link>
           </div>
-        }
-      />
-
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-10">
-          {/* Personal */}
-          <section>
-            <SectionHeading
-              eyebrow={t("个性化", "For you")}
-              title={t("你关注的最新变化", "Latest from what you follow")}
-              description={t(
-                "根据你的关注列表，从图谱中挑选真正与你相关的更新。",
-                "Selected from your following list; only changes that matter to you.",
-              )}
-              action={
-                <Link
-                  to="/following"
-                  className="text-sm text-signal hover:underline hidden md:inline-flex items-center gap-1"
-                >
-                  {t("管理关注", "Manage")} <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              }
-            />
-            <div className="grid md:grid-cols-2 gap-4">
-              {personalChanges.map((c) => {
-                const e = findEntity(c.entityId)!;
-                return (
-                  <Link
-                    key={c.id}
-                    to="/knowledge/model/$slug"
-                    params={{ slug: e.slug }}
-                    className="paper-card p-5 hover:border-signal/50 transition-colors block"
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="chip">{pick(ENTITY_TYPE_LABELS[e.type], lang)}</span>
-                      <span className="font-serif font-semibold text-foreground">
-                        {pick(e.name, lang)}
-                      </span>
-                      <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {c.date}
-                      </span>
-                    </div>
-                    <p className="text-[15px] leading-relaxed text-foreground">
-                      {pick(c.summary, lang)}
-                    </p>
-                    <div className="mt-3 flex items-center gap-2">
-                      <ConfidenceChip level={c.confidence} />
-                      <DemoBadge />
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Industry */}
-          <section>
-            <SectionHeading
-              eyebrow={t("行业", "Industry")}
-              title={t("全行业不可错过", "Industry must-reads")}
-              description={t(
-                "跨厂商、跨方向筛选的重要更新，避免只看到自己关注的信息茧房。",
-                "Cross-vendor, cross-topic filter of what matters — beyond your own filter bubble.",
-              )}
-            />
-            <div className="paper-card divide-y divide-border">
-              {industryChanges.map((c) => {
-                const e = findEntity(c.entityId)!;
-                return (
-                  <Link
-                    key={c.id}
-                    to="/knowledge/model/$slug"
-                    params={{ slug: e.slug }}
-                    className="flex items-start gap-4 px-5 py-4 hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="text-xs text-muted-foreground w-20 shrink-0 pt-1">{c.date}</div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-medium text-foreground">{pick(e.name, lang)}</span>
-                        <span className="chip">{pick(ENTITY_TYPE_LABELS[e.type], lang)}</span>
-                        <ConfidenceChip level={c.confidence} />
-                      </div>
-                      <p className="text-sm text-ink-soft">{pick(c.summary, lang)}</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Graph changes */}
-          <section>
-            <SectionHeading
-              eyebrow={t("图谱", "Graph")}
-              title={t("今日图谱变化", "Graph changes today")}
-              description={t(
-                "新增或调整的实体与关系，直接进入图谱查看上下文。",
-                "New or updated entities & relations — jump into the graph for context.",
-              )}
-            />
-            <div className="grid sm:grid-cols-3 gap-3">
-              <GraphChange
-                icon={<Sparkles className="h-4 w-4 text-signal" />}
-                title={t(
-                  `新增事件 ${RECENT_CHANGES.filter((change) => change.kind === "new").length} 条`,
-                  `${RECENT_CHANGES.filter((change) => change.kind === "new").length} new events`,
-                )}
-                desc={t("来自当前演示快照", "From the current demo snapshot")}
-              />
-              <GraphChange
-                icon={<TrendingUp className="h-4 w-4 text-signal" />}
-                title={t(`图谱关系 ${graph.edges.length} 条`, `${graph.edges.length} graph edges`)}
-                desc={t("每条关系均绑定可信度与证据", "Every edge carries confidence and evidence")}
-              />
-              <GraphChange
-                icon={<Radar className="h-4 w-4 text-signal" />}
-                title={t(
-                  `待处理审核 ${reviewCandidates.length} 条`,
-                  `${reviewCandidates.length} review candidates`,
-                )}
-                desc={t(
-                  "未核验内容不会直接进入正式图谱",
-                  "Unverified content is never auto-published",
-                )}
-                to="/admin/review-demo"
-              />
-            </div>
-          </section>
-        </div>
-
-        {/* Sidebar */}
-        <aside className="space-y-8">
-          <div className="paper-card p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Bookmark className="h-4 w-4 text-signal" />
-              <h3 className="font-serif font-semibold text-foreground">
-                {t("继续研究", "Continue research")}
-              </h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t(
-                "你最近的图谱浏览与 AI 问答会保留在这里，方便下次接着看。",
-                "Your recent graph views & AI answers, ready to resume.",
-              )}
-            </p>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/ask" className="group block text-sm text-foreground hover:text-signal">
-                  <span className="text-signal mr-2 font-mono text-xs">01</span>
-                  {t(
-                    "对比 GPT-5 与 Claude 4.5 在代码任务上的差异",
-                    "Compare GPT-5 vs Claude 4.5 on code",
-                  )}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/knowledge/model/$slug"
-                  params={{ slug: "deepseek" }}
-                  className="group block text-sm text-foreground hover:text-signal"
-                >
-                  <span className="text-signal mr-2 font-mono text-xs">02</span>
-                  {t("DeepSeek R2 的开源生态", "DeepSeek R2 open-source ecosystem")}
-                </Link>
-              </li>
-              <li>
-                <Link to="/graph" className="group block text-sm text-foreground hover:text-signal">
-                  <span className="text-signal mr-2 font-mono text-xs">03</span>
-                  {t("MCP 与 LangChain 的关系", "How MCP relates to LangChain")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="paper-card p-5">
-            <h3 className="font-serif font-semibold text-foreground mb-3">
-              {t("正在关注", "You follow")}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {FOLLOWING.map((f) => {
-                const e = findEntity(f.entityId);
-                if (!e) return null;
-                return <EntityChip key={f.entityId} entity={e} />;
-              })}
-            </div>
-            <Link
-              to="/following"
-              className="mt-4 inline-flex items-center gap-1 text-sm text-signal hover:underline"
-            >
-              {t("管理关注与提醒强度", "Manage follows & intensity")}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          <div className="paper-card p-5 bg-accent/40">
-            <h3 className="font-serif font-semibold text-foreground mb-2">
-              {t("三种阅读模式", "Three reading modes")}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                "顶部 📖 按钮可切换：通俗解释、产品视角、技术细节。同一份知识，三种深度。",
-                "Toggle via the book icon: General / Product / Technical. One dataset, three depths.",
-              )}
-            </p>
-          </div>
-
-          <div className="paper-card p-5">
-            <h3 className="font-serif font-semibold text-foreground mb-3">
-              {t("热门实体", "Popular entities")}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {ENTITIES.filter((e) => e.type === "model").map((e) => (
-                <EntityChip key={e.id} entity={e} />
-              ))}
-            </div>
-          </div>
-        </aside>
+        </section>
       </div>
     </AppShell>
   );
 }
 
-function GraphChange({
+function SectionTitle({
   icon,
   title,
-  desc,
-  to = "/graph",
+  action,
 }: {
   icon: React.ReactNode;
   title: string;
-  desc: string;
-  to?: "/graph" | "/admin/review-demo";
+  action?: React.ReactNode;
 }) {
   return (
-    <Link
-      to={to}
-      className="paper-card p-4 hover:border-signal/50 transition-colors flex flex-col gap-2"
+    <div className="mb-3 flex items-center justify-between gap-4">
+      <h2 className="flex items-center gap-2 text-xl font-semibold">
+        <span className="text-signal">{icon}</span>
+        {title}
+      </h2>
+      {action}
+    </div>
+  );
+}
+
+function UpdateCard({
+  change,
+  entity,
+  featured,
+}: {
+  change: ChangeEvent;
+  entity: Entity;
+  featured: boolean;
+}) {
+  const { t, lang } = useApp();
+  return (
+    <article
+      className={`paper-card min-w-0 overflow-hidden p-4 md:p-5 ${
+        featured ? "border-signal/25" : ""
+      }`}
     >
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="font-medium text-foreground text-sm">{title}</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="chip bg-verified/10 text-verified">
+          {change.kind === "new" ? t("新增能力", "New capability") : t("重要变化", "Update")}
+        </span>
+        <ConfidenceChip level={change.confidence} />
+        <span className="ml-auto inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground">
+          <Clock3 className="h-3 w-3" /> {change.date}
+        </span>
       </div>
-      <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
-    </Link>
+      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }} className="group mt-3 block">
+        <h3
+          className={`${featured ? "text-base" : "text-sm"} break-words font-semibold text-foreground`}
+        >
+          {pick(entity.name, lang)} · {pick(change.summary, lang)}
+        </h3>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          {pick(entity.summary, lang)}
+        </p>
+      </Link>
+      <div className="mt-3 flex items-center gap-2 border-t border-border pt-3 text-[11px] text-muted-foreground">
+        <ShieldCheck className="h-3.5 w-3.5 text-verified" />
+        {t(
+          "来源已绑定 · 点击进入实体档案查看完整证据",
+          "Sources attached · open the profile for evidence",
+        )}
+        <Link
+          to="/knowledge/model/$slug"
+          params={{ slug: entity.slug }}
+          className="ml-auto text-signal hover:underline"
+        >
+          {t("查看详情", "Details")} →
+        </Link>
+      </div>
+    </article>
   );
 }

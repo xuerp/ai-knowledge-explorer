@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Radar, Search, Moon, Sun, Languages, BookOpen, UserRound } from "lucide-react";
+import { Diamond, Search, Moon, Sun, Languages, BookOpen, UserRound, Settings } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,18 +30,17 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
       className={
         "sticky top-0 z-30 border-b " +
         (dark
-          ? "border-white/10 bg-graph-bg/85 text-white backdrop-blur"
-          : "border-border bg-background/85 backdrop-blur")
+          ? "border-white/10 bg-graph-bg/92 text-white backdrop-blur"
+          : "border-border bg-white/95 backdrop-blur")
       }
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 flex items-center gap-4">
+      <div className="page-container h-14 flex items-center gap-3">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <Radar className="h-5 w-5 text-signal" />
-          <span className="font-serif text-lg font-semibold tracking-tight">AI Radar</span>
-          <span className="chip hidden sm:inline-flex ml-1">Demo</span>
+          <Diamond className="h-4 w-4 fill-signal text-signal" />
+          <span className="text-base font-semibold tracking-tight text-signal">AI Radar</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 ml-4">
+        <nav className="hidden md:flex h-full items-center gap-1 ml-6">
           {NAV.map((item) => {
             const active =
               item.to === "/"
@@ -52,10 +51,10 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
                 key={item.to}
                 to={item.to}
                 className={
-                  "px-3 h-9 inline-flex items-center whitespace-nowrap rounded-md text-sm transition-colors " +
+                  "relative px-3 h-full inline-flex items-center whitespace-nowrap text-sm transition-colors " +
                   (active
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-ink-soft hover:text-foreground hover:bg-accent/60")
+                    ? "text-signal font-medium after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-signal"
+                    : "text-ink-soft hover:text-foreground")
                 }
               >
                 {t(item.zh, item.en)}
@@ -66,15 +65,9 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
 
         <div className="flex-1" />
 
-        <Button asChild variant="ghost" size="icon">
-          <Link to="/account" aria-label={t("账户", "Account")}>
-            <UserRound className="h-4 w-4" />
-          </Link>
-        </Button>
-
         <Link
           to="/knowledge"
-          className="hidden xl:flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-card text-sm text-muted-foreground hover:text-foreground w-72"
+          className="hidden lg:flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-background text-sm text-muted-foreground hover:text-foreground w-52 xl:w-64"
         >
           <Search className="h-4 w-4" />
           <span>{t("搜索 模型 · Agent · 论文…", "Search models, agents, papers…")}</span>
@@ -85,7 +78,12 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Reading mode">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden sm:inline-flex"
+              aria-label="Reading mode"
+            >
               <BookOpen className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -105,6 +103,7 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
         <Button
           variant="ghost"
           size="icon"
+          className="hidden sm:inline-flex"
           aria-label="Language"
           onClick={() => setLang(lang === "zh" ? "en" : "zh")}
         >
@@ -114,11 +113,38 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
         <Button
           variant="ghost"
           size="icon"
+          className="hidden sm:inline-flex"
           aria-label="Theme"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t("账户与设置", "Account and settings")}
+            >
+              <UserRound className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuLabel>{t("个人空间", "Personal space")}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/account">
+                <UserRound className="h-4 w-4" /> {t("账户", "Account")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/settings">
+                <Settings className="h-4 w-4" /> {t("设置", "Settings")}
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

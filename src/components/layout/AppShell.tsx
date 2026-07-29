@@ -15,10 +15,10 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
       <PwaStatus dark={dark} />
       <main className="flex-1 pb-24 md:pb-8">{children}</main>
       <BottomNav />
-      <footer className="hidden md:block border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-6 text-xs text-muted-foreground flex flex-wrap gap-4 justify-between">
-          <span>AI Radar · 演示数据版本 · Demo build</span>
-          <span>所有事实、评分与关系均标记为演示数据（Demo data），不代表真实产品结论。</span>
+      <footer className="hidden md:block border-t border-border bg-white/60">
+        <div className="page-container py-3 text-[11px] text-muted-foreground flex flex-wrap gap-4 justify-between">
+          <span>在线 · 演示数据模式 · AI Radar V2</span>
+          <span>所有事实、评分与关系均标记来源和可信度，不代表真实产品结论。</span>
         </div>
       </footer>
     </div>

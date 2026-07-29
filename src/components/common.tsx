@@ -10,7 +10,7 @@ export function DemoBadge({ className = "" }: { className?: string }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1 rounded-full border border-signal/40 bg-signal/10 text-signal text-[11px] px-2 py-0.5 font-medium " +
+        "inline-flex items-center gap-1 rounded-md border border-signal/25 bg-accent text-signal text-[11px] px-2 py-0.5 font-medium " +
         className
       }
       title={t("本项目所有事实均为演示数据", "All facts in this project are demo data")}
@@ -35,7 +35,7 @@ export function ConfidenceChip({ level }: { level: Confidence }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1 rounded-full text-[11px] px-2 py-0.5 border " + meta.cls
+        "inline-flex items-center gap-1 rounded-md text-[11px] px-2 py-0.5 border " + meta.cls
       }
     >
       <Icon className="h-3 w-3" />
@@ -63,7 +63,7 @@ export function SectionHeading({
             {eyebrow}
           </div>
         )}
-        <h2 className="font-serif text-xl md:text-2xl font-semibold text-foreground">{title}</h2>
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground">{title}</h2>
         {description && (
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{description}</p>
         )}
@@ -129,18 +129,15 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+    <div>
+      <div className="page-container pt-8 pb-4 md:pt-10 md:pb-5">
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <DemoBadge />
-            </div>
-            <h1 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-sm md:text-base text-muted-foreground mt-2 max-w-3xl">
+              <p className="text-sm text-muted-foreground mt-2 max-w-3xl leading-relaxed">
                 {subtitle}
               </p>
             )}
