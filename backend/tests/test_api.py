@@ -68,6 +68,18 @@ def test_entity_and_graph_reads_use_the_same_snapshot(client: TestClient):
     assert neighbors.json()["edges"]
 
 
+def test_non_model_entities_expose_editorial_knowledge_articles(client: TestClient):
+    entity = client.get("/api/v2/entities/framework/mcp")
+    assert entity.status_code == 200
+    knowledge = entity.json()["knowledge"]
+    assert len(knowledge["introduction"]) >= 2
+    assert len(knowledge["keyPoints"]) >= 3
+    assert len(knowledge["useCases"]) >= 3
+    assert len(knowledge["limitations"]) >= 2
+    assert knowledge["officialUrl"].startswith("https://")
+    assert all(point["sourceIds"] for point in knowledge["keyPoints"])
+
+
 def test_model_family_version_catalog_and_comparison(client: TestClient):
     families = client.get("/api/v2/model-families")
     assert families.status_code == 200

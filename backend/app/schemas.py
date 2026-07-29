@@ -77,6 +77,26 @@ class EntitySpecs(CamelModel):
     availability: str | None = None
 
 
+class KnowledgePoint(CamelModel):
+    title: LocalizedText
+    description: LocalizedText
+    source_ids: list[str] | None = None
+
+
+class KnowledgeUseCase(CamelModel):
+    title: LocalizedText
+    description: LocalizedText
+
+
+class EntityKnowledge(CamelModel):
+    introduction: list[LocalizedText]
+    significance: LocalizedText
+    key_points: list[KnowledgePoint]
+    use_cases: list[KnowledgeUseCase]
+    limitations: list[LocalizedText]
+    official_url: str | None = None
+
+
 class Entity(CamelModel):
     id: str
     type: Literal[
@@ -106,6 +126,7 @@ class Entity(CamelModel):
     specs: EntitySpecs | None = None
     capabilities: list[Capability] | None = None
     metrics: list[Metric] | None = None
+    knowledge: EntityKnowledge | None = None
 
 
 class TimelineEntry(CamelModel):

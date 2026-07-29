@@ -127,6 +127,27 @@ test("evidence carries provenance timestamps and safe links", () => {
   }
 });
 
+test("every non-model knowledge entry has useful editorial content and evidence", () => {
+  const sourceIds = new Set(SOURCES.map((source) => source.id));
+  const nonModels = ENTITIES.filter((entity) => entity.type !== "model");
+
+  assert.ok(nonModels.length >= 8);
+  for (const entity of nonModels) {
+    assert.ok(entity.knowledge, `${entity.id} must include a knowledge article`);
+    assert.ok(entity.knowledge.introduction.length >= 2, `${entity.id} needs a real introduction`);
+    assert.ok(entity.knowledge.keyPoints.length >= 3, `${entity.id} needs key facts`);
+    assert.ok(entity.knowledge.useCases.length >= 3, `${entity.id} needs practical uses`);
+    assert.ok(entity.knowledge.limitations.length >= 2, `${entity.id} needs limitations`);
+    assert.match(entity.knowledge.officialUrl, /^https:\/\//, `${entity.id} needs an official URL`);
+    for (const point of entity.knowledge.keyPoints) {
+      assert.ok(point.sourceIds?.length, `${entity.id} key points must cite evidence`);
+      point.sourceIds.forEach((id) =>
+        assert.ok(sourceIds.has(id), `${entity.id} references missing source ${id}`),
+      );
+    }
+  }
+});
+
 test("the demo adapter exposes a complete, explicitly labelled snapshot", () => {
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.meta.mode, "demo");
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.researchQuestions.length >= 3);

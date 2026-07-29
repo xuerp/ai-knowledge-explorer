@@ -121,6 +121,21 @@ export interface EntityDetail extends EntitySummary {
     confidence: Confidence;
     sourceIds?: string[];
   }>;
+  knowledge?: {
+    introduction: LocalizedText[];
+    significance: LocalizedText;
+    keyPoints: Array<{
+      title: LocalizedText;
+      description: LocalizedText;
+      sourceIds?: string[];
+    }>;
+    useCases: Array<{
+      title: LocalizedText;
+      description: LocalizedText;
+    }>;
+    limitations: LocalizedText[];
+    officialUrl?: string;
+  };
 }
 
 export type Entity = EntityDetail;

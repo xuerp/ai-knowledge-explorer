@@ -990,15 +990,139 @@
         "en": "OpenAI"
       },
       "summary": {
-        "zh": "总部位于旧金山的 AI 研究与产品公司，GPT 系列与 ChatGPT 的开发者。",
-        "en": "SF-based AI research and product company; developer of the GPT family and ChatGPT."
+        "zh": "AI 研究与部署公司，开发 GPT 模型、ChatGPT 与开发者平台，并以“让通用人工智能造福全人类”为使命。",
+        "en": "AI research and deployment company behind GPT, ChatGPT and its developer platform, with a mission to ensure AGI benefits all humanity."
+      },
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "公司",
-        "闭源"
+        "前沿模型",
+        "开发者平台",
+        "AI研究"
       ],
-      "lastUpdatedAt": "2026-07-12"
+      "firstReleasedAt": "2015-12-11",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "前沿模型研究与训练",
+          "en": "Frontier model research",
+          "confidence": "verified"
+        },
+        {
+          "zh": "ChatGPT 消费级产品",
+          "en": "ChatGPT consumer product",
+          "confidence": "verified"
+        },
+        {
+          "zh": "API 与开发者生态",
+          "en": "API and developer ecosystem",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "OpenAI 是一家同时从事人工智能研究、模型训练和产品部署的机构。对普通用户而言，它最具代表性的产品是 ChatGPT；对开发者和企业而言，GPT 模型与 API 构成了文本生成、代码、多模态理解和 Agent 应用的基础能力。",
+            "en": "OpenAI combines AI research, model training and product deployment. ChatGPT is its best-known consumer product, while GPT models and APIs provide foundational capabilities for text, code, multimodality and agents."
+          },
+          {
+            "zh": "在 AI Radar 中，OpenAI 不是一个孤立的公司名称，而是 GPT 系列、具体模型版本、评测成绩、价格变化和下游应用的研发方节点。查看该节点的意义，是理解某次模型更新由谁发布、影响哪些产品，以及相关事实来自哪里。",
+            "en": "In AI Radar, OpenAI connects the GPT family, concrete releases, benchmark results, pricing changes and downstream applications. The node explains who released an update, what it affects and which evidence supports it."
+          }
+        ],
+        "significance": {
+          "zh": "OpenAI 把前沿模型能力同时带入大众产品和开发者平台，推动了生成式 AI 从研究成果转变为可直接使用的通用工具。追踪 OpenAI，通常意味着同时追踪模型能力、API 生态、产品形态和治理结构的变化。",
+          "en": "OpenAI helped move frontier models from research into mass-market products and developer infrastructure. Tracking it means following capabilities, APIs, products and governance together."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "机构定位",
+              "en": "What it is"
+            },
+            "description": {
+              "zh": "官方将 OpenAI 定义为人工智能研究与部署公司。",
+              "en": "OpenAI describes itself as an AI research and deployment company."
+            },
+            "sourceIds": [
+              "s-openai-about"
+            ]
+          },
+          {
+            "title": {
+              "zh": "核心使命",
+              "en": "Mission"
+            },
+            "description": {
+              "zh": "确保通用人工智能造福全人类。",
+              "en": "Ensure that artificial general intelligence benefits all humanity."
+            },
+            "sourceIds": [
+              "s-openai-about"
+            ]
+          },
+          {
+            "title": {
+              "zh": "组织结构",
+              "en": "Structure"
+            },
+            "description": {
+              "zh": "由非营利基金会治理营利集团，营利集团以公益公司形式运营。",
+              "en": "A nonprofit foundation governs a for-profit group operating as a public benefit corporation."
+            },
+            "sourceIds": [
+              "s-openai-about"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "跟踪 GPT 版本",
+              "en": "Track GPT releases"
+            },
+            "description": {
+              "zh": "查看各版本的发布日期、能力、上下文窗口、价格与继任关系。",
+              "en": "Inspect dates, capabilities, context, pricing and lineage across GPT releases."
+            }
+          },
+          {
+            "title": {
+              "zh": "判断生态影响",
+              "en": "Understand ecosystem impact"
+            },
+            "description": {
+              "zh": "分析模型更新会影响哪些 API、开发工具和下游应用。",
+              "en": "See which APIs, developer tools and applications are affected by model updates."
+            }
+          },
+          {
+            "title": {
+              "zh": "核验公司说法",
+              "en": "Verify company claims"
+            },
+            "description": {
+              "zh": "区分官方发布、第三方评测、推断和未经核验的社区信息。",
+              "en": "Separate official releases, independent evaluations, inference and unverified discussion."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "公司官方材料最适合确认使命、产品和发布信息，但不等同于独立效果评测。",
+            "en": "Company materials are authoritative for mission and releases, but are not independent performance evaluations."
+          },
+          {
+            "zh": "模型能力、价格和可用范围变化很快，具体结论应以带日期的版本条目为准。",
+            "en": "Capabilities, prices and availability change quickly; rely on dated release entries for specific conclusions."
+          }
+        ],
+        "officialUrl": "https://openai.com/about/"
+      }
     },
     {
       "id": "e-anthropic",
@@ -1009,15 +1133,139 @@
         "en": "Anthropic"
       },
       "summary": {
-        "zh": "以安全对齐为核心方向的 AI 公司，Claude 系列的开发者。",
-        "en": "Safety-focused AI company; developer of Claude."
+        "zh": "以可靠、可解释和可控 AI 系统为研究重点的人工智能安全与研究公司，也是 Claude 系列的开发者。",
+        "en": "AI safety and research company focused on reliable, interpretable and steerable systems, and the developer of Claude."
+      },
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "公司",
-        "对齐"
+        "AI安全",
+        "Claude",
+        "可解释性"
       ],
-      "lastUpdatedAt": "2026-06-20"
+      "firstReleasedAt": "2021-01-01",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "前沿模型与 Claude 产品",
+          "en": "Frontier models and Claude",
+          "confidence": "verified"
+        },
+        {
+          "zh": "AI 安全与可解释性研究",
+          "en": "AI safety and interpretability",
+          "confidence": "verified"
+        },
+        {
+          "zh": "模型治理与政策研究",
+          "en": "Model governance and policy",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Anthropic 是一家人工智能安全与研究公司，目标是构建可靠、可解释且可控的 AI 系统。它把安全研究落实到 Claude 模型、API 和企业产品中，并持续发布有关对齐、可解释性、治理和社会影响的研究。",
+            "en": "Anthropic is an AI safety and research company building reliable, interpretable and steerable systems. It applies that research through Claude, APIs and enterprise products while publishing work on alignment, interpretability, governance and societal impact."
+          },
+          {
+            "zh": "在知识图谱中，Anthropic 连接 Claude 各版本与 Model Context Protocol。它既是模型研发方，也是影响 Agent 工具连接方式的重要协议推动者，因此需要同时从模型、协议和安全治理三个层面理解。",
+            "en": "In the graph, Anthropic connects Claude releases and the Model Context Protocol. It should be understood across models, protocols and safety governance."
+          }
+        ],
+        "significance": {
+          "zh": "Anthropic 的差异不只是“另一个大模型公司”，而是把安全、可解释性和可控性作为产品研发的核心约束。Claude 与 MCP 也使它对长文本、代码 Agent 和工具生态产生了直接影响。",
+          "en": "Anthropic differentiates itself by treating safety, interpretability and steerability as product constraints. Claude and MCP also shape long-context, coding-agent and tool ecosystems."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "机构定位",
+              "en": "What it is"
+            },
+            "description": {
+              "zh": "人工智能安全与研究公司。",
+              "en": "An AI safety and research company."
+            },
+            "sourceIds": [
+              "s-anthropic-company"
+            ]
+          },
+          {
+            "title": {
+              "zh": "研究目标",
+              "en": "Research goal"
+            },
+            "description": {
+              "zh": "构建可靠、可解释和可控的前沿 AI 系统。",
+              "en": "Build reliable, interpretable and steerable frontier AI systems."
+            },
+            "sourceIds": [
+              "s-anthropic-company"
+            ]
+          },
+          {
+            "title": {
+              "zh": "产品落地",
+              "en": "Products"
+            },
+            "description": {
+              "zh": "通过 Claude 及相关工具把研究转化为面向个人与组织的实际产品。",
+              "en": "Translate research into practical products such as Claude for individuals and organizations."
+            },
+            "sourceIds": [
+              "s-anthropic-company"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "跟踪 Claude 演进",
+              "en": "Track Claude"
+            },
+            "description": {
+              "zh": "理解不同 Claude 版本在长上下文、代码、Agent 和安全策略上的变化。",
+              "en": "Follow changes in context, coding, agents and safety behavior across Claude releases."
+            }
+          },
+          {
+            "title": {
+              "zh": "研究 AI 安全路线",
+              "en": "Study AI safety"
+            },
+            "description": {
+              "zh": "连接模型能力与对齐、可解释性、治理政策等研究方向。",
+              "en": "Connect model capabilities with alignment, interpretability and governance research."
+            }
+          },
+          {
+            "title": {
+              "zh": "理解 MCP 生态",
+              "en": "Understand MCP"
+            },
+            "description": {
+              "zh": "追踪 Anthropic 如何通过开放协议连接模型、数据源和工具。",
+              "en": "Track how Anthropic uses an open protocol to connect models, data and tools."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "安全与能力指标应区分官方系统卡、独立评测和真实生产表现。",
+            "en": "Separate official system cards, independent evaluations and real production behavior."
+          },
+          {
+            "zh": "公司理念不能直接替代对具体模型版本和部署风险的评估。",
+            "en": "Company principles do not replace evaluation of concrete releases and deployment risks."
+          }
+        ],
+        "officialUrl": "https://www.anthropic.com/company"
+      }
     },
     {
       "id": "e-langchain",
@@ -1028,8 +1276,13 @@
         "en": "LangChain"
       },
       "summary": {
-        "zh": "面向 LLM 应用编排的开源框架，覆盖链、工具、Agent 与检索增强。",
-        "en": "Open-source framework for LLM app orchestration: chains, tools, agents and RAG."
+        "zh": "用于构建 LLM 应用和 Agent 的开源框架，提供模型与工具集成、预构建 Agent 架构、检索增强和中间件能力。",
+        "en": "Open-source framework for LLM applications and agents, with model/tool integrations, prebuilt agent architecture, retrieval and middleware."
+      },
+      "vendor": "LangChain",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
@@ -1037,8 +1290,126 @@
         "Agent",
         "RAG"
       ],
-      "latestVersion": "0.3",
-      "lastUpdatedAt": "2026-07-01"
+      "latestVersion": "1.x",
+      "firstReleasedAt": "2022-10-01",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "多模型与工具集成",
+          "en": "Model and tool integrations",
+          "confidence": "verified"
+        },
+        {
+          "zh": "预构建 Agent 架构",
+          "en": "Prebuilt agent architecture",
+          "confidence": "verified"
+        },
+        {
+          "zh": "检索增强生成",
+          "en": "Retrieval-augmented generation",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "LangChain 是一个面向大语言模型应用的开源开发框架。它解决的核心问题不是训练模型，而是把模型与提示、工具、数据源、检索系统和业务流程连接起来，让开发者能较快搭建问答、RAG 和 Agent 应用。",
+            "en": "LangChain is an open-source framework for applications powered by language models. It does not train models; it connects models with prompts, tools, data, retrieval and business workflows."
+          },
+          {
+            "zh": "当前 LangChain 的高层 Agent API 构建在 LangGraph 运行时之上：LangChain 适合快速开始，LangGraph 更适合需要持久执行、人工介入、精细状态控制和复杂工作流的场景。",
+            "en": "Its high-level agents run on LangGraph: LangChain favors fast starts, while LangGraph serves durable execution, human-in-the-loop control and complex workflows."
+          }
+        ],
+        "significance": {
+          "zh": "LangChain 把快速变化的模型与工具接口抽象成相对统一的应用层，使团队更容易替换模型、增加检索或接入工具。它的价值主要在应用编排和生态集成，而不在模型本身。",
+          "en": "LangChain provides a common application layer over rapidly changing model and tool APIs. Its value is orchestration and integration rather than model capability."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "适合做什么",
+              "en": "Best for"
+            },
+            "description": {
+              "zh": "快速构建 Agent、RAG、工具调用与多模型应用。",
+              "en": "Quickly building agents, RAG, tool use and multi-model applications."
+            },
+            "sourceIds": [
+              "s-langchain-overview"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Agent 运行方式",
+              "en": "Agent runtime"
+            },
+            "description": {
+              "zh": "Agent 在模型与工具之间循环执行，直到产生最终结果或达到停止条件。",
+              "en": "Agents loop between models and tools until a final result or stop condition."
+            },
+            "sourceIds": [
+              "s-langchain-overview"
+            ]
+          },
+          {
+            "title": {
+              "zh": "与 LangGraph 的关系",
+              "en": "Relation to LangGraph"
+            },
+            "description": {
+              "zh": "LangChain Agent 建立在 LangGraph 之上，高级需求可下沉到更低层运行时。",
+              "en": "LangChain agents use LangGraph underneath, with advanced workflows able to use the lower-level runtime."
+            },
+            "sourceIds": [
+              "s-langchain-overview"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "企业知识问答",
+              "en": "Enterprise knowledge QA"
+            },
+            "description": {
+              "zh": "连接文档加载器、向量库和检索器，构建有来源的 RAG 问答。",
+              "en": "Combine loaders, vector stores and retrievers for grounded RAG."
+            }
+          },
+          {
+            "title": {
+              "zh": "工具型 Agent",
+              "en": "Tool-using agents"
+            },
+            "description": {
+              "zh": "让模型根据任务调用搜索、数据库、代码执行或业务 API。",
+              "en": "Let models invoke search, databases, code execution or business APIs."
+            }
+          },
+          {
+            "title": {
+              "zh": "模型供应商切换",
+              "en": "Provider flexibility"
+            },
+            "description": {
+              "zh": "用统一接口接入不同模型，并在应用层保留编排逻辑。",
+              "en": "Connect multiple providers behind shared application orchestration."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "抽象层能提高开发速度，但复杂生产系统仍需自行处理评估、监控、权限、成本和失败恢复。",
+            "en": "Abstractions speed development, but production systems still need evaluation, observability, permissions, cost control and recovery."
+          },
+          {
+            "zh": "简单的一次模型调用通常不需要引入完整框架。",
+            "en": "A simple one-shot model call often does not require a full framework."
+          }
+        ],
+        "officialUrl": "https://docs.langchain.com/oss/python/langchain/overview"
+      }
     },
     {
       "id": "e-swebench",
@@ -1049,15 +1420,140 @@
         "en": "SWE-bench Verified"
       },
       "summary": {
-        "zh": "针对真实 GitHub Issue 的代码修复评测，衡量模型端到端解决工程问题的能力。",
-        "en": "Real-world GitHub issue coding benchmark measuring end-to-end engineering task solving."
+        "zh": "以真实开源仓库 GitHub Issue 为任务、通过运行测试验证补丁的代码 Agent 评测；Verified 子集包含 500 个经工程师确认可解决的实例。",
+        "en": "Coding-agent benchmark built from real GitHub issues and test-validated patches; its Verified subset contains 500 engineer-confirmed solvable instances."
+      },
+      "vendor": "SWE-bench",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "评测",
-        "代码"
+        "代码",
+        "Agent",
+        "真实仓库"
       ],
-      "lastUpdatedAt": "2026-07-15"
+      "firstReleasedAt": "2023-10-10",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "真实 GitHub Issue",
+          "en": "Real GitHub issues",
+          "confidence": "verified"
+        },
+        {
+          "zh": "测试驱动的补丁验证",
+          "en": "Test-driven patch validation",
+          "confidence": "verified"
+        },
+        {
+          "zh": "500 个工程师核验实例",
+          "en": "500 engineer-verified tasks",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "SWE-bench 用真实 GitHub 仓库中的 Issue 和对应修复来评估模型的软件工程能力。模型不仅要写一段看起来合理的代码，还要理解仓库、定位问题、生成可应用的补丁，并通过该项目的测试套件。",
+            "en": "SWE-bench evaluates software-engineering ability using real GitHub issues and their fixes. A model must understand a repository, locate the problem, produce an applicable patch and pass the project's tests."
+          },
+          {
+            "zh": "SWE-bench Verified 是其中更常用于模型对比的子集，包含 500 个由软件工程师确认可解决的问题。它比单函数代码题更接近真实开发，但最终分数也会受到 Agent 脚手架、工具、上下文策略和尝试次数影响。",
+            "en": "SWE-bench Verified contains 500 tasks confirmed solvable by software engineers. It is more realistic than isolated coding questions, but scores also depend on agent scaffolding, tools, context strategy and attempts."
+          }
+        ],
+        "significance": {
+          "zh": "它把“会生成代码”推进到“能否完成真实仓库修复”，因此常被用来判断代码模型和代码 Agent 的端到端工程能力。",
+          "en": "It shifts evaluation from generating code snippets to completing real repository fixes, making it useful for end-to-end coding-agent assessment."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "任务来源",
+              "en": "Task source"
+            },
+            "description": {
+              "zh": "真实开源仓库中的 GitHub Issue 及其对应修复。",
+              "en": "Real GitHub issues and corresponding fixes from open-source repositories."
+            },
+            "sourceIds": [
+              "s-swebench"
+            ]
+          },
+          {
+            "title": {
+              "zh": "如何判分",
+              "en": "Scoring"
+            },
+            "description": {
+              "zh": "在隔离环境中应用模型补丁并运行仓库测试，通过测试才算解决。",
+              "en": "Apply the generated patch in an isolated environment and run repository tests."
+            },
+            "sourceIds": [
+              "s-swebench"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Verified 子集",
+              "en": "Verified subset"
+            },
+            "description": {
+              "zh": "500 个由工程师确认可解决的实例。",
+              "en": "500 instances verified by engineers as solvable."
+            },
+            "sourceIds": [
+              "s-swebench"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "比较代码 Agent",
+              "en": "Compare coding agents"
+            },
+            "description": {
+              "zh": "比较不同模型与 Agent 系统在真实缺陷修复上的成功率。",
+              "en": "Compare models and agents on real defect-resolution success."
+            }
+          },
+          {
+            "title": {
+              "zh": "验证工具链",
+              "en": "Validate agent tooling"
+            },
+            "description": {
+              "zh": "评估搜索、编辑、测试和上下文管理策略是否真正提升完成率。",
+              "en": "Evaluate whether search, editing, testing and context strategies improve completion."
+            }
+          },
+          {
+            "title": {
+              "zh": "观察版本进步",
+              "en": "Track release progress"
+            },
+            "description": {
+              "zh": "在相近评测设置下观察同一模型系列的版本迭代。",
+              "en": "Track version changes under comparable evaluation settings."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "分数并非纯模型能力：Agent 脚手架、工具权限、采样次数和测试环境都会影响结果。",
+            "en": "Scores are not pure model ability; scaffolding, permissions, attempts and environment matter."
+          },
+          {
+            "zh": "排行榜结果只有在评测版本和运行设置一致时才适合横向比较。",
+            "en": "Leaderboard results are comparable only when benchmark versions and run settings align."
+          }
+        ],
+        "officialUrl": "https://www.swebench.com/SWE-bench/faq/"
+      }
     },
     {
       "id": "e-mmlu",
@@ -1068,15 +1564,140 @@
         "en": "MMLU-Pro"
       },
       "summary": {
-        "zh": "覆盖 57 个学科的多任务语言理解评测的强化版，更抗污染。",
-        "en": "Harder, contamination-resistant version of the 57-subject multitask language benchmark."
+        "zh": "面向专业知识与多步推理的高难度多学科选择题评测；通过更难题目和十选一设置增强区分度与提示稳定性。",
+        "en": "Challenging multi-domain benchmark for expert knowledge and reasoning, using harder questions and ten choices for stronger discrimination and prompt stability."
+      },
+      "vendor": "TIGER-Lab",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "评测",
-        "通用"
+        "知识",
+        "推理",
+        "多学科"
       ],
-      "lastUpdatedAt": "2026-05-20"
+      "firstReleasedAt": "2024-06-03",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "专业级多学科问题",
+          "en": "Professional multi-domain questions",
+          "confidence": "verified"
+        },
+        {
+          "zh": "十选一降低随机猜测",
+          "en": "Ten options reduce guessing",
+          "confidence": "verified"
+        },
+        {
+          "zh": "对提示变化更稳定",
+          "en": "More stable across prompts",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "MMLU-Pro 是在经典 MMLU 基础上设计的更困难、更稳健的多任务语言理解评测。它增加需要推理的专业级问题，把每题选项从四个扩展为十个，并清理部分简单或噪声较高的问题。",
+            "en": "MMLU-Pro is a harder, more robust successor to MMLU. It adds reasoning-heavy professional questions, expands choices from four to ten and removes some trivial or noisy items."
+          },
+          {
+            "zh": "它主要测试模型跨学科知识和推理的综合表现，适合观察模型在数学、物理、法律、健康等领域的广度，但不能单独代表对话体验、事实可靠性、代码能力或真实业务效果。",
+            "en": "It tests broad knowledge and reasoning across fields such as mathematics, physics, law and health, but does not by itself represent chat quality, factual reliability, coding or business outcomes."
+          }
+        ],
+        "significance": {
+          "zh": "当传统 MMLU 对前沿模型的区分度下降时，MMLU-Pro 用更难问题和更多选项重新拉开差距，并降低不同提示措辞造成的分数波动。",
+          "en": "As frontier models saturated MMLU, MMLU-Pro restored separation with harder questions and more choices while reducing prompt sensitivity."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "难度提升",
+              "en": "Higher difficulty"
+            },
+            "description": {
+              "zh": "论文报告相较 MMLU，模型准确率普遍下降 16%–33%。",
+              "en": "The paper reports accuracy drops of 16–33% compared with MMLU."
+            },
+            "sourceIds": [
+              "s-mmlu-pro-paper"
+            ]
+          },
+          {
+            "title": {
+              "zh": "十个选项",
+              "en": "Ten choices"
+            },
+            "description": {
+              "zh": "每题从四选一扩展到十选一，降低随机猜中的概率。",
+              "en": "Questions expand from four to ten choices, reducing random-guess success."
+            },
+            "sourceIds": [
+              "s-mmlu-pro-paper"
+            ]
+          },
+          {
+            "title": {
+              "zh": "提示稳定性",
+              "en": "Prompt stability"
+            },
+            "description": {
+              "zh": "论文测试 24 种提示风格，分数波动低于原始 MMLU。",
+              "en": "Across 24 prompt styles, scores varied less than on original MMLU."
+            },
+            "sourceIds": [
+              "s-mmlu-pro-paper"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "通用能力筛选",
+              "en": "General capability screening"
+            },
+            "description": {
+              "zh": "快速观察模型跨领域知识与推理是否存在明显短板。",
+              "en": "Screen for broad knowledge and reasoning weaknesses."
+            }
+          },
+          {
+            "title": {
+              "zh": "版本趋势",
+              "en": "Version trends"
+            },
+            "description": {
+              "zh": "在相同提示和评测实现下比较同系列版本。",
+              "en": "Compare versions under the same prompt and evaluation implementation."
+            }
+          },
+          {
+            "title": {
+              "zh": "与专项评测组合",
+              "en": "Combine with specialist evals"
+            },
+            "description": {
+              "zh": "和代码、数学、安全、事实性等专项评测结合形成完整画像。",
+              "en": "Combine with coding, math, safety and factuality evaluations."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "选择题成绩可能受提示模板、答案解析方式和数据污染影响。",
+            "en": "Multiple-choice scores can be affected by prompts, answer parsing and contamination."
+          },
+          {
+            "zh": "高分不等于在开放式任务、真实工作流或特定语言环境中表现同样优秀。",
+            "en": "A high score does not guarantee open-ended, workflow or multilingual performance."
+          }
+        ],
+        "officialUrl": "https://arxiv.org/abs/2406.01574"
+      }
     },
     {
       "id": "e-transformer-paper",
@@ -1087,16 +1708,140 @@
         "en": "Attention Is All You Need"
       },
       "summary": {
-        "zh": "提出 Transformer 架构的开山论文，奠定了现代大模型的基础。",
-        "en": "Seminal paper introducing the Transformer architecture behind modern LLMs."
+        "zh": "2017 年提出 Transformer 的论文，以自注意力取代循环和卷积作为序列建模核心，成为现代大语言模型的重要架构基础。",
+        "en": "The 2017 paper introducing the Transformer, replacing recurrence and convolution with attention as the core of sequence modeling."
+      },
+      "vendor": "Google",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "论文",
+        "Transformer",
+        "注意力",
         "架构"
       ],
       "firstReleasedAt": "2017-06-12",
-      "lastUpdatedAt": "2017-06-12"
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "纯注意力序列建模",
+          "en": "Attention-only sequence modeling",
+          "confidence": "verified"
+        },
+        {
+          "zh": "高度并行训练",
+          "en": "Highly parallel training",
+          "confidence": "verified"
+        },
+        {
+          "zh": "编码器—解码器架构",
+          "en": "Encoder-decoder architecture",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "《Attention Is All You Need》由 Ashish Vaswani 等八位作者在 2017 年发表。论文提出 Transformer：不再依赖循环神经网络逐词处理序列，而是用自注意力计算序列中不同位置之间的关联。",
+            "en": "Published in 2017 by Ashish Vaswani and seven coauthors, Attention Is All You Need introduced the Transformer, replacing recurrent sequence processing with self-attention across positions."
+          },
+          {
+            "zh": "原论文面向机器翻译，采用编码器—解码器结构，并结合多头注意力、前馈网络、残差连接和位置编码。后来的 BERT、GPT 和大量多模态模型并非原样复制，而是选择其编码器、解码器或其他变体并大规模扩展。",
+            "en": "The original machine-translation model used an encoder-decoder with multi-head attention, feed-forward networks, residual connections and positional encoding. Later systems such as BERT and GPT adapted and scaled selected parts."
+          }
+        ],
+        "significance": {
+          "zh": "Transformer 允许序列位置并行计算，显著提高训练效率和扩展能力，为后续扩大模型参数、数据量和上下文长度提供了可行架构。",
+          "en": "Parallel computation across sequence positions improved training efficiency and scalability, enabling later growth in parameters, data and context."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "核心创新",
+              "en": "Core idea"
+            },
+            "description": {
+              "zh": "以注意力机制为核心，移除循环和卷积序列层。",
+              "en": "Use attention as the core mechanism without recurrent or convolutional sequence layers."
+            },
+            "sourceIds": [
+              "s-transformer-paper"
+            ]
+          },
+          {
+            "title": {
+              "zh": "原始任务",
+              "en": "Original task"
+            },
+            "description": {
+              "zh": "首先在英德和英法机器翻译任务上验证。",
+              "en": "Initially evaluated on English–German and English–French translation."
+            },
+            "sourceIds": [
+              "s-transformer-paper"
+            ]
+          },
+          {
+            "title": {
+              "zh": "工程优势",
+              "en": "Engineering advantage"
+            },
+            "description": {
+              "zh": "相较循环网络更容易并行训练，训练时间显著降低。",
+              "en": "More parallelizable than recurrent networks, with substantially lower training time."
+            },
+            "sourceIds": [
+              "s-transformer-paper"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "理解大模型谱系",
+              "en": "Understand model lineage"
+            },
+            "description": {
+              "zh": "解释 GPT、BERT、Claude 等模型为何在图谱中与 Transformer 相连。",
+              "en": "Explain why families such as GPT, BERT and Claude trace back to Transformers."
+            }
+          },
+          {
+            "title": {
+              "zh": "学习核心组件",
+              "en": "Learn core components"
+            },
+            "description": {
+              "zh": "理解自注意力、多头注意力、位置编码与编码器—解码器。",
+              "en": "Study self-attention, multi-head attention, positional encoding and encoder-decoder design."
+            }
+          },
+          {
+            "title": {
+              "zh": "区分后续变体",
+              "en": "Compare later variants"
+            },
+            "description": {
+              "zh": "判断后续模型保留、删除或改造了原架构的哪些部分。",
+              "en": "Identify which original components later models retain, remove or modify."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "原论文结论来自机器翻译实验，不能直接等同于今天所有大语言模型的能力结论。",
+            "en": "The original evidence came from translation and does not directly establish modern LLM capabilities."
+          },
+          {
+            "zh": "标准注意力的计算与内存成本随序列长度快速增长，长上下文模型通常需要额外优化。",
+            "en": "Standard attention becomes expensive with sequence length, so long-context models require further optimization."
+          }
+        ],
+        "officialUrl": "https://arxiv.org/abs/1706.03762"
+      }
     },
     {
       "id": "e-mcp",
@@ -1107,16 +1852,141 @@
         "en": "Model Context Protocol"
       },
       "summary": {
-        "zh": "由 Anthropic 提出的模型上下文协议，定义模型与外部工具、数据源交互的开放接口。",
-        "en": "Anthropic-proposed open protocol for how models talk to external tools & data sources."
+        "zh": "连接 AI 应用与外部数据、工具和工作流的开放协议，通过 Host—Client—Server 架构统一上下文交换与能力调用。",
+        "en": "Open protocol connecting AI applications with external data, tools and workflows through a host-client-server architecture."
+      },
+      "vendor": "Model Context Protocol",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "协议",
-        "Agent"
+        "Agent",
+        "工具调用",
+        "开放标准"
       ],
-      "latestVersion": "1.0",
-      "lastUpdatedAt": "2026-06-05"
+      "latestVersion": "开放规范",
+      "firstReleasedAt": "2024-11-25",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "Tools 工具调用",
+          "en": "Tool invocation",
+          "confidence": "verified"
+        },
+        {
+          "zh": "Resources 上下文资源",
+          "en": "Context resources",
+          "confidence": "verified"
+        },
+        {
+          "zh": "Prompts 提示模板",
+          "en": "Prompt templates",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Model Context Protocol（MCP）是一套开放协议，用来标准化 AI 应用与外部系统之间的连接。过去每个模型应用都要为数据库、文件系统、开发工具或 SaaS 服务分别编写集成；MCP 把这些连接抽象成共同的协议和 SDK。",
+            "en": "Model Context Protocol is an open standard for connecting AI applications with external systems. Instead of bespoke integrations for databases, files, developer tools or SaaS products, MCP provides a shared protocol and SDKs."
+          },
+          {
+            "zh": "MCP 采用 Host—Client—Server 架构：Host 是 Claude Desktop、IDE 或其他 AI 应用；Host 为每个 Server 创建 Client；Server 暴露 tools、resources 和 prompts。它规定的是通信与能力发现方式，不规定底层模型，也不会自动替代权限和安全控制。",
+            "en": "MCP uses a host-client-server architecture. A host creates a client for each server, while servers expose tools, resources and prompts. It standardizes communication and discovery, not the underlying model or security policy."
+          }
+        ],
+        "significance": {
+          "zh": "MCP 的价值类似 AI 工具生态中的通用连接层：工具提供方实现一次 Server，多个兼容 Host 即可接入；AI 应用也不必为每个服务维护完全不同的适配代码。",
+          "en": "MCP acts as a common connectivity layer: a provider can implement one server for multiple compatible hosts, while AI apps avoid maintaining wholly separate integrations."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "Host",
+              "en": "Host"
+            },
+            "description": {
+              "zh": "用户实际操作的 AI 应用，负责权限、生命周期和用户体验。",
+              "en": "The AI application users operate, responsible for permissions, lifecycle and UX."
+            },
+            "sourceIds": [
+              "s-mcp-architecture"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Client",
+              "en": "Client"
+            },
+            "description": {
+              "zh": "Host 内与单个 MCP Server 保持会话和通信的协议组件。",
+              "en": "The protocol component maintaining a session with one MCP server."
+            },
+            "sourceIds": [
+              "s-mcp-architecture"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Server",
+              "en": "Server"
+            },
+            "description": {
+              "zh": "向 AI 应用提供工具、资源或提示模板的程序。",
+              "en": "A program exposing tools, resources or prompt templates to an AI application."
+            },
+            "sourceIds": [
+              "s-mcp-architecture"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "连接企业数据",
+              "en": "Connect enterprise data"
+            },
+            "description": {
+              "zh": "让 AI 应用按权限读取知识库、文件、数据库或业务系统。",
+              "en": "Provide permissioned access to knowledge bases, files, databases and business systems."
+            }
+          },
+          {
+            "title": {
+              "zh": "调用外部工具",
+              "en": "Invoke external tools"
+            },
+            "description": {
+              "zh": "把搜索、代码执行、工单、监控或设计工具暴露给 Agent。",
+              "en": "Expose search, code execution, tickets, monitoring or design tools to agents."
+            }
+          },
+          {
+            "title": {
+              "zh": "复用集成",
+              "en": "Reuse integrations"
+            },
+            "description": {
+              "zh": "同一个 MCP Server 可被多个兼容客户端复用。",
+              "en": "Reuse one MCP server across multiple compatible clients."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "协议兼容不等于安全；Host 仍需限制工具权限、敏感数据、网络范围和用户确认流程。",
+            "en": "Protocol compatibility is not security; hosts must still govern tools, data, network access and confirmation."
+          },
+          {
+            "zh": "不同客户端与 Server 对规范版本、传输方式和扩展能力的支持可能不一致。",
+            "en": "Clients and servers may differ in specification versions, transports and extensions."
+          }
+        ],
+        "officialUrl": "https://modelcontextprotocol.io/docs/learn/architecture"
+      }
     },
     {
       "id": "e-cursor",
@@ -1127,15 +1997,140 @@
         "en": "Cursor"
       },
       "summary": {
-        "zh": "深度集成大模型的代码编辑器，是 Agent 编码的代表产品之一。",
-        "en": "AI-native code editor and one of the flagship agentic coding products."
+        "zh": "面向软件开发的 AI 代码编辑器，把代码库检索、问答、补全、多文件编辑、终端命令与自主 Agent 集成在同一工作环境中。",
+        "en": "AI code editor combining codebase search, Q&A, completion, multi-file editing, terminal commands and autonomous agents."
+      },
+      "vendor": "Anysphere",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
       },
       "status": "active",
       "tags": [
         "应用",
-        "代码"
+        "代码",
+        "Agent",
+        "开发工具"
       ],
-      "lastUpdatedAt": "2026-07-10"
+      "firstReleasedAt": "2023-01-01",
+      "lastUpdatedAt": "2026-07-29",
+      "capabilities": [
+        {
+          "zh": "代码库语义检索",
+          "en": "Semantic codebase search",
+          "confidence": "verified"
+        },
+        {
+          "zh": "多文件 Agent 编辑",
+          "en": "Multi-file agent editing",
+          "confidence": "verified"
+        },
+        {
+          "zh": "终端执行与差异审查",
+          "en": "Terminal execution and diff review",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Cursor 是面向软件开发的 AI 代码编辑器。它把传统编辑器能力与模型对话、代码库检索、补全、内联修改和 Agent 模式结合，使 AI 可以在理解项目上下文后跨文件修改代码、运行命令并根据结果继续迭代。",
+            "en": "Cursor is an AI code editor combining traditional editing with model chat, codebase retrieval, completion, inline edits and agents that can modify files, run commands and iterate on results."
+          },
+          {
+            "zh": "Cursor 的 Agent 适合完成复杂功能和重构；Ask 模式偏向只读理解；精确编辑模式适合控制修改范围。它本身不是一个基础模型，而是把不同模型、上下文检索和开发工具组织成完整工作流的应用层产品。",
+            "en": "Agent handles complex features and refactors, while Ask favors read-only understanding and targeted modes limit edits. Cursor is an application layer combining models, retrieval and developer tools, not a foundation model."
+          }
+        ],
+        "significance": {
+          "zh": "Cursor 代表 AI 编程从“给出代码建议”走向“理解仓库并执行多步骤任务”。评价它不能只看底层模型，还要看检索、编辑、终端工具、差异审查和用户控制是否形成可靠闭环。",
+          "en": "Cursor represents the shift from code suggestions to repository-aware multi-step execution. Its value depends on retrieval, editing, terminal tools, diff review and user control—not only the underlying model."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "Agent 模式",
+              "en": "Agent mode"
+            },
+            "description": {
+              "zh": "可自主搜索代码库、编辑多个文件、运行终端命令并完成复杂任务。",
+              "en": "Autonomously searches a codebase, edits files, runs terminal commands and completes complex tasks."
+            },
+            "sourceIds": [
+              "s-cursor-docs"
+            ]
+          },
+          {
+            "title": {
+              "zh": "Ask 模式",
+              "en": "Ask mode"
+            },
+            "description": {
+              "zh": "只读搜索和解释代码，适合理解项目后再决定是否修改。",
+              "en": "Read-only search and explanation for understanding a project before editing."
+            },
+            "sourceIds": [
+              "s-cursor-docs"
+            ]
+          },
+          {
+            "title": {
+              "zh": "差异审查",
+              "en": "Diff review"
+            },
+            "description": {
+              "zh": "以增删行差异检查 AI 修改，允许开发者在接受前保持控制。",
+              "en": "Review additions and deletions before accepting AI-generated changes."
+            },
+            "sourceIds": [
+              "s-cursor-docs"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "理解陌生代码库",
+              "en": "Understand unfamiliar code"
+            },
+            "description": {
+              "zh": "通过语义搜索和问答定位架构、调用链与关键文件。",
+              "en": "Use semantic search and Q&A to locate architecture, call paths and key files."
+            }
+          },
+          {
+            "title": {
+              "zh": "跨文件功能开发",
+              "en": "Build cross-file features"
+            },
+            "description": {
+              "zh": "让 Agent 修改实现、测试和配置，并运行检查验证结果。",
+              "en": "Let an agent update implementation, tests and config, then run checks."
+            }
+          },
+          {
+            "title": {
+              "zh": "重构与缺陷修复",
+              "en": "Refactor and fix bugs"
+            },
+            "description": {
+              "zh": "结合代码检索、终端和差异审查完成可控迭代。",
+              "en": "Combine retrieval, terminal tools and diff review for controlled iteration."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "Agent 可能产生范围过大的修改或错误假设，关键变更仍需要人工审查和测试。",
+            "en": "Agents can make overly broad changes or incorrect assumptions; critical work still needs review and testing."
+          },
+          {
+            "zh": "实际体验受所选模型、代码库规模、索引质量、上下文和工具权限影响。",
+            "en": "Results depend on model choice, repository size, indexing quality, context and tool permissions."
+          }
+        ],
+        "officialUrl": "https://docs.cursor.com/chat/overview"
+      }
     }
   ],
   "evidence": [
@@ -1226,6 +2221,97 @@
       "publishedAt": "2026-07-01",
       "collectedAt": "2026-07-01",
       "verifiedAt": "2026-07-02",
+      "type": "official"
+    },
+    {
+      "id": "s-openai-about",
+      "title": {
+        "zh": "OpenAI：关于与组织结构",
+        "en": "OpenAI: About and structure"
+      },
+      "url": "https://openai.com/about/",
+      "publisher": "OpenAI",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-anthropic-company",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic: Company and purpose"
+      },
+      "url": "https://www.anthropic.com/company",
+      "publisher": "Anthropic",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-langchain-overview",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "Official LangChain overview"
+      },
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publisher": "LangChain",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-mmlu-pro-paper",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro paper"
+      },
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publisher": "arXiv",
+      "publishedAt": "2024-06-03",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "paper"
+    },
+    {
+      "id": "s-transformer-paper",
+      "title": {
+        "zh": "Attention Is All You Need 论文",
+        "en": "Attention Is All You Need paper"
+      },
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv",
+      "publishedAt": "2017-06-12",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "paper"
+    },
+    {
+      "id": "s-mcp-architecture",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "Official MCP architecture overview"
+      },
+      "url": "https://modelcontextprotocol.io/docs/learn/architecture",
+      "publisher": "Model Context Protocol",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
+      "type": "official"
+    },
+    {
+      "id": "s-cursor-docs",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Official Cursor Agent documentation"
+      },
+      "url": "https://docs.cursor.com/chat/overview",
+      "publisher": "Cursor",
+      "publishedAt": "2026-07-29",
+      "collectedAt": "2026-07-29",
+      "verifiedAt": "2026-07-29",
       "type": "official"
     }
   ],
@@ -2023,6 +3109,7 @@
         "kind": "developed-by",
         "confidence": "verified",
         "sourceIds": [
+          "s-openai-about",
           "s-openai-gpt5"
         ]
       },
@@ -2033,6 +3120,7 @@
         "kind": "developed-by",
         "confidence": "verified",
         "sourceIds": [
+          "s-anthropic-company",
           "s-anthropic-claude"
         ]
       },
@@ -2083,6 +3171,7 @@
         "kind": "benchmarked-on",
         "confidence": "verified",
         "sourceIds": [
+          "s-mmlu-pro-paper",
           "s-openai-gpt5"
         ]
       },
@@ -2093,6 +3182,7 @@
         "kind": "based-on",
         "confidence": "verified",
         "sourceIds": [
+          "s-transformer-paper",
           "s-openai-gpt5"
         ]
       },
@@ -2103,6 +3193,7 @@
         "kind": "uses",
         "confidence": "verified",
         "sourceIds": [
+          "s-cursor-docs",
           "s-openai-gpt5"
         ]
       },
@@ -2113,7 +3204,8 @@
         "kind": "developed-by",
         "confidence": "verified",
         "sourceIds": [
-          "s-anthropic-claude"
+          "s-mcp-architecture",
+          "s-anthropic-company"
         ]
       },
       {
@@ -2123,6 +3215,7 @@
         "kind": "uses",
         "confidence": "verified",
         "sourceIds": [
+          "s-langchain-overview",
           "s-openai-gpt5"
         ]
       },
@@ -2133,6 +3226,7 @@
         "kind": "uses",
         "confidence": "verified",
         "sourceIds": [
+          "s-langchain-overview",
           "s-anthropic-claude"
         ]
       },
@@ -2153,6 +3247,7 @@
         "kind": "based-on",
         "confidence": "verified",
         "sourceIds": [
+          "s-transformer-paper",
           "s-deepseek-r2"
         ]
       },
@@ -2163,7 +3258,8 @@
         "kind": "benchmarked-on",
         "confidence": "verified",
         "sourceIds": [
-          "s-openai-gpt5"
+          "s-mmlu-pro-paper",
+          "s-qwen-models"
         ]
       },
       {
@@ -2223,6 +3319,7 @@
         "kind": "developed-by",
         "confidence": "verified",
         "sourceIds": [
+          "s-openai-about",
           "s-openai-gpt5"
         ]
       },
@@ -2293,6 +3390,7 @@
         "kind": "developed-by",
         "confidence": "verified",
         "sourceIds": [
+          "s-anthropic-company",
           "s-anthropic-claude"
         ]
       },
@@ -2303,6 +3401,7 @@
         "kind": "uses",
         "confidence": "verified",
         "sourceIds": [
+          "s-mcp-architecture",
           "s-anthropic-claude"
         ]
       },
@@ -2354,6 +3453,7 @@
         "kind": "benchmarked-on",
         "confidence": "verified",
         "sourceIds": [
+          "s-mmlu-pro-paper",
           "s-google-gemini"
         ]
       },
@@ -2435,6 +3535,7 @@
         "kind": "benchmarked-on",
         "confidence": "verified",
         "sourceIds": [
+          "s-mmlu-pro-paper",
           "s-qwen-models"
         ]
       },

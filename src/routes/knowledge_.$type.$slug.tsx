@@ -1,11 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
   ArrowRight,
+  BookOpen,
   Building2,
   CalendarDays,
+  CheckCircle2,
+  ExternalLink,
   GitBranch,
+  Lightbulb,
   Layers3,
   MapPin,
+  ShieldAlert,
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -66,6 +71,7 @@ function GenericEntityDetail() {
     ...relations.flatMap((edge) => edge.sourceIds),
     ...timeline.flatMap((event) => event.sourceIds),
     ...(entity.metrics ?? []).flatMap((metric) => metric.sourceIds ?? []),
+    ...(entity.knowledge?.keyPoints ?? []).flatMap((point) => point.sourceIds ?? []),
   ]);
   const sources = snapshot.evidence.filter((source) => sourceIds.has(source.id));
   const origin =
@@ -111,6 +117,17 @@ function GenericEntityDetail() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {entity.knowledge?.officialUrl && (
+              <a
+                href={entity.knowledge.officialUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {t("官方网站", "Official site")}
+              </a>
+            )}
             <Link
               to="/graph"
               className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
@@ -128,64 +145,181 @@ function GenericEntityDetail() {
           </div>
         </header>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
-          <article className="paper-card p-5 md:p-6">
-            <h2 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h2>
-            <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
-              <ProfileField
-                label={t("实体类型", "Entity type")}
-                value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-              />
-              <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
-              <ProfileField label={t("所属组织", "Organization")} value={entity.vendor ?? "—"} />
-              <ProfileField label={t("来源区域", "Region")} value={origin} />
-              <ProfileField
-                label={t("首次收录 / 发布", "First recorded / released")}
-                value={entity.firstReleasedAt ?? "—"}
-              />
-              <ProfileField label={t("最近核验", "Last verified")} value={entity.lastUpdatedAt} />
-              <ProfileField
-                label={t("别名", "Aliases")}
-                value={entity.aliases?.join(" · ") || "—"}
-                wide
-              />
-              <ProfileField label={t("标签", "Tags")} value={entity.tags.join(" · ") || "—"} wide />
-            </dl>
-          </article>
-
-          <article className="paper-card p-5 md:p-6">
-            <h2 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h2>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Stat value={relations.length} label={t("已收录关系", "Relations")} />
-              <Stat value={sources.length} label={t("直接来源", "Sources")} />
-              <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
-              <Stat
-                value={new Set(relations.map((edge) => edge.kind)).size}
-                label={t("关系类型", "Relation types")}
-              />
-            </div>
-            {entity.capabilities && entity.capabilities.length > 0 && (
-              <div className="mt-5 border-t border-border pt-5">
-                <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("能力 / 特征", "Capabilities / traits")}
+        {entity.knowledge && (
+          <>
+            <section className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+              <article className="paper-card p-6 md:p-8">
+                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-signal">
+                  <BookOpen className="h-4 w-4" />
+                  {t("知识导读", "Knowledge guide")}
                 </div>
-                <ul className="space-y-3">
-                  {entity.capabilities.map((capability, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                      <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
-                      <ConfidenceChip level={capability.confidence} />
-                    </li>
+                <h2 className="mt-3 text-2xl font-semibold text-foreground">
+                  {t(`什么是 ${entity.name.zh}？`, `What is ${entity.name.en}?`)}
+                </h2>
+                <div className="mt-5 space-y-4 text-[15px] leading-8 text-ink-soft">
+                  {entity.knowledge.introduction.map((paragraph, index) => (
+                    <p key={index}>{pick(paragraph, lang)}</p>
                   ))}
-                </ul>
+                </div>
+                <div className="mt-7 rounded-xl border border-signal/20 bg-signal/5 p-5">
+                  <div className="flex items-center gap-2 font-semibold text-signal">
+                    <Lightbulb className="h-4 w-4" />
+                    {t("为什么重要", "Why it matters")}
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-foreground">
+                    {pick(entity.knowledge.significance, lang)}
+                  </p>
+                </div>
+              </article>
+
+              <aside className="paper-card p-6">
+                <div className="text-xs font-medium uppercase tracking-widest text-signal">
+                  {t("30 秒看懂", "Understand in 30 seconds")}
+                </div>
+                <div className="mt-5 space-y-5">
+                  {entity.knowledge.keyPoints.map((point, index) => (
+                    <div
+                      key={index}
+                      className="border-b border-border pb-5 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {pick(point.title, lang)}
+                          </h3>
+                          <p className="mt-1.5 text-sm leading-6 text-ink-soft">
+                            {pick(point.description, lang)}
+                          </p>
+                          {point.sourceIds && point.sourceIds.length > 0 && (
+                            <span className="mt-2 inline-block text-[11px] text-verified">
+                              {t(
+                                `${point.sourceIds.length} 个直接来源`,
+                                `${point.sourceIds.length} direct source${point.sourceIds.length > 1 ? "s" : ""}`,
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </aside>
+            </section>
+
+            <section className="mt-12">
+              <SectionHeading
+                eyebrow="01"
+                title={t("它能用来做什么", "What it is useful for")}
+                description={t(
+                  "从实际问题出发理解这个实体，而不是只记住一个名称。",
+                  "Understand the entity through practical questions, not just a name.",
+                )}
+              />
+              <div className="grid gap-4 md:grid-cols-3">
+                {entity.knowledge.useCases.map((useCase, index) => (
+                  <article key={index} className="paper-card p-5">
+                    <span className="font-mono text-xs text-signal">0{index + 1}</span>
+                    <h3 className="mt-3 font-semibold text-foreground">
+                      {pick(useCase.title, lang)}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      {pick(useCase.description, lang)}
+                    </p>
+                  </article>
+                ))}
               </div>
-            )}
-          </article>
-        </div>
+            </section>
+
+            <section className="mt-8 rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]">
+              <div className="flex items-center gap-2 font-semibold">
+                <ShieldAlert className="h-4 w-4" />
+                {t("使用与判断边界", "Limits and interpretation")}
+              </div>
+              <ul className="mt-3 grid gap-2 text-sm leading-6 md:grid-cols-2">
+                {entity.knowledge.limitations.map((limitation, index) => (
+                  <li key={index} className="flex gap-2">
+                    <span aria-hidden="true">•</span>
+                    <span>{pick(limitation, lang)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )}
 
         <section className="mt-12">
           <SectionHeading
-            eyebrow="01"
+            eyebrow={entity.knowledge ? "02" : "01"}
+            title={t("基础档案", "Reference profile")}
+            description={t(
+              "用于检索、筛选和数据核验的结构化信息。",
+              "Structured information for search, filtering and verification.",
+            )}
+          />
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
+            <article className="paper-card p-5 md:p-6">
+              <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
+              <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+                <ProfileField
+                  label={t("实体类型", "Entity type")}
+                  value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                />
+                <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
+                <ProfileField label={t("所属组织", "Organization")} value={entity.vendor ?? "—"} />
+                <ProfileField label={t("来源区域", "Region")} value={origin} />
+                <ProfileField
+                  label={t("首次收录 / 发布", "First recorded / released")}
+                  value={entity.firstReleasedAt ?? "—"}
+                />
+                <ProfileField label={t("最近核验", "Last verified")} value={entity.lastUpdatedAt} />
+                <ProfileField
+                  label={t("别名", "Aliases")}
+                  value={entity.aliases?.join(" · ") || "—"}
+                  wide
+                />
+                <ProfileField
+                  label={t("标签", "Tags")}
+                  value={entity.tags.join(" · ") || "—"}
+                  wide
+                />
+              </dl>
+            </article>
+
+            <article className="paper-card p-5 md:p-6">
+              <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <Stat value={relations.length} label={t("已收录关系", "Relations")} />
+                <Stat value={sources.length} label={t("直接来源", "Sources")} />
+                <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
+                <Stat
+                  value={new Set(relations.map((edge) => edge.kind)).size}
+                  label={t("关系类型", "Relation types")}
+                />
+              </div>
+              {entity.capabilities && entity.capabilities.length > 0 && (
+                <div className="mt-5 border-t border-border pt-5">
+                  <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {t("能力 / 特征", "Capabilities / traits")}
+                  </div>
+                  <ul className="space-y-3">
+                    {entity.capabilities.map((capability, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                        <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
+                        <ConfidenceChip level={capability.confidence} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <SectionHeading
+            eyebrow={entity.knowledge ? "03" : "02"}
             title={t("它与谁有什么关系", "How this entity is connected")}
             description={t(
               "每条关系都明确显示起点、关系语义、终点和置信度；点击相关实体可继续追踪。",
@@ -226,45 +360,47 @@ function GenericEntityDetail() {
           </div>
         </section>
 
-        <section className="mt-12">
-          <SectionHeading
-            eyebrow="02"
-            title={t("时间线", "Timeline")}
-            description={t(
-              "按时间记录发布、更新、评测与重要事件。",
-              "Releases, updates, benchmarks and important events in chronological context.",
-            )}
-          />
-          <div className="space-y-3">
-            {timeline.map((event) => (
-              <article key={event.id} className="paper-card flex gap-4 p-4">
-                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <time className="font-mono text-xs text-signal">{event.date}</time>
-                    <h3 className="font-semibold">{pick(event.title, lang)}</h3>
-                    <ConfidenceChip level={event.confidence} />
+        {timeline.length > 0 && (
+          <section className="mt-12">
+            <SectionHeading
+              eyebrow={entity.knowledge ? "04" : "03"}
+              title={t("时间线", "Timeline")}
+              description={t(
+                "按时间记录发布、更新、评测与重要事件。",
+                "Releases, updates, benchmarks and important events in chronological context.",
+              )}
+            />
+            <div className="space-y-3">
+              {timeline.map((event) => (
+                <article key={event.id} className="paper-card flex gap-4 p-4">
+                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <time className="font-mono text-xs text-signal">{event.date}</time>
+                      <h3 className="font-semibold">{pick(event.title, lang)}</h3>
+                      <ConfidenceChip level={event.confidence} />
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                      {pick(event.summary, lang)}
+                    </p>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                    {pick(event.summary, lang)}
-                  </p>
-                </div>
-              </article>
-            ))}
-            {timeline.length === 0 && (
-              <div className="paper-card p-6 text-sm text-muted-foreground">
-                {t(
-                  "该实体暂时没有独立时间线；已有关系和来源仍可在上方核验。",
-                  "This entity has no standalone timeline yet; its relationships and sources remain verifiable above.",
-                )}
-              </div>
-            )}
-          </div>
-        </section>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-12">
           <SectionHeading
-            eyebrow="03"
+            eyebrow={
+              timeline.length > 0
+                ? entity.knowledge
+                  ? "05"
+                  : "04"
+                : entity.knowledge
+                  ? "04"
+                  : "03"
+            }
             title={t("关系证据", "Relationship evidence")}
             description={t(
               "这里只列出直接支持本实体关系或时间事件的来源。",
