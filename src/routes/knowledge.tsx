@@ -179,8 +179,8 @@ function KnowledgePage() {
             {filtered.map((e) => (
               <Link
                 key={e.id}
-                to={e.type === "model" ? "/knowledge/model/$slug" : "/knowledge/model/$slug"}
-                params={{ slug: e.slug }}
+                to="/knowledge/$type/$slug"
+                params={{ type: e.type, slug: e.slug }}
                 className="paper-card p-5 hover:border-signal/60 transition-colors group flex flex-col"
               >
                 <div className="flex items-center gap-2 mb-3">

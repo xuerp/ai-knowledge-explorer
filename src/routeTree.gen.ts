@@ -22,6 +22,7 @@ import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
 import { Route as ResearchIdRouteImport } from './routes/research.$id'
 import { Route as ShareIdRouteImport } from './routes/share.$id'
+import { Route as KnowledgeTypeSlugRouteImport } from './routes/knowledge_.$type.$slug'
 import { Route as KnowledgeModelSlugRouteImport } from './routes/knowledge_.model.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +90,11 @@ const ShareIdRoute = ShareIdRouteImport.update({
   path: '/share/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KnowledgeTypeSlugRoute = KnowledgeTypeSlugRouteImport.update({
+  id: '/knowledge_/$type/$slug',
+  path: '/knowledge/$type/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgeModelSlugRoute = KnowledgeModelSlugRouteImport.update({
   id: '/knowledge_/model/$slug',
   path: '/knowledge/model/$slug',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
+  '/knowledge/$type/$slug': typeof KnowledgeTypeSlugRoute
   '/knowledge/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRoutesByTo {
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
+  '/knowledge/$type/$slug': typeof KnowledgeTypeSlugRoute
   '/knowledge/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRoutesById {
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
+  '/knowledge_/$type/$slug': typeof KnowledgeTypeSlugRoute
   '/knowledge_/model/$slug': typeof KnowledgeModelSlugRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
+    | '/knowledge/$type/$slug'
     | '/knowledge/model/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
+    | '/knowledge/$type/$slug'
     | '/knowledge/model/$slug'
   id:
     | '__root__'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
+    | '/knowledge_/$type/$slug'
     | '/knowledge_/model/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
   ResearchIdRoute: typeof ResearchIdRoute
   ShareIdRoute: typeof ShareIdRoute
+  KnowledgeTypeSlugRoute: typeof KnowledgeTypeSlugRoute
   KnowledgeModelSlugRoute: typeof KnowledgeModelSlugRoute
 }
 
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/knowledge_/$type/$slug': {
+      id: '/knowledge_/$type/$slug'
+      path: '/knowledge/$type/$slug'
+      fullPath: '/knowledge/$type/$slug'
+      preLoaderRoute: typeof KnowledgeTypeSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/knowledge_/model/$slug': {
       id: '/knowledge_/model/$slug'
       path: '/knowledge/model/$slug'
@@ -329,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminReviewDemoRoute: AdminReviewDemoRoute,
   ResearchIdRoute: ResearchIdRoute,
   ShareIdRoute: ShareIdRoute,
+  KnowledgeTypeSlugRoute: KnowledgeTypeSlugRoute,
   KnowledgeModelSlugRoute: KnowledgeModelSlugRoute,
 }
 export const routeTree = rootRouteImport

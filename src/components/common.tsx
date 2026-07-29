@@ -77,8 +77,8 @@ export function EntityChip({ entity }: { entity: Entity }) {
   const { lang } = useApp();
   return (
     <Link
-      to="/knowledge/model/$slug"
-      params={{ slug: entity.slug }}
+      to="/knowledge/$type/$slug"
+      params={{ type: entity.type, slug: entity.slug }}
       className="chip hover:border-signal/60 hover:text-foreground"
     >
       {pick(ENTITY_TYPE_LABELS[entity.type], lang)} · {pick(entity.name, lang)}
