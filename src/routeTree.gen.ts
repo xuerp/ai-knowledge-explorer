@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as FollowingRouteImport } from './routes/following'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
 import { Route as ResearchIdRouteImport } from './routes/research.$id'
 import { Route as ShareIdRouteImport } from './routes/share.$id'
@@ -24,6 +26,11 @@ import { Route as KnowledgeModelSlugRouteImport } from './routes/knowledge.model
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AskRoute = AskRouteImport.update({
@@ -56,6 +63,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminReviewRoute = AdminReviewRouteImport.update({
+  id: '/admin/review',
+  path: '/admin/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminReviewDemoRoute = AdminReviewDemoRouteImport.update({
   id: '/admin/review-demo',
   path: '/admin/review-demo',
@@ -79,12 +91,14 @@ const KnowledgeModelSlugRoute = KnowledgeModelSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ask': typeof AskRoute
   '/compare': typeof CompareRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -92,12 +106,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ask': typeof AskRoute
   '/compare': typeof CompareRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -106,12 +122,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/ask': typeof AskRoute
   '/compare': typeof CompareRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -121,12 +139,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/ask'
     | '/compare'
     | '/following'
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -134,12 +154,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/ask'
     | '/compare'
     | '/following'
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -147,12 +169,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/ask'
     | '/compare'
     | '/following'
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
     | '/share/$id'
@@ -161,12 +185,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   AskRoute: typeof AskRoute
   CompareRoute: typeof CompareRoute
   FollowingRoute: typeof FollowingRoute
   GraphRoute: typeof GraphRoute
   KnowledgeRoute: typeof KnowledgeRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  AdminReviewRoute: typeof AdminReviewRoute
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
   ResearchIdRoute: typeof ResearchIdRoute
   ShareIdRoute: typeof ShareIdRoute
@@ -179,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ask': {
@@ -221,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/review': {
+      id: '/admin/review'
+      path: '/admin/review'
+      fullPath: '/admin/review'
+      preLoaderRoute: typeof AdminReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/review-demo': {
@@ -268,12 +308,14 @@ const KnowledgeRouteWithChildren = KnowledgeRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AskRoute: AskRoute,
   CompareRoute: CompareRoute,
   FollowingRoute: FollowingRoute,
   GraphRoute: GraphRoute,
   KnowledgeRoute: KnowledgeRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  AdminReviewRoute: AdminReviewRoute,
   AdminReviewDemoRoute: AdminReviewDemoRoute,
   ResearchIdRoute: ResearchIdRoute,
   ShareIdRoute: ShareIdRoute,
