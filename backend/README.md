@@ -1,52 +1,31 @@
 # AI Radar API
 
-这是 AI Radar 的第一条真实后端纵向闭环。它提供经过强类型校验的公共知识快照、实体和图谱查询，以及受管理令牌保护的人工审核与发布接口。
-
-当前数据仍是明确标记的演示种子。经过 HTTP API 不会自动变成“实时事实”；只有将真实采集接入并显式配置 `AI_RADAR_DATA_MODE=live` 后，API 才会返回 live 模式。
+这是 AI Radar 的可信数据后端：FastAPI、Pydantic、SQLAlchemy 和 Alembic。公开读取与受保护写入严格分开；自动采集和模型抽取不会直接成为公开事实。
 
 ## 已实现
 
-- FastAPI 与 Pydantic v2 API 契约。
-- SQLAlchemy 2 持久化和 Alembic 初始迁移。
-- SQLite 本地开发数据库；数据库 URL 可替换为 PostgreSQL。
-- 公共快照自动隔离待审核和已拒绝 Claim。
-- 管理令牌保护的审核队列、批准、拒绝和发布历史。
-- 审核版本号乐观并发控制，重复决定返回 `409`。
-- 没有证据的 Claim 不允许发布。
-- 来源 URL 规范化、文档内容哈希、快照链和 created/updated/unchanged Diff。
-- 重复内容只记录采集运行，不生成重复文档快照。
-- 抽取器候选提交接口；候选 Claim 与新证据批准前保持私密。
-- 实体搜索、详情、时间线、邻域和图谱过滤查询。
-- CORS 白名单，不允许浏览器携带任意来源凭据。
+- SQLite 本地开发和 PostgreSQL 生产连接。
+- 邮箱密码登录、Argon2 密码哈希、短时 JWT、viewer/reviewer/admin RBAC。
+- 开发 bootstrap token、审核版本并发控制、发布历史和审计日志。
+- 官方信源注册、HTTPS 白名单采集、SSRF 防护、响应大小限制、ETag/Last-Modified。
+- 内容快照、SHA-256 去重和 created/updated/unchanged Diff。
+- OpenAI-compatible 严格结构化抽取适配器；模型结果固定为 unverified。
+- 实体别名消歧、双时间 Claim 冲突检测和 needs-more-evidence 队列。
+- 人工批准后才进入公共快照，并向相关关注者生成站内通知。
+- 登录用户关注、通知已读、每日摘要偏好、私密研究和主动公开分享。
+- Markdown 研究输出、邮件 Outbox 和可选 SMTP 投递。
+- 正式数据验收报告与 20 个黄金研究问题。
 
 ## 本地启动
-
-先在项目根目录导出演示种子：
-
-```powershell
-node scripts/export-demo-snapshot.mjs
-```
-
-创建隔离环境并安装依赖：
 
 ```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-复制 `backend/.env.example` 为一个不会提交的本地文件，替换长随机管理令牌。然后执行迁移并启动：
-
-```powershell
+Copy-Item .env.example .env
 .\.venv\Scripts\python.exe -m alembic upgrade head
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000 --env-file .env
 ```
-
-API 文档：
-
-- Swagger UI：`http://127.0.0.1:8000/docs`
-- OpenAPI JSON：`http://127.0.0.1:8000/openapi.json`
-- 健康检查：`http://127.0.0.1:8000/health`
 
 前端根目录 `.env`：
 
@@ -54,63 +33,56 @@ API 文档：
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-真实 API 请求失败时，前端会显示错误，不会静默回退到演示 adapter。
+Swagger：`http://127.0.0.1:8000/docs`
+健康检查：`http://127.0.0.1:8000/health`
 
-## 审核发布示例
+## 首个管理员
 
-先读取队列并记录 `version`：
-
-```powershell
-$headers = @{ "X-Admin-Token" = $env:AI_RADAR_ADMIN_TOKEN }
-Invoke-RestMethod "http://127.0.0.1:8000/api/v2/admin/review-queue" -Headers $headers
-```
-
-批准时必须提交当前版本和人工审核理由：
+仅当 users 表为空时可执行：
 
 ```powershell
+$headers = @{ "X-Admin-Token" = "你的 AI_RADAR_ADMIN_TOKEN" }
 $body = @{
-  expectedVersion = 1
-  reason = "已核对原始来源和时间字段。"
+  email = "admin@example.com"
+  password = "至少十二位的独立强密码"
 } | ConvertTo-Json
-
-Invoke-RestMethod `
-  "http://127.0.0.1:8000/api/v2/admin/review-queue/review-gpt-context/approve" `
-  -Method Post `
-  -Headers $headers `
-  -ContentType "application/json" `
-  -Body $body
+Invoke-RestMethod "http://127.0.0.1:8000/api/v2/auth/bootstrap" `
+  -Method Post -Headers $headers -ContentType "application/json" -Body $body
 ```
 
-未配置 `AI_RADAR_ADMIN_TOKEN` 时，所有管理写操作返回 `503`；令牌错误返回 `401`。
+然后访问前端 `/account` 或 `/admin/review`。
 
-## 测试
+## 关键边界
+
+- `AI_RADAR_DATA_MODE=demo` 表示演示数据，不伪装实时。
+- 未审核、已拒绝或需要更多证据的 Claim 不会出现在公共快照。
+- 抽取供应商未配置时，抽取接口返回 `503`，不会生成假结果。
+- SMTP 未配置时，摘要安全停留在 Outbox，投递接口返回 `503`。
+- 自动采集只允许配置的 HTTPS 官方域名，不跟随重定向，不访问私网地址。
+- `/api/v2/admin/data-quality` 未通过前，不应宣称达到正式数据验收。
+
+## 自动任务
+
+单次采集：
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m app.worker --once
 ```
 
-测试覆盖公共数据隔离、管理认证、实体/图谱查询、一次性审批、并发版本冲突和发布历史。
-
-还覆盖来源 URL 去重、文档快照哈希、内容 Diff、重复采集以及动态候选批准后的公共发布。
-
-## 采集入口
-
-当前接口接收已经获取的文档正文，不会绕过登录、付费墙或访问控制自行抓取：
+使用云调度器或 cron 周期调用；每个信源仍受自己的采集间隔限制。每日摘要通过管理 API 生成和投递：
 
 ```text
-GET  /api/v2/admin/sources
-POST /api/v2/admin/sources
-POST /api/v2/admin/sources/{source_id}/snapshots
-GET  /api/v2/admin/ingestion-runs
-POST /api/v2/admin/review-candidates
+POST /api/v2/admin/digests/run
+POST /api/v2/admin/email-outbox/send
 ```
 
-来源正文会先规范换行和尾部空白，再计算 SHA-256。相同内容返回 `unchanged` 并复用快照；变化内容创建带 `previousSnapshotId` 的新快照。候选接口要求 Claim 的每个 `sourceId` 都在随请求提交的 Evidence 中。
+## 验证
 
-## 下一阶段
+```powershell
+.\.venv\Scripts\python.exe -m ruff format --check app tests migrations
+.\.venv\Scripts\python.exe -m ruff check app tests migrations
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m alembic upgrade head
+```
 
-- PostgreSQL 正式 Schema 与可回滚部署流程。
-- 官方来源适配器和每 2–4 小时调度器。
-- 候选实体、关系与 Claim 的 LLM 结构化抽取。
-- 标准用户认证和基于角色的审核权限，替换单一开发管理令牌。
-- 真实研究、通知和事务邮件服务。
+完整生产步骤见 [PRODUCTION_RUNBOOK.md](../docs/PRODUCTION_RUNBOOK.md)。
