@@ -70,6 +70,7 @@ function EntityDetail() {
   }, [e.id, relations]);
 
   const timeline = allTimeline[e.id] ?? [];
+  const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
   const claims = allClaims.filter((c) =>
     c.sourceIds.some((sourceId) => evidence.some((source) => source.id === sourceId)),
   );
@@ -129,6 +130,18 @@ function EntityDetail() {
               </Link>
             </div>
           </div>
+          {recentChange && (
+            <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-[#f4c767] bg-[#fffbeb] px-4 py-3 text-sm">
+              <span className="font-semibold text-[#b45309]">{t("最近变化", "Latest change")}</span>
+              <span className="min-w-0 flex-1 text-[#92400e]">
+                {pick(recentChange.summary, lang)}
+              </span>
+              <time className="font-mono text-[11px] text-[#b45309]">{recentChange.date}</time>
+              <Link to="/graph" className="text-xs font-medium text-signal hover:underline">
+                {t("查看关系变化", "View graph change")} →
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -143,40 +156,81 @@ function EntityDetail() {
               "Core facts, capabilities and latest metrics — each carries a confidence label and sources.",
             )}
           />
-          <div className="grid gap-4 md:grid-cols-3">
-            <FactCard
-              label={t("厂商 / 归属", "Vendor")}
-              value={e.vendor ?? "—"}
-              note={e.origin ? pick(e.origin, lang) : undefined}
-            />
-            <FactCard
-              label={t("最新版本", "Latest version")}
-              value={e.latestVersion ?? "—"}
-              note={e.lastUpdatedAt}
-            />
-            <FactCard
-              label={t("首次发布", "First released")}
-              value={e.firstReleasedAt ?? "—"}
-              note={t("状态", "Status") + ": " + e.status}
-            />
-          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <article className="paper-card p-5">
+              <h3 className="mb-5 text-base font-semibold">
+                {t("百科档案", "Encyclopedic profile")}
+              </h3>
+              <dl className="grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+                <ProfileField
+                  label={t("中英文名称", "Name")}
+                  value={`${e.name.zh} / ${e.name.en}`}
+                />
+                <ProfileField label={t("所属组织", "Organization")} value={e.vendor ?? "—"} />
+                <ProfileField
+                  label={t("一句话定义", "Definition")}
+                  value={pick(e.summary, lang)}
+                  wide
+                />
+                <ProfileField
+                  label={t("首次出现", "First released")}
+                  value={e.firstReleasedAt ?? "—"}
+                />
+                <ProfileField
+                  label={t("当前版本", "Current version")}
+                  value={e.latestVersion ?? "—"}
+                  mono
+                />
+                <ProfileField
+                  label={t("当前状态", "Status")}
+                  value={e.status === "active" ? t("已发布 / 活跃", "Released / active") : e.status}
+                />
+                <ProfileField
+                  label={t("来源国家/地区", "Origin")}
+                  value={e.origin ? pick(e.origin, lang) : "—"}
+                />
+                <ProfileField label={t("标签", "Tags")} value={e.tags.join(" · ")} wide />
+              </dl>
+            </article>
 
-          {e.capabilities && (
-            <div className="mt-6 paper-card p-5">
-              <h4 className="font-serif font-semibold mb-4">{t("能力", "Capabilities")}</h4>
-              <ul className="grid sm:grid-cols-2 gap-3">
-                {e.capabilities.map((c, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <Layers className="h-4 w-4 text-signal mt-0.5 shrink-0" />
-                    <div className="flex-1">
-                      <div className="text-sm text-foreground">{pick(c, lang)}</div>
-                    </div>
-                    <ConfidenceChip level={c.confidence} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            <article className="paper-card p-5">
+              <h3 className="mb-5 text-base font-semibold">
+                {t("技术规格与核心能力", "Technical profile")}
+              </h3>
+              <dl className="mb-5 grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+                <ProfileField
+                  label={t("实体类型", "Entity type")}
+                  value={pick(ENTITY_TYPE_LABELS[e.type], lang)}
+                />
+                <ProfileField label={t("最后核验", "Last verified")} value={e.lastUpdatedAt} mono />
+                <ProfileField
+                  label={t("知识图谱关系", "Graph relations")}
+                  value={t(
+                    `${relatedRelations.length} 条已建模关系`,
+                    `${relatedRelations.length} modelled edges`,
+                  )}
+                />
+                <ProfileField
+                  label={t("资料状态", "Evidence status")}
+                  value={t("证据可追溯", "Traceable evidence")}
+                />
+              </dl>
+              <div className="border-t border-border pt-4">
+                <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("核心能力", "Core capabilities")}
+                </div>
+                <ul className="space-y-3">
+                  {(e.capabilities ?? []).map((capability, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      <Layers className="h-4 w-4 shrink-0 text-signal" />
+                      <span className="min-w-0 flex-1 text-sm">{pick(capability, lang)}</span>
+                      <ConfidenceChip level={capability.confidence} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          </div>
 
           {e.metrics && (
             <div className="mt-4 paper-card p-5">
@@ -229,7 +283,7 @@ function EntityDetail() {
               </Link>
             }
           />
-          <div className="overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
             <KnowledgeGraph
               entities={entities}
               relations={relations}
@@ -447,12 +501,23 @@ function EntityDetail() {
   );
 }
 
-function FactCard({ label, value, note }: { label: string; value: string; note?: string }) {
+function ProfileField({
+  label,
+  value,
+  wide = false,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  wide?: boolean;
+  mono?: boolean;
+}) {
   return (
-    <div className="paper-card p-4">
-      <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">{label}</div>
-      <div className="text-lg font-serif font-semibold text-foreground">{value}</div>
-      {note && <div className="text-xs text-muted-foreground mt-1">{note}</div>}
+    <div className={wide ? "sm:col-span-2" : undefined}>
+      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dd className={`mt-1 leading-relaxed text-foreground ${mono ? "font-mono text-xs" : ""}`}>
+        {value}
+      </dd>
     </div>
   );
 }

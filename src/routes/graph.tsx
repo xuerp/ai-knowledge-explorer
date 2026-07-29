@@ -91,7 +91,7 @@ function GraphPage() {
   const snapshotQuery = useKnowledgeSnapshot();
   if (!snapshotQuery.data) {
     return (
-      <AppShell dark>
+      <AppShell>
         <DataStatePanel
           kind={snapshotQuery.unavailableKind}
           title={t(
@@ -262,8 +262,8 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
   );
 
   return (
-    <AppShell dark>
-      <main className="min-h-[calc(100vh-3.5rem)] bg-graph-bg text-white">
+    <AppShell>
+      <main className="graph-light-page min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
         <header className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 py-6 md:px-6">
           <div>
             <DemoBadge />
@@ -272,8 +272,8 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-white/70">
               {t(
-                "搜索、筛选和追踪 AI 实体之间的关系；点击连线可核验证据。",
-                "Search, filter, and trace relationships; select an edge to inspect evidence.",
+                "每个节点是一个实体；带箭头的连线说明“谁与谁、以什么关系相连”，点击连线可查看来源证据。",
+                "Each node is an entity. Directed, labelled edges explain what connects two entities; select an edge to inspect evidence.",
               )}
             </p>
           </div>
@@ -406,6 +406,38 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             )}
           </section>
 
+          <section className="mb-4 grid gap-3 rounded-xl border border-border bg-card p-4 text-xs md:grid-cols-3">
+            <div>
+              <div className="font-semibold text-foreground">{t("① 看节点", "1. Read nodes")}</div>
+              <p className="mt-1 leading-relaxed text-muted-foreground">
+                {t(
+                  "颜色和形状区分模型、公司、框架、评测与论文。",
+                  "Color and shape distinguish models, companies, frameworks, benchmarks, and papers.",
+                )}
+              </p>
+            </div>
+            <div>
+              <div className="font-semibold text-foreground">{t("② 看关系", "2. Read edges")}</div>
+              <p className="mt-1 leading-relaxed text-muted-foreground">
+                {t(
+                  "例如：GPT 系列 —研发方→ OpenAI；GPT 系列 —评测于→ SWE-bench。",
+                  "Example: GPT —developed by→ OpenAI; GPT —benchmarked on→ SWE-bench.",
+                )}
+              </p>
+            </div>
+            <div>
+              <div className="font-semibold text-foreground">
+                {t("③ 核验证据", "3. Verify evidence")}
+              </div>
+              <p className="mt-1 leading-relaxed text-muted-foreground">
+                {t(
+                  "实线表示已核验，虚线表示推断或未核验；点击任意连线查看来源。",
+                  "Solid lines are verified; dashed lines are inferred or unverified. Select any edge for sources.",
+                )}
+              </p>
+            </div>
+          </section>
+
           <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
             <aside className="hidden h-fit lg:block">{filterPanel}</aside>
             <section className="min-w-0 space-y-3">
@@ -423,7 +455,7 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                   highlightedEdgeIds={path?.edgeIds}
                   focusNodeId={focusNodeId}
                   height={compact ? 720 : 660}
-                  canvasWidth={compact ? 640 : 900}
+                  canvasWidth={compact ? 640 : 780}
                 />
               ) : (
                 <GraphList
@@ -449,10 +481,10 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
       </main>
 
       <Drawer open={filtersOpen && compact} onOpenChange={setFiltersOpen}>
-        <DrawerContent className="max-h-[88vh] border-white/15 bg-graph-surface text-white">
+        <DrawerContent className="max-h-[88vh] border-border bg-card text-foreground">
           <DrawerHeader>
             <DrawerTitle>{t("图谱筛选", "Graph filters")}</DrawerTitle>
-            <DrawerDescription className="text-white/55">
+            <DrawerDescription className="text-muted-foreground">
               {t(
                 "限制实体、关系、可信度与时间范围。",
                 "Limit entities, relationships, confidence, and time.",
@@ -468,7 +500,7 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           if (!open) clearSelection();
         }}
       >
-        <DrawerContent className="max-h-[88vh] border-white/15 bg-graph-surface text-white">
+        <DrawerContent className="max-h-[88vh] border-border bg-card text-foreground">
           <DrawerHeader className="sr-only">
             <DrawerTitle>{t("图谱详情", "Graph details")}</DrawerTitle>
             <DrawerDescription>
@@ -833,6 +865,36 @@ function GraphInspector({
             "Select a node for details, or an edge to verify its relationship and sources.",
           )}
         </p>
+        <div className="mt-5 border-t border-border pt-4">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("关系示例 · 点击查看证据", "Relationship examples · select for evidence")}
+          </div>
+          <div className="space-y-2">
+            {relations.slice(0, 4).map((edge) => {
+              const from = entityById.get(edge.fromId);
+              const to = entityById.get(edge.toId);
+              return (
+                <button
+                  key={edge.id}
+                  type="button"
+                  onClick={() => onSelectEdge(edge)}
+                  className="w-full rounded-lg border border-border bg-card p-3 text-left hover:border-signal/40 hover:bg-accent"
+                >
+                  <span className="block text-xs font-medium text-foreground">
+                    {from ? pick(from.name, lang) : edge.fromId}
+                  </span>
+                  <span className="my-1 flex items-center gap-1 text-[11px] font-medium text-signal">
+                    <ArrowRight className="h-3 w-3" />
+                    {pick(RELATION_LABELS[edge.kind], lang)}
+                  </span>
+                  <span className="block text-xs font-medium text-foreground">
+                    {to ? pick(to.name, lang) : edge.toId}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     );
   }
@@ -910,6 +972,11 @@ function GraphInspector({
           {related.map((edge) => {
             const otherId = edge.fromId === node.id ? edge.toId : edge.fromId;
             const other = entityById.get(otherId);
+            const relationLabel = pick(RELATION_LABELS[edge.kind], lang);
+            const direction =
+              edge.fromId === node.id
+                ? `${pick(node.name, lang)} —${relationLabel}→ ${other ? pick(other.name, lang) : otherId}`
+                : `${other ? pick(other.name, lang) : otherId} —${relationLabel}→ ${pick(node.name, lang)}`;
             return (
               <li key={edge.id}>
                 <button
@@ -921,8 +988,8 @@ function GraphInspector({
                     <span className="block truncate text-sm">
                       {other ? pick(other.name, lang) : otherId}
                     </span>
-                    <span className="block text-[11px] text-white/45">
-                      {pick(RELATION_LABELS[edge.kind], lang)}
+                    <span className="mt-0.5 block text-[11px] leading-relaxed text-white/45">
+                      {direction}
                     </span>
                   </span>
                   <ConfidenceChip level={edge.confidence} />
@@ -935,7 +1002,7 @@ function GraphInspector({
       <Link
         to="/knowledge/model/$slug"
         params={{ slug: node.slug }}
-        className="mt-5 inline-flex h-9 items-center gap-1 rounded-md bg-white px-3 text-sm font-medium text-graph-bg hover:bg-white/90"
+        className="mt-5 inline-flex h-9 items-center gap-1 rounded-md bg-signal px-3 text-sm font-medium text-white hover:opacity-90"
       >
         {t("查看完整详情", "Full detail")}
         <ArrowRight className="h-3.5 w-3.5" />

@@ -11,6 +11,7 @@ import { LocateFixed, Minus, Plus } from "lucide-react";
 import type { Entity, EntityType, GraphEdge } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { NODE_TYPE_META, type NodeShape } from "@/components/graph/config";
+import { RELATION_LABELS } from "@/domain/labels";
 
 const RADIUS: Record<EntityType, number> = {
   model: 22,
@@ -140,15 +141,17 @@ function NodeMark({
   radius,
   color,
   selected,
+  tone,
 }: {
   shape: NodeShape;
   radius: number;
   color: string;
   selected: boolean;
+  tone: "light" | "dark";
 }) {
   const common = {
     fill: color,
-    stroke: selected ? "#fff" : "rgba(255,255,255,0.45)",
+    stroke: selected ? (tone === "dark" ? "#fff" : "#111827") : "rgba(255,255,255,0.75)",
     strokeWidth: selected ? 2.5 : 1,
   };
   if (shape === "circle") return <circle r={radius} {...common} />;
@@ -162,7 +165,7 @@ function NodeMark({
 
 function edgeAppearance(edge: GraphEdge, active: boolean) {
   if (active) {
-    return { stroke: "#fff", opacity: 0.95, width: 3, dash: undefined };
+    return { stroke: "var(--signal)", opacity: 0.95, width: 3, dash: undefined };
   }
   if (edge.confidence === "conflict") {
     return {
@@ -195,6 +198,8 @@ export function KnowledgeGraph({
   highlightedEdgeIds = [],
   focusNodeId,
   canvasWidth = 900,
+  tone = "light",
+  showRelationLabels = true,
 }: {
   entities: Entity[];
   relations: GraphEdge[];
@@ -209,6 +214,8 @@ export function KnowledgeGraph({
   highlightedEdgeIds?: string[];
   focusNodeId?: string | null;
   canvasWidth?: number;
+  tone?: "light" | "dark";
+  showRelationLabels?: boolean;
 }) {
   const { lang, t } = useApp();
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -243,6 +250,8 @@ export function KnowledgeGraph({
       ),
     [positionById, relations],
   );
+  const relationLabelCenterId =
+    centerId ?? nodes.find((node) => node.entity.type === "model")?.entity.id;
   const highlightedNodes = useMemo(() => new Set(highlightedNodeIds), [highlightedNodeIds]);
   const highlightedEdges = useMemo(() => new Set(highlightedEdgeIds), [highlightedEdgeIds]);
 
@@ -375,12 +384,24 @@ export function KnowledgeGraph({
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
-      <div className="absolute right-3 top-3 z-10 flex rounded-md border border-white/15 bg-graph-surface/90 p-1 shadow-lg">
+    <div
+      className={`relative w-full overflow-hidden rounded-xl border ${
+        tone === "dark" ? "border-white/10 bg-graph-bg" : "border-border bg-[#f8f9fb]"
+      }`}
+    >
+      <div
+        className={`absolute right-3 top-3 z-10 flex rounded-md border p-1 shadow-sm ${
+          tone === "dark" ? "border-white/15 bg-graph-surface/90" : "border-border bg-white/95"
+        }`}
+      >
         <button
           type="button"
           onClick={() => zoomAtCenter(1.2)}
-          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          className={`grid h-8 w-8 place-items-center rounded ${
+            tone === "dark"
+              ? "text-white/75 hover:bg-white/10 hover:text-white"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
           aria-label={t("放大图谱", "Zoom in")}
         >
           <Plus className="h-4 w-4" />
@@ -388,7 +409,11 @@ export function KnowledgeGraph({
         <button
           type="button"
           onClick={() => zoomAtCenter(0.82)}
-          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          className={`grid h-8 w-8 place-items-center rounded ${
+            tone === "dark"
+              ? "text-white/75 hover:bg-white/10 hover:text-white"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
           aria-label={t("缩小图谱", "Zoom out")}
         >
           <Minus className="h-4 w-4" />
@@ -396,7 +421,11 @@ export function KnowledgeGraph({
         <button
           type="button"
           onClick={resetViewport}
-          className="grid h-8 w-8 place-items-center rounded text-white/75 hover:bg-white/10 hover:text-white"
+          className={`grid h-8 w-8 place-items-center rounded ${
+            tone === "dark"
+              ? "text-white/75 hover:bg-white/10 hover:text-white"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
           aria-label={t("重置图谱视图", "Reset graph view")}
         >
           <LocateFixed className="h-4 w-4" />
@@ -416,24 +445,39 @@ export function KnowledgeGraph({
       >
         <defs>
           <radialGradient id="graph-glow" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            <stop
+              offset="0%"
+              stopColor={tone === "dark" ? "#fff" : "#5b5bd6"}
+              stopOpacity={tone === "dark" ? "0.15" : "0.08"}
+            />
+            <stop offset="100%" stopColor={tone === "dark" ? "#fff" : "#5b5bd6"} stopOpacity="0" />
           </radialGradient>
           <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path
               d="M 40 0 L 0 0 0 40"
               fill="none"
-              stroke="rgba(255,255,255,0.04)"
+              stroke={tone === "dark" ? "rgba(255,255,255,0.04)" : "rgba(17,24,39,0.055)"}
               strokeWidth="1"
             />
           </pattern>
+          <marker
+            id="graph-arrow"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--graph-edge)" />
+          </marker>
         </defs>
         <rect width={width} height={height} fill="url(#graph-grid)" />
 
         <g transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.scale})`}>
           <circle cx={width / 2} cy={height / 2} r={280} fill="url(#graph-glow)" />
 
-          {edges.map((edge) => {
+          {edges.map((edge, edgeIndex) => {
             const from = positionById.get(edge.fromId)!;
             const to = positionById.get(edge.toId)!;
             const active =
@@ -454,9 +498,30 @@ export function KnowledgeGraph({
                   strokeOpacity={appearance.opacity}
                   strokeWidth={appearance.width}
                   strokeDasharray={appearance.dash}
+                  markerEnd={edge.kind === "competes-with" ? undefined : "url(#graph-arrow)"}
                   vectorEffect="non-scaling-stroke"
                   pointerEvents="none"
                 />
+                {showRelationLabels &&
+                  (selectedEdgeId === edge.id ||
+                    edge.fromId === relationLabelCenterId ||
+                    edge.toId === relationLabelCenterId) && (
+                    <text
+                      x={(from.x + to.x) / 2}
+                      y={(from.y + to.y) / 2 - 6 + ((edgeIndex % 3) - 1) * 10}
+                      textAnchor="middle"
+                      fill={tone === "dark" ? "rgba(255,255,255,0.8)" : "#475569"}
+                      stroke={tone === "dark" ? "#090c13" : "#f8f9fb"}
+                      strokeWidth="5"
+                      paintOrder="stroke"
+                      fontSize="9"
+                      fontWeight="600"
+                      letterSpacing="0.03em"
+                      style={{ pointerEvents: "none" }}
+                    >
+                      {pick(RELATION_LABELS[edge.kind], lang)}
+                    </text>
+                  )}
                 <line
                   x1={from.x}
                   y1={from.y}
@@ -511,7 +576,7 @@ export function KnowledgeGraph({
                   <circle
                     r={radius + 5}
                     fill="none"
-                    stroke="#fff"
+                    stroke={tone === "dark" ? "#fff" : "#111827"}
                     strokeWidth={2}
                     strokeDasharray="3 3"
                     vectorEffect="non-scaling-stroke"
@@ -522,11 +587,12 @@ export function KnowledgeGraph({
                   radius={radius}
                   color={meta.color}
                   selected={isSelected}
+                  tone={tone}
                 />
                 <text
                   y={radius + 18}
                   textAnchor="middle"
-                  fill="rgba(255,255,255,0.94)"
+                  fill={tone === "dark" ? "rgba(255,255,255,0.94)" : "#111827"}
                   fontSize="12"
                   fontWeight={500}
                   style={{ pointerEvents: "none" }}

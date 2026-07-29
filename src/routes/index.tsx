@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Bell, Clock3, GitBranch, Radar, ShieldCheck, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { ConfidenceChip, DemoBadge } from "@/components/common";
+import { DemoBadge } from "@/components/common";
 import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
-import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import type { ChangeEvent, Entity } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -50,7 +49,7 @@ function HomePage() {
   const followingIds = new Set(snapshot.following.map((item) => item.entityId));
   const related = snapshot.changes
     .filter((change) => followingIds.has(change.entityId))
-    .slice(0, 3);
+    .slice(0, 4);
   const industry = snapshot.changes.slice(0, 3);
   const previewIds = snapshot.graph.nodes.slice(0, 9).map((node) => node.entityId);
 
@@ -131,7 +130,10 @@ function HomePage() {
                   className="paper-card group min-h-28 p-4 transition-colors hover:border-signal/40"
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="chip">{pick(ENTITY_TYPE_LABELS[entity.type], lang)}</span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <ChangeBadge change={change} />
+                      <SourceBadge change={change} />
+                    </div>
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-signal" />
                   </div>
                   <h3 className="text-sm font-semibold">{pick(entity.name, lang)}</h3>
@@ -155,7 +157,7 @@ function HomePage() {
               </span>
             }
           />
-          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
+          <div className="relative overflow-hidden rounded-xl border border-border bg-card">
             <KnowledgeGraph
               entities={snapshot.entities}
               relations={snapshot.graph.edges}
@@ -215,10 +217,8 @@ function UpdateCard({
       }`}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="chip bg-verified/10 text-verified">
-          {change.kind === "new" ? t("新增能力", "New capability") : t("重要变化", "Update")}
-        </span>
-        <ConfidenceChip level={change.confidence} />
+        <ChangeBadge change={change} />
+        <SourceBadge change={change} />
         <span className="ml-auto inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground">
           <Clock3 className="h-3 w-3" /> {change.date}
         </span>
@@ -248,5 +248,61 @@ function UpdateCard({
         </Link>
       </div>
     </article>
+  );
+}
+
+function ChangeBadge({ change }: { change: ChangeEvent }) {
+  const { t, lang } = useApp();
+  const summary = pick(change.summary, lang).toLocaleLowerCase();
+  const isPrice =
+    summary.includes("价格") || summary.includes("pricing") || summary.includes("cost");
+  const meta = isPrice
+    ? { label: t("价格变化", "Price change"), className: "bg-[#f3e8ff] text-[#7c3aed]" }
+    : change.kind === "benchmark"
+      ? {
+          label: t("Benchmark 更新", "Benchmark update"),
+          className: "bg-[#fff3e8] text-[#ea580c]",
+        }
+      : change.kind === "new"
+        ? { label: t("新增能力", "New capability"), className: "bg-[#ecfdf5] text-[#059669]" }
+        : change.kind === "rumor"
+          ? { label: t("传闻", "Rumor"), className: "bg-[#f3e8ff] text-[#7c3aed]" }
+          : {
+              label: t("能力增强", "Capability update"),
+              className: "bg-[#eff6ff] text-[#2563eb]",
+            };
+  return (
+    <span
+      className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium ${meta.className}`}
+    >
+      {meta.label}
+    </span>
+  );
+}
+
+function SourceBadge({ change }: { change: ChangeEvent }) {
+  const { t, lang } = useApp();
+  const summary = pick(change.summary, lang).toLocaleLowerCase();
+  const isCommunity =
+    summary.includes("社区") || summary.includes("community") || summary.includes("hugging face");
+  const meta = isCommunity
+    ? {
+        label: t("社区验证", "Community verified"),
+        className: "bg-[#fffbeb] text-[#d97706]",
+      }
+    : change.confidence === "verified"
+      ? { label: t("官方确认", "Official"), className: "bg-[#eef2ff] text-[#4f46e5]" }
+      : change.confidence === "inferred"
+        ? { label: t("独立验证", "Independent"), className: "bg-[#eff6ff] text-[#2563eb]" }
+        : {
+            label: t("社区报告", "Community report"),
+            className: "bg-[#fffbeb] text-[#d97706]",
+          };
+  return (
+    <span
+      className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium ${meta.className}`}
+    >
+      {meta.label}
+    </span>
   );
 }
