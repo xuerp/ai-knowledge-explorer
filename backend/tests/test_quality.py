@@ -76,5 +76,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.entity_count >= 28
     assert report.claim_count == 5
     assert report.claims_with_missing_evidence == []
+    assert report.relations_with_missing_evidence == []
+    assert report.timeline_entries_with_missing_evidence == []
     assert any("40 reviewed entities" in issue for issue in report.issues)
     assert any("150 reviewed claims" in issue for issue in report.issues)

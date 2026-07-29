@@ -1,3 +1,5 @@
+import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
 
 export interface AdminUser {
@@ -57,6 +59,19 @@ export interface OutboxEntry {
   createdAt: string;
 }
 
+export interface DataQualityReport {
+  entityCount: number;
+  claimCount: number;
+  evidenceCount: number;
+  relationCount: number;
+  coreEntitiesBelowFiveRelations: string[];
+  claimsWithMissingEvidence: string[];
+  relationsWithMissingEvidence: string[];
+  timelineEntriesWithMissingEvidence: string[];
+  liveReady: boolean;
+  issues: string[];
+}
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   if (!apiBaseUrl) {
     throw new Error("VITE_API_BASE_URL is not configured.");
@@ -95,15 +110,16 @@ export const adminApi = {
   async workspace(token: string, role: AdminUser["role"]) {
     const queue = await request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token);
     if (role !== "admin") {
-      return { queue, sources: [], runs: [], audit: [], outbox: [] };
+      return { queue, sources: [], runs: [], audit: [], outbox: [], quality: null };
     }
-    const [sources, runs, audit, outbox] = await Promise.all([
+    const [sources, runs, audit, outbox, quality] = await Promise.all([
       request<SourceView[]>("/api/v2/admin/sources", {}, token),
       request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
       request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
       request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
+      request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
     ]);
-    return { queue, sources, runs, audit, outbox };
+    return { queue, sources, runs, audit, outbox, quality };
   },
 
   decide: (
@@ -140,6 +156,27 @@ export const adminApi = {
     request<{ attempted: number; sent: number; failed: number }>(
       "/api/v2/admin/email-outbox/send",
       { method: "POST" },
+      token,
+    ),
+
+  upsertEntity: (token: string, entity: Entity) =>
+    request<Entity>(
+      "/api/v2/admin/entities",
+      { method: "POST", body: JSON.stringify(entity) },
+      token,
+    ),
+
+  upsertRelation: (token: string, relation: GraphEdge) =>
+    request<GraphEdge>(
+      "/api/v2/admin/relations",
+      { method: "POST", body: JSON.stringify(relation) },
+      token,
+    ),
+
+  upsertTimeline: (token: string, entityId: string, entry: TimelineEntry) =>
+    request<TimelineEntry>(
+      `/api/v2/admin/entities/${encodeURIComponent(entityId)}/timeline`,
+      { method: "POST", body: JSON.stringify(entry) },
       token,
     ),
 };

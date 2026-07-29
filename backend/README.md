@@ -12,6 +12,7 @@
 - OpenAI-compatible 严格结构化抽取适配器；模型结果固定为 unverified。
 - 实体别名消歧、双时间 Claim 冲突检测和 needs-more-evidence 队列。
 - 人工批准后才进入公共快照，并向相关关注者生成站内通知。
+- 模型系列、具体版本、关系和时间线持久化，首次启动由版本化种子初始化。
 - 登录用户关注、通知已读、每日摘要偏好、私密研究和主动公开分享。
 - Markdown 研究输出、邮件 Outbox 和可选 SMTP 投递。
 - 正式数据验收报告与 20 个黄金研究问题。
@@ -42,10 +43,12 @@ Swagger：`http://127.0.0.1:8000/docs`
 GET  /api/v2/model-families
 GET  /api/v2/model-families/{family_id}/versions
 POST /api/v2/model-versions/compare
+POST /api/v2/admin/entities
+POST /api/v2/admin/relations
+POST /api/v2/admin/entities/{entity_id}/timeline
 ```
 
-具体版本通过 `familyId` 归属模型系列。新增版本只需补充实体、规格、时间线和
-`part-of` 谱系关系，知识库、详情页、图谱与对比页会自动接入。
+具体版本通过 `familyId` 归属模型系列。管理员可在 `/admin/review` 的目录编辑器中，或使用上述受保护接口补充实体、规格、时间线和 `part-of` / `successor-of` 谱系关系；知识库、详情页、图谱与对比页会自动接入。`verified` 关系和时间线必须包含至少一个 `sourceId`。
 
 ## 首个管理员
 

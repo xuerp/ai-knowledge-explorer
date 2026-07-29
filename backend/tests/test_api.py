@@ -101,6 +101,110 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
     assert duplicate.status_code == 422
 
 
+def test_admin_can_extend_persistent_catalog_without_frontend_changes(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    assert client.post("/api/v2/admin/entities", json={}, headers={}).status_code == 401
+
+    family = client.get("/api/v2/entities/model/gpt").json()
+    family.update(
+        {
+            "id": "e-test-series",
+            "slug": "test-series",
+            "name": {"zh": "测试模型系列", "en": "Test Model Series"},
+            "summary": {"zh": "用于验证目录持久化。", "en": "Catalog persistence fixture."},
+            "vendor": "Test Vendor",
+            "latestVersion": "Test Model v1",
+            "lastUpdatedAt": "2026-07-29",
+        }
+    )
+    created_family = client.post(
+        "/api/v2/admin/entities",
+        headers=headers,
+        json=family,
+    )
+    assert created_family.status_code == 201
+
+    version = client.get("/api/v2/model-families/e-gpt/versions").json()[0]
+    version.update(
+        {
+            "id": "e-test-v1",
+            "slug": "test-v1",
+            "name": {"zh": "测试模型 v1", "en": "Test Model v1"},
+            "summary": {"zh": "首个具体版本。", "en": "First concrete release."},
+            "vendor": "Test Vendor",
+            "familyId": "e-test-series",
+            "latestVersion": None,
+            "firstReleasedAt": "2026-07-01",
+            "lastUpdatedAt": "2026-07-29",
+        }
+    )
+    created_version = client.post(
+        "/api/v2/admin/entities",
+        headers=headers,
+        json=version,
+    )
+    assert created_version.status_code == 201
+
+    event = {
+        "id": "timeline-test-v1-launch",
+        "date": "2026-07-01",
+        "title": {"zh": "测试模型 v1 发布", "en": "Test Model v1 launched"},
+        "summary": {"zh": "验证新增版本的时间线。", "en": "Verifies an extensible timeline."},
+        "kind": "release",
+        "sourceIds": ["s-openai-gpt5"],
+        "confidence": "verified",
+    }
+    timeline = client.post(
+        "/api/v2/admin/entities/e-test-series/timeline",
+        headers=headers,
+        json=event,
+    )
+    assert timeline.status_code == 201
+
+    relation = {
+        "id": "edge-test-v1-family",
+        "fromId": "e-test-v1",
+        "toId": "e-test-series",
+        "kind": "part-of",
+        "label": {"zh": "属于系列", "en": "Part of family"},
+        "confidence": "verified",
+        "sourceIds": ["s-openai-gpt5"],
+        "validFrom": "2026-07-01",
+        "validTo": None,
+    }
+    created_relation = client.post(
+        "/api/v2/admin/relations",
+        headers=headers,
+        json=relation,
+    )
+    assert created_relation.status_code == 201
+
+    versions = client.get("/api/v2/model-families/e-test-series/versions")
+    assert versions.status_code == 200
+    assert [item["id"] for item in versions.json()] == ["e-test-v1"]
+    assert client.get("/api/v2/entities/model/test-series").status_code == 200
+    assert client.get("/api/v2/entities/e-test-series/timeline").json() == [event]
+    neighbors = client.get("/api/v2/entities/e-test-series/neighbors").json()
+    assert any(item["id"] == "edge-test-v1-family" for item in neighbors["edges"])
+
+    audit_log = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    actions = {item["action"] for item in audit_log}
+    assert {
+        "catalog.entity.upsert",
+        "catalog.timeline.upsert",
+        "catalog.relation.upsert",
+    } <= actions
+
+    invalid_version = dict(version, id="e-orphan-version", slug="orphan-version")
+    invalid_version["familyId"] = "e-missing-family"
+    rejected = client.post(
+        "/api/v2/admin/entities",
+        headers=headers,
+        json=invalid_version,
+    )
+    assert rejected.status_code == 422
+
+
 def test_admin_queue_requires_token(client: TestClient):
     assert client.get("/api/v2/admin/review-queue").status_code == 401
     assert (

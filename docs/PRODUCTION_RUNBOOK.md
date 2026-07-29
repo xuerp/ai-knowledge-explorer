@@ -31,6 +31,8 @@ curl http://127.0.0.1:8000/health
 
 The API container waits for PostgreSQL health, runs `alembic upgrade head`, starts as a non-root user, and exposes a container health check. The persistent database lives in the named `ai_radar_postgres` volume.
 
+On the first application start, the version-controlled catalog seed initializes model families, concrete releases, graph relations, and timelines in PostgreSQL. Later additions are persistent records and are not overwritten on restart.
+
 ## 3. Bootstrap the first administrator
 
 Bootstrap works only while the users table is empty:
@@ -53,6 +55,8 @@ VITE_API_BASE_URL=https://api.your-domain.example
 ```
 
 Public reads use `/api/snapshot`. The protected console is `/admin/review`; credentials are sent only to the API and the short-lived Bearer token is kept in `sessionStorage`. `/admin/review-demo` remains a clearly labelled read-only portfolio route.
+
+Administrators can use the “扩展模型目录” section to add entities/releases, relations, and timeline events. Use a concrete release's `familyId` to attach it to a top-level model family. A verified relation or timeline event must carry at least one source id.
 
 The current frontend build targets Cloudflare through the existing Lovable/TanStack configuration. Configure the `VITE_API_BASE_URL` build variable in the hosting project, then deploy the generated worker. A public deployment cannot be completed from this repository alone without access to the user's Cloudflare/Lovable project.
 
@@ -101,5 +105,6 @@ Then verify:
 - public snapshot contains no pending, rejected, or needs-more-evidence Claim.
 - `/admin/review` rejects viewer accounts.
 - one approved test candidate creates a publication record, audit entry, and follower notification.
+- one test model version written through the admin catalog API appears in family versions, timeline, graph neighbors, and comparison reads.
 - CORS lists only the real frontend origins.
 - HTTPS termination, database backup, logs, alerting, and rollback are configured in the selected hosting platform.

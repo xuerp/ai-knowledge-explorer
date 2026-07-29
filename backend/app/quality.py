@@ -100,6 +100,19 @@ class KnowledgeQualityGate:
             for claim in snapshot.claims
             if not claim.source_ids or not set(claim.source_ids).issubset(evidence_ids)
         ]
+        relations_with_missing_evidence = [
+            edge.id
+            for edge in snapshot.graph.edges
+            if edge.confidence == "verified"
+            and (not edge.source_ids or not set(edge.source_ids).issubset(evidence_ids))
+        ]
+        timeline_entries_with_missing_evidence = [
+            entry.id
+            for entries in snapshot.timeline.values()
+            for entry in entries
+            if entry.confidence == "verified"
+            and (not entry.source_ids or not set(entry.source_ids).issubset(evidence_ids))
+        ]
         degrees = {entity.id: 0 for entity in snapshot.entities}
         for edge in snapshot.graph.edges:
             if edge.from_id in degrees:
@@ -120,6 +133,10 @@ class KnowledgeQualityGate:
             issues.append("Every core entity requires at least five explainable relations.")
         if claims_with_missing_evidence:
             issues.append("Every published claim must resolve all evidence references.")
+        if relations_with_missing_evidence:
+            issues.append("Every verified relation must resolve all evidence references.")
+        if timeline_entries_with_missing_evidence:
+            issues.append("Every verified timeline entry must resolve all evidence references.")
         return DataQualityReport(
             entity_count=len(snapshot.entities),
             claim_count=len(snapshot.claims),
@@ -127,6 +144,8 @@ class KnowledgeQualityGate:
             relation_count=len(snapshot.graph.edges),
             core_entities_below_five_relations=core_entities_below_five,
             claims_with_missing_evidence=claims_with_missing_evidence,
+            relations_with_missing_evidence=relations_with_missing_evidence,
+            timeline_entries_with_missing_evidence=timeline_entries_with_missing_evidence,
             live_ready=not issues,
             issues=issues,
         )

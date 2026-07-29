@@ -54,7 +54,10 @@ class IngestionService:
             active=True,
             fetch_enabled=payload.fetch_enabled,
             fetch_interval_minutes=payload.fetch_interval_minutes,
-            next_fetch_at=now if payload.fetch_enabled else None,
+            # A newly enabled source is intentionally unscheduled so the next
+            # scheduler tick treats it as immediately due, independent of
+            # sub-millisecond clock ordering between API and worker processes.
+            next_fetch_at=None,
             created_at=now,
         )
         session.add(record)
