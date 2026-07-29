@@ -1,0 +1,1271 @@
+{
+  "meta": {
+    "mode": "demo",
+    "freshness": "fresh",
+    "retrievedAt": "2026-07-25T00:00:00Z",
+    "message": {
+      "zh": "当前展示固定演示快照，不代表实时产品事实。",
+      "en": "Showing a fixed demo snapshot, not live product facts."
+    }
+  },
+  "entities": [
+    {
+      "id": "e-gpt",
+      "type": "model",
+      "slug": "gpt",
+      "name": {
+        "zh": "GPT 系列",
+        "en": "GPT family"
+      },
+      "aliases": [
+        "ChatGPT",
+        "GPT-4",
+        "GPT-5"
+      ],
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "OpenAI 推出的通用大型语言模型家族，覆盖对话、代码、推理与多模态能力，是当前商业化最成熟的闭源前沿模型之一。",
+        "en": "OpenAI's general-purpose LLM family covering chat, code, reasoning and multimodal capabilities; among the most commercially mature closed frontier models today."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "闭源",
+        "多模态",
+        "推理"
+      ],
+      "latestVersion": "GPT-5",
+      "firstReleasedAt": "2018-06-11",
+      "lastUpdatedAt": "2026-07-12",
+      "capabilities": [
+        {
+          "zh": "长上下文推理",
+          "en": "Long-context reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "图像与语音多模态",
+          "en": "Image & audio multimodality",
+          "confidence": "verified"
+        },
+        {
+          "zh": "Agent 工具调用",
+          "en": "Agentic tool use",
+          "confidence": "verified"
+        },
+        {
+          "zh": "1M token 上下文（未核验）",
+          "en": "1M token context (unverified)",
+          "confidence": "unverified"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "MMLU",
+          "value": "91.2",
+          "benchmark": "MMLU-Pro",
+          "date": "2026-07-12",
+          "confidence": "verified"
+        },
+        {
+          "name": "SWE-bench Verified",
+          "value": "62.4%",
+          "benchmark": "SWE-bench Verified",
+          "date": "2026-07-15",
+          "confidence": "verified"
+        },
+        {
+          "name": "GPQA Diamond",
+          "value": "84.1",
+          "benchmark": "GPQA",
+          "date": "2026-07-12",
+          "confidence": "inferred"
+        }
+      ]
+    },
+    {
+      "id": "e-claude",
+      "type": "model",
+      "slug": "claude",
+      "name": {
+        "zh": "Claude 系列",
+        "en": "Claude family"
+      },
+      "vendor": "Anthropic",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "Anthropic 推出的以安全对齐与长文本理解见长的大型语言模型家族，Claude 4.5 强化了代码与 Agent 场景。",
+        "en": "Anthropic's LLM family known for safety alignment and long-context understanding; Claude 4.5 focuses on code and agentic use cases."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "闭源",
+        "长文本",
+        "对齐"
+      ],
+      "latestVersion": "Claude 4.5 Sonnet",
+      "firstReleasedAt": "2023-03-14",
+      "lastUpdatedAt": "2026-06-20"
+    },
+    {
+      "id": "e-gemini",
+      "type": "model",
+      "slug": "gemini",
+      "name": {
+        "zh": "Gemini 系列",
+        "en": "Gemini family"
+      },
+      "vendor": "Google DeepMind",
+      "origin": {
+        "zh": "美国",
+        "en": "United States"
+      },
+      "summary": {
+        "zh": "Google DeepMind 的多模态旗舰模型家族，原生支持文本、图像、音频与视频输入。",
+        "en": "Google DeepMind's multimodal flagship family with native text, image, audio and video inputs."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "闭源",
+        "多模态",
+        "长上下文"
+      ],
+      "latestVersion": "Gemini 2.5 Pro",
+      "firstReleasedAt": "2023-12-06",
+      "lastUpdatedAt": "2026-07-05"
+    },
+    {
+      "id": "e-deepseek",
+      "type": "model",
+      "slug": "deepseek",
+      "name": {
+        "zh": "DeepSeek 系列",
+        "en": "DeepSeek family"
+      },
+      "vendor": "深度求索",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "国产开源前沿模型代表，DeepSeek R2 主打推理与代码，训练与推理成本大幅低于同代闭源模型。",
+        "en": "Leading Chinese open-source frontier models; DeepSeek R2 focuses on reasoning and code with markedly lower training & inference cost."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "开源",
+        "推理",
+        "中国"
+      ],
+      "latestVersion": "DeepSeek R2",
+      "firstReleasedAt": "2023-11-29",
+      "lastUpdatedAt": "2026-05-30"
+    },
+    {
+      "id": "e-qwen",
+      "type": "model",
+      "slug": "qwen",
+      "name": {
+        "zh": "通义千问 Qwen",
+        "en": "Qwen"
+      },
+      "vendor": "阿里巴巴",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "阿里巴巴推出的开源模型家族，覆盖对话、代码、视觉与音频，具备完整的开源权重生态。",
+        "en": "Alibaba's open-weight model family covering chat, code, vision and audio with a complete open ecosystem."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "开源",
+        "多模态",
+        "中国"
+      ],
+      "latestVersion": "Qwen3-Max",
+      "firstReleasedAt": "2023-08-03",
+      "lastUpdatedAt": "2026-07-01"
+    },
+    {
+      "id": "e-kimi",
+      "type": "model",
+      "slug": "kimi",
+      "name": {
+        "zh": "Kimi",
+        "en": "Kimi"
+      },
+      "vendor": "月之暗面",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "月之暗面 Kimi 以超长上下文与深度阅读见长，主打个人研究与文档理解。",
+        "en": "Moonshot's Kimi is known for ultra-long context and deep-reading workflows for personal research."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "长上下文",
+        "阅读"
+      ],
+      "latestVersion": "Kimi K2",
+      "firstReleasedAt": "2023-10-09",
+      "lastUpdatedAt": "2026-06-18"
+    },
+    {
+      "id": "e-doubao",
+      "type": "model",
+      "slug": "doubao",
+      "name": {
+        "zh": "豆包 Doubao",
+        "en": "Doubao"
+      },
+      "vendor": "字节跳动",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "字节跳动的豆包模型家族，服务于抖音、剪映等 C 端产品，主打低成本与高并发。",
+        "en": "ByteDance's Doubao family powering consumer products like Douyin & CapCut, focused on cost and throughput."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "C端",
+        "低成本"
+      ],
+      "latestVersion": "Doubao 1.5 Pro",
+      "firstReleasedAt": "2024-05-15",
+      "lastUpdatedAt": "2026-06-25"
+    },
+    {
+      "id": "e-ernie",
+      "type": "model",
+      "slug": "ernie",
+      "name": {
+        "zh": "文心一言 ERNIE Bot",
+        "en": "ERNIE Bot"
+      },
+      "vendor": "百度",
+      "origin": {
+        "zh": "中国",
+        "en": "China"
+      },
+      "summary": {
+        "zh": "百度文心系列模型，2026 年升级为 ERNIE 5，强化了搜索增强与行业解决方案能力。",
+        "en": "Baidu's ERNIE family, upgraded to ERNIE 5 in 2026 with search-augmented and industry solutions."
+      },
+      "status": "active",
+      "tags": [
+        "LLM",
+        "搜索",
+        "行业"
+      ],
+      "latestVersion": "ERNIE 5",
+      "firstReleasedAt": "2023-03-16",
+      "lastUpdatedAt": "2026-04-10"
+    },
+    {
+      "id": "e-openai",
+      "type": "company",
+      "slug": "openai",
+      "name": {
+        "zh": "OpenAI",
+        "en": "OpenAI"
+      },
+      "summary": {
+        "zh": "总部位于旧金山的 AI 研究与产品公司，GPT 系列与 ChatGPT 的开发者。",
+        "en": "SF-based AI research and product company; developer of the GPT family and ChatGPT."
+      },
+      "status": "active",
+      "tags": [
+        "公司",
+        "闭源"
+      ],
+      "lastUpdatedAt": "2026-07-12"
+    },
+    {
+      "id": "e-anthropic",
+      "type": "company",
+      "slug": "anthropic",
+      "name": {
+        "zh": "Anthropic",
+        "en": "Anthropic"
+      },
+      "summary": {
+        "zh": "以安全对齐为核心方向的 AI 公司，Claude 系列的开发者。",
+        "en": "Safety-focused AI company; developer of Claude."
+      },
+      "status": "active",
+      "tags": [
+        "公司",
+        "对齐"
+      ],
+      "lastUpdatedAt": "2026-06-20"
+    },
+    {
+      "id": "e-langchain",
+      "type": "framework",
+      "slug": "langchain",
+      "name": {
+        "zh": "LangChain",
+        "en": "LangChain"
+      },
+      "summary": {
+        "zh": "面向 LLM 应用编排的开源框架，覆盖链、工具、Agent 与检索增强。",
+        "en": "Open-source framework for LLM app orchestration: chains, tools, agents and RAG."
+      },
+      "status": "active",
+      "tags": [
+        "框架",
+        "Agent",
+        "RAG"
+      ],
+      "latestVersion": "0.3",
+      "lastUpdatedAt": "2026-07-01"
+    },
+    {
+      "id": "e-swebench",
+      "type": "benchmark",
+      "slug": "swe-bench",
+      "name": {
+        "zh": "SWE-bench Verified",
+        "en": "SWE-bench Verified"
+      },
+      "summary": {
+        "zh": "针对真实 GitHub Issue 的代码修复评测，衡量模型端到端解决工程问题的能力。",
+        "en": "Real-world GitHub issue coding benchmark measuring end-to-end engineering task solving."
+      },
+      "status": "active",
+      "tags": [
+        "评测",
+        "代码"
+      ],
+      "lastUpdatedAt": "2026-07-15"
+    },
+    {
+      "id": "e-mmlu",
+      "type": "benchmark",
+      "slug": "mmlu-pro",
+      "name": {
+        "zh": "MMLU-Pro",
+        "en": "MMLU-Pro"
+      },
+      "summary": {
+        "zh": "覆盖 57 个学科的多任务语言理解评测的强化版，更抗污染。",
+        "en": "Harder, contamination-resistant version of the 57-subject multitask language benchmark."
+      },
+      "status": "active",
+      "tags": [
+        "评测",
+        "通用"
+      ],
+      "lastUpdatedAt": "2026-05-20"
+    },
+    {
+      "id": "e-transformer-paper",
+      "type": "paper",
+      "slug": "attention-is-all-you-need",
+      "name": {
+        "zh": "Attention Is All You Need",
+        "en": "Attention Is All You Need"
+      },
+      "summary": {
+        "zh": "提出 Transformer 架构的开山论文，奠定了现代大模型的基础。",
+        "en": "Seminal paper introducing the Transformer architecture behind modern LLMs."
+      },
+      "status": "active",
+      "tags": [
+        "论文",
+        "架构"
+      ],
+      "firstReleasedAt": "2017-06-12",
+      "lastUpdatedAt": "2017-06-12"
+    },
+    {
+      "id": "e-mcp",
+      "type": "framework",
+      "slug": "mcp",
+      "name": {
+        "zh": "Model Context Protocol",
+        "en": "Model Context Protocol"
+      },
+      "summary": {
+        "zh": "由 Anthropic 提出的模型上下文协议，定义模型与外部工具、数据源交互的开放接口。",
+        "en": "Anthropic-proposed open protocol for how models talk to external tools & data sources."
+      },
+      "status": "active",
+      "tags": [
+        "协议",
+        "Agent"
+      ],
+      "latestVersion": "1.0",
+      "lastUpdatedAt": "2026-06-05"
+    },
+    {
+      "id": "e-cursor",
+      "type": "application",
+      "slug": "cursor",
+      "name": {
+        "zh": "Cursor",
+        "en": "Cursor"
+      },
+      "summary": {
+        "zh": "深度集成大模型的代码编辑器，是 Agent 编码的代表产品之一。",
+        "en": "AI-native code editor and one of the flagship agentic coding products."
+      },
+      "status": "active",
+      "tags": [
+        "应用",
+        "代码"
+      ],
+      "lastUpdatedAt": "2026-07-10"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "s-openai-gpt5",
+      "title": {
+        "zh": "OpenAI 发布 GPT-5（演示）",
+        "en": "OpenAI announces GPT-5 (demo)"
+      },
+      "url": "https://openai.com/",
+      "publisher": "OpenAI",
+      "publishedAt": "2026-07-12",
+      "collectedAt": "2026-07-12",
+      "verifiedAt": "2026-07-13",
+      "type": "official"
+    },
+    {
+      "id": "s-anthropic-claude",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 system card"
+      },
+      "url": "https://www.anthropic.com/",
+      "publisher": "Anthropic",
+      "publishedAt": "2026-06-20",
+      "collectedAt": "2026-06-20",
+      "verifiedAt": "2026-06-21",
+      "type": "official"
+    },
+    {
+      "id": "s-deepseek-r2",
+      "title": {
+        "zh": "DeepSeek R2 技术报告",
+        "en": "DeepSeek R2 technical report"
+      },
+      "url": "https://arxiv.org/",
+      "publisher": "arXiv",
+      "publishedAt": "2026-05-30",
+      "collectedAt": "2026-05-30",
+      "type": "paper"
+    },
+    {
+      "id": "s-community-rumor",
+      "title": {
+        "zh": "社区讨论：GPT-5 上下文窗口传闻",
+        "en": "Community rumor: GPT-5 context window"
+      },
+      "url": "https://news.ycombinator.com/",
+      "publisher": "Hacker News",
+      "publishedAt": "2026-07-10",
+      "collectedAt": "2026-07-10",
+      "type": "community"
+    },
+    {
+      "id": "s-swebench",
+      "title": {
+        "zh": "SWE-bench Verified 排行榜",
+        "en": "SWE-bench Verified leaderboard"
+      },
+      "url": "https://www.swebench.com/",
+      "publisher": "SWE-bench",
+      "publishedAt": "2026-07-15",
+      "collectedAt": "2026-07-15",
+      "verifiedAt": "2026-07-16",
+      "type": "benchmark"
+    },
+    {
+      "id": "s-google-gemini",
+      "title": {
+        "zh": "Google Gemini 2.5 Pro 更新",
+        "en": "Google Gemini 2.5 Pro update"
+      },
+      "url": "https://deepmind.google/",
+      "publisher": "Google DeepMind",
+      "publishedAt": "2026-07-05",
+      "collectedAt": "2026-07-05",
+      "verifiedAt": "2026-07-06",
+      "type": "official"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-gpt5-swe",
+      "text": {
+        "zh": "GPT-5 在 SWE-bench Verified 上取得 62.4% 的通过率。",
+        "en": "GPT-5 achieves 62.4% pass rate on SWE-bench Verified.",
+        "technical": {
+          "zh": "在 SWE-bench Verified 500 题子集上，GPT-5 (2026-07-12 发布版) 单次尝试的解决率为 62.4%。",
+          "en": "On the 500-task SWE-bench Verified subset, GPT-5 (2026-07-12 release) solves 62.4% in a single attempt."
+        }
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-openai-gpt5",
+        "s-swebench"
+      ],
+      "updatedAt": "2026-07-15"
+    },
+    {
+      "id": "c-gpt5-1m",
+      "text": {
+        "zh": "GPT-5 支持 1,000,000 token 的上下文窗口。",
+        "en": "GPT-5 supports a 1,000,000-token context window."
+      },
+      "confidence": "unverified",
+      "sourceIds": [
+        "s-community-rumor"
+      ],
+      "updatedAt": "2026-07-10"
+    },
+    {
+      "id": "c-claude-align",
+      "text": {
+        "zh": "Claude 4.5 在 Anthropic 官方安全评估中拒绝率下降 18%，同时保持有害请求识别率。",
+        "en": "Claude 4.5 reduces false refusals by 18% while retaining harmful-request detection per Anthropic's evals."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-anthropic-claude"
+      ],
+      "updatedAt": "2026-06-20"
+    },
+    {
+      "id": "c-deepseek-cost",
+      "text": {
+        "zh": "DeepSeek R2 的推理成本约为同代闭源模型的 1/10。",
+        "en": "DeepSeek R2 inference cost is roughly 1/10 of comparable closed models."
+      },
+      "confidence": "inferred",
+      "sourceIds": [
+        "s-deepseek-r2"
+      ],
+      "updatedAt": "2026-05-30"
+    },
+    {
+      "id": "c-gemini-video",
+      "text": {
+        "zh": "Gemini 2.5 Pro 原生支持 2 小时长视频输入。",
+        "en": "Gemini 2.5 Pro natively supports up to 2-hour video inputs."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-google-gemini"
+      ],
+      "updatedAt": "2026-07-05"
+    }
+  ],
+  "timeline": {
+    "e-gpt": [
+      {
+        "id": "t-gpt-1",
+        "date": "2018-06-11",
+        "title": {
+          "zh": "GPT-1 发布",
+          "en": "GPT-1 released"
+        },
+        "summary": {
+          "zh": "OpenAI 首个基于 Transformer 的生成式预训练模型。",
+          "en": "OpenAI's first Transformer-based generative pre-trained model."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-2",
+        "date": "2020-05-28",
+        "title": {
+          "zh": "GPT-3 发布",
+          "en": "GPT-3 released"
+        },
+        "summary": {
+          "zh": "1750 亿参数，Few-shot 能力震动业界。",
+          "en": "175B parameters; few-shot capability shocked the industry."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-3",
+        "date": "2022-11-30",
+        "title": {
+          "zh": "ChatGPT 上线",
+          "en": "ChatGPT launched"
+        },
+        "summary": {
+          "zh": "5 天内突破百万用户，开启 LLM 消费者时代。",
+          "en": "1M users in 5 days; launched the consumer LLM era."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-4",
+        "date": "2023-03-14",
+        "title": {
+          "zh": "GPT-4 发布",
+          "en": "GPT-4 released"
+        },
+        "summary": {
+          "zh": "多模态输入，推理能力显著提升。",
+          "en": "Multimodal inputs; notable reasoning gains."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-5",
+        "date": "2026-07-12",
+        "title": {
+          "zh": "GPT-5 发布（演示）",
+          "en": "GPT-5 released (demo)"
+        },
+        "summary": {
+          "zh": "统一的推理与多模态模型，官方称在代码、数学与长上下文任务上大幅提升。",
+          "en": "Unified reasoning + multimodal model with reported gains on code, math and long-context."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt5",
+          "s-swebench"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-gpt-rumor",
+        "date": "2026-07-10",
+        "title": {
+          "zh": "社区传闻：1M 上下文",
+          "en": "Community rumor: 1M context"
+        },
+        "summary": {
+          "zh": "多个开发者社区讨论 GPT-5 可能支持 1M token 上下文，官方未确认。",
+          "en": "Developers speculate 1M context for GPT-5; not officially confirmed."
+        },
+        "kind": "update",
+        "sourceIds": [
+          "s-community-rumor"
+        ],
+        "confidence": "unverified"
+      }
+    ],
+    "e-claude": [
+      {
+        "id": "t-c-1",
+        "date": "2023-03-14",
+        "title": {
+          "zh": "Claude 首版发布",
+          "en": "Claude 1 released"
+        },
+        "summary": {
+          "zh": "Anthropic 首个对外产品。",
+          "en": "Anthropic's first external product."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-c-2",
+        "date": "2026-06-20",
+        "title": {
+          "zh": "Claude 4.5 Sonnet 发布",
+          "en": "Claude 4.5 Sonnet released"
+        },
+        "summary": {
+          "zh": "强化 Agent 与代码能力，误拒率下降 18%。",
+          "en": "Better agents & code; false refusals down 18%."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ],
+        "confidence": "verified"
+      }
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "node-e-gpt",
+        "entityId": "e-gpt",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-claude",
+        "entityId": "e-claude",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-gemini",
+        "entityId": "e-gemini",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-deepseek",
+        "entityId": "e-deepseek",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-qwen",
+        "entityId": "e-qwen",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-kimi",
+        "entityId": "e-kimi",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-doubao",
+        "entityId": "e-doubao",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-ernie",
+        "entityId": "e-ernie",
+        "type": "model",
+        "importance": 1
+      },
+      {
+        "id": "node-e-openai",
+        "entityId": "e-openai",
+        "type": "company",
+        "importance": 0.8
+      },
+      {
+        "id": "node-e-anthropic",
+        "entityId": "e-anthropic",
+        "type": "company",
+        "importance": 0.8
+      },
+      {
+        "id": "node-e-langchain",
+        "entityId": "e-langchain",
+        "type": "framework",
+        "importance": 0.6
+      },
+      {
+        "id": "node-e-swebench",
+        "entityId": "e-swebench",
+        "type": "benchmark",
+        "importance": 0.6
+      },
+      {
+        "id": "node-e-mmlu",
+        "entityId": "e-mmlu",
+        "type": "benchmark",
+        "importance": 0.6
+      },
+      {
+        "id": "node-e-transformer-paper",
+        "entityId": "e-transformer-paper",
+        "type": "paper",
+        "importance": 0.6
+      },
+      {
+        "id": "node-e-mcp",
+        "entityId": "e-mcp",
+        "type": "framework",
+        "importance": 0.6
+      },
+      {
+        "id": "node-e-cursor",
+        "entityId": "e-cursor",
+        "type": "application",
+        "importance": 0.6
+      }
+    ],
+    "edges": [
+      {
+        "id": "r1",
+        "fromId": "e-gpt",
+        "toId": "e-openai",
+        "kind": "developed-by",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r2",
+        "fromId": "e-claude",
+        "toId": "e-anthropic",
+        "kind": "developed-by",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r3",
+        "fromId": "e-gpt",
+        "toId": "e-claude",
+        "kind": "competes-with",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r4",
+        "fromId": "e-gpt",
+        "toId": "e-gemini",
+        "kind": "competes-with",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-google-gemini"
+        ]
+      },
+      {
+        "id": "r5",
+        "fromId": "e-gpt",
+        "toId": "e-deepseek",
+        "kind": "competes-with",
+        "confidence": "inferred",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ]
+      },
+      {
+        "id": "r6",
+        "fromId": "e-gpt",
+        "toId": "e-swebench",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-swebench"
+        ]
+      },
+      {
+        "id": "r7",
+        "fromId": "e-gpt",
+        "toId": "e-mmlu",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r8",
+        "fromId": "e-gpt",
+        "toId": "e-transformer-paper",
+        "kind": "based-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r9",
+        "fromId": "e-cursor",
+        "toId": "e-gpt",
+        "kind": "uses",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r10",
+        "fromId": "e-mcp",
+        "toId": "e-anthropic",
+        "kind": "developed-by",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r11",
+        "fromId": "e-langchain",
+        "toId": "e-gpt",
+        "kind": "uses",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      },
+      {
+        "id": "r12",
+        "fromId": "e-langchain",
+        "toId": "e-claude",
+        "kind": "uses",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-anthropic-claude"
+        ]
+      },
+      {
+        "id": "r13",
+        "fromId": "e-claude",
+        "toId": "e-swebench",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-swebench"
+        ]
+      },
+      {
+        "id": "r14",
+        "fromId": "e-deepseek",
+        "toId": "e-transformer-paper",
+        "kind": "based-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-deepseek-r2"
+        ]
+      },
+      {
+        "id": "r15",
+        "fromId": "e-qwen",
+        "toId": "e-mmlu",
+        "kind": "benchmarked-on",
+        "confidence": "verified",
+        "sourceIds": [
+          "s-openai-gpt5"
+        ]
+      }
+    ],
+    "capturedAt": "2026-07-25T00:00:00Z",
+    "validAt": "2026-07-25"
+  },
+  "changes": [
+    {
+      "id": "ch1",
+      "entityId": "e-gpt",
+      "date": "2026-07-15",
+      "summary": {
+        "zh": "GPT-5 在 SWE-bench Verified 上刷新记录（62.4%）。",
+        "en": "GPT-5 sets new SWE-bench Verified record (62.4%)."
+      },
+      "kind": "benchmark",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch2",
+      "entityId": "e-claude",
+      "date": "2026-07-14",
+      "summary": {
+        "zh": "Claude 4.5 新增 200 万 token 长文档预览。",
+        "en": "Claude 4.5 adds 2M-token long doc preview."
+      },
+      "kind": "updated",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch3",
+      "entityId": "e-deepseek",
+      "date": "2026-07-13",
+      "summary": {
+        "zh": "DeepSeek R2 权重上传 Hugging Face，社区开始复现基准。",
+        "en": "DeepSeek R2 weights on Hugging Face; community starts reproducing benchmarks."
+      },
+      "kind": "new",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch4",
+      "entityId": "e-gemini",
+      "date": "2026-07-12",
+      "summary": {
+        "zh": "Gemini 2.5 Pro 视频输入延长到 2 小时。",
+        "en": "Gemini 2.5 Pro video input extended to 2h."
+      },
+      "kind": "updated",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch5",
+      "entityId": "e-gpt",
+      "date": "2026-07-10",
+      "summary": {
+        "zh": "社区传闻 GPT-5 上下文可达 1M，官方未确认。",
+        "en": "Community rumor: GPT-5 context up to 1M; not confirmed."
+      },
+      "kind": "rumor",
+      "confidence": "unverified"
+    },
+    {
+      "id": "ch6",
+      "entityId": "e-mcp",
+      "date": "2026-07-08",
+      "summary": {
+        "zh": "MCP 1.0 稳定版发布，主流 IDE 已集成。",
+        "en": "MCP 1.0 stable released; major IDEs integrated."
+      },
+      "kind": "new",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch7",
+      "entityId": "e-qwen",
+      "date": "2026-07-07",
+      "summary": {
+        "zh": "Qwen3-Max 开源 480B 参数版本。",
+        "en": "Qwen3-Max open-sources 480B variant."
+      },
+      "kind": "new",
+      "confidence": "verified"
+    },
+    {
+      "id": "ch8",
+      "entityId": "e-cursor",
+      "date": "2026-07-06",
+      "summary": {
+        "zh": "Cursor 支持自定义 Agent 编排。",
+        "en": "Cursor adds custom agent orchestration."
+      },
+      "kind": "updated",
+      "confidence": "verified"
+    }
+  ],
+  "following": [
+    {
+      "entityId": "e-gpt",
+      "intensity": "instant",
+      "addedAt": "2026-05-01",
+      "reason": {
+        "zh": "日常工作深度使用",
+        "en": "Daily driver for work"
+      }
+    },
+    {
+      "entityId": "e-claude",
+      "intensity": "instant",
+      "addedAt": "2026-05-01",
+      "reason": {
+        "zh": "长文档写作与代码",
+        "en": "Long docs & coding"
+      }
+    },
+    {
+      "entityId": "e-deepseek",
+      "intensity": "digest",
+      "addedAt": "2026-06-01",
+      "reason": {
+        "zh": "关注开源与成本",
+        "en": "Tracking open-source & cost"
+      }
+    },
+    {
+      "entityId": "e-mcp",
+      "intensity": "digest",
+      "addedAt": "2026-06-08",
+      "reason": {
+        "zh": "Agent 协议标准",
+        "en": "Agent protocol standard"
+      }
+    },
+    {
+      "entityId": "e-cursor",
+      "intensity": "silent",
+      "addedAt": "2026-06-10",
+      "reason": {
+        "zh": "偶尔关注新版本",
+        "en": "Occasional updates"
+      }
+    }
+  ],
+  "interestProfile": [
+    {
+      "id": "open-source",
+      "label": {
+        "zh": "开源模型",
+        "en": "Open-source"
+      },
+      "score": 82
+    },
+    {
+      "id": "agents",
+      "label": {
+        "zh": "Agent 与协议",
+        "en": "Agents & protocols"
+      },
+      "score": 68
+    },
+    {
+      "id": "reasoning",
+      "label": {
+        "zh": "推理与代码",
+        "en": "Reasoning & code"
+      },
+      "score": 74
+    },
+    {
+      "id": "multimodal",
+      "label": {
+        "zh": "多模态",
+        "en": "Multimodal"
+      },
+      "score": 45
+    },
+    {
+      "id": "china",
+      "label": {
+        "zh": "中国生态",
+        "en": "Chinese ecosystem"
+      },
+      "score": 60
+    }
+  ],
+  "researchQuestions": [
+    {
+      "zh": "GPT-5 与 Claude 4.5 在代码任务上谁更强？",
+      "en": "GPT-5 vs Claude 4.5 on code — which is better?"
+    },
+    {
+      "zh": "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？",
+      "en": "Is DeepSeek R2 really 10× cheaper than GPT-5?"
+    },
+    {
+      "zh": "MCP 协议目前有哪些已知集成？",
+      "en": "Which integrations does MCP have today?"
+    }
+  ],
+  "researchAnswers": [
+    {
+      "id": "research-demo-gpt-claude",
+      "question": {
+        "zh": "GPT-5 与 Claude 4.5 在代码任务上谁更强？",
+        "en": "GPT-5 vs Claude 4.5 on code — which is better?"
+      },
+      "summary": {
+        "zh": "现有演示证据只支持按具体评测比较，不能得出无条件的绝对排名。",
+        "en": "The demo evidence supports benchmark-specific comparison, not an absolute ranking."
+      },
+      "claimIds": [
+        "c-gpt5-swe",
+        "c-claude-align"
+      ],
+      "steps": [
+        {
+          "id": "understand",
+          "label": {
+            "zh": "理解问题",
+            "en": "Understand question"
+          },
+          "status": "complete"
+        },
+        {
+          "id": "graph",
+          "label": {
+            "zh": "查询图谱",
+            "en": "Query graph"
+          },
+          "status": "complete"
+        },
+        {
+          "id": "evidence",
+          "label": {
+            "zh": "检查证据与冲突",
+            "en": "Check evidence and conflicts"
+          },
+          "status": "complete"
+        },
+        {
+          "id": "citations",
+          "label": {
+            "zh": "校验引用",
+            "en": "Validate citations"
+          },
+          "status": "complete"
+        }
+      ],
+      "generatedAt": "2026-07-25T00:00:00Z",
+      "status": "ready"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notification-gpt-swe",
+      "entityId": "e-gpt",
+      "changeId": "ch1",
+      "createdAt": "2026-07-15T08:00:00Z",
+      "priority": "important"
+    }
+  ],
+  "reviewCandidates": [
+    {
+      "id": "review-gpt-context",
+      "entityId": "e-gpt",
+      "claim": {
+        "id": "c-gpt5-1m",
+        "text": {
+          "zh": "GPT-5 支持 1,000,000 token 的上下文窗口。",
+          "en": "GPT-5 supports a 1,000,000-token context window."
+        },
+        "confidence": "unverified",
+        "sourceIds": [
+          "s-community-rumor"
+        ],
+        "updatedAt": "2026-07-10"
+      },
+      "evidenceIds": [
+        "s-community-rumor"
+      ],
+      "status": "needs-more-evidence",
+      "createdAt": "2026-07-10T09:00:00Z"
+    }
+  ],
+  "syncRuns": [
+    {
+      "id": "sync-openai-demo",
+      "sourceId": "s-openai-gpt5",
+      "startedAt": "2026-07-25T00:00:00Z",
+      "finishedAt": "2026-07-25T00:00:02Z",
+      "status": "succeeded",
+      "documentsSeen": 1,
+      "candidatesCreated": 0
+    }
+  ]
+}

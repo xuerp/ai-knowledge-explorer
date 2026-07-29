@@ -17,15 +17,18 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 - 语言、阅读模式、主题、关注和个性化设置的本地持久化。
 - 强类型领域模型，包括 Entity、Claim、Evidence、Timeline、Graph、Research、Review 和 Sync。
 - 可替换的 `KnowledgeRepository`：未配置 API 时读取演示 adapter，配置后只读取真实 API，不静默回退。
+- FastAPI、Pydantic、SQLAlchemy 与 Alembic 后端基础；公共 API 会隔离未审核 Claim。
+- 受管理令牌保护的审核批准/拒绝、乐观并发控制和发布历史。
 - loading、error、offline、cached、stale、unverified 和 conflict 的统一状态语义。
 - 390px、1024px 和 1440px 响应式布局。
 - 生产构建、TypeScript、ESLint 和领域 / 图谱 / PWA 自动测试。
+- GitHub Actions 前后端质量门禁，包括演示种子漂移、迁移、静态检查、测试和构建。
 
 ## 仍为演示或尚未实现
 
-- 当前没有真实采集、数据库、审核写操作、认证或模型调用。
+- 当前没有真实采集、用户认证或模型调用；后端数据库与审核写入已经具备本地纵向闭环。
 - AI 研究答案来自强类型演示快照，不会伪装为在线模型输出。
-- 审核后台严格只读，不提供抓取、批准、拒绝、删除或发布操作。
+- 公开审核演示页严格只读；后端已提供受保护审核 API，但尚未建设真实管理端登录页面。
 - 关注提醒与每日摘要尚未连接真实站内通知和事务邮件服务。
 - 公开分享页当前读取演示快照；尚未连接真实发布权限与持久化 URL。
 - PWA 在生产环境注册 Service Worker；正式安装和离线能力需要 HTTPS 部署验证。
@@ -56,6 +59,8 @@ AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时
 npm install
 npm run dev
 ```
+
+后端搭建、迁移、运行和审核 API 示例见 [`backend/README.md`](backend/README.md)。
 
 常用检查：
 
@@ -106,6 +111,12 @@ src/
 ├─ hooks/        # React Query 接入
 ├─ components/   # 共享 UI、状态、图谱、研究报告与 PWA 状态
 └─ routes/       # TanStack Start 文件路由
+
+backend/
+├─ app/           # FastAPI、可信快照、审核和持久化
+├─ migrations/    # Alembic 数据库迁移
+├─ data/          # 由前端强类型演示数据导出的种子
+└─ tests/         # API 与审核门禁测试
 ```
 
 ## 协作约束
