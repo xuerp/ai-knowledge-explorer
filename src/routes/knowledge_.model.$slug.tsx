@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Entity, KnowledgeSnapshot } from "@/domain/types";
 
-export const Route = createFileRoute("/knowledge/model/$slug")({
+export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
     const snapshot = await knowledgeRepository.getSnapshot();
     const entity = snapshot.entities.find((item) => item.slug === params.slug);
@@ -82,8 +82,8 @@ function EntityDetail() {
 
   return (
     <AppShell>
-      <div className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+      <div>
+        <div className="page-container pb-5 pt-8 md:pt-10">
           <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
             <Link to="/knowledge" className="hover:text-signal">
               {t("知识库", "Knowledge")}
@@ -105,7 +105,7 @@ function EntityDetail() {
                 {e.latestVersion && <span className="chip font-mono">{e.latestVersion}</span>}
                 <DemoBadge />
               </div>
-              <h1 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                 {pick(e.name, lang)}
               </h1>
               <p className="mt-3 text-base text-ink-soft max-w-3xl leading-relaxed">
@@ -132,7 +132,7 @@ function EntityDetail() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-14">
+      <div className="page-container space-y-12 pb-12 pt-5">
         {/* 1. 结构化档案 */}
         <section>
           <SectionHeading
@@ -143,7 +143,7 @@ function EntityDetail() {
               "Core facts, capabilities and latest metrics — each carries a confidence label and sources.",
             )}
           />
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <FactCard
               label={t("厂商 / 归属", "Vendor")}
               value={e.vendor ?? "—"}
@@ -229,13 +229,15 @@ function EntityDetail() {
               </Link>
             }
           />
-          <KnowledgeGraph
-            entities={entities}
-            relations={relations}
-            entityIds={neighborIds}
-            centerId={e.id}
-            height={420}
-          />
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-graph-bg">
+            <KnowledgeGraph
+              entities={entities}
+              relations={relations}
+              entityIds={neighborIds}
+              centerId={e.id}
+              height={420}
+            />
+          </div>
           <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {relatedRelations.slice(0, 6).map((r) => {
               const other = findEntity(r.fromId === e.id ? r.toId : r.fromId);
@@ -267,14 +269,16 @@ function EntityDetail() {
             {timeline.map((ev) => (
               <li key={ev.id} className="pl-6 relative">
                 <span className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full bg-signal ring-4 ring-background" />
-                <div className="flex flex-wrap items-baseline gap-3 mb-1">
+                <div className="paper-card flex flex-wrap items-baseline gap-3 p-4">
                   <time className="font-mono text-sm text-signal">{ev.date}</time>
                   <h4 className="font-serif font-semibold text-foreground">
                     {pick(ev.title, lang)}
                   </h4>
                   <ConfidenceChip level={ev.confidence} />
+                  <p className="w-full text-sm leading-relaxed text-ink-soft">
+                    {pick(ev.summary, lang)}
+                  </p>
                 </div>
-                <p className="text-sm text-ink-soft leading-relaxed">{pick(ev.summary, lang)}</p>
               </li>
             ))}
             {timeline.length === 0 && (

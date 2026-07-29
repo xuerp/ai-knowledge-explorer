@@ -173,13 +173,13 @@ function FollowingPage() {
   return (
     <AppShell>
       <PageHeader
-        title={t("我的关注", "Following")}
+        title={t("关注与通知", "Following & notifications")}
         subtitle={t(
           "定义你希望在首页看到什么。每个对象都可以选择静默、摘要或即时三种提醒强度。",
           "Define what shows up on your home. Each item supports silent, digest or instant alerts.",
         )}
       />
-      <div className="mx-auto grid min-w-0 max-w-5xl gap-8 px-4 py-8 md:px-6 lg:grid-cols-3">
+      <div className="page-container grid min-w-0 gap-8 pb-12 pt-3 lg:grid-cols-3">
         <div className="min-w-0 space-y-4 lg:col-span-2">
           <section className="space-y-3" aria-labelledby="notification-inbox-title">
             <div className="flex flex-wrap items-center justify-between gap-3">
