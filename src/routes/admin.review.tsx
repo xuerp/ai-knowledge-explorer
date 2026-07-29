@@ -62,6 +62,38 @@ const catalogExamples: Record<CatalogRecordKind, string> = {
         toolUse: "待核验",
         availability: "API",
       },
+      knowledge: {
+        introduction: [
+          {
+            zh: "用两到三段说明它是什么、解决什么问题，以及它在生态中的位置。",
+            en: "Explain what it is, what problem it solves, and where it sits in the ecosystem.",
+          },
+        ],
+        significance: {
+          zh: "说明为什么值得收录与关注。",
+          en: "Explain why this entity matters.",
+        },
+        keyPoints: [
+          {
+            title: { zh: "关键事实", en: "Key fact" },
+            description: { zh: "填写可核验事实。", en: "Add a verifiable fact." },
+            sourceIds: ["replace-with-existing-evidence-id"],
+          },
+        ],
+        useCases: [
+          {
+            title: { zh: "典型用途", en: "Use case" },
+            description: { zh: "说明如何实际使用或理解。", en: "Explain practical use." },
+          },
+        ],
+        limitations: [
+          {
+            zh: "说明使用边界、局限或易误解之处。",
+            en: "Describe limitations or common misinterpretations.",
+          },
+        ],
+        officialUrl: "https://example.com/",
+      },
     },
     null,
     2,
