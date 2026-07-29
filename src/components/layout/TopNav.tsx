@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Radar, Search, Moon, Sun, Languages, BookOpen } from "lucide-react";
+import { Radar, Search, Moon, Sun, Languages, BookOpen, UserRound } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,6 +65,12 @@ export function TopNav({ dark = false }: { dark?: boolean }) {
         </nav>
 
         <div className="flex-1" />
+
+        <Button asChild variant="ghost" size="icon">
+          <Link to="/account" aria-label={t("账户", "Account")}>
+            <UserRound className="h-4 w-4" />
+          </Link>
+        </Button>
 
         <Link
           to="/knowledge"
