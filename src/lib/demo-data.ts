@@ -688,6 +688,18 @@ export const RECENT_CHANGES: ChangeItem[] = [
     confidence: "verified",
   },
   {
+    id: "ch9",
+    entityId: "e-deepseek",
+    date: "2026-07-11",
+    summary: {
+      zh: "DeepSeek R2 API 输入价格下调 30%，上下文窗口扩展至 256K。",
+      en: "DeepSeek R2 API input pricing drops 30% and context expands to 256K.",
+    },
+    kind: "updated",
+    confidence: "inferred",
+    sourceIds: ["s-deepseek-r2"],
+  },
+  {
     id: "ch4",
     entityId: "e-gemini",
     date: "2026-07-12",

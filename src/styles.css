@@ -235,3 +235,55 @@
     padding-inline: 1.5rem;
   }
 }
+
+/*
+ * The graph reuses the dense workspace primitives from the dark explorer, but
+ * defaults to the same editorial canvas as the rest of AI Radar. These scoped
+ * overrides keep every filter, inspector, and list readable without duplicating
+ * the graph workspace component tree.
+ */
+.graph-light-page .text-white,
+.graph-light-page .text-white\/80,
+.graph-light-page .text-white\/75,
+.graph-light-page .text-white\/70,
+.graph-light-page .text-white\/65,
+.graph-light-page .text-white\/60 {
+  color: #334155 !important;
+}
+
+.graph-light-page .text-white\/55,
+.graph-light-page .text-white\/50,
+.graph-light-page .text-white\/45,
+.graph-light-page .text-white\/40,
+.graph-light-page .text-white\/35 {
+  color: #667085 !important;
+}
+
+.graph-light-page .border-white\/10,
+.graph-light-page .border-white\/15,
+.graph-light-page .border-white\/25 {
+  border-color: var(--color-border) !important;
+}
+
+.graph-light-page .bg-white\/5,
+.graph-light-page .bg-white\/10,
+.graph-light-page .bg-black\/15,
+.graph-light-page .bg-black\/20,
+.graph-light-page .bg-graph-surface {
+  background-color: var(--color-card) !important;
+}
+
+.graph-light-page .hover\:bg-white\/5:hover,
+.graph-light-page .hover\:bg-white\/10:hover {
+  background-color: var(--color-accent) !important;
+}
+
+.graph-light-page input,
+.graph-light-page select {
+  color: var(--color-foreground) !important;
+  background-color: var(--color-card) !important;
+}
+
+.graph-light-page input::placeholder {
+  color: var(--color-muted-foreground) !important;
+}
