@@ -76,16 +76,16 @@ function layout(
   const others = entities.filter((entity) => entity.id !== center.id);
 
   const orbits: Record<EntityType, number> = {
-    model: 180,
-    company: 90,
-    framework: 240,
-    benchmark: 240,
-    paper: 260,
-    application: 200,
-    agent: 210,
-    dataset: 250,
-    api: 230,
-    tool: 230,
+    model: 245,
+    company: 150,
+    framework: 275,
+    benchmark: 285,
+    paper: 300,
+    application: 260,
+    agent: 270,
+    dataset: 295,
+    api: 280,
+    tool: 280,
   };
 
   const buckets = new Map<EntityType, Entity[]>();
@@ -198,7 +198,7 @@ export function KnowledgeGraph({
   highlightedEdgeIds = [],
   focusNodeId,
   canvasWidth = 900,
-  tone = "light",
+  tone,
   showRelationLabels = true,
 }: {
   entities: Entity[];
@@ -217,7 +217,8 @@ export function KnowledgeGraph({
   tone?: "light" | "dark";
   showRelationLabels?: boolean;
 }) {
-  const { lang, t } = useApp();
+  const { lang, t, theme } = useApp();
+  const resolvedTone = tone ?? theme;
   const svgRef = useRef<SVGSVGElement | null>(null);
   const interactionRef = useRef<Interaction | null>(null);
   const lastFocusedRef = useRef<string | null>(null);
@@ -386,19 +387,21 @@ export function KnowledgeGraph({
   return (
     <div
       className={`relative w-full overflow-hidden rounded-xl border ${
-        tone === "dark" ? "border-white/10 bg-graph-bg" : "border-border bg-[#f8f9fb]"
+        resolvedTone === "dark" ? "border-white/10 bg-graph-bg" : "border-border bg-[#f8f9fb]"
       }`}
     >
       <div
         className={`absolute right-3 top-3 z-10 flex rounded-md border p-1 shadow-sm ${
-          tone === "dark" ? "border-white/15 bg-graph-surface/90" : "border-border bg-white/95"
+          resolvedTone === "dark"
+            ? "border-white/15 bg-graph-surface/90"
+            : "border-border bg-white/95"
         }`}
       >
         <button
           type="button"
           onClick={() => zoomAtCenter(1.2)}
           className={`grid h-8 w-8 place-items-center rounded ${
-            tone === "dark"
+            resolvedTone === "dark"
               ? "text-white/75 hover:bg-white/10 hover:text-white"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
@@ -410,7 +413,7 @@ export function KnowledgeGraph({
           type="button"
           onClick={() => zoomAtCenter(0.82)}
           className={`grid h-8 w-8 place-items-center rounded ${
-            tone === "dark"
+            resolvedTone === "dark"
               ? "text-white/75 hover:bg-white/10 hover:text-white"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
@@ -422,7 +425,7 @@ export function KnowledgeGraph({
           type="button"
           onClick={resetViewport}
           className={`grid h-8 w-8 place-items-center rounded ${
-            tone === "dark"
+            resolvedTone === "dark"
               ? "text-white/75 hover:bg-white/10 hover:text-white"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
@@ -447,16 +450,20 @@ export function KnowledgeGraph({
           <radialGradient id="graph-glow" cx="50%" cy="50%">
             <stop
               offset="0%"
-              stopColor={tone === "dark" ? "#fff" : "#5b5bd6"}
-              stopOpacity={tone === "dark" ? "0.15" : "0.08"}
+              stopColor={resolvedTone === "dark" ? "#fff" : "#5b5bd6"}
+              stopOpacity={resolvedTone === "dark" ? "0.15" : "0.08"}
             />
-            <stop offset="100%" stopColor={tone === "dark" ? "#fff" : "#5b5bd6"} stopOpacity="0" />
+            <stop
+              offset="100%"
+              stopColor={resolvedTone === "dark" ? "#fff" : "#5b5bd6"}
+              stopOpacity="0"
+            />
           </radialGradient>
           <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path
               d="M 40 0 L 0 0 0 40"
               fill="none"
-              stroke={tone === "dark" ? "rgba(255,255,255,0.04)" : "rgba(17,24,39,0.055)"}
+              stroke={resolvedTone === "dark" ? "rgba(255,255,255,0.055)" : "rgba(17,24,39,0.055)"}
               strokeWidth="1"
             />
           </pattern>
@@ -510,8 +517,8 @@ export function KnowledgeGraph({
                       x={(from.x + to.x) / 2}
                       y={(from.y + to.y) / 2 - 6 + ((edgeIndex % 3) - 1) * 10}
                       textAnchor="middle"
-                      fill={tone === "dark" ? "rgba(255,255,255,0.8)" : "#475569"}
-                      stroke={tone === "dark" ? "#090c13" : "#f8f9fb"}
+                      fill={resolvedTone === "dark" ? "rgba(255,255,255,0.92)" : "#475569"}
+                      stroke={resolvedTone === "dark" ? "#090c13" : "#f8f9fb"}
                       strokeWidth="5"
                       paintOrder="stroke"
                       fontSize="9"
@@ -576,7 +583,7 @@ export function KnowledgeGraph({
                   <circle
                     r={radius + 5}
                     fill="none"
-                    stroke={tone === "dark" ? "#fff" : "#111827"}
+                    stroke={resolvedTone === "dark" ? "#fff" : "#111827"}
                     strokeWidth={2}
                     strokeDasharray="3 3"
                     vectorEffect="non-scaling-stroke"
@@ -587,12 +594,12 @@ export function KnowledgeGraph({
                   radius={radius}
                   color={meta.color}
                   selected={isSelected}
-                  tone={tone}
+                  tone={resolvedTone}
                 />
                 <text
                   y={radius + 18}
                   textAnchor="middle"
-                  fill={tone === "dark" ? "rgba(255,255,255,0.94)" : "#111827"}
+                  fill={resolvedTone === "dark" ? "rgba(255,255,255,0.96)" : "#111827"}
                   fontSize="12"
                   fontWeight={500}
                   style={{ pointerEvents: "none" }}

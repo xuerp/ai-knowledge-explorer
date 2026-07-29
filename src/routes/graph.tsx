@@ -46,12 +46,12 @@ import {
 export const Route = createFileRoute("/graph")({
   head: () => ({
     meta: [
-      { title: "2D 知识图谱 · AI Radar" },
+      { title: "AI 生态关系图谱 · AI Radar" },
       {
         name: "description",
-        content: "通过可交互的二维图谱探索 AI 模型、Agent、框架与论文之间的关系。",
+        content: "查询 AI 模型的版本继承、研发方、工具生态、评测与证据关系。",
       },
-      { property: "og:title", content: "AI Radar · 2D 知识图谱" },
+      { property: "og:title", content: "AI Radar · AI 生态关系图谱" },
       {
         property: "og:description",
         content: "在可搜索、可筛选的时间图谱中探索 AI 技术生态。",
@@ -124,10 +124,10 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
   const [enabledConfidences, setEnabledConfidences] =
     useState<Record<Confidence, boolean>>(initialConfidenceFilters);
   const [year, setYear] = useState([2015, 2026]);
-  const [depth, setDepth] = useState<Depth>("all");
+  const [depth, setDepth] = useState<Depth>(1);
   const [viewMode, setViewMode] = useState<ViewMode>("graph");
   const [query, setQuery] = useState("");
-  const [focusNodeId, setFocusNodeId] = useState<string | null>(null);
+  const [focusNodeId, setFocusNodeId] = useState<string | null>("e-gpt");
   const [pathStart, setPathStart] = useState("");
   const [pathEnd, setPathEnd] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -268,12 +268,12 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           <div>
             <DemoBadge />
             <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight md:text-4xl">
-              {t("2D 知识图谱", "2D Knowledge Graph")}
+              {t("AI 生态关系图谱", "AI ecosystem relationship graph")}
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-white/70">
               {t(
-                "每个节点是一个实体；带箭头的连线说明“谁与谁、以什么关系相连”，点击连线可查看来源证据。",
-                "Each node is an entity. Directed, labelled edges explain what connects two entities; select an edge to inspect evidence.",
+                "它不是装饰性的 3D 展示，而是关系查询工具：追踪版本继承、厂商生态、工具依赖和评测证据。点击节点看对象，点击连线看关系与来源。",
+                "This is a relationship query tool, not decorative 3D. Trace version lineage, vendor ecosystems, tool dependencies and benchmark evidence.",
               )}
             </p>
           </div>
@@ -395,8 +395,8 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
               >
                 {path
                   ? t(
-                      `已找到 ${path.edgeIds.length} 段最短路径，画布中以白色高亮。`,
-                      `Shortest path found: ${path.edgeIds.length} edges, highlighted in white.`,
+                      `已找到 ${path.edgeIds.length} 段最短路径，画布中以主题强调色高亮。`,
+                      `Shortest path found: ${path.edgeIds.length} edges, highlighted with the theme accent.`,
                     )
                   : t(
                       "当前筛选条件下没有可用路径。",
@@ -436,6 +436,51 @@ function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                 )}
               </p>
             </div>
+          </section>
+
+          <section className="mb-4 flex flex-wrap items-center gap-2">
+            <span className="mr-2 text-xs font-semibold text-foreground">
+              {t("用图谱完成任务：", "Use the graph to:")}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setFocusNodeId("e-gpt-45");
+                setDepth(2);
+                setPathStart("e-gpt-5");
+                setPathEnd("e-gpt-4o");
+              }}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
+            >
+              <RouteIcon className="h-3.5 w-3.5 text-signal" />
+              {t("查看 GPT 版本继承链", "Trace GPT version lineage")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFocusNodeId("e-openai");
+                setDepth(1);
+                setPathStart("");
+                setPathEnd("");
+              }}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
+            >
+              <Network className="h-3.5 w-3.5 text-signal" />
+              {t("查看厂商与产品生态", "Explore vendor ecosystems")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFocusNodeId("e-gpt-5");
+                setDepth(1);
+                setPathStart("");
+                setPathEnd("");
+              }}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
+            >
+              <Check className="h-3.5 w-3.5 text-signal" />
+              {t("核对版本与评测证据", "Verify versions and benchmarks")}
+            </button>
           </section>
 
           <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
