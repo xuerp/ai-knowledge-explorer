@@ -1,125 +1,93 @@
 # AI Radar
 
-AI Radar 是一个面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知识图谱前端。它强调“变化、关系、时间和证据”，而不是新闻聚合、无依据排行榜或普通聊天机器人。
+AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知识图谱。产品以“变化、关系、时间和证据”为中心，不把演示数据、模型猜测或未审核候选伪装成事实。
 
-> 当前仓库是明确标记的演示快照。页面中的模型版本、指标、关系和日期用于验证产品体验，不应当作实时事实引用。
+## 当前交付
 
-## 当前已实现
+前端已包含：
 
-- 首页、知识库、实体详情、模型对比、证据化问答、关注管理和可标记已读的站内通知。
-- 生产级 2D 图谱：搜索定位、时间 / 类型 / 关系 / 可信度筛选、缩放、平移、节点拖拽、邻域展开、最短路径高亮、边证据检查器和列表替代视图。
-- 私密研究记录与公开分享页，支持逐结论引用、Markdown 下载和浏览器打印 / PDF。
-- `/admin/review-demo` 只读审核后台：来源健康度、同步运行、候选 Claim、冲突风险和半自动审核流水线。
-- 三步兴趣初始化，以及可查看、修改、暂停、清空的本地个性化画像。
-- 每日邮件摘要偏好设置；演示版只在本机持久化并明确提示尚未连接投递服务。
-- PWA manifest、安装入口、应用壳缓存、离线回退和最后缓存时间提示。
-- 中文 / English、通俗 / 产品 / 技术阅读模式、明暗主题。
-- 语言、阅读模式、主题、关注和个性化设置的本地持久化。
-- 强类型领域模型，包括 Entity、Claim、Evidence、Timeline、Graph、Research、Review 和 Sync。
-- 可替换的 `KnowledgeRepository`：未配置 API 时读取演示 adapter，配置后只读取真实 API，不静默回退。
-- FastAPI、Pydantic、SQLAlchemy 与 Alembic 后端基础；公共 API 会隔离未审核 Claim。
-- 受管理令牌保护的审核批准/拒绝、乐观并发控制和发布历史。
-- 来源登记、URL 规范化、文档快照、SHA-256 去重、内容 Diff 与候选 Claim 提交。
-- loading、error、offline、cached、stale、unverified 和 conflict 的统一状态语义。
-- 390px、1024px 和 1440px 响应式布局。
-- 生产构建、TypeScript、ESLint 和领域 / 图谱 / PWA 自动测试。
-- GitHub Actions 前后端质量门禁，包括演示种子漂移、迁移、静态检查、测试和构建。
+- 首页、知识库、六段式实体详情、比较、2D 大图谱和三种阅读模式。
+- 证据化研究界面、私密研究页、公开分享、Markdown 和打印/PDF。
+- 关注、通知、个性化、PWA、离线状态和中英双语。
+- `/admin/review-demo` 只读作品集后台。
+- `/account` 真实登录账户，连接持久化关注、通知、邮件偏好和研究。
+- `/admin/review` 真实 reviewer/admin 工作台。
 
-## 仍为演示或尚未实现
+后端已包含：
 
-- 当前没有自动联网抓取、用户认证或模型调用；后端已经具备“来源正文 → Diff → 候选 → 审核 → 发布”的本地纵向闭环。
-- AI 研究答案来自强类型演示快照，不会伪装为在线模型输出。
-- 公开审核演示页严格只读；后端已提供受保护审核 API，但尚未建设真实管理端登录页面。
-- 关注提醒与每日摘要尚未连接真实站内通知和事务邮件服务。
-- 公开分享页当前读取演示快照；尚未连接真实发布权限与持久化 URL。
-- PWA 在生产环境注册 Service Worker；正式安装和离线能力需要 HTTPS 部署验证。
-- 登录、跨设备同步、真实公开部署和隔离的 3D 实验仍在后续范围。
+- FastAPI/Pydantic/SQLAlchemy/Alembic，SQLite 和 PostgreSQL。
+- JWT/RBAC、审计日志、人审门禁和不可重复发布。
+- 安全采集、内容快照/Diff、严格结构化模型抽取、实体消歧和冲突检测。
+- 关注者通知、每日摘要 Outbox、SMTP 适配器、私密研究和主动公开分享。
+- Docker Compose、PostgreSQL CI 迁移验证、正式数据质量报告和黄金问题集。
 
-## 主要演示入口
+## 本地运行
 
-| 路径                                 | 用途                     |
-| ------------------------------------ | ------------------------ |
-| `/`                                  | 个性化变化与全行业必看   |
-| `/knowledge`                         | 分类浏览实体             |
-| `/knowledge/model/gpt`               | GPT 六段式实体档案       |
-| `/graph`                             | 完整交互式 2D 知识图谱   |
-| `/ask`                               | 证据化 AI 研究           |
-| `/research/research-demo-gpt-claude` | 私密研究记录与导出       |
-| `/share/research-demo-gpt-claude`    | 主动公开的研究页         |
-| `/following`                         | 关注、提醒强度与兴趣画像 |
-| `/onboarding`                        | 兴趣初始化               |
-| `/admin/review-demo`                 | 只读数据治理与审核后台   |
-
-三分钟演示路径见 [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)，架构与数据可信闭环见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)，逐项交付边界见 [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md)。
-
-## 本地开发
-
-需要 Node.js 20.19+。仓库保留 Lovable 生成的 `bun.lock`；可使用 Bun，也可以使用兼容的 npm/pnpm 环境。
+前端要求 Node.js 20.19+：
 
 ```bash
 npm install
 npm run dev
 ```
 
-后端搭建、迁移、运行和审核 API 示例见 [`backend/README.md`](backend/README.md)。
+后端：
 
-常用检查：
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000 --env-file .env
+```
+
+前端 `.env`：
+
+```text
+VITE_API_BASE_URL=http://127.0.0.1:8000
+```
+
+不配置 API 时，公开产品使用明确标记的本地 demo adapter；配置后 API 失败会显示错误，不会静默回退成“实时数据”。
+
+## 主要入口
+
+| 路径 | 用途 |
+| --- | --- |
+| `/` | 个性化变化和行业必看 |
+| `/knowledge` | 分类浏览 |
+| `/knowledge/model/gpt` | 六段式实体档案 |
+| `/graph` | 交互式 2D 知识图谱 |
+| `/ask` | 演示研究体验 |
+| `/following` | 演示个性化体验 |
+| `/account` | 真实登录、关注、通知、摘要和私密研究 |
+| `/admin/review-demo` | 只读审核演示 |
+| `/admin/review` | 真实受保护审核工作台 |
+
+## 质量检查
 
 ```bash
-npm run lint
-npm run typecheck
-npm run test
-npm run build
 npm run check
+cd backend
+python -m ruff format --check app tests migrations
+python -m ruff check app tests migrations
+python -m pytest
+python -m alembic upgrade head
 ```
 
-## 数据源切换
+详细资料：
 
-复制 `.env.example` 为本地环境文件并配置：
+- [生产运行手册](docs/PRODUCTION_RUNBOOK.md)
+- [架构说明](docs/ARCHITECTURE.md)
+- [Spec 追踪](docs/SPEC_TRACEABILITY.md)
+- [3 分钟演示](docs/DEMO_SCRIPT.md)
+- [后端说明](backend/README.md)
 
-```bash
-VITE_API_BASE_URL=https://api.example.com
-```
+## 仍需外部资源的事项
 
-未配置时，应用读取 `src/data/demo-adapter.ts`，所有页面保持“演示数据”标识。配置后，前端请求：
+仓库已经提供连接点，但以下结果不能在没有用户账号或凭据时伪造：
 
-```text
-GET {VITE_API_BASE_URL}/api/snapshot
-```
-
-真实 API 请求失败时显示错误状态，不会用演示数据伪装成实时响应。
-
-## PWA 与离线
-
-生产构建包含：
-
-```text
-public/manifest.webmanifest
-public/sw.js
-public/offline.html
-public/icon.svg
-```
-
-Service Worker 只缓存同源 GET 页面和静态资源，不缓存 `/api/` 请求，也不会在网络失败时把演示数据冒充成实时 API。已访问页面可以离线打开；页面顶部会明确显示离线状态和最后在线缓存时间。
-
-## 关键目录
-
-```text
-src/
-├─ domain/       # 领域契约
-├─ data/         # 明确标记的演示 adapter
-├─ services/     # API / repository 边界
-├─ hooks/        # React Query 接入
-├─ components/   # 共享 UI、状态、图谱、研究报告与 PWA 状态
-└─ routes/       # TanStack Start 文件路由
-
-backend/
-├─ app/           # FastAPI、可信快照、审核和持久化
-├─ migrations/    # Alembic 数据库迁移
-├─ data/          # 由前端强类型演示数据导出的种子
-└─ tests/         # API 与审核门禁测试
-```
-
-## 协作约束
-
-Lovable 负责集中视觉校准，Codex 负责类型、架构、数据、测试和生产化。同一时间只由一方修改已同步分支，避免 Lovable 与本地代码相互覆盖。
+- 真实域名、HTTPS、Cloudflare/Lovable 和后端云部署。
+- PostgreSQL 托管实例、备份告警和生产监控。
+- 结构化抽取供应商 API key 与模型费用。
+- SMTP/事务邮件账号、发件域名验证和送达率配置。
+- 达到 Spec 要求的 40–50 个已核验实体、150 条已审核 Claim 和黄金问题 85% 通过率所需的正式研究与人工审核。

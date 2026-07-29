@@ -26,6 +26,20 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ai_radar_test
+          POSTGRES_USER: ai_radar
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ai_radar -d ai_radar_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: backend
@@ -46,6 +60,12 @@ jobs:
       - name: Verify migration
         env:
           AI_RADAR_DATABASE_URL: sqlite:///./migration-test.db
+        run: |
+          python -m alembic upgrade head
+          python -m alembic current
+      - name: Verify PostgreSQL migration
+        env:
+          AI_RADAR_DATABASE_URL: postgresql+psycopg://ai_radar:test-only-password@127.0.0.1:5432/ai_radar_test
         run: |
           python -m alembic upgrade head
           python -m alembic current
