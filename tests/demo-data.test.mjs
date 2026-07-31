@@ -71,7 +71,7 @@ test("concrete model versions are extensible and linked to a valid family", () =
   const entityById = new Map(ENTITIES.map((entity) => [entity.id, entity]));
   const versions = ENTITIES.filter((entity) => entity.familyId);
 
-  assert.ok(versions.length >= 12, "demo catalog should cover multiple model families");
+  assert.ok(versions.length >= 19, "demo catalog should cover every model family with releases");
 
   for (const version of versions) {
     const family = entityById.get(version.familyId);
@@ -105,6 +105,18 @@ test("repository exposes family, version, timeline, and comparison queries", asy
   const detail = await knowledgeRepository.getEntityBySlug("qwen-3-max", "model");
   assert.equal(detail?.familyId, "e-qwen");
   assert.ok(detail?.specs?.contextWindow);
+
+  const kimiVersions = await knowledgeRepository.getFamilyVersions("e-kimi");
+  assert.deepEqual(
+    kimiVersions.map((entity) => entity.id),
+    ["e-kimi-k26", "e-kimi-k3"],
+  );
+
+  const ernieVersions = await knowledgeRepository.getFamilyVersions("e-ernie");
+  assert.deepEqual(
+    ernieVersions.map((entity) => entity.id),
+    ["e-ernie-45", "e-ernie-50", "e-ernie-51"],
+  );
 
   const timeline = await knowledgeRepository.getEntityTimeline("e-qwen-3-max");
   assert.equal(timeline.length, 1);

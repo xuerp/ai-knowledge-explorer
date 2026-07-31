@@ -110,6 +110,21 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
     assert all(item["familyId"] == "e-qwen" for item in versions.json())
     assert all(item["specs"]["contextWindow"] for item in versions.json())
 
+    kimi_versions = client.get("/api/v2/model-families/e-kimi/versions")
+    assert kimi_versions.status_code == 200
+    assert [item["id"] for item in kimi_versions.json()] == [
+        "e-kimi-k26",
+        "e-kimi-k3",
+    ]
+
+    ernie_versions = client.get("/api/v2/model-families/e-ernie/versions")
+    assert ernie_versions.status_code == 200
+    assert [item["id"] for item in ernie_versions.json()] == [
+        "e-ernie-45",
+        "e-ernie-50",
+        "e-ernie-51",
+    ]
+
     comparison = client.post(
         "/api/v2/model-versions/compare",
         json={"versionIds": ["e-gpt-5", "e-gemini-25-pro", "e-qwen-3-max"]},
