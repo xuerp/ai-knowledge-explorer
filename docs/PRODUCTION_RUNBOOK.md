@@ -1,121 +1,125 @@
-# AI Radar production runbook
+# AI Radar 生产运行手册
 
-This runbook covers the parts that can be made reproducible in the repository. It does not claim that a public deployment, domain, SMTP account, or LLM provider exists until those external resources are configured.
+本文档记录仓库内能够复现的生产部署步骤。在公网托管、域名、SMTP 邮箱和模型供应商尚未配置前，不代表这些外部资源已经存在或已完成上线。
 
-## 1. Generate secrets
+## 1. 准备环境变量与密钥
 
-Copy `.env.production.example` to an ignored `.env.production`, then replace every
-required placeholder. Create three independent values outside the repository:
+将 `.env.production.example` 复制为被 Git 忽略的 `.env.production`，然后替换所有必填占位值。以下三个值必须独立生成，不能互相复用：
 
-- `POSTGRES_PASSWORD`: database password.
-- `AI_RADAR_ADMIN_TOKEN`: one-time bootstrap and break-glass token.
-- `AI_RADAR_JWT_SECRET`: at least 32 random bytes for access-token signing.
+- `POSTGRES_PASSWORD`：PostgreSQL 数据库密码。
+- `AI_RADAR_ADMIN_TOKEN`：首次创建管理员和紧急管理使用的令牌。
+- `AI_RADAR_JWT_SECRET`：至少 32 个随机字节，用于签发登录令牌。
 
-Also set:
+同时配置真实前端域名和经过审核的官方信源域名：
 
 ```text
-AI_RADAR_CORS_ORIGINS=https://your-frontend.example
+AI_RADAR_CORS_ORIGINS=https://你的前端域名
 AI_RADAR_FETCH_ALLOWED_HOSTS=openai.com,anthropic.com,ai.google.dev
 ```
 
-Never expose the admin token or JWT secret through a `VITE_` variable.
+不要将管理员令牌、JWT 密钥或供应商密钥放进任何以 `VITE_` 开头的变量。
 
-## 2. Start PostgreSQL and the API
+## 2. 启动 PostgreSQL、API 与采集 Worker
 
-From the repository root:
+在仓库根目录执行：
 
 ```bash
 docker compose --env-file .env.production up --build -d
-docker compose ps
+docker compose --env-file .env.production ps
 curl http://127.0.0.1:8000/health
 ```
 
-`AI_RADAR_API_PORT` defaults to `8000`. During a local migration rehearsal,
-set it to `8001` so the containerized PostgreSQL stack can run beside the
-existing SQLite development API without a port conflict.
+`AI_RADAR_API_PORT` 默认是 `8000`。本地迁移演练时可设置为 `8001`，让 PostgreSQL 容器版 API 与旧的 SQLite 开发 API 并行运行。
 
-The API container waits for PostgreSQL health, runs `alembic upgrade head`, starts as a non-root user, and exposes a container health check. The persistent database lives in the named `ai_radar_postgres` volume.
+API 容器会等待 PostgreSQL 健康检查通过，执行 `alembic upgrade head`，然后以非 root 用户启动。持久数据库保存在 `ai_radar_postgres` 命名卷中。
 
-On the first application start, the version-controlled catalog seed initializes model families, concrete releases, graph relations, and timelines in PostgreSQL. Later additions are persistent records and are not overwritten on restart.
+首次启动时，版本控制中的目录种子会初始化模型系列、具体版本、图谱关系、时间线和官方信源。之后在管理后台新增的数据会持久保存，重启不会覆盖已有记录。
 
-For an existing SQLite development installation, copy user-owned operational
-state after the PostgreSQL API is healthy:
+Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源。该检查周期可通过 `AI_RADAR_WORKER_INTERVAL_SECONDS` 调整，但不能绕过每个信源自身设置的 120–1440 分钟采集间隔。
+
+已有 SQLite 开发库时，可在 PostgreSQL API 健康后复制用户数据：
 
 ```bash
-python -m app.migrate_operational_data --source-url sqlite:////path/to/ai_radar.db
+python -m app.migrate_operational_data --source-url sqlite:////本机路径/ai_radar.db
 ```
 
-The importer is additive and idempotent: it copies users, follows,
-notifications, research records, and email outbox rows without replacing
-existing target primary keys. Catalog and review data continue to come from the
-versioned seed and review pipeline.
+迁移工具是可重复执行的增量导入：它会复制用户、关注、通知、研究记录和邮件 Outbox，但不会覆盖目标库中已存在的主键。目录、Claim、关系和审核数据继续由版本种子及审核流水线管理。
 
-## 3. Bootstrap the first administrator
+## 3. 创建首个管理员
 
-Bootstrap works only while the users table is empty:
+仅当 `users` 表为空时才能执行首次创建：
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/v2/auth/bootstrap \
   -H "Content-Type: application/json" \
   -H "X-Admin-Token: $AI_RADAR_ADMIN_TOKEN" \
-  -d '{"email":"admin@example.com","password":"replace-with-a-long-unique-password"}'
+  -d '{"email":"你的邮箱","password":"至少十二位的独立强密码"}'
 ```
 
-After the first user exists, the endpoint returns `409`. Create reviewers and additional users through `POST /api/v2/admin/users` using the returned Bearer token.
+首个用户创建后，该接口会返回 `409`。使用管理员 Bearer 令牌调用 `POST /api/v2/admin/users`，可创建审核员或其他用户。
 
-## 4. Connect the frontend
+## 4. 连接前端
 
-Build or deploy the frontend with:
+构建或部署前端时配置：
 
 ```text
-VITE_API_BASE_URL=https://api.your-domain.example
+VITE_API_BASE_URL=https://你的API域名
 ```
 
-Public reads use `/api/v2/snapshot` (the legacy `/api/snapshot` alias remains available). The protected console is `/admin/review`; credentials are sent only to the API and the short-lived Bearer token is kept in `sessionStorage`. `/admin/review-demo` remains a clearly labelled read-only portfolio route.
+公共读取使用 `/api/v2/snapshot`，旧的 `/api/snapshot` 仍作为兼容别名保留。受保护的管理后台位于 `/admin/review`；登录凭据只发送给 API，短期 Bearer 令牌保存在浏览器 `sessionStorage`。`/admin/review-demo` 是明确标注的只读演示页面。
 
-Administrators can use the “扩展模型目录” section to add entities/releases, relations, and timeline events. Use a concrete release's `familyId` to attach it to a top-level model family. A verified relation or timeline event must carry at least one source id.
+管理员可在“扩展模型目录”中新增或更新实体、具体版本、关系和时间线。具体版本通过 `familyId` 归属模型系列；可信度为 `verified` 的关系和时间线必须至少关联一个 `sourceId`。
 
-The “信源与采集策略” section registers official sources and controls whether
-each source is active, whether automatic fetching is enabled, and its 2–24 hour
-interval. After a snapshot exists, “抽取候选” sends that snapshot through the
-configured extraction provider and places the results in the human review queue.
-Enabling a source does not bypass the server-side
-`AI_RADAR_FETCH_ALLOWED_HOSTS` safety allowlist; add only official domains that
-have been reviewed.
+“信源与采集策略”用于登记官方信源、启停信源、控制自动采集以及设置 2–24 小时周期。信源产生快照后，“抽取候选”会调用配置的模型供应商生成候选事实，并放入人工审核队列。
 
-The current frontend build targets Cloudflare through the existing Lovable/TanStack configuration. Configure the `VITE_API_BASE_URL` build variable in the hosting project, then deploy the generated worker. A public deployment cannot be completed from this repository alone without access to the user's Cloudflare/Lovable project.
+页面上的自动采集开关不能绕过服务器的 `AI_RADAR_FETCH_ALLOWED_HOSTS` 安全白名单。只有经过人工确认的官方域名才能加入白名单。
 
-## 5. Schedule collection and digests
+当前前端使用 Lovable/TanStack 已有的 Cloudflare 构建配置。在托管项目中配置 `VITE_API_BASE_URL` 后再部署生成的 Worker。没有用户的 Cloudflare 或 Lovable 项目权限时，无法仅依靠本仓库完成公网发布。
 
-Run one due-source collection cycle:
+## 5. 采集、抽取与每日摘要
+
+手动运行一次到期信源采集：
 
 ```bash
 python -m app.worker --once
 ```
 
-Use the cloud scheduler or cron every 15–30 minutes; each source enforces its own 120–1440 minute interval. Collection is HTTPS-only, allowlist-only, blocks non-public IPs and redirects, limits response size, and honors ETag/Last-Modified.
+常驻运行：
 
-Queue one daily digest cycle with an admin Bearer token:
+```bash
+python -m app.worker --interval-seconds 900
+```
+
+采集器仅允许 HTTPS 和白名单域名，会阻止私网地址及重定向，限制响应体大小，并支持 ETag 与 Last-Modified 增量检查。
+
+使用管理员 Bearer 令牌生成每日摘要：
 
 ```text
 POST /api/v2/admin/digests/run
 ```
 
-This creates auditable rows in `email_outbox`. After configuring the SMTP variables from `backend/.env.example`, deliver queued messages with `POST /api/v2/admin/email-outbox/send`. Without credentials, delivery returns `503` and queued messages remain intact.
+该操作会在 `email_outbox` 中生成可审计记录。配置 `backend/.env.example` 中的 SMTP 变量后，通过以下接口投递：
 
-## 6. Back up and restore
-
-Example logical backup:
-
-```bash
-docker compose exec -T postgres pg_dump -U ai_radar -d ai_radar -Fc > ai-radar.dump
+```text
+POST /api/v2/admin/email-outbox/send
 ```
 
-Test restores in a separate database before relying on them. Do not overwrite the production database during a restore drill.
+SMTP 未配置时，投递接口返回 `503`，邮件仍会安全保留在 Outbox 中。
 
-## 7. Release gate
+## 6. 备份与恢复
 
-Before release:
+创建 PostgreSQL 逻辑备份：
+
+```bash
+docker compose --env-file .env.production exec -T postgres \
+  pg_dump -U ai_radar -d ai_radar -Fc > ai-radar.dump
+```
+
+必须先在独立测试数据库中验证恢复流程。恢复演练不得覆盖生产数据库。
+
+## 7. 发布前质量门槛
+
+执行完整检查：
 
 ```bash
 python -m ruff format --check backend/app backend/tests backend/migrations
@@ -124,12 +128,13 @@ python -m pytest backend/tests
 npm run check
 ```
 
-Then verify:
+然后确认：
 
-- `/health` reports the expected environment, database, and auth state.
-- public snapshot contains no pending, rejected, or needs-more-evidence Claim.
-- `/admin/review` rejects viewer accounts.
-- one approved test candidate creates a publication record, audit entry, and follower notification.
-- one test model version written through the admin catalog API appears in family versions, timeline, graph neighbors, and comparison reads.
-- CORS lists only the real frontend origins.
-- HTTPS termination, database backup, logs, alerting, and rollback are configured in the selected hosting platform.
+- `/health` 返回预期的环境、数据库类型和认证状态。
+- 公共快照不包含待审核、已拒绝或需要更多证据的 Claim。
+- `/admin/review` 拒绝普通 viewer 账户访问。
+- 批准一条测试候选后，会生成发布记录、审计日志和关注者通知。
+- 通过目录接口新增的具体模型版本，会同时出现在系列版本、时间线、图谱邻居和版本对比中。
+- CORS 只包含真实前端域名。
+- 所选托管平台已经配置 HTTPS、数据库备份、日志、告警和回滚方案。
+- `/api/v2/admin/data-quality` 通过前，不得将演示数据标记为正式完备数据。

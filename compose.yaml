@@ -1,5 +1,24 @@
 name: ai-radar
 
+x-backend-environment: &backend-environment
+  AI_RADAR_DATABASE_URL: postgresql+psycopg://ai_radar:${POSTGRES_PASSWORD}@postgres:5432/ai_radar
+  AI_RADAR_ENVIRONMENT: production
+  AI_RADAR_DATA_MODE: ${AI_RADAR_DATA_MODE:-demo}
+  AI_RADAR_ADMIN_TOKEN: ${AI_RADAR_ADMIN_TOKEN:?Set AI_RADAR_ADMIN_TOKEN}
+  AI_RADAR_JWT_SECRET: ${AI_RADAR_JWT_SECRET:?Set AI_RADAR_JWT_SECRET}
+  AI_RADAR_ACCESS_TOKEN_MINUTES: ${AI_RADAR_ACCESS_TOKEN_MINUTES:-30}
+  AI_RADAR_CORS_ORIGINS: ${AI_RADAR_CORS_ORIGINS:?Set AI_RADAR_CORS_ORIGINS}
+  AI_RADAR_FETCH_ALLOWED_HOSTS: ${AI_RADAR_FETCH_ALLOWED_HOSTS:-}
+  AI_RADAR_EXTRACTION_API_URL: ${AI_RADAR_EXTRACTION_API_URL:-}
+  AI_RADAR_EXTRACTION_API_KEY: ${AI_RADAR_EXTRACTION_API_KEY:-}
+  AI_RADAR_EXTRACTION_MODEL: ${AI_RADAR_EXTRACTION_MODEL:-}
+  AI_RADAR_SMTP_HOST: ${AI_RADAR_SMTP_HOST:-}
+  AI_RADAR_SMTP_PORT: ${AI_RADAR_SMTP_PORT:-587}
+  AI_RADAR_SMTP_USERNAME: ${AI_RADAR_SMTP_USERNAME:-}
+  AI_RADAR_SMTP_PASSWORD: ${AI_RADAR_SMTP_PASSWORD:-}
+  AI_RADAR_SMTP_FROM: ${AI_RADAR_SMTP_FROM:-}
+  AI_RADAR_SMTP_STARTTLS: ${AI_RADAR_SMTP_STARTTLS:-true}
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -17,31 +36,33 @@ services:
       retries: 5
 
   api:
+    image: ai-radar-api:local
     build:
       context: ./backend
     restart: unless-stopped
-    environment:
-      AI_RADAR_DATABASE_URL: postgresql+psycopg://ai_radar:${POSTGRES_PASSWORD}@postgres:5432/ai_radar
-      AI_RADAR_ENVIRONMENT: production
-      AI_RADAR_DATA_MODE: ${AI_RADAR_DATA_MODE:-demo}
-      AI_RADAR_ADMIN_TOKEN: ${AI_RADAR_ADMIN_TOKEN:?Set AI_RADAR_ADMIN_TOKEN}
-      AI_RADAR_JWT_SECRET: ${AI_RADAR_JWT_SECRET:?Set AI_RADAR_JWT_SECRET}
-      AI_RADAR_ACCESS_TOKEN_MINUTES: ${AI_RADAR_ACCESS_TOKEN_MINUTES:-30}
-      AI_RADAR_CORS_ORIGINS: ${AI_RADAR_CORS_ORIGINS:?Set AI_RADAR_CORS_ORIGINS}
-      AI_RADAR_FETCH_ALLOWED_HOSTS: ${AI_RADAR_FETCH_ALLOWED_HOSTS:-}
-      AI_RADAR_EXTRACTION_API_URL: ${AI_RADAR_EXTRACTION_API_URL:-}
-      AI_RADAR_EXTRACTION_API_KEY: ${AI_RADAR_EXTRACTION_API_KEY:-}
-      AI_RADAR_EXTRACTION_MODEL: ${AI_RADAR_EXTRACTION_MODEL:-}
-      AI_RADAR_SMTP_HOST: ${AI_RADAR_SMTP_HOST:-}
-      AI_RADAR_SMTP_PORT: ${AI_RADAR_SMTP_PORT:-587}
-      AI_RADAR_SMTP_USERNAME: ${AI_RADAR_SMTP_USERNAME:-}
-      AI_RADAR_SMTP_PASSWORD: ${AI_RADAR_SMTP_PASSWORD:-}
-      AI_RADAR_SMTP_FROM: ${AI_RADAR_SMTP_FROM:-}
-      AI_RADAR_SMTP_STARTTLS: ${AI_RADAR_SMTP_STARTTLS:-true}
+    environment: *backend-environment
     ports:
       - "${AI_RADAR_API_PORT:-8000}:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+
+  worker:
+    image: ai-radar-api:local
+    build:
+      context: ./backend
+    restart: unless-stopped
+    command:
+      - python
+      - -m
+      - app.worker
+      - --interval-seconds
+      - ${AI_RADAR_WORKER_INTERVAL_SECONDS:-900}
+    environment: *backend-environment
+    healthcheck:
+      disable: true
+    depends_on:
+      api:
         condition: service_healthy
 
 volumes:

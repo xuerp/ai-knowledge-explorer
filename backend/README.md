@@ -104,7 +104,13 @@ python -m app.migrate_operational_data `
 .\.venv\Scripts\python.exe -m app.worker --once
 ```
 
-使用云调度器或 cron 周期调用；每个信源仍受自己的采集间隔限制。每日摘要通过管理 API 生成和投递：
+常驻采集进程：
+
+```powershell
+.\.venv\Scripts\python.exe -m app.worker --interval-seconds 900
+```
+
+Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源；每个信源仍受自己的 120–1440 分钟采集间隔限制。每日摘要通过管理 API 生成和投递：
 
 ```text
 POST /api/v2/admin/digests/run
