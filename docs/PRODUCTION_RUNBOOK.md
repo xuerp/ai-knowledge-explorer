@@ -30,9 +30,25 @@ docker compose ps
 curl http://127.0.0.1:8000/health
 ```
 
+`AI_RADAR_API_PORT` defaults to `8000`. During a local migration rehearsal,
+set it to `8001` so the containerized PostgreSQL stack can run beside the
+existing SQLite development API without a port conflict.
+
 The API container waits for PostgreSQL health, runs `alembic upgrade head`, starts as a non-root user, and exposes a container health check. The persistent database lives in the named `ai_radar_postgres` volume.
 
 On the first application start, the version-controlled catalog seed initializes model families, concrete releases, graph relations, and timelines in PostgreSQL. Later additions are persistent records and are not overwritten on restart.
+
+For an existing SQLite development installation, copy user-owned operational
+state after the PostgreSQL API is healthy:
+
+```bash
+python -m app.migrate_operational_data --source-url sqlite:////path/to/ai_radar.db
+```
+
+The importer is additive and idempotent: it copies users, follows,
+notifications, research records, and email outbox rows without replacing
+existing target primary keys. Catalog and review data continue to come from the
+versioned seed and review pipeline.
 
 ## 3. Bootstrap the first administrator
 

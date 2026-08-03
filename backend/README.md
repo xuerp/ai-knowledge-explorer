@@ -70,6 +70,15 @@ Invoke-RestMethod "http://127.0.0.1:8000/api/v2/auth/bootstrap" `
 
 然后访问前端 `/account` 或 `/admin/review`。
 
+从已有 SQLite 开发库切换到 PostgreSQL 时，可安全复制账号及用户拥有的数据；该命令不会覆盖目标库中已有的主键：
+
+```powershell
+python -m app.migrate_operational_data `
+  --source-url sqlite:///D:/path/to/ai_radar.db
+```
+
+目标库默认读取 `AI_RADAR_DATABASE_URL`，复制范围为用户、关注、通知、研究记录和邮件 Outbox。目录、Claim、关系和信源由正式种子及审核流水线管理，不从开发库覆盖。
+
 如果 bootstrap 返回“first user is created”，说明本地库已经有账户。不要删除数据库；可在本机终端安全重置已知账户的密码，输入内容不会回显：
 
 ```powershell
