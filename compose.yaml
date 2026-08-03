@@ -39,7 +39,7 @@ services:
       AI_RADAR_SMTP_FROM: ${AI_RADAR_SMTP_FROM:-}
       AI_RADAR_SMTP_STARTTLS: ${AI_RADAR_SMTP_STARTTLS:-true}
     ports:
-      - "8000:8000"
+      - "${AI_RADAR_API_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
