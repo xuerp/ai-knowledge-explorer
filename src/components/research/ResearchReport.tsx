@@ -27,10 +27,12 @@ export function ResearchReport({
   answer,
   snapshot,
   publicView = false,
+  dataMode = "demo",
 }: {
   answer: ResearchAnswer;
   snapshot: KnowledgeSnapshot;
   publicView?: boolean;
+  dataMode?: "demo" | "live";
 }) {
   const { t, lang } = useApp();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -95,7 +97,7 @@ export function ResearchReport({
                 {t("私密研究记录", "Private research record")}
               </span>
             )}
-            <DemoBadge />
+            {dataMode === "demo" && <DemoBadge />}
             <span className="chip">
               {answer.status === "ready"
                 ? t("研究完成", "Research ready")
@@ -119,7 +121,11 @@ export function ResearchReport({
                 `${claims.length} claims · ${sources.length} sources`,
               )}
             </span>
-            <span>{t("数据模式：演示快照", "Data mode: demo snapshot")}</span>
+            <span>
+              {dataMode === "demo"
+                ? t("数据模式：演示快照", "Data mode: demo snapshot")
+                : t("数据模式：已审核图谱", "Data mode: reviewed graph")}
+            </span>
           </div>
           <div className="print-hidden mt-6 flex flex-wrap gap-2">
             {!publicView && (

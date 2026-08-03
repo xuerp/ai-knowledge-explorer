@@ -251,7 +251,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "GPT 系列", en: "GPT family" },
     aliases: ["ChatGPT", "GPT-4", "GPT-5"],
     vendor: "OpenAI",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "OpenAI 推出的通用大型语言模型家族，覆盖对话、代码、推理与多模态能力，是当前商业化最成熟的闭源前沿模型之一。",
       en: "OpenAI's general-purpose LLM family covering chat, code, reasoning and multimodal capabilities; among the most commercially mature closed frontier models today.",
@@ -382,7 +382,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["GPT-4 Omni"],
     familyId: "e-gpt",
     vendor: "OpenAI",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "GPT 系列的原生多模态版本，将文本、图像与语音整合进单一模型，重点改善实时交互速度与成本。",
       en: "A native multimodal GPT release unifying text, image, and audio, with an emphasis on latency and cost.",
@@ -413,7 +413,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "GPT-4.5 Preview", en: "GPT-4.5 Preview" },
     familyId: "e-gpt",
     vendor: "OpenAI",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "面向自然对话、知识广度与创意写作的过渡版本，推理方式更自然，但 API 成本明显高于 GPT-4o。",
       en: "A transitional release focused on natural conversation, broad knowledge, and writing quality, at a substantially higher API price than GPT-4o.",
@@ -444,7 +444,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "GPT-5", en: "GPT-5" },
     familyId: "e-gpt",
     vendor: "OpenAI",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "GPT 系列当前演示旗舰版本，统一快速响应与深度推理，强化代码、长上下文、多模态与 Agent 工具调用。",
       en: "The current demo flagship GPT release, unifying fast responses and deep reasoning with stronger code, long context, multimodality, and agentic tool use.",
@@ -490,7 +490,7 @@ export const ENTITIES: Entity[] = [
     slug: "claude",
     name: { zh: "Claude 系列", en: "Claude family" },
     vendor: "Anthropic",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "Anthropic 推出的以安全对齐与长文本理解见长的大型语言模型家族，Claude 4.5 强化了代码与 Agent 场景。",
       en: "Anthropic's LLM family known for safety alignment and long-context understanding; Claude 4.5 focuses on code and agentic use cases.",
@@ -586,7 +586,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Claude 3.5 Sonnet", en: "Claude 3.5 Sonnet" },
     familyId: "e-claude",
     vendor: "Anthropic",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "Claude 系列的重要效率版本，强化代码、视觉理解与 Artifacts 交互，在性能和价格之间取得平衡。",
       en: "A major efficiency release adding stronger code, vision, and Artifacts while balancing capability and price.",
@@ -616,7 +616,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Claude 4 Sonnet", en: "Claude 4 Sonnet" },
     familyId: "e-claude",
     vendor: "Anthropic",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "面向长时间 Agent 任务与复杂代码工程的版本，增加扩展思考和更稳定的多步骤工具调用。",
       en: "A release for long-running agent tasks and complex software engineering, adding extended thinking and steadier multi-step tool use.",
@@ -646,7 +646,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Claude 4.5 Sonnet", en: "Claude 4.5 Sonnet" },
     familyId: "e-claude",
     vendor: "Anthropic",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "Claude 系列当前演示旗舰版本，进一步提升代码、长文档和 Agent 稳定性，并降低安全策略的误拒率。",
       en: "The current demo flagship Claude release with stronger code, long-document work, and agent reliability, plus fewer false safety refusals.",
@@ -685,7 +685,7 @@ export const ENTITIES: Entity[] = [
     slug: "gemini",
     name: { zh: "Gemini 系列", en: "Gemini family" },
     vendor: "Google DeepMind",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "Google DeepMind 的多模态旗舰模型家族，原生支持文本、图像、音频与视频输入。",
       en: "Google DeepMind's multimodal flagship family with native text, image, audio and video inputs.",
@@ -790,7 +790,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Gemini 1.5 Pro", en: "Gemini 1.5 Pro" },
     familyId: "e-gemini",
     vendor: "Google DeepMind",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "Gemini 系列率先把超长上下文带入稳定产品形态的版本，适合长文档、代码库和长视频分析。",
       en: "The Gemini release that brought ultra-long context into a stable product for documents, codebases and long video.",
@@ -824,7 +824,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Gemini 2.5 Pro", en: "Gemini 2.5 Pro" },
     familyId: "e-gemini",
     vendor: "Google DeepMind",
-    origin: { zh: "美国", en: "United States" },
+    origin: { zh: "海外", en: "Overseas" },
     summary: {
       zh: "在长上下文基础上增加思考模式、代码和复杂多模态推理，是 Gemini 系列当前演示旗舰版本。",
       en: "Adds thinking, coding and complex multimodal reasoning on top of long context; the current demo Gemini flagship.",
@@ -866,7 +866,7 @@ export const ENTITIES: Entity[] = [
     slug: "deepseek",
     name: { zh: "DeepSeek 系列", en: "DeepSeek family" },
     vendor: "深度求索",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "国产开源前沿模型代表，DeepSeek R2 主打推理与代码，训练与推理成本大幅低于同代闭源模型。",
       en: "Leading Chinese open-source frontier models; DeepSeek R2 focuses on reasoning and code with markedly lower training & inference cost.",
@@ -967,7 +967,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "DeepSeek-V3", en: "DeepSeek-V3" },
     familyId: "e-deepseek",
     vendor: "深度求索",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "DeepSeek 的通用 MoE 基座版本，重点优化训练效率、中文、代码与开放权重部署。",
       en: "DeepSeek's general MoE foundation release focused on training efficiency, Chinese, code and open-weight deployment.",
@@ -997,7 +997,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "DeepSeek-R2", en: "DeepSeek-R2" },
     familyId: "e-deepseek",
     vendor: "深度求索",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "面向数学、代码与长链推理的演示版本，在开放权重与低部署成本方向延续 DeepSeek 路线。",
       en: "A demo release for math, code and long-chain reasoning, continuing DeepSeek's open-weight and low-cost deployment strategy.",
@@ -1026,7 +1026,7 @@ export const ENTITIES: Entity[] = [
     slug: "qwen",
     name: { zh: "通义千问 Qwen", en: "Qwen" },
     vendor: "阿里巴巴",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "阿里巴巴推出的开源模型家族，覆盖对话、代码、视觉与音频，具备完整的开源权重生态。",
       en: "Alibaba's open-weight model family covering chat, code, vision and audio with a complete open ecosystem.",
@@ -1131,7 +1131,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Qwen2.5-Max", en: "Qwen2.5-Max" },
     familyId: "e-qwen",
     vendor: "阿里巴巴",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "Qwen2.5 系列的大规模 MoE 版本，强化中文、代码、结构化输出与企业 API 场景。",
       en: "A large MoE Qwen2.5 release for Chinese, code, structured output and enterprise APIs.",
@@ -1165,7 +1165,7 @@ export const ENTITIES: Entity[] = [
     name: { zh: "Qwen3-Max", en: "Qwen3-Max" },
     familyId: "e-qwen",
     vendor: "阿里巴巴",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "Qwen 系列当前演示旗舰版本，把混合推理、多语言、代码与 Agent 工具调用整合到统一版本。",
       en: "The current demo Qwen flagship combining hybrid reasoning, multilingual code and agentic tool use.",
@@ -1195,7 +1195,7 @@ export const ENTITIES: Entity[] = [
     slug: "kimi",
     name: { zh: "Kimi", en: "Kimi" },
     vendor: "月之暗面",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "月之暗面 Kimi 以超长上下文与深度阅读见长，主打个人研究与文档理解。",
       en: "Moonshot's Kimi is known for ultra-long context and deep-reading workflows for personal research.",
@@ -1299,7 +1299,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["kimi-k2.6"],
     familyId: "e-kimi",
     vendor: "月之暗面",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "Kimi 的通用多模态版本，统一视觉与文本输入、思考与非思考模式、对话和代码 Agent 任务。",
       en: "Kimi's general multimodal release combining visual and text input, thinking and non-thinking modes, chat and coding agents.",
@@ -1331,7 +1331,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["K3"],
     familyId: "e-kimi",
     vendor: "月之暗面",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "Kimi 当前旗舰版本，提供 100 万 token 上下文，面向软件工程、知识工作和深度推理。",
       en: "Kimi's current flagship with a 1M-token context window for software engineering, knowledge work and deep reasoning.",
@@ -1365,7 +1365,7 @@ export const ENTITIES: Entity[] = [
     slug: "doubao",
     name: { zh: "豆包 Doubao", en: "Doubao" },
     vendor: "字节跳动",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "字节跳动的豆包模型家族，服务于抖音、剪映等 C 端产品，主打低成本与高并发。",
       en: "ByteDance's Doubao family powering consumer products like Douyin & CapCut, focused on cost and throughput.",
@@ -1477,7 +1477,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["Seed1.8", "Doubao1.8"],
     familyId: "e-doubao",
     vendor: "字节跳动",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "面向真实工作流的通用 Agent 模型，支持文本与图像输入、搜索、代码、GUI 交互和三种思考模式。",
       en: "A general agent model for real workflows with text and image input, search, code, GUI interaction and three thinking modes.",
@@ -1509,7 +1509,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["Seed2.0 Pro", "doubao-seed-2.0-pro"],
     familyId: "e-doubao",
     vendor: "字节跳动",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "Seed 2.0 系列的旗舰通用 Agent 型号，重点提升多模态理解、长链推理和复杂真实工作流的稳定性。",
       en: "The flagship general agent in Seed 2.0, improving multimodal understanding, long-chain reasoning and stability in complex workflows.",
@@ -1543,7 +1543,7 @@ export const ENTITIES: Entity[] = [
     slug: "ernie",
     name: { zh: "文心一言 ERNIE Bot", en: "ERNIE Bot" },
     vendor: "百度",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "百度文心系列模型，当前已迭代到 ERNIE 5.1，强化 Agent、推理、搜索增强、知识与创意写作能力。",
       en: "Baidu's ERNIE family, now at ERNIE 5.1, with stronger agents, reasoning, search, knowledge and creative writing.",
@@ -1650,7 +1650,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["文心 4.5"],
     familyId: "e-ernie",
     vendor: "百度",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "包含十款开放权重变体的多模态 MoE 模型系列，覆盖文本、视觉理解、思考模式与本地部署。",
       en: "A ten-variant open-weight multimodal MoE family spanning text, vision, thinking modes and local deployment.",
@@ -1686,7 +1686,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["文心 5.0"],
     familyId: "e-ernie",
     vendor: "百度",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "采用 2.4 万亿参数超稀疏 MoE 的原生全模态基础模型，在统一自回归框架中联合建模文本、图像、视频和音频。",
       en: "A 2.4T-parameter ultra-sparse native multimodal foundation model unifying text, image, video and audio in one autoregressive framework.",
@@ -1722,7 +1722,7 @@ export const ENTITIES: Entity[] = [
     aliases: ["文心 5.1"],
     familyId: "e-ernie",
     vendor: "百度",
-    origin: { zh: "中国", en: "China" },
+    origin: { zh: "国内", en: "Domestic" },
     summary: {
       zh: "从 ERNIE 5.0 弹性子模型矩阵中提取的高效率版本，重点增强 Agent、推理、知识、深度搜索与创意写作。",
       en: "An efficient release extracted from ERNIE 5.0's elastic model matrix, strengthening agents, reasoning, knowledge, deep search and writing.",

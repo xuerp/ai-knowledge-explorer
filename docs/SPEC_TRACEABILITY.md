@@ -21,8 +21,8 @@
 
 ## 演示与真实能力的区分
 
-- `/admin/review-demo`、未配置 API 的 `/following` 和 `/ask` 是明确标记的演示体验。
-- `/account` 和 `/admin/review` 连接真实后端。
+- `/admin/review-demo` 是明确标记的只读演示；未登录的 `/following` 和 `/ask` 也会保留明确的演示引导。
+- 已登录且配置 API 时，`/account`、`/following`、`/ask`、私密研究详情和 `/admin/review` 均连接真实后端。
 - `AI_RADAR_DATA_MODE=demo` 时公共 API 仍明确返回 demo/cached。
 - 抽取、邮件和云部署只有在配置真实外部服务后才会执行。
 
@@ -30,7 +30,7 @@
 
 Spec 要求正式图谱约 40–50 个有效实体、150 条已审核 Claim、核心对象至少 5 条关系，并且 20 个黄金问题至少 85% 通过。
 
-仓库当前演示种子为 28 个实体、44 条关系、5 条 Claim，其中包含 5 个已细分系列下的 12 个具体模型版本；它用于验证产品和工程闭环，不属于正式数据验收。`GET /api/v2/admin/data-quality` 会机器化报告这些差距，避免人为误报。
+仓库当前演示目录为 49 个实体、70 条带来源关系、30 个来源、53 条时间线事件和 14 条带来源 Claim（其中 13 条可公开读取）。目录包含 8 个模型系列、19 个具体版本、5 个 Agent 产品，以及 LangGraph、AutoGen、CrewAI、OpenAI Agents SDK 等框架节点。它用于验证产品和工程闭环，不属于正式数据验收。`GET /api/v2/admin/data-quality` 会机器化报告尚未达到 150 条人工审核 Claim、以及核心节点关系覆盖不足等差距，避免人为误报。
 
 完成正式验收仍需：
 

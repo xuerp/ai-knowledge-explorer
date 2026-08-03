@@ -21,6 +21,7 @@ from .schemas import (
     IngestionResult,
     IngestionRunView,
     SourceCreate,
+    SourceUpdate,
     SourceView,
 )
 
@@ -67,6 +68,35 @@ class IngestionService:
     def list_sources(self, session: Session) -> list[SourceView]:
         rows = session.scalars(select(SourceRecord).order_by(SourceRecord.created_at)).all()
         return [self.to_source_view(row) for row in rows]
+
+    def update_source(
+        self,
+        session: Session,
+        source_id: str,
+        payload: SourceUpdate,
+    ) -> SourceView | None:
+        record = session.get(SourceRecord, source_id)
+        if not record:
+            return None
+
+        was_fetch_enabled = record.fetch_enabled
+        if payload.active is not None:
+            record.active = payload.active
+        if payload.fetch_enabled is not None:
+            record.fetch_enabled = payload.fetch_enabled
+        if payload.fetch_interval_minutes is not None:
+            record.fetch_interval_minutes = payload.fetch_interval_minutes
+
+        # A disabled source must never remain schedulable. Newly enabling a
+        # source clears its schedule so the next worker tick picks it up now.
+        if not record.active:
+            record.fetch_enabled = False
+            record.next_fetch_at = None
+        elif record.fetch_enabled and not was_fetch_enabled:
+            record.next_fetch_at = None
+
+        session.commit()
+        return self.to_source_view(record)
 
     def ingest_document(
         self,

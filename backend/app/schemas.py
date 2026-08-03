@@ -317,6 +317,12 @@ class SourceCreate(CamelModel):
     fetch_interval_minutes: int = Field(default=240, ge=120, le=1440)
 
 
+class SourceUpdate(CamelModel):
+    active: bool | None = None
+    fetch_enabled: bool | None = None
+    fetch_interval_minutes: int | None = Field(default=None, ge=120, le=1440)
+
+
 class SourceView(CamelModel):
     id: str
     url: str

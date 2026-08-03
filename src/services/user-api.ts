@@ -30,8 +30,16 @@ export interface ResearchResult {
   question: string;
   summary: string;
   claimIds: string[];
+  steps: Array<{
+    id: string;
+    label: { zh: string; en: string };
+    status: "pending" | "running" | "complete" | "failed" | "cancelled";
+    detail?: { zh: string; en: string };
+  }>;
   status: "ready" | "insufficient-evidence" | "failed" | "cancelled";
   publishedSlug?: string;
+  createdAt: string;
+  publishedAt?: string;
 }
 
 export interface PublishedResearch extends ResearchResult {
@@ -66,6 +74,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     const body = (await response.json().catch(() => null)) as { detail?: string } | null;
     throw new Error(body?.detail || `Request failed (${response.status}).`);
   }
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -84,6 +93,8 @@ export const userApi = {
       { method: "POST", body: JSON.stringify({ entityId, intensity }) },
       token,
     ),
+  unfollow: (token: string, id: string) =>
+    request<void>(`/api/v2/following/${encodeURIComponent(id)}`, { method: "DELETE" }, token),
   notifications: (token: string) => request<UserNotification[]>("/api/v2/notifications", {}, token),
   markRead: (token: string, id: string) =>
     request<UserNotification>(
@@ -103,6 +114,8 @@ export const userApi = {
       { method: "POST", body: JSON.stringify({ question, language }) },
       token,
     ),
+  researchDetail: (token: string, id: string) =>
+    request<ResearchResult>(`/api/v2/research/${encodeURIComponent(id)}`, {}, token),
   publishResearch: (token: string, id: string) =>
     request<ResearchResult>(
       `/api/v2/research/${encodeURIComponent(id)}/publish`,

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bell,
   BellOff,
@@ -34,6 +34,13 @@ import {
 } from "@/lib/personalization";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { readAuthToken } from "@/services/auth-session";
+import {
+  userApi,
+  type FollowItem as RemoteFollowItem,
+  type SessionUser,
+  type UserNotification,
+} from "@/services/user-api";
 
 export const Route = createFileRoute("/following")({
   head: () => ({
@@ -72,6 +79,352 @@ const INTENSITY_META = {
 } as const;
 
 function FollowingPage() {
+  const token = readAuthToken();
+  return token && userApi.configured ? (
+    <AuthenticatedFollowingPage token={token} />
+  ) : (
+    <DemoFollowingPage />
+  );
+}
+
+function AuthenticatedFollowingPage({ token }: { token: string }) {
+  const { t, lang } = useApp();
+  const snapshotQuery = useKnowledgeSnapshot();
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [follows, setFollows] = useState<RemoteFollowItem[]>([]);
+  const [notifications, setNotifications] = useState<UserNotification[]>([]);
+  const [error, setError] = useState("");
+  const [busyEntityId, setBusyEntityId] = useState("");
+
+  const refresh = useCallback(async () => {
+    const [nextUser, nextFollows, nextNotifications] = await Promise.all([
+      userApi.me(token),
+      userApi.following(token),
+      userApi.notifications(token),
+    ]);
+    setUser(nextUser);
+    setFollows(nextFollows);
+    setNotifications(nextNotifications);
+  }, [token]);
+
+  useEffect(() => {
+    void refresh().catch((reason: unknown) =>
+      setError(reason instanceof Error ? reason.message : "Unable to load account data."),
+    );
+  }, [refresh]);
+
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <DataStatePanel
+          kind={snapshotQuery.unavailableKind}
+          title={t("关注列表加载失败", "Following failed to load")}
+          description={t("请稍后重试。", "Please retry shortly.")}
+          onRetry={() => void snapshotQuery.refetch()}
+        />
+      </AppShell>
+    );
+  }
+
+  const entities = snapshotQuery.data.entities;
+  const findEntity = (id: string) => entities.find((entity) => entity.id === id);
+  const followedEntityIds = new Set(follows.map((item) => item.entityId));
+  const suggestions = entities
+    .filter((entity) => !followedEntityIds.has(entity.id) && entity.type !== "company")
+    .slice(0, 6);
+  const unreadCount = notifications.filter((notification) => !notification.readAt).length;
+
+  const updateFollow = async (entityId: string, intensity: RemoteFollowItem["intensity"]) => {
+    setBusyEntityId(entityId);
+    setError("");
+    try {
+      await userApi.follow(token, entityId, intensity);
+      await refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to save follow.");
+    } finally {
+      setBusyEntityId("");
+    }
+  };
+
+  const removeFollow = async (follow: RemoteFollowItem) => {
+    setBusyEntityId(follow.entityId);
+    setError("");
+    try {
+      await userApi.unfollow(token, follow.id);
+      await refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to remove follow.");
+    } finally {
+      setBusyEntityId("");
+    }
+  };
+
+  const markAllRead = async () => {
+    setError("");
+    try {
+      await Promise.all(
+        notifications
+          .filter((notification) => !notification.readAt)
+          .map((notification) => userApi.markRead(token, notification.id)),
+      );
+      await refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to update notifications.");
+    }
+  };
+
+  return (
+    <AppShell>
+      <PageHeader
+        title={t("关注与通知", "Following & notifications")}
+        subtitle={t(
+          "这些关注和通知已保存到你的账户，可跨设备访问。",
+          "These follows and notifications are saved to your account and available across devices.",
+        )}
+      />
+      <div className="page-container grid min-w-0 gap-8 pb-12 pt-3 lg:grid-cols-3">
+        <div className="min-w-0 space-y-7 lg:col-span-2">
+          {error && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+          <section className="space-y-3" aria-labelledby="notification-inbox-title">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Inbox className="h-4 w-4 text-signal" />
+                <h2 id="notification-inbox-title" className="font-serif text-xl font-semibold">
+                  {t("站内通知", "In-app notifications")}
+                </h2>
+                <span className="rounded-full bg-signal/10 px-2 py-0.5 text-xs font-medium text-signal">
+                  {t(`${unreadCount} 条未读`, `${unreadCount} unread`)}
+                </span>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                disabled={!unreadCount}
+                onClick={() => void markAllRead()}
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                {t("全部标为已读", "Mark all read")}
+              </Button>
+            </div>
+            <div className="paper-card divide-y divide-border">
+              {notifications.map((notification) => {
+                const entity = findEntity(notification.entityId);
+                if (!entity) return null;
+                return (
+                  <Link
+                    key={notification.id}
+                    to="/knowledge/$type/$slug"
+                    params={{ type: entity.type, slug: entity.slug }}
+                    onClick={() => {
+                      if (!notification.readAt)
+                        void userApi.markRead(token, notification.id).then(refresh);
+                    }}
+                    className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-accent/50"
+                  >
+                    <span
+                      className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${notification.readAt ? "bg-border" : "bg-signal"}`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {pick(entity.name, lang)}
+                        </span>
+                        {notification.priority === "important" && (
+                          <span className="chip">{t("重要", "Important")}</span>
+                        )}
+                        <time className="ml-auto text-xs text-muted-foreground">
+                          {notification.createdAt.slice(0, 10)}
+                        </time>
+                      </div>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                        {notification.title}
+                      </p>
+                    </div>
+                    <ArrowRight className="mt-1 hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+                  </Link>
+                );
+              })}
+              {!notifications.length && (
+                <div className="p-6 text-center text-sm text-muted-foreground">
+                  {t("当前没有站内通知。", "No in-app notifications yet.")}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-serif text-xl font-semibold">
+                {t("关注对象", "You follow")}{" "}
+                <span className="ml-2 font-sans text-base font-normal text-muted-foreground">
+                  {follows.length}
+                </span>
+              </h2>
+              <Link
+                to="/onboarding"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-foreground hover:bg-accent"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" /> {t("编辑兴趣", "Edit interests")}
+              </Link>
+            </div>
+            <div className="paper-card divide-y divide-border">
+              {follows.map((follow) => {
+                const entity = findEntity(follow.entityId);
+                if (!entity) return null;
+                return (
+                  <div key={follow.id} className="flex min-w-0 flex-wrap items-center gap-4 p-5">
+                    <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
+                      <Link
+                        to="/knowledge/$type/$slug"
+                        params={{ type: entity.type, slug: entity.slug }}
+                        className="font-serif text-lg font-semibold text-foreground hover:text-signal"
+                      >
+                        {pick(entity.name, lang)}
+                      </Link>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {pick(ENTITY_TYPE_LABELS[entity.type], lang)} ·{" "}
+                        {t("关注已同步到你的账户", "Saved to your account")}
+                      </p>
+                    </div>
+                    <div className="grid min-w-0 flex-1 grid-cols-3 items-center gap-1 rounded-md border border-border bg-muted/40 p-1 sm:flex sm:flex-none">
+                      {(["silent", "digest", "instant"] as const).map((kind) => {
+                        const Icon = INTENSITY_META[kind].icon;
+                        const active = follow.intensity === kind;
+                        return (
+                          <button
+                            key={kind}
+                            type="button"
+                            disabled={busyEntityId === follow.entityId}
+                            onClick={() => void updateFollow(follow.entityId, kind)}
+                            className={`inline-flex h-8 min-w-0 items-center justify-center gap-1 rounded px-1 text-xs sm:px-2 ${active ? "bg-signal text-signal-foreground" : "text-ink-soft hover:text-foreground"}`}
+                            title={pick(INTENSITY_META[kind].desc, lang)}
+                          >
+                            <Icon className="h-3.5 w-3.5" />{" "}
+                            {lang === "zh" ? INTENSITY_META[kind].zh : INTENSITY_META[kind].en}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("取消关注", "Unfollow")}
+                      disabled={busyEntityId === follow.entityId}
+                      onClick={() => void removeFollow(follow)}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </div>
+                );
+              })}
+              {!follows.length && (
+                <div className="p-8 text-center text-sm text-muted-foreground">
+                  {t("你还没有关注任何对象。", "You do not follow anything yet.")}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 font-serif text-xl font-semibold">
+              {t("你可能感兴趣", "You might like")}
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {suggestions.map((entity) => (
+                <div key={entity.id} className="paper-card flex items-center gap-3 p-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-foreground">
+                      {pick(entity.name, lang)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busyEntityId === entity.id}
+                    onClick={() => void updateFollow(entity.id, "digest")}
+                  >
+                    + {t("关注", "Follow")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <aside className="min-w-0 space-y-6">
+          <div className="paper-card p-5">
+            <h3 className="font-serif font-semibold">
+              {t("账户通知设置", "Account notification settings")}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "每日摘要偏好已保存在账户中；邮件服务配置完成前，内容会安全停留在发件队列。",
+                "Daily digest preferences are stored in your account; messages remain safely queued until email delivery is configured.",
+              )}
+            </p>
+            {user && (
+              <label className="mt-4 flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={user.dailyDigestEnabled}
+                  onChange={(event) =>
+                    void userApi
+                      .preferences(token, event.target.checked, user.digestHour)
+                      .then(setUser)
+                      .catch((reason: unknown) =>
+                        setError(
+                          reason instanceof Error ? reason.message : "Unable to save preferences.",
+                        ),
+                      )
+                  }
+                />{" "}
+                {t("启用每日摘要", "Enable daily digest")}
+              </label>
+            )}
+            {user && (
+              <Input
+                className="mt-3"
+                type="time"
+                value={user.digestHour}
+                onChange={(event) =>
+                  void userApi
+                    .preferences(token, user.dailyDigestEnabled, event.target.value)
+                    .then(setUser)
+                    .catch((reason: unknown) =>
+                      setError(
+                        reason instanceof Error ? reason.message : "Unable to save preferences.",
+                      ),
+                    )
+                }
+              />
+            )}
+          </div>
+          <div className="paper-card bg-accent/40 p-5">
+            <h3 className="font-serif font-semibold">{t("下一步", "Next")}</h3>
+            <Link
+              to="/"
+              className="mt-2 inline-flex items-center gap-1 text-sm text-signal hover:underline"
+            >
+              {t("回到首页看今日更新", "Back to today's updates")}{" "}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </aside>
+      </div>
+    </AppShell>
+  );
+}
+
+function DemoFollowingPage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
   const [items, setItems] = useState<FollowPreference[]>([]);

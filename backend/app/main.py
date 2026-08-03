@@ -61,6 +61,7 @@ from .schemas import (
     ReviewQueueItem,
     SchedulerRunSummary,
     SourceCreate,
+    SourceUpdate,
     SourceView,
     TimelineEntry,
     TokenResponse,
@@ -121,7 +122,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=list(app_settings.cors_origins),
         allow_credentials=False,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE"],
         allow_headers=["Accept", "Authorization", "Content-Type", "X-Admin-Token"],
     )
 
@@ -216,6 +217,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: SessionDependency,
     ) -> list[FollowView]:
         return engagement.list_follows(session, principal.subject)
+
+    @app.delete("/api/v2/following/{follow_id}", status_code=status.HTTP_204_NO_CONTENT)
+    def unfollow_entity(
+        follow_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> None:
+        if not engagement.unfollow(session, principal.subject, follow_id):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Follow not found.")
 
     @app.get("/api/v2/notifications", response_model=list[NotificationView])
     def notifications(
@@ -692,6 +702,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="A source with this id or normalized URL already exists.",
             ) from error
         audit.record(session, principal, "source.create", "source", source.id)
+        session.commit()
+        return source
+
+    @app.patch(
+        "/api/v2/admin/sources/{source_id}",
+        response_model=SourceView,
+    )
+    def update_source(
+        source_id: str,
+        payload: SourceUpdate,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> SourceView:
+        source = ingestion.update_source(session, source_id, payload)
+        if not source:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        audit.record(
+            session,
+            principal,
+            "source.update",
+            "source",
+            source.id,
+            {
+                "active": source.active,
+                "fetchEnabled": source.fetch_enabled,
+                "fetchIntervalMinutes": source.fetch_interval_minutes,
+            },
+        )
         session.commit()
         return source
 
