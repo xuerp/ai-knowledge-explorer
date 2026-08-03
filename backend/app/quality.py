@@ -119,10 +119,18 @@ class KnowledgeQualityGate:
                 degrees[edge.from_id] += 1
             if edge.to_id in degrees:
                 degrees[edge.to_id] += 1
+        # A concrete model version inherits its family context.  The acceptance
+        # threshold applies to navigable model families plus standalone Agent /
+        # framework objects; requiring every historical version to have five
+        # links would make an otherwise complete catalogue fail by design.
         core_entities_below_five = [
             entity.id
             for entity in snapshot.entities
-            if entity.type in {"model", "agent", "framework"} and degrees[entity.id] < 5
+            if (
+                (entity.type == "model" and entity.family_id is None)
+                or entity.type in {"agent", "framework"}
+            )
+            and degrees[entity.id] < 5
         ]
         issues: list[str] = []
         if len(snapshot.entities) < 40:

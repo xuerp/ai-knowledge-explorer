@@ -67,6 +67,19 @@ class EngagementService:
         ).all()
         return [self._follow_view(row) for row in rows]
 
+    def unfollow(self, session: Session, user_id: str, follow_id: str) -> bool:
+        row = session.scalar(
+            select(FollowRecord).where(
+                FollowRecord.id == follow_id,
+                FollowRecord.user_id == user_id,
+            )
+        )
+        if not row:
+            return False
+        session.delete(row)
+        session.commit()
+        return True
+
     def notify_followers(
         self,
         session: Session,
@@ -128,17 +141,30 @@ class EngagementService:
         snapshot: KnowledgeSnapshot,
     ) -> ResearchView:
         question_key = payload.question.casefold()
-        matched_entity_ids = {
-            entity.id
-            for entity in snapshot.entities
-            if any(
-                token and token in question_key
+        entity_matches: list[tuple[str, str]] = []
+        for entity in snapshot.entities:
+            tokens = {
+                token.casefold().strip()
                 for token in [
-                    entity.slug.casefold(),
-                    entity.name.zh.casefold(),
-                    entity.name.en.casefold(),
-                    *((alias.casefold()) for alias in entity.aliases or []),
+                    entity.slug,
+                    entity.name.zh,
+                    entity.name.en,
+                    *(entity.aliases or []),
                 ]
+                if token.strip()
+            }
+            matching_tokens = [token for token in tokens if token in question_key]
+            if matching_tokens:
+                entity_matches.append((entity.id, max(matching_tokens, key=len)))
+
+        # Prefer the most specific entity mention. For example, “OpenAI Codex”
+        # should resolve to the product instead of also matching the broader
+        # “OpenAI” company node; “Claude Code” should not pull in all Claude claims.
+        matched_entity_ids = {
+            entity_id
+            for entity_id, token in entity_matches
+            if not any(
+                token != other_token and token in other_token for _, other_token in entity_matches
             )
         }
         matched_claims = [
@@ -151,16 +177,20 @@ class EngagementService:
                 value.casefold()
                 for entity in snapshot.entities
                 if entity.id in matched_entity_ids
-                for value in [entity.id, entity.slug, entity.name.zh, entity.name.en]
+                for value in [
+                    entity.id,
+                    entity.slug,
+                    entity.name.zh,
+                    entity.name.en,
+                    *(entity.aliases or []),
+                ]
             }
             matched_claims.extend(
                 claim
                 for claim in snapshot.claims
                 if claim.id not in {item.id for item in matched_claims}
-                and any(
-                    term in claim.text.zh.casefold() or term in claim.text.en.casefold()
-                    for term in entity_terms
-                )
+                and claim.subject
+                and claim.subject.casefold() in entity_terms
             )
         matched_claims = matched_claims[:8]
         status = "ready" if matched_claims else "insufficient-evidence"

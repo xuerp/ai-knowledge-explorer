@@ -1,9 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { Button } from "@/components/ui/button";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
+import type { ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp } from "@/lib/app-state";
+import { readAuthToken } from "@/services/auth-session";
+import { userApi, type ResearchResult } from "@/services/user-api";
 
 export const Route = createFileRoute("/research/$id")({
   head: () => ({
@@ -23,6 +28,32 @@ function ResearchRecordPage() {
   const { t } = useApp();
   const { id } = Route.useParams();
   const snapshotQuery = useKnowledgeSnapshot();
+  const [liveResearch, setLiveResearch] = useState<ResearchResult | null>(null);
+  const [liveError, setLiveError] = useState("");
+  const token = readAuthToken();
+
+  useEffect(() => {
+    if (!userApi.configured || !token) return;
+    userApi
+      .researchDetail(token, id)
+      .then(setLiveResearch)
+      .catch((reason: unknown) =>
+        setLiveError(reason instanceof Error ? reason.message : "Research record failed to load."),
+      );
+  }, [id, token]);
+
+  const liveAnswer = useMemo<ResearchAnswer | null>(() => {
+    if (!liveResearch) return null;
+    return {
+      id: liveResearch.id,
+      question: { zh: liveResearch.question, en: liveResearch.question },
+      summary: { zh: liveResearch.summary, en: liveResearch.summary },
+      claimIds: liveResearch.claimIds,
+      steps: liveResearch.steps,
+      generatedAt: liveResearch.createdAt,
+      status: liveResearch.status,
+    };
+  }, [liveResearch]);
 
   if (!snapshotQuery.data) {
     return (
@@ -36,6 +67,55 @@ function ResearchRecordPage() {
           description={t("请检查连接后重试。", "Check the connection and retry.")}
           onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
         />
+      </AppShell>
+    );
+  }
+
+  if (userApi.configured) {
+    if (!token) {
+      return (
+        <AppShell>
+          <DataStatePanel
+            kind="empty"
+            title={t("登录后查看私密研究", "Sign in to view private research")}
+            description={t(
+              "私密研究记录只属于创建它的账户，不会自动公开。",
+              "Private research belongs only to the account that created it and is never public by default.",
+            )}
+          />
+          <div className="mx-auto max-w-3xl px-4 pb-10 text-center">
+            <Button asChild>
+              <Link to="/account">{t("前往登录", "Go to sign in")}</Link>
+            </Button>
+          </div>
+        </AppShell>
+      );
+    }
+    if (liveError) {
+      return (
+        <AppShell>
+          <DataStatePanel
+            kind="error"
+            title={t("研究记录加载失败", "Research record failed to load")}
+            description={liveError}
+          />
+        </AppShell>
+      );
+    }
+    if (!liveAnswer) {
+      return (
+        <AppShell>
+          <DataStatePanel
+            kind="loading"
+            title={t("正在加载私密研究", "Loading private research")}
+            description={t("正在校验账户和引用。", "Validating account access and citations.")}
+          />
+        </AppShell>
+      );
+    }
+    return (
+      <AppShell>
+        <ResearchReport answer={liveAnswer} snapshot={snapshotQuery.data} dataMode="live" />
       </AppShell>
     );
   }

@@ -141,6 +141,7 @@ function AdminReviewPage() {
   const [catalogJson, setCatalogJson] = useState(catalogExamples.entity);
   const [timelineEntityId, setTimelineEntityId] = useState("");
   const [catalogMessage, setCatalogMessage] = useState("");
+  const [operationMessage, setOperationMessage] = useState("");
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -204,13 +205,85 @@ function AdminReviewPage() {
   const run = async (kind: "ingestion" | "digest" | "delivery") => {
     setBusy(true);
     setError("");
+    setOperationMessage("");
     try {
-      if (kind === "ingestion") await adminApi.runIngestion(token);
-      else if (kind === "digest") await adminApi.runDigest(token);
-      else await adminApi.sendOutbox(token);
+      if (kind === "ingestion") {
+        const result = await adminApi.runIngestion(token);
+        setOperationMessage(
+          `采集完成：到期 ${result.due}，成功 ${result.succeeded}，未变化 ${result.unchanged}，失败 ${result.failed}。`,
+        );
+      } else if (kind === "digest") {
+        const result = await adminApi.runDigest(token);
+        setOperationMessage(
+          `摘要生成完成：${result.recipients} 位收件人，${result.messagesQueued} 封邮件进入 Outbox。`,
+        );
+      } else {
+        const result = await adminApi.sendOutbox(token);
+        setOperationMessage(
+          `投递完成：尝试 ${result.attempted}，成功 ${result.sent}，失败 ${result.failed}。`,
+        );
+      }
       await refresh(token);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Operation failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateSource = async (
+    source: SourceView,
+    changes: Partial<Pick<SourceView, "active" | "fetchEnabled" | "fetchIntervalMinutes">>,
+  ) => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      await adminApi.updateSource(token, source.id, changes);
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Source update failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const extractSource = async (source: SourceView) => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const created = await adminApi.extractSource(token, source.id);
+      setOperationMessage(
+        `${source.title} 已生成 ${created.length} 条候选事实，请在“候选队列”中进行人工审核。`,
+      );
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Candidate extraction failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const createSource = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const created = await adminApi.createSource(token, {
+        id: String(form.get("sourceId")).trim(),
+        title: String(form.get("sourceTitle")).trim(),
+        publisher: String(form.get("sourcePublisher")).trim(),
+        url: String(form.get("sourceUrl")).trim(),
+      });
+      setOperationMessage(`${created.title} 已登记；请核验域名后再启用自动采集。`);
+      formElement.reset();
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Source creation failed.");
     } finally {
       setBusy(false);
     }
@@ -347,6 +420,7 @@ function AdminReviewPage() {
           </div>
         </header>
         {error && <Notice title="操作未完成" detail={error} destructive />}
+        {operationMessage && <Notice title="操作已完成" detail={operationMessage} />}
 
         <section className="grid gap-3 sm:grid-cols-5">
           <Metric label="审核任务" value={workspace.queue.length} />
@@ -422,16 +496,124 @@ function AdminReviewPage() {
           ))}
         </section>
 
-        <section className="grid gap-5 lg:grid-cols-2">
-          <DataList
-            title="信源"
-            icon={<Database className="h-4 w-4" />}
-            rows={workspace.sources.map((source) => ({
-              key: source.id,
-              title: source.title,
-              detail: `${source.publisher} · ${source.fetchEnabled ? "自动采集" : "手动采集"}`,
-            }))}
-          />
+        <section className="grid items-start gap-5 lg:grid-cols-2">
+          <section className="paper-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="flex items-center gap-2 font-serif text-xl font-semibold">
+                  <Database className="h-4 w-4" />
+                  信源与采集策略
+                </h2>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  自动采集还需要在后端允许列表中配置对应域名；启用后会在下一次调度立即尝试采集。
+                </p>
+              </div>
+              <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                {workspace.sources.filter((source) => source.fetchEnabled).length} 个自动采集
+              </span>
+            </div>
+            <details className="mt-4 rounded-lg border border-dashed border-border p-3">
+              <summary className="cursor-pointer text-sm font-medium">新增官方信源</summary>
+              <form className="mt-3 grid gap-2 sm:grid-cols-2" onSubmit={createSource}>
+                <Input
+                  name="sourceId"
+                  placeholder="唯一 ID，例如 s-openai-release"
+                  pattern="[a-z0-9][a-z0-9._-]+"
+                  minLength={3}
+                  required
+                />
+                <Input name="sourcePublisher" placeholder="发布机构" required minLength={2} />
+                <Input name="sourceTitle" placeholder="信源标题" required minLength={3} />
+                <Input name="sourceUrl" type="url" placeholder="https://..." required />
+                <div className="sm:col-span-2 flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    新信源默认仅登记，不会自动访问网络。
+                  </span>
+                  <Button size="sm" type="submit" disabled={busy}>
+                    登记信源
+                  </Button>
+                </div>
+              </form>
+            </details>
+            <div className="mt-4 max-h-[36rem] space-y-3 overflow-y-auto pr-1">
+              {workspace.sources.map((source) => (
+                <article key={source.id} className="rounded-lg border border-border p-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">{source.title}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {source.publisher} · {source.active ? "已启用" : "已停用"}
+                      </div>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs ${
+                        source.fetchEnabled
+                          ? "bg-verified/10 text-verified"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {source.fetchEnabled ? "自动采集" : "手动采集"}
+                    </span>
+                  </div>
+                  <a
+                    className="mt-2 block truncate text-xs text-signal hover:underline"
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {source.url}
+                  </a>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      周期
+                      <select
+                        className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground disabled:opacity-50"
+                        aria-label={`${source.title} 采集周期`}
+                        value={source.fetchIntervalMinutes}
+                        disabled={busy || !source.active}
+                        onChange={(event) =>
+                          updateSource(source, {
+                            fetchIntervalMinutes: Number(event.target.value),
+                          })
+                        }
+                      >
+                        <option value={120}>2 小时</option>
+                        <option value={240}>4 小时</option>
+                        <option value={360}>6 小时</option>
+                        <option value={720}>12 小时</option>
+                        <option value={1440}>24 小时</option>
+                      </select>
+                    </label>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busy || !source.active}
+                      onClick={() => updateSource(source, { fetchEnabled: !source.fetchEnabled })}
+                    >
+                      {source.fetchEnabled ? "暂停自动采集" : "启用自动采集"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => updateSource(source, { active: !source.active })}
+                    >
+                      {source.active ? "停用信源" : "恢复信源"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy || !source.lastSeenAt}
+                      title={source.lastSeenAt ? "从最近快照抽取候选事实" : "先完成一次采集"}
+                      onClick={() => extractSource(source)}
+                    >
+                      抽取候选
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
           <DataList
             title="最近审计"
             icon={<ShieldCheck className="h-4 w-4" />}

@@ -4,7 +4,8 @@ This runbook covers the parts that can be made reproducible in the repository. I
 
 ## 1. Generate secrets
 
-Create three independent values outside the repository:
+Copy `.env.production.example` to an ignored `.env.production`, then replace every
+required placeholder. Create three independent values outside the repository:
 
 - `POSTGRES_PASSWORD`: database password.
 - `AI_RADAR_ADMIN_TOKEN`: one-time bootstrap and break-glass token.
@@ -54,9 +55,17 @@ Build or deploy the frontend with:
 VITE_API_BASE_URL=https://api.your-domain.example
 ```
 
-Public reads use `/api/snapshot`. The protected console is `/admin/review`; credentials are sent only to the API and the short-lived Bearer token is kept in `sessionStorage`. `/admin/review-demo` remains a clearly labelled read-only portfolio route.
+Public reads use `/api/v2/snapshot` (the legacy `/api/snapshot` alias remains available). The protected console is `/admin/review`; credentials are sent only to the API and the short-lived Bearer token is kept in `sessionStorage`. `/admin/review-demo` remains a clearly labelled read-only portfolio route.
 
 Administrators can use the “扩展模型目录” section to add entities/releases, relations, and timeline events. Use a concrete release's `familyId` to attach it to a top-level model family. A verified relation or timeline event must carry at least one source id.
+
+The “信源与采集策略” section registers official sources and controls whether
+each source is active, whether automatic fetching is enabled, and its 2–24 hour
+interval. After a snapshot exists, “抽取候选” sends that snapshot through the
+configured extraction provider and places the results in the human review queue.
+Enabling a source does not bypass the server-side
+`AI_RADAR_FETCH_ALLOWED_HOSTS` safety allowlist; add only official domains that
+have been reviewed.
 
 The current frontend build targets Cloudflare through the existing Lovable/TanStack configuration. Configure the `VITE_API_BASE_URL` build variable in the hosting project, then deploy the generated worker. A public deployment cannot be completed from this repository alone without access to the user's Cloudflare/Lovable project.
 

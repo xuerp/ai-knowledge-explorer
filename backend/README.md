@@ -46,9 +46,13 @@ POST /api/v2/model-versions/compare
 POST /api/v2/admin/entities
 POST /api/v2/admin/relations
 POST /api/v2/admin/entities/{entity_id}/timeline
+GET /api/v2/admin/sources
+PATCH /api/v2/admin/sources/{source_id}
 ```
 
 具体版本通过 `familyId` 归属模型系列。管理员可在 `/admin/review` 的目录编辑器中，或使用上述受保护接口补充实体、规格、时间线和 `part-of` / `successor-of` 谱系关系；知识库、详情页、图谱与对比页会自动接入。`verified` 关系和时间线必须包含至少一个 `sourceId`。
+
+信源更新接口支持 `active`、`fetchEnabled` 与 `fetchIntervalMinutes`（120–1440）。管理后台可以登记信源、调整同样的控制项，并从最近快照执行“抽取候选”；候选会进入人工审核队列。停用信源会同时关闭自动采集。即使在页面启用，域名仍必须出现在 `AI_RADAR_FETCH_ALLOWED_HOSTS` 中，worker 才会发起网络请求。
 
 ## 首个管理员
 
@@ -65,6 +69,14 @@ Invoke-RestMethod "http://127.0.0.1:8000/api/v2/auth/bootstrap" `
 ```
 
 然后访问前端 `/account` 或 `/admin/review`。
+
+如果 bootstrap 返回“first user is created”，说明本地库已经有账户。不要删除数据库；可在本机终端安全重置已知账户的密码，输入内容不会回显：
+
+```powershell
+.\.venv\Scripts\python.exe -m app.manage_users reset-password `
+  --email local-admin@example.com `
+  --new-email your-real-email@example.com
+```
 
 ## 关键边界
 

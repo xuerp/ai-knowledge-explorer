@@ -388,6 +388,18 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestCli
     )
     assert created.status_code == 201
     assert created.json()["url"] == "https://example.com/releases"
+    assert created.json()["fetchEnabled"] is False
+
+    enabled = client.patch(
+        "/api/v2/admin/sources/source-demo-release",
+        headers=headers,
+        json={"fetchEnabled": True, "fetchIntervalMinutes": 360},
+    )
+    assert enabled.status_code == 200
+    assert enabled.json()["active"] is True
+    assert enabled.json()["fetchEnabled"] is True
+    assert enabled.json()["fetchIntervalMinutes"] == 360
+    assert enabled.json()["nextFetchAt"] is None
 
     first = client.post(
         "/api/v2/admin/sources/source-demo-release/snapshots",
@@ -438,6 +450,22 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestCli
         },
     )
     assert duplicate_source.status_code == 409
+
+    disabled = client.patch(
+        "/api/v2/admin/sources/source-demo-release",
+        headers=headers,
+        json={"active": False},
+    )
+    assert disabled.status_code == 200
+    assert disabled.json()["active"] is False
+    assert disabled.json()["fetchEnabled"] is False
+
+    missing = client.patch(
+        "/api/v2/admin/sources/source-missing",
+        headers=headers,
+        json={"fetchEnabled": True},
+    )
+    assert missing.status_code == 404
 
 
 def test_dynamic_candidate_is_private_until_human_approval(client: TestClient):
@@ -514,6 +542,18 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
         json={"entityId": "e-gpt", "intensity": "instant"},
     )
     assert followed.status_code == 200
+    assert (
+        client.delete(f"/api/v2/following/{followed.json()['id']}", headers=headers).status_code
+        == 204
+    )
+    assert client.get("/api/v2/following", headers=headers).json() == []
+
+    followed = client.post(
+        "/api/v2/following",
+        headers=headers,
+        json={"entityId": "e-gpt", "intensity": "instant"},
+    )
+    assert followed.status_code == 200
 
     candidate = client.post(
         "/api/v2/admin/review-candidates",
@@ -581,6 +621,22 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert research.status_code == 200
     assert research.json()["status"] == "ready"
     assert "claim-gpt-notification" in research.json()["claimIds"]
+
+    agent_research = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={
+            "question": "OpenAI Codex、Claude Code 和 Devin 分别能做什么？",
+            "language": "zh",
+        },
+    )
+    assert agent_research.status_code == 200
+    assert set(agent_research.json()["claimIds"]) == {
+        "c-codex-agent",
+        "c-claude-code-agent",
+        "c-devin-agent",
+    }
+    assert agent_research.json()["steps"][1]["detail"]["en"] == ("Matched 3 entities and 3 claims")
 
     published = client.post(
         f"/api/v2/research/{research.json()['id']}/publish",

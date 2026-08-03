@@ -29,6 +29,7 @@ export interface SourceView {
   url: string;
   active: boolean;
   fetchEnabled: boolean;
+  fetchIntervalMinutes: number;
   nextFetchAt?: string;
   lastSeenAt?: string;
 }
@@ -142,6 +143,31 @@ export const adminApi = {
     request<{ due: number; succeeded: number; unchanged: number; failed: number }>(
       "/api/v2/admin/ingestion/run",
       { method: "POST" },
+      token,
+    ),
+
+  updateSource: (
+    token: string,
+    id: string,
+    changes: Partial<Pick<SourceView, "active" | "fetchEnabled" | "fetchIntervalMinutes">>,
+  ) =>
+    request<SourceView>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}`,
+      { method: "PATCH", body: JSON.stringify(changes) },
+      token,
+    ),
+
+  createSource: (token: string, source: Pick<SourceView, "id" | "title" | "publisher" | "url">) =>
+    request<SourceView>(
+      "/api/v2/admin/sources",
+      { method: "POST", body: JSON.stringify(source) },
+      token,
+    ),
+
+  extractSource: (token: string, id: string, maxCandidates = 10) =>
+    request<ReviewQueueItem[]>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
+      { method: "POST", body: JSON.stringify({ maxCandidates }) },
       token,
     ),
 

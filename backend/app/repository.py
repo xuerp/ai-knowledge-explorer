@@ -14,6 +14,7 @@ from .database import (
     KnowledgeTimelineRecord,
     PublicationRecordRow,
     ReviewJobRecord,
+    SourceRecord,
 )
 from .schemas import (
     Claim,
@@ -50,43 +51,124 @@ class KnowledgeRepository:
     def load_seed(self) -> KnowledgeSnapshot:
         if self._seed is None:
             payload = json.loads(self.seed_snapshot_path.read_text(encoding="utf-8"))
+            extension_path = self.seed_snapshot_path.with_name("catalog_extension.json")
+            if extension_path.exists():
+                extension = json.loads(extension_path.read_text(encoding="utf-8"))
+                for key in ("entities", "evidence", "claims"):
+                    existing_ids = {item["id"] for item in payload.get(key, [])}
+                    payload.setdefault(key, []).extend(
+                        item for item in extension.get(key, []) if item["id"] not in existing_ids
+                    )
+                known_edge_ids = {item["id"] for item in payload["graph"].get("edges", [])}
+                payload["graph"].setdefault("edges", []).extend(
+                    item
+                    for item in extension.get("relations", [])
+                    if item["id"] not in known_edge_ids
+                )
+                known_node_entity_ids = {
+                    item["entityId"] for item in payload["graph"].get("nodes", [])
+                }
+                payload["graph"].setdefault("nodes", []).extend(
+                    {
+                        "id": f"node-{entity['id']}",
+                        "entityId": entity["id"],
+                        "type": entity["type"],
+                        "importance": 0.82,
+                    }
+                    for entity in extension.get("entities", [])
+                    if entity["id"] not in known_node_entity_ids
+                )
+                for entity_id, entries in extension.get("timeline", {}).items():
+                    known_entry_ids = {
+                        item["id"] for item in payload.setdefault("timeline", {}).get(entity_id, [])
+                    }
+                    payload["timeline"].setdefault(entity_id, []).extend(
+                        item for item in entries if item["id"] not in known_entry_ids
+                    )
             self._seed = KnowledgeSnapshot.model_validate(payload)
         return self._seed.model_copy(deep=True)
 
     def seed_catalog(self, session: Session) -> None:
-        if session.scalar(select(KnowledgeEntityRecord.id).limit(1)):
-            return
-
         seed = self.load_seed()
         now = datetime.now(UTC)
+        known_entity_ids = set(session.scalars(select(KnowledgeEntityRecord.id)).all())
         families = [entity for entity in seed.entities if entity.family_id is None]
         versions = [entity for entity in seed.entities if entity.family_id is not None]
         for entity in [*families, *versions]:
-            session.add(self._entity_record(entity, now))
+            if entity.id not in known_entity_ids:
+                session.add(self._entity_record(entity, now))
 
+        known_source_ids = set(session.scalars(select(SourceRecord.id)).all())
+        known_source_urls = set(session.scalars(select(SourceRecord.url)).all())
+        for evidence in seed.evidence:
+            normalized_url = evidence.url.rstrip("/")
+            if evidence.id in known_source_ids or normalized_url in known_source_urls:
+                continue
+            session.add(
+                SourceRecord(
+                    id=evidence.id,
+                    url=normalized_url,
+                    title=evidence.title.zh,
+                    publisher=evidence.publisher,
+                    active=True,
+                    fetch_enabled=False,
+                    fetch_interval_minutes=240,
+                    next_fetch_at=None,
+                    created_at=now,
+                )
+            )
+            known_source_ids.add(evidence.id)
+            known_source_urls.add(normalized_url)
+
+        # This is a narrow, one-way presentation migration for locally seeded
+        # records. It changes only legacy country labels to the product-level
+        # domestic/overseas grouping requested by the UI, and never overwrites
+        # an administrator's other entity edits.
+        legacy_origins = {("美国", "United States"), ("中国", "China")}
+        for entity in seed.entities:
+            if entity.id not in known_entity_ids or entity.origin is None:
+                continue
+            row = session.get(KnowledgeEntityRecord, entity.id)
+            if row is None:
+                continue
+            stored = Entity.model_validate_json(row.payload_json)
+            stored_origin = stored.origin
+            if stored_origin is not None and (stored_origin.zh, stored_origin.en) in legacy_origins:
+                stored.origin = entity.origin
+                row.payload_json = stored.model_dump_json(by_alias=True)
+                row.updated_at = now
+
+        known_timeline_ids = set(
+            session.execute(
+                select(KnowledgeTimelineRecord.id, KnowledgeTimelineRecord.entity_id)
+            ).all()
+        )
         for entity_id, entries in seed.timeline.items():
             for entry in entries:
+                if (entry.id, entity_id) not in known_timeline_ids:
+                    session.add(
+                        KnowledgeTimelineRecord(
+                            id=entry.id,
+                            entity_id=entity_id,
+                            event_date=entry.date,
+                            payload_json=entry.model_dump_json(by_alias=True),
+                            updated_at=now,
+                        )
+                    )
+
+        known_relation_ids = set(session.scalars(select(KnowledgeRelationRecord.id)).all())
+        for edge in seed.graph.edges:
+            if edge.id not in known_relation_ids:
                 session.add(
-                    KnowledgeTimelineRecord(
-                        id=entry.id,
-                        entity_id=entity_id,
-                        event_date=entry.date,
-                        payload_json=entry.model_dump_json(by_alias=True),
+                    KnowledgeRelationRecord(
+                        id=edge.id,
+                        from_id=edge.from_id,
+                        to_id=edge.to_id,
+                        kind=edge.kind,
+                        payload_json=edge.model_dump_json(by_alias=True),
                         updated_at=now,
                     )
                 )
-
-        for edge in seed.graph.edges:
-            session.add(
-                KnowledgeRelationRecord(
-                    id=edge.id,
-                    from_id=edge.from_id,
-                    to_id=edge.to_id,
-                    kind=edge.kind,
-                    payload_json=edge.model_dump_json(by_alias=True),
-                    updated_at=now,
-                )
-            )
         session.commit()
 
     @staticmethod

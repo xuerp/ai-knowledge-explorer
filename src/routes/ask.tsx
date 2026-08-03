@@ -18,6 +18,8 @@ import { useApp, pick } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import type { Evidence, LocalizedText } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
+import { readAuthToken } from "@/services/auth-session";
+import { userApi, type ResearchResult } from "@/services/user-api";
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
@@ -42,8 +44,11 @@ function AskPage() {
   const researchQuestions = snapshotQuery.data?.researchQuestions ?? EMPTY_RESEARCH_QUESTIONS;
   const initialQuestion = researchQuestions[0] ? pick(researchQuestions[0], lang) : "";
   const [q, setQ] = useState(initialQuestion);
-  const [answered, setAnswered] = useState(true);
+  const [research, setResearch] = useState<ResearchResult | null>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const questionHydrated = useRef(Boolean(initialQuestion));
+  const token = readAuthToken();
 
   useEffect(() => {
     if (questionHydrated.current || !researchQuestions[0]) return;
@@ -53,9 +58,44 @@ function AskPage() {
 
   const claims = snapshotQuery.data?.claims ?? [];
   const evidence = snapshotQuery.data?.evidence ?? [];
-  const factClaims = claims.filter((c) => c.confidence === "verified");
-  const inferredClaims = claims.filter((c) => c.confidence === "inferred");
-  const unverifiedClaims = claims.filter((c) => c.confidence === "unverified");
+  const matchedClaims = research
+    ? research.claimIds
+        .map((id) => claims.find((claim) => claim.id === id))
+        .filter((claim): claim is (typeof claims)[number] => Boolean(claim))
+    : [];
+  const factClaims = matchedClaims.filter((c) => c.confidence === "verified");
+  const inferredClaims = matchedClaims.filter((c) => c.confidence === "inferred");
+  const unverifiedClaims = matchedClaims.filter((c) => c.confidence === "unverified");
+
+  const submitResearch = async () => {
+    const question = q.trim();
+    if (question.length < 5) {
+      setError(
+        t("请输入至少 5 个字符的问题。", "Please enter a question with at least 5 characters."),
+      );
+      return;
+    }
+    if (!userApi.configured || !token) {
+      setError(
+        t(
+          "请先登录。真实研究会保存到你的私密账户中。",
+          "Please sign in first. Live research is saved privately to your account.",
+        ),
+      );
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      setResearch(await userApi.research(token, question, lang));
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : t("研究请求失败。", "Research request failed."),
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (!snapshotQuery.data) {
     return (
@@ -93,13 +133,14 @@ function AskPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setAnswered(true);
+              void submitResearch();
             }}
             className="paper-card flex flex-col gap-3 p-4"
           >
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-signal" />
-              {t("提问 AI Radar", "Ask AI Radar")} <DemoBadge className="ml-auto" />
+              {t("提问 AI Radar", "Ask AI Radar")}
+              {snapshotQuery.data.meta.mode === "demo" && <DemoBadge className="ml-auto" />}
             </div>
             <textarea
               value={q}
@@ -119,24 +160,53 @@ function AskPage() {
                   {pick(question, lang)}
                 </button>
               ))}
-              <Button type="submit" className="ml-auto">
-                <Send className="h-4 w-4" /> {t("提问", "Ask")}
+              <Button type="submit" className="ml-auto" disabled={busy}>
+                <Send className="h-4 w-4" />{" "}
+                {busy ? t("检索中…", "Researching…") : t("提问", "Ask")}
               </Button>
             </div>
+            {error && (
+              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                {error}
+                {!token && (
+                  <Link to="/account" className="ml-2 font-medium underline">
+                    {t("前往登录", "Sign in")}
+                  </Link>
+                )}
+              </div>
+            )}
           </form>
 
-          {answered && (
+          {research ? (
             <div className="mt-8 space-y-6">
               <div className="text-xs uppercase tracking-widest text-signal font-medium">
                 {t("回答", "Answer")}
               </div>
               <p className="text-xl font-semibold leading-relaxed text-foreground">
-                {researchAnswer
-                  ? pick(researchAnswer.summary, lang)
-                  : t("当前证据不足，无法生成结论。", "There is not enough evidence to answer.")}
+                {research.summary}
               </p>
 
-              {/* Fact */}
+              <div className="paper-card space-y-2 p-4 text-sm">
+                <div className="font-medium text-foreground">
+                  {research.status === "ready"
+                    ? t(
+                        "已完成图谱检索与引用校验",
+                        "Reviewed graph retrieval and citation validation complete",
+                      )
+                    : t(
+                        "证据不足，未生成推测性结论",
+                        "Insufficient evidence; no speculative conclusion was generated",
+                      )}
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  {research.steps.map((step) => (
+                    <span key={step.id}>
+                      {pick(step.label, lang)} · {step.status}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               <AnswerBlock
                 title={t("已核验事实", "Verified facts")}
                 icon={<ShieldCheck className="h-4 w-4 text-verified" />}
@@ -153,7 +223,6 @@ function AskPage() {
                 ))}
               </AnswerBlock>
 
-              {/* Inference */}
               <AnswerBlock
                 title={t("基于证据的推断", "Evidence-based inference")}
                 icon={<Info className="h-4 w-4 text-inferred" />}
@@ -170,7 +239,6 @@ function AskPage() {
                 ))}
               </AnswerBlock>
 
-              {/* Unverified */}
               <AnswerBlock
                 title={t("未核验或社区传闻", "Unverified / community rumors")}
                 icon={<HelpCircle className="h-4 w-4 text-unverified" />}
@@ -187,20 +255,6 @@ function AskPage() {
                 ))}
               </AnswerBlock>
 
-              {/* Conflict */}
-              <AnswerBlock
-                title={t("存在冲突的说法", "Conflicting claims")}
-                icon={<AlertTriangle className="h-4 w-4 text-conflict" />}
-                tint="conflict"
-              >
-                <ClaimRow
-                  zh="A 来源称 GPT-5 上下文为 400K，B 来源称 1M。"
-                  en="Source A reports 400K context for GPT-5; Source B claims 1M."
-                  sourceIds={["s-openai-gpt5", "s-community-rumor"]}
-                  evidence={evidence}
-                />
-              </AnswerBlock>
-
               <div className="paper-card p-4 bg-accent/40 text-xs text-muted-foreground">
                 {t(
                   "AI Radar 的回答仅基于图谱内的证据。若某项事实未在图谱中出现，AI 会明确说明「没有足够证据」，而不会自行编造。",
@@ -209,15 +263,13 @@ function AskPage() {
               </div>
 
               <div className="pt-4 flex flex-wrap gap-x-5 gap-y-2">
-                {researchAnswer && (
-                  <Link
-                    to="/research/$id"
-                    params={{ id: researchAnswer.id }}
-                    className="text-sm font-medium text-signal hover:underline"
-                  >
-                    {t("打开完整研究记录 →", "Open full research record →")}
-                  </Link>
-                )}
+                <Link
+                  to="/research/$id"
+                  params={{ id: research.id }}
+                  className="text-sm font-medium text-signal hover:underline"
+                >
+                  {t("打开完整研究记录 →", "Open full research record →")}
+                </Link>
                 <Link
                   to="/knowledge/model/$slug"
                   params={{ slug: "gpt" }}
@@ -226,6 +278,13 @@ function AskPage() {
                   {t("查看 GPT 完整档案 →", "View GPT full profile →")}
                 </Link>
               </div>
+            </div>
+          ) : (
+            <div className="paper-card mt-8 p-6 text-sm leading-relaxed text-muted-foreground">
+              {t(
+                "输入问题后，AI Radar 会先检索已审核知识图谱，并仅输出带来源的结论；缺少证据时会明确拒答。",
+                "After you submit a question, AI Radar searches the reviewed graph and returns only sourced conclusions; it explicitly declines when evidence is missing.",
+              )}
             </div>
           )}
         </div>
