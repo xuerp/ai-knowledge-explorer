@@ -260,6 +260,30 @@ def test_admin_queue_requires_token(client: TestClient):
     )
 
 
+def test_admin_integration_status_never_exposes_secrets(client: TestClient):
+    response = client.get(
+        "/api/v2/admin/integrations",
+        headers={"X-Admin-Token": "test-admin-token"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload == {
+        "extractionConfigured": False,
+        "extractionEndpointHost": None,
+        "extractionModel": None,
+        "smtpConfigured": False,
+        "smtpHost": None,
+        "smtpFrom": None,
+        "fetchAllowedHosts": [],
+        "registeredSources": 30,
+        "automaticSources": 0,
+    }
+    serialized = response.text.casefold()
+    assert "secret" not in serialized
+    assert "password" not in serialized
+    assert "api_key" not in serialized
+
+
 def test_admin_writes_are_disabled_without_configuration(tmp_path: Path):
     settings = Settings(
         database_url=f"sqlite:///{(tmp_path / 'disabled.db').as_posix()}",
@@ -368,6 +392,7 @@ def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     reviewer_headers = {"Authorization": f"Bearer {login.json()['accessToken']}"}
     assert client.get("/api/v2/admin/review-queue", headers=reviewer_headers).status_code == 200
     assert client.get("/api/v2/admin/sources", headers=reviewer_headers).status_code == 403
+    assert client.get("/api/v2/admin/integrations", headers=reviewer_headers).status_code == 403
 
     audit = client.get("/api/v2/admin/audit-log", headers=admin_headers)
     assert audit.status_code == 200

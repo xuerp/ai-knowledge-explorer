@@ -12,6 +12,7 @@ import {
   type AuditEntry,
   type DataQualityReport,
   type IngestionRun,
+  type IntegrationStatus,
   type OutboxEntry,
   type ReviewQueueItem,
   type SourceView,
@@ -35,6 +36,7 @@ type Workspace = {
   audit: AuditEntry[];
   outbox: OutboxEntry[];
   quality: DataQualityReport | null;
+  integrations: IntegrationStatus | null;
 };
 
 type CatalogRecordKind = "entity" | "relation" | "timeline";
@@ -446,6 +448,51 @@ function AdminReviewPage() {
           </section>
         )}
 
+        {workspace.integrations && (
+          <section className="paper-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-2xl font-semibold">外部集成状态</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  这里只显示是否已配置和非敏感标识，不会返回任何密钥或密码。
+                </p>
+              </div>
+              <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                生产环境检查
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <IntegrationCard
+                title="AI 候选抽取"
+                ready={workspace.integrations.extractionConfigured}
+                detail={
+                  workspace.integrations.extractionConfigured
+                    ? `${workspace.integrations.extractionModel} · ${workspace.integrations.extractionEndpointHost}`
+                    : "未配置 API 地址、密钥或模型"
+                }
+              />
+              <IntegrationCard
+                title="邮件投递"
+                ready={workspace.integrations.smtpConfigured}
+                detail={
+                  workspace.integrations.smtpConfigured
+                    ? `${workspace.integrations.smtpFrom} · ${workspace.integrations.smtpHost}`
+                    : "未配置 SMTP 主机或发件人"
+                }
+              />
+              <IntegrationCard
+                title="自动采集"
+                ready={workspace.integrations.fetchAllowedHosts.length > 0}
+                detail={
+                  workspace.integrations.fetchAllowedHosts.length > 0
+                    ? `${workspace.integrations.automaticSources} 个信源启用 · ${workspace.integrations.fetchAllowedHosts.length} 个白名单域名`
+                    : `${workspace.integrations.registeredSources} 个信源已登记 · 域名白名单为空`
+                }
+              />
+            </div>
+          </section>
+        )}
+
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-semibold">候选队列</h2>
           {workspace.queue.map((item) => (
@@ -689,6 +736,32 @@ function Metric({ label, value }: { label: string; value: number | string }) {
     <div className="paper-card p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-2 font-serif text-3xl font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function IntegrationCard({
+  title,
+  ready,
+  detail,
+}: {
+  title: string;
+  ready: boolean;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-medium">{title}</h3>
+        <span
+          className={`rounded-full px-2 py-1 text-xs ${
+            ready ? "bg-verified/10 text-verified" : "bg-amber-400/10 text-amber-700"
+          }`}
+        >
+          {ready ? "已配置" : "待配置"}
+        </span>
+      </div>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">{detail}</p>
     </div>
   );
 }
