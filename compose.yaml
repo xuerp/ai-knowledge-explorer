@@ -100,7 +100,9 @@ services:
       - app.worker
       - --interval-seconds
       - ${AI_RADAR_WORKER_INTERVAL_SECONDS:-900}
-    environment: *backend-environment
+    environment:
+      <<: *backend-environment
+      AI_RADAR_SERVICE_ROLE: worker
     healthcheck:
       test: ["CMD", "python", "-m", "app.worker", "--healthcheck"]
       interval: 30s

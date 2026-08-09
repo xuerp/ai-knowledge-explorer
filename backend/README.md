@@ -154,3 +154,4 @@ POST /api/v2/admin/email-outbox/send
 ```
 
 完整生产步骤见 [PRODUCTION_RUNBOOK.md](../docs/PRODUCTION_RUNBOOK.md)。
+预发布环境部署见 [STAGING_DEPLOYMENT.md](../docs/STAGING_DEPLOYMENT.md)。

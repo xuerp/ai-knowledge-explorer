@@ -8,6 +8,14 @@ from typing import Literal
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
+def normalize_database_url(url: str) -> str:
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    return url
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     database_url: str
@@ -80,9 +88,11 @@ class Settings:
         if data_mode not in {"demo", "live"}:
             raise ValueError("AI_RADAR_DATA_MODE must be either 'demo' or 'live'.")
         return cls(
-            database_url=os.getenv(
-                "AI_RADAR_DATABASE_URL",
-                f"sqlite:///{database_path.as_posix()}",
+            database_url=normalize_database_url(
+                os.getenv(
+                    "AI_RADAR_DATABASE_URL",
+                    f"sqlite:///{database_path.as_posix()}",
+                )
             ),
             seed_snapshot_path=Path(
                 os.getenv(

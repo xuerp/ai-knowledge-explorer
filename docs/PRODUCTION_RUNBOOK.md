@@ -180,7 +180,7 @@ python -m pytest
 python -m alembic current --check-heads
 python -m alembic check
 cd ..
-npm run check
+bun run check
 ```
 
 然后确认：
@@ -197,3 +197,5 @@ npm run check
 - CORS 只包含真实前端域名。
 - 所选托管平台已经配置 HTTPS、数据库备份、日志、告警和回滚方案。
 - `/api/v2/admin/data-quality` 通过前，不得将演示数据标记为正式完备数据。
+
+Render 与 Cloudflare 的预发布部署步骤见 [STAGING_DEPLOYMENT.md](./STAGING_DEPLOYMENT.md)。

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import signal
 import sys
 import time
@@ -23,6 +24,13 @@ from .scheduler import IngestionScheduler
 
 def handle_shutdown_signal(_signum: int, _frame: object) -> None:
     raise KeyboardInterrupt
+
+
+def resolve_worker_id(settings: Settings) -> str:
+    instance_id = os.getenv("RENDER_INSTANCE_ID", "").strip()
+    if not instance_id:
+        return settings.worker_id
+    return f"{settings.worker_id}-{instance_id}"[:128]
 
 
 def run_cycle(
@@ -116,16 +124,15 @@ def wait_with_heartbeats(
 def worker_health(settings: Settings) -> bool:
     database = Database(settings.database_url)
     operations = OperationsService(settings.worker_stale_seconds)
+    worker_id = resolve_worker_id(settings)
     try:
         with database.session() as session:
-            healthy = operations.is_worker_healthy(session, settings.worker_id)
-        print(json.dumps({"workerId": settings.worker_id, "healthy": healthy}), flush=True)
+            healthy = operations.is_worker_healthy(session, worker_id)
+        print(json.dumps({"workerId": worker_id, "healthy": healthy}), flush=True)
         return healthy
     except Exception as error:  # noqa: BLE001 - a healthcheck must fail closed
         print(
-            json.dumps(
-                {"workerId": settings.worker_id, "healthy": False, "error": str(error)[:200]}
-            ),
+            json.dumps({"workerId": worker_id, "healthy": False, "error": str(error)[:200]}),
             flush=True,
         )
         return False
@@ -183,7 +190,7 @@ def main() -> None:
     )
     operations = OperationsService(settings.worker_stale_seconds)
     worker_id = (
-        settings.worker_id
+        resolve_worker_id(settings)
         if args.interval_seconds is not None
         else f"{settings.worker_id}-manual-{str(uuid4())[:8]}"
     )
