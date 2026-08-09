@@ -63,6 +63,16 @@ AI_RADAR_CLOUDFLARE_DOMAIN=staging.你的域名
 
 部署完成后，将最终前端 HTTPS 地址回填到 Render API 的 `AI_RADAR_CORS_ORIGINS`，再检查浏览器登录、审核后台和生产上线预检。
 
+可从本机执行无凭据冒烟检查，自动验证 API 健康、数据库就绪、公开快照、前端页面和跨域配置：
+
+```bash
+AI_RADAR_SMOKE_API_URL=https://你的API地址 \
+AI_RADAR_SMOKE_FRONTEND_URL=https://你的前端地址 \
+bun run smoke:staging
+```
+
+公网地址必须使用 HTTPS；未设置变量时脚本检查本地的 `8001` API 和 `4183` 前端。脚本不会登录、写入数据或读取管理员令牌。
+
 ## 4. 验收顺序
 
 预发布环境至少完成以下检查：
