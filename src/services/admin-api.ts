@@ -73,6 +73,18 @@ export interface DataQualityReport {
   issues: string[];
 }
 
+export interface IntegrationStatus {
+  extractionConfigured: boolean;
+  extractionEndpointHost?: string;
+  extractionModel?: string;
+  smtpConfigured: boolean;
+  smtpHost?: string;
+  smtpFrom?: string;
+  fetchAllowedHosts: string[];
+  registeredSources: number;
+  automaticSources: number;
+}
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   if (!apiBaseUrl) {
     throw new Error("VITE_API_BASE_URL is not configured.");
@@ -111,16 +123,25 @@ export const adminApi = {
   async workspace(token: string, role: AdminUser["role"]) {
     const queue = await request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token);
     if (role !== "admin") {
-      return { queue, sources: [], runs: [], audit: [], outbox: [], quality: null };
+      return {
+        queue,
+        sources: [],
+        runs: [],
+        audit: [],
+        outbox: [],
+        quality: null,
+        integrations: null,
+      };
     }
-    const [sources, runs, audit, outbox, quality] = await Promise.all([
+    const [sources, runs, audit, outbox, quality, integrations] = await Promise.all([
       request<SourceView[]>("/api/v2/admin/sources", {}, token),
       request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
       request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
       request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
       request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
+      request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
     ]);
-    return { queue, sources, runs, audit, outbox, quality };
+    return { queue, sources, runs, audit, outbox, quality, integrations };
   },
 
   decide: (

@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import Annotated, Literal
+from urllib.parse import urlsplit
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,6 +49,7 @@ from .schemas import (
     HealthResponse,
     IngestionResult,
     IngestionRunView,
+    IntegrationStatus,
     KnowledgeSnapshot,
     LoginRequest,
     ModelVersionCompareRequest,
@@ -386,6 +388,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: SessionDependency,
     ) -> DataQualityReport:
         return quality_gate.report(get_public_snapshot(session))
+
+    @app.get("/api/v2/admin/integrations", response_model=IntegrationStatus)
+    def integration_status(
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> IntegrationStatus:
+        sources = ingestion.list_sources(session)
+        extraction_host = (
+            urlsplit(app_settings.extraction_api_url).hostname
+            if app_settings.extraction_api_url
+            else None
+        )
+        return IntegrationStatus(
+            extraction_configured=bool(
+                app_settings.extraction_api_url
+                and app_settings.extraction_api_key
+                and app_settings.extraction_model
+            ),
+            extraction_endpoint_host=extraction_host,
+            extraction_model=app_settings.extraction_model,
+            smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
+            smtp_host=app_settings.smtp_host,
+            smtp_from=app_settings.smtp_from,
+            fetch_allowed_hosts=list(app_settings.fetch_allowed_hosts),
+            registered_sources=len(sources),
+            automatic_sources=sum(source.fetch_enabled for source in sources),
+        )
 
     @app.post("/api/v2/admin/digests/run", response_model=DigestRunSummary)
     def run_daily_digests(

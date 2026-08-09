@@ -48,11 +48,14 @@ POST /api/v2/admin/relations
 POST /api/v2/admin/entities/{entity_id}/timeline
 GET /api/v2/admin/sources
 PATCH /api/v2/admin/sources/{source_id}
+GET /api/v2/admin/integrations
 ```
 
 具体版本通过 `familyId` 归属模型系列。管理员可在 `/admin/review` 的目录编辑器中，或使用上述受保护接口补充实体、规格、时间线和 `part-of` / `successor-of` 谱系关系；知识库、详情页、图谱与对比页会自动接入。`verified` 关系和时间线必须包含至少一个 `sourceId`。
 
 信源更新接口支持 `active`、`fetchEnabled` 与 `fetchIntervalMinutes`（120–1440）。管理后台可以登记信源、调整同样的控制项，并从最近快照执行“抽取候选”；候选会进入人工审核队列。停用信源会同时关闭自动采集。即使在页面启用，域名仍必须出现在 `AI_RADAR_FETCH_ALLOWED_HOSTS` 中，worker 才会发起网络请求。
+
+集成状态接口只返回抽取服务、SMTP 和域名白名单是否就绪，以及模型名、主机名等非敏感标识；任何密钥、密码和完整连接串都不会返回前端。
 
 ## 首个管理员
 

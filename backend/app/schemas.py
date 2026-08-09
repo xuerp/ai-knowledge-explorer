@@ -297,6 +297,18 @@ class HealthResponse(CamelModel):
     auth_enabled: bool
 
 
+class IntegrationStatus(CamelModel):
+    extraction_configured: bool
+    extraction_endpoint_host: str | None = None
+    extraction_model: str | None = None
+    smtp_configured: bool
+    smtp_host: str | None = None
+    smtp_from: str | None = None
+    fetch_allowed_hosts: list[str]
+    registered_sources: int
+    automatic_sources: int
+
+
 class GraphQuery(CamelModel):
     entity_types: list[str] = Field(default_factory=list)
     confidences: list[Confidence] = Field(default_factory=list)
