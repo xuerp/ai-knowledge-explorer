@@ -37,7 +37,6 @@ services:
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /ready
-    maxShutdownDelaySeconds: 90
     autoDeployTrigger: checksPass
     envVars:
       - fromGroup: ai-radar-staging-runtime

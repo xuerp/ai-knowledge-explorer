@@ -14,6 +14,7 @@ def test_staging_blueprint_uses_only_a_free_render_web_service() -> None:
     assert service["plan"] == "free"
     assert service["branch"] == "codex/productionize"
     assert "preDeployCommand" not in service
+    assert "maxShutdownDelaySeconds" not in service
 
 
 def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
