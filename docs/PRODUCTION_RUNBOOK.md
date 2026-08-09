@@ -151,14 +151,23 @@ GET /api/v2/admin/production-readiness
 
 ## 7. 备份与恢复
 
-创建 PostgreSQL 逻辑备份：
+推荐使用仓库内的恢复演练工具。它会创建 PostgreSQL custom-format 逻辑备份，在同一 PostgreSQL 实例中新建名称随机且受限的临时数据库，恢复后核对 Alembic head 以及用户、知识实体、发布记录和信源数量，最后自动删除临时数据库。它不会覆盖源数据库，默认也不会覆盖已有备份文件：
+
+```bash
+cd backend
+python -m app.backup_drill
+```
+
+默认备份写入仓库根目录的 `backups/ai-radar-时间.dump`，并生成同名 `.sha256` 校验文件；该目录已被 Git 忽略。备份仍可能包含用户资料、密码哈希和业务数据，必须按生产敏感数据加密存储、限制访问并设置保留周期。若 Docker CLI 不在 `PATH`，可通过 `--docker` 传入完整路径；容器、数据库和用户名称可分别通过 `--container`、`--database`、`--user` 指定。应在写入较少的维护窗口执行，以免恢复库与持续变化的源库计数出现短暂差异。
+
+仅创建手工逻辑备份时也可使用：
 
 ```bash
 docker compose --env-file .env.production exec -T postgres \
   pg_dump -U ai_radar -d ai_radar -Fc > ai-radar.dump
 ```
 
-必须先在独立测试数据库中验证恢复流程。恢复演练不得覆盖生产数据库。
+恢复演练不得覆盖生产数据库。托管平台的自动备份仍需另行配置，并至少完成一次从平台快照恢复到独立实例的演练；本工具不能替代异地备份和平台级灾难恢复。
 
 恢复演练后至少核对迁移版本、用户数量和公开快照可读性：
 
