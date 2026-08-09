@@ -2,6 +2,14 @@
 
 本文档用于建立不承载正式数据的免费预发布环境。架构由 Cloudflare Workers 前端、Render Free Web Service API 和 Neon Free PostgreSQL 组成。仓库配置不会创建外部资源，也不包含任何账号、连接串或供应商凭据。
 
+当前预发布地址：
+
+- 前端：`https://ai-radar-staging.1966761779.workers.dev`
+- API：`https://ai-radar-api-staging.onrender.com`
+- 就绪检查：`https://ai-radar-api-staging.onrender.com/ready`
+
+2026 年 8 月 9 日已完成无凭据远程冒烟验收：前端返回 `200`，API 健康检查与就绪检查通过，公开快照可读，Cloudflare 来源的 CORS 预检通过。该环境仍明确保持 `AI_RADAR_DATA_MODE=demo`。
+
 ## 1. 部署结构与限制
 
 仓库根目录的 `render.yaml` 只声明一个新加坡区域的免费 API 服务：
@@ -33,7 +41,13 @@ Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤�
    - `AI_RADAR_CORS_ORIGINS`：`https://ai-radar-staging.你的Cloudflare子域名.workers.dev`。
 4. 确认资源列表中只有 `ai-radar-api-staging`，计划必须显示 `Free`，不应再出现 Background Worker 或 Render Postgres。
 5. 部署完成后访问 `https://你的API地址/ready`，确认返回 `ok: true`、`dataMode: demo` 和 PostgreSQL 数据库类型。
-6. 创建并验证管理员账户后，从 API 服务中删除 `AI_RADAR_ADMIN_TOKEN` 并重新部署。
+6. 在仓库根目录运行以下命令，按提示输入管理员邮箱、密码和 Render 中的临时令牌。令牌与密码不会回显，也不会写入命令历史：
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-staging-admin.ps1
+   ```
+
+7. 脚本确认管理员创建和登录验证成功后，从 API 服务中删除 `AI_RADAR_ADMIN_TOKEN` 并重新部署。
 
 AI 抽取、SMTP 和采集白名单暂不放入 Blueprint。Render 免费实例阻止常用 SMTP 端口，真实邮件投递应改用 HTTPS 邮件 API 或在后续付费环境中配置。任何密钥都不得提交到 `render.yaml`、`.env.production.example` 或 `VITE_` 变量。
 
