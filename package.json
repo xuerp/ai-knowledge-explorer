@@ -14,6 +14,7 @@
     "check": "eslint . && tsc --noEmit && node --test tests/*.test.mjs && vite build",
     "format": "prettier --write .",
     "prepare:cloudflare:staging": "node scripts/prepare-cloudflare-deploy.mjs",
+    "smoke:staging": "node scripts/smoke-staging.mjs",
     "export:demo-snapshot": "node scripts/export-demo-snapshot.mjs"
   },
   "dependencies": {
