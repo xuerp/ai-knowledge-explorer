@@ -83,6 +83,7 @@ export interface IntegrationStatus {
   fetchAllowedHosts: string[];
   registeredSources: number;
   automaticSources: number;
+  digestTimezone: string;
 }
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {

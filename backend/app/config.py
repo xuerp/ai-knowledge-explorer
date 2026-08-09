@@ -29,6 +29,7 @@ class Settings:
     smtp_password: str | None = None
     smtp_from: str | None = None
     smtp_starttls: bool = True
+    digest_timezone: str = "Asia/Shanghai"
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -82,4 +83,5 @@ class Settings:
             smtp_from=os.getenv("AI_RADAR_SMTP_FROM") or None,
             smtp_starttls=os.getenv("AI_RADAR_SMTP_STARTTLS", "true").lower()
             in {"1", "true", "yes"},
+            digest_timezone=os.getenv("AI_RADAR_DIGEST_TIMEZONE", "Asia/Shanghai"),
         )

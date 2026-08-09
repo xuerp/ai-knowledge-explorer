@@ -307,6 +307,7 @@ class IntegrationStatus(CamelModel):
     fetch_allowed_hosts: list[str]
     registered_sources: int
     automatic_sources: int
+    digest_timezone: str
 
 
 class GraphQuery(CamelModel):

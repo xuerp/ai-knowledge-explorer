@@ -113,7 +113,9 @@ python -m app.migrate_operational_data `
 .\.venv\Scripts\python.exe -m app.worker --interval-seconds 900
 ```
 
-Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源；每个信源仍受自己的 120–1440 分钟采集间隔限制。每日摘要通过管理 API 生成和投递：
+Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源；每个信源仍受自己的 120–1440 分钟采集间隔限制。worker 也会按照 `AI_RADAR_DIGEST_TIMEZONE` 和每个账户保存的发送时间生成每日摘要，同一账户同一天最多生成一封。SMTP 已配置时自动投递；未配置时安全保留在 Outbox。
+
+管理员仍可使用以下接口手动触发生成和投递：
 
 ```text
 POST /api/v2/admin/digests/run

@@ -414,6 +414,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             fetch_allowed_hosts=list(app_settings.fetch_allowed_hosts),
             registered_sources=len(sources),
             automatic_sources=sum(source.fetch_enabled for source in sources),
+            digest_timezone=app_settings.digest_timezone,
         )
 
     @app.post("/api/v2/admin/digests/run", response_model=DigestRunSummary)

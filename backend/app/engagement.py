@@ -4,6 +4,7 @@ import json
 import re
 from datetime import UTC, datetime
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -281,7 +282,18 @@ class EngagementService:
             session.commit()
         return self._research_view(row)
 
-    def queue_daily_digests(self, session: Session) -> DigestRunSummary:
+    def queue_daily_digests(
+        self,
+        session: Session,
+        *,
+        now: datetime | None = None,
+        timezone_name: str = "Asia/Shanghai",
+        due_only: bool = False,
+    ) -> DigestRunSummary:
+        current = now or datetime.now(UTC)
+        if current.tzinfo is None:
+            current = current.replace(tzinfo=UTC)
+        local_now = current.astimezone(ZoneInfo(timezone_name))
         users = session.scalars(
             select(UserRecord).where(
                 UserRecord.active.is_(True),
@@ -289,15 +301,35 @@ class EngagementService:
             )
         ).all()
         queued = 0
+        recipients = 0
         for user in users:
-            unread = session.scalars(
-                select(NotificationRecord)
+            if due_only and local_now.strftime("%H:%M") < user.digest_hour:
+                continue
+            recipients += 1
+            delivery_key = f"daily:{user.id}:{local_now.date().isoformat()}"
+            if session.scalar(
+                select(EmailOutboxRecord.id).where(EmailOutboxRecord.delivery_key == delivery_key)
+            ):
+                continue
+            previous_digest = session.scalar(
+                select(EmailOutboxRecord)
                 .where(
-                    NotificationRecord.user_id == user.id,
-                    NotificationRecord.read_at.is_(None),
+                    EmailOutboxRecord.user_id == user.id,
+                    EmailOutboxRecord.delivery_key.is_not(None),
                 )
-                .order_by(NotificationRecord.created_at.desc())
-                .limit(20)
+                .order_by(EmailOutboxRecord.created_at.desc())
+                .limit(1)
+            )
+            unread_query = select(NotificationRecord).where(
+                NotificationRecord.user_id == user.id,
+                NotificationRecord.read_at.is_(None),
+            )
+            if previous_digest:
+                unread_query = unread_query.where(
+                    NotificationRecord.created_at > previous_digest.created_at
+                )
+            unread = session.scalars(
+                unread_query.order_by(NotificationRecord.created_at.desc()).limit(20)
             ).all()
             if not unread:
                 continue
@@ -310,12 +342,13 @@ class EngagementService:
                     subject=f"AI Radar daily digest — {len(unread)} updates",
                     body_text=body,
                     status="queued",
-                    created_at=datetime.now(UTC),
+                    delivery_key=delivery_key,
+                    created_at=current,
                 )
             )
             queued += 1
         session.commit()
-        return DigestRunSummary(recipients=len(users), messages_queued=queued)
+        return DigestRunSummary(recipients=recipients, messages_queued=queued)
 
     def list_outbox(self, session: Session) -> list[EmailOutboxView]:
         rows = session.scalars(

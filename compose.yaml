@@ -18,6 +18,7 @@ x-backend-environment: &backend-environment
   AI_RADAR_SMTP_PASSWORD: ${AI_RADAR_SMTP_PASSWORD:-}
   AI_RADAR_SMTP_FROM: ${AI_RADAR_SMTP_FROM:-}
   AI_RADAR_SMTP_STARTTLS: ${AI_RADAR_SMTP_STARTTLS:-true}
+  AI_RADAR_DIGEST_TIMEZONE: ${AI_RADAR_DIGEST_TIMEZONE:-Asia/Shanghai}
 
 services:
   postgres:
