@@ -26,68 +26,28 @@ envVarGroups:
         value: "120"
       - key: AI_RADAR_DIGEST_TIMEZONE
         value: Asia/Shanghai
-      - key: AI_RADAR_WORKER_ID
-        value: scheduler-staging
-      - key: AI_RADAR_WORKER_HEARTBEAT_SECONDS
-        value: "30"
-      - key: AI_RADAR_WORKER_STALE_SECONDS
-        value: "180"
 
 services:
   - type: web
     name: ai-radar-api-staging
     runtime: docker
-    plan: starter
+    plan: free
     region: singapore
+    branch: codex/productionize
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /ready
-    preDeployCommand: python -m alembic upgrade head
     maxShutdownDelaySeconds: 90
     autoDeployTrigger: checksPass
     envVars:
       - fromGroup: ai-radar-staging-runtime
+      - key: PORT
+        value: "8000"
       - key: AI_RADAR_DATABASE_URL
-        fromDatabase:
-          name: ai-radar-postgres-staging
-          property: connectionString
+        sync: false
       - key: AI_RADAR_JWT_SECRET
         generateValue: true
       - key: AI_RADAR_ADMIN_TOKEN
         sync: false
       - key: AI_RADAR_CORS_ORIGINS
         sync: false
-
-  - type: worker
-    name: ai-radar-worker-staging
-    runtime: docker
-    plan: starter
-    region: singapore
-    dockerContext: ./backend
-    dockerfilePath: ./backend/Dockerfile
-    dockerCommand: >-
-      sh -c 'until python -m alembic current --check-heads; do sleep 5; done;
-      exec python -m app.worker --interval-seconds 900'
-    maxShutdownDelaySeconds: 90
-    numInstances: 1
-    autoDeployTrigger: checksPass
-    envVars:
-      - fromGroup: ai-radar-staging-runtime
-      - key: AI_RADAR_SERVICE_ROLE
-        value: worker
-      - key: AI_RADAR_DATABASE_URL
-        fromDatabase:
-          name: ai-radar-postgres-staging
-          property: connectionString
-
-databases:
-  - name: ai-radar-postgres-staging
-    plan: basic-256mb
-    region: singapore
-    postgresMajorVersion: "16"
-    databaseName: ai_radar
-    user: ai_radar
-    diskSizeGB: 15
-    storageAutoscalingEnabled: false
-    connectionPool: none
-    ipAllowList: []
