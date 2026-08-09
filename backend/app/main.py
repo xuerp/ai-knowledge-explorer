@@ -26,6 +26,7 @@ from .extraction import ExtractionUnavailableError, StructuredExtractionService
 from .fetching import SafeHttpFetcher
 from .ingestion import IngestionService
 from .operations import OperationsService
+from .production_readiness import ProductionReadinessInputs, build_production_readiness
 from .quality import KnowledgeQualityGate
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
@@ -57,6 +58,7 @@ from .schemas import (
     ModelVersionCompareRequest,
     NotificationView,
     OperationsDiagnostics,
+    ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
     ResearchCitation,
@@ -463,6 +465,44 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             session,
             app_settings.worker_id,
             run_limit=recent_limit,
+        )
+
+    @app.get(
+        "/api/v2/admin/production-readiness",
+        response_model=ProductionReadiness,
+    )
+    def production_readiness(
+        response: Response,
+        _: AdminDependency,
+        session: SessionDependency,
+    ) -> ProductionReadiness:
+        response.headers["Cache-Control"] = "no-store"
+        sources = ingestion.list_sources(session)
+        quality = quality_gate.report(get_public_snapshot(session))
+        diagnostics = operations.diagnostics(session, app_settings.worker_id, run_limit=1)
+        revision: str | None = None
+        if database.engine.dialect.name != "sqlite":
+            try:
+                revision = session.scalar(text("SELECT version_num FROM alembic_version"))
+            except SQLAlchemyError:
+                session.rollback()
+        return build_production_readiness(
+            ProductionReadinessInputs(
+                environment=app_settings.environment,
+                data_mode=app_settings.data_mode,
+                database_dialect=database.engine.dialect.name,
+                schema_revision=revision,
+                expected_schema_revision=DATABASE_SCHEMA_REVISION,
+                jwt_enabled=auth.enabled,
+                legacy_admin_token_enabled=bool(app_settings.admin_token),
+                cors_origins=app_settings.cors_origins,
+                extraction_configured=extraction.enabled,
+                smtp_configured=email_delivery.enabled,
+                fetch_allowed_hosts=len(app_settings.fetch_allowed_hosts),
+                automatic_sources=sum(source.active and source.fetch_enabled for source in sources),
+                quality_ready=quality.live_ready,
+                heartbeat_status=diagnostics.heartbeat_status,
+            )
         )
 
     @app.post("/api/v2/admin/digests/run", response_model=DigestRunSummary)

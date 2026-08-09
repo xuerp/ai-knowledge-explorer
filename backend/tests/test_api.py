@@ -318,6 +318,33 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     assert "api_key" not in serialized
 
 
+def test_admin_production_readiness_reports_blockers_without_secrets(client: TestClient):
+    assert client.get("/api/v2/admin/production-readiness").status_code == 401
+    response = client.get(
+        "/api/v2/admin/production-readiness",
+        headers={"X-Admin-Token": "test-admin-token"},
+    )
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    payload = response.json()
+    assert payload["automatedReady"] is False
+    assert payload["blockingCount"] > 0
+    assert payload["warningCount"] == 1
+    checks = {check["code"]: check for check in payload["checks"]}
+    assert checks["runtime_environment"]["status"] == "blocked"
+    assert checks["live_data_mode"]["status"] == "blocked"
+    assert checks["database_schema"]["status"] == "blocked"
+    assert checks["jwt_authentication"]["status"] == "ready"
+    assert checks["legacy_admin_token"]["status"] == "warning"
+    assert checks["worker_heartbeat"]["status"] == "blocked"
+    assert len(payload["manualChecks"]) == 4
+    serialized = response.text.casefold()
+    assert "test-admin-token" not in serialized
+    assert "jwt-secret" not in serialized
+    assert "password" not in serialized
+    assert "api_key" not in serialized
+
+
 def test_admin_writes_are_disabled_without_configuration(tmp_path: Path):
     settings = Settings(
         database_url=f"sqlite:///{(tmp_path / 'disabled.db').as_posix()}",
@@ -428,6 +455,10 @@ def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     assert client.get("/api/v2/admin/sources", headers=reviewer_headers).status_code == 403
     assert client.get("/api/v2/admin/integrations", headers=reviewer_headers).status_code == 403
     assert client.get("/api/v2/admin/operations", headers=reviewer_headers).status_code == 403
+    assert (
+        client.get("/api/v2/admin/production-readiness", headers=reviewer_headers).status_code
+        == 403
+    )
 
     audit = client.get("/api/v2/admin/audit-log", headers=admin_headers)
     assert audit.status_code == 200

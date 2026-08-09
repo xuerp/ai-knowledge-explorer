@@ -25,6 +25,8 @@ import {
   type IntegrationStatus,
   type OperationsDiagnostics,
   type OutboxEntry,
+  type ProductionReadiness,
+  type ProductionReadinessCheck,
   type ReviewQueueItem,
   type SourceView,
 } from "@/services/admin-api";
@@ -49,6 +51,7 @@ type Workspace = {
   quality: DataQualityReport | null;
   integrations: IntegrationStatus | null;
   operations: OperationsDiagnostics | null;
+  productionReadiness: ProductionReadiness | null;
 };
 
 type CatalogRecordKind = "entity" | "relation" | "timeline";
@@ -178,16 +181,33 @@ function AdminReviewPage() {
 
   useEffect(() => {
     if (!token || user?.role !== "admin") return;
-    const refreshOperations = () => {
-      adminApi
-        .operations(token)
-        .then((operations) => {
-          setWorkspace((current) => (current ? { ...current, operations } : current));
-          setOperationsError("");
-        })
-        .catch((reason: unknown) => {
-          setOperationsError(reason instanceof Error ? reason.message : "自动任务状态刷新失败。");
-        });
+    const refreshOperations = async () => {
+      const [operationsResult, readinessResult] = await Promise.allSettled([
+        adminApi.operations(token),
+        adminApi.productionReadiness(token),
+      ]);
+      setWorkspace((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          operations:
+            operationsResult.status === "fulfilled" ? operationsResult.value : current.operations,
+          productionReadiness:
+            readinessResult.status === "fulfilled"
+              ? readinessResult.value
+              : current.productionReadiness,
+        };
+      });
+      const failure = [operationsResult, readinessResult].find(
+        (result) => result.status === "rejected",
+      );
+      setOperationsError(
+        failure?.status === "rejected"
+          ? failure.reason instanceof Error
+            ? failure.reason.message
+            : "运行状态刷新失败。"
+          : "",
+      );
     };
     const timer = window.setInterval(refreshOperations, 60_000);
     return () => window.clearInterval(timer);
@@ -509,6 +529,10 @@ function AdminReviewPage() {
               ))}
             </ul>
           </section>
+        )}
+
+        {workspace.productionReadiness && (
+          <ProductionReadinessPanel readiness={workspace.productionReadiness} />
         )}
 
         {workspace.integrations && (
@@ -1174,6 +1198,81 @@ function IntegrationCard({
       </div>
       <p className="mt-3 text-xs leading-5 text-muted-foreground">{detail}</p>
     </div>
+  );
+}
+
+function ProductionReadinessPanel({ readiness }: { readiness: ProductionReadiness }) {
+  return (
+    <section className="paper-card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-2xl font-semibold">生产上线预检</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            自动检查运行环境、数据质量和外部集成；人工项目必须在正式环境逐项留痕确认。
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs ${
+            readiness.automatedReady
+              ? "bg-verified/10 text-verified"
+              : "bg-conflict/10 text-conflict"
+          }`}
+        >
+          {readiness.automatedReady
+            ? `自动检查通过 · ${readiness.warningCount} 项警告`
+            : `${readiness.blockingCount} 项阻塞 · ${readiness.warningCount} 项警告`}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {readiness.checks.map((check) => (
+          <ReadinessCard key={check.code} check={check} />
+        ))}
+      </div>
+
+      <div className="mt-6 border-t border-border pt-5">
+        <h3 className="text-sm font-medium">正式发布前人工确认</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          这些项目依赖域名、云平台或供应商外部状态，系统不会自动宣称已经完成。
+        </p>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          {readiness.manualChecks.map((check) => (
+            <ReadinessCard key={check.code} check={check} />
+          ))}
+        </div>
+      </div>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        生成时间：{formatTime(readiness.generatedAt)}
+      </p>
+    </section>
+  );
+}
+
+function ReadinessCard({ check }: { check: ProductionReadinessCheck }) {
+  const label =
+    check.status === "ready"
+      ? "通过"
+      : check.status === "blocked"
+        ? "阻塞"
+        : check.status === "warning"
+          ? "警告"
+          : "人工确认";
+  const tone =
+    check.status === "ready"
+      ? "bg-verified/10 text-verified"
+      : check.status === "blocked"
+        ? "bg-conflict/10 text-conflict"
+        : "bg-unverified/10 text-unverified";
+  return (
+    <article className="rounded-lg border border-border p-4">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-sm font-medium">{check.title}</h3>
+        <span className={`shrink-0 rounded-full px-2 py-1 text-xs ${tone}`}>{label}</span>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{check.detail}</p>
+      {check.action && <p className="mt-2 text-xs leading-5">下一步：{check.action}</p>}
+    </article>
   );
 }
 

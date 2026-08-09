@@ -139,6 +139,23 @@ export interface IntegrationStatus {
   digestTimezone: string;
 }
 
+export interface ProductionReadinessCheck {
+  code: string;
+  title: string;
+  status: "ready" | "blocked" | "warning" | "manual";
+  detail: string;
+  action?: string;
+}
+
+export interface ProductionReadiness {
+  generatedAt: string;
+  automatedReady: boolean;
+  blockingCount: number;
+  warningCount: number;
+  checks: ProductionReadinessCheck[];
+  manualChecks: ProductionReadinessCheck[];
+}
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   if (!apiBaseUrl) {
     throw new Error("VITE_API_BASE_URL is not configured.");
@@ -177,6 +194,9 @@ export const adminApi = {
   operations: (token: string) =>
     request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
 
+  productionReadiness: (token: string) =>
+    request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
+
   async workspace(token: string, role: AdminUser["role"]) {
     const queue = await request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token);
     if (role !== "admin") {
@@ -189,18 +209,33 @@ export const adminApi = {
         quality: null,
         integrations: null,
         operations: null,
+        productionReadiness: null,
       };
     }
-    const [sources, runs, audit, outbox, quality, integrations, operations] = await Promise.all([
-      request<SourceView[]>("/api/v2/admin/sources", {}, token),
-      request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
-      request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
-      request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
-      request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
-      request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
-      request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token).catch(() => null),
-    ]);
-    return { queue, sources, runs, audit, outbox, quality, integrations, operations };
+    const [sources, runs, audit, outbox, quality, integrations, operations, productionReadiness] =
+      await Promise.all([
+        request<SourceView[]>("/api/v2/admin/sources", {}, token),
+        request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
+        request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
+        request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
+        request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
+        request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
+        request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token).catch(() => null),
+        request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token).catch(
+          () => null,
+        ),
+      ]);
+    return {
+      queue,
+      sources,
+      runs,
+      audit,
+      outbox,
+      quality,
+      integrations,
+      operations,
+      productionReadiness,
+    };
   },
 
   decide: (
