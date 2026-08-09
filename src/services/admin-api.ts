@@ -32,6 +32,9 @@ export interface SourceView {
   fetchIntervalMinutes: number;
   nextFetchAt?: string;
   lastSeenAt?: string;
+  consecutiveFailures: number;
+  lastFetchError?: string;
+  fetchLeaseExpiresAt?: string;
 }
 
 export interface IngestionRun {
@@ -40,6 +43,8 @@ export interface IngestionRun {
   status: string;
   changeType: string;
   startedAt: string;
+  finishedAt: string;
+  snapshotId?: string;
   error?: string;
 }
 
@@ -56,8 +61,56 @@ export interface OutboxEntry {
   id: string;
   toEmail: string;
   subject: string;
-  status: string;
+  status: "queued" | "retrying" | "sending" | "sent" | "failed";
   createdAt: string;
+  sentAt?: string;
+  attemptCount: number;
+  lastAttemptAt?: string;
+  nextAttemptAt?: string;
+  deliveryLeaseExpiresAt?: string;
+  error?: string;
+}
+
+export interface AutomationRun {
+  id: string;
+  workerId: string;
+  trigger: "scheduled" | "manual";
+  status: "running" | "succeeded" | "partial" | "failed";
+  startedAt: string;
+  finishedAt?: string;
+  durationMs?: number;
+  result?: Record<string, unknown>;
+  error?: string;
+}
+
+export interface OperationsDiagnostics {
+  generatedAt: string;
+  heartbeatStatus: "healthy" | "stale" | "missing";
+  staleAfterSeconds: number;
+  worker?: {
+    workerId: string;
+    state: "starting" | "running" | "idle" | "failed" | "stopped";
+    startedAt: string;
+    heartbeatAt: string;
+    heartbeatAgeSeconds: number;
+    nextCycleAt?: string;
+    lastCycleId?: string;
+    lastCycleStartedAt?: string;
+    lastCycleFinishedAt?: string;
+    lastCycleStatus?: "running" | "succeeded" | "partial" | "failed";
+    consecutiveFailures: number;
+    lastError?: string;
+  };
+  recentRuns: AutomationRun[];
+  queues: {
+    automaticSources: number;
+    sourcesDue: number;
+    sourcesRetrying: number;
+    emailQueued: number;
+    emailRetrying: number;
+    emailSending: number;
+    emailFailed: number;
+  };
 }
 
 export interface DataQualityReport {
@@ -121,6 +174,9 @@ export const adminApi = {
 
   me: (token: string) => request<AdminUser>("/api/v2/auth/me", {}, token),
 
+  operations: (token: string) =>
+    request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
+
   async workspace(token: string, role: AdminUser["role"]) {
     const queue = await request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token);
     if (role !== "admin") {
@@ -132,17 +188,19 @@ export const adminApi = {
         outbox: [],
         quality: null,
         integrations: null,
+        operations: null,
       };
     }
-    const [sources, runs, audit, outbox, quality, integrations] = await Promise.all([
+    const [sources, runs, audit, outbox, quality, integrations, operations] = await Promise.all([
       request<SourceView[]>("/api/v2/admin/sources", {}, token),
       request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
       request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
       request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
       request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
       request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
+      request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token).catch(() => null),
     ]);
-    return { queue, sources, runs, audit, outbox, quality, integrations };
+    return { queue, sources, runs, audit, outbox, quality, integrations, operations };
   },
 
   decide: (
@@ -179,6 +237,13 @@ export const adminApi = {
       token,
     ),
 
+  retrySource: (token: string, id: string, expectedFailureCount: number) =>
+    request<SourceView>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}/retry`,
+      { method: "POST", body: JSON.stringify({ expectedFailureCount }) },
+      token,
+    ),
+
   createSource: (token: string, source: Pick<SourceView, "id" | "title" | "publisher" | "url">) =>
     request<SourceView>(
       "/api/v2/admin/sources",
@@ -204,6 +269,13 @@ export const adminApi = {
     request<{ attempted: number; sent: number; failed: number }>(
       "/api/v2/admin/email-outbox/send",
       { method: "POST" },
+      token,
+    ),
+
+  retryOutbox: (token: string, id: string, expectedAttemptCount: number) =>
+    request<OutboxEntry>(
+      `/api/v2/admin/email-outbox/${encodeURIComponent(id)}/retry`,
+      { method: "POST", body: JSON.stringify({ expectedAttemptCount }) },
       token,
     ),
 

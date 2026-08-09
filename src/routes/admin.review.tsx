@@ -1,6 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Braces, Check, Database, LogOut, Mail, RefreshCw, ShieldCheck, X } from "lucide-react";
+import {
+  Activity,
+  Braces,
+  Check,
+  Database,
+  LogOut,
+  Mail,
+  RefreshCw,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +23,7 @@ import {
   type DataQualityReport,
   type IngestionRun,
   type IntegrationStatus,
+  type OperationsDiagnostics,
   type OutboxEntry,
   type ReviewQueueItem,
   type SourceView,
@@ -37,6 +48,7 @@ type Workspace = {
   outbox: OutboxEntry[];
   quality: DataQualityReport | null;
   integrations: IntegrationStatus | null;
+  operations: OperationsDiagnostics | null;
 };
 
 type CatalogRecordKind = "entity" | "relation" | "timeline";
@@ -144,6 +156,7 @@ function AdminReviewPage() {
   const [timelineEntityId, setTimelineEntityId] = useState("");
   const [catalogMessage, setCatalogMessage] = useState("");
   const [operationMessage, setOperationMessage] = useState("");
+  const [operationsError, setOperationsError] = useState("");
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -162,6 +175,23 @@ function AdminReviewPage() {
       setError(reason instanceof Error ? reason.message : "Session validation failed.");
     });
   }, [refresh]);
+
+  useEffect(() => {
+    if (!token || user?.role !== "admin") return;
+    const refreshOperations = () => {
+      adminApi
+        .operations(token)
+        .then((operations) => {
+          setWorkspace((current) => (current ? { ...current, operations } : current));
+          setOperationsError("");
+        })
+        .catch((reason: unknown) => {
+          setOperationsError(reason instanceof Error ? reason.message : "自动任务状态刷新失败。");
+        });
+    };
+    const timer = window.setInterval(refreshOperations, 60_000);
+    return () => window.clearInterval(timer);
+  }, [token, user?.role]);
 
   const login = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -245,6 +275,39 @@ function AdminReviewPage() {
       await refresh(token);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Source update failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const retrySource = async (source: SourceView) => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      await adminApi.retrySource(token, source.id, source.consecutiveFailures);
+      setOperationMessage(`${source.title} 已重新加入下一次采集队列。`);
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Source retry failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const retryOutbox = async (entry: OutboxEntry) => {
+    if (!window.confirm(`确认重新排队邮件“${entry.subject}”？系统不会重发已成功的邮件。`)) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      await adminApi.retryOutbox(token, entry.id, entry.attemptCount);
+      setOperationMessage(`邮件“${entry.subject}”已重新排队，将由 worker 按退避策略投递。`);
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Outbox retry failed.");
     } finally {
       setBusy(false);
     }
@@ -493,6 +556,16 @@ function AdminReviewPage() {
           </section>
         )}
 
+        {user.role === "admin" && (
+          <OperationsPanel
+            operations={workspace.operations}
+            refreshError={operationsError}
+            outbox={workspace.outbox}
+            busy={busy}
+            onRetryOutbox={retryOutbox}
+          />
+        )}
+
         <section className="space-y-3">
           <h2 className="font-serif text-2xl font-semibold">候选队列</h2>
           {workspace.queue.map((item) => (
@@ -610,6 +683,18 @@ function AdminReviewPage() {
                   >
                     {source.url}
                   </a>
+                  {source.consecutiveFailures > 0 && (
+                    <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/5 p-3 text-xs">
+                      <div className="font-medium text-conflict">
+                        连续失败 {source.consecutiveFailures} 次，系统正在按退避策略重试
+                      </div>
+                      {source.lastFetchError && (
+                        <p className="mt-1 line-clamp-2 text-muted-foreground">
+                          {source.lastFetchError}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <label className="flex items-center gap-2 text-xs text-muted-foreground">
                       周期
@@ -646,6 +731,24 @@ function AdminReviewPage() {
                       onClick={() => updateSource(source, { active: !source.active })}
                     >
                       {source.active ? "停用信源" : "恢复信源"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={
+                        busy ||
+                        source.consecutiveFailures === 0 ||
+                        !source.fetchEnabled ||
+                        isFuture(source.fetchLeaseExpiresAt)
+                      }
+                      title={
+                        isFuture(source.fetchLeaseExpiresAt)
+                          ? `当前采集租约到 ${formatTime(source.fetchLeaseExpiresAt ?? "")}`
+                          : "将失败信源重新加入下一次采集队列"
+                      }
+                      onClick={() => retrySource(source)}
+                    >
+                      立即重新排队
                     </Button>
                     <Button
                       size="sm"
@@ -731,6 +834,314 @@ function AdminReviewPage() {
   );
 }
 
+function OperationsPanel({
+  operations,
+  refreshError,
+  outbox,
+  busy,
+  onRetryOutbox,
+}: {
+  operations: OperationsDiagnostics | null;
+  refreshError: string;
+  outbox: OutboxEntry[];
+  busy: boolean;
+  onRetryOutbox: (entry: OutboxEntry) => void;
+}) {
+  if (!operations) {
+    return (
+      <section className="paper-card border-unverified/30 p-5">
+        <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">
+          <Activity className="h-5 w-5 text-unverified" />
+          自动任务诊断
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          运行状态暂时无法读取。不会因此退出登录；请稍后刷新，或确认数据库迁移已经完成。
+        </p>
+      </section>
+    );
+  }
+
+  const worker = operations.worker;
+  const latest = operations.recentRuns[0];
+  const ingestion = asRecord(latest?.result?.ingestion);
+  const digests = asRecord(latest?.result?.digests);
+  const delivery = asRecord(latest?.result?.emailDelivery);
+  const pendingOutbox = outbox
+    .filter(
+      (entry) =>
+        entry.status === "failed" || entry.status === "retrying" || entry.status === "sending",
+    )
+    .slice(0, 6);
+  const heartbeatLabel =
+    operations.heartbeatStatus === "healthy"
+      ? worker?.state === "failed"
+        ? "Worker 失败（心跳正常）"
+        : "心跳正常"
+      : operations.heartbeatStatus === "stale"
+        ? "心跳延迟"
+        : "尚未收到心跳";
+
+  return (
+    <section className="paper-card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">
+            <Activity className="h-5 w-5 text-signal" />
+            自动任务诊断
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            心跳、最近周期和重试队列均来自持久化运行记录；错误信息已在服务端截断。
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            状态生成于 {formatTime(operations.generatedAt)}，页面每 60 秒自动刷新。
+          </p>
+          {refreshError && (
+            <p className="mt-2 text-xs text-unverified">
+              最近一次刷新失败，当前保留上次结果：{refreshError}
+            </p>
+          )}
+        </div>
+        <StatusBadge
+          label={heartbeatLabel}
+          status={
+            operations.heartbeatStatus === "healthy"
+              ? worker?.state === "failed"
+                ? "failed"
+                : worker?.state === "running"
+                  ? "running"
+                  : "succeeded"
+              : operations.heartbeatStatus === "stale"
+                ? "partial"
+                : "idle"
+          }
+        />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        <DiagnosticCard title="Worker">
+          {worker ? (
+            <>
+              <div className="text-sm font-medium">
+                {worker.workerId} · {workerStateLabel(worker.state)}
+              </div>
+              <div className="mt-2 text-xs leading-5 text-muted-foreground">
+                最近心跳：{formatTime(worker.heartbeatAt)}（{worker.heartbeatAgeSeconds} 秒前）
+                <br />
+                下次周期：{worker.nextCycleAt ? formatTime(worker.nextCycleAt) : "正在运行或未计划"}
+              </div>
+              {worker.lastError && (
+                <p className="mt-2 line-clamp-3 text-xs text-conflict">{worker.lastError}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">worker 尚未写入首个心跳。</p>
+          )}
+        </DiagnosticCard>
+
+        <DiagnosticCard title="重试与积压">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <QueueMetric label="自动信源" value={operations.queues.automaticSources} />
+            <QueueMetric label="当前到期" value={operations.queues.sourcesDue} />
+            <QueueMetric label="采集重试" value={operations.queues.sourcesRetrying} />
+            <QueueMetric label="邮件待发" value={operations.queues.emailQueued} />
+            <QueueMetric label="邮件重试" value={operations.queues.emailRetrying} />
+            <QueueMetric label="邮件发送中" value={operations.queues.emailSending} />
+            <QueueMetric label="邮件终态失败" value={operations.queues.emailFailed} />
+          </div>
+        </DiagnosticCard>
+
+        <DiagnosticCard title="最近运行周期">
+          {latest ? (
+            <>
+              <div className="flex items-center justify-between gap-3">
+                <StatusBadge label={statusLabel(latest.status)} status={latest.status} />
+                <span className="text-xs text-muted-foreground">
+                  {formatDuration(latest.durationMs)}
+                </span>
+              </div>
+              {latest.result ? (
+                <div className="mt-3 space-y-1 text-xs leading-5 text-muted-foreground">
+                  <div>
+                    采集：到期 {numberValue(ingestion, "due")} · 成功{" "}
+                    {numberValue(ingestion, "succeeded")} · 失败 {numberValue(ingestion, "failed")}
+                  </div>
+                  <div>
+                    摘要：收件人 {numberValue(digests, "recipients")} · 新增邮件{" "}
+                    {numberValue(digests, "messagesQueued")}
+                  </div>
+                  <div>
+                    投递：尝试 {numberValue(delivery, "attempted")} · 成功{" "}
+                    {numberValue(delivery, "sent")} · 失败 {numberValue(delivery, "failed")}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {latest.status === "running"
+                    ? "周期正在运行，暂无汇总。"
+                    : "本周期没有可用汇总。"}
+                </p>
+              )}
+              {latest.error && (
+                <p className="mt-2 line-clamp-3 text-xs text-conflict">{latest.error}</p>
+              )}
+              <div className="mt-2 text-xs text-muted-foreground">
+                {formatTime(latest.startedAt)}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">尚无自动周期记录。</p>
+          )}
+        </DiagnosticCard>
+      </div>
+
+      {operations.recentRuns.length > 0 && (
+        <div className="mt-4 rounded-lg border border-border p-4">
+          <h3 className="text-sm font-medium">最近周期</h3>
+          <div className="mt-2 divide-y divide-border">
+            {operations.recentRuns.slice(0, 5).map((run) => (
+              <div key={run.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <div>
+                  <div className="font-mono text-xs">{run.id}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {formatTime(run.startedAt)} · {run.trigger === "scheduled" ? "自动" : "手动"} ·{" "}
+                    {formatDuration(run.durationMs)}
+                  </div>
+                </div>
+                <StatusBadge label={statusLabel(run.status)} status={run.status} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pendingOutbox.length > 0 && (
+        <div className="mt-4 rounded-lg border border-conflict/20 p-4">
+          <h3 className="text-sm font-medium">邮件重试明细</h3>
+          <div className="mt-2 divide-y divide-border">
+            {pendingOutbox.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">{entry.subject}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {entry.status === "retrying"
+                      ? `第 ${entry.attemptCount} 次失败 · 下次 ${entry.nextAttemptAt ? formatTime(entry.nextAttemptAt) : "待调度"}`
+                      : entry.status === "sending"
+                        ? `第 ${entry.attemptCount} 次投递进行中 · 租约至 ${entry.deliveryLeaseExpiresAt ? formatTime(entry.deliveryLeaseExpiresAt) : "待恢复"}`
+                        : `已达到自动重试上限 · 共尝试 ${entry.attemptCount} 次`}
+                  </div>
+                  {entry.error && (
+                    <p className="mt-1 line-clamp-2 text-xs text-conflict">{entry.error}</p>
+                  )}
+                </div>
+                {entry.status === "failed" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => onRetryOutbox(entry)}
+                  >
+                    重新排队
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function DiagnosticCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function QueueMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-mono font-medium">{value}</span>
+    </div>
+  );
+}
+
+function StatusBadge({
+  label,
+  status,
+}: {
+  label: string;
+  status: "idle" | "running" | "succeeded" | "partial" | "failed";
+}) {
+  const className =
+    status === "succeeded"
+      ? "bg-verified/10 text-verified"
+      : status === "running"
+        ? "bg-inferred/10 text-inferred"
+        : status === "partial"
+          ? "bg-unverified/10 text-unverified"
+          : status === "failed"
+            ? "bg-conflict/10 text-conflict"
+            : "bg-muted text-muted-foreground";
+  return <span className={`rounded-full px-2.5 py-1 text-xs ${className}`}>{label}</span>;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function numberValue(record: Record<string, unknown> | null, key: string): number {
+  const value = record?.[key];
+  return typeof value === "number" ? value : 0;
+}
+
+function statusLabel(status: "running" | "succeeded" | "partial" | "failed"): string {
+  return status === "running"
+    ? "运行中"
+    : status === "succeeded"
+      ? "成功"
+      : status === "partial"
+        ? "部分失败"
+        : "失败";
+}
+
+function workerStateLabel(state: "starting" | "running" | "idle" | "failed" | "stopped"): string {
+  return state === "starting"
+    ? "启动中"
+    : state === "running"
+      ? "运行中"
+      : state === "idle"
+        ? "空闲"
+        : state === "failed"
+          ? "失败"
+          : "已停止";
+}
+
+function formatTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("zh-CN", { hour12: false });
+}
+
+function formatDuration(value?: number): string {
+  if (value === undefined) return "进行中";
+  return value < 1000 ? `${value} 毫秒` : `${(value / 1000).toFixed(1)} 秒`;
+}
+
+function isFuture(value?: string): boolean {
+  return Boolean(value && new Date(value).getTime() > Date.now());
+}
+
 function Metric({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="paper-card p-4">
@@ -755,7 +1166,7 @@ function IntegrationCard({
         <h3 className="text-sm font-medium">{title}</h3>
         <span
           className={`rounded-full px-2 py-1 text-xs ${
-            ready ? "bg-verified/10 text-verified" : "bg-amber-400/10 text-amber-700"
+            ready ? "bg-verified/10 text-verified" : "bg-unverified/10 text-unverified"
           }`}
         >
           {ready ? "已配置" : "待配置"}

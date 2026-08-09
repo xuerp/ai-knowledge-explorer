@@ -15,6 +15,8 @@
 - 模型系列、具体版本、关系和时间线持久化，首次启动由版本化种子初始化。
 - 登录用户关注、通知已读、每日摘要偏好、私密研究和主动公开分享。
 - Markdown 研究输出、邮件 Outbox 和可选 SMTP 投递。
+- worker 持久心跳、自动周期历史、管理员运行诊断与容器健康检查。
+- 采集和邮件失败的有界指数退避、终态失败重新排队与审计记录。
 - 正式数据验收报告与 20 个黄金研究问题。
 
 ## 本地启动
@@ -36,6 +38,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 
 Swagger：`http://127.0.0.1:8000/docs`
 健康检查：`http://127.0.0.1:8000/health`
+就绪检查：`http://127.0.0.1:8000/ready`
 
 模型目录接口：
 
@@ -49,6 +52,7 @@ POST /api/v2/admin/entities/{entity_id}/timeline
 GET /api/v2/admin/sources
 PATCH /api/v2/admin/sources/{source_id}
 GET /api/v2/admin/integrations
+GET /api/v2/admin/operations
 ```
 
 具体版本通过 `familyId` 归属模型系列。管理员可在 `/admin/review` 的目录编辑器中，或使用上述受保护接口补充实体、规格、时间线和 `part-of` / `successor-of` 谱系关系；知识库、详情页、图谱与对比页会自动接入。`verified` 关系和时间线必须包含至少一个 `sourceId`。
@@ -113,7 +117,18 @@ python -m app.migrate_operational_data `
 .\.venv\Scripts\python.exe -m app.worker --interval-seconds 900
 ```
 
-Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源；每个信源仍受自己的 120–1440 分钟采集间隔限制。worker 也会按照 `AI_RADAR_DIGEST_TIMEZONE` 和每个账户保存的发送时间生成每日摘要，同一账户同一天最多生成一封。SMTP 已配置时自动投递；未配置时安全保留在 Outbox。
+Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源；每个信源仍受自己的 120–1440 分钟采集间隔限制。worker 每 30 秒写入持久心跳，最近周期、阶段汇总、积压和非敏感错误可通过 `/api/v2/admin/operations` 或审核后台查看。当前部署契约是单 worker 副本，不应使用 Compose 横向扩容 worker。
+
+采集失败会从 15 分钟开始指数退避，并以信源正常周期和 360 分钟为上限；成功后自动清零失败计数。邮件失败同样按指数退避自动重试，默认最多 5 次，达到上限后才进入终态 `failed`。管理员可明确重新排队某个失败目标，不会重放已经成功的项目：
+
+```text
+POST /api/v2/admin/sources/{source_id}/retry
+POST /api/v2/admin/email-outbox/{outbox_id}/retry
+```
+
+重新排队请求会携带页面刚读取的失败次数；状态已经变化、目标正在处理或已有其他管理员先完成操作时，服务端返回 `409`。采集和邮件发送都使用短时持久租约及随机令牌，避免 worker 与手动操作并发领取同一个目标。
+
+worker 也会按照 `AI_RADAR_DIGEST_TIMEZONE` 和每个账户保存的发送时间生成每日摘要，同一账户同一天最多生成一封。SMTP 已配置时自动投递；未配置时安全保留在 Outbox。SMTP 只能提供“至少一次”投递语义：远端已接收而本地状态尚未提交时，极端故障仍可能造成重复邮件。
 
 管理员仍可使用以下接口手动触发生成和投递：
 
@@ -129,6 +144,8 @@ POST /api/v2/admin/email-outbox/send
 .\.venv\Scripts\python.exe -m ruff check app tests migrations
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m alembic current --check-heads
+.\.venv\Scripts\python.exe -m alembic check
 ```
 
 完整生产步骤见 [PRODUCTION_RUNBOOK.md](../docs/PRODUCTION_RUNBOOK.md)。

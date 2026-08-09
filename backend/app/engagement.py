@@ -7,6 +7,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .database import (
@@ -334,38 +335,51 @@ class EngagementService:
             if not unread:
                 continue
             body = "\n".join(f"- {item.title}" for item in unread)
-            session.add(
-                EmailOutboxRecord(
-                    id=str(uuid4()),
-                    user_id=user.id,
-                    to_email=user.email,
-                    subject=f"AI Radar daily digest — {len(unread)} updates",
-                    body_text=body,
-                    status="queued",
-                    delivery_key=delivery_key,
-                    created_at=current,
-                )
-            )
+            try:
+                with session.begin_nested():
+                    session.add(
+                        EmailOutboxRecord(
+                            id=str(uuid4()),
+                            user_id=user.id,
+                            to_email=user.email,
+                            subject=f"AI Radar daily digest — {len(unread)} updates",
+                            body_text=body,
+                            status="queued",
+                            delivery_key=delivery_key,
+                            created_at=current,
+                        )
+                    )
+                    session.flush()
+            except IntegrityError:
+                # A concurrent scheduler may have inserted the same per-user,
+                # per-day digest after our pre-check. The unique delivery key
+                # is authoritative; keep processing the rest of the batch.
+                continue
             queued += 1
         session.commit()
         return DigestRunSummary(recipients=recipients, messages_queued=queued)
 
-    def list_outbox(self, session: Session) -> list[EmailOutboxView]:
+    def list_outbox(self, session: Session, limit: int = 200) -> list[EmailOutboxView]:
         rows = session.scalars(
-            select(EmailOutboxRecord).order_by(EmailOutboxRecord.created_at.desc())
+            select(EmailOutboxRecord).order_by(EmailOutboxRecord.created_at.desc()).limit(limit)
         ).all()
-        return [
-            EmailOutboxView(
-                id=row.id,
-                to_email=row.to_email,
-                subject=row.subject,
-                status=row.status,
-                created_at=row.created_at,
-                sent_at=row.sent_at,
-                error=row.error,
-            )
-            for row in rows
-        ]
+        return [self.to_outbox_view(row) for row in rows]
+
+    @staticmethod
+    def to_outbox_view(row: EmailOutboxRecord) -> EmailOutboxView:
+        return EmailOutboxView(
+            id=row.id,
+            to_email=row.to_email,
+            subject=row.subject,
+            status=row.status,
+            created_at=row.created_at,
+            sent_at=row.sent_at,
+            attempt_count=row.attempt_count,
+            last_attempt_at=row.last_attempt_at,
+            next_attempt_at=row.next_attempt_at,
+            delivery_lease_expires_at=row.delivery_lease_expires_at,
+            error=row.error,
+        )
 
     @staticmethod
     def _follow_view(row: FollowRecord) -> FollowView:

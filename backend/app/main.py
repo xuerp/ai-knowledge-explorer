@@ -3,11 +3,11 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from .auth import AuditService, AuthService, Principal
@@ -25,6 +25,7 @@ from .engagement import EngagementService
 from .extraction import ExtractionUnavailableError, StructuredExtractionService
 from .fetching import SafeHttpFetcher
 from .ingestion import IngestionService
+from .operations import OperationsService
 from .quality import KnowledgeQualityGate
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
@@ -38,6 +39,7 @@ from .schemas import (
     DigestRunSummary,
     DocumentIngestRequest,
     EmailDeliverySummary,
+    EmailOutboxRetryRequest,
     EmailOutboxView,
     Entity,
     ExtractionRequest,
@@ -54,6 +56,7 @@ from .schemas import (
     LoginRequest,
     ModelVersionCompareRequest,
     NotificationView,
+    OperationsDiagnostics,
     PublicationRecord,
     PublishedResearchView,
     ResearchCitation,
@@ -63,6 +66,7 @@ from .schemas import (
     ReviewQueueItem,
     SchedulerRunSummary,
     SourceCreate,
+    SourceRetryRequest,
     SourceUpdate,
     SourceView,
     TimelineEntry,
@@ -71,6 +75,8 @@ from .schemas import (
     UserView,
 )
 from .security import require_admin, require_reviewer, require_user
+
+DATABASE_SCHEMA_REVISION = "20260809_0013"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -81,6 +87,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     scheduler = IngestionScheduler(
         SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes),
         ingestion,
+        retry_base_minutes=app_settings.fetch_retry_base_minutes,
+        retry_max_minutes=app_settings.fetch_retry_max_minutes,
+        lease_minutes=app_settings.fetch_lease_minutes,
     )
     auth = AuthService(app_settings.jwt_secret, app_settings.access_token_minutes)
     audit = AuditService()
@@ -98,11 +107,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app_settings.smtp_password,
         app_settings.smtp_from,
         app_settings.smtp_starttls,
+        max_attempts=app_settings.email_max_attempts,
+        retry_base_seconds=app_settings.email_retry_base_seconds,
+        lease_seconds=app_settings.email_lease_seconds,
     )
+    operations = OperationsService(app_settings.worker_stale_seconds)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        database.create_all()
+        if database.engine.dialect.name == "sqlite":
+            database.create_all()
         with database.session() as session:
             repository.seed_catalog(session)
             repository.seed_review_jobs(session)
@@ -150,6 +164,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             admin_writes_enabled=bool(app_settings.admin_token or auth.enabled),
             auth_enabled=auth.enabled,
         )
+
+    @app.get("/ready", response_model=HealthResponse)
+    def ready(session: SessionDependency) -> HealthResponse:
+        try:
+            session.execute(text("SELECT 1"))
+            if database.engine.dialect.name != "sqlite":
+                revision = session.scalar(text("SELECT version_num FROM alembic_version"))
+                if revision != DATABASE_SCHEMA_REVISION:
+                    raise HTTPException(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        detail="Database schema revision is not ready.",
+                    )
+        except HTTPException:
+            raise
+        except SQLAlchemyError as error:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Database readiness check failed.",
+            ) from error
+        return health()
 
     @app.post("/api/v2/auth/bootstrap", response_model=TokenResponse)
     def bootstrap_user(
@@ -417,6 +451,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             digest_timezone=app_settings.digest_timezone,
         )
 
+    @app.get("/api/v2/admin/operations", response_model=OperationsDiagnostics)
+    def operations_status(
+        response: Response,
+        _: AdminDependency,
+        session: SessionDependency,
+        recent_limit: Annotated[int, Query(alias="recentLimit", ge=1, le=100)] = 20,
+    ) -> OperationsDiagnostics:
+        response.headers["Cache-Control"] = "no-store"
+        return operations.diagnostics(
+            session,
+            app_settings.worker_id,
+            run_limit=recent_limit,
+        )
+
     @app.post("/api/v2/admin/digests/run", response_model=DigestRunSummary)
     def run_daily_digests(
         principal: AdminDependency,
@@ -438,8 +486,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def email_outbox(
         _: AdminDependency,
         session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=500)] = 200,
     ) -> list[EmailOutboxView]:
-        return engagement.list_outbox(session)
+        return engagement.list_outbox(session, limit)
 
     @app.post(
         "/api/v2/admin/email-outbox/send",
@@ -466,6 +515,43 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         session.commit()
         return result
+
+    @app.post(
+        "/api/v2/admin/email-outbox/{outbox_id}/retry",
+        response_model=EmailOutboxView,
+    )
+    def retry_email_outbox(
+        outbox_id: str,
+        payload: EmailOutboxRetryRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> EmailOutboxView:
+        try:
+            row = email_delivery.requeue_failed(
+                session,
+                outbox_id,
+                payload.expected_attempt_count,
+            )
+        except ValueError as error:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(error),
+            ) from error
+        if row is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Outbox message not found.",
+            )
+        audit.record(
+            session,
+            principal,
+            "email_outbox.retry",
+            "email_outbox",
+            row.id,
+            {"attemptCount": row.attempt_count},
+        )
+        session.commit()
+        return engagement.to_outbox_view(row)
 
     def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
         return repository.public_snapshot(session)
@@ -764,6 +850,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return source
 
     @app.post(
+        "/api/v2/admin/sources/{source_id}/retry",
+        response_model=SourceView,
+    )
+    def retry_source(
+        source_id: str,
+        payload: SourceRetryRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> SourceView:
+        try:
+            source = ingestion.queue_source_retry(
+                session,
+                source_id,
+                payload.expected_failure_count,
+            )
+        except ValueError as error:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(error),
+            ) from error
+        if source is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        audit.record(
+            session,
+            principal,
+            "source.retry",
+            "source",
+            source.id,
+            {"consecutiveFailures": source.consecutive_failures},
+        )
+        session.commit()
+        return source
+
+    @app.post(
         "/api/v2/admin/sources/{source_id}/snapshots",
         response_model=IngestionResult,
     )
@@ -792,8 +912,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _: AdminDependency,
         session: SessionDependency,
         source_id: Annotated[str | None, Query(alias="sourceId")] = None,
+        limit: Annotated[int, Query(ge=1, le=500)] = 200,
     ) -> list[IngestionRunView]:
-        return ingestion.list_runs(session, source_id)
+        return ingestion.list_runs(session, source_id, limit)
 
     @app.post(
         "/api/v2/admin/sources/{source_id}/extract",

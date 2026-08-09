@@ -20,6 +20,9 @@ class Settings:
     access_token_minutes: int = 30
     fetch_allowed_hosts: tuple[str, ...] = ()
     fetch_max_bytes: int = 2_000_000
+    fetch_retry_base_minutes: int = 15
+    fetch_retry_max_minutes: int = 360
+    fetch_lease_minutes: int = 5
     extraction_api_url: str | None = None
     extraction_api_key: str | None = None
     extraction_model: str | None = None
@@ -29,7 +32,33 @@ class Settings:
     smtp_password: str | None = None
     smtp_from: str | None = None
     smtp_starttls: bool = True
+    email_max_attempts: int = 5
+    email_retry_base_seconds: int = 300
+    email_lease_seconds: int = 120
     digest_timezone: str = "Asia/Shanghai"
+    worker_id: str = "scheduler"
+    worker_heartbeat_seconds: int = 30
+    worker_stale_seconds: int = 180
+
+    def __post_init__(self) -> None:
+        if self.fetch_retry_base_minutes < 1:
+            raise ValueError("AI_RADAR_FETCH_RETRY_BASE_MINUTES must be at least 1.")
+        if self.fetch_retry_max_minutes < self.fetch_retry_base_minutes:
+            raise ValueError("AI_RADAR_FETCH_RETRY_MAX_MINUTES must be at least the retry base.")
+        if not 1 <= self.fetch_lease_minutes <= 60:
+            raise ValueError("AI_RADAR_FETCH_LEASE_MINUTES must be between 1 and 60.")
+        if not 1 <= self.email_max_attempts <= 20:
+            raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
+        if self.email_retry_base_seconds < 1:
+            raise ValueError("AI_RADAR_EMAIL_RETRY_BASE_SECONDS must be at least 1.")
+        if not 30 <= self.email_lease_seconds <= 900:
+            raise ValueError("AI_RADAR_EMAIL_LEASE_SECONDS must be between 30 and 900.")
+        if self.worker_heartbeat_seconds < 5:
+            raise ValueError("AI_RADAR_WORKER_HEARTBEAT_SECONDS must be at least 5.")
+        if self.worker_stale_seconds < self.worker_heartbeat_seconds * 2:
+            raise ValueError(
+                "AI_RADAR_WORKER_STALE_SECONDS must be at least twice the heartbeat interval."
+            )
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -73,6 +102,9 @@ class Settings:
                 if host.strip()
             ),
             fetch_max_bytes=int(os.getenv("AI_RADAR_FETCH_MAX_BYTES", "2000000")),
+            fetch_retry_base_minutes=int(os.getenv("AI_RADAR_FETCH_RETRY_BASE_MINUTES", "15")),
+            fetch_retry_max_minutes=int(os.getenv("AI_RADAR_FETCH_RETRY_MAX_MINUTES", "360")),
+            fetch_lease_minutes=int(os.getenv("AI_RADAR_FETCH_LEASE_MINUTES", "5")),
             extraction_api_url=os.getenv("AI_RADAR_EXTRACTION_API_URL") or None,
             extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
@@ -83,5 +115,11 @@ class Settings:
             smtp_from=os.getenv("AI_RADAR_SMTP_FROM") or None,
             smtp_starttls=os.getenv("AI_RADAR_SMTP_STARTTLS", "true").lower()
             in {"1", "true", "yes"},
+            email_max_attempts=int(os.getenv("AI_RADAR_EMAIL_MAX_ATTEMPTS", "5")),
+            email_retry_base_seconds=int(os.getenv("AI_RADAR_EMAIL_RETRY_BASE_SECONDS", "300")),
+            email_lease_seconds=int(os.getenv("AI_RADAR_EMAIL_LEASE_SECONDS", "120")),
             digest_timezone=os.getenv("AI_RADAR_DIGEST_TIMEZONE", "Asia/Shanghai"),
+            worker_id=os.getenv("AI_RADAR_WORKER_ID", "scheduler").strip() or "scheduler",
+            worker_heartbeat_seconds=int(os.getenv("AI_RADAR_WORKER_HEARTBEAT_SECONDS", "30")),
+            worker_stale_seconds=int(os.getenv("AI_RADAR_WORKER_STALE_SECONDS", "180")),
         )

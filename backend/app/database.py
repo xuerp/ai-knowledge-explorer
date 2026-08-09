@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -105,6 +106,10 @@ class KnowledgeTimelineRecord(Base):
 
 class SourceRecord(Base):
     __tablename__ = "sources"
+    __table_args__ = (
+        Index("ix_sources_automatic_due", "active", "fetch_enabled", "next_fetch_at"),
+        Index("ix_sources_fetch_lease_expires_at", "fetch_lease_expires_at"),
+    )
 
     id: Mapped[str] = mapped_column(String(128), primary_key=True)
     url: Mapped[str] = mapped_column(String(2048), nullable=False, unique=True)
@@ -116,6 +121,12 @@ class SourceRecord(Base):
     next_fetch_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     etag: Mapped[str | None] = mapped_column(String(512), nullable=True)
     last_modified: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    consecutive_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_fetch_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    fetch_lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    fetch_lease_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -141,6 +152,7 @@ class DocumentSnapshotRecord(Base):
 
 class IngestionRunRecord(Base):
     __tablename__ = "ingestion_runs"
+    __table_args__ = (Index("ix_ingestion_runs_started_at", "started_at"),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     source_id: Mapped[str] = mapped_column(
@@ -227,6 +239,15 @@ class ResearchRecord(Base):
 
 class EmailOutboxRecord(Base):
     __tablename__ = "email_outbox"
+    __table_args__ = (
+        Index(
+            "ix_email_outbox_delivery_due",
+            "status",
+            "next_attempt_at",
+            "created_at",
+        ),
+        Index("ix_email_outbox_lease_expires_at", "delivery_lease_expires_at"),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
@@ -239,13 +260,61 @@ class EmailOutboxRecord(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    next_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    delivery_lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    delivery_lease_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class AutomationRunRecord(Base):
+    __tablename__ = "automation_runs"
+    __table_args__ = (Index("ix_automation_runs_started_at", "started_at"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    worker_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    trigger: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    result_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class WorkerStatusRecord(Base):
+    __tablename__ = "worker_status"
+
+    worker_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    state: Mapped[str] = mapped_column(String(32), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    heartbeat_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+    next_cycle_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_cycle_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    last_cycle_started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_cycle_finished_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_cycle_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    consecutive_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Database:
     def __init__(self, url: str):
         connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
-        self.engine = create_engine(url, connect_args=connect_args, future=True)
+        self.engine = create_engine(
+            url,
+            connect_args=connect_args,
+            future=True,
+            pool_pre_ping=not url.startswith("sqlite"),
+        )
         self.session_factory = sessionmaker(
             bind=self.engine,
             class_=Session,
