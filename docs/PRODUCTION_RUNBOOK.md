@@ -92,13 +92,15 @@ python -m app.worker --interval-seconds 900
 
 采集器仅允许 HTTPS 和白名单域名，会阻止私网地址及重定向，限制响应体大小，并支持 ETag 与 Last-Modified 增量检查。
 
-使用管理员 Bearer 令牌生成每日摘要：
+worker 会按照 `AI_RADAR_DIGEST_TIMEZONE`（默认 `Asia/Shanghai`）和每个账户设置的时间自动生成每日摘要。同一账户同一天最多生成一封，并且只收录上一次摘要之后产生的未读通知。
+
+管理员也可以使用 Bearer 令牌手动生成每日摘要：
 
 ```text
 POST /api/v2/admin/digests/run
 ```
 
-该操作会在 `email_outbox` 中生成可审计记录。配置 `backend/.env.example` 中的 SMTP 变量后，通过以下接口投递：
+该操作会在 `email_outbox` 中生成可审计记录。配置 `backend/.env.example` 中的 SMTP 变量后，worker 会自动投递；也可以通过以下接口手动投递：
 
 ```text
 POST /api/v2/admin/email-outbox/send

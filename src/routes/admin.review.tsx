@@ -472,12 +472,12 @@ function AdminReviewPage() {
                 }
               />
               <IntegrationCard
-                title="邮件投递"
+                title="每日摘要与邮件"
                 ready={workspace.integrations.smtpConfigured}
                 detail={
                   workspace.integrations.smtpConfigured
-                    ? `${workspace.integrations.smtpFrom} · ${workspace.integrations.smtpHost}`
-                    : "未配置 SMTP 主机或发件人"
+                    ? `按 ${workspace.integrations.digestTimezone} 调度 · ${workspace.integrations.smtpFrom} · ${workspace.integrations.smtpHost}`
+                    : `按 ${workspace.integrations.digestTimezone} 自动进入 Outbox · 配置 SMTP 后自动投递`
                 }
               />
               <IntegrationCard

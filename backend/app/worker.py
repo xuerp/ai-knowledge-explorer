@@ -3,12 +3,53 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from datetime import UTC, datetime
+
+from sqlalchemy.orm import Session
 
 from .config import Settings
 from .database import Database
+from .email_delivery import EmailDeliveryService
+from .engagement import EngagementService
 from .fetching import SafeHttpFetcher
 from .ingestion import IngestionService
 from .scheduler import IngestionScheduler
+
+
+def run_cycle(
+    session: Session,
+    scheduler: IngestionScheduler,
+    engagement: EngagementService,
+    email_delivery: EmailDeliveryService,
+    *,
+    digest_timezone: str,
+    now: datetime | None = None,
+) -> dict[str, object]:
+    current = now or datetime.now(UTC)
+    ingestion = scheduler.run_due(session, now=current)
+    digests = engagement.queue_daily_digests(
+        session,
+        now=current,
+        timezone_name=digest_timezone,
+        due_only=True,
+    )
+    delivery: dict[str, object] = {
+        "configured": email_delivery.enabled,
+        "attempted": 0,
+        "sent": 0,
+        "failed": 0,
+    }
+    if email_delivery.enabled:
+        try:
+            result = email_delivery.send_queued(session)
+            delivery.update(result.model_dump())
+        except Exception as error:  # noqa: BLE001 - keep scheduled collection alive
+            delivery["error"] = str(error)[:500]
+    return {
+        "ingestion": ingestion.model_dump(by_alias=True),
+        "digests": digests.model_dump(by_alias=True),
+        "emailDelivery": delivery,
+    }
 
 
 def main() -> None:
@@ -31,11 +72,26 @@ def main() -> None:
         SafeHttpFetcher(settings.fetch_allowed_hosts, settings.fetch_max_bytes),
         IngestionService(),
     )
+    engagement = EngagementService()
+    email_delivery = EmailDeliveryService(
+        settings.smtp_host,
+        settings.smtp_port,
+        settings.smtp_username,
+        settings.smtp_password,
+        settings.smtp_from,
+        settings.smtp_starttls,
+    )
     try:
         while True:
             with database.session() as session:
-                result = scheduler.run_due(session)
-                print(json.dumps(result.model_dump(by_alias=True)), flush=True)
+                result = run_cycle(
+                    session,
+                    scheduler,
+                    engagement,
+                    email_delivery,
+                    digest_timezone=settings.digest_timezone,
+                )
+                print(json.dumps(result), flush=True)
             if args.once:
                 break
             time.sleep(args.interval_seconds)

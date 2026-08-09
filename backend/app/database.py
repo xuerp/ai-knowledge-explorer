@@ -234,6 +234,9 @@ class EmailOutboxRecord(Base):
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
     body_text: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued")
+    delivery_key: Mapped[str | None] = mapped_column(
+        String(160), nullable=True, unique=True, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)

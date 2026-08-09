@@ -277,6 +277,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "fetchAllowedHosts": [],
         "registeredSources": 30,
         "automaticSources": 0,
+        "digestTimezone": "Asia/Shanghai",
     }
     serialized = response.text.casefold()
     assert "secret" not in serialized
