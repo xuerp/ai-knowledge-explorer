@@ -7,7 +7,7 @@
 将 `.env.production.example` 复制为被 Git 忽略的 `.env.production`，然后替换所有必填占位值。以下三个值必须独立生成，不能互相复用：
 
 - `POSTGRES_PASSWORD`：PostgreSQL 数据库密码。
-- `AI_RADAR_ADMIN_TOKEN`：首次创建管理员和紧急管理使用的令牌。
+- `AI_RADAR_ADMIN_TOKEN`：首次创建管理员和紧急管理使用的令牌；正常账户登录验证后应移除。
 - `AI_RADAR_JWT_SECRET`：至少 32 个随机字节，用于签发登录令牌。
 
 同时配置真实前端域名和经过审核的官方信源域名：
@@ -58,6 +58,8 @@ curl -X POST http://127.0.0.1:8000/api/v2/auth/bootstrap \
 ```
 
 首个用户创建后，该接口会返回 `409`。使用管理员 Bearer 令牌调用 `POST /api/v2/admin/users`，可创建审核员或其他用户。
+
+确认新管理员能够通过 `/api/v2/auth/login` 登录后，从 `.env.production` 或云平台 Secret 中删除 `AI_RADAR_ADMIN_TOKEN`，再重新创建 API 和 worker 容器。Compose 允许该变量为空；删除后旧的 `X-Admin-Token` 立即失效，只保留 JWT 登录与角色权限。需要应急恢复时可以短暂重新设置，但必须记录原因并在操作结束后再次移除。
 
 ## 4. 连接前端
 
@@ -139,6 +141,14 @@ docker compose --env-file .env.production exec -T api python -m alembic current 
 
 若 worker 心跳延迟，先确认 `/ready` 和 PostgreSQL 正常，再查看 worker 最近日志。重启 worker 不会重放已成功的每日摘要；中断的周期会被记录为失败，新进程会继续处理到期与重试队列。
 
+管理员审核后台还提供“生产上线预检”，对应接口为：
+
+```text
+GET /api/v2/admin/production-readiness
+```
+
+自动预检覆盖运行环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、SMTP、采集白名单、自动信源、数据质量和 worker 心跳。接口会给出明确阻塞项与下一步，但不会读取或返回任何密钥。公网域名与 HTTPS、备份恢复、外部监控、供应商额度属于外部事实，始终保留为人工确认项，不能仅凭服务自身状态自动宣称完成。
+
 ## 7. 备份与恢复
 
 创建 PostgreSQL 逻辑备份：
@@ -178,6 +188,7 @@ npm run check
 - `/health` 返回预期的环境、数据库类型和认证状态。
 - `/ready` 能实际连接数据库；数据库不可用时返回 `503`。
 - `/api/v2/admin/operations` 能看到新鲜 worker 心跳，停止 worker 后会在阈值外变为延迟。
+- `/api/v2/admin/production-readiness` 没有自动阻塞项；四项外部人工检查均已留存验收记录。
 - 注入瞬时失败时，采集和邮件会按退避时间重试；达到邮件上限后可由管理员明确重新排队。
 - 公共快照不包含待审核、已拒绝或需要更多证据的 Claim。
 - `/admin/review` 拒绝普通 viewer 账户访问。

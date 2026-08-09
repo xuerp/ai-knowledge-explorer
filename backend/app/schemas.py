@@ -310,6 +310,23 @@ class IntegrationStatus(CamelModel):
     digest_timezone: str
 
 
+class ProductionReadinessCheck(CamelModel):
+    code: str
+    title: str
+    status: Literal["ready", "blocked", "warning", "manual"]
+    detail: str
+    action: str | None = None
+
+
+class ProductionReadiness(CamelModel):
+    generated_at: datetime
+    automated_ready: bool
+    blocking_count: int
+    warning_count: int
+    checks: list[ProductionReadinessCheck]
+    manual_checks: list[ProductionReadinessCheck]
+
+
 class GraphQuery(CamelModel):
     entity_types: list[str] = Field(default_factory=list)
     confidences: list[Confidence] = Field(default_factory=list)

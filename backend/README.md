@@ -53,6 +53,7 @@ GET /api/v2/admin/sources
 PATCH /api/v2/admin/sources/{source_id}
 GET /api/v2/admin/integrations
 GET /api/v2/admin/operations
+GET /api/v2/admin/production-readiness
 ```
 
 具体版本通过 `familyId` 归属模型系列。管理员可在 `/admin/review` 的目录编辑器中，或使用上述受保护接口补充实体、规格、时间线和 `part-of` / `successor-of` 谱系关系；知识库、详情页、图谱与对比页会自动接入。`verified` 关系和时间线必须包含至少一个 `sourceId`。
@@ -76,6 +77,8 @@ Invoke-RestMethod "http://127.0.0.1:8000/api/v2/auth/bootstrap" `
 ```
 
 然后访问前端 `/account` 或 `/admin/review`。
+
+管理员账户创建并验证登录后，应从生产 Secret 中移除 `AI_RADAR_ADMIN_TOKEN` 并重启 API 和 worker。之后仅使用短期 JWT 与角色权限访问管理接口；静态令牌只用于首次初始化或明确的应急恢复窗口。生产上线预检会在静态令牌仍启用时显示安全警告。
 
 从已有 SQLite 开发库切换到 PostgreSQL 时，可安全复制账号及用户拥有的数据；该命令不会覆盖目标库中已有的主键：
 
@@ -129,6 +132,8 @@ POST /api/v2/admin/email-outbox/{outbox_id}/retry
 重新排队请求会携带页面刚读取的失败次数；状态已经变化、目标正在处理或已有其他管理员先完成操作时，服务端返回 `409`。采集和邮件发送都使用短时持久租约及随机令牌，避免 worker 与手动操作并发领取同一个目标。
 
 worker 也会按照 `AI_RADAR_DIGEST_TIMEZONE` 和每个账户保存的发送时间生成每日摘要，同一账户同一天最多生成一封。SMTP 已配置时自动投递；未配置时安全保留在 Outbox。SMTP 只能提供“至少一次”投递语义：远端已接收而本地状态尚未提交时，极端故障仍可能造成重复邮件。
+
+管理员审核后台包含“生产上线预检”，也可通过 `GET /api/v2/admin/production-readiness` 读取。它自动检查生产环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、SMTP、采集白名单、自动信源、数据质量和 worker 心跳，并将公网域名、恢复演练、外部监控和供应商额度列为必须人工确认的项目。响应只包含状态、计数和操作建议，不返回凭据。
 
 管理员仍可使用以下接口手动触发生成和投递：
 
