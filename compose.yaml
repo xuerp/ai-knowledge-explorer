@@ -9,6 +9,9 @@ x-backend-environment: &backend-environment
   AI_RADAR_ACCESS_TOKEN_MINUTES: ${AI_RADAR_ACCESS_TOKEN_MINUTES:-30}
   AI_RADAR_CORS_ORIGINS: ${AI_RADAR_CORS_ORIGINS:?Set AI_RADAR_CORS_ORIGINS}
   AI_RADAR_FETCH_ALLOWED_HOSTS: ${AI_RADAR_FETCH_ALLOWED_HOSTS:-}
+  AI_RADAR_FETCH_RETRY_BASE_MINUTES: ${AI_RADAR_FETCH_RETRY_BASE_MINUTES:-15}
+  AI_RADAR_FETCH_RETRY_MAX_MINUTES: ${AI_RADAR_FETCH_RETRY_MAX_MINUTES:-360}
+  AI_RADAR_FETCH_LEASE_MINUTES: ${AI_RADAR_FETCH_LEASE_MINUTES:-5}
   AI_RADAR_EXTRACTION_API_URL: ${AI_RADAR_EXTRACTION_API_URL:-}
   AI_RADAR_EXTRACTION_API_KEY: ${AI_RADAR_EXTRACTION_API_KEY:-}
   AI_RADAR_EXTRACTION_MODEL: ${AI_RADAR_EXTRACTION_MODEL:-}
@@ -18,7 +21,13 @@ x-backend-environment: &backend-environment
   AI_RADAR_SMTP_PASSWORD: ${AI_RADAR_SMTP_PASSWORD:-}
   AI_RADAR_SMTP_FROM: ${AI_RADAR_SMTP_FROM:-}
   AI_RADAR_SMTP_STARTTLS: ${AI_RADAR_SMTP_STARTTLS:-true}
+  AI_RADAR_EMAIL_MAX_ATTEMPTS: ${AI_RADAR_EMAIL_MAX_ATTEMPTS:-5}
+  AI_RADAR_EMAIL_RETRY_BASE_SECONDS: ${AI_RADAR_EMAIL_RETRY_BASE_SECONDS:-300}
+  AI_RADAR_EMAIL_LEASE_SECONDS: ${AI_RADAR_EMAIL_LEASE_SECONDS:-120}
   AI_RADAR_DIGEST_TIMEZONE: ${AI_RADAR_DIGEST_TIMEZONE:-Asia/Shanghai}
+  AI_RADAR_WORKER_ID: ${AI_RADAR_WORKER_ID:-scheduler}
+  AI_RADAR_WORKER_HEARTBEAT_SECONDS: ${AI_RADAR_WORKER_HEARTBEAT_SECONDS:-30}
+  AI_RADAR_WORKER_STALE_SECONDS: ${AI_RADAR_WORKER_STALE_SECONDS:-180}
 
 services:
   postgres:
@@ -36,17 +45,49 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    image: ai-radar-api:local
+    build:
+      context: ./backend
+    restart: "no"
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment: *backend-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     image: ai-radar-api:local
     build:
       context: ./backend
     restart: unless-stopped
+    command:
+      - python
+      - -m
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --proxy-headers
+      - --forwarded-allow-ips=*
     environment: *backend-environment
     ports:
       - "${AI_RADAR_API_PORT:-8000}:8000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=3)
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
   worker:
     image: ai-radar-api:local
@@ -61,8 +102,14 @@ services:
       - ${AI_RADAR_WORKER_INTERVAL_SECONDS:-900}
     environment: *backend-environment
     healthcheck:
-      disable: true
+      test: ["CMD", "python", "-m", "app.worker", "--healthcheck"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       api:
         condition: service_healthy
 

@@ -347,6 +347,17 @@ class SourceView(CamelModel):
     next_fetch_at: datetime | None = None
     created_at: datetime
     last_seen_at: datetime | None = None
+    consecutive_failures: int = 0
+    last_fetch_error: str | None = None
+    fetch_lease_expires_at: datetime | None = None
+
+
+class EmailOutboxRetryRequest(CamelModel):
+    expected_attempt_count: int = Field(ge=0)
+
+
+class SourceRetryRequest(CamelModel):
+    expected_failure_count: int = Field(ge=0)
 
 
 class DocumentIngestRequest(CamelModel):
@@ -369,7 +380,7 @@ class IngestionRunView(CamelModel):
     started_at: datetime
     finished_at: datetime
     status: Literal["succeeded", "failed", "partial"]
-    change_type: Literal["created", "updated", "unchanged"]
+    change_type: Literal["created", "updated", "unchanged", "failed"]
     snapshot_id: str | None = None
     error: str | None = None
 
@@ -379,6 +390,52 @@ class SchedulerRunSummary(CamelModel):
     succeeded: int
     unchanged: int
     failed: int
+
+
+class AutomationRunView(CamelModel):
+    id: str
+    worker_id: str
+    trigger: Literal["scheduled", "manual"]
+    status: Literal["running", "succeeded", "partial", "failed"]
+    started_at: datetime
+    finished_at: datetime | None = None
+    duration_ms: int | None = None
+    result: dict[str, object] | None = None
+    error: str | None = None
+
+
+class WorkerStatusView(CamelModel):
+    worker_id: str
+    state: Literal["starting", "running", "idle", "failed", "stopped"]
+    started_at: datetime
+    heartbeat_at: datetime
+    heartbeat_age_seconds: int
+    next_cycle_at: datetime | None = None
+    last_cycle_id: str | None = None
+    last_cycle_started_at: datetime | None = None
+    last_cycle_finished_at: datetime | None = None
+    last_cycle_status: Literal["running", "succeeded", "partial", "failed"] | None = None
+    consecutive_failures: int
+    last_error: str | None = None
+
+
+class OperationsQueueSummary(CamelModel):
+    automatic_sources: int
+    sources_due: int
+    sources_retrying: int
+    email_queued: int
+    email_retrying: int
+    email_sending: int
+    email_failed: int
+
+
+class OperationsDiagnostics(CamelModel):
+    generated_at: datetime
+    heartbeat_status: Literal["healthy", "stale", "missing"]
+    stale_after_seconds: int
+    worker: WorkerStatusView | None = None
+    recent_runs: list[AutomationRunView]
+    queues: OperationsQueueSummary
 
 
 class CandidateCreate(CamelModel):
@@ -502,9 +559,13 @@ class EmailOutboxView(CamelModel):
     id: str
     to_email: EmailStr
     subject: str
-    status: Literal["queued", "sent", "failed"]
+    status: Literal["queued", "retrying", "sending", "sent", "failed"]
     created_at: datetime
     sent_at: datetime | None = None
+    attempt_count: int = 0
+    last_attempt_at: datetime | None = None
+    next_attempt_at: datetime | None = None
+    delivery_lease_expires_at: datetime | None = None
     error: str | None = None
 
 

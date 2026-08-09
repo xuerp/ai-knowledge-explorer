@@ -4,7 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from app.database import Database
+from app.database import Database, SourceRecord
 from app.fetching import FetchedDocument, FetchPolicyError, SafeHttpFetcher
 from app.ingestion import IngestionService
 from app.scheduler import IngestionScheduler
@@ -69,6 +69,22 @@ class _SequenceFetcher:
         )
 
 
+class _FailThenSucceedFetcher:
+    def __init__(self):
+        self.calls = 0
+
+    def fetch(self, url: str, **_: object) -> FetchedDocument:
+        self.calls += 1
+        if self.calls == 1:
+            raise httpx.ConnectTimeout(f"Temporary timeout for {url}")
+        return FetchedDocument(
+            content="A recovered official release document with enough content to ingest.",
+            content_type="text/plain",
+            etag='"recovered"',
+            last_modified=None,
+        )
+
+
 def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'scheduler.db').as_posix()}")
     database.create_all()
@@ -99,5 +115,93 @@ def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
         assert fetcher.calls == 2
         runs = ingestion.list_runs(session, "scheduled-source")
         assert [run.change_type for run in runs] == ["unchanged", "created"]
+
+    database.dispose()
+
+
+def test_scheduler_retries_failures_early_and_clears_failure_state(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'retry.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService()
+    fetcher = _FailThenSucceedFetcher()
+    scheduler = IngestionScheduler(
+        fetcher,  # type: ignore[arg-type]
+        ingestion,
+        retry_base_minutes=15,
+        retry_max_minutes=60,
+    )
+    start = datetime(2026, 8, 9, 3, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="retry-source",
+                url="https://example.com/retry",
+                title="Retry release source",
+                publisher="Example",
+                fetch_enabled=True,
+                fetch_interval_minutes=120,
+            ),
+        )
+        failed = scheduler.run_due(session, now=start)
+        assert failed.model_dump() == {
+            "due": 1,
+            "succeeded": 0,
+            "unchanged": 0,
+            "failed": 1,
+        }
+        source = ingestion.list_sources(session)[0]
+        assert source.consecutive_failures == 1
+        assert "Temporary timeout" in (source.last_fetch_error or "")
+        assert source.next_fetch_at is not None
+        assert source.next_fetch_at.replace(tzinfo=UTC) == start + timedelta(minutes=15)
+        assert ingestion.list_runs(session, "retry-source")[0].change_type == "failed"
+
+        not_due = scheduler.run_due(session, now=start + timedelta(minutes=14))
+        assert not_due.due == 0
+        recovered = scheduler.run_due(session, now=start + timedelta(minutes=15))
+        assert recovered.succeeded == 1
+        source = ingestion.list_sources(session)[0]
+        assert source.consecutive_failures == 0
+        assert source.last_fetch_error is None
+        assert source.next_fetch_at is not None
+        assert source.next_fetch_at.replace(tzinfo=UTC) == start + timedelta(minutes=135)
+
+    database.dispose()
+
+
+def test_manual_source_retry_respects_active_fetch_lease(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'source-lease.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService()
+    now = datetime.now(UTC)
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="leased-source",
+                url="https://example.com/leased",
+                title="Leased release source",
+                publisher="Example",
+                fetch_enabled=True,
+            ),
+        )
+        row = session.get(SourceRecord, "leased-source")
+        assert row is not None
+        row.fetch_lease_token = "active-lease"
+        row.fetch_lease_expires_at = now + timedelta(minutes=5)
+        session.commit()
+
+        with pytest.raises(ValueError, match="state changed"):
+            ingestion.queue_source_retry(session, row.id, expected_failure_count=0)
+
+        row.fetch_lease_expires_at = now - timedelta(seconds=1)
+        session.commit()
+        retried = ingestion.queue_source_retry(session, row.id, expected_failure_count=0)
+        assert retried is not None
+        assert retried.fetch_lease_expires_at is None
+        assert row.fetch_lease_token is None
 
     database.dispose()

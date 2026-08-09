@@ -4,7 +4,7 @@ import argparse
 import os
 from collections.abc import Sequence
 
-from sqlalchemy import create_engine, insert, select
+from sqlalchemy import MetaData, Table, create_engine, insert, select
 
 from .database import Base
 
@@ -28,16 +28,20 @@ def copy_operational_data(source_url: str, target_url: str) -> dict[str, int]:
     try:
         with source_engine.connect() as source, target_engine.begin() as target:
             for table_name in OPERATIONAL_TABLES:
-                table = Base.metadata.tables[table_name]
-                primary_key = tuple(table.primary_key.columns)
-                rows = source.execute(select(table)).mappings().all()
+                target_table = Base.metadata.tables[table_name]
+                source_table = Table(table_name, MetaData(), autoload_with=source)
+                primary_key = tuple(target_table.primary_key.columns)
+                rows = source.execute(select(source_table)).mappings().all()
                 count = 0
                 for row in rows:
                     predicate = [column == row[column.name] for column in primary_key]
                     exists = target.execute(select(*primary_key).where(*predicate).limit(1)).first()
                     if exists:
                         continue
-                    target.execute(insert(table).values(**dict(row)))
+                    values = {
+                        key: value for key, value in row.items() if key in target_table.columns
+                    }
+                    target.execute(insert(target_table).values(**values))
                     count += 1
                 copied[table_name] = count
     finally:

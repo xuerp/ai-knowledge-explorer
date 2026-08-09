@@ -27,15 +27,16 @@ AI_RADAR_FETCH_ALLOWED_HOSTS=openai.com,anthropic.com,ai.google.dev
 docker compose --env-file .env.production up --build -d
 docker compose --env-file .env.production ps
 curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/ready
 ```
 
 `AI_RADAR_API_PORT` 默认是 `8000`。本地迁移演练时可设置为 `8001`，让 PostgreSQL 容器版 API 与旧的 SQLite 开发 API 并行运行。
 
-API 容器会等待 PostgreSQL 健康检查通过，执行 `alembic upgrade head`，然后以非 root 用户启动。持久数据库保存在 `ai_radar_postgres` 命名卷中。
+一次性的 `migrate` 服务会等待 PostgreSQL 健康检查通过并执行 `alembic upgrade head`；成功后 API 与 worker 才会启动，避免多个 API 副本同时负责迁移。API 继续以非 root 用户运行，持久数据库保存在 `ai_radar_postgres` 命名卷中。
 
 首次启动时，版本控制中的目录种子会初始化模型系列、具体版本、图谱关系、时间线和官方信源。之后在管理后台新增的数据会持久保存，重启不会覆盖已有记录。
 
-Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源。该检查周期可通过 `AI_RADAR_WORKER_INTERVAL_SECONDS` 调整，但不能绕过每个信源自身设置的 120–1440 分钟采集间隔。
+Compose 中的 `worker` 服务默认每 900 秒检查一次到期信源。该检查周期可通过 `AI_RADAR_WORKER_INTERVAL_SECONDS` 调整，但不能绕过每个信源自身设置的 120–1440 分钟采集间隔。worker 默认每 30 秒写入一次数据库心跳；180 秒内没有新心跳时，容器健康检查和审核后台会将其标记为延迟。当前运行模型明确为单 worker 副本；不要使用 `--scale worker`，后续横向扩容需要独立实例标识和队列分片方案。
 
 已有 SQLite 开发库时，可在 PostgreSQL API 健康后复制用户数据：
 
@@ -108,7 +109,37 @@ POST /api/v2/admin/email-outbox/send
 
 SMTP 未配置时，投递接口返回 `503`，邮件仍会安全保留在 Outbox 中。
 
-## 6. 备份与恢复
+采集和邮件投递都使用有上限的指数退避。采集默认从 15 分钟开始重试，成功后清零连续失败；邮件默认最多自动尝试 5 次，达到上限后进入终态失败。管理员可以只重新排队明确的失败目标：
+
+```text
+POST /api/v2/admin/sources/{source_id}/retry
+POST /api/v2/admin/email-outbox/{outbox_id}/retry
+```
+
+审核后台会自动提交当前看到的失败次数作为并发版本。若目标已经变化、正在处理或被其他管理员先操作，接口返回 `409`，刷新状态后再决定是否重试。采集和邮件投递均通过短时持久租约领取目标，异常退出后会在租约过期时自动恢复。
+
+SMTP 协议只能保证“至少一次”投递。若远端已经接受邮件，但进程在本地提交 `sent` 状态前异常退出，仍可能出现重复邮件；因此摘要内容不应承担支付、授权等不可重复副作用。
+
+## 6. 运行诊断与故障恢复
+
+管理员可在审核后台“自动任务诊断”区域查看最近心跳、最近周期、采集重试、邮件积压和终态失败，也可以调用：
+
+```text
+GET /api/v2/admin/operations?recentLimit=20
+```
+
+诊断接口只返回计数、时间、状态和截断后的错误，不返回密钥、密码或数据库连接串。常用容器检查命令：
+
+```bash
+docker compose --env-file .env.production ps
+docker compose --env-file .env.production logs --tail 100 worker
+docker compose --env-file .env.production exec -T worker python -m app.worker --healthcheck
+docker compose --env-file .env.production exec -T api python -m alembic current --check-heads
+```
+
+若 worker 心跳延迟，先确认 `/ready` 和 PostgreSQL 正常，再查看 worker 最近日志。重启 worker 不会重放已成功的每日摘要；中断的周期会被记录为失败，新进程会继续处理到期与重试队列。
+
+## 7. 备份与恢复
 
 创建 PostgreSQL 逻辑备份：
 
@@ -119,20 +150,35 @@ docker compose --env-file .env.production exec -T postgres \
 
 必须先在独立测试数据库中验证恢复流程。恢复演练不得覆盖生产数据库。
 
-## 7. 发布前质量门槛
+恢复演练后至少核对迁移版本、用户数量和公开快照可读性：
+
+```bash
+docker compose --env-file .env.production exec -T api python -m alembic current --check-heads
+curl http://127.0.0.1:8000/ready
+curl http://127.0.0.1:8000/api/v2/snapshot
+```
+
+## 8. 发布前质量门槛
 
 执行完整检查：
 
 ```bash
-python -m ruff format --check backend/app backend/tests backend/migrations
-python -m ruff check backend/app backend/tests backend/migrations
-python -m pytest backend/tests
+cd backend
+python -m ruff format --check app tests migrations
+python -m ruff check app tests migrations
+python -m pytest
+python -m alembic current --check-heads
+python -m alembic check
+cd ..
 npm run check
 ```
 
 然后确认：
 
 - `/health` 返回预期的环境、数据库类型和认证状态。
+- `/ready` 能实际连接数据库；数据库不可用时返回 `503`。
+- `/api/v2/admin/operations` 能看到新鲜 worker 心跳，停止 worker 后会在阈值外变为延迟。
+- 注入瞬时失败时，采集和邮件会按退避时间重试；达到邮件上限后可由管理员明确重新排队。
 - 公共快照不包含待审核、已拒绝或需要更多证据的 Claim。
 - `/admin/review` 拒绝普通 viewer 账户访问。
 - 批准一条测试候选后，会生成发布记录、审计日志和关注者通知。

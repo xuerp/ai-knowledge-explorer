@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
+from app.database import EmailOutboxRecord
 from app.main import create_app
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -34,6 +35,38 @@ def test_health_exposes_write_boundary(client: TestClient):
         "adminWritesEnabled": True,
         "authEnabled": True,
     }
+
+    ready = client.get("/ready")
+    assert ready.status_code == 200
+    assert ready.json() == response.json()
+
+
+def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
+    client: TestClient,
+):
+    assert client.get("/api/v2/admin/operations").status_code == 401
+    response = client.get(
+        "/api/v2/admin/operations",
+        headers={"X-Admin-Token": "test-admin-token"},
+    )
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    payload = response.json()
+    assert payload["heartbeatStatus"] == "missing"
+    assert payload["worker"] is None
+    assert payload["recentRuns"] == []
+    assert payload["queues"] == {
+        "automaticSources": 0,
+        "sourcesDue": 0,
+        "sourcesRetrying": 0,
+        "emailQueued": 0,
+        "emailRetrying": 0,
+        "emailSending": 0,
+        "emailFailed": 0,
+    }
+    serialized = response.text.casefold()
+    assert "password" not in serialized
+    assert "api_key" not in serialized
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):
@@ -394,6 +427,7 @@ def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     assert client.get("/api/v2/admin/review-queue", headers=reviewer_headers).status_code == 200
     assert client.get("/api/v2/admin/sources", headers=reviewer_headers).status_code == 403
     assert client.get("/api/v2/admin/integrations", headers=reviewer_headers).status_code == 403
+    assert client.get("/api/v2/admin/operations", headers=reviewer_headers).status_code == 403
 
     audit = client.get("/api/v2/admin/audit-log", headers=admin_headers)
     assert audit.status_code == 200
@@ -426,6 +460,15 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestCli
     assert enabled.json()["fetchEnabled"] is True
     assert enabled.json()["fetchIntervalMinutes"] == 360
     assert enabled.json()["nextFetchAt"] is None
+
+    retried = client.post(
+        "/api/v2/admin/sources/source-demo-release/retry",
+        headers=headers,
+        json={"expectedFailureCount": 0},
+    )
+    assert retried.status_code == 200
+    assert retried.json()["nextFetchAt"] is None
+    assert retried.json()["consecutiveFailures"] == 0
 
     first = client.post(
         "/api/v2/admin/sources/source-demo-release/snapshots",
@@ -637,7 +680,32 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert preferences.status_code == 200
     digest = client.post("/api/v2/admin/digests/run", headers=headers)
     assert digest.json() == {"recipients": 1, "messagesQueued": 1}
-    assert client.get("/api/v2/admin/email-outbox", headers=headers).json()[0]["status"] == "queued"
+    outbox = client.get("/api/v2/admin/email-outbox", headers=headers).json()[0]
+    assert outbox["status"] == "queued"
+    with client.app.state.database.session() as session:
+        row = session.get(EmailOutboxRecord, outbox["id"])
+        assert row is not None
+        row.status = "failed"
+        row.attempt_count = 5
+        row.error = "Temporary test delivery failure"
+        session.commit()
+    retried = client.post(
+        f"/api/v2/admin/email-outbox/{outbox['id']}/retry",
+        headers=headers,
+        json={"expectedAttemptCount": 5},
+    )
+    assert retried.status_code == 200
+    assert retried.json()["status"] == "queued"
+    assert retried.json()["attemptCount"] == 0
+    assert retried.json()["error"] is None
+    assert (
+        client.post(
+            f"/api/v2/admin/email-outbox/{outbox['id']}/retry",
+            headers=headers,
+            json={"expectedAttemptCount": 5},
+        ).status_code
+        == 409
+    )
 
     research = client.post(
         "/api/v2/research",

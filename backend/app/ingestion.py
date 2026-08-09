@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from urllib.parse import urlsplit, urlunsplit
 from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import or_, select, update
 from sqlalchemy.orm import Session
 
 from .database import (
@@ -92,10 +92,48 @@ class IngestionService:
         if not record.active:
             record.fetch_enabled = False
             record.next_fetch_at = None
+            record.fetch_lease_token = None
+            record.fetch_lease_expires_at = None
         elif record.fetch_enabled and not was_fetch_enabled:
             record.next_fetch_at = None
 
         session.commit()
+        return self.to_source_view(record)
+
+    def queue_source_retry(
+        self,
+        session: Session,
+        source_id: str,
+        expected_failure_count: int,
+    ) -> SourceView | None:
+        current = datetime.now(UTC)
+        statement = (
+            update(SourceRecord)
+            .where(
+                SourceRecord.id == source_id,
+                SourceRecord.active.is_(True),
+                SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.consecutive_failures == expected_failure_count,
+                or_(
+                    SourceRecord.fetch_lease_token.is_(None),
+                    SourceRecord.fetch_lease_expires_at.is_(None),
+                    SourceRecord.fetch_lease_expires_at <= current,
+                ),
+            )
+            .values(
+                next_fetch_at=None,
+                fetch_lease_token=None,
+                fetch_lease_expires_at=None,
+            )
+            .returning(SourceRecord)
+        )
+        record = session.scalars(statement.execution_options(populate_existing=True)).first()
+        if record is None:
+            existing = session.get(SourceRecord, source_id)
+            if existing is None:
+                return None
+            raise ValueError("The source state changed and it can no longer be requeued.")
+        session.flush()
         return self.to_source_view(record)
 
     def ingest_document(
@@ -103,6 +141,8 @@ class IngestionService:
         session: Session,
         source_id: str,
         payload: DocumentIngestRequest,
+        *,
+        commit: bool = True,
     ) -> IngestionResult | None:
         source = session.get(SourceRecord, source_id)
         if not source:
@@ -145,7 +185,10 @@ class IngestionService:
         )
         source.last_seen_at = finished_at
         session.add(run)
-        session.commit()
+        if commit:
+            session.commit()
+        else:
+            session.flush()
         return IngestionResult(
             run_id=run.id,
             source_id=source_id,
@@ -159,11 +202,12 @@ class IngestionService:
         self,
         session: Session,
         source_id: str | None = None,
+        limit: int = 200,
     ) -> list[IngestionRunView]:
         statement = select(IngestionRunRecord).order_by(IngestionRunRecord.started_at.desc())
         if source_id:
             statement = statement.where(IngestionRunRecord.source_id == source_id)
-        rows = session.scalars(statement).all()
+        rows = session.scalars(statement.limit(limit)).all()
         return [
             IngestionRunView(
                 id=row.id,
@@ -223,4 +267,7 @@ class IngestionService:
             next_fetch_at=row.next_fetch_at,
             created_at=row.created_at,
             last_seen_at=row.last_seen_at,
+            consecutive_failures=row.consecutive_failures,
+            last_fetch_error=row.last_fetch_error,
+            fetch_lease_expires_at=row.fetch_lease_expires_at,
         )
