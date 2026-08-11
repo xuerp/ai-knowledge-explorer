@@ -26,6 +26,10 @@ envVarGroups:
         value: "120"
       - key: AI_RADAR_DIGEST_TIMEZONE
         value: Asia/Shanghai
+      - key: AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS
+        value: "900"
+      - key: AI_RADAR_WORKER_STALE_SECONDS
+        value: "3900"
 
 services:
   - type: web
@@ -47,6 +51,8 @@ services:
       - key: AI_RADAR_JWT_SECRET
         generateValue: true
       - key: AI_RADAR_ADMIN_TOKEN
+        sync: false
+      - key: AI_RADAR_AUTOMATION_TOKEN
         sync: false
       - key: AI_RADAR_CORS_ORIGINS
         sync: false
