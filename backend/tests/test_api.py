@@ -17,6 +17,7 @@ def client(tmp_path: Path):
         seed_snapshot_path=SEED_PATH,
         admin_token="test-admin-token",
         cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
         environment="test",
         jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
     )
@@ -67,6 +68,35 @@ def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
     serialized = response.text.casefold()
     assert "password" not in serialized
     assert "api_key" not in serialized
+
+
+def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: TestClient):
+    endpoint = "/api/v2/automation/run-cycle"
+    assert client.post(endpoint).status_code == 401
+    assert client.post(endpoint, headers={"X-Automation-Token": "wrong-token"}).status_code == 401
+
+    response = client.post(
+        endpoint,
+        headers={"X-Automation-Token": "test-automation-token-with-at-least-32-characters"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["workerId"] == "scheduler"
+    assert payload["status"] == "succeeded"
+    assert payload["result"]["ingestion"] == {
+        "due": 0,
+        "succeeded": 0,
+        "unchanged": 0,
+        "failed": 0,
+    }
+
+    operations = client.get(
+        "/api/v2/admin/operations",
+        headers={"X-Admin-Token": "test-admin-token"},
+    ).json()
+    assert operations["heartbeatStatus"] == "healthy"
+    assert operations["worker"]["lastCycleStatus"] == "succeeded"
+    assert operations["recentRuns"][0]["id"] == payload["cycleId"]
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):
@@ -359,6 +389,9 @@ def test_admin_writes_are_disabled_without_configuration(tmp_path: Path):
         response = test_client.get("/api/v2/admin/review-queue")
         assert response.status_code == 503
         assert "disabled" in response.json()["detail"]
+        automation = test_client.post("/api/v2/automation/run-cycle")
+        assert automation.status_code == 503
+        assert "not configured" in automation.json()["detail"]
 
 
 def test_approve_publishes_claim_once_and_records_history(client: TestClient):

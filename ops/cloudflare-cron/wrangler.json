@@ -1,0 +1,17 @@
+{
+  "name": "ai-radar-cron-staging",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-08-11",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "AI_RADAR_API_BASE_URL": "https://ai-radar-api-staging.onrender.com"
+  },
+  "triggers": {
+    "crons": ["17 * * * *"]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

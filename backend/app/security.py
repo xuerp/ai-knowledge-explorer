@@ -88,3 +88,23 @@ def require_admin(
     if principal.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required.")
     return principal
+
+
+def require_automation(
+    request: Request,
+    x_automation_token: Annotated[str | None, Header()] = None,
+) -> None:
+    configured_token = request.app.state.settings.automation_token
+    if not configured_token:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Automation scheduling is not configured.",
+        )
+    if not x_automation_token or not secrets.compare_digest(
+        x_automation_token,
+        configured_token,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="A valid automation token is required.",
+        )

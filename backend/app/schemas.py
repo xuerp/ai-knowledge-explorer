@@ -421,6 +421,14 @@ class AutomationRunView(CamelModel):
     error: str | None = None
 
 
+class AutomationCycleResponse(CamelModel):
+    cycle_id: str
+    worker_id: str
+    status: Literal["succeeded", "partial"]
+    result: dict[str, object]
+    next_cycle_at: datetime
+
+
 class WorkerStatusView(CamelModel):
     worker_id: str
     state: Literal["starting", "running", "idle", "failed", "stopped"]

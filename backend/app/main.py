@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from .auth import AuditService, AuthService, Principal
+from .automation import AutomationCycleBusyError, automation_cycle_lock
 from .config import Settings
 from .database import (
     Database,
@@ -32,6 +33,7 @@ from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
     AuditLogView,
+    AutomationCycleResponse,
     BootstrapUser,
     CandidateAssessment,
     CandidateCreate,
@@ -76,7 +78,8 @@ from .schemas import (
     UserCreate,
     UserView,
 )
-from .security import require_admin, require_reviewer, require_user
+from .security import require_admin, require_automation, require_reviewer, require_user
+from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260809_0013"
 
@@ -155,6 +158,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     UserDependency = Annotated[Principal, Depends(require_user)]
     ReviewerDependency = Annotated[Principal, Depends(require_reviewer)]
     AdminDependency = Annotated[Principal, Depends(require_admin)]
+    AutomationDependency = Annotated[None, Depends(require_automation)]
 
     @app.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -225,6 +229,82 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="Invalid email or password.",
             )
         return auth.issue_token(user)
+
+    @app.post("/api/v2/automation/run-cycle", response_model=AutomationCycleResponse)
+    def run_automation_cycle(
+        _: AutomationDependency,
+        session: SessionDependency,
+    ) -> AutomationCycleResponse:
+        current = datetime.now(UTC)
+        worker_id = app_settings.worker_id
+        next_cycle_at = current + timedelta(hours=1)
+        try:
+            with automation_cycle_lock(database.engine):
+                try:
+                    run_id = operations.start_ephemeral_cycle(
+                        session,
+                        worker_id,
+                        "scheduled",
+                        now=current,
+                        active_after_seconds=app_settings.automation_cycle_lease_seconds,
+                    )
+                except RuntimeError as error:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=str(error),
+                    ) from error
+
+                def cycle_heartbeat() -> None:
+                    with database.session() as heartbeat_session:
+                        operations.heartbeat(
+                            heartbeat_session,
+                            worker_id,
+                            state="running",
+                        )
+
+                try:
+                    result = run_cycle(
+                        session,
+                        scheduler,
+                        engagement,
+                        email_delivery,
+                        digest_timezone=app_settings.digest_timezone,
+                        now=current,
+                        heartbeat=cycle_heartbeat,
+                    )
+                    cycle_status = operations.complete_cycle(
+                        session,
+                        worker_id,
+                        run_id,
+                        result,
+                        next_cycle_at=next_cycle_at,
+                    )
+                except Exception as error:
+                    session.rollback()
+                    operations.fail_cycle(
+                        session,
+                        worker_id,
+                        run_id,
+                        error,
+                        next_cycle_at=next_cycle_at,
+                    )
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Automation cycle failed.",
+                    ) from error
+        except AutomationCycleBusyError as error:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(error),
+            ) from error
+
+        return AutomationCycleResponse(
+            cycle_id=run_id,
+            worker_id=worker_id,
+            status=cycle_status,
+            result=result,
+            next_cycle_at=next_cycle_at,
+        )
 
     @app.get("/api/v2/auth/me", response_model=UserView)
     def me(principal: UserDependency, session: SessionDependency) -> UserView:

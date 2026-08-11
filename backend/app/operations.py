@@ -107,6 +107,59 @@ class OperationsService:
         session.commit()
         return run.id
 
+    def start_ephemeral_cycle(
+        self,
+        session: Session,
+        worker_id: str,
+        trigger: str,
+        *,
+        now: datetime | None = None,
+        active_after_seconds: int | None = None,
+    ) -> str:
+        current = now or datetime.now(UTC)
+        active_window = active_after_seconds or self.stale_after_seconds
+        worker = session.get(WorkerStatusRecord, worker_id)
+        if (
+            worker is not None
+            and worker.state in {"starting", "running"}
+            and (_utc(current) - _utc(worker.heartbeat_at)).total_seconds() <= active_window
+        ):
+            raise RuntimeError(f"Worker {worker_id} already has an active cycle.")
+
+        interrupted = session.scalars(
+            select(AutomationRunRecord).where(
+                AutomationRunRecord.worker_id == worker_id,
+                AutomationRunRecord.status == "running",
+            )
+        ).all()
+        for previous in interrupted:
+            previous.status = "failed"
+            previous.finished_at = current
+            previous.error = "The previous ephemeral cycle ended without completing."
+
+        run = AutomationRunRecord(
+            id=str(uuid4()),
+            worker_id=worker_id,
+            trigger=trigger,
+            status="running",
+            started_at=current,
+        )
+        session.add(run)
+        worker = self._worker(session, worker_id, current)
+        worker.state = "running"
+        worker.started_at = current
+        worker.heartbeat_at = current
+        worker.next_cycle_at = None
+        worker.last_cycle_id = run.id
+        worker.last_cycle_started_at = current
+        worker.last_cycle_finished_at = None
+        worker.last_cycle_status = "running"
+        if interrupted:
+            worker.consecutive_failures += len(interrupted)
+            worker.last_error = interrupted[-1].error
+        session.commit()
+        return run.id
+
     def complete_cycle(
         self,
         session: Session,

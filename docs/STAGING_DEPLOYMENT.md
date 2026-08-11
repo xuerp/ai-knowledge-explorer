@@ -18,7 +18,7 @@
 - PostgreSQL 由 Neon Free 提供，连接串仅填写在 Render Secret 中。
 - 前端部署到 `ai-radar-staging.你的子域名.workers.dev`。
 
-免费方案明确保持 `AI_RADAR_DATA_MODE=demo`，不部署常驻 worker，也不宣称自动采集、每日摘要或邮件投递已经在云端持续运行。管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。自动任务继续由本地 worker 验证，待确定免费调度方式或升级托管方案后再启用。
+免费方案明确保持 `AI_RADAR_DATA_MODE=demo`，不部署常驻 worker。仓库提供可选的 Cloudflare Cron 按小时唤醒 API 并运行一个自动周期；只有完成第 5 节的双端秘密配置和首次运行验收后，才能宣称云端自动调度已经启用。在此之前，管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
 
 Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤醒；免费实例也不能通过 `25`、`465`、`587` 端口发送 SMTP。Neon 免费数据库通过公网 TLS 连接，不能把连接串写入仓库、前端变量或聊天。
 
@@ -71,14 +71,42 @@ AI_RADAR_SMOKE_FRONTEND_URL=https://你的前端地址 \
 bun run smoke:staging
 ```
 
-## 5. 验收顺序
+## 5. 可选：启用 Cloudflare 定时任务
+
+定时任务使用独立的 `AI_RADAR_AUTOMATION_TOKEN`，只能调用单周期自动化接口，不能登录审核后台，也不能替代管理员 JWT。不要复用 `AI_RADAR_ADMIN_TOKEN`、数据库密码或其他 API Key。
+
+1. 在本机密码管理器中生成至少 32 位的随机值，不要把值发送到聊天或提交到仓库。
+2. 在 Render 的 `ai-radar-api-staging` 服务中新增 Secret `AI_RADAR_AUTOMATION_TOKEN`，保存并等待 API 重新部署完成。
+3. 先部署不包含定时触发器的 Worker，确保秘密缺失时不会运行任务：
+
+   ```powershell
+   pnpm dlx wrangler@4 deploy --config ops/cloudflare-cron/wrangler.setup.json
+   ```
+
+4. 按 Wrangler 提示在本机输入与 Render 相同的随机值：
+
+   ```powershell
+   pnpm dlx wrangler@4 secret put AI_RADAR_AUTOMATION_TOKEN --config ops/cloudflare-cron/wrangler.setup.json
+   ```
+
+5. 最后部署包含定时触发器的配置：
+
+   ```powershell
+   pnpm dlx wrangler@4 deploy --config ops/cloudflare-cron/wrangler.json
+   ```
+
+配置默认在每个整点后的第 17 分钟运行一次。PostgreSQL advisory lock、15 分钟周期租约以及信源和邮件自身的持久租约共同阻止并发重复执行。Render 的 worker 心跳健康窗口为 65 分钟，允许一次正常的按小时冷启动与网络抖动；周期崩溃后，下一小时可以接管。
+
+Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数据丢失。SMTP 仍受 Render 免费端口限制；未配置可用投递方式时，摘要只会安全进入 Outbox。
+
+## 6. 验收顺序
 
 1. `/health`、`/ready` 和 API 服务健康检查均通过。
 2. Neon 位于 Alembic head，公开快照可读。
 3. 普通 viewer 无法进入审核后台。
 4. 静态管理员令牌已经撤销。
 5. 手动采集和审核发布流程正常。
-6. “生产上线预检”准确显示 demo 模式、worker 未部署以及尚未完成的外部项目。
+6. 未启用 Cron 时，“生产上线预检”准确显示 worker 未部署；启用后，审核后台可看到最近的 `scheduled` 周期和新鲜心跳。
 7. 免费 API 休眠后能够被正常唤醒。
 
 预发布稳定运行并完成正式数据质量、自动任务、备份、监控和邮件投递验收前，不得切换为 `live`。

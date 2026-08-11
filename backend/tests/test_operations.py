@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from app.automation import AutomationCycleBusyError, automation_cycle_lock
 from app.database import Database
 from app.operations import OperationsService
 
@@ -104,4 +105,59 @@ def test_worker_restart_marks_interrupted_cycle_failed(tmp_path: Path):
         assert diagnostics.worker is not None
         assert diagnostics.worker.consecutive_failures == 1
 
+    database.dispose()
+
+
+def test_ephemeral_cycle_has_an_independent_active_lease(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'ephemeral.db').as_posix()}")
+    database.create_all()
+    service = OperationsService(stale_after_seconds=3900)
+    started = datetime(2026, 8, 11, 1, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        first_run = service.start_ephemeral_cycle(
+            session,
+            "scheduler",
+            "scheduled",
+            now=started,
+            active_after_seconds=900,
+        )
+        with pytest.raises(RuntimeError, match="active cycle"):
+            service.start_ephemeral_cycle(
+                session,
+                "scheduler",
+                "scheduled",
+                now=started + timedelta(minutes=10),
+                active_after_seconds=900,
+            )
+
+        second_run = service.start_ephemeral_cycle(
+            session,
+            "scheduler",
+            "scheduled",
+            now=started + timedelta(minutes=16),
+            active_after_seconds=900,
+        )
+        diagnostics = service.diagnostics(
+            session,
+            "scheduler",
+            now=started + timedelta(minutes=16),
+        )
+        assert diagnostics.recent_runs[0].id == second_run
+        assert diagnostics.recent_runs[0].status == "running"
+        interrupted = next(run for run in diagnostics.recent_runs if run.id == first_run)
+        assert interrupted.status == "failed"
+        assert "without completing" in (interrupted.error or "")
+
+    database.dispose()
+
+
+def test_automation_cycle_lock_rejects_concurrent_local_cycle(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'cycle-lock.db').as_posix()}")
+    with (
+        automation_cycle_lock(database.engine),
+        pytest.raises(AutomationCycleBusyError, match="already running"),
+        automation_cycle_lock(database.engine),
+    ):
+        pytest.fail("并发周期不应获得锁")
     database.dispose()

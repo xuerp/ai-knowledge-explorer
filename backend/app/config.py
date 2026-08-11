@@ -22,6 +22,8 @@ class Settings:
     seed_snapshot_path: Path
     admin_token: str | None
     cors_origins: tuple[str, ...]
+    automation_token: str | None = None
+    automation_cycle_lease_seconds: int = 900
     environment: str = "development"
     data_mode: Literal["demo", "live"] = "demo"
     jwt_secret: str | None = None
@@ -49,6 +51,10 @@ class Settings:
     worker_stale_seconds: int = 180
 
     def __post_init__(self) -> None:
+        if self.automation_token is not None and len(self.automation_token) < 32:
+            raise ValueError("AI_RADAR_AUTOMATION_TOKEN must contain at least 32 characters.")
+        if not 60 <= self.automation_cycle_lease_seconds <= 3600:
+            raise ValueError("AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS must be between 60 and 3600.")
         if self.fetch_retry_base_minutes < 1:
             raise ValueError("AI_RADAR_FETCH_RETRY_BASE_MINUTES must be at least 1.")
         if self.fetch_retry_max_minutes < self.fetch_retry_base_minutes:
@@ -102,6 +108,10 @@ class Settings:
             ),
             admin_token=os.getenv("AI_RADAR_ADMIN_TOKEN") or None,
             cors_origins=cors_origins,
+            automation_token=os.getenv("AI_RADAR_AUTOMATION_TOKEN") or None,
+            automation_cycle_lease_seconds=int(
+                os.getenv("AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS", "900")
+            ),
             environment=os.getenv("AI_RADAR_ENVIRONMENT", "development"),
             data_mode=data_mode,
             jwt_secret=os.getenv("AI_RADAR_JWT_SECRET") or None,
