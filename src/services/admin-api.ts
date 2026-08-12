@@ -312,6 +312,13 @@ export const adminApi = {
       token,
     ),
 
+  collectSource: (token: string, id: string) =>
+    request<{ due: number; succeeded: number; unchanged: number; failed: number }>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}/collect`,
+      { method: "POST" },
+      token,
+    ),
+
   createSource: (token: string, source: Pick<SourceView, "id" | "title" | "publisher" | "url">) =>
     request<SourceView>(
       "/api/v2/admin/sources",

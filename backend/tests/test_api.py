@@ -522,7 +522,7 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(
     monkeypatch.setattr(
         SafeHttpFetcher,
         "fetch",
-        lambda self, url: FetchedDocument(
+        lambda self, url, **kwargs: FetchedDocument(
             content="A sufficiently long official release document for preflight.",
             content_type="text/html",
             etag=None,
@@ -592,6 +592,14 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(
         "updated",
         "unchanged",
     }
+
+    collected = client.post(
+        "/api/v2/admin/sources/source-demo-release/collect",
+        headers=headers,
+    )
+    assert collected.status_code == 200
+    assert collected.json() == {"due": 1, "succeeded": 1, "unchanged": 0, "failed": 0}
+    assert client.post("/api/v2/admin/sources/source-demo-release/collect").status_code == 401
 
     duplicate_source = client.post(
         "/api/v2/admin/sources",

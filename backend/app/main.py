@@ -1195,6 +1195,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return result
 
     @app.post(
+        "/api/v2/admin/sources/{source_id}/collect",
+        response_model=SchedulerRunSummary,
+    )
+    def collect_source_now(
+        source_id: str,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> SchedulerRunSummary:
+        source = session.get(SourceRecord, source_id)
+        if not source:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        if not source.active or not source.fetch_enabled:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Source must be active with automatic collection enabled.",
+            )
+        result = scheduler.run_due(session, source_id=source_id, force=True, limit=1)
+        if result.due == 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Source is already being collected; retry after its lease expires.",
+            )
+        audit.record(
+            session,
+            principal,
+            "source.collect",
+            "source",
+            source_id,
+            result.model_dump(by_alias=True),
+        )
+        session.commit()
+        return result
+
+    @app.post(
         "/api/v2/admin/review-candidates/assess",
         response_model=CandidateAssessment,
     )

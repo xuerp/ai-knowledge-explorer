@@ -334,6 +334,24 @@ function AdminReviewPage() {
     }
   };
 
+  const collectSource = async (source: SourceView) => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const result = await adminApi.collectSource(token, source.id);
+      setOperationMessage(
+        `${source.title} 采集完成：成功 ${result.succeeded}，未变化 ${result.unchanged}，失败 ${result.failed}。`,
+      );
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "单信源采集失败。");
+      await refresh(token);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const retryOutbox = async (entry: OutboxEntry) => {
     if (!window.confirm(`确认重新排队邮件“${entry.subject}”？系统不会重发已成功的邮件。`)) {
       return;
@@ -898,6 +916,20 @@ function AdminReviewPage() {
                       onClick={() => probeSource(source)}
                     >
                       连接预检
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={
+                        busy ||
+                        !source.active ||
+                        !source.fetchEnabled ||
+                        isFuture(source.fetchLeaseExpiresAt)
+                      }
+                      title="立即采集当前信源，不影响其他信源的调度"
+                      onClick={() => collectSource(source)}
+                    >
+                      立即采集此信源
                     </Button>
                     <Button
                       size="sm"
