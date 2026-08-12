@@ -60,7 +60,10 @@ def upgrade() -> None:
         sa.Column("published_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"]),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("published_slug"),
+        sa.UniqueConstraint(
+            "published_slug",
+            name="research_records_published_slug_key",
+        ),
     )
     op.create_index("ix_research_records_user_id", "research_records", ["user_id"])
     op.create_index(
