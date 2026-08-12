@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowRight,
   Building2,
+  Check,
   CheckCircle2,
   ChevronRight,
   CircleDot,
@@ -18,12 +19,25 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ConfidenceChip, DemoBadge } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import {
   connectionPath,
+  connectionPaths,
   ecosystemGroups,
+  impactLeads,
   impactScope,
   incidentRelations,
+  relationshipStats,
 } from "@/domain/relationship-insights";
 import type { Entity, Evidence, GraphEdge, KnowledgeSnapshot } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -116,6 +130,7 @@ function RelationshipWorkspace({
   initialSearch: { entity?: string; target?: string; mode?: InsightMode };
 }) {
   const { t, lang } = useApp();
+  const navigate = Route.useNavigate();
   const entities = snapshot.entities;
   const relations = snapshot.graph.edges;
   const entityById = useMemo(
@@ -141,8 +156,30 @@ function RelationshipWorkspace({
   const [mode, setMode] = useState<InsightMode>(initialSearch.mode ?? "ecosystem");
   const [primaryId, setPrimaryId] = useState(defaultPrimary);
   const [secondaryId, setSecondaryId] = useState(defaultSecondary);
-  const [impactDepth, setImpactDepth] = useState<1 | 2>(1);
+  const [impactDepth, setImpactDepth] = useState<1 | 2>(2);
+  const [connectionIndex, setConnectionIndex] = useState(0);
   const [selectedEdgeId, setSelectedEdgeId] = useState("");
+
+  useEffect(() => {
+    void navigate({
+      search: {
+        entity: primaryId,
+        target: mode === "connection" ? secondaryId : undefined,
+        mode,
+      },
+      replace: true,
+    });
+  }, [mode, navigate, primaryId, secondaryId]);
+
+  useEffect(() => {
+    if (initialSearch.entity && entityById.has(initialSearch.entity)) {
+      setPrimaryId(initialSearch.entity);
+    }
+    if (initialSearch.target && entityById.has(initialSearch.target)) {
+      setSecondaryId(initialSearch.target);
+    }
+    if (initialSearch.mode) setMode(initialSearch.mode);
+  }, [entityById, initialSearch.entity, initialSearch.mode, initialSearch.target]);
 
   const primary = entityById.get(primaryId) ?? entities[0];
   const secondary = entityById.get(secondaryId);
@@ -158,6 +195,19 @@ function RelationshipWorkspace({
     () => connectionPath(entities, relations, primaryId, secondaryId),
     [entities, primaryId, relations, secondaryId],
   );
+  const alternativeConnections = useMemo(
+    () => connectionPaths(entities, relations, primaryId, secondaryId, 3),
+    [entities, primaryId, relations, secondaryId],
+  );
+  const activeConnection = alternativeConnections[connectionIndex] ?? connection;
+  const stats = useMemo(
+    () => (primary ? relationshipStats(relations, primary.id) : null),
+    [primary, relations],
+  );
+  const leads = useMemo(
+    () => (primary ? impactLeads(relations, primary.id) : []),
+    [primary, relations],
+  );
   const scope = useMemo(
     () =>
       primary
@@ -168,23 +218,36 @@ function RelationshipWorkspace({
   const selectedEdge = relations.find((edge) => edge.id === selectedEdgeId) ?? null;
   const relevantRelations = useMemo(() => {
     if (mode === "connection") {
-      const ids = new Set(connection.path?.edgeIds ?? []);
+      const ids = new Set(activeConnection.path?.edgeIds ?? []);
       return relations.filter((edge) => ids.has(edge.id));
     }
     if (mode === "impact") {
       const ids = new Set([primaryId, ...scope.entityIds]);
-      return relations.filter((edge) => ids.has(edge.fromId) && ids.has(edge.toId));
+      return relations
+        .filter((edge) => ids.has(edge.fromId) && ids.has(edge.toId))
+        .sort(
+          (left, right) =>
+            Number(right.fromId === primaryId || right.toId === primaryId) -
+            Number(left.fromId === primaryId || left.toId === primaryId),
+        );
     }
     return primaryRelations;
-  }, [connection.path?.edgeIds, mode, primaryId, primaryRelations, relations, scope.entityIds]);
+  }, [
+    activeConnection.path?.edgeIds,
+    mode,
+    primaryId,
+    primaryRelations,
+    relations,
+    scope.entityIds,
+  ]);
 
   const graphEntityIds = useMemo(() => {
     if (!primary) return [];
-    if (mode === "connection") return connection.path?.nodeIds ?? [primary.id];
+    if (mode === "connection") return activeConnection.path?.nodeIds ?? [primary.id];
     if (mode === "impact") return [primary.id, ...scope.entityIds].slice(0, 20);
     const directIds = groups.flatMap((group) => group.entities.map((entity) => entity.id));
     return [primary.id, ...directIds].slice(0, 20);
-  }, [connection.path?.nodeIds, groups, mode, primary, scope.entityIds]);
+  }, [activeConnection.path?.nodeIds, groups, mode, primary, scope.entityIds]);
   const graphIdSet = useMemo(() => new Set(graphEntityIds), [graphEntityIds]);
   const graphRelations = useMemo(
     () =>
@@ -194,6 +257,7 @@ function RelationshipWorkspace({
 
   const switchMode = (nextMode: InsightMode) => {
     setMode(nextMode);
+    setConnectionIndex(0);
     setSelectedEdgeId("");
   };
 
@@ -272,6 +336,7 @@ function RelationshipWorkspace({
                 entities={entities}
                 onChange={(value) => {
                   setPrimaryId(value);
+                  setConnectionIndex(0);
                   if (value === secondaryId) {
                     setSecondaryId(entities.find((entity) => entity.id !== value)?.id ?? "");
                   }
@@ -285,6 +350,7 @@ function RelationshipWorkspace({
                   entities={entities.filter((entity) => entity.id !== primaryId)}
                   onChange={(value) => {
                     setSecondaryId(value);
+                    setConnectionIndex(0);
                     setSelectedEdgeId("");
                   }}
                 />
@@ -326,8 +392,10 @@ function RelationshipWorkspace({
                 groups={groups}
                 directCount={scope.directIds.size}
                 indirectCount={scope.indirectIds.size}
-                pathLength={connection.path?.edgeIds.length ?? null}
+                pathLength={activeConnection.path?.edgeIds.length ?? null}
               />
+
+              {stats && <RelationshipOverview stats={stats} />}
 
               {mode === "ecosystem" && (
                 <EcosystemResult groups={groups} primary={primary} relations={relations} />
@@ -336,15 +404,25 @@ function RelationshipWorkspace({
                 <ConnectionResult
                   primary={primary}
                   secondary={secondary}
-                  steps={connection.steps}
+                  paths={alternativeConnections}
+                  activeIndex={connectionIndex}
+                  onChangePath={(index) => {
+                    setConnectionIndex(index);
+                    setSelectedEdgeId("");
+                  }}
+                  steps={activeConnection.steps}
                   onSelectEdge={setSelectedEdgeId}
                 />
               )}
               {mode === "impact" && (
                 <ImpactResult
                   entities={entities}
+                  edges={relations}
                   directIds={scope.directIds}
                   indirectIds={scope.indirectIds}
+                  leads={impactDepth === 2 ? leads : []}
+                  centerId={primary.id}
+                  onSelectEdge={setSelectedEdgeId}
                 />
               )}
 
@@ -374,8 +452,8 @@ function RelationshipWorkspace({
                     entityIds={graphEntityIds}
                     centerId={primary.id}
                     selectedEdgeId={selectedEdge?.id}
-                    highlightedNodeIds={connection.path?.nodeIds}
-                    highlightedEdgeIds={connection.path?.edgeIds}
+                    highlightedNodeIds={activeConnection.path?.nodeIds}
+                    highlightedEdgeIds={activeConnection.path?.edgeIds}
                     onSelectEdge={(edge) => setSelectedEdgeId(edge.id)}
                     height={480}
                     canvasWidth={900}
@@ -530,14 +608,61 @@ function EcosystemResult({
   );
 }
 
+function RelationshipOverview({ stats }: { stats: ReturnType<typeof relationshipStats> }) {
+  const { t } = useApp();
+  const verifiedRate = stats.relationshipCount
+    ? Math.round((stats.verifiedCount / stats.relationshipCount) * 100)
+    : 0;
+  const sourcedRate = stats.relationshipCount
+    ? Math.round((stats.sourcedCount / stats.relationshipCount) * 100)
+    : 0;
+  const items = [
+    {
+      label: t("关联对象", "Related entities"),
+      value: stats.relatedEntityCount,
+      note: t(`${stats.relationKindCount} 种关系类型`, `${stats.relationKindCount} relation types`),
+    },
+    {
+      label: t("已核验关系", "Verified relationships"),
+      value: `${verifiedRate}%`,
+      note: `${stats.verifiedCount} / ${stats.relationshipCount}`,
+    },
+    {
+      label: t("证据覆盖", "Evidence coverage"),
+      value: `${sourcedRate}%`,
+      note: t(`${stats.sourceCount} 个独立来源`, `${stats.sourceCount} distinct sources`),
+    },
+  ];
+  return (
+    <section
+      className="grid gap-3 sm:grid-cols-3"
+      aria-label={t("关系质量概览", "Relationship quality")}
+    >
+      {items.map((item) => (
+        <div key={item.label} className="rounded-xl border border-border bg-card p-4">
+          <div className="text-xs text-muted-foreground">{item.label}</div>
+          <div className="mt-2 text-2xl font-semibold tabular-nums">{item.value}</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">{item.note}</div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function ConnectionResult({
   primary,
   secondary,
+  paths,
+  activeIndex,
+  onChangePath,
   steps,
   onSelectEdge,
 }: {
   primary: Entity;
   secondary?: Entity;
+  paths: ReturnType<typeof connectionPaths>;
+  activeIndex: number;
+  onChangePath: (index: number) => void;
   steps: ReturnType<typeof connectionPath>["steps"];
   onSelectEdge: (id: string) => void;
 }) {
@@ -553,45 +678,71 @@ function ConnectionResult({
         )}
       />
       {steps.length ? (
-        <ol className="mt-5 space-y-3">
-          {steps.map((step, index) => {
-            const forward = step.edge.fromId === step.from.id;
-            return (
-              <li key={step.edge.id}>
+        <>
+          {paths.length > 1 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-xs text-muted-foreground">
+                {t("可用解释", "Available explanations")}
+              </span>
+              {paths.map((item, index) => (
                 <button
+                  key={item.path.edgeIds.join("|")}
                   type="button"
-                  onClick={() => onSelectEdge(step.edge.id)}
-                  className="w-full rounded-lg border border-border bg-background p-4 text-left hover:border-signal/40 hover:bg-accent/40"
+                  onClick={() => onChangePath(index)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    index === activeIndex
+                      ? "border-signal bg-signal text-white"
+                      : "border-border bg-background hover:border-signal/40"
+                  }`}
                 >
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="grid h-5 w-5 place-items-center rounded-full bg-signal text-[10px] font-semibold text-white">
-                      {index + 1}
-                    </span>
-                    {t("关系步骤", "Relationship step")}
-                    <ConfidenceChip level={step.edge.confidence} />
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium">
-                    <span>{pick(step.from.name, lang)}</span>
-                    <span className="inline-flex items-center gap-1 text-signal">
-                      {forward ? "—" : "←"}
-                      {pick(RELATION_LABELS[step.edge.kind], lang)}
-                      {forward ? "→" : "—"}
-                    </span>
-                    <span>{pick(step.to.name, lang)}</span>
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {step.edge.sourceIds.length
-                      ? t(
-                          `关联 ${step.edge.sourceIds.length} 条来源证据，点击核验。`,
-                          `${step.edge.sourceIds.length} source${step.edge.sourceIds.length === 1 ? "" : "s"} attached; select to verify.`,
-                        )
-                      : t("该关系尚未绑定来源。", "No source is attached to this relationship.")}
-                  </p>
+                  {index === 0
+                    ? t("最短路径", "Shortest")
+                    : t(`备选 ${index}`, `Alternative ${index}`)}{" "}
+                  · {item.path.edgeIds.length} {t("段", "steps")}
                 </button>
-              </li>
-            );
-          })}
-        </ol>
+              ))}
+            </div>
+          )}
+          <ol className="mt-5 space-y-3">
+            {steps.map((step, index) => {
+              const forward = step.edge.fromId === step.from.id;
+              return (
+                <li key={step.edge.id}>
+                  <button
+                    type="button"
+                    onClick={() => onSelectEdge(step.edge.id)}
+                    className="w-full rounded-lg border border-border bg-background p-4 text-left hover:border-signal/40 hover:bg-accent/40"
+                  >
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="grid h-5 w-5 place-items-center rounded-full bg-signal text-[10px] font-semibold text-white">
+                        {index + 1}
+                      </span>
+                      {t("关系步骤", "Relationship step")}
+                      <ConfidenceChip level={step.edge.confidence} />
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium">
+                      <span>{pick(step.from.name, lang)}</span>
+                      <span className="inline-flex items-center gap-1 text-signal">
+                        {forward ? "—" : "←"}
+                        {pick(RELATION_LABELS[step.edge.kind], lang)}
+                        {forward ? "→" : "—"}
+                      </span>
+                      <span>{pick(step.to.name, lang)}</span>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {step.edge.sourceIds.length
+                        ? t(
+                            `关联 ${step.edge.sourceIds.length} 条来源证据，点击核验。`,
+                            `${step.edge.sourceIds.length} source${step.edge.sourceIds.length === 1 ? "" : "s"} attached; select to verify.`,
+                          )
+                        : t("该关系尚未绑定来源。", "No source is attached to this relationship.")}
+                    </p>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </>
       ) : (
         <EmptyResult>
           {t(
@@ -606,14 +757,22 @@ function ConnectionResult({
 
 function ImpactResult({
   entities,
+  edges,
   directIds,
   indirectIds,
+  leads,
+  centerId,
+  onSelectEdge,
 }: {
   entities: Entity[];
+  edges: GraphEdge[];
   directIds: Set<string>;
   indirectIds: Set<string>;
+  leads: ReturnType<typeof impactLeads>;
+  centerId: string;
+  onSelectEdge: (id: string) => void;
 }) {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   return (
     <section className="rounded-xl border border-border bg-card p-4 md:p-5">
       <SectionHeading
@@ -634,6 +793,14 @@ function ImpactResult({
           ids={directIds}
           entities={entities}
           tone="direct"
+          onInspect={(entityId) => {
+            const edge = edges.find(
+              (item) =>
+                (item.fromId === centerId && item.toId === entityId) ||
+                (item.toId === centerId && item.fromId === entityId),
+            );
+            if (edge) onSelectEdge(edge.id);
+          }}
         />
         <ScopeGroup
           title={t("二跳调查线索", "Two-hop research leads")}
@@ -646,6 +813,75 @@ function ImpactResult({
           tone="indirect"
         />
       </div>
+      {leads.length > 0 && (
+        <div className="mt-4 rounded-lg border border-border bg-background p-4">
+          <h3 className="text-sm font-semibold">
+            {t("二跳线索为什么出现", "Why these leads appear")}
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {t(
+              "每条线索都展示桥接对象；点击任一关系即可在右侧核验证据。",
+              "Each lead shows its bridge entity. Select either relationship to verify evidence.",
+            )}
+          </p>
+          <div className="mt-3 space-y-2">
+            {leads.slice(0, 8).map((lead) => {
+              const entity = entities.find((item) => item.id === lead.entityId);
+              if (!entity) return null;
+              return (
+                <div key={lead.entityId} className="rounded-lg border border-border bg-card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <Link
+                      to="/knowledge/$type/$slug"
+                      params={{ type: entity.type, slug: entity.slug }}
+                      className="text-sm font-semibold hover:text-signal"
+                    >
+                      {pick(entity.name, lang)}
+                    </Link>
+                    <span className="text-[11px] text-muted-foreground">
+                      {lead.routes.length} {t("条桥接路径", "bridge routes")}
+                    </span>
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    {lead.routes.slice(0, 2).map((route) => {
+                      const bridge = entities.find((item) => item.id === route.bridgeId);
+                      const first = edges.find((edge) => edge.id === route.firstEdgeId);
+                      const second = edges.find((edge) => edge.id === route.secondEdgeId);
+                      if (!bridge || !first || !second) return null;
+                      return (
+                        <div
+                          key={`${route.bridgeId}-${route.firstEdgeId}-${route.secondEdgeId}`}
+                          className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"
+                        >
+                          <span>{t("经由", "via")}</span>
+                          <span className="font-medium text-foreground">
+                            {pick(bridge.name, lang)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => onSelectEdge(first.id)}
+                            className="text-signal hover:underline"
+                          >
+                            {pick(RELATION_LABELS[first.kind], lang)}
+                          </button>
+                          <span>+</span>
+                          <button
+                            type="button"
+                            onClick={() => onSelectEdge(second.id)}
+                            className="text-signal hover:underline"
+                          >
+                            {pick(RELATION_LABELS[second.kind], lang)}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -656,12 +892,14 @@ function ScopeGroup({
   ids,
   entities,
   tone,
+  onInspect,
 }: {
   title: string;
   description: string;
   ids: Set<string>;
   entities: Entity[];
   tone: "direct" | "indirect";
+  onInspect?: (entityId: string) => void;
 }) {
   const { lang } = useApp();
   const items = entities.filter((entity) => ids.has(entity.id));
@@ -678,14 +916,15 @@ function ScopeGroup({
       <div className="mt-3 flex flex-wrap gap-2">
         {items.length ? (
           items.map((entity) => (
-            <Link
+            <button
               key={entity.id}
-              to="/knowledge/$type/$slug"
-              params={{ type: entity.type, slug: entity.slug }}
+              type="button"
+              onClick={() => onInspect?.(entity.id)}
+              disabled={!onInspect}
               className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-signal/40 hover:text-signal"
             >
               {pick(entity.name, lang)}
-            </Link>
+            </button>
           ))
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
@@ -830,6 +1069,7 @@ function EntityPicker({
   onChange: (value: string) => void;
 }) {
   const { lang, t } = useApp();
+  const [open, setOpen] = useState(false);
   const sorted = useMemo(
     () =>
       [...entities].sort((left, right) =>
@@ -838,28 +1078,65 @@ function EntityPicker({
     [entities, lang],
   );
   return (
-    <label className="block min-w-0">
+    <div className="block min-w-0">
       <span className="mb-2 block text-xs font-medium text-muted-foreground">{label}</span>
-      <span className="relative block">
-        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="h-10 w-full appearance-none rounded-md border border-border bg-background pl-9 pr-9 text-sm outline-none focus:border-signal"
-          aria-label={label}
-        >
-          {sorted.map((entity) => (
-            <option key={entity.id} value={entity.id}>
-              {pick(entity.name, lang)} · {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-            </option>
-          ))}
-        </select>
-        <ChevronRight className="pointer-events-none absolute right-3 top-3 h-4 w-4 rotate-90 text-muted-foreground" />
-      </span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-label={label}
+            aria-expanded={open}
+            className="h-10 w-full justify-between bg-background px-3 font-normal"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="truncate">
+                {sorted.find((entity) => entity.id === value)
+                  ? `${pick(sorted.find((entity) => entity.id === value)!.name, lang)} · ${pick(
+                      ENTITY_TYPE_LABELS[sorted.find((entity) => entity.id === value)!.type],
+                      lang,
+                    )}`
+                  : t("选择对象", "Select an entity")}
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+          <Command>
+            <CommandInput placeholder={t("搜索名称、类型或标签…", "Search name, type, or tag…")} />
+            <CommandList>
+              <CommandEmpty>{t("没有匹配对象", "No matching entity")}</CommandEmpty>
+              <CommandGroup>
+                {sorted.map((entity) => (
+                  <CommandItem
+                    key={entity.id}
+                    value={`${pick(entity.name, lang)} ${pick(ENTITY_TYPE_LABELS[entity.type], lang)} ${entity.tags.join(" ")}`}
+                    onSelect={() => {
+                      onChange(entity.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={`h-4 w-4 ${entity.id === value ? "opacity-100" : "opacity-0"}`}
+                    />
+                    <span className="min-w-0 flex-1 truncate">{pick(entity.name, lang)}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
       {!entities.length && (
         <span className="text-xs text-muted-foreground">{t("没有可选对象", "No entities")}</span>
       )}
-    </label>
+    </div>
   );
 }
 

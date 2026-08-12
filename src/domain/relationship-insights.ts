@@ -12,6 +12,26 @@ export interface EcosystemGroup {
   entities: Entity[];
 }
 
+export interface RelationshipStats {
+  relationshipCount: number;
+  relatedEntityCount: number;
+  relationKindCount: number;
+  verifiedCount: number;
+  sourcedCount: number;
+  sourceCount: number;
+}
+
+export interface ImpactRoute {
+  bridgeId: string;
+  firstEdgeId: string;
+  secondEdgeId: string;
+}
+
+export interface ImpactLead {
+  entityId: string;
+  routes: ImpactRoute[];
+}
+
 export function incidentRelations(edges: GraphEdge[], entityId: string): GraphEdge[] {
   return edges.filter((edge) => edge.fromId === entityId || edge.toId === entityId);
 }
@@ -63,6 +83,85 @@ export function connectionPath(
 ): { path: GraphPath | null; steps: RelationshipStep[] } {
   const path = startId && endId ? findShortestPath(edges, startId, endId) : null;
   return { path, steps: relationshipSteps(entities, edges, path) };
+}
+
+export function connectionPaths(
+  entities: Entity[],
+  edges: GraphEdge[],
+  startId: string,
+  endId: string,
+  limit = 3,
+): Array<{ path: GraphPath; steps: RelationshipStep[] }> {
+  if (!startId || !endId || limit <= 0) return [];
+  const first = findShortestPath(edges, startId, endId);
+  if (!first) return [];
+
+  const paths: GraphPath[] = [first];
+  const queued = [first];
+  const seen = new Set([first.edgeIds.join("|")]);
+  let attempts = 0;
+  while (queued.length && paths.length < limit && attempts < 24) {
+    const candidate = queued.shift()!;
+    for (const edgeId of candidate.edgeIds) {
+      attempts += 1;
+      const alternative = findShortestPath(
+        edges.filter((edge) => edge.id !== edgeId),
+        startId,
+        endId,
+      );
+      if (!alternative) continue;
+      const key = alternative.edgeIds.join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      paths.push(alternative);
+      queued.push(alternative);
+      if (paths.length >= limit) break;
+    }
+  }
+
+  return paths
+    .sort((left, right) => left.edgeIds.length - right.edgeIds.length)
+    .map((path) => ({ path, steps: relationshipSteps(entities, edges, path) }));
+}
+
+export function relationshipStats(edges: GraphEdge[], entityId: string): RelationshipStats {
+  const incident = incidentRelations(edges, entityId);
+  const relatedIds = new Set(
+    incident.map((edge) => (edge.fromId === entityId ? edge.toId : edge.fromId)),
+  );
+  const sourceIds = new Set(incident.flatMap((edge) => edge.sourceIds));
+  return {
+    relationshipCount: incident.length,
+    relatedEntityCount: relatedIds.size,
+    relationKindCount: new Set(incident.map((edge) => edge.kind)).size,
+    verifiedCount: incident.filter((edge) => edge.confidence === "verified").length,
+    sourcedCount: incident.filter((edge) => edge.sourceIds.length > 0).length,
+    sourceCount: sourceIds.size,
+  };
+}
+
+export function impactLeads(edges: GraphEdge[], entityId: string): ImpactLead[] {
+  const directIds = expandNeighborhood(edges, entityId, 1);
+  directIds.delete(entityId);
+  const leads = new Map<string, ImpactRoute[]>();
+
+  for (const firstEdge of incidentRelations(edges, entityId)) {
+    const bridgeId = firstEdge.fromId === entityId ? firstEdge.toId : firstEdge.fromId;
+    for (const secondEdge of incidentRelations(edges, bridgeId)) {
+      if (secondEdge.id === firstEdge.id) continue;
+      const candidateId = secondEdge.fromId === bridgeId ? secondEdge.toId : secondEdge.fromId;
+      if (candidateId === entityId || directIds.has(candidateId)) continue;
+      const routes = leads.get(candidateId) ?? [];
+      if (!routes.some((route) => route.bridgeId === bridgeId)) {
+        routes.push({ bridgeId, firstEdgeId: firstEdge.id, secondEdgeId: secondEdge.id });
+      }
+      leads.set(candidateId, routes);
+    }
+  }
+
+  return [...leads.entries()]
+    .map(([leadId, routes]) => ({ entityId: leadId, routes }))
+    .sort((left, right) => right.routes.length - left.routes.length);
 }
 
 export function impactScope(
