@@ -224,7 +224,7 @@ export const SOURCES: Source[] = [
   {
     id: "s-mcp-architecture",
     title: { zh: "MCP 官方架构概览", en: "Official MCP architecture overview" },
-    url: "https://modelcontextprotocol.io/docs/learn/architecture",
+    url: "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
     publisher: "Model Context Protocol",
     publishedAt: "2026-07-29",
     collectedAt: "2026-07-29",
@@ -2422,7 +2422,7 @@ export const ENTITIES: Entity[] = [
           en: "Clients and servers may differ in specification versions, transports and extensions.",
         },
       ],
-      officialUrl: "https://modelcontextprotocol.io/docs/learn/architecture",
+      officialUrl: "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
     },
   },
   {
