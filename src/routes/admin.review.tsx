@@ -372,21 +372,24 @@ function AdminReviewPage() {
     setBusy(true);
     setError("");
     setOperationMessage("");
-    const outcomes = await Promise.all(
-      candidates.map(async (source) => {
-        try {
-          await adminApi.probeSource(token, source.id);
-          await adminApi.updateSource(token, source.id, { fetchEnabled: true });
-          return { source, enabled: true as const };
-        } catch (failure) {
-          return {
-            source,
-            enabled: false as const,
-            reason: failure instanceof Error ? failure.message : "连接预检失败",
-          };
-        }
-      }),
-    );
+    const outcomes: Array<
+      { source: SourceView; enabled: true } | { source: SourceView; enabled: false; reason: string }
+    > = [];
+    // 免费 staging 只有一个较小的 API 实例。逐个预检可以避免同时连接多个官网时
+    // 耗尽连接池，也能降低被上游站点临时限流的概率。
+    for (const source of candidates) {
+      try {
+        await adminApi.probeSource(token, source.id);
+        await adminApi.updateSource(token, source.id, { fetchEnabled: true });
+        outcomes.push({ source, enabled: true });
+      } catch (failure) {
+        outcomes.push({
+          source,
+          enabled: false,
+          reason: failure instanceof Error ? failure.message : "连接预检失败",
+        });
+      }
+    }
     const enabled = outcomes.filter((outcome) => outcome.enabled);
     const failed = outcomes.filter((outcome) => !outcome.enabled);
     setOperationMessage(

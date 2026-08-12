@@ -47,9 +47,17 @@ def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
         private_fetcher.fetch("https://example.com/release")
 
 
-def test_safe_fetcher_reports_valid_canonical_redirect_without_following_it():
+def test_safe_fetcher_follows_allowlisted_canonical_redirect():
     def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(307, headers={"location": "/docs/2026-07-28/learn/architecture"})
+        if request.url.path == "/docs/learn/architecture":
+            return httpx.Response(
+                307, headers={"location": "/docs/2026-07-28/learn/architecture"}
+            )
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/plain"},
+            text="A canonical official architecture document with enough readable content.",
+        )
 
     fetcher = SafeHttpFetcher(
         ("example.com",),
@@ -57,11 +65,24 @@ def test_safe_fetcher_reports_valid_canonical_redirect_without_following_it():
         resolver=lambda _: ("8.8.8.8",),
         transport=httpx.MockTransport(handler),
     )
-    with pytest.raises(
-        FetchPolicyError,
-        match=r"https://docs\.example\.com/docs/2026-07-28/learn/architecture",
-    ):
-        fetcher.fetch("https://docs.example.com/docs/learn/architecture")
+    document = fetcher.fetch("https://docs.example.com/docs/learn/architecture")
+    assert document.final_url == (
+        "https://docs.example.com/docs/2026-07-28/learn/architecture"
+    )
+    assert "canonical official architecture" in document.content
+
+
+def test_safe_fetcher_rejects_redirect_outside_allowlist():
+    fetcher = SafeHttpFetcher(
+        ("example.com",),
+        10_000,
+        resolver=lambda _: ("8.8.8.8",),
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(302, headers={"location": "https://attacker.test/path"})
+        ),
+    )
+    with pytest.raises(FetchPolicyError, match="not in"):
+        fetcher.fetch("https://docs.example.com/old-path")
 
 
 def test_automatic_source_requires_allowlisted_https_host(tmp_path: Path):

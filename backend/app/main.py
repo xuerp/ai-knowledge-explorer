@@ -26,7 +26,7 @@ from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
 from .extraction import ExtractionUnavailableError, StructuredExtractionService
 from .fetching import FetchPolicyError, SafeHttpFetcher
-from .ingestion import IngestionService
+from .ingestion import IngestionService, normalize_source_url
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
 from .quality import KnowledgeQualityGate
@@ -1024,6 +1024,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         source.last_probe_error = None
         source.last_probe_content_type = document.content_type
         source.last_probe_readable_characters = len(document.content)
+        if document.final_url and document.final_url != source.url:
+            previous_url = source.url
+            source.url = normalize_source_url(document.final_url)
+            audit.record(
+                session,
+                principal,
+                "source.canonical_url_adopted",
+                "source",
+                source.id,
+                {"previousUrl": previous_url, "canonicalUrl": source.url},
+            )
         audit.record(
             session,
             principal,
