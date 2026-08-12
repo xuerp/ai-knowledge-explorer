@@ -32,7 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.12-source-policy-v4",
+        "release": "2026.08.12-live-quality-gate-v5",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -71,6 +71,20 @@ def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
     serialized = response.text.casefold()
     assert "password" not in serialized
     assert "api_key" not in serialized
+
+
+def test_golden_question_report_is_protected_and_executable(client: TestClient):
+    endpoint = "/api/v2/admin/golden-questions"
+    assert client.get(endpoint).status_code == 401
+    response = client.get(endpoint, headers={"X-Admin-Token": "test-admin-token"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 20
+    assert payload["passed"] == 16
+    assert payload["passRatio"] == 0.8
+    assert payload["requiredRatio"] == 0.85
+    assert payload["ready"] is False
+    assert len(payload["results"]) == 20
 
 
 def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: TestClient):
@@ -112,6 +126,34 @@ def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient)
     assert payload["reviewCandidates"] == []
     assert payload["syncRuns"] == []
     assert "c-gpt5-1m" not in {claim["id"] for claim in payload["claims"]}
+
+
+def test_live_mode_fails_closed_until_data_quality_is_ready(tmp_path: Path):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'live-gate.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("https://radar.example",),
+        environment="production",
+        data_mode="live",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+    )
+    with TestClient(create_app(settings)) as live_client:
+        assert live_client.get("/health").status_code == 200
+        ready = live_client.get("/ready")
+        assert ready.status_code == 503
+        assert ready.json()["detail"] == "Live data quality gate is not satisfied."
+        snapshot = live_client.get("/api/v2/snapshot")
+        assert snapshot.status_code == 503
+        assert snapshot.json()["detail"] == "Live data quality gate is not satisfied."
+
+        quality = live_client.get(
+            "/api/v2/admin/data-quality",
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+        assert quality.status_code == 200
+        assert quality.json()["liveReady"] is False
+        assert quality.json()["issues"]
 
 
 def test_entity_and_graph_reads_use_the_same_snapshot(client: TestClient):
@@ -696,8 +738,7 @@ def test_source_probe_is_admin_only_read_only_and_audited(
         for entry in audit.json()
     )
     assert any(
-        entry["action"] == "source.canonical_url_adopted"
-        and entry["targetId"] == "source-probe"
+        entry["action"] == "source.canonical_url_adopted" and entry["targetId"] == "source-probe"
         for entry in audit.json()
     )
 

@@ -634,6 +634,25 @@ class EmailDeliverySummary(CamelModel):
     failed: int
 
 
+class GoldenQuestionResult(CamelModel):
+    id: str
+    question: str
+    passed: bool
+    matched_entity_ids: list[str]
+    missing_entity_ids: list[str]
+    reason: str
+
+
+class GoldenQuestionReport(CamelModel):
+    total: int
+    passed: int
+    failed: int
+    pass_ratio: float
+    required_ratio: float
+    ready: bool
+    results: list[GoldenQuestionResult]
+
+
 class DataQualityReport(CamelModel):
     entity_count: int
     claim_count: int
@@ -651,7 +670,11 @@ class DataQualityReport(CamelModel):
     reviewed_evidence_ratio: float
     fresh_evidence_ratio: float
     verified_content_ratio: float
+    claims_required: int
+    claims_remaining: int
     core_entities_below_five_relations: list[str]
+    core_entity_relation_counts: dict[str, int]
+    golden_questions: GoldenQuestionReport | None = None
     claims_with_missing_evidence: list[str]
     relations_with_missing_evidence: list[str]
     timeline_entries_with_missing_evidence: list[str]

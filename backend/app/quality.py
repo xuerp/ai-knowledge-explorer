@@ -44,6 +44,10 @@ def _ratio(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4) if denominator else 0.0
 
 
+FORMAL_CLAIM_REQUIREMENT = 150
+CORE_ENTITY_RELATION_REQUIREMENT = 5
+
+
 @dataclass(slots=True)
 class KnowledgeQualityGate:
     def _resolve_entity(
@@ -185,13 +189,15 @@ class KnowledgeQualityGate:
                 (entity.type == "model" and entity.family_id is None)
                 or entity.type in {"agent", "framework"}
             )
-            and degrees[entity.id] < 5
+            and degrees[entity.id] < CORE_ENTITY_RELATION_REQUIREMENT
         ]
         issues: list[str] = []
         if len(snapshot.entities) < 40:
             issues.append("Formal acceptance requires at least 40 reviewed entities.")
-        if len(snapshot.claims) < 150:
-            issues.append("Formal acceptance requires at least 150 reviewed claims.")
+        if len(snapshot.claims) < FORMAL_CLAIM_REQUIREMENT:
+            issues.append(
+                f"Formal acceptance requires at least {FORMAL_CLAIM_REQUIREMENT} reviewed claims."
+            )
         if core_entities_below_five:
             issues.append("Every core entity requires at least five explainable relations.")
         if claims_with_missing_evidence:
@@ -233,7 +239,12 @@ class KnowledgeQualityGate:
             reviewed_evidence_ratio=reviewed_evidence_ratio,
             fresh_evidence_ratio=fresh_evidence_ratio,
             verified_content_ratio=verified_content_ratio,
+            claims_required=FORMAL_CLAIM_REQUIREMENT,
+            claims_remaining=max(0, FORMAL_CLAIM_REQUIREMENT - len(snapshot.claims)),
             core_entities_below_five_relations=core_entities_below_five,
+            core_entity_relation_counts={
+                entity_id: degrees[entity_id] for entity_id in core_entities_below_five
+            },
             claims_with_missing_evidence=claims_with_missing_evidence,
             relations_with_missing_evidence=relations_with_missing_evidence,
             timeline_entries_with_missing_evidence=timeline_entries_with_missing_evidence,
