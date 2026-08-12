@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
+import { isAllowlistedSource, selectRolloutSources } from "@/domain/source-rollout";
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import {
   adminApi,
@@ -357,6 +358,53 @@ function AdminReviewPage() {
     }
   };
 
+  const batchRolloutSources = async () => {
+    if (!workspace?.integrations) return;
+    const candidates = selectRolloutSources(
+      workspace.sources,
+      workspace.integrations.fetchAllowedHosts,
+    );
+    if (candidates.length === 0) {
+      setOperationMessage("当前没有等待接入的白名单信源。");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    const outcomes = await Promise.all(
+      candidates.map(async (source) => {
+        try {
+          await adminApi.probeSource(token, source.id);
+          await adminApi.updateSource(token, source.id, { fetchEnabled: true });
+          return { source, enabled: true as const };
+        } catch (failure) {
+          return {
+            source,
+            enabled: false as const,
+            reason: failure instanceof Error ? failure.message : "连接预检失败",
+          };
+        }
+      }),
+    );
+    const enabled = outcomes.filter((outcome) => outcome.enabled);
+    const failed = outcomes.filter((outcome) => !outcome.enabled);
+    setOperationMessage(
+      `批量接入完成：检查 ${outcomes.length} 个，通过并启用 ${enabled.length} 个，失败保持关闭 ${failed.length} 个。通过的信源会在下一轮定时任务中自动采集。${
+        failed.length > 0
+          ? ` 失败项：${failed.map((item) => `${item.source.title}（${item.reason}）`).join("；")}`
+          : ""
+      }`,
+    );
+    try {
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "批量接入后刷新失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const toggleSnapshots = async (source: SourceView) => {
     if (sourceSnapshots[source.id]) {
       setSourceSnapshots((current) => {
@@ -576,6 +624,7 @@ function AdminReviewPage() {
       (sourceFilter === "automatic" && source.fetchEnabled);
     return matchesSearch && matchesFilter;
   });
+  const rolloutSources = selectRolloutSources(workspace.sources, allowlistedHosts);
   const pendingQueue = workspace.queue.filter(
     (item) => item.status === "pending" || item.status === "needs-more-evidence",
   );
@@ -834,6 +883,22 @@ function AdminReviewPage() {
               <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
                 {workspace.sources.filter((source) => source.fetchEnabled).length} 个自动采集
               </span>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-signal/20 bg-signal/5 p-3">
+              <div>
+                <div className="text-sm font-medium">批量安全接入</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  每批最多 5 个；系统逐个预检，仅启用通过项，失败项保持关闭。
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy || rolloutSources.length === 0}
+                onClick={batchRolloutSources}
+              >
+                批量预检并启用（{rolloutSources.length}）
+              </Button>
             </div>
             <details className="mt-4 rounded-lg border border-dashed border-border p-3">
               <summary className="cursor-pointer text-sm font-medium">新增官方信源</summary>
@@ -1529,15 +1594,6 @@ function isRecentProbePassed(source: SourceView): boolean {
   if (source.lastProbeStatus !== "passed" || !source.lastProbeAt) return false;
   const probedAt = new Date(source.lastProbeAt).getTime();
   return Number.isFinite(probedAt) && probedAt >= Date.now() - 24 * 60 * 60 * 1000;
-}
-
-function isAllowlistedSource(source: SourceView, allowedHosts: string[]): boolean {
-  try {
-    const host = new URL(source.url).hostname.toLocaleLowerCase("en-US");
-    return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
-  } catch {
-    return false;
-  }
 }
 
 function Metric({ label, value }: { label: string; value: number | string }) {
