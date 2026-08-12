@@ -175,6 +175,16 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             legacy = Entity.model_validate_json(row.payload_json)
             legacy.origin = LocalizedText(zh="美国", en="United States")
             row.payload_json = legacy.model_dump_json(by_alias=True)
+            openai_source = session.get(SourceRecord, "s-openai-about")
+            cursor_source = session.get(SourceRecord, "s-cursor-docs")
+            assert openai_source is not None
+            assert cursor_source is not None
+            openai_source.url = "https://openai.com/about"
+            openai_source.last_probe_status = "failed"
+            openai_source.last_probe_error = "legacy path rejected"
+            cursor_source.url = "https://docs.cursor.com/chat/overview"
+            cursor_source.last_probe_status = "failed"
+            cursor_source.last_probe_error = "legacy path redirected"
             session.commit()
 
             repository.seed_catalog(session)
@@ -183,5 +193,9 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
                 session.get(KnowledgeEntityRecord, "e-gpt").payload_json  # type: ignore[union-attr]
             )
             assert updated.origin == LocalizedText(zh="海外", en="Overseas")
+            assert openai_source.url == "https://openai.com/our-structure/"
+            assert cursor_source.url == "https://cursor.com/docs"
+            assert openai_source.last_probe_status is None
+            assert cursor_source.last_probe_status is None
     finally:
         engine.dispose()

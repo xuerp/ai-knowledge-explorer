@@ -85,6 +85,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
+SERVICE_RELEASE = "2026.08.12-source-rollout-v3"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -168,6 +169,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def health() -> HealthResponse:
         return HealthResponse(
             ok=True,
+            release=SERVICE_RELEASE,
             environment=app_settings.environment,
             data_mode=app_settings.data_mode,
             database=app_settings.database_url.split(":", 1)[0],

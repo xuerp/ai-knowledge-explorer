@@ -32,6 +32,13 @@ from .schemas import (
 
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
 
+# 这些条目来自随应用发布的官方目录。映射仅处理已经确认迁移或会因尾斜杠
+# 规范化而被上游拦截的旧网址，不触碰管理员自行登记的信源。
+CANONICAL_SOURCE_URL_MIGRATIONS = {
+    "s-openai-about": "https://openai.com/our-structure/",
+    "s-cursor-docs": "https://cursor.com/docs",
+}
+
 
 def _parse_datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value)
@@ -119,6 +126,19 @@ class KnowledgeRepository:
             )
             known_source_ids.add(evidence.id)
             known_source_urls.add(normalized_url)
+
+        for source_id, canonical_url in CANONICAL_SOURCE_URL_MIGRATIONS.items():
+            row = session.get(SourceRecord, source_id)
+            if row is None or row.url == canonical_url:
+                continue
+            row.url = canonical_url
+            row.fetch_enabled = False
+            row.next_fetch_at = None
+            row.last_probe_at = None
+            row.last_probe_status = None
+            row.last_probe_error = None
+            row.last_probe_content_type = None
+            row.last_probe_readable_characters = None
 
         # This is a narrow, one-way presentation migration for locally seeded
         # records. It changes only legacy country labels to the product-level
