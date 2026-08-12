@@ -46,6 +46,7 @@ class FetchedDocument:
     etag: str | None
     last_modified: str | None
     not_modified: bool = False
+    final_url: str | None = None
 
 
 def _default_resolver(host: str) -> Iterable[str]:
@@ -112,61 +113,78 @@ class SafeHttpFetcher:
             headers["If-None-Match"] = etag
         if last_modified:
             headers["If-Modified-Since"] = last_modified
-        with (
-            httpx.Client(
-                transport=self.transport,
-                timeout=httpx.Timeout(15.0, connect=5.0),
-                follow_redirects=False,
-            ) as client,
-            client.stream("GET", url, headers=headers) as response,
-        ):
-            if response.status_code == 304:
-                return FetchedDocument(
-                    content="",
-                    content_type="",
-                    etag=response.headers.get("etag") or etag,
-                    last_modified=response.headers.get("last-modified") or last_modified,
-                    not_modified=True,
-                )
-            if 300 <= response.status_code < 400:
-                location = response.headers.get("location")
-                canonical_url = urljoin(url, location) if location else None
-                if canonical_url:
-                    self.validate_url(canonical_url)
-                    raise FetchPolicyError(
-                        f"Redirects are rejected; register the canonical URL: {canonical_url}"
+        current_url = url
+        visited_urls = {url}
+        with httpx.Client(
+            transport=self.transport,
+            timeout=httpx.Timeout(15.0, connect=5.0),
+            follow_redirects=False,
+        ) as client:
+            for _ in range(4):
+                with client.stream("GET", current_url, headers=headers) as response:
+                    if 300 <= response.status_code < 400:
+                        location = response.headers.get("location")
+                        canonical_url = urljoin(current_url, location) if location else None
+                        if not canonical_url:
+                            raise FetchPolicyError(
+                                "Redirect was returned without a canonical URL."
+                            )
+                        self.validate_url(canonical_url)
+                        if canonical_url in visited_urls:
+                            raise FetchPolicyError("Source URL entered a redirect loop.")
+                        visited_urls.add(canonical_url)
+                        current_url = canonical_url
+                        continue
+
+                    if response.status_code == 304:
+                        return FetchedDocument(
+                            content="",
+                            content_type="",
+                            etag=response.headers.get("etag") or etag,
+                            last_modified=response.headers.get("last-modified") or last_modified,
+                            not_modified=True,
+                            final_url=current_url,
+                        )
+                    response.raise_for_status()
+                    content_type = (
+                        response.headers.get("content-type", "").split(";", 1)[0].lower()
                     )
-                raise FetchPolicyError("Redirects are rejected; no canonical URL was provided.")
-            response.raise_for_status()
-            content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
-            if content_type not in {
-                "text/html",
-                "text/plain",
-                "application/json",
-                "application/xml",
-                "text/xml",
-            }:
-                raise FetchPolicyError(f"Unsupported content type: {content_type or 'unknown'}")
-            chunks: list[bytes] = []
-            size = 0
-            for chunk in response.iter_bytes():
-                size += len(chunk)
-                if size > self.max_bytes:
-                    raise FetchPolicyError("Source document exceeds AI_RADAR_FETCH_MAX_BYTES.")
-                chunks.append(chunk)
-            encoding = response.encoding or "utf-8"
-            raw = b"".join(chunks).decode(encoding, errors="replace")
-            if content_type == "text/html":
-                parser = _TextExtractor()
-                parser.feed(raw)
-                content = parser.text()
-            else:
-                content = raw.strip()
-            if len(content) < 20:
-                raise FetchPolicyError("Source document contains too little readable text.")
-            return FetchedDocument(
-                content=content,
-                content_type=content_type,
-                etag=response.headers.get("etag"),
-                last_modified=response.headers.get("last-modified"),
-            )
+                    if content_type not in {
+                        "text/html",
+                        "text/plain",
+                        "application/json",
+                        "application/xml",
+                        "text/xml",
+                    }:
+                        raise FetchPolicyError(
+                            f"Unsupported content type: {content_type or 'unknown'}"
+                        )
+                    chunks: list[bytes] = []
+                    size = 0
+                    for chunk in response.iter_bytes():
+                        size += len(chunk)
+                        if size > self.max_bytes:
+                            raise FetchPolicyError(
+                                "Source document exceeds AI_RADAR_FETCH_MAX_BYTES."
+                            )
+                        chunks.append(chunk)
+                    encoding = response.encoding or "utf-8"
+                    raw = b"".join(chunks).decode(encoding, errors="replace")
+                    if content_type == "text/html":
+                        parser = _TextExtractor()
+                        parser.feed(raw)
+                        content = parser.text()
+                    else:
+                        content = raw.strip()
+                    if len(content) < 20:
+                        raise FetchPolicyError(
+                            "Source document contains too little readable text."
+                        )
+                    return FetchedDocument(
+                        content=content,
+                        content_type=content_type,
+                        etag=response.headers.get("etag"),
+                        last_modified=response.headers.get("last-modified"),
+                        final_url=current_url,
+                    )
+            raise FetchPolicyError("Source URL exceeded the safe redirect limit.")
