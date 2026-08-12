@@ -160,6 +160,8 @@ function AdminReviewPage() {
   const [catalogMessage, setCatalogMessage] = useState("");
   const [operationMessage, setOperationMessage] = useState("");
   const [operationsError, setOperationsError] = useState("");
+  const [sourceSearch, setSourceSearch] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "allowlisted" | "automatic">("all");
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -485,6 +487,22 @@ function AdminReviewPage() {
     );
   }
 
+  const allowlistedHosts = workspace.integrations?.fetchAllowedHosts ?? [];
+  const filteredSources = workspace.sources.filter((source) => {
+    const search = sourceSearch.trim().toLocaleLowerCase("zh-CN");
+    const matchesSearch =
+      !search ||
+      [source.title, source.publisher, source.url, source.id].some((value) =>
+        value.toLocaleLowerCase("zh-CN").includes(search),
+      );
+    const allowlisted = isAllowlistedSource(source, allowlistedHosts);
+    const matchesFilter =
+      sourceFilter === "all" ||
+      (sourceFilter === "allowlisted" && allowlisted) ||
+      (sourceFilter === "automatic" && source.fetchEnabled);
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <AppShell>
       <main className="mx-auto max-w-7xl space-y-7 px-4 py-8 md:px-6">
@@ -728,8 +746,44 @@ function AdminReviewPage() {
                 </div>
               </form>
             </details>
+            <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <Input
+                type="search"
+                aria-label="搜索信源"
+                placeholder="搜索标题、机构或网址，例如 MCP"
+                value={sourceSearch}
+                onChange={(event) => setSourceSearch(event.target.value)}
+              />
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                aria-label="筛选信源"
+                value={sourceFilter}
+                onChange={(event) =>
+                  setSourceFilter(event.target.value as "all" | "allowlisted" | "automatic")
+                }
+              >
+                <option value="all">全部信源</option>
+                <option value="allowlisted">可预检信源</option>
+                <option value="automatic">自动采集信源</option>
+              </select>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>
+                显示 {filteredSources.length} / {workspace.sources.length} 个信源
+              </span>
+              <button
+                type="button"
+                className="text-signal hover:underline"
+                onClick={() => {
+                  setSourceSearch("MCP");
+                  setSourceFilter("allowlisted");
+                }}
+              >
+                定位建议首测信源：MCP
+              </button>
+            </div>
             <div className="mt-4 max-h-[36rem] space-y-3 overflow-y-auto pr-1">
-              {workspace.sources.map((source) => (
+              {filteredSources.map((source) => (
                 <article key={source.id} className="rounded-lg border border-border p-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -747,6 +801,11 @@ function AdminReviewPage() {
                     >
                       {source.fetchEnabled ? "自动采集" : "手动采集"}
                     </span>
+                    {isAllowlistedSource(source, allowlistedHosts) && (
+                      <span className="rounded-full bg-signal/10 px-2 py-1 text-xs text-signal">
+                        可预检
+                      </span>
+                    )}
                   </div>
                   <a
                     className="mt-2 block truncate text-xs text-signal hover:underline"
@@ -1262,6 +1321,15 @@ function isRecentProbePassed(source: SourceView): boolean {
   if (source.lastProbeStatus !== "passed" || !source.lastProbeAt) return false;
   const probedAt = new Date(source.lastProbeAt).getTime();
   return Number.isFinite(probedAt) && probedAt >= Date.now() - 24 * 60 * 60 * 1000;
+}
+
+function isAllowlistedSource(source: SourceView, allowedHosts: string[]): boolean {
+  try {
+    const host = new URL(source.url).hostname.toLocaleLowerCase("en-US");
+    return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
+  } catch {
+    return false;
+  }
 }
 
 function Metric({ label, value }: { label: string; value: number | string }) {
