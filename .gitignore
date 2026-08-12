@@ -19,6 +19,7 @@ dist-ssr
 .env.*
 !.env.example
 !.env.production.example
+!.env.staging
 
 # Wrangler / Cloudflare
 .wrangler/
