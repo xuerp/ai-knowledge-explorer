@@ -19,6 +19,8 @@ function source(id, url, changes = {}) {
     fetchEnabled: false,
     fetchIntervalMinutes: 240,
     consecutiveFailures: 0,
+    collectionStrategy: "unverified",
+    collectionReason: "尚未验证",
     ...changes,
   };
 }
@@ -42,8 +44,12 @@ test("批量接入只选择经过验证、活跃、未启用且在白名单内�
   const selected = selectRolloutSources(
     [
       source("s-other", "https://allowed.example/other"),
-      source("s-langchain-overview", "https://docs.langchain.com/overview"),
-      source("s-anthropic-company", "https://anthropic.com/company"),
+      source("s-langchain-overview", "https://docs.langchain.com/overview", {
+        collectionStrategy: "automatic",
+      }),
+      source("s-anthropic-company", "https://anthropic.com/company", {
+        collectionStrategy: "automatic",
+      }),
       source("s-disabled", "https://allowed.example/disabled", { active: false }),
       source("s-running", "https://allowed.example/running", { fetchEnabled: true }),
       source("s-outside", "https://outside.example/page"),
@@ -58,7 +64,7 @@ test("批量接入只选择经过验证、活跃、未启用且在白名单内�
   );
 });
 
-test("批量接入不会把 OpenAI、Qwen 或大型排行榜当作兜底候选", () => {
+test("批量接入不会把人工或未验证入口当作兜底候选", () => {
   const selected = selectRolloutSources(
     [
       source("s-openai-about", "https://openai.com/our-structure/"),
@@ -69,6 +75,26 @@ test("批量接入不会把 OpenAI、Qwen 或大型排行榜当作兜底候选",
     ["openai.com", "qwenlm.ai", "swebench.com"],
   );
   assert.deepEqual(selected, []);
+});
+
+test("批量接入接受后端标记为自动的稳定机器入口", () => {
+  const selected = selectRolloutSources(
+    [
+      source("s-qwen-models", "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md", {
+        collectionStrategy: "automatic",
+      }),
+      source(
+        "s-swebench",
+        "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+        { collectionStrategy: "automatic" },
+      ),
+    ],
+    ["raw.githubusercontent.com"],
+  );
+  assert.deepEqual(
+    selected.map((item) => item.id),
+    ["s-qwen-models", "s-swebench"],
+  );
 });
 
 test("常见预检错误会转换为可操作的中文说明", () => {

@@ -374,6 +374,8 @@ class SourceView(CamelModel):
     last_probe_error: str | None = None
     last_probe_content_type: str | None = None
     last_probe_readable_characters: int | None = None
+    collection_strategy: Literal["automatic", "manual", "unverified"]
+    collection_reason: str
 
 
 class SourceProbeResult(CamelModel):

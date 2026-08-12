@@ -5,12 +5,12 @@ const rolloutPriority = [
   "s-langchain-overview",
   "s-anthropic-company",
   "s-cursor-docs",
+  "s-qwen-models",
+  "s-swebench",
 ];
 
-const rolloutSourceIds = new Set(rolloutPriority);
-
 export function isVettedRolloutSource(source: SourceView): boolean {
-  return rolloutSourceIds.has(source.id);
+  return source.collectionStrategy === "automatic";
 }
 
 export function isAllowlistedSource(source: SourceView, allowedHosts: string[]): boolean {

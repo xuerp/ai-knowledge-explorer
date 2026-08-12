@@ -6,9 +6,42 @@ import pytest
 
 from app.database import Database, SourceRecord
 from app.fetching import FetchedDocument, FetchPolicyError, SafeHttpFetcher
-from app.ingestion import IngestionService
+from app.ingestion import IngestionService, source_collection_policy
 from app.scheduler import IngestionScheduler
 from app.schemas import SourceCreate, SourceUpdate
+
+
+def test_seeded_source_collection_policy_separates_automatic_and_manual_entries():
+    assert source_collection_policy("s-qwen-models")[0] == "automatic"
+    assert source_collection_policy("s-swebench")[0] == "automatic"
+    assert source_collection_policy("s-openai-about")[0] == "manual"
+    assert source_collection_policy("custom-source")[0] == "unverified"
+
+
+def test_manual_only_source_cannot_enable_automatic_collection(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'manual-policy.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("openai.com",))
+    try:
+        with database.session() as session:
+            source = ingestion.create_source(
+                session,
+                SourceCreate(
+                    id="s-openai-about",
+                    url="https://openai.com/our-structure/",
+                    title="OpenAI",
+                    publisher="OpenAI",
+                ),
+            )
+            _mark_probe_passed(session, source.id)
+            with pytest.raises(ValueError, match="Render"):
+                ingestion.update_source(
+                    session,
+                    source.id,
+                    SourceUpdate(fetch_enabled=True),
+                )
+    finally:
+        database.dispose()
 
 
 def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
