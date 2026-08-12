@@ -665,6 +665,7 @@ def test_source_probe_is_admin_only_read_only_and_audited(
             content_type="text/html",
             etag='"release-v1"',
             last_modified="Wed, 12 Aug 2026 12:00:00 GMT",
+            final_url="https://example.com/canonical-release",
         ),
     )
 
@@ -676,7 +677,7 @@ def test_source_probe_is_admin_only_read_only_and_audited(
     assert response.status_code == 200
     assert response.json() == {
         "sourceId": "source-probe",
-        "url": "https://example.com/releases",
+        "url": "https://example.com/canonical-release",
         "contentType": "text/html",
         "readableCharacters": 60,
         "etag": '"release-v1"',
@@ -687,9 +688,15 @@ def test_source_probe_is_admin_only_read_only_and_audited(
     assert source["lastProbeStatus"] == "passed"
     assert source["lastProbeContentType"] == "text/html"
     assert source["lastProbeReadableCharacters"] == 60
+    assert source["url"] == "https://example.com/canonical-release"
     audit = client.get("/api/v2/admin/audit-log", headers=headers)
     assert any(
         entry["action"] == "source.probe" and entry["targetId"] == "source-probe"
+        for entry in audit.json()
+    )
+    assert any(
+        entry["action"] == "source.canonical_url_adopted"
+        and entry["targetId"] == "source-probe"
         for entry in audit.json()
     )
 

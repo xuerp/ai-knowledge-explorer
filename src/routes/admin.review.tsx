@@ -377,7 +377,10 @@ function AdminReviewPage() {
     > = [];
     // 免费 staging 只有一个较小的 API 实例。逐个预检可以避免同时连接多个官网时
     // 耗尽连接池，也能降低被上游站点临时限流的概率。
-    for (const source of candidates) {
+    for (const [index, source] of candidates.entries()) {
+      setOperationMessage(
+        `正在安全接入第 ${index + 1}/${candidates.length} 个信源：${source.title}。请保持当前页面打开。`,
+      );
       try {
         await adminApi.probeSource(token, source.id);
         await adminApi.updateSource(token, source.id, { fetchEnabled: true });

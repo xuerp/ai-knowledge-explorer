@@ -19,7 +19,7 @@ test("Render 只将首批官方证据域名加入自动采集白名单", () => {
   assert.doesNotMatch(blueprint, /news\.ycombinator\.com/);
 });
 
-test("信源策略保留逐个预检和人工启用边界", () => {
+test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /信源仍默认关闭自动采集/);
-  assert.match(blueprint, /逐个启用并核验首次快照/);
+  assert.match(blueprint, /通过批量安全预检后启用，并核验首次快照/);
 });
