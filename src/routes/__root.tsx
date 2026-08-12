@@ -20,7 +20,7 @@ function NotFoundComponent() {
         <div className="font-serif text-7xl font-semibold text-foreground">404</div>
         <h2 className="mt-4 text-xl font-semibold text-foreground">页面未找到 · Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          你访问的实体或页面尚未在 AI Radar 的演示图谱中。
+          你访问的实体或页面尚未收录到 AI Radar。
         </p>
         <div className="mt-6">
           <Link
@@ -73,13 +73,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AI Radar · 追踪 AI 技术生态的时序知识图谱" },
+      { title: "AI Radar · 追踪可信的 AI 技术变化与关系" },
       {
         name: "description",
-        content:
-          "AI Radar 是一个持续更新、可追溯、具有时间维度的 AI 技术生态知识图谱。演示版前端设计稿。",
+        content: "AI Radar 持续追踪可追溯、具有时间维度的 AI 技术变化、关系与来源证据。",
       },
-      { property: "og:title", content: "AI Radar · AI 技术生态知识图谱" },
+      { property: "og:title", content: "AI Radar · AI 技术变化与关系洞察" },
       { property: "og:description", content: "追踪模型、Agent、框架与论文的变化与关系。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

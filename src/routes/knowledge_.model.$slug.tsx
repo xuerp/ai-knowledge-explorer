@@ -145,10 +145,11 @@ function EntityDetail() {
               )}
               <Link
                 to="/graph"
+                search={{ entity: e.id, mode: "ecosystem" }}
                 className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border bg-card text-sm hover:bg-accent"
               >
                 <GitBranch className="h-4 w-4" />
-                {t("在图谱中查看", "View in graph")}
+                {t("分析关联", "Analyze relationships")}
               </Link>
               <Link
                 to="/ask"
@@ -166,8 +167,12 @@ function EntityDetail() {
                 {pick(recentChange.summary, lang)}
               </span>
               <time className="font-mono text-[11px] text-[#b45309]">{recentChange.date}</time>
-              <Link to="/graph" className="text-xs font-medium text-signal hover:underline">
-                {t("查看关系变化", "View graph change")} →
+              <Link
+                to="/graph"
+                search={{ entity: e.id, mode: "impact" }}
+                className="text-xs font-medium text-signal hover:underline"
+              >
+                {t("查看关联范围", "View relationship reach")} →
               </Link>
             </div>
           )}
@@ -415,11 +420,11 @@ function EntityDetail() {
           </section>
         )}
 
-        {/* 局部图谱 */}
+        {/* 局部关系概览 */}
         <section>
           <SectionHeading
             eyebrow={childVersions.length > 0 ? "04" : "03"}
-            title={t("局部知识图谱", "Local knowledge graph")}
+            title={t("关系概览", "Relationship overview")}
             description={t(
               `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
               `Use it to inspect lineage, vendor, protocols, benchmarks and competitors around ${pick(e.name, "en")}.`,
@@ -427,9 +432,10 @@ function EntityDetail() {
             action={
               <Link
                 to="/graph"
+                search={{ entity: e.id, mode: "ecosystem" }}
                 className="text-sm text-signal hover:underline inline-flex items-center gap-1"
               >
-                {t("展开完整图谱", "Full graph")} <ExternalLink className="h-3 w-3" />
+                {t("打开关系洞察", "Open insights")} <ExternalLink className="h-3 w-3" />
               </Link>
             }
           />
@@ -562,8 +568,8 @@ function EntityDetail() {
             eyebrow={childVersions.length > 0 ? "07" : "06"}
             title={t("AI 问答", "Ask AI")}
             description={t(
-              "所有 AI 回答均基于本页图谱数据，事实 / 推断 / 未核验分开呈现。",
-              "AI answers grounded in this page's graph; fact / inference / unverified separated.",
+              "所有 AI 回答均基于已审核数据与来源证据，事实 / 推断 / 未核验分开呈现。",
+              "AI answers use reviewed data and source evidence; facts, inferences, and unverified claims remain distinct.",
             )}
           />
           <div className="paper-card p-5">
@@ -639,7 +645,10 @@ function EntityDetail() {
             <Calendar className="h-3 w-3" />
             {t("阅读模式", "Reading mode")}: <span className="font-mono">{mode}</span>
             {" · "}
-            {t("三种深度共享同一图谱知识。", "Three depths share the same graph knowledge.")}
+            {t(
+              "三种深度共享同一份已审核知识。",
+              "All three depths use the same reviewed knowledge.",
+            )}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">

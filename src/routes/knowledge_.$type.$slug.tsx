@@ -130,10 +130,11 @@ function GenericEntityDetail() {
             )}
             <Link
               to="/graph"
+              search={{ entity: entity.id, mode: "ecosystem" }}
               className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
             >
               <GitBranch className="h-4 w-4" />
-              {t("在图谱中查看", "View in graph")}
+              {t("分析关联", "Analyze relationships")}
             </Link>
             <Link
               to="/ask"
@@ -326,8 +327,12 @@ function GenericEntityDetail() {
               "Every row names its source, relationship, target and confidence. Open a related entity to continue exploring.",
             )}
             action={
-              <Link to="/graph" className="text-sm text-signal hover:underline">
-                {t("进入完整关系图", "Open full graph")} →
+              <Link
+                to="/graph"
+                search={{ entity: entity.id, mode: "ecosystem" }}
+                className="text-sm text-signal hover:underline"
+              >
+                {t("打开关系洞察", "Open relationship insights")} →
               </Link>
             }
           />

@@ -1,93 +1,91 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   ArrowRight,
-  Check,
-  Clock,
+  Building2,
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
   ExternalLink,
-  Filter,
-  List,
+  GitCompareArrows,
   Network,
-  Route as RouteIcon,
+  Radar,
   Search,
-  X,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
-import {
-  CONFIDENCE_TYPES,
-  NODE_TYPES,
-  RELATION_TYPES,
-  type NodeShape,
-} from "@/components/graph/config";
 import { ConfidenceChip, DemoBadge } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
-import { CONFIDENCE_LABELS, ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
-import { expandNeighborhood, filterGraphEdges, findShortestPath } from "@/domain/graph";
-import type {
-  Confidence,
-  Entity,
-  EntityType,
-  GraphEdge,
-  KnowledgeSnapshot,
-  RelationKind,
-} from "@/domain/types";
-import { useApp, pick } from "@/lib/app-state";
-import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { Slider } from "@/components/ui/slider";
+import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
+import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  connectionPath,
+  ecosystemGroups,
+  impactScope,
+  incidentRelations,
+} from "@/domain/relationship-insights";
+import type { Entity, Evidence, GraphEdge, KnowledgeSnapshot } from "@/domain/types";
+import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
+import { pick, useApp } from "@/lib/app-state";
+
+type InsightMode = "ecosystem" | "connection" | "impact";
+type InsightSearch = { entity?: string; target?: string; mode?: InsightMode };
 
 export const Route = createFileRoute("/graph")({
+  validateSearch: (search: Record<string, unknown>): InsightSearch => {
+    const validated: InsightSearch = {};
+    if (typeof search.entity === "string") validated.entity = search.entity;
+    if (typeof search.target === "string") validated.target = search.target;
+    if (search.mode === "ecosystem" || search.mode === "connection" || search.mode === "impact") {
+      validated.mode = search.mode;
+    }
+    return validated;
+  },
   head: () => ({
     meta: [
-      { title: "AI 生态关系图谱 · AI Radar" },
+      { title: "关系洞察 · AI Radar" },
       {
         name: "description",
-        content: "查询 AI 模型的版本继承、研发方、工具生态、评测与证据关系。",
+        content: "解释 AI 实体之间的关系、生态组成与潜在影响范围，并核验每段关系的证据。",
       },
-      { property: "og:title", content: "AI Radar · AI 生态关系图谱" },
+      { property: "og:title", content: "AI Radar · 关系洞察" },
       {
         property: "og:description",
-        content: "在可搜索、可筛选的时间图谱中探索 AI 技术生态。",
+        content: "从已审核关系中获得可读结论，而不是只看一张节点图。",
       },
     ],
   }),
-  component: GraphPage,
+  component: RelationshipInsightsPage,
 });
 
-type Depth = 1 | 2 | "all";
-type ViewMode = "graph" | "list";
+const MODE_META = {
+  ecosystem: {
+    icon: Building2,
+    zh: "生态组成",
+    en: "Ecosystem",
+    descZh: "看清一个对象连接的公司、版本、协议、工具与评测。",
+    descEn: "Map the companies, versions, protocols, tools, and benchmarks around one entity.",
+  },
+  connection: {
+    icon: GitCompareArrows,
+    zh: "关系解释",
+    en: "Connection",
+    descZh: "选择两个对象，逐段解释它们为什么有关。",
+    descEn: "Choose two entities and explain why they are connected, step by step.",
+  },
+  impact: {
+    icon: Radar,
+    zh: "关联范围",
+    en: "Reach",
+    descZh: "区分直接关系与二跳线索，发现值得继续调查的对象。",
+    descEn: "Separate direct links from two-hop leads worth investigating.",
+  },
+} as const;
 
-const initialEntityFilters = Object.fromEntries(
-  NODE_TYPES.map(({ type }) => [type, true]),
-) as Record<EntityType, boolean>;
-const initialRelationFilters = Object.fromEntries(
-  RELATION_TYPES.map((type) => [type, true]),
-) as Record<RelationKind, boolean>;
-const initialConfidenceFilters = Object.fromEntries(
-  CONFIDENCE_TYPES.map((type) => [type, true]),
-) as Record<Confidence, boolean>;
-
-function useCompactLayout() {
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 1023px)");
-    const update = () => setCompact(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return compact;
-}
-
-function GraphPage() {
+function RelationshipInsightsPage() {
   const { t } = useApp();
+  const search = Route.useSearch();
   const snapshotQuery = useKnowledgeSnapshot();
   if (!snapshotQuery.data) {
     return (
@@ -95,501 +93,732 @@ function GraphPage() {
         <DataStatePanel
           kind={snapshotQuery.unavailableKind}
           title={t(
-            snapshotQuery.error ? "图谱加载失败" : "正在加载图谱",
-            snapshotQuery.error ? "Graph failed to load" : "Loading graph",
+            snapshotQuery.error ? "关系数据加载失败" : "正在加载关系洞察",
+            snapshotQuery.error ? "Relationship data failed to load" : "Loading insights",
           )}
           description={t(
-            "请稍后重试；页面不会把缺失数据伪装成实时结果。",
-            "Retry shortly; the UI will not disguise missing data as live.",
+            "请稍后重试；页面不会用缺失关系生成推断。",
+            "Retry shortly; missing relationships are never replaced with invented inferences.",
           )}
           onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
         />
       </AppShell>
     );
   }
-  return <GraphWorkspace snapshot={snapshotQuery.data} />;
+  return <RelationshipWorkspace snapshot={snapshotQuery.data} initialSearch={search} />;
 }
 
-function GraphWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
+function RelationshipWorkspace({
+  snapshot,
+  initialSearch,
+}: {
+  snapshot: KnowledgeSnapshot;
+  initialSearch: { entity?: string; target?: string; mode?: InsightMode };
+}) {
   const { t, lang } = useApp();
-  const compact = useCompactLayout();
-  const { entities, evidence, graph } = snapshot;
-  const relations = graph.edges;
-  const [selectedNode, setSelectedNode] = useState<Entity | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
-  const [enabledTypes, setEnabledTypes] =
-    useState<Record<EntityType, boolean>>(initialEntityFilters);
-  const [enabledRelations, setEnabledRelations] =
-    useState<Record<RelationKind, boolean>>(initialRelationFilters);
-  const [enabledConfidences, setEnabledConfidences] =
-    useState<Record<Confidence, boolean>>(initialConfidenceFilters);
-  const [year, setYear] = useState([2015, 2026]);
-  const [depth, setDepth] = useState<Depth>(1);
-  const [viewMode, setViewMode] = useState<ViewMode>("graph");
-  const [query, setQuery] = useState("");
-  const [focusNodeId, setFocusNodeId] = useState<string | null>("e-gpt");
-  const [pathStart, setPathStart] = useState("");
-  const [pathEnd, setPathEnd] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-
+  const entities = snapshot.entities;
+  const relations = snapshot.graph.edges;
   const entityById = useMemo(
     () => new Map(entities.map((entity) => [entity.id, entity])),
     [entities],
   );
   const evidenceById = useMemo(
-    () => new Map(evidence.map((source) => [source.id, source])),
-    [evidence],
+    () => new Map(snapshot.evidence.map((source) => [source.id, source])),
+    [snapshot.evidence],
   );
-  const timeAndTypeIds = useMemo(
-    () =>
-      new Set(
-        entities
-          .filter((entity) => {
-            const released = entity.firstReleasedAt
-              ? Number.parseInt(entity.firstReleasedAt.slice(0, 4), 10)
-              : year[0];
-            const updated = Number.parseInt(entity.lastUpdatedAt.slice(0, 4), 10);
-            return enabledTypes[entity.type] && released <= year[1] && updated >= year[0];
-          })
-          .map((entity) => entity.id),
-      ),
-    [enabledTypes, entities, year],
-  );
-  const filteredRelations = useMemo(() => {
-    const relationKinds = new Set(RELATION_TYPES.filter((kind) => enabledRelations[kind]));
-    const confidences = new Set(
-      CONFIDENCE_TYPES.filter((confidence) => enabledConfidences[confidence]),
-    );
-    return filterGraphEdges(relations, { relationKinds, confidences }).filter(
-      (edge) => timeAndTypeIds.has(edge.fromId) && timeAndTypeIds.has(edge.toId),
-    );
-  }, [enabledConfidences, enabledRelations, relations, timeAndTypeIds]);
-  const path = useMemo(
-    () => (pathStart && pathEnd ? findShortestPath(filteredRelations, pathStart, pathEnd) : null),
-    [filteredRelations, pathEnd, pathStart],
-  );
-  const visibleIds = useMemo(() => {
-    let ids = new Set(timeAndTypeIds);
-    const centerId = selectedNode?.id ?? focusNodeId;
-    if (depth !== "all" && centerId && timeAndTypeIds.has(centerId)) {
-      ids = expandNeighborhood(filteredRelations, centerId, depth);
-      ids = new Set([...ids].filter((id) => timeAndTypeIds.has(id)));
-    }
-    path?.nodeIds.forEach((id) => ids.add(id));
-    if (compact && ids.size > 24) {
-      return [
-        ...new Set([...(path?.nodeIds ?? []), ...(centerId ? [centerId] : []), ...ids]),
-      ].slice(0, 24);
-    }
-    return [...ids];
-  }, [compact, depth, filteredRelations, focusNodeId, path, selectedNode, timeAndTypeIds]);
-  const visibleIdSet = useMemo(() => new Set(visibleIds), [visibleIds]);
-  const visibleRelations = useMemo(
-    () =>
-      filteredRelations.filter(
-        (edge) => visibleIdSet.has(edge.fromId) && visibleIdSet.has(edge.toId),
-      ),
-    [filteredRelations, visibleIdSet],
-  );
-  const visibleEntities = useMemo(
-    () => entities.filter((entity) => visibleIdSet.has(entity.id)),
-    [entities, visibleIdSet],
-  );
-  const searchResults = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase();
-    if (!normalized) return [];
-    return entities
-      .filter((entity) =>
-        [entity.name.zh, entity.name.en, entity.vendor ?? "", ...entity.tags]
-          .join(" ")
-          .toLocaleLowerCase()
-          .includes(normalized),
-      )
-      .slice(0, 6);
-  }, [entities, query]);
+  const defaultPrimary =
+    initialSearch.entity && entityById.has(initialSearch.entity)
+      ? initialSearch.entity
+      : entityById.has("e-gpt")
+        ? "e-gpt"
+        : (entities[0]?.id ?? "");
+  const defaultSecondary =
+    initialSearch.target && entityById.has(initialSearch.target)
+      ? initialSearch.target
+      : entityById.has("e-claude")
+        ? "e-claude"
+        : (entities.find((entity) => entity.id !== defaultPrimary)?.id ?? "");
+  const [mode, setMode] = useState<InsightMode>(initialSearch.mode ?? "ecosystem");
+  const [primaryId, setPrimaryId] = useState(defaultPrimary);
+  const [secondaryId, setSecondaryId] = useState(defaultSecondary);
+  const [impactDepth, setImpactDepth] = useState<1 | 2>(1);
+  const [selectedEdgeId, setSelectedEdgeId] = useState("");
 
-  const selectNode = (entity: Entity) => {
-    setSelectedNode(entity);
-    setSelectedEdge(null);
-    setFocusNodeId(entity.id);
-  };
-  const selectEdge = (edge: GraphEdge) => {
-    setSelectedEdge(edge);
-    setSelectedNode(null);
-  };
-  const clearSelection = () => {
-    setSelectedNode(null);
-    setSelectedEdge(null);
-  };
-  const chooseSearchResult = (entity: Entity) => {
-    setQuery(pick(entity.name, lang));
-    selectNode(entity);
+  const primary = entityById.get(primaryId) ?? entities[0];
+  const secondary = entityById.get(secondaryId);
+  const groups = useMemo(
+    () => (primary ? ecosystemGroups(entities, relations, primary.id) : []),
+    [entities, primary, relations],
+  );
+  const primaryRelations = useMemo(
+    () => (primary ? incidentRelations(relations, primary.id) : []),
+    [primary, relations],
+  );
+  const connection = useMemo(
+    () => connectionPath(entities, relations, primaryId, secondaryId),
+    [entities, primaryId, relations, secondaryId],
+  );
+  const scope = useMemo(
+    () =>
+      primary
+        ? impactScope(entities, relations, primary.id, impactDepth)
+        : { entityIds: [], directIds: new Set<string>(), indirectIds: new Set<string>() },
+    [entities, impactDepth, primary, relations],
+  );
+  const selectedEdge = relations.find((edge) => edge.id === selectedEdgeId) ?? null;
+  const relevantRelations = useMemo(() => {
+    if (mode === "connection") {
+      const ids = new Set(connection.path?.edgeIds ?? []);
+      return relations.filter((edge) => ids.has(edge.id));
+    }
+    if (mode === "impact") {
+      const ids = new Set([primaryId, ...scope.entityIds]);
+      return relations.filter((edge) => ids.has(edge.fromId) && ids.has(edge.toId));
+    }
+    return primaryRelations;
+  }, [connection.path?.edgeIds, mode, primaryId, primaryRelations, relations, scope.entityIds]);
+
+  const graphEntityIds = useMemo(() => {
+    if (!primary) return [];
+    if (mode === "connection") return connection.path?.nodeIds ?? [primary.id];
+    if (mode === "impact") return [primary.id, ...scope.entityIds].slice(0, 20);
+    const directIds = groups.flatMap((group) => group.entities.map((entity) => entity.id));
+    return [primary.id, ...directIds].slice(0, 20);
+  }, [connection.path?.nodeIds, groups, mode, primary, scope.entityIds]);
+  const graphIdSet = useMemo(() => new Set(graphEntityIds), [graphEntityIds]);
+  const graphRelations = useMemo(
+    () =>
+      relevantRelations.filter((edge) => graphIdSet.has(edge.fromId) && graphIdSet.has(edge.toId)),
+    [graphIdSet, relevantRelations],
+  );
+
+  const switchMode = (nextMode: InsightMode) => {
+    setMode(nextMode);
+    setSelectedEdgeId("");
   };
 
-  const filterPanel = (
-    <GraphFilters
-      enabledTypes={enabledTypes}
-      enabledRelations={enabledRelations}
-      enabledConfidences={enabledConfidences}
-      year={year}
-      depth={depth}
-      onToggleType={(type) =>
-        setEnabledTypes((current) => ({ ...current, [type]: !current[type] }))
-      }
-      onToggleRelation={(kind) =>
-        setEnabledRelations((current) => ({ ...current, [kind]: !current[kind] }))
-      }
-      onToggleConfidence={(confidence) =>
-        setEnabledConfidences((current) => ({
-          ...current,
-          [confidence]: !current[confidence],
-        }))
-      }
-      onYearChange={setYear}
-      onDepthChange={setDepth}
-    />
-  );
-  const inspector = (
-    <GraphInspector
-      selectedNode={selectedNode}
-      selectedEdge={selectedEdge}
-      relations={visibleRelations}
-      entityById={entityById}
-      evidenceById={evidenceById}
-      onClose={clearSelection}
-      onSelectEdge={selectEdge}
-    />
-  );
+  if (!primary) return null;
 
   return (
     <AppShell>
-      <main className="graph-light-page min-h-[calc(100vh-3.5rem)] bg-background text-foreground">
-        <header className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 py-6 md:px-6">
-          <div>
-            <DemoBadge />
-            <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight md:text-4xl">
-              {t("AI 生态关系图谱", "AI ecosystem relationship graph")}
+      <main className="min-h-[calc(100vh-3.5rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
+        <div className="page-container min-w-0 pb-14 pt-8 md:pt-10">
+          <header className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <DemoBadge />
+              <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-muted-foreground">
+                {t("关系均来自已收录数据", "Relationships use recorded data only")}
+              </span>
+            </div>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
+              {t("关系洞察", "Relationship insights")}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/70">
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
               {t(
-                "它不是装饰性的 3D 展示，而是关系查询工具：追踪版本继承、厂商生态、工具依赖和评测证据。点击节点看对象，点击连线看关系与来源。",
-                "This is a relationship query tool, not decorative 3D. Trace version lineage, vendor ecosystems, tool dependencies and benchmark evidence.",
+                "先回答问题，再用局部关系图解释答案。查看生态组成、解释两个对象为何相关，或发现值得继续核验的关联范围。",
+                "Start with an answer, then use a local graph to explain it. Map an ecosystem, explain a connection, or identify relationships worth further review.",
               )}
             </p>
-          </div>
-          <div className="inline-flex rounded-lg border border-white/15 bg-white/5 p-1">
-            <ModeButton
-              active={viewMode === "graph"}
-              icon={<Network className="h-4 w-4" />}
-              label={t("图谱", "Graph")}
-              onClick={() => setViewMode("graph")}
-            />
-            <ModeButton
-              active={viewMode === "list"}
-              icon={<List className="h-4 w-4" />}
-              label={t("列表", "List")}
-              onClick={() => setViewMode("list")}
-            />
-          </div>
-        </header>
+          </header>
 
-        <div className="mx-auto max-w-7xl px-4 pb-8 md:px-6">
           <section
-            aria-label={t("图谱工具", "Graph tools")}
-            className="mb-4 rounded-xl border border-white/10 bg-white/5 p-3"
+            className="mt-7 grid gap-3 md:grid-cols-3"
+            aria-label={t("洞察任务", "Insight tasks")}
           >
-            <div className="grid gap-3 xl:grid-cols-[minmax(240px,1fr)_auto]">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-white/45" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && searchResults[0]) {
-                      chooseSearchResult(searchResults[0]);
-                    }
-                  }}
-                  placeholder={t(
-                    "搜索名称、厂商或标签，回车定位",
-                    "Search name, vendor, or tag; Enter to focus",
-                  )}
-                  className="h-9 w-full rounded-md border border-white/15 bg-black/20 pl-9 pr-9 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/40"
-                  aria-label={t("搜索图谱实体", "Search graph entities")}
-                />
-                {query && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setQuery("")}
-                      className="absolute right-2 top-2 grid h-5 w-5 place-items-center text-white/50 hover:text-white"
-                      aria-label={t("清除搜索", "Clear search")}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                    <div className="absolute left-0 right-0 top-11 z-30 overflow-hidden rounded-lg border border-white/15 bg-graph-surface shadow-2xl">
-                      {searchResults.length ? (
-                        searchResults.map((entity) => (
-                          <button
-                            key={entity.id}
-                            type="button"
-                            onClick={() => chooseSearchResult(entity)}
-                            className="flex w-full items-center justify-between gap-3 border-b border-white/10 px-3 py-2 text-left last:border-b-0 hover:bg-white/10"
-                          >
-                            <span className="truncate text-sm">{pick(entity.name, lang)}</span>
-                            <span className="shrink-0 text-xs text-white/50">
-                              {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                            </span>
-                          </button>
-                        ))
-                      ) : (
-                        <p className="px-3 py-2 text-sm text-white/55">
-                          {t("没有匹配结果", "No matching results")}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <RouteIcon className="h-4 w-4 text-white/50" />
-                <PathSelect
-                  label={t("起点", "Start")}
-                  value={pathStart}
-                  entities={entities}
-                  onChange={setPathStart}
-                />
-                <ArrowRight className="h-3.5 w-3.5 text-white/35" />
-                <PathSelect
-                  label={t("终点", "End")}
-                  value={pathEnd}
-                  entities={entities}
-                  onChange={setPathEnd}
-                />
-                {(pathStart || pathEnd) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPathStart("");
-                      setPathEnd("");
-                    }}
-                    className="h-8 px-2 text-xs text-white/50 hover:text-white"
-                  >
-                    {t("清除路径", "Clear path")}
-                  </button>
-                )}
+            {(Object.keys(MODE_META) as InsightMode[]).map((key) => {
+              const item = MODE_META[key];
+              const Icon = item.icon;
+              const active = mode === key;
+              return (
                 <button
+                  key={key}
                   type="button"
-                  onClick={() => setFiltersOpen(true)}
-                  className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-md border border-white/15 px-3 text-xs text-white/80 hover:bg-white/10 lg:hidden"
+                  onClick={() => switchMode(key)}
+                  aria-pressed={active}
+                  className={`rounded-xl border p-4 text-left transition-colors ${
+                    active
+                      ? "border-signal bg-signal/5 shadow-sm"
+                      : "border-border bg-card hover:border-signal/40 hover:bg-accent/40"
+                  }`}
                 >
-                  <Filter className="h-3.5 w-3.5" />
-                  {t("筛选", "Filters")}
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`grid h-9 w-9 place-items-center rounded-lg ${
+                        active ? "bg-signal text-white" : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="font-semibold">{t(item.zh, item.en)}</span>
+                    {active && <CheckCircle2 className="ml-auto h-4 w-4 text-signal" />}
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                    {t(item.descZh, item.descEn)}
+                  </p>
                 </button>
-              </div>
-            </div>
-            {pathStart && pathEnd && (
-              <p
-                className={`mt-2 text-xs ${path ? "text-white/65" : "text-conflict"}`}
-                role="status"
-              >
-                {path
-                  ? t(
-                      `已找到 ${path.edgeIds.length} 段最短路径，画布中以主题强调色高亮。`,
-                      `Shortest path found: ${path.edgeIds.length} edges, highlighted with the theme accent.`,
-                    )
-                  : t(
-                      "当前筛选条件下没有可用路径。",
-                      "No path is available under the current filters.",
-                    )}
-              </p>
-            )}
+              );
+            })}
           </section>
 
-          <section className="mb-4 grid gap-3 rounded-xl border border-border bg-card p-4 text-xs md:grid-cols-3">
-            <div>
-              <div className="font-semibold text-foreground">{t("① 看节点", "1. Read nodes")}</div>
-              <p className="mt-1 leading-relaxed text-muted-foreground">
-                {t(
-                  "颜色和形状区分模型、公司、框架、评测与论文。",
-                  "Color and shape distinguish models, companies, frameworks, benchmarks, and papers.",
-                )}
-              </p>
-            </div>
-            <div>
-              <div className="font-semibold text-foreground">{t("② 看关系", "2. Read edges")}</div>
-              <p className="mt-1 leading-relaxed text-muted-foreground">
-                {t(
-                  "例如：GPT 系列 —研发方→ OpenAI；GPT 系列 —评测于→ SWE-bench。",
-                  "Example: GPT —developed by→ OpenAI; GPT —benchmarked on→ SWE-bench.",
-                )}
-              </p>
-            </div>
-            <div>
-              <div className="font-semibold text-foreground">
-                {t("③ 核验证据", "3. Verify evidence")}
-              </div>
-              <p className="mt-1 leading-relaxed text-muted-foreground">
-                {t(
-                  "实线表示已核验，虚线表示推断或未核验；点击任意连线查看来源。",
-                  "Solid lines are verified; dashed lines are inferred or unverified. Select any edge for sources.",
-                )}
-              </p>
-            </div>
-          </section>
-
-          <section className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="mr-2 text-xs font-semibold text-foreground">
-              {t("用图谱完成任务：", "Use the graph to:")}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setFocusNodeId("e-gpt-45");
-                setDepth(2);
-                setPathStart("e-gpt-5");
-                setPathEnd("e-gpt-4o");
-              }}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
-            >
-              <RouteIcon className="h-3.5 w-3.5 text-signal" />
-              {t("查看 GPT 版本继承链", "Trace GPT version lineage")}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFocusNodeId("e-openai");
-                setDepth(1);
-                setPathStart("");
-                setPathEnd("");
-              }}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
-            >
-              <Network className="h-3.5 w-3.5 text-signal" />
-              {t("查看厂商与产品生态", "Explore vendor ecosystems")}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFocusNodeId("e-gpt-5");
-                setDepth(1);
-                setPathStart("");
-                setPathEnd("");
-              }}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-xs text-foreground hover:border-signal/40 hover:bg-accent"
-            >
-              <Check className="h-3.5 w-3.5 text-signal" />
-              {t("核对版本与评测证据", "Verify versions and benchmarks")}
-            </button>
-          </section>
-
-          <div className="grid gap-4 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
-            <aside className="hidden h-fit lg:block">{filterPanel}</aside>
-            <section className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
-              {viewMode === "graph" ? (
-                <KnowledgeGraph
-                  entities={entities}
-                  relations={visibleRelations}
-                  entityIds={visibleIds}
-                  centerId={selectedNode?.id ?? focusNodeId ?? undefined}
-                  onSelectNode={selectNode}
-                  onSelectEdge={selectEdge}
-                  selectedNodeId={selectedNode?.id}
-                  selectedEdgeId={selectedEdge?.id}
-                  highlightedNodeIds={path?.nodeIds}
-                  highlightedEdgeIds={path?.edgeIds}
-                  focusNodeId={focusNodeId}
-                  height={compact ? 720 : 660}
-                  canvasWidth={compact ? 640 : 780}
+          <section className="mt-5 rounded-xl border border-border bg-card p-4 md:p-5">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+              <EntityPicker
+                label={
+                  mode === "connection"
+                    ? t("起点对象", "Start entity")
+                    : t("分析对象", "Entity to analyze")
+                }
+                value={primaryId}
+                entities={entities}
+                onChange={(value) => {
+                  setPrimaryId(value);
+                  if (value === secondaryId) {
+                    setSecondaryId(entities.find((entity) => entity.id !== value)?.id ?? "");
+                  }
+                  setSelectedEdgeId("");
+                }}
+              />
+              {mode === "connection" ? (
+                <EntityPicker
+                  label={t("终点对象", "Destination entity")}
+                  value={secondaryId}
+                  entities={entities.filter((entity) => entity.id !== primaryId)}
+                  onChange={(value) => {
+                    setSecondaryId(value);
+                    setSelectedEdgeId("");
+                  }}
                 />
               ) : (
-                <GraphList
-                  entities={visibleEntities}
-                  relations={visibleRelations}
-                  onSelect={selectNode}
+                <div className="hidden md:block" />
+              )}
+              {mode === "impact" && (
+                <div>
+                  <div className="mb-2 text-xs font-medium text-muted-foreground">
+                    {t("分析深度", "Analysis depth")}
+                  </div>
+                  <div className="inline-flex rounded-lg border border-border bg-background p-1">
+                    {[1, 2].map((depth) => (
+                      <button
+                        key={depth}
+                        type="button"
+                        onClick={() => setImpactDepth(depth as 1 | 2)}
+                        className={`h-8 rounded-md px-3 text-xs ${
+                          impactDepth === depth
+                            ? "bg-signal text-white"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {depth === 1 ? t("直接", "Direct") : t("含二跳", "Two hops")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0 space-y-5">
+              <InsightAnswer
+                mode={mode}
+                primary={primary}
+                secondary={secondary}
+                groups={groups}
+                directCount={scope.directIds.size}
+                indirectCount={scope.indirectIds.size}
+                pathLength={connection.path?.edgeIds.length ?? null}
+              />
+
+              {mode === "ecosystem" && (
+                <EcosystemResult groups={groups} primary={primary} relations={relations} />
+              )}
+              {mode === "connection" && (
+                <ConnectionResult
+                  primary={primary}
+                  secondary={secondary}
+                  steps={connection.steps}
+                  onSelectEdge={setSelectedEdgeId}
                 />
               )}
-              <GraphLegend />
-              <p className="text-xs text-white/45" aria-live="polite">
-                {t(
-                  `当前显示 ${visibleEntities.length} 个实体、${visibleRelations.length} 条关系。`,
-                  `Showing ${visibleEntities.length} entities and ${visibleRelations.length} relationships.`,
-                )}
-                {compact && timeAndTypeIds.size > 24
-                  ? t(" 移动端已限制为 24 个节点。", " Mobile view is capped at 24 nodes.")
-                  : ""}
-              </p>
-            </section>
-            <aside className="hidden lg:block">
-              <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
-                {inspector}
-              </div>
+              {mode === "impact" && (
+                <ImpactResult
+                  entities={entities}
+                  directIds={scope.directIds}
+                  indirectIds={scope.indirectIds}
+                />
+              )}
+
+              <section className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="flex items-center gap-2 font-semibold">
+                      <Network className="h-4 w-4 text-signal" />
+                      {t("局部关系视图", "Local relationship view")}
+                    </h2>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t(
+                        "图形只用于解释上面的结论；点击连线可核验证据。",
+                        "The graph explains the result above. Select an edge to verify evidence.",
+                      )}
+                    </p>
+                  </div>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {graphEntityIds.length} {t("个对象", "entities")} · {graphRelations.length}{" "}
+                    {t("条关系", "relationships")}
+                  </span>
+                </div>
+                <div className="mt-4 overflow-hidden rounded-lg border border-border">
+                  <KnowledgeGraph
+                    entities={entities}
+                    relations={graphRelations}
+                    entityIds={graphEntityIds}
+                    centerId={primary.id}
+                    selectedEdgeId={selectedEdge?.id}
+                    highlightedNodeIds={connection.path?.nodeIds}
+                    highlightedEdgeIds={connection.path?.edgeIds}
+                    onSelectEdge={(edge) => setSelectedEdgeId(edge.id)}
+                    height={480}
+                    canvasWidth={900}
+                  />
+                </div>
+              </section>
+            </div>
+
+            <aside className="h-fit xl:sticky xl:top-20">
+              <EvidencePanel
+                edge={selectedEdge}
+                fallbackEdges={relevantRelations}
+                entityById={entityById}
+                evidenceById={evidenceById}
+                onSelectEdge={setSelectedEdgeId}
+              />
             </aside>
           </div>
         </div>
       </main>
-
-      <Drawer open={filtersOpen && compact} onOpenChange={setFiltersOpen}>
-        <DrawerContent className="max-h-[88vh] border-border bg-card text-foreground">
-          <DrawerHeader>
-            <DrawerTitle>{t("图谱筛选", "Graph filters")}</DrawerTitle>
-            <DrawerDescription className="text-muted-foreground">
-              {t(
-                "限制实体、关系、可信度与时间范围。",
-                "Limit entities, relationships, confidence, and time.",
-              )}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-8">{filterPanel}</div>
-        </DrawerContent>
-      </Drawer>
-      <Drawer
-        open={compact && Boolean(selectedNode || selectedEdge)}
-        onOpenChange={(open) => {
-          if (!open) clearSelection();
-        }}
-      >
-        <DrawerContent className="max-h-[88vh] border-border bg-card text-foreground">
-          <DrawerHeader className="sr-only">
-            <DrawerTitle>{t("图谱详情", "Graph details")}</DrawerTitle>
-            <DrawerDescription>
-              {t("所选节点或关系的详情与证据。", "Details and evidence for the selection.")}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-8 pt-3">{inspector}</div>
-        </DrawerContent>
-      </Drawer>
     </AppShell>
   );
 }
 
-function ModeButton({
-  active,
-  icon,
-  label,
-  onClick,
+function InsightAnswer({
+  mode,
+  primary,
+  secondary,
+  groups,
+  directCount,
+  indirectCount,
+  pathLength,
 }: {
-  active: boolean;
-  icon: ReactNode;
-  label: string;
-  onClick: () => void;
+  mode: InsightMode;
+  primary: Entity;
+  secondary?: Entity;
+  groups: ReturnType<typeof ecosystemGroups>;
+  directCount: number;
+  indirectCount: number;
+  pathLength: number | null;
 }) {
+  const { t, lang } = useApp();
+  const primaryName = pick(primary.name, lang);
+  let answer: string;
+  if (mode === "connection") {
+    const secondaryName = secondary
+      ? pick(secondary.name, lang)
+      : t("所选对象", "the selected entity");
+    answer =
+      pathLength === null
+        ? t(
+            `${primaryName} 与 ${secondaryName} 在当前已审核关系中没有可解释路径。`,
+            `No explainable path connects ${primaryName} and ${secondaryName} in the reviewed relationships.`,
+          )
+        : t(
+            `${primaryName} 与 ${secondaryName} 通过 ${pathLength} 段已收录关系相连。下方逐段展示关系方向、可信度和证据。`,
+            `${primaryName} and ${secondaryName} are connected through ${pathLength} recorded relationship${pathLength === 1 ? "" : "s"}. Each step, confidence level, and source appears below.`,
+          );
+  } else if (mode === "impact") {
+    answer = t(
+      `${primaryName} 当前有 ${directCount} 个直接关联对象${indirectCount ? `，以及 ${indirectCount} 个二跳线索` : ""}。这些是调查范围，不代表已经证明的因果影响。`,
+      `${primaryName} currently has ${directCount} direct relationships${indirectCount ? ` and ${indirectCount} two-hop leads` : ""}. This is an investigation scope, not proof of causal impact.`,
+    );
+  } else {
+    answer = t(
+      `${primaryName} 的直接生态覆盖 ${groups.length} 类对象、${groups.reduce((total, group) => total + group.entities.length, 0)} 个关联实体。`,
+      `${primaryName}'s direct ecosystem spans ${groups.length} entity types and ${groups.reduce((total, group) => total + group.entities.length, 0)} related entities.`,
+    );
+  }
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs ${
-        active ? "bg-white text-graph-bg" : "text-white/60 hover:text-white"
-      }`}
-    >
-      {icon}
-      {label}
-    </button>
+    <section className="rounded-xl border border-signal/25 bg-signal/5 p-5 md:p-6">
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-signal">
+        <Sparkles className="h-4 w-4" />
+        {t("洞察结论", "Insight")}
+      </div>
+      <p className="mt-3 text-lg font-medium leading-8 text-foreground">{answer}</p>
+    </section>
   );
 }
 
-function PathSelect({
+function EcosystemResult({
+  groups,
+  primary,
+  relations,
+}: {
+  groups: ReturnType<typeof ecosystemGroups>;
+  primary: Entity;
+  relations: GraphEdge[];
+}) {
+  const { t, lang } = useApp();
+  return (
+    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
+      <SectionHeading
+        icon={<CircleDot className="h-4 w-4" />}
+        title={t("生态组成", "Ecosystem composition")}
+        description={t(
+          "只统计与分析对象直接相连的关系。",
+          "Only direct relationships are counted.",
+        )}
+      />
+      {groups.length ? (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {groups.map((group) => (
+            <div key={group.type} className="rounded-lg border border-border bg-background p-4">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold">
+                  {pick(ENTITY_TYPE_LABELS[group.type], lang)}
+                </h3>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {group.entities.length}
+                </span>
+              </div>
+              <ul className="mt-3 space-y-2">
+                {group.entities.map((entity) => {
+                  const edge = relations.find(
+                    (item) =>
+                      (item.fromId === primary.id && item.toId === entity.id) ||
+                      (item.toId === primary.id && item.fromId === entity.id),
+                  );
+                  return (
+                    <li key={entity.id}>
+                      <Link
+                        to="/knowledge/$type/$slug"
+                        params={{ type: entity.type, slug: entity.slug }}
+                        className="group flex items-center gap-2 rounded-md p-2 hover:bg-accent"
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium">
+                            {pick(entity.name, lang)}
+                          </span>
+                          {edge && (
+                            <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                              {pick(RELATION_LABELS[edge.kind], lang)}
+                            </span>
+                          )}
+                        </span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-signal" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyResult>
+          {t("当前对象还没有直接关系。", "No direct relationships are recorded yet.")}
+        </EmptyResult>
+      )}
+    </section>
+  );
+}
+
+function ConnectionResult({
+  primary,
+  secondary,
+  steps,
+  onSelectEdge,
+}: {
+  primary: Entity;
+  secondary?: Entity;
+  steps: ReturnType<typeof connectionPath>["steps"];
+  onSelectEdge: (id: string) => void;
+}) {
+  const { t, lang } = useApp();
+  return (
+    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
+      <SectionHeading
+        icon={<GitCompareArrows className="h-4 w-4" />}
+        title={t("关系解释", "Connection explanation")}
+        description={t(
+          "最短路径只是最紧凑的已有解释，不代表唯一关系。",
+          "The shortest path is the most compact recorded explanation, not the only possible one.",
+        )}
+      />
+      {steps.length ? (
+        <ol className="mt-5 space-y-3">
+          {steps.map((step, index) => {
+            const forward = step.edge.fromId === step.from.id;
+            return (
+              <li key={step.edge.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelectEdge(step.edge.id)}
+                  className="w-full rounded-lg border border-border bg-background p-4 text-left hover:border-signal/40 hover:bg-accent/40"
+                >
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-signal text-[10px] font-semibold text-white">
+                      {index + 1}
+                    </span>
+                    {t("关系步骤", "Relationship step")}
+                    <ConfidenceChip level={step.edge.confidence} />
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium">
+                    <span>{pick(step.from.name, lang)}</span>
+                    <span className="inline-flex items-center gap-1 text-signal">
+                      {forward ? "—" : "←"}
+                      {pick(RELATION_LABELS[step.edge.kind], lang)}
+                      {forward ? "→" : "—"}
+                    </span>
+                    <span>{pick(step.to.name, lang)}</span>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {step.edge.sourceIds.length
+                      ? t(
+                          `关联 ${step.edge.sourceIds.length} 条来源证据，点击核验。`,
+                          `${step.edge.sourceIds.length} source${step.edge.sourceIds.length === 1 ? "" : "s"} attached; select to verify.`,
+                        )
+                      : t("该关系尚未绑定来源。", "No source is attached to this relationship.")}
+                  </p>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <EmptyResult>
+          {t(
+            `${pick(primary.name, lang)} 与 ${secondary ? pick(secondary.name, lang) : "所选对象"} 之间没有可用路径。可更换对象，或等待更多关系通过审核。`,
+            `No path is available between ${pick(primary.name, lang)} and ${secondary ? pick(secondary.name, lang) : "the selected entity"}. Choose another entity or wait for more reviewed relationships.`,
+          )}
+        </EmptyResult>
+      )}
+    </section>
+  );
+}
+
+function ImpactResult({
+  entities,
+  directIds,
+  indirectIds,
+}: {
+  entities: Entity[];
+  directIds: Set<string>;
+  indirectIds: Set<string>;
+}) {
+  const { t } = useApp();
+  return (
+    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
+      <SectionHeading
+        icon={<Radar className="h-4 w-4" />}
+        title={t("关联范围", "Relationship reach")}
+        description={t(
+          "直接关系可用于核验；二跳对象只是研究线索，不能自动视为受影响对象。",
+          "Direct links can be verified. Two-hop entities are research leads, not confirmed impact.",
+        )}
+      />
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <ScopeGroup
+          title={t("直接关系", "Direct relationships")}
+          description={t(
+            "与分析对象共享一条已收录关系。",
+            "One recorded edge from the analyzed entity.",
+          )}
+          ids={directIds}
+          entities={entities}
+          tone="direct"
+        />
+        <ScopeGroup
+          title={t("二跳调查线索", "Two-hop research leads")}
+          description={t(
+            "通过另一个对象间接连接，需要进一步核验。",
+            "Indirectly connected and requires further review.",
+          )}
+          ids={indirectIds}
+          entities={entities}
+          tone="indirect"
+        />
+      </div>
+    </section>
+  );
+}
+
+function ScopeGroup({
+  title,
+  description,
+  ids,
+  entities,
+  tone,
+}: {
+  title: string;
+  description: string;
+  ids: Set<string>;
+  entities: Entity[];
+  tone: "direct" | "indirect";
+}) {
+  const { lang } = useApp();
+  const items = entities.filter((entity) => ids.has(entity.id));
+  return (
+    <div className="rounded-lg border border-border bg-background p-4">
+      <div className="flex items-center gap-2">
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${tone === "direct" ? "bg-signal" : "bg-warning"}`}
+        />
+        <h3 className="text-sm font-semibold">{title}</h3>
+        <span className="ml-auto text-xs tabular-nums text-muted-foreground">{items.length}</span>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {items.length ? (
+          items.map((entity) => (
+            <Link
+              key={entity.id}
+              to="/knowledge/$type/$slug"
+              params={{ type: entity.type, slug: entity.slug }}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-signal/40 hover:text-signal"
+            >
+              {pick(entity.name, lang)}
+            </Link>
+          ))
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EvidencePanel({
+  edge,
+  fallbackEdges,
+  entityById,
+  evidenceById,
+  onSelectEdge,
+}: {
+  edge: GraphEdge | null;
+  fallbackEdges: GraphEdge[];
+  entityById: Map<string, Entity>;
+  evidenceById: Map<string, Evidence>;
+  onSelectEdge: (id: string) => void;
+}) {
+  const { t, lang } = useApp();
+  const active = edge ?? fallbackEdges[0] ?? null;
+  const sources = active
+    ? active.sourceIds
+        .map((id) => evidenceById.get(id))
+        .filter((source): source is Evidence => Boolean(source))
+    : [];
+  const from = active ? entityById.get(active.fromId) : undefined;
+  const to = active ? entityById.get(active.toId) : undefined;
+  return (
+    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="h-4 w-4 text-signal" />
+        <h2 className="font-semibold">{t("关系证据", "Relationship evidence")}</h2>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+        {t(
+          "选择关系步骤或图中连线，核验它为什么成立。",
+          "Select a relationship step or graph edge to verify why it exists.",
+        )}
+      </p>
+      {active ? (
+        <>
+          <div className="mt-4 rounded-lg border border-border bg-background p-4">
+            <div className="text-sm font-medium">
+              {from ? pick(from.name, lang) : active.fromId}
+            </div>
+            <div className="my-2 flex items-center gap-2 text-xs font-medium text-signal">
+              <ArrowRight className="h-3.5 w-3.5" />
+              {pick(RELATION_LABELS[active.kind], lang)}
+            </div>
+            <div className="text-sm font-medium">{to ? pick(to.name, lang) : active.toId}</div>
+            <div className="mt-3">
+              <ConfidenceChip level={active.confidence} />
+            </div>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("来源", "Sources")} · {sources.length}
+            </h3>
+            {sources.length ? (
+              <ul className="mt-2 space-y-2">
+                {sources.map((source) => (
+                  <li key={source.id}>
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-lg border border-border p-3 hover:border-signal/40 hover:bg-accent/40"
+                    >
+                      <span className="flex items-start justify-between gap-2 text-sm font-medium">
+                        <span>{pick(source.title, lang)}</span>
+                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      </span>
+                      <span className="mt-1 block text-[11px] text-muted-foreground">
+                        {source.publisher} · {source.publishedAt}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs leading-5 text-muted-foreground">
+                {t(
+                  "这条关系尚未绑定来源，应视为待核验信息。",
+                  "No source is attached. Treat this relationship as pending verification.",
+                )}
+              </p>
+            )}
+          </div>
+          {fallbackEdges.length > 1 && (
+            <div className="mt-5 border-t border-border pt-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("其他相关关系", "Other relationships")}
+              </h3>
+              <div className="mt-2 space-y-1">
+                {fallbackEdges.slice(0, 6).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onSelectEdge(item.id)}
+                    className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-accent ${
+                      item.id === active.id ? "bg-accent text-foreground" : "text-muted-foreground"
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1 truncate">
+                      {entityById.get(item.fromId)
+                        ? pick(entityById.get(item.fromId)!.name, lang)
+                        : item.fromId}{" "}
+                      →{" "}
+                      {entityById.get(item.toId)
+                        ? pick(entityById.get(item.toId)!.name, lang)
+                        : item.toId}
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <EmptyResult>
+          {t("当前结果没有可检查的关系。", "No relationship is available to inspect.")}
+        </EmptyResult>
+      )}
+    </section>
+  );
+}
+
+function EntityPicker({
   label,
   value,
   entities,
@@ -600,479 +829,64 @@ function PathSelect({
   entities: Entity[];
   onChange: (value: string) => void;
 }) {
-  const { lang } = useApp();
+  const { lang, t } = useApp();
+  const sorted = useMemo(
+    () =>
+      [...entities].sort((left, right) =>
+        pick(left.name, lang).localeCompare(pick(right.name, lang)),
+      ),
+    [entities, lang],
+  );
   return (
-    <label className="min-w-0">
-      <span className="sr-only">{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-8 max-w-36 rounded-md border border-white/15 bg-graph-surface px-2 text-xs text-white outline-none focus:border-white/40 sm:max-w-44"
-        aria-label={label}
-      >
-        <option value="">{label}</option>
-        {entities.map((entity) => (
-          <option key={entity.id} value={entity.id}>
-            {pick(entity.name, lang)}
-          </option>
-        ))}
-      </select>
+    <label className="block min-w-0">
+      <span className="mb-2 block text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="relative block">
+        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-10 w-full appearance-none rounded-md border border-border bg-background pl-9 pr-9 text-sm outline-none focus:border-signal"
+          aria-label={label}
+        >
+          {sorted.map((entity) => (
+            <option key={entity.id} value={entity.id}>
+              {pick(entity.name, lang)} · {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+            </option>
+          ))}
+        </select>
+        <ChevronRight className="pointer-events-none absolute right-3 top-3 h-4 w-4 rotate-90 text-muted-foreground" />
+      </span>
+      {!entities.length && (
+        <span className="text-xs text-muted-foreground">{t("没有可选对象", "No entities")}</span>
+      )}
     </label>
   );
 }
 
-function GraphFilters({
-  enabledTypes,
-  enabledRelations,
-  enabledConfidences,
-  year,
-  depth,
-  onToggleType,
-  onToggleRelation,
-  onToggleConfidence,
-  onYearChange,
-  onDepthChange,
+function SectionHeading({
+  icon,
+  title,
+  description,
 }: {
-  enabledTypes: Record<EntityType, boolean>;
-  enabledRelations: Record<RelationKind, boolean>;
-  enabledConfidences: Record<Confidence, boolean>;
-  year: number[];
-  depth: Depth;
-  onToggleType: (type: EntityType) => void;
-  onToggleRelation: (kind: RelationKind) => void;
-  onToggleConfidence: (confidence: Confidence) => void;
-  onYearChange: (value: number[]) => void;
-  onDepthChange: (depth: Depth) => void;
+  icon: ReactNode;
+  title: string;
+  description: string;
 }) {
-  const { t, lang } = useApp();
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-      <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest text-white/55">
-        <Filter className="h-3.5 w-3.5" />
-        {t("筛选器", "Filters")}
-      </div>
-      <FilterGroup title={t("实体类型", "Entity types")}>
-        <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-1">
-          {NODE_TYPES.map(({ type, shape, color, label }) => (
-            <FilterToggle
-              key={type}
-              active={enabledTypes[type]}
-              label={pick(label, lang)}
-              marker={<ShapeSwatch shape={shape} color={color} />}
-              onClick={() => onToggleType(type)}
-            />
-          ))}
-        </div>
-      </FilterGroup>
-      <FilterGroup title={t("关系类型", "Relation types")}>
-        <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-1">
-          {RELATION_TYPES.map((kind) => (
-            <FilterToggle
-              key={kind}
-              active={enabledRelations[kind]}
-              label={pick(RELATION_LABELS[kind], lang)}
-              onClick={() => onToggleRelation(kind)}
-            />
-          ))}
-        </div>
-      </FilterGroup>
-      <FilterGroup title={t("可信度", "Confidence")}>
-        <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-1">
-          {CONFIDENCE_TYPES.map((confidence) => (
-            <FilterToggle
-              key={confidence}
-              active={enabledConfidences[confidence]}
-              label={pick(CONFIDENCE_LABELS[confidence], lang)}
-              marker={<LineSwatch confidence={confidence} />}
-              onClick={() => onToggleConfidence(confidence)}
-            />
-          ))}
-        </div>
-      </FilterGroup>
-      <FilterGroup title={t("邻域深度", "Neighborhood depth")}>
-        <div className="grid grid-cols-3 gap-1">
-          {([1, 2, "all"] as Depth[]).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => onDepthChange(value)}
-              aria-pressed={depth === value}
-              className={`h-8 rounded-md border text-xs ${
-                depth === value
-                  ? "border-white/60 bg-white text-graph-bg"
-                  : "border-white/15 text-white/60 hover:bg-white/10"
-              }`}
-            >
-              {value === "all" ? t("全部", "All") : value}
-            </button>
-          ))}
-        </div>
-      </FilterGroup>
-      <div>
-        <div className="mb-3 flex items-center justify-between gap-2 text-xs text-white/65">
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" />
-            {t("时间范围", "Time range")}
-          </span>
-          <span className="tabular-nums">
-            {year[0]}–{year[1]}
-          </span>
-        </div>
-        <Slider value={year} onValueChange={onYearChange} min={2015} max={2026} step={1} />
-      </div>
+    <div>
+      <h2 className="flex items-center gap-2 font-semibold">
+        <span className="text-signal">{icon}</span>
+        {title}
+      </h2>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
     </div>
   );
 }
 
-function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+function EmptyResult({ children }: { children: ReactNode }) {
   return (
-    <fieldset className="mb-5">
-      <legend className="mb-2 text-[11px] uppercase tracking-wider text-white/45">{title}</legend>
+    <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-6 text-center text-sm leading-6 text-muted-foreground">
       {children}
-    </fieldset>
-  );
-}
-
-function FilterToggle({
-  active,
-  label,
-  marker,
-  onClick,
-}: {
-  active: boolean;
-  label: string;
-  marker?: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`flex min-h-8 w-full items-center gap-2 rounded-md border px-2.5 text-left text-xs ${
-        active ? "border-white/25 bg-white/10 text-white" : "border-white/10 text-white/35"
-      }`}
-    >
-      {marker}
-      <span className="min-w-0 flex-1 truncate">{label}</span>
-      {active && <Check className="h-3 w-3 shrink-0" />}
-    </button>
-  );
-}
-
-function ShapeSwatch({ shape, color }: { shape: NodeShape; color: string }) {
-  const shapeClass =
-    shape === "circle"
-      ? "rounded-full"
-      : shape === "diamond"
-        ? "rotate-45 rounded-[2px]"
-        : shape === "hexagon"
-          ? "[clip-path:polygon(25%_0,75%_0,100%_50%,75%_100%,25%_100%,0_50%)]"
-          : "rounded-[2px]";
-  return (
-    <span
-      className={`h-2.5 w-2.5 shrink-0 ${shapeClass}`}
-      style={{ backgroundColor: color }}
-      aria-hidden="true"
-    />
-  );
-}
-
-function LineSwatch({ confidence }: { confidence: Confidence }) {
-  const borderStyle =
-    confidence === "verified" ? "solid" : confidence === "unverified" ? "dotted" : "dashed";
-  return (
-    <span
-      className="w-5 shrink-0 border-t-2"
-      style={{
-        borderTopStyle: borderStyle,
-        borderTopColor: confidence === "conflict" ? "var(--conflict)" : "currentColor",
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-function GraphLegend() {
-  const { t } = useApp();
-  return (
-    <div
-      className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/55"
-      aria-label={t("图例", "Legend")}
-    >
-      <span>{t("形状表示实体类型", "Shape = entity type")}</span>
-      <span className="inline-flex items-center gap-1.5">
-        <LineSwatch confidence="verified" />
-        {t("实线：已核验", "Solid: verified")}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <LineSwatch confidence="inferred" />
-        {t("虚线：推断", "Dashed: inferred")}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <LineSwatch confidence="unverified" />
-        {t("点线：未核验", "Dotted: unverified")}
-      </span>
-    </div>
-  );
-}
-
-function GraphList({
-  entities,
-  relations,
-  onSelect,
-}: {
-  entities: Entity[];
-  relations: GraphEdge[];
-  onSelect: (entity: Entity) => void;
-}) {
-  const { t, lang } = useApp();
-  const degrees = useMemo(() => {
-    const result = new Map<string, number>();
-    relations.forEach((edge) => {
-      result.set(edge.fromId, (result.get(edge.fromId) ?? 0) + 1);
-      result.set(edge.toId, (result.get(edge.toId) ?? 0) + 1);
-    });
-    return result;
-  }, [relations]);
-  return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[520px] text-left text-sm">
-          <thead className="border-b border-white/10 text-[11px] uppercase tracking-wider text-white/45">
-            <tr>
-              <th className="px-4 py-3 font-medium">{t("实体", "Entity")}</th>
-              <th className="px-4 py-3 font-medium">{t("类型", "Type")}</th>
-              <th className="px-4 py-3 font-medium">{t("厂商", "Vendor")}</th>
-              <th className="px-4 py-3 text-right font-medium">{t("关系数", "Relations")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entities.map((entity) => (
-              <tr
-                key={entity.id}
-                className="border-b border-white/10 last:border-b-0 hover:bg-white/5"
-              >
-                <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={() => onSelect(entity)}
-                    className="font-medium text-white hover:underline"
-                  >
-                    {pick(entity.name, lang)}
-                  </button>
-                </td>
-                <td className="px-4 py-3 text-white/60">
-                  {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                </td>
-                <td className="px-4 py-3 text-white/60">{entity.vendor ?? "—"}</td>
-                <td className="px-4 py-3 text-right tabular-nums text-white/70">
-                  {degrees.get(entity.id) ?? 0}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {!entities.length && (
-        <p className="p-8 text-center text-sm text-white/55">
-          {t("当前筛选条件下没有实体。", "No entities match the current filters.")}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function GraphInspector({
-  selectedNode,
-  selectedEdge,
-  relations,
-  entityById,
-  evidenceById,
-  onClose,
-  onSelectEdge,
-}: {
-  selectedNode: Entity | null;
-  selectedEdge: GraphEdge | null;
-  relations: GraphEdge[];
-  entityById: Map<string, Entity>;
-  evidenceById: Map<string, KnowledgeSnapshot["evidence"][number]>;
-  onClose: () => void;
-  onSelectEdge: (edge: GraphEdge) => void;
-}) {
-  const { t, lang } = useApp();
-  if (!selectedNode && !selectedEdge) {
-    return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-white/65">
-        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-widest text-white/45">
-          <Filter className="h-3.5 w-3.5" />
-          {t("检查器", "Inspector")}
-        </div>
-        <p>
-          {t(
-            "选择节点查看详情，或选择连线核验关系及其来源证据。",
-            "Select a node for details, or an edge to verify its relationship and sources.",
-          )}
-        </p>
-        <div className="mt-5 border-t border-border pt-4">
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("关系示例 · 点击查看证据", "Relationship examples · select for evidence")}
-          </div>
-          <div className="space-y-2">
-            {relations.slice(0, 4).map((edge) => {
-              const from = entityById.get(edge.fromId);
-              const to = entityById.get(edge.toId);
-              return (
-                <button
-                  key={edge.id}
-                  type="button"
-                  onClick={() => onSelectEdge(edge)}
-                  className="w-full rounded-lg border border-border bg-card p-3 text-left hover:border-signal/40 hover:bg-accent"
-                >
-                  <span className="block text-xs font-medium text-foreground">
-                    {from ? pick(from.name, lang) : edge.fromId}
-                  </span>
-                  <span className="my-1 flex items-center gap-1 text-[11px] font-medium text-signal">
-                    <ArrowRight className="h-3 w-3" />
-                    {pick(RELATION_LABELS[edge.kind], lang)}
-                  </span>
-                  <span className="block text-xs font-medium text-foreground">
-                    {to ? pick(to.name, lang) : edge.toId}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-  if (selectedEdge) {
-    const from = entityById.get(selectedEdge.fromId);
-    const to = entityById.get(selectedEdge.toId);
-    const sources = selectedEdge.sourceIds
-      .map((id) => evidenceById.get(id))
-      .filter((source): source is NonNullable<typeof source> => Boolean(source));
-    return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-white">
-        <InspectorHeader eyebrow={t("关系证据", "Relationship evidence")} onClose={onClose} />
-        <h2 className="font-serif text-xl font-semibold">
-          {pick(RELATION_LABELS[selectedEdge.kind], lang)}
-        </h2>
-        <div className="mt-3 rounded-lg border border-white/10 bg-black/15 p-3 text-sm">
-          <div className="font-medium">{from ? pick(from.name, lang) : selectedEdge.fromId}</div>
-          <div className="my-2 flex items-center gap-2 text-xs text-white/45">
-            <ArrowRight className="h-3.5 w-3.5" />
-            {pick(RELATION_LABELS[selectedEdge.kind], lang)}
-          </div>
-          <div className="font-medium">{to ? pick(to.name, lang) : selectedEdge.toId}</div>
-        </div>
-        <div className="mt-3">
-          <ConfidenceChip level={selectedEdge.confidence} />
-        </div>
-        <div className="mt-5">
-          <h3 className="mb-2 text-xs uppercase tracking-widest text-white/45">
-            {t("来源证据", "Source evidence")}
-          </h3>
-          {sources.length ? (
-            <ul className="space-y-2">
-              {sources.map((source) => (
-                <li key={source.id}>
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block rounded-lg border border-white/10 p-3 hover:bg-white/10"
-                  >
-                    <span className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-medium">{pick(source.title, lang)}</span>
-                      <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/45" />
-                    </span>
-                    <span className="mt-1 block text-[11px] text-white/45">
-                      {source.publisher} · {source.publishedAt}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-white/55">
-              {t("该关系尚未绑定来源。", "No source is attached to this relationship.")}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  const node = selectedNode!;
-  const related = relations.filter((edge) => edge.fromId === node.id || edge.toId === node.id);
-  return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-white">
-      <InspectorHeader eyebrow={pick(ENTITY_TYPE_LABELS[node.type], lang)} onClose={onClose} />
-      <h2 className="font-serif text-2xl font-semibold">{pick(node.name, lang)}</h2>
-      {node.vendor && <p className="mt-1 text-xs text-white/50">{node.vendor}</p>}
-      <p className="mt-3 text-sm leading-relaxed text-white/75">{pick(node.summary, lang)}</p>
-      <div className="mt-5">
-        <h3 className="mb-2 text-xs uppercase tracking-widest text-white/45">
-          {t("可见关系", "Visible relationships")} · {related.length}
-        </h3>
-        <ul className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
-          {related.map((edge) => {
-            const otherId = edge.fromId === node.id ? edge.toId : edge.fromId;
-            const other = entityById.get(otherId);
-            const relationLabel = pick(RELATION_LABELS[edge.kind], lang);
-            const direction =
-              edge.fromId === node.id
-                ? `${pick(node.name, lang)} —${relationLabel}→ ${other ? pick(other.name, lang) : otherId}`
-                : `${other ? pick(other.name, lang) : otherId} —${relationLabel}→ ${pick(node.name, lang)}`;
-            return (
-              <li key={edge.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelectEdge(edge)}
-                  className="flex w-full items-center gap-2 rounded-md border border-white/10 p-2 text-left hover:bg-white/10"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">
-                      {other ? pick(other.name, lang) : otherId}
-                    </span>
-                    <span className="mt-0.5 block text-[11px] leading-relaxed text-white/45">
-                      {direction}
-                    </span>
-                  </span>
-                  <ConfidenceChip level={edge.confidence} />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <Link
-        to="/knowledge/$type/$slug"
-        params={{ type: node.type, slug: node.slug }}
-        className="mt-5 inline-flex h-9 items-center gap-1 rounded-md bg-signal px-3 text-sm font-medium text-white hover:opacity-90"
-      >
-        {t("查看完整详情", "Full detail")}
-        <ArrowRight className="h-3.5 w-3.5" />
-      </Link>
-    </div>
-  );
-}
-
-function InspectorHeader({ eyebrow, onClose }: { eyebrow: string; onClose: () => void }) {
-  const { t } = useApp();
-  return (
-    <div className="mb-2 flex items-start justify-between gap-2">
-      <span className="text-xs uppercase tracking-widest text-white/45">{eyebrow}</span>
-      <button
-        type="button"
-        onClick={onClose}
-        className="grid h-7 w-7 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
-        aria-label={t("关闭详情", "Close details")}
-      >
-        <X className="h-4 w-4" />
-      </button>
     </div>
   );
 }

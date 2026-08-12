@@ -1,9 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Bell, Clock3, GitBranch, Radar, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  Building2,
+  Clock3,
+  GitCompareArrows,
+  Radar,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DemoBadge } from "@/components/common";
 import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
-import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import type { ChangeEvent, Entity } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -14,7 +22,7 @@ export const Route = createFileRoute("/")({
       { title: "AI Radar · 你关注的 AI，最近发生了什么" },
       {
         name: "description",
-        content: "可信、可追溯、具有时间维度的 AI 技术知识图谱。",
+        content: "追踪可信、可追溯的 AI 技术变化、关系与证据。",
       },
     ],
   }),
@@ -51,7 +59,6 @@ function HomePage() {
     .filter((change) => followingIds.has(change.entityId))
     .slice(0, 4);
   const industry = snapshot.changes.slice(0, 3);
-  const previewIds = snapshot.graph.nodes.slice(0, 9).map((node) => node.entityId);
 
   return (
     <AppShell>
@@ -148,35 +155,76 @@ function HomePage() {
 
         <section className="mt-10">
           <SectionTitle
-            icon={<GitBranch className="h-4 w-4" />}
-            title={t("今日图谱变化", "Today's graph changes")}
+            icon={<Radar className="h-4 w-4" />}
+            title={t("从关系中发现线索", "Discover relationship insights")}
             action={
               <span className="text-xs text-muted-foreground">
-                +{snapshot.changes.length} {t("个变化事件", "change events")} · +
-                {snapshot.graph.edges.length} {t("条关系", "relations")}
+                {snapshot.graph.edges.length} {t("条已收录关系", "recorded relationships")}
               </span>
             }
           />
-          <div className="relative overflow-hidden rounded-xl border border-border bg-card">
-            <KnowledgeGraph
-              entities={snapshot.entities}
-              relations={snapshot.graph.edges}
-              entityIds={previewIds}
-              centerId={previewIds[0]}
-              height={310}
-              canvasWidth={1120}
+          <div className="grid gap-3 md:grid-cols-3">
+            <InsightShortcut
+              icon={<Building2 className="h-4 w-4" />}
+              title={t("GPT 的生态组成", "Explore the GPT ecosystem")}
+              description={t(
+                "查看系列、版本、研发方、评测和竞品关系。",
+                "Map its family, releases, developer, benchmarks, and competitors.",
+              )}
+              search={{ entity: "e-gpt", mode: "ecosystem" }}
             />
-            <Link
-              to="/graph"
-              className="absolute bottom-4 right-4 inline-flex h-9 items-center gap-2 rounded-md bg-signal px-4 text-xs font-medium text-white"
-            >
-              <Radar className="h-4 w-4" />
-              {t("进入完整图谱", "Open full graph")}
-            </Link>
+            <InsightShortcut
+              icon={<GitCompareArrows className="h-4 w-4" />}
+              title={t("GPT 与 Claude 为什么有关", "Why GPT and Claude are connected")}
+              description={t(
+                "逐段解释最短关系路径，并核验来源。",
+                "Explain the shortest relationship path and verify its sources.",
+              )}
+              search={{ entity: "e-gpt", target: "e-claude", mode: "connection" }}
+            />
+            <InsightShortcut
+              icon={<Radar className="h-4 w-4" />}
+              title={t("GPT 的关联范围", "Investigate GPT's relationship reach")}
+              description={t(
+                "区分直接关系和二跳调查线索。",
+                "Separate direct relationships from two-hop research leads.",
+              )}
+              search={{ entity: "e-gpt", mode: "impact" }}
+            />
           </div>
         </section>
       </div>
     </AppShell>
+  );
+}
+
+function InsightShortcut({
+  icon,
+  title,
+  description,
+  search,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  search: { entity: string; target?: string; mode: "ecosystem" | "connection" | "impact" };
+}) {
+  const { t } = useApp();
+  return (
+    <Link
+      to="/graph"
+      search={search}
+      className="paper-card group min-h-36 p-5 transition-colors hover:border-signal/40"
+    >
+      <span className="grid h-9 w-9 place-items-center rounded-lg bg-signal/10 text-signal">
+        {icon}
+      </span>
+      <h3 className="mt-4 text-sm font-semibold">{title}</h3>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
+      <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-signal">
+        {t("开始分析", "Analyze")} <ArrowRight className="h-3.5 w-3.5" />
+      </span>
+    </Link>
   );
 }
 
