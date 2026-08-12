@@ -18,9 +18,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
 import {
   describeProbeFailure,
+  formatRolloutSummary,
   isAllowlistedSource,
   isVettedRolloutSource,
   selectRolloutSources,
+  type RolloutOutcome,
 } from "@/domain/source-rollout";
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import {
@@ -377,9 +379,7 @@ function AdminReviewPage() {
     setBusy(true);
     setError("");
     setOperationMessage("");
-    const outcomes: Array<
-      { source: SourceView; enabled: true } | { source: SourceView; enabled: false; reason: string }
-    > = [];
+    const outcomes: RolloutOutcome[] = [];
     // 免费 staging 只有一个较小的 API 实例。逐个预检可以避免同时连接多个官网时
     // 耗尽连接池，也能降低被上游站点临时限流的概率。
     for (const [index, source] of candidates.entries()) {
@@ -389,7 +389,26 @@ function AdminReviewPage() {
       try {
         await adminApi.probeSource(token, source.id);
         await adminApi.updateSource(token, source.id, { fetchEnabled: true });
-        outcomes.push({ source, enabled: true });
+        try {
+          const collection = await adminApi.collectSource(token, source.id);
+          outcomes.push({
+            source,
+            enabled: true,
+            firstCollection: collection.failed > 0 ? "scheduled" : "completed",
+            reason:
+              collection.failed > 0 ? "首次采集失败，系统已按退避策略安排自动重试。" : undefined,
+          });
+        } catch (failure) {
+          const reason = failure instanceof Error ? failure.message : "首次采集未完成";
+          outcomes.push({
+            source,
+            enabled: true,
+            firstCollection: /already being collected|正在采集/i.test(reason)
+              ? "running"
+              : "scheduled",
+            reason,
+          });
+        }
       } catch (failure) {
         outcomes.push({
           source,
@@ -398,15 +417,7 @@ function AdminReviewPage() {
         });
       }
     }
-    const enabled = outcomes.filter((outcome) => outcome.enabled);
-    const failed = outcomes.filter((outcome) => !outcome.enabled);
-    setOperationMessage(
-      `批量接入完成：检查 ${outcomes.length} 个，通过并启用 ${enabled.length} 个，失败保持关闭 ${failed.length} 个。通过的信源会在下一轮定时任务中自动采集。${
-        failed.length > 0
-          ? ` 失败项：${failed.map((item) => `${item.source.title}（${item.reason}）`).join("；")}`
-          : ""
-      }`,
-    );
+    setOperationMessage(formatRolloutSummary(outcomes));
     try {
       await refresh(token);
     } catch (failure) {
@@ -899,7 +910,7 @@ function AdminReviewPage() {
               <div>
                 <div className="text-sm font-medium">批量安全接入</div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  仅处理经过验证的官方文档入口；系统逐个预检，不会拿任意白名单页面凑批次。
+                  仅处理经过验证的官方机器入口；通过后自动启用并执行首次采集，失败会进入退避重试。
                 </p>
               </div>
               <Button
@@ -908,7 +919,7 @@ function AdminReviewPage() {
                 disabled={busy || rolloutSources.length === 0}
                 onClick={batchRolloutSources}
               >
-                批量预检并启用（{rolloutSources.length}）
+                批量接入并首次采集（{rolloutSources.length}）
               </Button>
             </div>
             <details className="mt-4 rounded-lg border border-dashed border-border p-3">

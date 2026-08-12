@@ -4,7 +4,7 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { describeProbeFailure, isAllowlistedSource, selectRolloutSources } =
+const { describeProbeFailure, formatRolloutSummary, isAllowlistedSource, selectRolloutSources } =
   await vite.ssrLoadModule("/src/domain/source-rollout.ts");
 
 test.after(async () => vite.close());
@@ -104,4 +104,36 @@ test("常见预检错误会转换为可操作的中文说明", () => {
     describeProbeFailure("Source hostname is not in AI_RADAR_FETCH_ALLOWED_HOSTS."),
     /白名单/,
   );
+});
+
+test("批量接入汇总区分首次采集、运行中、自动重试和接入失败", () => {
+  const summary = formatRolloutSummary([
+    {
+      source: source("collected", "https://allowed.example/collected"),
+      enabled: true,
+      firstCollection: "completed",
+    },
+    {
+      source: source("running", "https://allowed.example/running"),
+      enabled: true,
+      firstCollection: "running",
+    },
+    {
+      source: source("retrying", "https://allowed.example/retrying"),
+      enabled: true,
+      firstCollection: "scheduled",
+      reason: "首次访问超时",
+    },
+    {
+      source: source("blocked", "https://blocked.example/page"),
+      enabled: false,
+      reason: "连接预检失败",
+    },
+  ]);
+  assert.match(summary, /首次采集完成 1 个/);
+  assert.match(summary, /调度器正在处理 1 个/);
+  assert.match(summary, /等待自动重试 1 个/);
+  assert.match(summary, /接入失败保持关闭 1 个/);
+  assert.match(summary, /retrying（首次访问超时）/);
+  assert.match(summary, /blocked（连接预检失败）/);
 });
