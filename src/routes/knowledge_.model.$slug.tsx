@@ -73,6 +73,7 @@ function EntityDetail() {
   }, [e.id, relations]);
 
   const timeline = allTimeline[e.id] ?? [];
+  const reviewedClaims = snapshot.claims.filter((claim) => claim.entityId === e.id);
   const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
   const childVersions = entities
@@ -81,6 +82,7 @@ function EntityDetail() {
   const parentFamily = e.familyId ? findEntity(e.familyId) : undefined;
   const knowledge = e.knowledge ?? createVersionKnowledge(e, parentFamily);
   const relevantSourceIds = new Set([
+    ...reviewedClaims.flatMap((claim) => claim.sourceIds),
     ...relatedRelations.flatMap((relation) => relation.sourceIds),
     ...timeline.flatMap((event) => event.sourceIds),
     ...(e.metrics ?? []).flatMap((metric) => metric.sourceIds ?? []),
@@ -93,6 +95,16 @@ function EntityDetail() {
     );
   }
   const evidence = allEvidence.filter((source) => relevantSourceIds.has(source.id));
+
+  let nextSection = 3;
+  const reviewedClaimsSection = reviewedClaims.length > 0 ? nextSection++ : undefined;
+  const lineageSection = childVersions.length > 0 ? nextSection++ : undefined;
+  const relationshipSection = nextSection++;
+  const timelineSection = nextSection++;
+  const comparisonSection = nextSection++;
+  const questionSection = nextSection++;
+  const sourcesSection = nextSection;
+  const sectionNumber = (value: number) => String(value).padStart(2, "0");
 
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
@@ -350,10 +362,50 @@ function EntityDetail() {
           )}
         </section>
 
+        {reviewedClaimsSection && (
+          <section>
+            <SectionHeading
+              eyebrow={sectionNumber(reviewedClaimsSection)}
+              title={t("已审核事实", "Reviewed facts")}
+              description={t(
+                "人工审核通过的新事实会在这里与直接证据一起展示。",
+                "New human-reviewed facts appear here with their direct evidence.",
+              )}
+            />
+            <div className="space-y-3">
+              {reviewedClaims.map((claim) => {
+                const claimSources = allEvidence.filter((source) =>
+                  claim.sourceIds.includes(source.id),
+                );
+                return (
+                  <article key={claim.id} className="paper-card p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <time className="font-mono text-xs text-muted-foreground">
+                        {t("最近核验", "Last verified")} {claim.updatedAt}
+                      </time>
+                      <ConfidenceChip level={claim.confidence} />
+                    </div>
+                    <p className="mt-3 text-[15px] leading-7 text-foreground">
+                      {pick(claim.text, lang)}
+                    </p>
+                    {claimSources.length > 0 && (
+                      <div className="mt-4 border-t border-border pt-3">
+                        {claimSources.map((source) => (
+                          <SourceRow key={source.id} source={source} />
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {childVersions.length > 0 && (
           <section>
             <SectionHeading
-              eyebrow="03"
+              eyebrow={sectionNumber(lineageSection ?? 3)}
               title={t("版本谱系与迭代差异", "Version lineage and iteration changes")}
               description={t(
                 "系列不是一个模糊的大标签：每个版本分别记录发布时间、上下文、价格和能力变化。",
@@ -423,7 +475,7 @@ function EntityDetail() {
         {/* 局部关系概览 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "04" : "03"}
+            eyebrow={sectionNumber(relationshipSection)}
             title={t("关系概览", "Relationship overview")}
             description={t(
               `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
@@ -468,7 +520,7 @@ function EntityDetail() {
         {/* Timeline */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "05" : "04"}
+            eyebrow={sectionNumber(timelineSection)}
             title={t("版本演进时间线", "Version evolution timeline")}
             description={t(
               "每次迭代明确记录功能、上下文和价格变化；不会用最新值覆盖历史状态。",
@@ -502,7 +554,7 @@ function EntityDetail() {
         {/* Compare */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "06" : "05"}
+            eyebrow={sectionNumber(comparisonSection)}
             title={t("进入具体版本对比", "Compare concrete versions")}
             action={
               <Link
@@ -565,7 +617,7 @@ function EntityDetail() {
         {/* AI 问答 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "07" : "06"}
+            eyebrow={sectionNumber(questionSection)}
             title={t("AI 问答", "Ask AI")}
             description={t(
               "所有 AI 回答均基于已审核数据与来源证据，事实 / 推断 / 未核验分开呈现。",
@@ -629,7 +681,7 @@ function EntityDetail() {
         {/* 来源 */}
         <section>
           <SectionHeading
-            eyebrow={childVersions.length > 0 ? "08" : "07"}
+            eyebrow={sectionNumber(sourcesSection)}
             title={t("来源", "Sources")}
             description={t(
               "每条事实至少一个来源。列表按发布时间倒序。",
