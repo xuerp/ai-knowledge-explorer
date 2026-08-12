@@ -250,7 +250,7 @@ class OperationsService:
         run_limit: int = 20,
     ) -> OperationsDiagnostics:
         current = now or datetime.now(UTC)
-        worker = session.get(WorkerStatusRecord, worker_id)
+        worker = self._observed_worker(session, worker_id)
         worker_view = self._worker_view(worker, current) if worker else None
         if worker_view is None:
             heartbeat_status = "missing"
@@ -321,11 +321,29 @@ class OperationsService:
         now: datetime | None = None,
     ) -> bool:
         current = now or datetime.now(UTC)
-        worker = session.get(WorkerStatusRecord, worker_id)
+        worker = self._observed_worker(session, worker_id)
         if worker is None or worker.state == "stopped":
             return False
         heartbeat_age = (_utc(current) - _utc(worker.heartbeat_at)).total_seconds()
         return 0 <= heartbeat_age <= self.stale_after_seconds
+
+    @staticmethod
+    def _observed_worker(
+        session: Session,
+        worker_id: str,
+    ) -> WorkerStatusRecord | None:
+        """返回逻辑 worker 名称下最近活跃的运行实例。"""
+        return session.scalars(
+            select(WorkerStatusRecord)
+            .where(
+                or_(
+                    WorkerStatusRecord.worker_id == worker_id,
+                    WorkerStatusRecord.worker_id.startswith(f"{worker_id}-"),
+                )
+            )
+            .order_by(WorkerStatusRecord.heartbeat_at.desc())
+            .limit(1)
+        ).first()
 
     @staticmethod
     def _count(session: Session, statement: object) -> int:

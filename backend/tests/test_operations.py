@@ -108,6 +108,50 @@ def test_worker_restart_marks_interrupted_cycle_failed(tmp_path: Path):
     database.dispose()
 
 
+def test_diagnostics_resolves_latest_runtime_instance_for_logical_worker(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'runtime-instance.db').as_posix()}")
+    database.create_all()
+    service = OperationsService(stale_after_seconds=120)
+    started = datetime(2026, 8, 9, 2, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        service.register_worker(session, "scheduler", now=started)
+        service.heartbeat(
+            session,
+            "scheduler",
+            state="stopped",
+            now=started + timedelta(seconds=5),
+        )
+        service.register_worker(
+            session,
+            "scheduler-render-instance-a",
+            now=started + timedelta(seconds=10),
+        )
+        service.heartbeat(
+            session,
+            "scheduler-render-instance-a",
+            state="idle",
+            now=started + timedelta(seconds=20),
+        )
+
+        diagnostics = service.diagnostics(
+            session,
+            "scheduler",
+            now=started + timedelta(seconds=30),
+        )
+
+        assert diagnostics.heartbeat_status == "healthy"
+        assert diagnostics.worker is not None
+        assert diagnostics.worker.worker_id == "scheduler-render-instance-a"
+        assert service.is_worker_healthy(
+            session,
+            "scheduler",
+            now=started + timedelta(seconds=30),
+        )
+
+    database.dispose()
+
+
 def test_ephemeral_cycle_has_an_independent_active_lease(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'ephemeral.db').as_posix()}")
     database.create_all()
