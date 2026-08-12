@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
@@ -24,7 +25,7 @@ from .database import (
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
 from .extraction import ExtractionUnavailableError, StructuredExtractionService
-from .fetching import SafeHttpFetcher
+from .fetching import FetchPolicyError, SafeHttpFetcher
 from .ingestion import IngestionService
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
@@ -70,6 +71,7 @@ from .schemas import (
     ReviewQueueItem,
     SchedulerRunSummary,
     SourceCreate,
+    SourceProbeResult,
     SourceRetryRequest,
     SourceUpdate,
     SourceView,
@@ -88,9 +90,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or Settings.from_env()
     database = Database(app_settings.database_url)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
-    ingestion = IngestionService()
+    ingestion = IngestionService(app_settings.fetch_allowed_hosts)
+    fetcher = SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes)
     scheduler = IngestionScheduler(
-        SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes),
+        fetcher,
         ingestion,
         retry_base_minutes=app_settings.fetch_retry_base_minutes,
         retry_max_minutes=app_settings.fetch_retry_max_minutes,
@@ -931,6 +934,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> SourceView:
         try:
             source = ingestion.create_source(session, payload)
+        except ValueError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(error),
+            ) from error
         except IntegrityError as error:
             session.rollback()
             raise HTTPException(
@@ -951,7 +960,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         principal: AdminDependency,
         session: SessionDependency,
     ) -> SourceView:
-        source = ingestion.update_source(session, source_id, payload)
+        try:
+            source = ingestion.update_source(session, source_id, payload)
+        except ValueError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=str(error),
+            ) from error
         if not source:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
         audit.record(
@@ -968,6 +984,46 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         session.commit()
         return source
+
+    @app.post(
+        "/api/v2/admin/sources/{source_id}/probe",
+        response_model=SourceProbeResult,
+    )
+    def probe_source(
+        source_id: str,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> SourceProbeResult:
+        source = session.get(SourceRecord, source_id)
+        if not source:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        try:
+            document = fetcher.fetch(source.url)
+        except (FetchPolicyError, httpx.HTTPError, OSError) as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=f"Source preflight failed: {error}",
+            ) from error
+        audit.record(
+            session,
+            principal,
+            "source.probe",
+            "source",
+            source.id,
+            {
+                "contentType": document.content_type,
+                "readableCharacters": len(document.content),
+            },
+        )
+        session.commit()
+        return SourceProbeResult(
+            source_id=source.id,
+            url=source.url,
+            content_type=document.content_type,
+            readable_characters=len(document.content),
+            etag=document.etag,
+            last_modified=document.last_modified,
+        )
 
     @app.post(
         "/api/v2/admin/sources/{source_id}/retry",

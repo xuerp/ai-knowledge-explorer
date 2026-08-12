@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import create_engine, select
@@ -74,7 +75,10 @@ def test_non_overlapping_fact_does_not_conflict():
 def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     snapshot = KnowledgeRepository(SEED_PATH).load_seed()
 
-    report = KnowledgeQualityGate().report(snapshot)
+    report = KnowledgeQualityGate().report(
+        snapshot,
+        now=datetime(2026, 8, 12, tzinfo=UTC),
+    )
 
     assert report.live_ready is False
     assert report.entity_count >= 28
@@ -82,8 +86,35 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.claims_with_missing_evidence == []
     assert report.relations_with_missing_evidence == []
     assert report.timeline_entries_with_missing_evidence == []
+    assert report.evidence_reference_coverage == 1
+    assert report.official_evidence_ratio >= 0.6
+    assert report.reviewed_evidence_ratio >= 0.9
+    assert report.fresh_evidence_ratio >= 0.8
+    assert report.evidence_domain_count >= 8
+    assert report.verified_content_ratio >= 0.8
+    assert report.conflict_content_count == 0
     assert any("150 reviewed claims" in issue for issue in report.issues)
     assert "e-gpt-4o" not in report.core_entities_below_five_relations
+
+
+def test_quality_report_blocks_stale_unreviewed_non_official_evidence():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    for evidence in snapshot.evidence:
+        evidence.type = "community"
+        evidence.verified_at = None
+        evidence.collected_at = "2025-01-01"
+
+    report = KnowledgeQualityGate().report(
+        snapshot,
+        now=datetime(2026, 8, 12, tzinfo=UTC),
+    )
+
+    assert report.official_evidence_ratio == 0
+    assert report.reviewed_evidence_ratio == 0
+    assert report.fresh_evidence_ratio == 0
+    assert any("official first-party" in issue for issue in report.issues)
+    assert any("human verification" in issue for issue in report.issues)
+    assert any("within 180 days" in issue for issue in report.issues)
 
 
 def test_catalog_extension_includes_core_agents_frameworks_and_evidence():
