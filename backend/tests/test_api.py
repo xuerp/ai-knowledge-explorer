@@ -563,6 +563,16 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(
     assert first.status_code == 200
     assert first.json()["changeType"] == "created"
 
+    snapshots = client.get(
+        "/api/v2/admin/sources/source-demo-release/snapshots",
+        headers=headers,
+    )
+    assert snapshots.status_code == 200
+    assert snapshots.json()[0]["id"] == first.json()["snapshotId"]
+    assert snapshots.json()[0]["readableCharacters"] == 51
+    assert "evidence-linked graph" in snapshots.json()[0]["contentPreview"]
+    assert client.get("/api/v2/admin/sources/source-demo-release/snapshots").status_code == 401
+
     duplicate = client.post(
         "/api/v2/admin/sources/source-demo-release/snapshots",
         headers=headers,

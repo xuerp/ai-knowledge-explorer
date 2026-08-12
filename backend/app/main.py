@@ -42,6 +42,7 @@ from .schemas import (
     DigestPreference,
     DigestRunSummary,
     DocumentIngestRequest,
+    DocumentSnapshotView,
     EmailDeliverySummary,
     EmailOutboxRetryRequest,
     EmailOutboxView,
@@ -1101,6 +1102,38 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         session.commit()
         return result
+
+    @app.get(
+        "/api/v2/admin/sources/{source_id}/snapshots",
+        response_model=list[DocumentSnapshotView],
+    )
+    def list_source_snapshots(
+        source_id: str,
+        _: AdminDependency,
+        session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=20)] = 5,
+    ) -> list[DocumentSnapshotView]:
+        if not session.get(SourceRecord, source_id):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
+        rows = session.scalars(
+            select(DocumentSnapshotRecord)
+            .where(DocumentSnapshotRecord.source_id == source_id)
+            .order_by(DocumentSnapshotRecord.observed_at.desc())
+            .limit(limit)
+        ).all()
+        return [
+            DocumentSnapshotView(
+                id=row.id,
+                source_id=row.source_id,
+                content_hash=row.content_hash,
+                content_preview=row.content_text[:4000],
+                readable_characters=len(row.content_text),
+                observed_at=row.observed_at,
+                published_at=row.published_at,
+                previous_snapshot_id=row.previous_snapshot_id,
+            )
+            for row in rows
+        ]
 
     @app.get("/api/v2/admin/ingestion-runs", response_model=list[IngestionRunView])
     def list_ingestion_runs(

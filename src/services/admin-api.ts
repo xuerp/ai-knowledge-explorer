@@ -62,6 +62,17 @@ export interface IngestionRun {
   error?: string;
 }
 
+export interface DocumentSnapshotView {
+  id: string;
+  sourceId: string;
+  contentHash: string;
+  contentPreview: string;
+  readableCharacters: number;
+  observedAt: string;
+  publishedAt?: string;
+  previousSnapshotId?: string;
+}
+
 export interface AuditEntry {
   id: number;
   actor: string;
@@ -316,6 +327,13 @@ export const adminApi = {
     request<{ due: number; succeeded: number; unchanged: number; failed: number }>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/collect`,
       { method: "POST" },
+      token,
+    ),
+
+  sourceSnapshots: (token: string, id: string) =>
+    request<DocumentSnapshotView[]>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}/snapshots?limit=5`,
+      {},
       token,
     ),
 
