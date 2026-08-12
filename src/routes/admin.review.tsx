@@ -16,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
-import { isAllowlistedSource, selectRolloutSources } from "@/domain/source-rollout";
+import {
+  describeProbeFailure,
+  isAllowlistedSource,
+  isVettedRolloutSource,
+  selectRolloutSources,
+} from "@/domain/source-rollout";
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import {
   adminApi,
@@ -389,7 +394,7 @@ function AdminReviewPage() {
         outcomes.push({
           source,
           enabled: false,
-          reason: failure instanceof Error ? failure.message : "连接预检失败",
+          reason: describeProbeFailure(failure instanceof Error ? failure.message : "连接预检失败"),
         });
       }
     }
@@ -894,7 +899,7 @@ function AdminReviewPage() {
               <div>
                 <div className="text-sm font-medium">批量安全接入</div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  每批最多 5 个；系统逐个预检，仅启用通过项，失败项保持关闭。
+                  仅处理经过验证的官方文档入口；系统逐个预检，不会拿任意白名单页面凑批次。
                 </p>
               </div>
               <Button
@@ -994,11 +999,12 @@ function AdminReviewPage() {
                     >
                       {source.fetchEnabled ? "自动采集" : "手动采集"}
                     </span>
-                    {isAllowlistedSource(source, allowlistedHosts) && (
-                      <span className="rounded-full bg-signal/10 px-2 py-1 text-xs text-signal">
-                        可预检
-                      </span>
-                    )}
+                    {isVettedRolloutSource(source) &&
+                      isAllowlistedSource(source, allowlistedHosts) && (
+                        <span className="rounded-full bg-signal/10 px-2 py-1 text-xs text-signal">
+                          可批量接入
+                        </span>
+                      )}
                   </div>
                   <a
                     className="mt-2 block truncate text-xs text-signal hover:underline"
@@ -1040,7 +1046,7 @@ function AdminReviewPage() {
                         </p>
                       ) : (
                         <p className="mt-1 line-clamp-2 text-muted-foreground">
-                          {source.lastProbeError}
+                          {describeProbeFailure(source.lastProbeError)}
                         </p>
                       )}
                     </div>
