@@ -36,25 +36,33 @@ class IngestionScheduler:
         now: datetime | None = None,
         limit: int = 20,
         progress: Callable[[], None] | None = None,
+        source_id: str | None = None,
+        force: bool = False,
     ) -> SchedulerRunSummary:
         current = now or datetime.now(UTC)
         due = succeeded = unchanged = failed = 0
         for _ in range(limit):
-            source = session.scalars(
-                select(SourceRecord)
-                .where(
-                    SourceRecord.active.is_(True),
-                    SourceRecord.fetch_enabled.is_(True),
+            conditions = [
+                SourceRecord.active.is_(True),
+                SourceRecord.fetch_enabled.is_(True),
+                or_(
+                    SourceRecord.fetch_lease_token.is_(None),
+                    SourceRecord.fetch_lease_expires_at.is_(None),
+                    SourceRecord.fetch_lease_expires_at <= current,
+                ),
+            ]
+            if not force:
+                conditions.append(
                     or_(
                         SourceRecord.next_fetch_at.is_(None),
                         SourceRecord.next_fetch_at <= current,
-                    ),
-                    or_(
-                        SourceRecord.fetch_lease_token.is_(None),
-                        SourceRecord.fetch_lease_expires_at.is_(None),
-                        SourceRecord.fetch_lease_expires_at <= current,
-                    ),
+                    )
                 )
+            if source_id is not None:
+                conditions.append(SourceRecord.id == source_id)
+            source = session.scalars(
+                select(SourceRecord)
+                .where(*conditions)
                 .order_by(SourceRecord.next_fetch_at.asc().nullsfirst())
                 .limit(1)
                 .with_for_update(skip_locked=True)

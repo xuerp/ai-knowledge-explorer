@@ -186,12 +186,22 @@ def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
         assert first.due == 1
         assert first.succeeded == 1
 
+        forced = scheduler.run_due(
+            session,
+            now=start + timedelta(minutes=1),
+            source_id="scheduled-source",
+            force=True,
+            limit=1,
+        )
+        assert forced.due == 1
+        assert forced.unchanged == 1
+
         second = scheduler.run_due(session, now=start + timedelta(minutes=121))
         assert second.due == 1
         assert second.unchanged == 1
-        assert fetcher.calls == 2
+        assert fetcher.calls == 3
         runs = ingestion.list_runs(session, "scheduled-source")
-        assert [run.change_type for run in runs] == ["unchanged", "created"]
+        assert [run.change_type for run in runs] == ["unchanged", "unchanged", "created"]
 
     database.dispose()
 
