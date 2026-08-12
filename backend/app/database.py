@@ -232,6 +232,11 @@ class ResearchRecord(Base):
             "published_slug",
             name="research_records_published_slug_key",
         ),
+        Index(
+            "ix_research_records_published_slug",
+            "published_slug",
+            unique=True,
+        ),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
@@ -241,7 +246,7 @@ class ResearchRecord(Base):
     claim_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     steps_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
