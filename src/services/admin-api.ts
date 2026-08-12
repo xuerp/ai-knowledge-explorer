@@ -41,6 +41,8 @@ export interface SourceView {
   lastProbeError?: string;
   lastProbeContentType?: string;
   lastProbeReadableCharacters?: number;
+  collectionStrategy: "automatic" | "manual" | "unverified";
+  collectionReason: string;
 }
 
 export interface SourceProbeResult {

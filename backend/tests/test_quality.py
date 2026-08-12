@@ -177,14 +177,24 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             row.payload_json = legacy.model_dump_json(by_alias=True)
             openai_source = session.get(SourceRecord, "s-openai-about")
             cursor_source = session.get(SourceRecord, "s-cursor-docs")
+            qwen_source = session.get(SourceRecord, "s-qwen-models")
+            swebench_source = session.get(SourceRecord, "s-swebench")
             assert openai_source is not None
             assert cursor_source is not None
+            assert qwen_source is not None
+            assert swebench_source is not None
             openai_source.url = "https://openai.com/about"
             openai_source.last_probe_status = "failed"
             openai_source.last_probe_error = "legacy path rejected"
             cursor_source.url = "https://docs.cursor.com/chat/overview"
             cursor_source.last_probe_status = "failed"
             cursor_source.last_probe_error = "legacy path redirected"
+            qwen_source.url = "https://qwenlm.ai/"
+            qwen_source.last_probe_status = "failed"
+            qwen_source.last_probe_error = "legacy host rejected"
+            swebench_source.url = "https://www.swebench.com/"
+            swebench_source.last_probe_status = "failed"
+            swebench_source.last_probe_error = "legacy document too large"
             session.commit()
 
             repository.seed_catalog(session)
@@ -195,7 +205,14 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             assert updated.origin == LocalizedText(zh="海外", en="Overseas")
             assert openai_source.url == "https://openai.com/our-structure/"
             assert cursor_source.url == "https://cursor.com/docs"
+            assert qwen_source.url == "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md"
+            assert swebench_source.url == (
+                "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
+                "master/data/info_for_leaderboard.json"
+            )
             assert openai_source.last_probe_status is None
             assert cursor_source.last_probe_status is None
+            assert qwen_source.last_probe_status is None
+            assert swebench_source.last_probe_status is None
     finally:
         engine.dispose()

@@ -25,6 +25,29 @@ from .schemas import (
     SourceView,
 )
 
+AUTOMATIC_SOURCE_IDS = {
+    "s-mcp-architecture",
+    "s-langchain-overview",
+    "s-anthropic-company",
+    "s-cursor-docs",
+    "s-qwen-models",
+    "s-swebench",
+}
+
+MANUAL_SOURCE_IDS = {
+    "s-openai-about",
+    "s-openai-gpt5",
+    "s-openai-codex",
+}
+
+
+def source_collection_policy(source_id: str) -> tuple[str, str]:
+    if source_id in AUTOMATIC_SOURCE_IDS:
+        return "automatic", "已验证为体积可控、无需凭据的官方机器入口。"
+    if source_id in MANUAL_SOURCE_IDS:
+        return "manual", "目标官网拒绝 Render 云服务器访问，保留人工采集与审核。"
+    return "unverified", "尚未完成自动采集入口验证，需先核验域名、体积与内容稳定性。"
+
 
 def normalize_source_url(value: str) -> str:
     parsed = urlsplit(value)
@@ -64,6 +87,13 @@ class IngestionService:
                 "Add the source hostname to AI_RADAR_FETCH_ALLOWED_HOSTS before enabling "
                 "automatic collection."
             )
+
+    def _validate_collection_policy(self, source_id: str, fetch_enabled: bool) -> None:
+        if not fetch_enabled:
+            return
+        strategy, reason = source_collection_policy(source_id)
+        if strategy == "manual":
+            raise ValueError(reason)
 
     def create_source(self, session: Session, payload: SourceCreate) -> SourceView:
         now = datetime.now(UTC)
@@ -107,6 +137,7 @@ class IngestionService:
 
         was_fetch_enabled = record.fetch_enabled
         if payload.fetch_enabled:
+            self._validate_collection_policy(record.id, True)
             self._validate_fetch_enabled(record.url, True)
             probe_at = record.last_probe_at
             if probe_at and probe_at.tzinfo is None:
@@ -296,6 +327,7 @@ class IngestionService:
 
     @staticmethod
     def to_source_view(row: SourceRecord) -> SourceView:
+        strategy, reason = source_collection_policy(row.id)
         return SourceView(
             id=row.id,
             url=row.url,
@@ -315,4 +347,6 @@ class IngestionService:
             last_probe_error=row.last_probe_error,
             last_probe_content_type=row.last_probe_content_type,
             last_probe_readable_characters=row.last_probe_readable_characters,
+            collection_strategy=strategy,
+            collection_reason=reason,
         )

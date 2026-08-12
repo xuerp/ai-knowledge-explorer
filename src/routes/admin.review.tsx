@@ -631,7 +631,7 @@ function AdminReviewPage() {
     const allowlisted = isAllowlistedSource(source, allowlistedHosts);
     const matchesFilter =
       sourceFilter === "all" ||
-      (sourceFilter === "allowlisted" && allowlisted) ||
+      (sourceFilter === "allowlisted" && allowlisted && source.collectionStrategy !== "manual") ||
       (sourceFilter === "automatic" && source.fetchEnabled);
     return matchesSearch && matchesFilter;
   });
@@ -999,6 +999,13 @@ function AdminReviewPage() {
                     >
                       {source.fetchEnabled ? "自动采集" : "手动采集"}
                     </span>
+                    <span className="rounded-full border border-border px-2 py-1 text-xs text-muted-foreground">
+                      {source.collectionStrategy === "automatic"
+                        ? "自动入口已验证"
+                        : source.collectionStrategy === "manual"
+                          ? "仅人工采集"
+                          : "入口待验证"}
+                    </span>
                     {isVettedRolloutSource(source) &&
                       isAllowlistedSource(source, allowlistedHosts) && (
                         <span className="rounded-full bg-signal/10 px-2 py-1 text-xs text-signal">
@@ -1014,6 +1021,7 @@ function AdminReviewPage() {
                   >
                     {source.url}
                   </a>
+                  <p className="mt-2 text-xs text-muted-foreground">{source.collectionReason}</p>
                   {source.consecutiveFailures > 0 && (
                     <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/5 p-3 text-xs">
                       <div className="font-medium text-conflict">
@@ -1078,12 +1086,15 @@ function AdminReviewPage() {
                       disabled={
                         busy ||
                         !source.active ||
+                        source.collectionStrategy === "manual" ||
                         (!source.fetchEnabled && !isRecentProbePassed(source))
                       }
                       title={
-                        source.fetchEnabled || isRecentProbePassed(source)
-                          ? undefined
-                          : "请先完成连接预检；成功结果在 24 小时内有效"
+                        source.collectionStrategy === "manual"
+                          ? source.collectionReason
+                          : source.fetchEnabled || isRecentProbePassed(source)
+                            ? undefined
+                            : "请先完成连接预检；成功结果在 24 小时内有效"
                       }
                       onClick={() => updateSource(source, { fetchEnabled: !source.fetchEnabled })}
                     >
@@ -1092,8 +1103,12 @@ function AdminReviewPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      disabled={busy || !source.active}
-                      title="只检查网络策略、响应类型和可读内容，不保存快照"
+                      disabled={busy || !source.active || source.collectionStrategy === "manual"}
+                      title={
+                        source.collectionStrategy === "manual"
+                          ? source.collectionReason
+                          : "只检查网络策略、响应类型和可读内容，不保存快照"
+                      }
                       onClick={() => probeSource(source)}
                     >
                       连接预检

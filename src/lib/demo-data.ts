@@ -74,7 +74,7 @@ export const SOURCES: Source[] = [
   {
     id: "s-swebench",
     title: { zh: "SWE-bench Verified 排行榜", en: "SWE-bench Verified leaderboard" },
-    url: "https://www.swebench.com/",
+    url: "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
     publisher: "SWE-bench",
     publishedAt: "2026-07-15",
     collectedAt: "2026-07-15",
@@ -94,7 +94,7 @@ export const SOURCES: Source[] = [
   {
     id: "s-qwen-models",
     title: { zh: "Qwen 模型版本说明", en: "Qwen model release notes" },
-    url: "https://qwenlm.ai/",
+    url: "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
     publisher: "Alibaba Qwen",
     publishedAt: "2026-07-01",
     collectedAt: "2026-07-01",

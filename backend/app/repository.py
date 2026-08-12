@@ -37,6 +37,11 @@ OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
 CANONICAL_SOURCE_URL_MIGRATIONS = {
     "s-openai-about": "https://openai.com/our-structure/",
     "s-cursor-docs": "https://cursor.com/docs",
+    "s-qwen-models": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+    "s-swebench": (
+        "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
+        "master/data/info_for_leaderboard.json"
+    ),
 }
 
 

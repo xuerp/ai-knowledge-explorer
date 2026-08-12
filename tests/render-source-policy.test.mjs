@@ -13,6 +13,7 @@ test("Render 只将首批官方证据域名加入自动采集白名单", () => {
     "modelcontextprotocol.io",
     "docs.langchain.com",
     "arxiv.org",
+    "raw.githubusercontent.com",
   ]) {
     assert.match(blueprint, new RegExp(`(?:value: |,)${host.replaceAll(".", "\\.")}(?:,|$)`, "m"));
   }
