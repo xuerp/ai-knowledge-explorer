@@ -47,6 +47,23 @@ def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
         private_fetcher.fetch("https://example.com/release")
 
 
+def test_safe_fetcher_reports_valid_canonical_redirect_without_following_it():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(307, headers={"location": "/docs/2026-07-28/learn/architecture"})
+
+    fetcher = SafeHttpFetcher(
+        ("example.com",),
+        10_000,
+        resolver=lambda _: ("8.8.8.8",),
+        transport=httpx.MockTransport(handler),
+    )
+    with pytest.raises(
+        FetchPolicyError,
+        match=r"https://docs\.example\.com/docs/2026-07-28/learn/architecture",
+    ):
+        fetcher.fetch("https://docs.example.com/docs/learn/architecture")
+
+
 def test_automatic_source_requires_allowlisted_https_host(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'source-policy.db').as_posix()}")
     database.create_all()

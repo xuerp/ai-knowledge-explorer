@@ -83,7 +83,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260812_0014"
+DATABASE_SCHEMA_REVISION = "20260812_0015"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

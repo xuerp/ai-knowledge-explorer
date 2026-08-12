@@ -5,7 +5,7 @@ import socket
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from html.parser import HTMLParser
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import httpx
 
@@ -129,7 +129,14 @@ class SafeHttpFetcher:
                     not_modified=True,
                 )
             if 300 <= response.status_code < 400:
-                raise FetchPolicyError("Redirects are rejected; register the canonical URL.")
+                location = response.headers.get("location")
+                canonical_url = urljoin(url, location) if location else None
+                if canonical_url:
+                    self.validate_url(canonical_url)
+                    raise FetchPolicyError(
+                        f"Redirects are rejected; register the canonical URL: {canonical_url}"
+                    )
+                raise FetchPolicyError("Redirects are rejected; no canonical URL was provided.")
             response.raise_for_status()
             content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
             if content_type not in {
