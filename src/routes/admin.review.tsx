@@ -893,6 +893,16 @@ function AdminReviewPage() {
               >
                 定位建议首测信源：MCP
               </button>
+              <button
+                type="button"
+                className="text-signal hover:underline"
+                onClick={() => {
+                  setSourceSearch("LangChain");
+                  setSourceFilter("allowlisted");
+                }}
+              >
+                定位建议第二信源：LangChain
+              </button>
             </div>
             <div className="mt-4 max-h-[36rem] space-y-3 overflow-y-auto pr-1">
               {filteredSources.map((source) => (

@@ -33,6 +33,10 @@ export interface CandidateCreateRequest {
 
 const entityBySourceId: Record<string, string> = {
   "s-mcp-architecture": "e-mcp",
+  "s-langchain-overview": "e-langchain",
+  "s-openai-about": "e-openai",
+  "s-anthropic-company": "e-anthropic",
+  "s-cursor-docs": "e-cursor",
 };
 
 function calendarDate(value: string) {
