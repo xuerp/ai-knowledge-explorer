@@ -709,6 +709,63 @@ function AdminReviewPage() {
               {workspace.quality.relationCount}{" "}
               条关系。演示和工程闭环可用，但不能据此宣称正式数据完备。
             </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-md border border-border bg-background/60 p-3 text-sm">
+                <div className="font-medium">Claim 审核进度</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {workspace.quality.claimCount}/{workspace.quality.claimsRequired}
+                  ，还需人工审核并发布 {workspace.quality.claimsRemaining} 条。
+                </p>
+              </div>
+              <div className="rounded-md border border-border bg-background/60 p-3 text-sm">
+                <div className="font-medium">核心关系覆盖</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {workspace.quality.coreEntitiesBelowFiveRelations.length} 个核心实体尚未达到 5
+                  条可解释关系。
+                </p>
+              </div>
+            </div>
+            {workspace.quality.goldenQuestions && (
+              <div className="mt-3 rounded-md border border-border bg-background/60 p-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="font-medium">黄金问题证据可回答性</div>
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs ${
+                      workspace.quality.goldenQuestions.ready
+                        ? "bg-verified/10 text-verified"
+                        : "bg-conflict/10 text-conflict"
+                    }`}
+                  >
+                    {workspace.quality.goldenQuestions.passed}/
+                    {workspace.quality.goldenQuestions.total} ·{" "}
+                    {Math.round(workspace.quality.goldenQuestions.passRatio * 100)}%
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  自动核验实体解析、带来源关系、时间证据和最短路径；正式要求 ≥{" "}
+                  {Math.round(workspace.quality.goldenQuestions.requiredRatio * 100)}%。
+                </p>
+                {workspace.quality.goldenQuestions.failed > 0 && (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-xs font-medium">
+                      查看未通过问题（{workspace.quality.goldenQuestions.failed}）
+                    </summary>
+                    <div className="mt-2 space-y-2">
+                      {workspace.quality.goldenQuestions.results
+                        .filter((result) => !result.passed)
+                        .map((result) => (
+                          <div key={result.id} className="rounded border border-border p-2 text-xs">
+                            <div className="font-medium">
+                              {result.id} · {result.question}
+                            </div>
+                            <p className="mt-1 text-muted-foreground">{result.reason}</p>
+                          </div>
+                        ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+            )}
             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
               {workspace.quality.issues.map((issue) => (
                 <li key={issue}>· {issue}</li>
@@ -746,6 +803,29 @@ function AdminReviewPage() {
               {workspace.quality.conflictContentCount} 条未解决冲突；正式验收要求至少 8
               个来源域名且冲突为 0。
             </p>
+            {workspace.quality.coreEntitiesBelowFiveRelations.length > 0 && (
+              <details className="mt-3 rounded-md border border-border bg-background/60 p-3">
+                <summary className="cursor-pointer text-xs font-medium">
+                  查看核心实体关系缺口（{workspace.quality.coreEntitiesBelowFiveRelations.length}）
+                </summary>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {workspace.quality.coreEntitiesBelowFiveRelations.map((entityId) => {
+                    const count = workspace.quality?.coreEntityRelationCounts[entityId] ?? 0;
+                    return (
+                      <div
+                        key={entityId}
+                        className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-xs"
+                      >
+                        <span className="font-mono">{entityId}</span>
+                        <span className="text-muted-foreground">
+                          当前 {count} · 还缺 {Math.max(0, 5 - count)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </details>
+            )}
           </section>
         )}
 

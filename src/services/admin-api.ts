@@ -158,12 +158,33 @@ export interface DataQualityReport {
   reviewedEvidenceRatio: number;
   freshEvidenceRatio: number;
   verifiedContentRatio: number;
+  claimsRequired: number;
+  claimsRemaining: number;
   coreEntitiesBelowFiveRelations: string[];
+  coreEntityRelationCounts: Record<string, number>;
+  goldenQuestions?: GoldenQuestionReport;
   claimsWithMissingEvidence: string[];
   relationsWithMissingEvidence: string[];
   timelineEntriesWithMissingEvidence: string[];
   liveReady: boolean;
   issues: string[];
+}
+
+export interface GoldenQuestionReport {
+  total: number;
+  passed: number;
+  failed: number;
+  passRatio: number;
+  requiredRatio: number;
+  ready: boolean;
+  results: Array<{
+    id: string;
+    question: string;
+    passed: boolean;
+    matchedEntityIds: string[];
+    missingEntityIds: string[];
+    reason: string;
+  }>;
 }
 
 export interface IntegrationStatus {

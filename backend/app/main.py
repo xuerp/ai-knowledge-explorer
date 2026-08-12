@@ -26,6 +26,7 @@ from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
 from .extraction import ExtractionUnavailableError, StructuredExtractionService
 from .fetching import FetchPolicyError, SafeHttpFetcher
+from .golden_questions import GoldenQuestionEvaluator
 from .ingestion import IngestionService, normalize_source_url
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
@@ -50,6 +51,7 @@ from .schemas import (
     ExtractionRequest,
     FollowCreate,
     FollowView,
+    GoldenQuestionReport,
     GraphEdge,
     GraphQuery,
     GraphSnapshot,
@@ -85,7 +87,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.12-source-policy-v4"
+SERVICE_RELEASE = "2026.08.12-live-quality-gate-v5"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -104,6 +106,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     auth = AuthService(app_settings.jwt_secret, app_settings.access_token_minutes)
     audit = AuditService()
     quality_gate = KnowledgeQualityGate()
+    golden_questions = GoldenQuestionEvaluator()
     engagement = EngagementService()
     extraction = StructuredExtractionService(
         app_settings.extraction_api_url,
@@ -187,6 +190,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     raise HTTPException(
                         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                         detail="Database schema revision is not ready.",
+                    )
+            if app_settings.data_mode == "live":
+                quality = get_quality_report(session)
+                if not quality.live_ready:
+                    raise HTTPException(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        detail="Live data quality gate is not satisfied.",
                     )
         except HTTPException:
             raise
@@ -509,7 +519,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _: ReviewerDependency,
         session: SessionDependency,
     ) -> DataQualityReport:
-        return quality_gate.report(get_public_snapshot(session))
+        return get_quality_report(session)
+
+    @app.get(
+        "/api/v2/admin/golden-questions",
+        response_model=GoldenQuestionReport,
+    )
+    def golden_question_report(
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> GoldenQuestionReport:
+        return get_golden_question_report(session)
 
     @app.get("/api/v2/admin/integrations", response_model=IntegrationStatus)
     def integration_status(
@@ -564,7 +584,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> ProductionReadiness:
         response.headers["Cache-Control"] = "no-store"
         sources = ingestion.list_sources(session)
-        quality = quality_gate.report(get_public_snapshot(session))
+        quality = get_quality_report(session)
         diagnostics = operations.diagnostics(session, app_settings.worker_id, run_limit=1)
         revision: str | None = None
         if database.engine.dialect.name != "sqlite":
@@ -679,8 +699,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session.commit()
         return engagement.to_outbox_view(row)
 
-    def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
+    def get_catalog_snapshot(session: Session) -> KnowledgeSnapshot:
         return repository.public_snapshot(session)
+
+    def get_golden_question_report(session: Session) -> GoldenQuestionReport:
+        return golden_questions.evaluate(get_catalog_snapshot(session))
+
+    def get_quality_report(session: Session) -> DataQualityReport:
+        snapshot = get_catalog_snapshot(session)
+        report = quality_gate.report(snapshot)
+        golden = golden_questions.evaluate(snapshot)
+        issues = [*report.issues]
+        if not golden.ready:
+            issues.append(
+                f"Golden question pass ratio must reach {golden.required_ratio:.0%}; "
+                f"current ratio is {golden.pass_ratio:.0%}."
+            )
+        return report.model_copy(
+            update={
+                "golden_questions": golden,
+                "live_ready": report.live_ready and golden.ready,
+                "issues": issues,
+            }
+        )
+
+    def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
+        snapshot = get_catalog_snapshot(session)
+        if app_settings.data_mode == "live":
+            quality = get_quality_report(session)
+            if not quality.live_ready:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Live data quality gate is not satisfied.",
+                )
+        return snapshot
 
     @app.get("/api/snapshot", response_model=KnowledgeSnapshot)
     @app.get("/api/v2/snapshot", response_model=KnowledgeSnapshot)
@@ -1190,7 +1242,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(error),
             ) from error
-        public_snapshot = get_public_snapshot(session)
+        public_snapshot = get_catalog_snapshot(session)
         created: list[ReviewQueueItem] = []
         for candidate in candidates:
             assessment = quality_gate.assess(candidate, public_snapshot)
@@ -1283,7 +1335,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _: ReviewerDependency,
         session: SessionDependency,
     ) -> CandidateAssessment:
-        return quality_gate.assess(payload, get_public_snapshot(session))
+        return quality_gate.assess(payload, get_catalog_snapshot(session))
 
     @app.post(
         "/api/v2/admin/review-candidates",
@@ -1301,7 +1353,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Every claim source id must be included in the submitted evidence.",
             )
-        assessment = quality_gate.assess(payload, get_public_snapshot(session))
+        assessment = quality_gate.assess(payload, get_catalog_snapshot(session))
         if assessment.resolved_entity_id and not payload.entity_id:
             payload = payload.model_copy(update={"entity_id": assessment.resolved_entity_id})
         reason = None

@@ -83,6 +83,8 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.live_ready is False
     assert report.entity_count >= 28
     assert report.claim_count < 150
+    assert report.claims_required == 150
+    assert report.claims_remaining == 150 - report.claim_count
     assert report.claims_with_missing_evidence == []
     assert report.relations_with_missing_evidence == []
     assert report.timeline_entries_with_missing_evidence == []
@@ -95,6 +97,8 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.conflict_content_count == 0
     assert any("150 reviewed claims" in issue for issue in report.issues)
     assert "e-gpt-4o" not in report.core_entities_below_five_relations
+    assert set(report.core_entity_relation_counts) == set(report.core_entities_below_five_relations)
+    assert all(count < 5 for count in report.core_entity_relation_counts.values())
 
 
 def test_quality_report_blocks_stale_unreviewed_non_official_evidence():
@@ -205,7 +209,9 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             assert updated.origin == LocalizedText(zh="海外", en="Overseas")
             assert openai_source.url == "https://openai.com/our-structure/"
             assert cursor_source.url == "https://cursor.com/docs"
-            assert qwen_source.url == "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md"
+            assert (
+                qwen_source.url == "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md"
+            )
             assert swebench_source.url == (
                 "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
                 "master/data/info_for_leaderboard.json"
