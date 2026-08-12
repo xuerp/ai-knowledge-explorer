@@ -227,6 +227,12 @@ class NotificationRecord(Base):
 
 class ResearchRecord(Base):
     __tablename__ = "research_records"
+    __table_args__ = (
+        UniqueConstraint(
+            "published_slug",
+            name="research_records_published_slug_key",
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
@@ -235,9 +241,7 @@ class ResearchRecord(Base):
     claim_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     steps_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    published_slug: Mapped[str | None] = mapped_column(
-        String(128), nullable=True, unique=True, index=True
-    )
+    published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
