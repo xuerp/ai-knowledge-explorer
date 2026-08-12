@@ -45,11 +45,31 @@ def normalize_content(value: str) -> str:
 
 
 class IngestionService:
+    def __init__(self, allowed_hosts: tuple[str, ...] = ()) -> None:
+        self.allowed_hosts = tuple(host.casefold() for host in allowed_hosts)
+
+    def _validate_fetch_enabled(self, url: str, fetch_enabled: bool) -> None:
+        if not fetch_enabled:
+            return
+        parsed = urlsplit(url)
+        host = (parsed.hostname or "").casefold()
+        if parsed.scheme != "https" or not host:
+            raise ValueError("Automatic collection requires a valid HTTPS source URL.")
+        if not any(
+            host == allowed or host.endswith(f".{allowed}") for allowed in self.allowed_hosts
+        ):
+            raise ValueError(
+                "Add the source hostname to AI_RADAR_FETCH_ALLOWED_HOSTS before enabling "
+                "automatic collection."
+            )
+
     def create_source(self, session: Session, payload: SourceCreate) -> SourceView:
         now = datetime.now(UTC)
+        normalized_url = normalize_source_url(str(payload.url))
+        self._validate_fetch_enabled(normalized_url, payload.fetch_enabled)
         record = SourceRecord(
             id=payload.id,
-            url=normalize_source_url(str(payload.url)),
+            url=normalized_url,
             title=payload.title.strip(),
             publisher=payload.publisher.strip(),
             active=True,
@@ -80,6 +100,8 @@ class IngestionService:
             return None
 
         was_fetch_enabled = record.fetch_enabled
+        if payload.fetch_enabled:
+            self._validate_fetch_enabled(record.url, True)
         if payload.active is not None:
             record.active = payload.active
         if payload.fetch_enabled is not None:

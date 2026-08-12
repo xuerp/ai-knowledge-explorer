@@ -8,7 +8,7 @@ from app.database import Database, SourceRecord
 from app.fetching import FetchedDocument, FetchPolicyError, SafeHttpFetcher
 from app.ingestion import IngestionService
 from app.scheduler import IngestionScheduler
-from app.schemas import SourceCreate
+from app.schemas import SourceCreate, SourceUpdate
 
 
 def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
@@ -45,6 +45,42 @@ def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
     )
     with pytest.raises(FetchPolicyError, match="non-public"):
         private_fetcher.fetch("https://example.com/release")
+
+
+def test_automatic_source_requires_allowlisted_https_host(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'source-policy.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("openai.com",))
+    try:
+        with database.session() as session:
+            with pytest.raises(ValueError, match="AI_RADAR_FETCH_ALLOWED_HOSTS"):
+                ingestion.create_source(
+                    session,
+                    SourceCreate(
+                        id="blocked-source",
+                        url="https://example.com/releases",
+                        title="Blocked source",
+                        publisher="Example",
+                        fetch_enabled=True,
+                    ),
+                )
+            source = ingestion.create_source(
+                session,
+                SourceCreate(
+                    id="manual-source",
+                    url="https://example.com/releases",
+                    title="Manual source",
+                    publisher="Example",
+                ),
+            )
+            with pytest.raises(ValueError, match="AI_RADAR_FETCH_ALLOWED_HOSTS"):
+                ingestion.update_source(
+                    session,
+                    source.id,
+                    SourceUpdate(fetch_enabled=True),
+                )
+    finally:
+        database.dispose()
 
 
 class _SequenceFetcher:
@@ -88,7 +124,7 @@ class _FailThenSucceedFetcher:
 def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'scheduler.db').as_posix()}")
     database.create_all()
-    ingestion = IngestionService()
+    ingestion = IngestionService(("example.com",))
     fetcher = _SequenceFetcher()
     scheduler = IngestionScheduler(fetcher, ingestion)  # type: ignore[arg-type]
     start = datetime.now(UTC)
@@ -122,7 +158,7 @@ def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
 def test_scheduler_retries_failures_early_and_clears_failure_state(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'retry.db').as_posix()}")
     database.create_all()
-    ingestion = IngestionService()
+    ingestion = IngestionService(("example.com",))
     fetcher = _FailThenSucceedFetcher()
     scheduler = IngestionScheduler(
         fetcher,  # type: ignore[arg-type]
@@ -174,7 +210,7 @@ def test_scheduler_retries_failures_early_and_clears_failure_state(tmp_path: Pat
 def test_manual_source_retry_respects_active_fetch_lease(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'source-lease.db').as_posix()}")
     database.create_all()
-    ingestion = IngestionService()
+    ingestion = IngestionService(("example.com",))
     now = datetime.now(UTC)
 
     with database.session() as session:

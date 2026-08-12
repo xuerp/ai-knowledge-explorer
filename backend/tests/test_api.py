@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.database import EmailOutboxRecord
+from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import create_app
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -20,6 +21,7 @@ def client(tmp_path: Path):
         automation_token="test-automation-token-with-at-least-32-characters",
         environment="test",
         jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
     )
     with TestClient(create_app(settings)) as test_client:
         yield test_client
@@ -337,7 +339,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,
-        "fetchAllowedHosts": [],
+        "fetchAllowedHosts": ["example.com"],
         "registeredSources": 30,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
@@ -599,6 +601,56 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestCli
         json={"fetchEnabled": True},
     )
     assert missing.status_code == 404
+
+
+def test_source_probe_is_admin_only_read_only_and_audited(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-probe",
+            "url": "https://example.com/releases",
+            "title": "Example probe source",
+            "publisher": "Example",
+        },
+    )
+    assert created.status_code == 201
+
+    monkeypatch.setattr(
+        SafeHttpFetcher,
+        "fetch",
+        lambda self, url: FetchedDocument(
+            content="A sufficiently long official release document for preflight.",
+            content_type="text/html",
+            etag='"release-v1"',
+            last_modified="Wed, 12 Aug 2026 12:00:00 GMT",
+        ),
+    )
+
+    assert client.post("/api/v2/admin/sources/source-probe/probe").status_code == 401
+    response = client.post(
+        "/api/v2/admin/sources/source-probe/probe",
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "sourceId": "source-probe",
+        "url": "https://example.com/releases",
+        "contentType": "text/html",
+        "readableCharacters": 60,
+        "etag": '"release-v1"',
+        "lastModified": "Wed, 12 Aug 2026 12:00:00 GMT",
+    }
+    assert created.json()["lastSeenAt"] is None
+    audit = client.get("/api/v2/admin/audit-log", headers=headers)
+    assert any(
+        entry["action"] == "source.probe" and entry["targetId"] == "source-probe"
+        for entry in audit.json()
+    )
 
 
 def test_dynamic_candidate_is_private_until_human_approval(client: TestClient):

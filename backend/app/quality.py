@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from urllib.parse import urlparse
 
 from .schemas import (
     CandidateAssessment,
@@ -24,6 +26,22 @@ def _periods_overlap(
     return (not left_end or not right_start or left_end >= right_start) and (
         not right_end or not left_start or right_end >= left_start
     )
+
+
+def _parse_date(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _ratio(numerator: int, denominator: int) -> float:
+    return round(numerator / denominator, 4) if denominator else 0.0
 
 
 @dataclass(slots=True)
@@ -93,7 +111,13 @@ class KnowledgeQualityGate:
             queue_status=queue_status,
         )
 
-    def report(self, snapshot: KnowledgeSnapshot) -> DataQualityReport:
+    def report(
+        self,
+        snapshot: KnowledgeSnapshot,
+        *,
+        now: datetime | None = None,
+    ) -> DataQualityReport:
+        current = (now or datetime.now(UTC)).astimezone(UTC)
         evidence_ids = {item.id for item in snapshot.evidence}
         claims_with_missing_evidence = [
             claim.id
@@ -113,6 +137,37 @@ class KnowledgeQualityGate:
             if entry.confidence == "verified"
             and (not entry.source_ids or not set(entry.source_ids).issubset(evidence_ids))
         ]
+        timeline_entries = [entry for entries in snapshot.timeline.values() for entry in entries]
+        all_reference_sets = (
+            [claim.source_ids for claim in snapshot.claims]
+            + [edge.source_ids for edge in snapshot.graph.edges]
+            + [entry.source_ids for entry in timeline_entries]
+        )
+        resolved_reference_sets = sum(
+            bool(source_ids) and set(source_ids).issubset(evidence_ids)
+            for source_ids in all_reference_sets
+        )
+        official_evidence_count = sum(item.type == "official" for item in snapshot.evidence)
+        reviewed_evidence_count = sum(bool(item.verified_at) for item in snapshot.evidence)
+        freshness_cutoff = current - timedelta(days=180)
+        fresh_evidence_count = sum(
+            bool(collected_at := _parse_date(item.collected_at))
+            and collected_at >= freshness_cutoff
+            for item in snapshot.evidence
+        )
+        evidence_domains = {
+            host
+            for item in snapshot.evidence
+            if (host := (urlparse(item.url).hostname or "").casefold())
+        }
+        content_items = [*snapshot.claims, *snapshot.graph.edges, *timeline_entries]
+        verified_content_count = sum(item.confidence == "verified" for item in content_items)
+        conflict_content_count = sum(item.confidence == "conflict" for item in content_items)
+        evidence_reference_coverage = _ratio(resolved_reference_sets, len(all_reference_sets))
+        official_evidence_ratio = _ratio(official_evidence_count, len(snapshot.evidence))
+        reviewed_evidence_ratio = _ratio(reviewed_evidence_count, len(snapshot.evidence))
+        fresh_evidence_ratio = _ratio(fresh_evidence_count, len(snapshot.evidence))
+        verified_content_ratio = _ratio(verified_content_count, len(content_items))
         degrees = {entity.id: 0 for entity in snapshot.entities}
         for edge in snapshot.graph.edges:
             if edge.from_id in degrees:
@@ -145,11 +200,39 @@ class KnowledgeQualityGate:
             issues.append("Every verified relation must resolve all evidence references.")
         if timeline_entries_with_missing_evidence:
             issues.append("Every verified timeline entry must resolve all evidence references.")
+        if evidence_reference_coverage < 0.98:
+            issues.append("At least 98% of published content must resolve evidence references.")
+        if official_evidence_ratio < 0.6:
+            issues.append("At least 60% of evidence must come from official first-party sources.")
+        if reviewed_evidence_ratio < 0.9:
+            issues.append("At least 90% of evidence must record a completed human verification.")
+        if fresh_evidence_ratio < 0.8:
+            issues.append("At least 80% of evidence must have been collected within 180 days.")
+        if len(evidence_domains) < 8:
+            issues.append("Formal acceptance requires evidence from at least eight source domains.")
+        if verified_content_ratio < 0.8:
+            issues.append(
+                "At least 80% of claims, relations, and timeline entries must be verified."
+            )
+        if conflict_content_count:
+            issues.append("Published conflict records must be resolved before live acceptance.")
         return DataQualityReport(
             entity_count=len(snapshot.entities),
             claim_count=len(snapshot.claims),
             evidence_count=len(snapshot.evidence),
             relation_count=len(snapshot.graph.edges),
+            timeline_entry_count=len(timeline_entries),
+            official_evidence_count=official_evidence_count,
+            reviewed_evidence_count=reviewed_evidence_count,
+            fresh_evidence_count=fresh_evidence_count,
+            evidence_domain_count=len(evidence_domains),
+            verified_content_count=verified_content_count,
+            conflict_content_count=conflict_content_count,
+            evidence_reference_coverage=evidence_reference_coverage,
+            official_evidence_ratio=official_evidence_ratio,
+            reviewed_evidence_ratio=reviewed_evidence_ratio,
+            fresh_evidence_ratio=fresh_evidence_ratio,
+            verified_content_ratio=verified_content_ratio,
             core_entities_below_five_relations=core_entities_below_five,
             claims_with_missing_evidence=claims_with_missing_evidence,
             relations_with_missing_evidence=relations_with_missing_evidence,

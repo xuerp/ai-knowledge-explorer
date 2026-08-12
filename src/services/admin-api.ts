@@ -37,6 +37,15 @@ export interface SourceView {
   fetchLeaseExpiresAt?: string;
 }
 
+export interface SourceProbeResult {
+  sourceId: string;
+  url: string;
+  contentType: string;
+  readableCharacters: number;
+  etag?: string;
+  lastModified?: string;
+}
+
 export interface IngestionRun {
   id: string;
   sourceId: string;
@@ -118,6 +127,18 @@ export interface DataQualityReport {
   claimCount: number;
   evidenceCount: number;
   relationCount: number;
+  timelineEntryCount: number;
+  officialEvidenceCount: number;
+  reviewedEvidenceCount: number;
+  freshEvidenceCount: number;
+  evidenceDomainCount: number;
+  verifiedContentCount: number;
+  conflictContentCount: number;
+  evidenceReferenceCoverage: number;
+  officialEvidenceRatio: number;
+  reviewedEvidenceRatio: number;
+  freshEvidenceRatio: number;
+  verifiedContentRatio: number;
   coreEntitiesBelowFiveRelations: string[];
   claimsWithMissingEvidence: string[];
   relationsWithMissingEvidence: string[];
@@ -276,6 +297,13 @@ export const adminApi = {
     request<SourceView>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/retry`,
       { method: "POST", body: JSON.stringify({ expectedFailureCount }) },
+      token,
+    ),
+
+  probeSource: (token: string, id: string) =>
+    request<SourceProbeResult>(
+      `/api/v2/admin/sources/${encodeURIComponent(id)}/probe`,
+      { method: "POST" },
       token,
     ),
 

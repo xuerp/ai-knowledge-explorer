@@ -171,7 +171,7 @@ def main() -> None:
         database.create_all()
     scheduler = IngestionScheduler(
         SafeHttpFetcher(settings.fetch_allowed_hosts, settings.fetch_max_bytes),
-        IngestionService(),
+        IngestionService(settings.fetch_allowed_hosts),
         retry_base_minutes=settings.fetch_retry_base_minutes,
         retry_max_minutes=settings.fetch_retry_max_minutes,
         lease_minutes=settings.fetch_lease_minutes,

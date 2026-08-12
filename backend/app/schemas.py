@@ -369,6 +369,15 @@ class SourceView(CamelModel):
     fetch_lease_expires_at: datetime | None = None
 
 
+class SourceProbeResult(CamelModel):
+    source_id: str
+    url: str
+    content_type: str
+    readable_characters: int
+    etag: str | None = None
+    last_modified: str | None = None
+
+
 class EmailOutboxRetryRequest(CamelModel):
     expected_attempt_count: int = Field(ge=0)
 
@@ -610,6 +619,18 @@ class DataQualityReport(CamelModel):
     claim_count: int
     evidence_count: int
     relation_count: int
+    timeline_entry_count: int
+    official_evidence_count: int
+    reviewed_evidence_count: int
+    fresh_evidence_count: int
+    evidence_domain_count: int
+    verified_content_count: int
+    conflict_content_count: int
+    evidence_reference_coverage: float
+    official_evidence_ratio: float
+    reviewed_evidence_ratio: float
+    fresh_evidence_ratio: float
+    verified_content_ratio: float
     core_entities_below_five_relations: list[str]
     claims_with_missing_evidence: list[str]
     relations_with_missing_evidence: list[str]

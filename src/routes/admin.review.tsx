@@ -315,6 +315,23 @@ function AdminReviewPage() {
     }
   };
 
+  const probeSource = async (source: SourceView) => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const result = await adminApi.probeSource(token, source.id);
+      setOperationMessage(
+        `${source.title} 连接预检通过：${result.contentType}，读取到 ${result.readableCharacters.toLocaleString("zh-CN")} 个字符。现在可以安全地启用自动采集。`,
+      );
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "信源连接预检失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const retryOutbox = async (entry: OutboxEntry) => {
     if (!window.confirm(`确认重新排队邮件“${entry.subject}”？系统不会重发已成功的邮件。`)) {
       return;
@@ -528,6 +545,38 @@ function AdminReviewPage() {
                 <li key={issue}>· {issue}</li>
               ))}
             </ul>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <QualityMetric
+                label="引用覆盖"
+                value={workspace.quality.evidenceReferenceCoverage}
+                threshold="目标 ≥ 98%"
+              />
+              <QualityMetric
+                label="官方来源"
+                value={workspace.quality.officialEvidenceRatio}
+                threshold="目标 ≥ 60%"
+              />
+              <QualityMetric
+                label="人工核验"
+                value={workspace.quality.reviewedEvidenceRatio}
+                threshold="目标 ≥ 90%"
+              />
+              <QualityMetric
+                label="180 天新鲜度"
+                value={workspace.quality.freshEvidenceRatio}
+                threshold="目标 ≥ 80%"
+              />
+              <QualityMetric
+                label="已核验内容"
+                value={workspace.quality.verifiedContentRatio}
+                threshold="目标 ≥ 80%"
+              />
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              当前覆盖 {workspace.quality.evidenceDomainCount} 个来源域名，
+              {workspace.quality.conflictContentCount} 条未解决冲突；正式验收要求至少 8
+              个来源域名且冲突为 0。
+            </p>
           </section>
         )}
 
@@ -747,6 +796,15 @@ function AdminReviewPage() {
                       onClick={() => updateSource(source, { fetchEnabled: !source.fetchEnabled })}
                     >
                       {source.fetchEnabled ? "暂停自动采集" : "启用自动采集"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy || !source.active}
+                      title="只检查网络策略、响应类型和可读内容，不保存快照"
+                      onClick={() => probeSource(source)}
+                    >
+                      连接预检
                     </Button>
                     <Button
                       size="sm"
@@ -1171,6 +1229,24 @@ function Metric({ label, value }: { label: string; value: number | string }) {
     <div className="paper-card p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-2 font-serif text-3xl font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function QualityMetric({
+  label,
+  value,
+  threshold,
+}: {
+  label: string;
+  value: number;
+  threshold: string;
+}) {
+  return (
+    <div className="rounded-lg border border-amber-400/30 bg-background/70 p-3">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 text-xl font-semibold tabular-nums">{Math.round(value * 100)}%</div>
+      <div className="mt-1 text-[11px] text-muted-foreground">{threshold}</div>
     </div>
   );
 }
