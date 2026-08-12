@@ -1,4 +1,5 @@
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
+import type { CandidateCreateRequest } from "@/domain/manual-candidate";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
 
@@ -348,6 +349,13 @@ export const adminApi = {
     request<ReviewQueueItem[]>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
       { method: "POST", body: JSON.stringify({ maxCandidates }) },
+      token,
+    ),
+
+  submitCandidate: (token: string, candidate: CandidateCreateRequest) =>
+    request<ReviewQueueItem>(
+      "/api/v2/admin/review-candidates",
+      { method: "POST", body: JSON.stringify(candidate) },
       token,
     ),
 
