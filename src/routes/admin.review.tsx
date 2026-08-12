@@ -768,6 +768,31 @@ function AdminReviewPage() {
                       )}
                     </div>
                   )}
+                  {source.lastProbeStatus && (
+                    <div
+                      className={`mt-3 rounded-md border p-3 text-xs ${
+                        source.lastProbeStatus === "passed"
+                          ? "border-verified/30 bg-verified/5"
+                          : "border-conflict/30 bg-conflict/5"
+                      }`}
+                    >
+                      <div className="font-medium">
+                        最近预检{source.lastProbeStatus === "passed" ? "通过" : "失败"} ·{" "}
+                        {formatTime(source.lastProbeAt ?? "")}
+                      </div>
+                      {source.lastProbeStatus === "passed" ? (
+                        <p className="mt-1 text-muted-foreground">
+                          {source.lastProbeContentType} ·{" "}
+                          {source.lastProbeReadableCharacters?.toLocaleString("zh-CN") ?? 0}{" "}
+                          个可读字符
+                        </p>
+                      ) : (
+                        <p className="mt-1 line-clamp-2 text-muted-foreground">
+                          {source.lastProbeError}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <label className="flex items-center gap-2 text-xs text-muted-foreground">
                       周期
@@ -792,7 +817,16 @@ function AdminReviewPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={busy || !source.active}
+                      disabled={
+                        busy ||
+                        !source.active ||
+                        (!source.fetchEnabled && !isRecentProbePassed(source))
+                      }
+                      title={
+                        source.fetchEnabled || isRecentProbePassed(source)
+                          ? undefined
+                          : "请先完成连接预检；成功结果在 24 小时内有效"
+                      }
                       onClick={() => updateSource(source, { fetchEnabled: !source.fetchEnabled })}
                     >
                       {source.fetchEnabled ? "暂停自动采集" : "启用自动采集"}
@@ -1222,6 +1256,12 @@ function formatDuration(value?: number): string {
 
 function isFuture(value?: string): boolean {
   return Boolean(value && new Date(value).getTime() > Date.now());
+}
+
+function isRecentProbePassed(source: SourceView): boolean {
+  if (source.lastProbeStatus !== "passed" || !source.lastProbeAt) return false;
+  const probedAt = new Date(source.lastProbeAt).getTime();
+  return Number.isFinite(probedAt) && probedAt >= Date.now() - 24 * 60 * 60 * 1000;
 }
 
 function Metric({ label, value }: { label: string; value: number | string }) {

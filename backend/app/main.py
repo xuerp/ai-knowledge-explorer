@@ -83,7 +83,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260809_0013"
+DATABASE_SCHEMA_REVISION = "20260812_0014"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -1000,10 +1000,29 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             document = fetcher.fetch(source.url)
         except (FetchPolicyError, httpx.HTTPError, OSError) as error:
+            source.last_probe_at = datetime.now(UTC)
+            source.last_probe_status = "failed"
+            source.last_probe_error = str(error)[:2000]
+            source.last_probe_content_type = None
+            source.last_probe_readable_characters = None
+            audit.record(
+                session,
+                principal,
+                "source.probe.failed",
+                "source",
+                source.id,
+                {"errorType": type(error).__name__},
+            )
+            session.commit()
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"Source preflight failed: {error}",
             ) from error
+        source.last_probe_at = datetime.now(UTC)
+        source.last_probe_status = "passed"
+        source.last_probe_error = None
+        source.last_probe_content_type = document.content_type
+        source.last_probe_readable_characters = len(document.content)
         audit.record(
             session,
             principal,

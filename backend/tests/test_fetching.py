@@ -53,7 +53,7 @@ def test_automatic_source_requires_allowlisted_https_host(tmp_path: Path):
     ingestion = IngestionService(("openai.com",))
     try:
         with database.session() as session:
-            with pytest.raises(ValueError, match="AI_RADAR_FETCH_ALLOWED_HOSTS"):
+            with pytest.raises(ValueError, match="connection preflight"):
                 ingestion.create_source(
                     session,
                     SourceCreate(
@@ -79,8 +79,31 @@ def test_automatic_source_requires_allowlisted_https_host(tmp_path: Path):
                     source.id,
                     SourceUpdate(fetch_enabled=True),
                 )
+            allowed_source = ingestion.create_source(
+                session,
+                SourceCreate(
+                    id="allowed-manual-source",
+                    url="https://openai.com/releases",
+                    title="Allowed manual source",
+                    publisher="OpenAI",
+                ),
+            )
+            with pytest.raises(ValueError, match="within 24 hours"):
+                ingestion.update_source(
+                    session,
+                    allowed_source.id,
+                    SourceUpdate(fetch_enabled=True),
+                )
     finally:
         database.dispose()
+
+
+def _mark_probe_passed(session, source_id: str) -> None:
+    source = session.get(SourceRecord, source_id)
+    assert source is not None
+    source.last_probe_at = datetime.now(UTC)
+    source.last_probe_status = "passed"
+    session.commit()
 
 
 class _SequenceFetcher:
@@ -137,10 +160,11 @@ def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
                 url="https://example.com/releases",
                 title="Scheduled release source",
                 publisher="Example",
-                fetch_enabled=True,
                 fetch_interval_minutes=120,
             ),
         )
+        _mark_probe_passed(session, "scheduled-source")
+        ingestion.update_source(session, "scheduled-source", SourceUpdate(fetch_enabled=True))
         first = scheduler.run_due(session, now=start)
         assert first.due == 1
         assert first.succeeded == 1
@@ -176,10 +200,11 @@ def test_scheduler_retries_failures_early_and_clears_failure_state(tmp_path: Pat
                 url="https://example.com/retry",
                 title="Retry release source",
                 publisher="Example",
-                fetch_enabled=True,
                 fetch_interval_minutes=120,
             ),
         )
+        _mark_probe_passed(session, "retry-source")
+        ingestion.update_source(session, "retry-source", SourceUpdate(fetch_enabled=True))
         failed = scheduler.run_due(session, now=start)
         assert failed.model_dump() == {
             "due": 1,
@@ -221,9 +246,10 @@ def test_manual_source_retry_respects_active_fetch_lease(tmp_path: Path):
                 url="https://example.com/leased",
                 title="Leased release source",
                 publisher="Example",
-                fetch_enabled=True,
             ),
         )
+        _mark_probe_passed(session, "leased-source")
+        ingestion.update_source(session, "leased-source", SourceUpdate(fetch_enabled=True))
         row = session.get(SourceRecord, "leased-source")
         assert row is not None
         row.fetch_lease_token = "active-lease"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit, urlunsplit
 from uuid import uuid4
 
@@ -45,6 +45,8 @@ def normalize_content(value: str) -> str:
 
 
 class IngestionService:
+    PROBE_VALID_HOURS = 24
+
     def __init__(self, allowed_hosts: tuple[str, ...] = ()) -> None:
         self.allowed_hosts = tuple(host.casefold() for host in allowed_hosts)
 
@@ -66,7 +68,11 @@ class IngestionService:
     def create_source(self, session: Session, payload: SourceCreate) -> SourceView:
         now = datetime.now(UTC)
         normalized_url = normalize_source_url(str(payload.url))
-        self._validate_fetch_enabled(normalized_url, payload.fetch_enabled)
+        if payload.fetch_enabled:
+            raise ValueError(
+                "Register the source first, run a successful connection preflight, then enable "
+                "automatic collection."
+            )
         record = SourceRecord(
             id=payload.id,
             url=normalized_url,
@@ -102,6 +108,18 @@ class IngestionService:
         was_fetch_enabled = record.fetch_enabled
         if payload.fetch_enabled:
             self._validate_fetch_enabled(record.url, True)
+            probe_at = record.last_probe_at
+            if probe_at and probe_at.tzinfo is None:
+                probe_at = probe_at.replace(tzinfo=UTC)
+            if (
+                record.last_probe_status != "passed"
+                or probe_at is None
+                or probe_at < datetime.now(UTC) - timedelta(hours=self.PROBE_VALID_HOURS)
+            ):
+                raise ValueError(
+                    "Run a successful source connection preflight within 24 hours before "
+                    "enabling automatic collection."
+                )
         if payload.active is not None:
             record.active = payload.active
         if payload.fetch_enabled is not None:
@@ -292,4 +310,9 @@ class IngestionService:
             consecutive_failures=row.consecutive_failures,
             last_fetch_error=row.last_fetch_error,
             fetch_lease_expires_at=row.fetch_lease_expires_at,
+            last_probe_at=row.last_probe_at,
+            last_probe_status=row.last_probe_status,
+            last_probe_error=row.last_probe_error,
+            last_probe_content_type=row.last_probe_content_type,
+            last_probe_readable_characters=row.last_probe_readable_characters,
         )

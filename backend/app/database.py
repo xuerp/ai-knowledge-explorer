@@ -127,6 +127,11 @@ class SourceRecord(Base):
     fetch_lease_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    last_probe_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_probe_status: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    last_probe_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_probe_content_type: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    last_probe_readable_characters: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
