@@ -291,6 +291,7 @@ class PublicationRecord(CamelModel):
 
 class HealthResponse(CamelModel):
     ok: bool
+    release: str
     environment: str
     data_mode: Literal["demo", "live"]
     database: str

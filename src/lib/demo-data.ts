@@ -174,7 +174,7 @@ export const SOURCES: Source[] = [
   {
     id: "s-openai-about",
     title: { zh: "OpenAI：关于与组织结构", en: "OpenAI: About and structure" },
-    url: "https://openai.com/about/",
+    url: "https://openai.com/our-structure/",
     publisher: "OpenAI",
     publishedAt: "2026-07-29",
     collectedAt: "2026-07-29",
@@ -234,7 +234,7 @@ export const SOURCES: Source[] = [
   {
     id: "s-cursor-docs",
     title: { zh: "Cursor Agent 官方文档", en: "Official Cursor Agent documentation" },
-    url: "https://docs.cursor.com/chat/overview",
+    url: "https://cursor.com/docs",
     publisher: "Cursor",
     publishedAt: "2026-07-29",
     collectedAt: "2026-07-29",
