@@ -21,6 +21,7 @@ import {
   type AdminUser,
   type AuditEntry,
   type DataQualityReport,
+  type DocumentSnapshotView,
   type IngestionRun,
   type IntegrationStatus,
   type OperationsDiagnostics,
@@ -162,6 +163,9 @@ function AdminReviewPage() {
   const [operationsError, setOperationsError] = useState("");
   const [sourceSearch, setSourceSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<"all" | "allowlisted" | "automatic">("all");
+  const [sourceSnapshots, setSourceSnapshots] = useState<Record<string, DocumentSnapshotView[]>>(
+    {},
+  );
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -347,6 +351,27 @@ function AdminReviewPage() {
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "单信源采集失败。");
       await refresh(token);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleSnapshots = async (source: SourceView) => {
+    if (sourceSnapshots[source.id]) {
+      setSourceSnapshots((current) => {
+        const next = { ...current };
+        delete next[source.id];
+        return next;
+      });
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const snapshots = await adminApi.sourceSnapshots(token, source.id);
+      setSourceSnapshots((current) => ({ ...current, [source.id]: snapshots }));
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "读取信源快照失败。");
     } finally {
       setBusy(false);
     }
@@ -934,6 +959,14 @@ function AdminReviewPage() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      disabled={busy || !source.lastSeenAt}
+                      onClick={() => toggleSnapshots(source)}
+                    >
+                      {sourceSnapshots[source.id] ? "收起快照" : "查看快照"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       disabled={busy}
                       onClick={() => updateSource(source, { active: !source.active })}
                     >
@@ -967,6 +1000,26 @@ function AdminReviewPage() {
                       抽取候选
                     </Button>
                   </div>
+                  {sourceSnapshots[source.id] && (
+                    <div className="mt-3 space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                      {sourceSnapshots[source.id].length === 0 ? (
+                        <p className="text-xs text-muted-foreground">尚无已保存快照。</p>
+                      ) : (
+                        sourceSnapshots[source.id].map((snapshot, index) => (
+                          <details key={snapshot.id} open={index === 0}>
+                            <summary className="cursor-pointer text-xs font-medium">
+                              {index === 0 ? "最新快照" : `历史快照 ${index + 1}`} ·{" "}
+                              {formatTime(snapshot.observedAt)} ·{" "}
+                              {snapshot.readableCharacters.toLocaleString("zh-CN")} 字符
+                            </summary>
+                            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-background p-3 text-xs leading-5 text-muted-foreground">
+                              {snapshot.contentPreview}
+                            </pre>
+                          </details>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </article>
               ))}
             </div>

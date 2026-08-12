@@ -405,6 +405,17 @@ class IngestionResult(CamelModel):
     previous_snapshot_id: str | None = None
 
 
+class DocumentSnapshotView(CamelModel):
+    id: str
+    source_id: str
+    content_hash: str
+    content_preview: str
+    readable_characters: int
+    observed_at: datetime
+    published_at: datetime | None = None
+    previous_snapshot_id: str | None = None
+
+
 class IngestionRunView(CamelModel):
     id: str
     source_id: str
