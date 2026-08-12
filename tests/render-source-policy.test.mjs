@@ -23,3 +23,8 @@ test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /信源仍默认关闭自动采集/);
   assert.match(blueprint, /通过批量安全预检后启用，并核验首次快照/);
 });
+
+test("Render 在生产化分支提交后自动部署 API", () => {
+  assert.match(blueprint, /branch: codex\/productionize/);
+  assert.match(blueprint, /autoDeployTrigger: commit/);
+});

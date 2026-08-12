@@ -45,7 +45,10 @@ services:
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /ready
-    autoDeployTrigger: checksPass
+    # 当前仓库的 checksPass 事件没有持续触发 Blueprint 服务更新，导致前端与
+    # API 版本长期不一致。分支提交后直接构建，应用自身仍会在启动前执行迁移与
+    # /ready 健康检查；GitHub Quality 同时保留完整质量门禁。
+    autoDeployTrigger: commit
     envVars:
       - fromGroup: ai-radar-staging-runtime
       - key: PORT
