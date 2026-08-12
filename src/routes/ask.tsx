@@ -27,7 +27,7 @@ export const Route = createFileRoute("/ask")({
       { title: "AI 研究 · AI Radar" },
       {
         name: "description",
-        content: "基于知识图谱的 AI 问答：事实、推断、未核验与冲突分开呈现。",
+        content: "基于已审核证据的 AI 问答：事实、推断、未核验与冲突分开呈现。",
       },
       { property: "og:title", content: "AI Radar · AI 研究" },
       { property: "og:description", content: "有依据的 AI 回答。" },
@@ -122,8 +122,8 @@ function AskPage() {
       <PageHeader
         title={t("AI 研究", "Ask AI")}
         subtitle={t(
-          "基于 AI Radar 知识图谱回答。事实、推断、未核验与冲突分开呈现，每条结论都能追到原始来源。",
-          "Answers grounded in the AI Radar graph. Fact / inference / unverified / conflict are separated; every conclusion links back to sources.",
+          "基于 AI Radar 已审核数据与来源证据回答。事实、推断、未核验与冲突分开呈现，每条结论都能追到原始来源。",
+          "Answers use AI Radar's reviewed data and source evidence. Facts, inferences, unverified claims, and conflicts stay distinct; every conclusion links to sources.",
         )}
       />
 
@@ -190,8 +190,8 @@ function AskPage() {
                 <div className="font-medium text-foreground">
                   {research.status === "ready"
                     ? t(
-                        "已完成图谱检索与引用校验",
-                        "Reviewed graph retrieval and citation validation complete",
+                        "已完成知识检索与引用校验",
+                        "Reviewed knowledge retrieval and citation validation complete",
                       )
                     : t(
                         "证据不足，未生成推测性结论",
@@ -257,8 +257,8 @@ function AskPage() {
 
               <div className="paper-card p-4 bg-accent/40 text-xs text-muted-foreground">
                 {t(
-                  "AI Radar 的回答仅基于图谱内的证据。若某项事实未在图谱中出现，AI 会明确说明「没有足够证据」，而不会自行编造。",
-                  "Answers use only evidence in the graph. When a fact isn't in the graph, AI says 'no sufficient evidence' instead of inventing.",
+                  "AI Radar 的回答仅基于已收录证据。若某项事实没有足够来源，AI 会明确说明「没有足够证据」，而不会自行编造。",
+                  "Answers use only recorded evidence. When sources are insufficient, AI says so instead of inventing a conclusion.",
                 )}
               </div>
 
@@ -282,8 +282,8 @@ function AskPage() {
           ) : (
             <div className="paper-card mt-8 p-6 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "输入问题后，AI Radar 会先检索已审核知识图谱，并仅输出带来源的结论；缺少证据时会明确拒答。",
-                "After you submit a question, AI Radar searches the reviewed graph and returns only sourced conclusions; it explicitly declines when evidence is missing.",
+                "输入问题后，AI Radar 会先检索已审核知识，并仅输出带来源的结论；缺少证据时会明确拒答。",
+                "After you submit a question, AI Radar searches reviewed knowledge and returns only sourced conclusions; it explicitly declines when evidence is missing.",
               )}
             </div>
           )}

@@ -16,7 +16,7 @@ import {
 const NAV = [
   { to: "/", zh: "首页", en: "Home" },
   { to: "/knowledge", zh: "知识库", en: "Knowledge" },
-  { to: "/graph", zh: "图谱", en: "Graph" },
+  { to: "/graph", zh: "洞察", en: "Insights" },
   { to: "/ask", zh: "AI 研究", en: "Ask" },
   { to: "/following", zh: "关注", en: "Following" },
 ] as const;
