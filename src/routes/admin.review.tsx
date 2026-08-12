@@ -576,6 +576,12 @@ function AdminReviewPage() {
       (sourceFilter === "automatic" && source.fetchEnabled);
     return matchesSearch && matchesFilter;
   });
+  const pendingQueue = workspace.queue.filter(
+    (item) => item.status === "pending" || item.status === "needs-more-evidence",
+  );
+  const reviewHistory = workspace.queue.filter(
+    (item) => item.status === "approved" || item.status === "rejected",
+  );
 
   return (
     <AppShell>
@@ -617,7 +623,7 @@ function AdminReviewPage() {
         {operationMessage && <Notice title="操作已完成" detail={operationMessage} />}
 
         <section className="grid gap-3 sm:grid-cols-5">
-          <Metric label="审核任务" value={workspace.queue.length} />
+          <Metric label="待审核任务" value={pendingQueue.length} />
           <Metric label="已登记信源" value={workspace.sources.length} />
           <Metric label="采集运行" value={workspace.runs.length} />
           <Metric label="邮件 Outbox" value={workspace.outbox.length} />
@@ -732,8 +738,16 @@ function AdminReviewPage() {
         )}
 
         <section className="space-y-3">
-          <h2 className="font-serif text-2xl font-semibold">候选队列</h2>
-          {workspace.queue.map((item) => (
+          <div>
+            <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              这里只显示需要处理的候选；已批准和已拒绝记录保留在下方历史中。
+            </p>
+          </div>
+          {pendingQueue.length === 0 && (
+            <div className="paper-card p-5 text-sm text-muted-foreground">当前没有待审核候选。</div>
+          )}
+          {pendingQueue.map((item) => (
             <article key={item.id} className="paper-card p-5">
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
@@ -753,33 +767,57 @@ function AdminReviewPage() {
                   )}
                 </div>
               )}
-              {(item.status === "pending" || item.status === "needs-more-evidence") && (
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    aria-label="审核理由"
-                    placeholder="填写可审计的审核理由"
-                    value={reasons[item.id] ?? ""}
-                    onChange={(event) =>
-                      setReasons((current) => ({ ...current, [item.id]: event.target.value }))
-                    }
-                  />
-                  <Button onClick={() => decide(item, "approve")} disabled={busy}>
-                    <Check />
-                    批准
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => decide(item, "reject")}
-                    disabled={busy}
-                  >
-                    <X />
-                    拒绝
-                  </Button>
-                </div>
-              )}
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Input
+                  aria-label="审核理由"
+                  placeholder="填写可审计的审核理由"
+                  value={reasons[item.id] ?? ""}
+                  onChange={(event) =>
+                    setReasons((current) => ({ ...current, [item.id]: event.target.value }))
+                  }
+                />
+                <Button onClick={() => decide(item, "approve")} disabled={busy}>
+                  <Check />
+                  批准
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => decide(item, "reject")}
+                  disabled={busy}
+                >
+                  <X />
+                  拒绝
+                </Button>
+              </div>
             </article>
           ))}
         </section>
+
+        {reviewHistory.length > 0 && (
+          <details className="paper-card p-5">
+            <summary className="cursor-pointer font-serif text-xl font-semibold">
+              已处理审核历史（{reviewHistory.length}）
+            </summary>
+            <div className="mt-4 divide-y divide-border">
+              {reviewHistory.map((item) => (
+                <article key={item.id} className="py-4 first:pt-0 last:pb-0">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
+                      <p className="mt-2 text-sm font-medium">{item.claim.text.zh}</p>
+                      {item.reviewReason && (
+                        <p className="mt-1 text-xs text-muted-foreground">{item.reviewReason}</p>
+                      )}
+                    </div>
+                    <span className="rounded-full border border-border px-2.5 py-1 text-xs">
+                      {item.status === "approved" ? "已批准" : "已拒绝"}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </details>
+        )}
 
         <section className="grid items-start gap-5 lg:grid-cols-2">
           <section className="paper-card p-5">
