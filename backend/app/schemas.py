@@ -43,6 +43,7 @@ class ClaimText(LocalizedText):
 
 class Claim(CamelModel):
     id: str
+    entity_id: str | None = None
     text: ClaimText
     confidence: Confidence
     source_ids: list[str]

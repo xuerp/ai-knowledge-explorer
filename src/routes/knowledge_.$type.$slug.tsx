@@ -67,7 +67,9 @@ function GenericEntityDetail() {
     (edge) => edge.fromId === entity.id || edge.toId === entity.id,
   );
   const timeline = snapshot.timeline[entity.id] ?? [];
+  const claims = snapshot.claims.filter((claim) => claim.entityId === entity.id);
   const sourceIds = new Set([
+    ...claims.flatMap((claim) => claim.sourceIds),
     ...relations.flatMap((edge) => edge.sourceIds),
     ...timeline.flatMap((event) => event.sourceIds),
     ...(entity.metrics ?? []).flatMap((metric) => metric.sourceIds ?? []),
@@ -80,6 +82,12 @@ function GenericEntityDetail() {
       : entity.origin
         ? t("海外", "Overseas")
         : "—";
+  const baseSection = entity.knowledge ? 2 : 1;
+  const claimSection = baseSection + 1;
+  const relationSection = claimSection + (claims.length > 0 ? 1 : 0);
+  const timelineSection = relationSection + 1;
+  const evidenceSection = timelineSection + (timeline.length > 0 ? 1 : 0);
+  const sectionNumber = (value: number) => String(value).padStart(2, "0");
 
   return (
     <AppShell>
@@ -251,7 +259,7 @@ function GenericEntityDetail() {
 
         <section className="mt-12">
           <SectionHeading
-            eyebrow={entity.knowledge ? "02" : "01"}
+            eyebrow={sectionNumber(baseSection)}
             title={t("基础档案", "Reference profile")}
             description={t(
               "用于检索、筛选和数据核验的结构化信息。",
@@ -318,9 +326,49 @@ function GenericEntityDetail() {
           </div>
         </section>
 
+        {claims.length > 0 && (
+          <section className="mt-12">
+            <SectionHeading
+              eyebrow={sectionNumber(claimSection)}
+              title={t("已审核事实", "Reviewed facts")}
+              description={t(
+                "这些事实已经通过人工审核，并保留直接证据与最近核验时间。",
+                "These facts passed human review and retain direct evidence and verification dates.",
+              )}
+            />
+            <div className="space-y-3">
+              {claims.map((claim) => {
+                const claimSources = snapshot.evidence.filter((source) =>
+                  claim.sourceIds.includes(source.id),
+                );
+                return (
+                  <article key={claim.id} className="paper-card p-5 md:p-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <time className="font-mono text-xs text-muted-foreground">
+                        {t("最近核验", "Last verified")} {claim.updatedAt}
+                      </time>
+                      <ConfidenceChip level={claim.confidence} />
+                    </div>
+                    <p className="mt-3 text-[15px] leading-7 text-foreground">
+                      {pick(claim.text, lang)}
+                    </p>
+                    {claimSources.length > 0 && (
+                      <div className="mt-4 border-t border-border pt-3">
+                        {claimSources.map((source) => (
+                          <SourceRow key={source.id} source={source} />
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="mt-12">
           <SectionHeading
-            eyebrow={entity.knowledge ? "03" : "02"}
+            eyebrow={sectionNumber(relationSection)}
             title={t("它与谁有什么关系", "How this entity is connected")}
             description={t(
               "每条关系都明确显示起点、关系语义、终点和置信度；点击相关实体可继续追踪。",
@@ -368,7 +416,7 @@ function GenericEntityDetail() {
         {timeline.length > 0 && (
           <section className="mt-12">
             <SectionHeading
-              eyebrow={entity.knowledge ? "04" : "03"}
+              eyebrow={sectionNumber(timelineSection)}
               title={t("时间线", "Timeline")}
               description={t(
                 "按时间记录发布、更新、评测与重要事件。",
@@ -397,19 +445,11 @@ function GenericEntityDetail() {
 
         <section className="mt-12">
           <SectionHeading
-            eyebrow={
-              timeline.length > 0
-                ? entity.knowledge
-                  ? "05"
-                  : "04"
-                : entity.knowledge
-                  ? "04"
-                  : "03"
-            }
-            title={t("关系证据", "Relationship evidence")}
+            eyebrow={sectionNumber(evidenceSection)}
+            title={t("事实与关系证据", "Fact and relationship evidence")}
             description={t(
-              "这里只列出直接支持本实体关系或时间事件的来源。",
-              "Only sources directly supporting this entity's relationships or timeline are listed.",
+              "这里只列出直接支持本实体事实、关系或时间事件的来源。",
+              "Only sources directly supporting this entity's facts, relationships or timeline are listed.",
             )}
           />
           <div className="paper-card divide-y divide-border">

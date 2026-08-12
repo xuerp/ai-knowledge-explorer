@@ -40,6 +40,7 @@ export type Source = Evidence;
 
 export interface Claim {
   id: string;
+  entityId?: string;
   text: LocalizedText & { technical?: LocalizedText };
   confidence: Confidence;
   sourceIds: string[];
