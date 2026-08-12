@@ -1,5 +1,14 @@
 import type { SourceView } from "@/services/admin-api";
 
+export type RolloutOutcome =
+  | {
+      source: SourceView;
+      enabled: true;
+      firstCollection: "completed" | "scheduled" | "running";
+      reason?: string;
+    }
+  | { source: SourceView; enabled: false; reason: string };
+
 const rolloutPriority = [
   "s-mcp-architecture",
   "s-langchain-overview",
@@ -63,4 +72,21 @@ export function describeProbeFailure(message: string | undefined): string {
     return "目标地址发生了未通过安全校验的跳转，需登记规范网址。";
   }
   return detail;
+}
+
+export function formatRolloutSummary(outcomes: RolloutOutcome[]): string {
+  const enabled = outcomes.filter((outcome) => outcome.enabled);
+  const failed = outcomes.filter((outcome) => !outcome.enabled);
+  const collected = enabled.filter((outcome) => outcome.firstCollection === "completed");
+  const running = enabled.filter((outcome) => outcome.firstCollection === "running");
+  const scheduled = enabled.filter((outcome) => outcome.firstCollection === "scheduled");
+  return `批量接入完成：检查 ${outcomes.length} 个，通过并启用 ${enabled.length} 个，首次采集完成 ${collected.length} 个，调度器正在处理 ${running.length} 个，等待自动重试 ${scheduled.length} 个，接入失败保持关闭 ${failed.length} 个。${
+    failed.length > 0
+      ? ` 失败项：${failed.map((item) => `${item.source.title}（${item.reason}）`).join("；")}`
+      : ""
+  }${
+    scheduled.length > 0
+      ? ` 自动重试项：${scheduled.map((item) => `${item.source.title}（${item.reason ?? "已安排重试"}）`).join("；")}`
+      : ""
+  }`;
 }
