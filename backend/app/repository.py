@@ -373,7 +373,10 @@ class KnowledgeRepository:
             if job.status != "approved":
                 continue
             if job.claim_id not in claim_ids:
-                snapshot.claims.append(Claim.model_validate_json(job.claim_json))
+                claim = Claim.model_validate_json(job.claim_json)
+                if job.entity_id:
+                    claim = claim.model_copy(update={"entity_id": job.entity_id})
+                snapshot.claims.append(claim)
                 claim_ids.add(job.claim_id)
             for raw_evidence in json.loads(job.evidence_json or "[]"):
                 evidence = Evidence.model_validate(raw_evidence)

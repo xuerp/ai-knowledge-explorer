@@ -751,6 +751,10 @@ def test_dynamic_candidate_is_private_until_human_approval(client: TestClient):
 
     after = client.get("/api/snapshot").json()
     assert "c-ingested-capability" in {claim["id"] for claim in after["claims"]}
+    published_claim = next(
+        claim for claim in after["claims"] if claim["id"] == "c-ingested-capability"
+    )
+    assert published_claim["entityId"] == "e-gpt"
     assert "s-ingested-release" in {item["id"] for item in after["evidence"]}
 
 
