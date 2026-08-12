@@ -19,7 +19,7 @@ envVarGroups:
       - key: AI_RADAR_FETCH_LEASE_MINUTES
         value: "5"
       # 首批仅允许现有演示目录中的官方站点。信源仍默认关闭自动采集，
-      # 必须在审核后台逐个启用并核验首次快照后才进入定时任务。
+      # 必须在审核后台通过批量安全预检后启用，并核验首次快照后才进入定时任务。
       - key: AI_RADAR_FETCH_ALLOWED_HOSTS
         value: openai.com,anthropic.com,deepmind.google,cursor.com,docs.cursor.com,docs.langchain.com,ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org
       - key: AI_RADAR_EMAIL_MAX_ATTEMPTS

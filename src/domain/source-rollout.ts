@@ -5,8 +5,6 @@ const rolloutPriority = [
   "s-openai-about",
   "s-anthropic-company",
   "s-cursor-docs",
-  "s-openai-gpt5",
-  "s-anthropic-claude",
 ];
 
 export function isAllowlistedSource(source: SourceView, allowedHosts: string[]): boolean {
