@@ -15,6 +15,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import {
   adminApi,
@@ -407,6 +408,36 @@ function AdminReviewPage() {
       await refresh(token);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Candidate extraction failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitManualCandidate = async (
+    event: FormEvent<HTMLFormElement>,
+    source: SourceView,
+    snapshot: DocumentSnapshotView,
+  ) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const candidate = buildManualCandidate(source, snapshot, {
+        entityId: String(form.get("entityId") ?? ""),
+        claimZh: String(form.get("claimZh") ?? ""),
+        claimEn: String(form.get("claimEn") ?? ""),
+      });
+      const created = await adminApi.submitCandidate(token, candidate);
+      setOperationMessage(
+        `${source.title} 的人工候选已进入审核队列（${created.id}），审核通过前不会出现在公开数据中。`,
+      );
+      formElement.reset();
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "人工候选提交失败。");
     } finally {
       setBusy(false);
     }
@@ -993,11 +1024,19 @@ function AdminReviewPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      disabled={busy || !source.lastSeenAt}
-                      title={source.lastSeenAt ? "从最近快照抽取候选事实" : "先完成一次采集"}
+                      disabled={
+                        busy || !source.lastSeenAt || !workspace.integrations?.extractionConfigured
+                      }
+                      title={
+                        !source.lastSeenAt
+                          ? "先完成一次采集"
+                          : workspace.integrations?.extractionConfigured
+                            ? "使用已配置的 AI 从最近快照抽取候选事实"
+                            : "AI 抽取供应商尚未配置；可在下方快照中创建人工候选"
+                      }
                       onClick={() => extractSource(source)}
                     >
-                      抽取候选
+                      AI 抽取候选
                     </Button>
                   </div>
                   {sourceSnapshots[source.id] && (
@@ -1015,6 +1054,42 @@ function AdminReviewPage() {
                             <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-background p-3 text-xs leading-5 text-muted-foreground">
                               {snapshot.contentPreview}
                             </pre>
+                            {index === 0 && (
+                              <form
+                                className="mt-3 space-y-3 rounded-md border border-border bg-background p-3"
+                                onSubmit={(event) => submitManualCandidate(event, source, snapshot)}
+                              >
+                                <div>
+                                  <p className="text-sm font-medium">从此快照创建人工候选</p>
+                                  <p className="mt-1 text-xs text-muted-foreground">
+                                    对照上方原文填写一条可核验事实。提交后只进入审核队列，不会直接发布。
+                                  </p>
+                                </div>
+                                <Input
+                                  name="entityId"
+                                  defaultValue={suggestedEntityId(source.id)}
+                                  placeholder="关联实体 ID，例如 e-mcp"
+                                  aria-label="关联实体 ID"
+                                />
+                                <Textarea
+                                  name="claimZh"
+                                  required
+                                  minLength={8}
+                                  placeholder="中文事实（至少 8 个字符）"
+                                  aria-label="中文事实"
+                                />
+                                <Textarea
+                                  name="claimEn"
+                                  required
+                                  minLength={8}
+                                  placeholder="英文事实（至少 8 个字符）"
+                                  aria-label="英文事实"
+                                />
+                                <Button type="submit" size="sm" disabled={busy}>
+                                  提交到审核队列
+                                </Button>
+                              </form>
+                            )}
                           </details>
                         ))
                       )}
