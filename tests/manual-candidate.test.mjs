@@ -28,6 +28,8 @@ const snapshot = {
 
 test("MCP 官方信源会建议关联到 MCP 实体", () => {
   assert.equal(suggestedEntityId(source.id), "e-mcp");
+  assert.equal(suggestedEntityId("s-langchain-overview"), "e-langchain");
+  assert.equal(suggestedEntityId("s-openai-about"), "e-openai");
   assert.equal(suggestedEntityId("s-unknown"), "");
 });
 
