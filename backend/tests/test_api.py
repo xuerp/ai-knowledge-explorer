@@ -500,7 +500,10 @@ def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     assert {item["action"] for item in audit.json()} >= {"user.bootstrap", "user.create"}
 
 
-def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestClient):
+def test_source_snapshots_are_normalized_deduplicated_and_diffed(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
     headers = {"X-Admin-Token": "test-admin-token"}
     created = client.post(
         "/api/v2/admin/sources",
@@ -515,6 +518,22 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(client: TestCli
     assert created.status_code == 201
     assert created.json()["url"] == "https://example.com/releases"
     assert created.json()["fetchEnabled"] is False
+
+    monkeypatch.setattr(
+        SafeHttpFetcher,
+        "fetch",
+        lambda self, url: FetchedDocument(
+            content="A sufficiently long official release document for preflight.",
+            content_type="text/html",
+            etag=None,
+            last_modified=None,
+        ),
+    )
+    probe = client.post(
+        "/api/v2/admin/sources/source-demo-release/probe",
+        headers=headers,
+    )
+    assert probe.status_code == 200
 
     enabled = client.patch(
         "/api/v2/admin/sources/source-demo-release",
@@ -645,7 +664,11 @@ def test_source_probe_is_admin_only_read_only_and_audited(
         "etag": '"release-v1"',
         "lastModified": "Wed, 12 Aug 2026 12:00:00 GMT",
     }
-    assert created.json()["lastSeenAt"] is None
+    source = client.get("/api/v2/admin/sources", headers=headers).json()[-1]
+    assert source["lastSeenAt"] is None
+    assert source["lastProbeStatus"] == "passed"
+    assert source["lastProbeContentType"] == "text/html"
+    assert source["lastProbeReadableCharacters"] == 60
     audit = client.get("/api/v2/admin/audit-log", headers=headers)
     assert any(
         entry["action"] == "source.probe" and entry["targetId"] == "source-probe"

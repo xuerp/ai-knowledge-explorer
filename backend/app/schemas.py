@@ -367,6 +367,11 @@ class SourceView(CamelModel):
     consecutive_failures: int = 0
     last_fetch_error: str | None = None
     fetch_lease_expires_at: datetime | None = None
+    last_probe_at: datetime | None = None
+    last_probe_status: Literal["passed", "failed"] | None = None
+    last_probe_error: str | None = None
+    last_probe_content_type: str | None = None
+    last_probe_readable_characters: int | None = None
 
 
 class SourceProbeResult(CamelModel):

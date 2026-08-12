@@ -35,6 +35,11 @@ export interface SourceView {
   consecutiveFailures: number;
   lastFetchError?: string;
   fetchLeaseExpiresAt?: string;
+  lastProbeAt?: string;
+  lastProbeStatus?: "passed" | "failed";
+  lastProbeError?: string;
+  lastProbeContentType?: string;
+  lastProbeReadableCharacters?: number;
 }
 
 export interface SourceProbeResult {
