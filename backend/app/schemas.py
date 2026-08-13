@@ -278,6 +278,7 @@ class ReviewDecision(CamelModel):
 class ReviewQueueItem(ReviewCandidate):
     version: int
     review_reason: str | None = None
+    review_method: Literal["human", "automation"] | None = None
     conflict_claim_ids: list[str] = Field(default_factory=list)
 
 
