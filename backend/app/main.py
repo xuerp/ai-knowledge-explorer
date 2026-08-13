@@ -1878,6 +1878,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: Session,
         *,
         commit: bool = True,
+        batch_safe_only: bool = False,
     ) -> ReviewQueueItem:
         row = session.scalar(
             select(ReviewJobRecord)
@@ -1894,6 +1895,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Review job is already {row.status}.",
+            )
+        if batch_safe_only and (
+            row.status != "pending" or json.loads(row.conflict_ids_json or "[]")
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Review job requires individual review and cannot be batch approved.",
             )
         if row.version != decision.expected_version:
             raise HTTPException(
@@ -1979,6 +1987,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         actor,
                         session,
                         commit=False,
+                        batch_safe_only=True,
                     )
                 )
             session.commit()
