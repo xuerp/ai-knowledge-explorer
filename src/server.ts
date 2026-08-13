@@ -8,6 +8,8 @@ type ServerEntry = {
 };
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
+const apiProxyPrefix = "/backend";
+const apiUpstreamUrl = import.meta.env.VITE_API_UPSTREAM_URL?.trim()?.replace(/\/$/, "");
 
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
@@ -44,9 +46,37 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+export async function proxyApiRequest(
+  request: Request,
+  upstreamUrl = apiUpstreamUrl,
+  fetcher: typeof fetch = fetch,
+): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (url.pathname !== apiProxyPrefix && !url.pathname.startsWith(`${apiProxyPrefix}/`)) {
+    return null;
+  }
+  if (!upstreamUrl) {
+    return Response.json({ detail: "Cloudflare API proxy is not configured." }, { status: 503 });
+  }
+  const upstream = new URL(upstreamUrl);
+  upstream.pathname = url.pathname.slice(apiProxyPrefix.length) || "/";
+  upstream.search = url.search;
+  try {
+    return await fetcher(new Request(upstream, request));
+  } catch (error) {
+    console.error(error);
+    return Response.json(
+      { detail: "后端 API 正在唤醒或网络暂时不可用，请稍后重试。" },
+      { status: 502 },
+    );
+  }
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const proxied = await proxyApiRequest(request);
+      if (proxied) return proxied;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
