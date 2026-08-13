@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
@@ -52,7 +53,7 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-relation-priority-v2"
+EXTRACTION_PIPELINE_VERSION = "2026-08-relation-priority-v3-source-excerpts"
 
 
 def extraction_audit_is_current(detail_json: str | None) -> bool:
@@ -61,6 +62,33 @@ def extraction_audit_is_current(detail_json: str | None) -> bool:
     except (TypeError, ValueError):
         return False
     return detail.get("pipelineVersion") == EXTRACTION_PIPELINE_VERSION
+
+
+def locate_source_excerpt(
+    content: str,
+    subject: str,
+    object_or_value: str,
+    *,
+    max_characters: int = 800,
+) -> str | None:
+    subject_key = subject.casefold().strip()
+    object_key = object_or_value.casefold().strip()
+    if not subject_key or not object_key:
+        return None
+    segments = [
+        " ".join(segment.split())
+        for segment in re.split(r"(?<=[。！？.!?])\s+|[\r\n]+", content)
+        if segment.strip()
+    ]
+    matches = [
+        segment
+        for segment in segments
+        if subject_key in segment.casefold() and object_key in segment.casefold()
+    ]
+    if not matches:
+        return None
+    excerpt = min(matches, key=len)
+    return excerpt[:max_characters].rstrip()
 
 
 class StructuredExtractionService:
@@ -386,6 +414,11 @@ class StructuredExtractionService:
                             publisher=source.publisher,
                             published_at=published,
                             collected_at=observed,
+                            source_excerpt=locate_source_excerpt(
+                                snapshot.content_text,
+                                fact.subject,
+                                fact.object_or_value,
+                            ),
                             type="official",
                             supports_claim_ids=[claim_id],
                         )

@@ -10,6 +10,7 @@ from app.extraction import (
     ExtractionUnavailableError,
     StructuredExtractionService,
     extraction_audit_is_current,
+    locate_source_excerpt,
 )
 
 
@@ -72,6 +73,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
     assert result[0].claim.object_or_value == "2M"
     assert result[0].claim.source_ids == [result[0].evidence[0].id]
     assert result[0].evidence[0].url == source.url
+    assert result[0].evidence[0].source_excerpt is None
 
 
 def test_extraction_audit_only_accepts_the_current_pipeline_version():
@@ -80,6 +82,19 @@ def test_extraction_audit_only_accepts_the_current_pipeline_version():
     )
     assert extraction_audit_is_current("{}") is False
     assert extraction_audit_is_current("not-json") is False
+
+
+def test_source_excerpt_requires_subject_and_object_in_the_same_segment():
+    content = (
+        "Overview without the target.\n"
+        "GPT uses MCP to connect external tools.\n"
+        "MCP is described elsewhere."
+    )
+
+    assert locate_source_excerpt(content, "GPT", "MCP") == (
+        "GPT uses MCP to connect external tools."
+    )
+    assert locate_source_excerpt(content, "GPT", "OpenAI") is None
 
 
 def test_extraction_probe_checks_authentication_and_json_schema_support():

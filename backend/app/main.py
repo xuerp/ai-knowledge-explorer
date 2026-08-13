@@ -102,7 +102,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-review-evidence-context-v27"
+SERVICE_RELEASE = "2026.08.14-source-excerpts-v28"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -906,7 +906,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             }
             changed = False
             for evidence in candidate.evidence:
-                if evidence.id in evidence_by_id:
+                existing_evidence = evidence_by_id.get(evidence.id)
+                if existing_evidence is not None:
+                    if evidence.source_excerpt and not existing_evidence.source_excerpt:
+                        evidence_by_id[evidence.id] = existing_evidence.model_copy(
+                            update={"source_excerpt": evidence.source_excerpt}
+                        )
+                        changed = True
                     continue
                 evidence_by_id[evidence.id] = evidence.model_copy(
                     update={"supports_claim_ids": [existing_claim.id]}
