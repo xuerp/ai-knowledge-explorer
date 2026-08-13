@@ -1917,6 +1917,11 @@ function OperationsPanel({
     typeof extraction?.pipelineVersion === "string"
       ? extraction.pipelineVersion
       : "旧版或未记录管线";
+  const extractionErrors = Array.isArray(extraction?.errors)
+    ? extraction.errors
+        .map((value) => asRecord(value))
+        .filter((value): value is Record<string, unknown> => value !== null)
+    : [];
   const digests = asRecord(latest?.result?.digests);
   const delivery = asRecord(latest?.result?.emailDelivery);
   const pendingOutbox = outbox
@@ -2028,6 +2033,12 @@ function OperationsPanel({
                     {numberValue(extraction, "relationsAutoApproved")} · 失败{" "}
                     {numberValue(extraction, "failed")}
                   </div>
+                  {extractionErrors.map((failure, index) => (
+                    <div key={`${String(failure.sourceId)}-${index}`} className="text-conflict">
+                      抽取失败：{stringValue(failure, "sourceId", "未知信源")} ·{" "}
+                      {stringValue(failure, "error", "未记录原因")}
+                    </div>
+                  ))}
                   <div>
                     摘要：收件人 {numberValue(digests, "recipients")} · 新增邮件{" "}
                     {numberValue(digests, "messagesQueued")}
@@ -2167,6 +2178,15 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 function numberValue(record: Record<string, unknown> | null, key: string): number {
   const value = record?.[key];
   return typeof value === "number" ? value : 0;
+}
+
+function stringValue(
+  record: Record<string, unknown> | null,
+  key: string,
+  fallback: string,
+): string {
+  const value = record?.[key];
+  return typeof value === "string" && value.trim() ? value : fallback;
 }
 
 function statusLabel(status: "running" | "succeeded" | "partial" | "failed"): string {
