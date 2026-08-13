@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-extraction-observability-v20",
+        "release": "2026.08.13-semantic-deduplication-v21",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -117,6 +117,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
+        "duplicatesSkipped": 0,
         "relationsAutoApproved": 0,
         "failed": 0,
     }
@@ -202,6 +203,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
+            "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
             "failed": 0,
         }
@@ -357,14 +359,14 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         second_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",
             headers=admin_headers,
-            json={"content": "GPT family and OpenAI are both mentioned in this record."},
+            json={"content": "GPT family and Anthropic are both mentioned in this record."},
         )
         assert second_snapshot.status_code == 200
         monkeypatch.setattr(
             StructuredExtractionService,
             "extract",
             lambda *args, **kwargs: [
-                candidate("review-unanchored-relation", "developed-by", "OpenAI")
+                candidate("review-unanchored-relation", "developed-by", "Anthropic")
             ],
         )
         pending = automatic_client.post(
@@ -380,7 +382,66 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         unanchored = next(
             item for item in queue if item["id"] == "review-unanchored-relation"
         )
-        assert unanchored["status"] == "pending"
+        assert unanchored["status"] == "needs-more-evidence"
+
+        merged_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-grounded-relations/snapshots",
+            headers=admin_headers,
+            json={"content": "GPT family and Anthropic are repeated with additional evidence."},
+        )
+        assert merged_snapshot.status_code == 200
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("review-merged-evidence", "developed-by", "Anthropic")
+            ],
+        )
+        merged = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert merged.status_code == 200
+        merged_extraction = merged.json()["result"]["extraction"]
+        assert merged_extraction["candidatesCreated"] == 0
+        assert merged_extraction["duplicatesSkipped"] == 1
+        queue = automatic_client.get(
+            "/api/v2/admin/review-queue",
+            headers=admin_headers,
+        ).json()
+        merged_candidate = next(
+            item for item in queue if item["id"] == "review-unanchored-relation"
+        )
+        assert len(merged_candidate["evidenceIds"]) == 2
+        assert merged_candidate["version"] == 2
+        assert all(item["id"] != "review-merged-evidence" for item in queue)
+
+        duplicate_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-grounded-relations/snapshots",
+            headers=admin_headers,
+            json={"content": "GPT family is developed-by OpenAI according to this repeated record."},
+        )
+        assert duplicate_snapshot.status_code == 200
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("review-duplicate-relation", "developed-by", "OpenAI")
+            ],
+        )
+        duplicate = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert duplicate.status_code == 200
+        extraction = duplicate.json()["result"]["extraction"]
+        assert extraction["candidatesCreated"] == 0
+        assert extraction["duplicatesSkipped"] == 1
+        queue = automatic_client.get(
+            "/api/v2/admin/review-queue",
+            headers=admin_headers,
+        ).json()
+        assert all(item["id"] != "review-duplicate-relation" for item in queue)
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):

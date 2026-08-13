@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.database import Base, KnowledgeEntityRecord, SourceRecord
-from app.quality import KnowledgeQualityGate
+from app.quality import KnowledgeQualityGate, claim_semantic_fingerprint
 from app.repository import KnowledgeRepository
 from app.schemas import CandidateCreate, Entity, LocalizedText
 
@@ -70,6 +70,21 @@ def test_non_overlapping_fact_does_not_conflict():
 
     assert assessment.conflicting_claim_ids == []
     assert assessment.queue_status == "pending"
+
+
+def test_semantic_fingerprint_ignores_snapshot_ids_and_text_wording():
+    first = _candidate("1M").claim
+    repeated = _candidate("1m").claim
+    repeated.id = "claim-from-a-new-snapshot"
+    repeated.text.zh = "另一种中文表述"
+    repeated.text.en = "Different English wording"
+    repeated.updated_at = "2026-08-13"
+    repeated.observed_at = "2026-08-13"
+
+    assert claim_semantic_fingerprint(first, "e-gpt") == claim_semantic_fingerprint(
+        repeated,
+        "e-gpt",
+    )
 
 
 def test_demo_data_quality_report_does_not_claim_formal_acceptance():

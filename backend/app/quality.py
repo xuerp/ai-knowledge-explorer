@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from .schemas import (
     CandidateAssessment,
     CandidateCreate,
+    Claim,
     DataQualityReport,
     Entity,
     KnowledgeSnapshot,
@@ -46,6 +47,19 @@ def _ratio(numerator: int, denominator: int) -> float:
 
 FORMAL_CLAIM_REQUIREMENT = 150
 CORE_ENTITY_RELATION_REQUIREMENT = 5
+
+
+def claim_semantic_fingerprint(
+    claim: Claim,
+    entity_id: str | None = None,
+) -> tuple[str, str, str, str, str]:
+    return (
+        _key(entity_id or claim.entity_id or claim.subject),
+        _key(claim.predicate),
+        _key(claim.object_or_value),
+        claim.valid_from or "",
+        claim.valid_to or "",
+    )
 
 
 @dataclass(slots=True)

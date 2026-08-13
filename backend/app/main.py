@@ -1,3 +1,4 @@
+import json
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
@@ -31,7 +32,7 @@ from .golden_questions import GoldenQuestionEvaluator
 from .ingestion import IngestionService, normalize_source_url
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
-from .quality import KnowledgeQualityGate
+from .quality import KnowledgeQualityGate, claim_semantic_fingerprint
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
@@ -40,6 +41,7 @@ from .schemas import (
     BootstrapUser,
     CandidateAssessment,
     CandidateCreate,
+    Claim,
     DataQualityReport,
     DigestPreference,
     DigestRunSummary,
@@ -90,7 +92,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-extraction-observability-v20"
+SERVICE_RELEASE = "2026.08.13-semantic-deduplication-v21"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -816,7 +818,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         source: SourceRecord,
         snapshot_row: DocumentSnapshotRecord,
         max_candidates: int,
-    ) -> list[ReviewQueueItem]:
+    ) -> tuple[list[ReviewQueueItem], int]:
         public_snapshot = get_catalog_snapshot(session)
         candidates = extraction.extract(
             source,
@@ -824,13 +826,79 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_candidates,
             public_snapshot.entities,
         )
+        published_fingerprints = {
+            claim_semantic_fingerprint(claim)
+            for claim in public_snapshot.claims
+        }
+        open_review_rows = session.scalars(
+            select(ReviewJobRecord).where(
+                ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES)
+            )
+        ).all()
+        open_fingerprints = {
+            claim_semantic_fingerprint(
+                    Claim.model_validate_json(existing_row.claim_json),
+                    existing_row.entity_id,
+                ): existing_row
+            for existing_row in open_review_rows
+        }
+
+        def merge_duplicate_evidence(
+            existing_row: ReviewJobRecord,
+            candidate: CandidateCreate,
+        ) -> None:
+            existing_claim = Claim.model_validate_json(existing_row.claim_json)
+            evidence_by_id = {
+                evidence.id: evidence
+                for evidence in repository.approved_evidence(existing_row)
+            }
+            changed = False
+            for evidence in candidate.evidence:
+                if evidence.id in evidence_by_id:
+                    continue
+                evidence_by_id[evidence.id] = evidence.model_copy(
+                    update={"supports_claim_ids": [existing_claim.id]}
+                )
+                changed = True
+            if not changed:
+                return
+            evidence_items = list(evidence_by_id.values())
+            existing_claim = existing_claim.model_copy(
+                update={"source_ids": [evidence.id for evidence in evidence_items]}
+            )
+            existing_row.claim_json = existing_claim.model_dump_json(by_alias=True)
+            existing_row.evidence_ids_json = json.dumps(
+                [evidence.id for evidence in evidence_items]
+            )
+            existing_row.evidence_json = json.dumps(
+                [
+                    evidence.model_dump(mode="json", by_alias=True)
+                    for evidence in evidence_items
+                ],
+                ensure_ascii=False,
+            )
+            existing_row.version += 1
+            if not existing_row.review_reason:
+                existing_row.review_reason = "检测到重复事实，已合并新增证据。"
         created: list[ReviewQueueItem] = []
+        duplicates_skipped = 0
         for candidate in candidates:
             assessment = quality_gate.assess(candidate, public_snapshot)
             if assessment.resolved_entity_id:
                 candidate = candidate.model_copy(
                     update={"entity_id": assessment.resolved_entity_id}
                 )
+            fingerprint = claim_semantic_fingerprint(
+                candidate.claim,
+                candidate.entity_id,
+            )
+            if fingerprint in published_fingerprints:
+                duplicates_skipped += 1
+                continue
+            if existing_row := open_fingerprints.get(fingerprint):
+                merge_duplicate_evidence(existing_row, candidate)
+                duplicates_skipped += 1
+                continue
             reason = None
             if assessment.conflicting_claim_ids:
                 reason = "Structured conflict detected against: " + ", ".join(
@@ -845,7 +913,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
             if row:
                 created.append(repository.to_queue_item(row))
-        return created
+                open_fingerprints[fingerprint] = row
+        return created, duplicates_skipped
 
     def is_grounded_relation_auto_approvable(
         session: Session,
@@ -929,6 +998,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "planned": 0,
             "processed": 0,
             "candidatesCreated": 0,
+            "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
             "failed": 0,
         }
@@ -944,7 +1014,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         for source, snapshot_row in planned:
             try:
-                created = create_extraction_candidates(
+                created, duplicates_skipped = create_extraction_candidates(
                     session,
                     source,
                     snapshot_row,
@@ -979,6 +1049,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     {
                         "automatic": True,
                         "candidatesCreated": len(created),
+                        "duplicatesSkipped": duplicates_skipped,
                         "sourceId": source.id,
                     },
                 )
@@ -987,6 +1058,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(
                     created
                 )
+                summary["duplicatesSkipped"] = int(
+                    summary["duplicatesSkipped"]
+                ) + duplicates_skipped
                 summary["relationsAutoApproved"] = int(
                     summary["relationsAutoApproved"]
                 ) + auto_approved
@@ -1567,7 +1641,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="No source snapshot is available for extraction.",
             )
         try:
-            created = create_extraction_candidates(
+            created, duplicates_skipped = create_extraction_candidates(
                 session,
                 source,
                 snapshot_row,
@@ -1584,7 +1658,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "extraction.run",
             "document_snapshot",
             snapshot_row.id,
-            {"candidatesCreated": len(created), "sourceId": source_id},
+            {
+                "candidatesCreated": len(created),
+                "duplicatesSkipped": duplicates_skipped,
+                "sourceId": source_id,
+            },
         )
         session.commit()
         return created
