@@ -15,6 +15,7 @@ COPY migrations ./migrations
 COPY app ./app
 COPY data/demo_snapshot.json ./data/demo_snapshot.json
 COPY data/catalog_extension.json ./data/catalog_extension.json
+COPY data/golden_questions.json ./data/golden_questions.json
 
 RUN addgroup --system app && adduser --system --ingroup app app \
     && chown -R app:app /srv/ai-radar
