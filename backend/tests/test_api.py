@@ -32,7 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-idempotent-review-v12",
+        "release": "2026.08.13-verified-publication-v13",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -479,9 +479,15 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert approved.status_code == 200
     assert approved.json()["status"] == "approved"
     assert approved.json()["version"] == review["version"] + 1
+    assert approved.json()["claim"]["confidence"] == "verified"
 
     snapshot = client.get("/api/snapshot").json()
-    assert "c-gpt5-1m" in {claim["id"] for claim in snapshot["claims"]}
+    published_claim = next(claim for claim in snapshot["claims"] if claim["id"] == "c-gpt5-1m")
+    assert published_claim["confidence"] == "verified"
+    published_evidence = next(
+        evidence for evidence in snapshot["evidence"] if evidence["id"] in review["evidenceIds"]
+    )
+    assert published_evidence["verifiedAt"] is not None
 
     repeated = client.post(
         f"/api/v2/admin/review-queue/{review['id']}/approve",
