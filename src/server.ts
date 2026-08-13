@@ -60,6 +60,20 @@ export function withNoStoreHtmlResponse(response: Response): Response {
   });
 }
 
+export function withNoStoreAdminApiResponse(request: Request, response: Response): Response {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith(`${apiProxyPrefix}/api/v2/admin/`)) return response;
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export async function proxyApiRequest(
   request: Request,
   upstreamUrl = apiUpstreamUrl,
@@ -76,7 +90,8 @@ export async function proxyApiRequest(
   upstream.pathname = url.pathname.slice(apiProxyPrefix.length) || "/";
   upstream.search = url.search;
   try {
-    return await fetcher(new Request(upstream, request));
+    const response = await fetcher(new Request(upstream, request));
+    return withNoStoreAdminApiResponse(request, response);
   } catch (error) {
     console.error(error);
     return Response.json(
