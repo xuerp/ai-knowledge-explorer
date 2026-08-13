@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { toast } from "sonner";
 import {
   Activity,
   Braces,
@@ -285,10 +286,12 @@ function AdminReviewPage() {
     try {
       reason = resolveReviewReason(action, reasons[item.id]);
     } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "请填写审核理由。";
       setReviewErrors((current) => ({
         ...current,
-        [item.id]: failure instanceof Error ? failure.message : "请填写审核理由。",
+        [item.id]: message,
       }));
+      toast.error("无法提交审核", { description: message });
       return;
     }
     setReviewingIds((current) => new Set(current).add(item.id));
@@ -314,6 +317,10 @@ function AdminReviewPage() {
       setOperationMessage(
         action === "approve" ? "候选已批准并进入审核历史。" : "候选已拒绝并进入审核历史。",
       );
+      toast.success(action === "approve" ? "批准成功" : "拒绝成功", {
+        description: item.claim.text.zh,
+        duration: 5_000,
+      });
       try {
         await refresh(token);
       } catch {
@@ -347,6 +354,10 @@ function AdminReviewPage() {
             ? "该候选已经批准，无需重复操作。"
             : "该候选已经拒绝，无需重复操作。",
         );
+        toast.success(action === "approve" ? "该候选已批准" : "该候选已拒绝", {
+          description: "状态已同步，无需重复操作。",
+          duration: 5_000,
+        });
         void refresh(token).catch(() => undefined);
         return;
       }
@@ -354,6 +365,7 @@ function AdminReviewPage() {
         ...current,
         [item.id]: message,
       }));
+      toast.error("审核失败", { description: message, duration: 6_000 });
     } finally {
       setReviewingIds((current) => {
         const next = new Set(current);
