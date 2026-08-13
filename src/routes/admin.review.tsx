@@ -1057,14 +1057,14 @@ function AdminReviewPage() {
                 <div className="font-medium">Claim 审核进度</div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {workspace.quality.claimCount}/{workspace.quality.claimsRequired}
-                  ，还需人工审核并发布 {workspace.quality.claimsRemaining} 条。
+                  ，还需审核并发布 {workspace.quality.claimsRemaining} 条。
                 </p>
               </div>
               <div className="rounded-md border border-border bg-background/60 p-3 text-sm">
                 <div className="font-medium">核心关系覆盖</div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {workspace.quality.coreEntitiesBelowFiveRelations.length} 个核心实体尚未达到 5
-                  条可解释关系。
+                  条可解释关系，合计还缺 {workspace.quality.coreRelationDeficit} 条关系连接。
                 </p>
               </div>
             </div>
@@ -1152,32 +1152,43 @@ function AdminReviewPage() {
                   查看核心实体关系缺口（{workspace.quality.coreEntitiesBelowFiveRelations.length}）
                 </summary>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {workspace.quality.coreEntitiesBelowFiveRelations.map((entityId) => {
-                    const count = workspace.quality?.coreEntityRelationCounts[entityId] ?? 0;
-                    return (
-                      <div
-                        key={entityId}
-                        className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-xs"
-                      >
-                        <span className="font-mono">{entityId}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">
-                            当前 {count} · 还缺 {Math.max(0, 5 - count)}
+                  {[...workspace.quality.coreEntitiesBelowFiveRelations]
+                    .sort(
+                      (left, right) =>
+                        (workspace.quality?.coreEntityRelationCounts[left] ?? 0) -
+                          (workspace.quality?.coreEntityRelationCounts[right] ?? 0) ||
+                        left.localeCompare(right),
+                    )
+                    .map((entityId) => {
+                      const count = workspace.quality?.coreEntityRelationCounts[entityId] ?? 0;
+                      const label = workspace.quality?.coreEntityRelationLabels[entityId];
+                      return (
+                        <div
+                          key={entityId}
+                          className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-xs"
+                        >
+                          <span>
+                            <span className="font-medium">{label?.zh || entityId}</span>
+                            <span className="ml-2 font-mono text-muted-foreground">{entityId}</span>
                           </span>
-                          {user.role === "admin" && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => prepareRelationGap(entityId)}
-                            >
-                              补关系
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">
+                              当前 {count} · 还缺 {Math.max(0, 5 - count)}
+                            </span>
+                            {user.role === "admin" && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => prepareRelationGap(entityId)}
+                              >
+                                补关系
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </details>
             )}

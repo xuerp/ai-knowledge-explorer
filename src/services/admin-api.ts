@@ -168,6 +168,8 @@ export interface DataQualityReport {
   claimsRemaining: number;
   coreEntitiesBelowFiveRelations: string[];
   coreEntityRelationCounts: Record<string, number>;
+  coreEntityRelationLabels: Record<string, { zh: string; en: string }>;
+  coreRelationDeficit: number;
   goldenQuestions?: GoldenQuestionReport;
   claimsWithMissingEvidence: string[];
   relationsWithMissingEvidence: string[];
