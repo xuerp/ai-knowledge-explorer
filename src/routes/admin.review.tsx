@@ -62,6 +62,7 @@ type Workspace = {
   integrations: IntegrationStatus | null;
   operations: OperationsDiagnostics | null;
   productionReadiness: ProductionReadiness | null;
+  loadWarnings: string[];
 };
 
 type CatalogRecordKind = "entity" | "relation" | "timeline";
@@ -711,6 +712,19 @@ function AdminReviewPage() {
         </header>
         {error && <Notice title="操作未完成" detail={error} destructive />}
         {operationMessage && <Notice title="操作已完成" detail={operationMessage} />}
+        {workspace.loadWarnings.length > 0 && (
+          <section className="rounded-lg border border-conflict/30 bg-conflict/5 p-4 text-sm">
+            <div className="font-medium text-conflict">部分后台模块暂时不可用</div>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              {workspace.loadWarnings.map((warning) => (
+                <li key={warning}>· {warning}</li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-muted-foreground">
+              其他已加载模块仍可使用；刷新页面会重新尝试失败模块。
+            </p>
+          </section>
+        )}
 
         <section className="grid gap-3 sm:grid-cols-5">
           <Metric label="待审核任务" value={pendingQueue.length} />

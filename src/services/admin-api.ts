@@ -244,7 +244,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   });
   if (!response.ok) {
     const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
-    throw new Error(detail?.detail || `Request failed (${response.status}).`);
+    throw new Error(`${path}：${detail?.detail || `请求失败（${response.status}）`}`);
   }
   return (await response.json()) as T;
 }
@@ -271,10 +271,14 @@ export const adminApi = {
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
 
   async workspace(token: string, role: AdminUser["role"]) {
-    const queue = await request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token);
+    const queueResult = await settle(
+      "审核队列",
+      request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token),
+      [],
+    );
     if (role !== "admin") {
       return {
-        queue,
+        queue: queueResult.value,
         sources: [],
         runs: [],
         audit: [],
@@ -283,23 +287,38 @@ export const adminApi = {
         integrations: null,
         operations: null,
         productionReadiness: null,
+        loadWarnings: queueResult.warning ? [queueResult.warning] : [],
       };
     }
     const [sources, runs, audit, outbox, quality, integrations, operations, productionReadiness] =
       await Promise.all([
-        request<SourceView[]>("/api/v2/admin/sources", {}, token),
-        request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token),
-        request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token),
-        request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token),
-        request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
-        request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
-        request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token).catch(() => null),
-        request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token).catch(
-          () => null,
+        settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
+        settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
+        settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
+        settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
+        settle(
+          "数据质量",
+          request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
+          null,
+        ),
+        settle(
+          "外部集成",
+          request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
+          null,
+        ),
+        settle(
+          "运行诊断",
+          request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
+          null,
+        ),
+        settle(
+          "生产预检",
+          request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
+          null,
         ),
       ]);
-    return {
-      queue,
+    const sections = [
+      queueResult,
       sources,
       runs,
       audit,
@@ -308,6 +327,18 @@ export const adminApi = {
       integrations,
       operations,
       productionReadiness,
+    ];
+    return {
+      queue: queueResult.value,
+      sources: sources.value,
+      runs: runs.value,
+      audit: audit.value,
+      outbox: outbox.value,
+      quality: quality.value,
+      integrations: integrations.value,
+      operations: operations.value,
+      productionReadiness: productionReadiness.value,
+      loadWarnings: sections.flatMap((section) => (section.warning ? [section.warning] : [])),
     };
   },
 
@@ -443,3 +474,12 @@ export const adminApi = {
       token,
     ),
 };
+
+async function settle<T>(label: string, promise: Promise<T>, fallback: T) {
+  try {
+    return { value: await promise, warning: null as string | null };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "未知错误";
+    return { value: fallback, warning: `${label}加载失败：${detail}` };
+  }
+}
