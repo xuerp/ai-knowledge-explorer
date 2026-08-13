@@ -311,7 +311,9 @@ function AdminReviewPage() {
           `AI 抽取预检通过：${target}，耗时 ${result.latencyMs} 毫秒。现在可以从已采集快照生成候选。`,
         );
       } else {
-        setError(`AI 抽取连接验证未通过（${result.errorCode ?? "unknown"}）：${result.detail}`);
+        setError(
+          `AI 抽取连接验证未通过（${result.errorCode ?? "unknown"}）${target ? ` · ${target}` : ""}：${result.detail}`,
+        );
       }
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "AI 抽取连接预检失败。");

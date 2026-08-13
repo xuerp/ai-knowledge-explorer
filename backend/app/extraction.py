@@ -73,6 +73,14 @@ class StructuredExtractionService:
                 detail="API 地址、密钥或模型尚未完整配置。",
             )
         parsed = urlsplit(self.api_url or "")
+        if not parsed.scheme or not parsed.hostname:
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code="invalid_endpoint",
+                detail="API 地址格式无效，请填写包含 https:// 的完整 Chat Completions 地址。",
+            )
         if parsed.scheme != "https" and parsed.hostname not in {"127.0.0.1", "localhost"}:
             return self._probe_result(
                 checked_at,
@@ -131,6 +139,39 @@ class StructuredExtractionService:
             else:
                 code, detail = "provider_error", f"供应商返回 HTTP {status_code}。"
             return self._probe_result(checked_at, started, host, error_code=code, detail=detail)
+        except httpx.InvalidURL:
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code="invalid_endpoint",
+                detail="API 地址格式无效，请检查协议、域名和 /chat/completions 路径。",
+            )
+        except httpx.ConnectTimeout:
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code="connection_timeout",
+                detail="连接供应商超时；请检查接口是否允许 Render 新加坡节点访问。",
+            )
+        except httpx.ReadTimeout:
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code="response_timeout",
+                detail="供应商已建立连接但响应超时，请稍后重试或检查供应商负载。",
+            )
+        except httpx.ConnectError as error:
+            reason = _classify_connect_error(error)
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code=reason[0],
+                detail=reason[1],
+            )
         except httpx.RequestError:
             return self._probe_result(
                 checked_at,
@@ -279,3 +320,21 @@ class StructuredExtractionService:
                 )
             )
         return results
+
+
+def _classify_connect_error(error: httpx.ConnectError) -> tuple[str, str]:
+    messages: list[str] = []
+    seen: set[int] = set()
+    current: BaseException | None = error
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        messages.append(str(current).casefold())
+        current = current.__cause__ or current.__context__
+    detail = " ".join(messages)
+    if any(marker in detail for marker in ("getaddrinfo", "name resolution", "no such host")):
+        return "dns_resolution_failed", "无法解析供应商域名，请检查 API 地址中的域名拼写。"
+    if any(marker in detail for marker in ("certificate", "ssl", "tls")):
+        return "tls_failed", "供应商的 HTTPS/TLS 连接校验失败，请检查证书与代理配置。"
+    if "refused" in detail:
+        return "connection_refused", "供应商拒绝了网络连接，请检查端口、访问控制和服务状态。"
+    return "connection_failed", "无法连接供应商，请检查 API 地址和供应商服务状态。"

@@ -115,3 +115,37 @@ def test_extraction_probe_reports_incomplete_configuration_without_network():
     assert result.configured is False
     assert result.passed is False
     assert result.error_code == "not_configured"
+
+
+def test_extraction_probe_distinguishes_connection_timeout():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectTimeout("connection timed out", request=request)
+
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.probe()
+
+    assert result.error_code == "connection_timeout"
+    assert "Render" in result.detail
+
+
+def test_extraction_probe_distinguishes_dns_failure():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("getaddrinfo failed", request=request)
+
+    service = StructuredExtractionService(
+        "https://missing.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.probe()
+
+    assert result.error_code == "dns_resolution_failed"
+    assert "域名" in result.detail
