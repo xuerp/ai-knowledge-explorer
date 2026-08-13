@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
@@ -40,6 +41,15 @@ class _ExtractionEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     facts: list[_Fact]
+
+
+EXTRACTION_JSON_CONTRACT = (
+    'Return exactly one JSON object shaped as {"facts":[...]}. Each facts item must contain '
+    'exactly these seven fields: "subject" (string), "predicate" (string), '
+    '"objectOrValue" (string), "textZh" (string), "textEn" (string), '
+    '"validFrom" (ISO-8601 string or null), and "validTo" (ISO-8601 string or null). '
+    "Do not add fields, Markdown, commentary, or code fences."
+)
 
 
 class StructuredExtractionService:
@@ -97,12 +107,15 @@ class StructuredExtractionService:
             "messages": [
                 {
                     "role": "system",
+                    "content": EXTRACTION_JSON_CONTRACT,
+                },
+                {
+                    "role": "user",
                     "content": (
-                        'Return exactly one valid JSON object shaped as {"facts": []} '
-                        "and no additional text."
+                        "Return one connection-test fact with subject AI Radar, predicate probe, "
+                        "objectOrValue ok, bilingual text, and null validity dates."
                     ),
                 },
-                {"role": "user", "content": "Connection and structured JSON capability check."},
             ],
         }
         try:
@@ -112,8 +125,7 @@ class StructuredExtractionService:
                 schema_name="ai_radar_connection_probe",
                 timeout_seconds=30.0,
             )
-            content = body["choices"][0]["message"]["content"]
-            _ExtractionEnvelope.model_validate_json(content)
+            _parse_extraction_envelope(body)
         except httpx.HTTPStatusError as error:
             status_code = error.response.status_code
             if status_code in {401, 403}:
@@ -283,8 +295,7 @@ class StructuredExtractionService:
                     "content": (
                         "Extract only explicit, source-supported facts. Do not infer missing values. "
                         "Return bilingual concise claim text. Dates must be ISO-8601 when present."
-                        ' Return exactly one valid JSON object shaped as {"facts": [...]} and no '
-                        "additional text."
+                        f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
                 {
@@ -304,8 +315,7 @@ class StructuredExtractionService:
                 schema_name="ai_radar_facts",
                 timeout_seconds=60.0,
             )
-            content = body["choices"][0]["message"]["content"]
-            extracted = _ExtractionEnvelope.model_validate_json(content)
+            extracted = _parse_extraction_envelope(body)
         except (KeyError, IndexError, TypeError, ValueError) as error:
             raise ExtractionUnavailableError(
                 "The extraction provider returned an invalid structured response."
@@ -351,6 +361,29 @@ class StructuredExtractionService:
                 )
             )
         return results
+
+
+def _parse_extraction_envelope(body: dict[str, Any]) -> _ExtractionEnvelope:
+    content = body["choices"][0]["message"]["content"]
+    if isinstance(content, list):
+        text_parts = [
+            part.get("text", "")
+            for part in content
+            if isinstance(part, dict) and isinstance(part.get("text"), str)
+        ]
+        content = "".join(text_parts)
+    if not isinstance(content, str):
+        raise TypeError("Structured response content must be text.")
+    normalized = content.strip()
+    if normalized.startswith("```") and normalized.endswith("```"):
+        first_line_end = normalized.find("\n")
+        if first_line_end < 0:
+            raise ValueError("Structured response code fence has no JSON body.")
+        normalized = normalized[first_line_end + 1 : -3].strip()
+    parsed = json.loads(normalized)
+    if isinstance(parsed, list):
+        parsed = {"facts": parsed}
+    return _ExtractionEnvelope.model_validate(parsed)
 
 
 def _classify_connect_error(error: httpx.ConnectError) -> tuple[str, str]:
