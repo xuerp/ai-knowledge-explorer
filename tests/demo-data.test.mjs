@@ -288,6 +288,7 @@ test("PWA manifest and service worker expose an offline application shell", asyn
   assert.ok(manifest.icons.length > 0);
   assert.match(serviceWorker, /offline\.html/);
   assert.match(serviceWorker, /caches\.open/);
+  assert.match(serviceWorker, /fetch\(request, \{ cache: "no-store" \}\)/);
   assert.match(offlinePage, /最后在线缓存/);
 });
 

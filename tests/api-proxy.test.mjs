@@ -4,7 +4,7 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { proxyApiRequest } = await vite.ssrLoadModule("/src/server.ts");
+const { proxyApiRequest, withNoStoreHtmlResponse } = await vite.ssrLoadModule("/src/server.ts");
 
 test.after(async () => vite.close());
 
@@ -36,4 +36,12 @@ test("Cloudflare 同域代理不会接管普通页面路由", async () => {
     "https://api.example",
   );
   assert.equal(response, null);
+});
+
+test("Cloudflare 页面响应禁止复用旧部署的 HTML", async () => {
+  const response = withNoStoreHtmlResponse(
+    new Response("<html></html>", { headers: { "Content-Type": "text/html; charset=utf-8" } }),
+  );
+  assert.equal(response.headers.get("cache-control"), "no-store, no-cache, must-revalidate");
+  assert.equal(response.headers.get("pragma"), "no-cache");
 });
