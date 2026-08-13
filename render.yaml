@@ -19,7 +19,7 @@ envVarGroups:
       - key: AI_RADAR_FETCH_LEASE_MINUTES
         value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE
-        value: "1"
+        value: "2"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT
         value: "10"
       - key: AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES
