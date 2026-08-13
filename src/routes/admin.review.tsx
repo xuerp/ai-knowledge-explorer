@@ -1220,7 +1220,7 @@ function AdminReviewPage() {
                   workspace.integrations.extractionConfigured
                     ? `${workspace.integrations.extractionModel} · ${workspace.integrations.extractionEndpointHost} · ${
                         workspace.integrations.automaticExtractionEnabled
-                          ? `自动抽取每轮最多 ${workspace.integrations.automaticExtractionMaxSnapshotsPerCycle} 个快照、每个最多 ${workspace.integrations.automaticExtractionMaxCandidatesPerSnapshot} 条候选；失败后 ${workspace.integrations.automaticExtractionRetryMinutes} 分钟再试；严格关系自动批准${workspace.integrations.automaticRelationApprovalEnabled ? "已开启" : "未开启"}`
+                          ? `管线 ${workspace.integrations.extractionPipelineVersion}；自动抽取每轮最多 ${workspace.integrations.automaticExtractionMaxSnapshotsPerCycle} 个快照、每个最多 ${workspace.integrations.automaticExtractionMaxCandidatesPerSnapshot} 条候选；失败后 ${workspace.integrations.automaticExtractionRetryMinutes} 分钟再试；严格关系自动批准${workspace.integrations.automaticRelationApprovalEnabled ? "已开启" : "未开启"}`
                           : "自动抽取未启用"
                       }`
                     : "未配置 API 地址、密钥或模型"
@@ -1903,6 +1903,10 @@ function OperationsPanel({
   const latest = operations.recentRuns[0];
   const ingestion = asRecord(latest?.result?.ingestion);
   const extraction = asRecord(latest?.result?.extraction);
+  const extractionPipelineVersion =
+    typeof extraction?.pipelineVersion === "string"
+      ? extraction.pipelineVersion
+      : "旧版或未记录管线";
   const digests = asRecord(latest?.result?.digests);
   const delivery = asRecord(latest?.result?.emailDelivery);
   const pendingOutbox = outbox
@@ -2007,8 +2011,8 @@ function OperationsPanel({
                     {numberValue(ingestion, "succeeded")} · 失败 {numberValue(ingestion, "failed")}
                   </div>
                   <div>
-                    抽取：计划 {numberValue(extraction, "planned")} · 完成{" "}
-                    {numberValue(extraction, "processed")} · 候选{" "}
+                    抽取：{extractionPipelineVersion} · 计划 {numberValue(extraction, "planned")} ·
+                    完成 {numberValue(extraction, "processed")} · 候选{" "}
                     {numberValue(extraction, "candidatesCreated")} · 合并/跳过重复{" "}
                     {numberValue(extraction, "duplicatesSkipped")} · 自动批准{" "}
                     {numberValue(extraction, "relationsAutoApproved")} · 失败{" "}
