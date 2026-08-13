@@ -33,7 +33,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-batch-quality-workflow-v14",
+        "release": "2026.08.13-golden-readiness-v15",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -81,10 +81,10 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert response.status_code == 200
     payload = response.json()
     assert payload["total"] == 20
-    assert payload["passed"] == 16
-    assert payload["passRatio"] == 0.8
+    assert payload["passed"] == 18
+    assert payload["passRatio"] == 0.9
     assert payload["requiredRatio"] == 0.85
-    assert payload["ready"] is False
+    assert payload["ready"] is True
     assert len(payload["results"]) == 20
 
 

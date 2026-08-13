@@ -25,13 +25,11 @@ def test_golden_questions_execute_against_grounded_catalog():
     report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(snapshot)
 
     assert report.total == 20
-    assert report.passed == 16
-    assert report.pass_ratio == 0.8
+    assert report.passed == 18
+    assert report.pass_ratio == 0.9
     assert report.required_ratio == 0.85
-    assert report.ready is False
+    assert report.ready is True
     failed = {result.id: result for result in report.results if not result.passed}
-    assert set(failed) == {"gq-12", "gq-14", "gq-15", "gq-16"}
-    assert "e-mmlu" in failed["gq-12"].reason
-    assert "e-mcp" in failed["gq-14"].reason
+    assert set(failed) == {"gq-15", "gq-16"}
     assert "冲突或证据不足" in failed["gq-15"].reason
     assert failed["gq-16"].missing_entity_ids == ["e-claude", "e-gemini", "e-gpt"]
