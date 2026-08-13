@@ -1420,9 +1420,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/api/v2/admin/review-queue", response_model=list[ReviewQueueItem])
     def review_queue(
+        response: Response,
         _: ReviewerDependency,
         session: SessionDependency,
     ) -> list[ReviewQueueItem]:
+        response.headers["Cache-Control"] = "no-store"
         return repository.queue(session)
 
     def decide_review(

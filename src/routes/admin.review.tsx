@@ -175,6 +175,10 @@ function AdminReviewPage() {
   const [timelineEntityId, setTimelineEntityId] = useState("");
   const [catalogMessage, setCatalogMessage] = useState("");
   const [operationMessage, setOperationMessage] = useState("");
+  const [recentExtraction, setRecentExtraction] = useState<{
+    sourceTitle: string;
+    candidateIds: string[];
+  } | null>(null);
   const [operationsError, setOperationsError] = useState("");
   const [sourceSearch, setSourceSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<"all" | "allowlisted" | "automatic">("all");
@@ -513,10 +517,23 @@ function AdminReviewPage() {
     setOperationMessage("");
     try {
       const created = await adminApi.extractSource(token, source.id);
+      const candidateIds = created.map((item) => item.id);
+      setRecentExtraction({ sourceTitle: source.title, candidateIds });
+      setWorkspace((current) => {
+        if (!current) return current;
+        const createdIds = new Set(candidateIds);
+        return {
+          ...current,
+          queue: [...created, ...current.queue.filter((item) => !createdIds.has(item.id))],
+        };
+      });
       setOperationMessage(
-        `${source.title} 已生成 ${created.length} 条候选事实，请在“候选队列”中进行人工审核。`,
+        `${source.title} 已生成 ${created.length} 条候选事实；本次候选已在下方置顶并用蓝色边框标出。`,
       );
       await refresh(token);
+      window.requestAnimationFrame(() => {
+        document.getElementById("review-queue")?.scrollIntoView({ behavior: "smooth" });
+      });
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Candidate extraction failed.");
     } finally {
@@ -693,6 +710,11 @@ function AdminReviewPage() {
   );
   const reviewHistory = workspace.queue.filter(
     (item) => item.status === "approved" || item.status === "rejected",
+  );
+  const recentCandidateIds = new Set(recentExtraction?.candidateIds ?? []);
+  const orderedPendingQueue = [...pendingQueue].sort(
+    (left, right) =>
+      Number(recentCandidateIds.has(right.id)) - Number(recentCandidateIds.has(left.id)),
   );
 
   return (
@@ -953,7 +975,7 @@ function AdminReviewPage() {
           />
         )}
 
-        <section className="space-y-3">
+        <section id="review-queue" className="scroll-mt-6 space-y-3">
           <div>
             <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -963,8 +985,19 @@ function AdminReviewPage() {
           {pendingQueue.length === 0 && (
             <div className="paper-card p-5 text-sm text-muted-foreground">当前没有待审核候选。</div>
           )}
-          {pendingQueue.map((item) => (
-            <article key={item.id} className="paper-card p-5">
+          {recentExtraction && recentExtraction.candidateIds.length > 0 && (
+            <div className="rounded-lg border border-signal/30 bg-signal/5 p-4 text-sm">
+              <div className="font-medium">本次抽取：{recentExtraction.sourceTitle}</div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；下方其他条目是此前尚未处理的任务，不需要混在本批一起审核。`}
+              </p>
+            </div>
+          )}
+          {orderedPendingQueue.map((item) => (
+            <article
+              key={item.id}
+              className={`paper-card p-5 ${recentCandidateIds.has(item.id) ? "border-signal/50 ring-1 ring-signal/20" : ""}`}
+            >
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
                   <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
@@ -972,7 +1005,7 @@ function AdminReviewPage() {
                   <p className="mt-1 text-sm text-muted-foreground">{item.claim.text.en}</p>
                 </div>
                 <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
-                  {item.status}
+                  {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
                 </span>
               </div>
               {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
