@@ -96,8 +96,8 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.14-relation-deduplication-v23"
+DATABASE_SCHEMA_REVISION = "20260814_0016"
+SERVICE_RELEASE = "2026.08.14-review-provenance-v24"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1881,6 +1881,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         row.status = action
         row.review_reason = decision.reason
         row.reviewed_at = datetime.now(UTC)
+        row.reviewed_by = actor.email
         row.version += 1
         published_relation = None
         if action == "approved":
