@@ -88,7 +88,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-extraction-contract-v11"
+SERVICE_RELEASE = "2026.08.13-idempotent-review-v12"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -1434,12 +1434,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         actor: Principal,
         session: Session,
     ) -> ReviewQueueItem:
-        row = session.get(ReviewJobRecord, review_id)
+        row = session.scalar(
+            select(ReviewJobRecord)
+            .where(ReviewJobRecord.id == review_id)
+            .with_for_update()
+        )
         if not row:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Review job not found."
             )
         if row.status not in OPEN_REVIEW_STATUSES:
+            if row.status == action:
+                return repository.to_queue_item(row)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Review job is already {row.status}.",

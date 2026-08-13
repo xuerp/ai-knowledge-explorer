@@ -8,3 +8,8 @@ export function resolveReviewReason(action: ReviewAction, input: string | undefi
   if (action === "approve") return defaultApprovalReason;
   throw new Error("拒绝前请填写至少 3 个字符的具体理由。");
 }
+
+export function isAlreadyAppliedReviewDecision(action: ReviewAction, message: string): boolean {
+  const expectedStatus = action === "approve" ? "approved" : "rejected";
+  return message.toLocaleLowerCase().includes(`already ${expectedStatus}`);
+}

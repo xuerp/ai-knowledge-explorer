@@ -16,7 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
-import { resolveReviewReason, type ReviewAction } from "@/domain/review-decision";
+import {
+  isAlreadyAppliedReviewDecision,
+  resolveReviewReason,
+  type ReviewAction,
+} from "@/domain/review-decision";
 import {
   describeProbeFailure,
   formatRolloutSummary,
@@ -320,9 +324,35 @@ function AdminReviewPage() {
         );
       }
     } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "审核操作失败。";
+      if (isAlreadyAppliedReviewDecision(action, message)) {
+        setWorkspace((current) =>
+          current
+            ? {
+                ...current,
+                queue: current.queue.map((candidate) =>
+                  candidate.id === item.id
+                    ? {
+                        ...candidate,
+                        status: action === "approve" ? "approved" : "rejected",
+                        version: candidate.version + 1,
+                      }
+                    : candidate,
+                ),
+              }
+            : current,
+        );
+        setOperationMessage(
+          action === "approve"
+            ? "该候选已经批准，无需重复操作。"
+            : "该候选已经拒绝，无需重复操作。",
+        );
+        void refresh(token).catch(() => undefined);
+        return;
+      }
       setReviewErrors((current) => ({
         ...current,
-        [item.id]: failure instanceof Error ? failure.message : "审核操作失败。",
+        [item.id]: message,
       }));
     } finally {
       setReviewingIds((current) => {
