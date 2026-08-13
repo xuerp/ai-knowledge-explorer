@@ -306,11 +306,13 @@ function AdminReviewPage() {
     try {
       const result = await adminApi.probeExtraction(token);
       const target = [result.model, result.endpointHost].filter(Boolean).join(" · ");
-      setOperationMessage(
-        result.passed
-          ? `AI 抽取预检通过：${target}，耗时 ${result.latencyMs} 毫秒。现在可以从已采集快照生成候选。`
-          : `AI 抽取预检未通过（${result.errorCode ?? "unknown"}）：${result.detail}`,
-      );
+      if (result.passed) {
+        setOperationMessage(
+          `AI 抽取预检通过：${target}，耗时 ${result.latencyMs} 毫秒。现在可以从已采集快照生成候选。`,
+        );
+      } else {
+        setError(`AI 抽取连接验证未通过（${result.errorCode ?? "unknown"}）：${result.detail}`);
+      }
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "AI 抽取连接预检失败。");
     } finally {
