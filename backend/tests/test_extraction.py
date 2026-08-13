@@ -23,6 +23,9 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         assert "canonical predicates" in prompt
         assert "Known catalog entities" in prompt
         assert "Priority entities with incomplete relation coverage" in prompt
+        assert "Claims remaining: 128" in prompt
+        assert "Core relation links remaining: 49" in prompt
+        assert "distinct, directly supported atomic claims" in prompt
         return httpx.Response(
             200,
             json={
@@ -65,7 +68,14 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         transport=httpx.MockTransport(handler),
     )
 
-    result = service.extract(source, snapshot, 5, priority_entity_ids=["e-gpt"])
+    result = service.extract(
+        source,
+        snapshot,
+        5,
+        priority_entity_ids=["e-gpt"],
+        claims_remaining=128,
+        relation_deficit=49,
+    )
 
     assert len(result) == 1
     assert result[0].claim.confidence == "unverified"

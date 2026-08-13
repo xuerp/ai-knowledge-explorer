@@ -103,7 +103,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-isolated-extraction-failures-v31"
+SERVICE_RELEASE = "2026.08.14-quality-gap-extraction-v32"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -851,6 +851,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_candidates,
             public_snapshot.entities,
             priority_entity_ids=quality.core_entities_below_five_relations,
+            claims_remaining=quality.claims_remaining,
+            relation_deficit=quality.core_relation_deficit,
         )
 
         def semantic_fingerprint(

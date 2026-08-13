@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-isolated-extraction-failures-v31",
+        "release": "2026.08.14-quality-gap-extraction-v32",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -114,7 +114,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-relation-priority-v3-source-excerpts",
+        "pipelineVersion": "2026-08-quality-gap-priority-v4",
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -169,7 +169,9 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
-        assert integrations["extractionPipelineVersion"].endswith("source-excerpts")
+        assert integrations["extractionPipelineVersion"] == (
+            "2026-08-quality-gap-priority-v4"
+        )
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -202,7 +204,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-relation-priority-v3-source-excerpts",
+            "pipelineVersion": "2026-08-quality-gap-priority-v4",
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -792,7 +794,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-relation-priority-v3-source-excerpts",
+        "extractionPipelineVersion": "2026-08-quality-gap-priority-v4",
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
