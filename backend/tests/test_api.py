@@ -866,37 +866,35 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
 
 
-def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: TestClient):
-    headers = {"X-Admin-Token": "test-admin-token"}
-    existing = next(
-        item
-        for item in client.get("/api/v2/admin/review-queue", headers=headers).json()
-        if item["id"] == "review-gpt-context"
-    )
+def create_batch_review_candidate(
+    client: TestClient,
+    headers: dict[str, str],
+    suffix: str,
+) -> dict[str, object]:
     created = client.post(
         "/api/v2/admin/review-candidates",
         headers=headers,
         json={
-            "id": "review-batch-context",
+            "id": f"review-batch-context-{suffix}",
             "entityId": "e-gpt",
             "claim": {
-                "id": "claim-batch-context",
+                "id": f"claim-batch-context-{suffix}",
                 "text": {
-                    "zh": "GPT 系列提供可配置的上下文能力。",
-                    "en": "The GPT family provides configurable context capabilities.",
+                    "zh": f"GPT 系列提供可配置的上下文能力 {suffix}。",
+                    "en": f"The GPT family provides configurable context capability {suffix}.",
                 },
                 "confidence": "unverified",
-                "sourceIds": ["evidence-batch-context"],
+                "sourceIds": [f"evidence-batch-context-{suffix}"],
                 "updatedAt": "2026-08-14",
                 "subject": "GPT",
                 "predicate": "has-capability",
-                "objectOrValue": "configurable context",
+                "objectOrValue": f"configurable context {suffix}",
             },
             "evidence": [
                 {
-                    "id": "evidence-batch-context",
+                    "id": f"evidence-batch-context-{suffix}",
                     "title": {"zh": "GPT 官方文档", "en": "GPT official docs"},
-                    "url": "https://example.com/gpt-context",
+                    "url": f"https://example.com/gpt-context-{suffix}",
                     "publisher": "OpenAI",
                     "publishedAt": "2026-08-14",
                     "collectedAt": "2026-08-14",
@@ -906,7 +904,15 @@ def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: Tes
         },
     )
     assert created.status_code == 201
-    second = created.json()
+    candidate = created.json()
+    assert candidate["status"] == "pending"
+    return candidate
+
+
+def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    first = create_batch_review_candidate(client, headers, "one")
+    second = create_batch_review_candidate(client, headers, "two")
 
     endpoint = "/api/v2/admin/review-queue/batch-approve"
     assert client.post(endpoint, json={"items": []}).status_code == 401
@@ -916,8 +922,8 @@ def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: Tes
         json={
             "items": [
                 {
-                    "id": existing["id"],
-                    "expectedVersion": existing["version"],
+                    "id": first["id"],
+                    "expectedVersion": first["version"],
                     "reason": "已批量核对官方证据和事实。",
                 },
                 {
@@ -929,19 +935,18 @@ def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: Tes
         },
     )
     assert approved.status_code == 200
-    assert {item["id"] for item in approved.json()} == {existing["id"], second["id"]}
+    assert {item["id"] for item in approved.json()} == {first["id"], second["id"]}
     assert all(item["status"] == "approved" for item in approved.json())
     history = client.get("/api/v2/admin/publication-history", headers=headers).json()
-    assert {item["claimId"] for item in history} == {"c-gpt5-1m", "claim-batch-context"}
+    assert {item["claimId"] for item in history} == {
+        "claim-batch-context-one",
+        "claim-batch-context-two",
+    }
 
 
 def test_batch_approve_rolls_back_every_decision_when_one_item_fails(client: TestClient):
     headers = {"X-Admin-Token": "test-admin-token"}
-    existing = next(
-        item
-        for item in client.get("/api/v2/admin/review-queue", headers=headers).json()
-        if item["id"] == "review-gpt-context"
-    )
+    existing = create_batch_review_candidate(client, headers, "rollback")
     response = client.post(
         "/api/v2/admin/review-queue/batch-approve",
         headers=headers,
