@@ -25,6 +25,12 @@ test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /通过批量安全预检后启用，并核验首次快照/);
 });
 
+test("Render 自动抽取吞吐与失败退避保持保守上限", () => {
+  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE\s+value: "2"/);
+  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT\s+value: "10"/);
+  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES\s+value: "360"/);
+});
+
 test("Render 在生产化分支提交后自动部署 API", () => {
   assert.match(blueprint, /branch: codex\/productionize/);
   assert.match(blueprint, /autoDeployTrigger: commit/);
