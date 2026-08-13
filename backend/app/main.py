@@ -85,6 +85,7 @@ from .schemas import (
     ResearchCitation,
     ResearchCreate,
     ResearchView,
+    ReviewBatchApproval,
     ReviewDecision,
     ReviewQueueItem,
     SchedulerRunSummary,
@@ -102,7 +103,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-pipeline-visibility-v29"
+SERVICE_RELEASE = "2026.08.14-transactional-batch-review-v30"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1875,6 +1876,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         action: Literal["approved", "rejected"],
         actor: Principal,
         session: Session,
+        *,
+        commit: bool = True,
     ) -> ReviewQueueItem:
         row = session.scalar(
             select(ReviewJobRecord)
@@ -1943,8 +1946,46 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "relationId": published_relation.id if published_relation else None,
             },
         )
-        session.commit()
+        if commit:
+            session.commit()
         return repository.to_queue_item(row)
+
+    @app.post(
+        "/api/v2/admin/review-queue/batch-approve",
+        response_model=list[ReviewQueueItem],
+    )
+    def batch_approve_reviews(
+        approval: ReviewBatchApproval,
+        actor: ReviewerDependency,
+        session: SessionDependency,
+    ) -> list[ReviewQueueItem]:
+        item_ids = [item.id for item in approval.items]
+        if len(item_ids) != len(set(item_ids)):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="A review job can appear only once in a batch.",
+            )
+        decisions: list[ReviewQueueItem] = []
+        try:
+            for item in approval.items:
+                decisions.append(
+                    decide_review(
+                        item.id,
+                        ReviewDecision(
+                            expected_version=item.expected_version,
+                            reason=item.reason,
+                        ),
+                        "approved",
+                        actor,
+                        session,
+                        commit=False,
+                    )
+                )
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        return decisions
 
     @app.post(
         "/api/v2/admin/review-queue/{review_id}/approve",

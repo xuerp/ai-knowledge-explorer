@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-pipeline-visibility-v29",
+        "release": "2026.08.14-transactional-batch-review-v30",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -864,6 +864,111 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert history.status_code == 200
     assert len(history.json()) == 1
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
+
+
+def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    existing = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue", headers=headers).json()
+        if item["id"] == "review-gpt-context"
+    )
+    created = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-batch-context",
+            "entityId": "e-gpt",
+            "claim": {
+                "id": "claim-batch-context",
+                "text": {
+                    "zh": "GPT 系列提供可配置的上下文能力。",
+                    "en": "The GPT family provides configurable context capabilities.",
+                },
+                "confidence": "unverified",
+                "sourceIds": ["evidence-batch-context"],
+                "updatedAt": "2026-08-14",
+                "subject": "GPT",
+                "predicate": "has-capability",
+                "objectOrValue": "configurable context",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-batch-context",
+                    "title": {"zh": "GPT 官方文档", "en": "GPT official docs"},
+                    "url": "https://example.com/gpt-context",
+                    "publisher": "OpenAI",
+                    "publishedAt": "2026-08-14",
+                    "collectedAt": "2026-08-14",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert created.status_code == 201
+    second = created.json()
+
+    endpoint = "/api/v2/admin/review-queue/batch-approve"
+    assert client.post(endpoint, json={"items": []}).status_code == 401
+    approved = client.post(
+        endpoint,
+        headers=headers,
+        json={
+            "items": [
+                {
+                    "id": existing["id"],
+                    "expectedVersion": existing["version"],
+                    "reason": "已批量核对官方证据和事实。",
+                },
+                {
+                    "id": second["id"],
+                    "expectedVersion": second["version"],
+                    "reason": "已批量核对官方证据和事实。",
+                },
+            ]
+        },
+    )
+    assert approved.status_code == 200
+    assert {item["id"] for item in approved.json()} == {existing["id"], second["id"]}
+    assert all(item["status"] == "approved" for item in approved.json())
+    history = client.get("/api/v2/admin/publication-history", headers=headers).json()
+    assert {item["claimId"] for item in history} == {"c-gpt5-1m", "claim-batch-context"}
+
+
+def test_batch_approve_rolls_back_every_decision_when_one_item_fails(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    existing = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue", headers=headers).json()
+        if item["id"] == "review-gpt-context"
+    )
+    response = client.post(
+        "/api/v2/admin/review-queue/batch-approve",
+        headers=headers,
+        json={
+            "items": [
+                {
+                    "id": existing["id"],
+                    "expectedVersion": existing["version"],
+                    "reason": "已核对第一条事实和官方证据。",
+                },
+                {
+                    "id": "review-does-not-exist",
+                    "expectedVersion": 1,
+                    "reason": "该条用于验证事务回滚。",
+                },
+            ]
+        },
+    )
+    assert response.status_code == 404
+    refreshed = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue", headers=headers).json()
+        if item["id"] == existing["id"]
+    )
+    assert refreshed["status"] == existing["status"]
+    assert refreshed["version"] == existing["version"]
+    assert client.get("/api/v2/admin/publication-history", headers=headers).json() == []
 
 
 def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
