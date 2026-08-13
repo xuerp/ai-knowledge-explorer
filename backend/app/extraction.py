@@ -55,6 +55,7 @@ class StructuredExtractionService:
         self.api_key = api_key
         self.model = model
         self.transport = transport
+        self._response_format_mode = "json_schema"
 
     @property
     def enabled(self) -> bool:
@@ -93,34 +94,24 @@ class StructuredExtractionService:
         payload = {
             "model": self.model,
             "temperature": 0,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "ai_radar_connection_probe",
-                    "strict": True,
-                    "schema": schema,
-                },
-            },
             "messages": [
                 {
                     "role": "system",
-                    "content": "Return an empty facts array and no additional text.",
+                    "content": (
+                        'Return exactly one valid JSON object shaped as {"facts": []} '
+                        "and no additional text."
+                    ),
                 },
-                {"role": "user", "content": "Connection and JSON Schema capability check."},
+                {"role": "user", "content": "Connection and structured JSON capability check."},
             ],
         }
         try:
-            with httpx.Client(
-                transport=self.transport,
-                timeout=httpx.Timeout(30.0, connect=10.0),
-            ) as client:
-                response = client.post(
-                    self.api_url or "",
-                    headers={"Authorization": f"Bearer {self.api_key}"},
-                    json=payload,
-                )
-                response.raise_for_status()
-                body = response.json()
+            body, response_format_mode = self._completion(
+                payload,
+                schema=schema,
+                schema_name="ai_radar_connection_probe",
+                timeout_seconds=30.0,
+            )
             content = body["choices"][0]["message"]["content"]
             _ExtractionEnvelope.model_validate_json(content)
         except httpx.HTTPStatusError as error:
@@ -193,8 +184,59 @@ class StructuredExtractionService:
             started,
             host,
             passed=True,
-            detail="连接、鉴权与 JSON Schema 结构化输出均已通过。",
+            detail=(
+                "连接、鉴权与 JSON Schema 结构化输出均已通过。"
+                if response_format_mode == "json_schema"
+                else "连接与鉴权已通过；供应商使用 JSON Object 兼容模式，输出仍会经过严格字段校验。"
+            ),
         )
+
+    def _completion(
+        self,
+        payload: dict[str, Any],
+        *,
+        schema: dict[str, Any],
+        schema_name: str,
+        timeout_seconds: float,
+    ) -> tuple[dict[str, Any], str]:
+        modes = (
+            ("json_object",)
+            if self._response_format_mode == "json_object"
+            else ("json_schema", "json_object")
+        )
+        with httpx.Client(
+            transport=self.transport,
+            timeout=httpx.Timeout(timeout_seconds, connect=10.0),
+        ) as client:
+            for mode in modes:
+                response_format: dict[str, Any]
+                if mode == "json_schema":
+                    response_format = {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": schema_name,
+                            "strict": True,
+                            "schema": schema,
+                        },
+                    }
+                else:
+                    response_format = {"type": "json_object"}
+                response = client.post(
+                    self.api_url or "",
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    json={**payload, "response_format": response_format},
+                )
+                if (
+                    mode == "json_schema"
+                    and response.status_code in {400, 422}
+                    and "json_object" in modes
+                ):
+                    continue
+                response.raise_for_status()
+                body = response.json()
+                self._response_format_mode = mode
+                return body, mode
+        raise RuntimeError("No structured response format was attempted.")
 
     def _probe_result(
         self,
@@ -235,20 +277,14 @@ class StructuredExtractionService:
         payload = {
             "model": self.model,
             "temperature": 0,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "ai_radar_facts",
-                    "strict": True,
-                    "schema": schema,
-                },
-            },
             "messages": [
                 {
                     "role": "system",
                     "content": (
                         "Extract only explicit, source-supported facts. Do not infer missing values. "
                         "Return bilingual concise claim text. Dates must be ISO-8601 when present."
+                        ' Return exactly one valid JSON object shaped as {"facts": [...]} and no '
+                        "additional text."
                     ),
                 },
                 {
@@ -261,18 +297,13 @@ class StructuredExtractionService:
                 },
             ],
         }
-        with httpx.Client(
-            transport=self.transport,
-            timeout=httpx.Timeout(60.0, connect=10.0),
-        ) as client:
-            response = client.post(
-                self.api_url or "",
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                json=payload,
-            )
-            response.raise_for_status()
-            body = response.json()
         try:
+            body, _ = self._completion(
+                payload,
+                schema=schema,
+                schema_name="ai_radar_facts",
+                timeout_seconds=60.0,
+            )
             content = body["choices"][0]["message"]["content"]
             extracted = _ExtractionEnvelope.model_validate_json(content)
         except (KeyError, IndexError, TypeError, ValueError) as error:
