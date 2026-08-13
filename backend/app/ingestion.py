@@ -224,7 +224,10 @@ class IngestionService:
         previous = session.scalars(
             select(DocumentSnapshotRecord)
             .where(DocumentSnapshotRecord.source_id == source_id)
-            .order_by(DocumentSnapshotRecord.observed_at.desc())
+            .order_by(
+                DocumentSnapshotRecord.observed_at.desc(),
+                DocumentSnapshotRecord.id.desc(),
+            )
             .limit(1)
         ).first()
 
@@ -232,12 +235,19 @@ class IngestionService:
             snapshot = previous
             change_type = "unchanged"
         else:
+            observed_at = started_at
+            if previous:
+                previous_observed_at = previous.observed_at
+                if previous_observed_at.tzinfo is None:
+                    previous_observed_at = previous_observed_at.replace(tzinfo=UTC)
+                if observed_at <= previous_observed_at:
+                    observed_at = previous_observed_at + timedelta(microseconds=1)
             snapshot = DocumentSnapshotRecord(
                 id=str(uuid4()),
                 source_id=source_id,
                 content_hash=content_hash,
                 content_text=content,
-                observed_at=started_at,
+                observed_at=observed_at,
                 published_at=payload.published_at,
                 previous_snapshot_id=previous.id if previous else None,
             )

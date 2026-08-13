@@ -9,6 +9,7 @@ from app.database import EmailOutboxRecord, SourceRecord
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import create_app
+from app.schemas import CandidateCreate
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
 
@@ -34,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-extraction-backoff-v18",
+        "release": "2026.08.13-grounded-relation-review-v19",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -114,6 +115,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
+        "relationsAutoApproved": 0,
         "failed": 0,
     }
 
@@ -162,6 +164,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         assert integrations["automaticExtractionMaxSnapshotsPerCycle"] == 2
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
+        assert integrations["automaticRelationApprovalEnabled"] is False
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -197,6 +200,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
+            "relationsAutoApproved": 0,
             "failed": 0,
         }
 
@@ -240,6 +244,141 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         )
         assert cooling_down.status_code == 200
         assert cooling_down.json()["result"]["extraction"]["planned"] == 0
+
+
+def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'grounded-relations.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_approve_grounded_relations=True,
+    )
+
+    def candidate(candidate_id: str, predicate: str, value: str) -> CandidateCreate:
+        return CandidateCreate.model_validate(
+            {
+                "id": candidate_id,
+                "claim": {
+                    "id": f"claim-{candidate_id}",
+                    "text": {
+                        "zh": f"GPT 系列的关系为 {predicate} {value}。",
+                        "en": f"GPT family has relation {predicate} {value}.",
+                    },
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-{candidate_id}"],
+                    "updatedAt": "2026-08-13",
+                    "subject": "GPT family",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-{candidate_id}",
+                        "title": {"zh": "官方关系说明", "en": "Official relation note"},
+                        "url": "https://example.com/grounded-relations",
+                        "publisher": "Example",
+                        "publishedAt": "2026-08-13",
+                        "collectedAt": "2026-08-13",
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    with TestClient(create_app(settings)) as automatic_client:
+        admin_headers = {"X-Admin-Token": "test-admin-token"}
+        automation_headers = {
+            "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
+        }
+        source = automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+            json={
+                "id": "source-grounded-relations",
+                "url": "https://example.com/grounded-relations",
+                "title": "Grounded relations",
+                "publisher": "Example",
+            },
+        )
+        assert source.status_code == 201
+        first_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-grounded-relations/snapshots",
+            headers=admin_headers,
+            json={"content": "GPT family is developed-by OpenAI according to this record."},
+        )
+        assert first_snapshot.status_code == 200
+        with automatic_client.app.state.database.session() as session:
+            row = session.get(SourceRecord, "source-grounded-relations")
+            assert row is not None
+            row.fetch_enabled = True
+            row.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("review-grounded-relation", "developed-by", "OpenAI")
+            ],
+        )
+
+        approved = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert approved.status_code == 200
+        assert approved.json()["result"]["extraction"]["relationsAutoApproved"] == 1
+        queue = automatic_client.get(
+            "/api/v2/admin/review-queue",
+            headers=admin_headers,
+        ).json()
+        grounded = next(item for item in queue if item["id"] == "review-grounded-relation")
+        assert grounded["status"] == "approved"
+        assert grounded["reviewReason"].startswith("自动批准")
+        publications = automatic_client.get(
+            "/api/v2/admin/publication-history",
+            headers=admin_headers,
+        ).json()
+        assert publications[0]["actor"] == "automation@ai-radar.local"
+
+        second_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-grounded-relations/snapshots",
+            headers=admin_headers,
+            json={"content": "GPT family and OpenAI are both mentioned in this record."},
+        )
+        assert second_snapshot.status_code == 200
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("review-unanchored-relation", "developed-by", "OpenAI")
+            ],
+        )
+        pending = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert pending.status_code == 200
+        assert pending.json()["result"]["extraction"]["relationsAutoApproved"] == 0
+        queue = automatic_client.get(
+            "/api/v2/admin/review-queue",
+            headers=admin_headers,
+        ).json()
+        unanchored = next(
+            item for item in queue if item["id"] == "review-unanchored-relation"
+        )
+        assert unanchored["status"] == "pending"
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):
@@ -509,6 +648,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "automaticExtractionMaxSnapshotsPerCycle": 0,
         "automaticExtractionMaxCandidatesPerSnapshot": 10,
         "automaticExtractionRetryMinutes": 360,
+        "automaticRelationApprovalEnabled": False,
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,

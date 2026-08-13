@@ -199,6 +199,7 @@ export interface IntegrationStatus {
   automaticExtractionMaxSnapshotsPerCycle: number;
   automaticExtractionMaxCandidatesPerSnapshot: number;
   automaticExtractionRetryMinutes: number;
+  automaticRelationApprovalEnabled: boolean;
   smtpConfigured: boolean;
   smtpHost?: string;
   smtpFrom?: string;

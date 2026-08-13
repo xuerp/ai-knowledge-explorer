@@ -90,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-extraction-backoff-v18"
+SERVICE_RELEASE = "2026.08.13-grounded-relation-review-v19"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -575,6 +575,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 app_settings.auto_extraction_max_candidates_per_snapshot
             ),
             automatic_extraction_retry_minutes=app_settings.auto_extraction_retry_minutes,
+            automatic_relation_approval_enabled=app_settings.auto_approve_grounded_relations,
             smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,
@@ -782,7 +783,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 ).all()
             )
         snapshots = session.scalars(
-            select(DocumentSnapshotRecord).order_by(DocumentSnapshotRecord.observed_at.desc())
+            select(DocumentSnapshotRecord).order_by(
+                DocumentSnapshotRecord.observed_at.desc(),
+                DocumentSnapshotRecord.id.desc(),
+            )
         ).all()
         planned: list[tuple[SourceRecord, DocumentSnapshotRecord]] = []
         seen_sources: set[str] = set()
@@ -840,6 +844,80 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 created.append(repository.to_queue_item(row))
         return created
 
+    def is_grounded_relation_auto_approvable(
+        session: Session,
+        row: ReviewJobRecord,
+        source: SourceRecord,
+        snapshot_row: DocumentSnapshotRecord,
+    ) -> bool:
+        if not app_settings.auto_approve_grounded_relations:
+            return False
+        item = repository.to_queue_item(row)
+        claim = item.claim
+        if (
+            item.status != "pending"
+            or item.conflict_claim_ids
+            or not item.entity_id
+            or claim.predicate not in {"developed-by", "part-of", "successor-of"}
+            or not claim.subject
+            or not claim.object_or_value
+        ):
+            return False
+
+        def reference_key(value: str | None) -> str:
+            return " ".join((value or "").casefold().split())
+
+        document = reference_key(snapshot_row.content_text)
+        subject_key = reference_key(claim.subject)
+        target_key = reference_key(claim.object_or_value)
+        if subject_key not in document or target_key not in document:
+            return False
+        predicate_anchors = {
+            "developed-by": ("developed-by", "developed by", "开发"),
+            "part-of": ("part-of", "part of", "属于", "隶属于"),
+            "successor-of": ("successor-of", "successor of", "继任", "后继"),
+        }
+        if not any(
+            reference_key(anchor) in document
+            for anchor in predicate_anchors[claim.predicate]
+        ):
+            return False
+
+        catalog = get_catalog_snapshot(session)
+        source_entities = [entity for entity in catalog.entities if entity.id == item.entity_id]
+        if len(source_entities) != 1:
+            return False
+        source_entity = source_entities[0]
+        source_references = {
+            reference_key(source_entity.id),
+            reference_key(source_entity.slug),
+            reference_key(source_entity.name.zh),
+            reference_key(source_entity.name.en),
+            *(reference_key(alias) for alias in source_entity.aliases or []),
+        }
+        if subject_key not in source_references:
+            return False
+        targets = [
+            entity
+            for entity in catalog.entities
+            if target_key
+            in {
+                reference_key(entity.id),
+                reference_key(entity.slug),
+                reference_key(entity.name.zh),
+                reference_key(entity.name.en),
+                *(reference_key(alias) for alias in entity.aliases or []),
+            }
+        ]
+        if len(targets) != 1 or targets[0].id == item.entity_id:
+            return False
+        evidence_items = repository.approved_evidence(row)
+        return bool(evidence_items) and all(
+            evidence.type == "official"
+            and str(evidence.url).rstrip("/") == source.url.rstrip("/")
+            for evidence in evidence_items
+        )
+
     def run_automatic_extraction(session: Session) -> dict[str, object]:
         limit = app_settings.auto_extraction_max_snapshots_per_cycle
         summary: dict[str, object] = {
@@ -848,6 +926,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "planned": 0,
             "processed": 0,
             "candidatesCreated": 0,
+            "relationsAutoApproved": 0,
             "failed": 0,
         }
         if not summary["enabled"]:
@@ -868,6 +947,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     snapshot_row,
                     app_settings.auto_extraction_max_candidates_per_snapshot,
                 )
+                auto_approved = 0
+                for item in created:
+                    row = session.get(ReviewJobRecord, item.id)
+                    if row and is_grounded_relation_auto_approvable(
+                        session,
+                        row,
+                        source,
+                        snapshot_row,
+                    ):
+                        decide_review(
+                            row.id,
+                            ReviewDecision(
+                                expected_version=row.version,
+                                reason="自动批准：官方原文逐字锚定主客体与关系语义，且实体唯一、零冲突。",
+                            ),
+                            "approved",
+                            principal,
+                            session,
+                        )
+                        auto_approved += 1
                 audit.record(
                     session,
                     principal,
@@ -885,6 +984,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(
                     created
                 )
+                summary["relationsAutoApproved"] = int(
+                    summary["relationsAutoApproved"]
+                ) + auto_approved
             except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
                 session.rollback()
                 audit.record(
@@ -1384,7 +1486,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         rows = session.scalars(
             select(DocumentSnapshotRecord)
             .where(DocumentSnapshotRecord.source_id == source_id)
-            .order_by(DocumentSnapshotRecord.observed_at.desc())
+            .order_by(
+                DocumentSnapshotRecord.observed_at.desc(),
+                DocumentSnapshotRecord.id.desc(),
+            )
             .limit(limit)
         ).all()
         return [

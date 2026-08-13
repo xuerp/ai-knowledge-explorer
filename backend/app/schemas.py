@@ -307,6 +307,7 @@ class IntegrationStatus(CamelModel):
     automatic_extraction_max_snapshots_per_cycle: int
     automatic_extraction_max_candidates_per_snapshot: int
     automatic_extraction_retry_minutes: int
+    automatic_relation_approval_enabled: bool
     smtp_configured: bool
     smtp_host: str | None = None
     smtp_from: str | None = None
