@@ -90,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-golden-readiness-v15"
+SERVICE_RELEASE = "2026.08.13-automatic-extraction-v16"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -296,6 +296,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         now=current,
                         heartbeat=cycle_heartbeat,
                     )
+                    automatic_extraction = run_automatic_extraction(session)
+                    result["extraction"] = automatic_extraction
+                    if int(automatic_extraction.get("failed", 0)) > 0:
+                        errors = result.setdefault("errors", {})
+                        if isinstance(errors, dict):
+                            errors["extraction"] = automatic_extraction.get("errors", [])
                     cycle_status = operations.complete_cycle(
                         session,
                         worker_id,
@@ -735,6 +741,131 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def get_catalog_snapshot(session: Session) -> KnowledgeSnapshot:
         return repository.public_snapshot(session)
+
+    def build_extraction_plan(
+        session: Session,
+        limit: int,
+        *,
+        automatic_only: bool = False,
+    ) -> list[tuple[SourceRecord, DocumentSnapshotRecord]]:
+        extracted_snapshot_ids = set(
+            session.scalars(
+                select(AuditLogRecord.target_id).where(
+                    AuditLogRecord.action == "extraction.run",
+                    AuditLogRecord.target_type == "document_snapshot",
+                )
+            ).all()
+        )
+        snapshots = session.scalars(
+            select(DocumentSnapshotRecord).order_by(DocumentSnapshotRecord.observed_at.desc())
+        ).all()
+        planned: list[tuple[SourceRecord, DocumentSnapshotRecord]] = []
+        seen_sources: set[str] = set()
+        for snapshot_row in snapshots:
+            if snapshot_row.source_id in seen_sources:
+                continue
+            seen_sources.add(snapshot_row.source_id)
+            if snapshot_row.id in extracted_snapshot_ids:
+                continue
+            source = session.get(SourceRecord, snapshot_row.source_id)
+            if not source or not source.active:
+                continue
+            if automatic_only and not source.fetch_enabled:
+                continue
+            planned.append((source, snapshot_row))
+            if len(planned) >= limit:
+                break
+        return planned
+
+    def create_extraction_candidates(
+        session: Session,
+        source: SourceRecord,
+        snapshot_row: DocumentSnapshotRecord,
+        max_candidates: int,
+    ) -> list[ReviewQueueItem]:
+        public_snapshot = get_catalog_snapshot(session)
+        candidates = extraction.extract(
+            source,
+            snapshot_row,
+            max_candidates,
+            public_snapshot.entities,
+        )
+        created: list[ReviewQueueItem] = []
+        for candidate in candidates:
+            assessment = quality_gate.assess(candidate, public_snapshot)
+            if assessment.resolved_entity_id:
+                candidate = candidate.model_copy(
+                    update={"entity_id": assessment.resolved_entity_id}
+                )
+            reason = None
+            if assessment.conflicting_claim_ids:
+                reason = "Structured conflict detected against: " + ", ".join(
+                    assessment.conflicting_claim_ids
+                )
+            row = ingestion.submit_candidate(
+                session,
+                candidate,
+                queue_status=assessment.queue_status,
+                conflict_claim_ids=assessment.conflicting_claim_ids,
+                review_reason=reason,
+            )
+            if row:
+                created.append(repository.to_queue_item(row))
+        return created
+
+    def run_automatic_extraction(session: Session) -> dict[str, object]:
+        limit = app_settings.auto_extraction_max_snapshots_per_cycle
+        summary: dict[str, object] = {
+            "configured": extraction.enabled,
+            "enabled": extraction.enabled and limit > 0,
+            "planned": 0,
+            "processed": 0,
+            "candidatesCreated": 0,
+            "failed": 0,
+        }
+        if not summary["enabled"]:
+            return summary
+        planned = build_extraction_plan(session, limit, automatic_only=True)
+        summary["planned"] = len(planned)
+        errors: list[dict[str, str]] = []
+        principal = Principal(
+            subject="automation",
+            email="automation@ai-radar.local",
+            role="admin",
+        )
+        for source, snapshot_row in planned:
+            try:
+                created = create_extraction_candidates(
+                    session,
+                    source,
+                    snapshot_row,
+                    app_settings.auto_extraction_max_candidates_per_snapshot,
+                )
+                audit.record(
+                    session,
+                    principal,
+                    "extraction.run",
+                    "document_snapshot",
+                    snapshot_row.id,
+                    {
+                        "automatic": True,
+                        "candidatesCreated": len(created),
+                        "sourceId": source.id,
+                    },
+                )
+                session.commit()
+                summary["processed"] = int(summary["processed"]) + 1
+                summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(
+                    created
+                )
+            except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
+                session.rollback()
+                summary["failed"] = int(summary["failed"]) + 1
+                errors.append({"sourceId": source.id, "error": str(error)[:500]})
+                break
+        if errors:
+            summary["errors"] = errors
+        return summary
 
     def get_golden_question_report(session: Session) -> GoldenQuestionReport:
         return golden_questions.evaluate(get_catalog_snapshot(session))
@@ -1254,40 +1385,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit: Annotated[int, Query(ge=1, le=50)] = 20,
     ) -> list[ExtractionPlanItem]:
         response.headers["Cache-Control"] = "no-store"
-        extracted_snapshot_ids = set(
-            session.scalars(
-                select(AuditLogRecord.target_id).where(
-                    AuditLogRecord.action == "extraction.run",
-                    AuditLogRecord.target_type == "document_snapshot",
-                )
-            ).all()
-        )
-        snapshots = session.scalars(
-            select(DocumentSnapshotRecord).order_by(DocumentSnapshotRecord.observed_at.desc())
-        ).all()
-        planned: list[ExtractionPlanItem] = []
-        seen_sources: set[str] = set()
-        for snapshot_row in snapshots:
-            if snapshot_row.source_id in seen_sources:
-                continue
-            seen_sources.add(snapshot_row.source_id)
-            if snapshot_row.id in extracted_snapshot_ids:
-                continue
-            source = session.get(SourceRecord, snapshot_row.source_id)
-            if not source or not source.active:
-                continue
-            planned.append(
-                ExtractionPlanItem(
-                    source_id=source.id,
-                    source_title=source.title,
-                    snapshot_id=snapshot_row.id,
-                    observed_at=snapshot_row.observed_at,
-                    readable_characters=len(snapshot_row.content_text),
-                )
+        return [
+            ExtractionPlanItem(
+                source_id=source.id,
+                source_title=source.title,
+                snapshot_id=snapshot_row.id,
+                observed_at=snapshot_row.observed_at,
+                readable_characters=len(snapshot_row.content_text),
             )
-            if len(planned) >= limit:
-                break
-        return planned
+            for source, snapshot_row in build_extraction_plan(session, limit)
+        ]
 
     @app.post(
         "/api/v2/admin/sources/{source_id}/extract",
@@ -1316,39 +1423,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="No source snapshot is available for extraction.",
             )
         try:
-            public_snapshot = get_catalog_snapshot(session)
-            candidates = extraction.extract(
+            created = create_extraction_candidates(
+                session,
                 source,
                 snapshot_row,
                 payload.max_candidates,
-                public_snapshot.entities,
             )
         except ExtractionUnavailableError as error:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(error),
             ) from error
-        created: list[ReviewQueueItem] = []
-        for candidate in candidates:
-            assessment = quality_gate.assess(candidate, public_snapshot)
-            if assessment.resolved_entity_id:
-                candidate = candidate.model_copy(
-                    update={"entity_id": assessment.resolved_entity_id}
-                )
-            reason = None
-            if assessment.conflicting_claim_ids:
-                reason = "Structured conflict detected against: " + ", ".join(
-                    assessment.conflicting_claim_ids
-                )
-            row = ingestion.submit_candidate(
-                session,
-                candidate,
-                queue_status=assessment.queue_status,
-                conflict_claim_ids=assessment.conflicting_claim_ids,
-                review_reason=reason,
-            )
-            if row:
-                created.append(repository.to_queue_item(row))
         audit.record(
             session,
             principal,
