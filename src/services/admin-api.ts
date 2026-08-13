@@ -1,5 +1,6 @@
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
+import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
@@ -243,6 +244,10 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     },
   });
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      expireAuthSession();
+      throw new Error("登录已过期，请重新登录。");
+    }
     const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
     throw new Error(`${path}：${detail?.detail || `请求失败（${response.status}）`}`);
   }

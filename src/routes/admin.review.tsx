@@ -40,7 +40,12 @@ import {
   type ReviewQueueItem,
   type SourceView,
 } from "@/services/admin-api";
-import { clearAuthToken, readAuthToken, writeAuthToken } from "@/services/auth-session";
+import {
+  authSessionExpiredEvent,
+  clearAuthToken,
+  readAuthToken,
+  writeAuthToken,
+} from "@/services/auth-session";
 
 export const Route = createFileRoute("/admin/review")({
   head: () => ({
@@ -194,6 +199,18 @@ function AdminReviewPage() {
       setError(reason instanceof Error ? reason.message : "Session validation failed.");
     });
   }, [refresh]);
+
+  useEffect(() => {
+    const handleExpiredSession = () => {
+      setToken("");
+      setUser(null);
+      setWorkspace(null);
+      setOperationMessage("");
+      setError("登录已过期，请重新登录。");
+    };
+    window.addEventListener(authSessionExpiredEvent, handleExpiredSession);
+    return () => window.removeEventListener(authSessionExpiredEvent, handleExpiredSession);
+  }, []);
 
   useEffect(() => {
     if (!token || user?.role !== "admin") return;
