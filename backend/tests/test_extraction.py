@@ -119,9 +119,25 @@ def test_extraction_probe_falls_back_to_strictly_validated_json_object():
         formats.append(response_format)
         if response_format == "json_schema":
             return httpx.Response(400, json={"error": {"message": "unsupported"}})
+        prompt = " ".join(message["content"] for message in request_json["messages"])
+        assert "objectOrValue" in prompt
+        assert "validFrom" in prompt
         return httpx.Response(
             200,
-            json={"choices": [{"message": {"content": '{"facts":[]}'}}]},
+            json={
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                '{"facts":[{"subject":"AI Radar","predicate":"probe",'
+                                '"objectOrValue":"ok","textZh":"连接正常",'
+                                '"textEn":"Connection works.","validFrom":null,'
+                                '"validTo":null}]}'
+                            )
+                        }
+                    }
+                ]
+            },
         )
 
     service = StructuredExtractionService(
@@ -174,6 +190,61 @@ def test_extraction_json_object_fallback_remains_schema_strict():
 
     with pytest.raises(ExtractionUnavailableError, match="invalid structured response"):
         service.extract(source, snapshot, 5)
+
+
+def test_extraction_compatibility_normalizes_fenced_top_level_array():
+    def handler(request: httpx.Request) -> httpx.Response:
+        request_json = json.loads(request.content)
+        if request_json["response_format"]["type"] == "json_schema":
+            return httpx.Response(400, json={"error": {"message": "unsupported"}})
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "```json\n"
+                                '[{"subject":"MCP","predicate":"uses","objectOrValue":"JSON-RPC",'
+                                '"textZh":"MCP 使用 JSON-RPC。","textEn":"MCP uses JSON-RPC.",'
+                                '"validFrom":null,"validTo":null}]\n'
+                                "```"
+                            )
+                        }
+                    }
+                ]
+            },
+        )
+
+    source = SourceRecord(
+        id="source-test",
+        url="https://example.com/spec",
+        title="Official specification",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-test",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="MCP uses JSON-RPC.",
+        observed_at=datetime.now(UTC),
+    )
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.extract(source, snapshot, 5)
+
+    assert len(result) == 1
+    assert result[0].claim.subject == "MCP"
+    assert result[0].claim.object_or_value == "JSON-RPC"
 
 
 def test_extraction_probe_reports_incomplete_configuration_without_network():

@@ -88,7 +88,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-extraction-fallback-v10"
+SERVICE_RELEASE = "2026.08.13-extraction-contract-v11"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
