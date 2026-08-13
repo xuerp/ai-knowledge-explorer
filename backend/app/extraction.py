@@ -64,6 +64,15 @@ def extraction_audit_is_current(detail_json: str | None) -> bool:
     return detail.get("pipelineVersion") == EXTRACTION_PIPELINE_VERSION
 
 
+def entity_reference_appears(content: str, entity: Entity) -> bool:
+    content_key = content.casefold()
+    references = [entity.name.zh, entity.name.en, *(entity.aliases or [])]
+    return any(
+        reference.strip() and reference.casefold() in content_key
+        for reference in references
+    )
+
+
 def locate_source_excerpt(
     content: str,
     subject: str,
@@ -334,19 +343,11 @@ class StructuredExtractionService:
             for entity in (catalog_entities or [])
         )
         priority_ids = set(priority_entity_ids or [])
-        source_text = snapshot.content_text.casefold()
-
-        def source_mentions(entity: Entity) -> bool:
-            references = [entity.name.zh, entity.name.en, *(entity.aliases or [])]
-            return any(
-                reference.strip() and reference.casefold() in source_text
-                for reference in references
-            )
-
         priority_context = "\n".join(
             f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
             for entity in (catalog_entities or [])
-            if entity.id in priority_ids and source_mentions(entity)
+            if entity.id in priority_ids
+            and entity_reference_appears(snapshot.content_text, entity)
         )
         relation_candidate_target = (
             min(max_candidates, max(1, max_candidates // 2))

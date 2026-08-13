@@ -31,6 +31,7 @@ from .extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionUnavailableError,
     StructuredExtractionService,
+    entity_reference_appears,
     extraction_audit_is_current,
 )
 from .fetching import FetchPolicyError, SafeHttpFetcher
@@ -103,7 +104,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-quality-gap-extraction-v32"
+SERVICE_RELEASE = "2026.08.14-priority-source-planning-v33"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -817,7 +818,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 DocumentSnapshotRecord.id.desc(),
             )
         ).all()
-        planned: list[tuple[SourceRecord, DocumentSnapshotRecord]] = []
+        eligible: list[tuple[SourceRecord, DocumentSnapshotRecord]] = []
         seen_sources: set[str] = set()
         for snapshot_row in snapshots:
             if snapshot_row.source_id in seen_sources:
@@ -832,10 +833,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 continue
             if automatic_only and not source.fetch_enabled:
                 continue
-            planned.append((source, snapshot_row))
-            if len(planned) >= limit:
-                break
-        return planned
+            eligible.append((source, snapshot_row))
+
+        public_snapshot = get_catalog_snapshot(session)
+        quality = quality_gate.report(public_snapshot)
+        priority_ids = set(quality.core_entities_below_five_relations)
+        priority_entities = [
+            entity for entity in public_snapshot.entities if entity.id in priority_ids
+        ]
+
+        def priority_mentions(
+            item: tuple[SourceRecord, DocumentSnapshotRecord],
+        ) -> int:
+            return sum(
+                entity_reference_appears(item[1].content_text, entity)
+                for entity in priority_entities
+            )
+
+        eligible.sort(
+            key=lambda item: (
+                priority_mentions(item),
+                item[1].observed_at,
+                item[1].id,
+            ),
+            reverse=True,
+        )
+        return eligible[:limit]
 
     def create_extraction_candidates(
         session: Session,

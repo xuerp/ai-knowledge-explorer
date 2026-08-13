@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-quality-gap-extraction-v32",
+        "release": "2026.08.14-priority-source-planning-v33",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -1372,6 +1372,50 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
 
     refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
+
+
+def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    for source_id in ("source-priority-plan", "source-generic-plan"):
+        response = client.post(
+            "/api/v2/admin/sources",
+            headers=headers,
+            json={
+                "id": source_id,
+                "url": f"https://example.com/{source_id}",
+                "title": source_id,
+                "publisher": "Example",
+            },
+        )
+        assert response.status_code == 201
+
+    priority = client.post(
+        "/api/v2/admin/sources/source-priority-plan/snapshots",
+        headers=headers,
+        json={
+            "content": (
+                "Model Context Protocol uses JSON-RPC as its message protocol."
+            )
+        },
+    )
+    assert priority.status_code == 200
+    generic = client.post(
+        "/api/v2/admin/sources/source-generic-plan/snapshots",
+        headers=headers,
+        json={"content": "A newer generic document contains an explicit fact."},
+    )
+    assert generic.status_code == 200
+
+    planned = client.get(
+        "/api/v2/admin/extraction-plan?limit=50",
+        headers=headers,
+    ).json()
+    source_order = [row["sourceId"] for row in planned]
+    assert source_order.index("source-priority-plan") < source_order.index(
+        "source-generic-plan"
+    )
 
 
 def test_source_probe_is_admin_only_read_only_and_audited(
