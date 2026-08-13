@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
+import { resolveReviewReason, type ReviewAction } from "@/domain/review-decision";
 import {
   describeProbeFailure,
   formatRolloutSummary,
@@ -170,6 +171,8 @@ function AdminReviewPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [reviewingIds, setReviewingIds] = useState<Set<string>>(() => new Set());
+  const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
   const [catalogKind, setCatalogKind] = useState<CatalogRecordKind>("entity");
   const [catalogJson, setCatalogJson] = useState(catalogExamples.entity);
   const [timelineEntityId, setTimelineEntityId] = useState("");
@@ -273,21 +276,60 @@ function AdminReviewPage() {
     }
   };
 
-  const decide = async (item: ReviewQueueItem, action: "approve" | "reject") => {
-    const reason = reasons[item.id]?.trim();
-    if (!reason || reason.length < 3) {
-      setError("请先填写至少 3 个字符的审核理由。");
+  const decide = async (item: ReviewQueueItem, action: ReviewAction) => {
+    let reason: string;
+    try {
+      reason = resolveReviewReason(action, reasons[item.id]);
+    } catch (failure) {
+      setReviewErrors((current) => ({
+        ...current,
+        [item.id]: failure instanceof Error ? failure.message : "请填写审核理由。",
+      }));
       return;
     }
-    setBusy(true);
+    setReviewingIds((current) => new Set(current).add(item.id));
+    setReviewErrors((current) => ({ ...current, [item.id]: "" }));
     setError("");
     try {
-      await adminApi.decide(token, item.id, action, item.version, reason);
-      await refresh(token);
+      const decided = await adminApi.decide(token, item.id, action, item.version, reason);
+      setWorkspace((current) =>
+        current
+          ? {
+              ...current,
+              queue: current.queue.map((candidate) =>
+                candidate.id === decided.id ? decided : candidate,
+              ),
+            }
+          : current,
+      );
+      setReasons((current) => {
+        const next = { ...current };
+        delete next[item.id];
+        return next;
+      });
+      setOperationMessage(
+        action === "approve" ? "候选已批准并进入审核历史。" : "候选已拒绝并进入审核历史。",
+      );
+      try {
+        await refresh(token);
+      } catch {
+        setOperationMessage(
+          action === "approve"
+            ? "候选已批准；统计信息将在下次刷新时更新。"
+            : "候选已拒绝；统计信息将在下次刷新时更新。",
+        );
+      }
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Review action failed.");
+      setReviewErrors((current) => ({
+        ...current,
+        [item.id]: failure instanceof Error ? failure.message : "审核操作失败。",
+      }));
     } finally {
-      setBusy(false);
+      setReviewingIds((current) => {
+        const next = new Set(current);
+        next.delete(item.id);
+        return next;
+      });
     }
   };
 
@@ -993,53 +1035,64 @@ function AdminReviewPage() {
               </p>
             </div>
           )}
-          {orderedPendingQueue.map((item) => (
-            <article
-              key={item.id}
-              className={`paper-card p-5 ${recentCandidateIds.has(item.id) ? "border-signal/50 ring-1 ring-signal/20" : ""}`}
-            >
-              <div className="flex flex-wrap justify-between gap-3">
-                <div>
-                  <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
-                  <h3 className="mt-2 font-medium">{item.claim.text.zh}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.claim.text.en}</p>
+          {orderedPendingQueue.map((item) => {
+            const reviewing = reviewingIds.has(item.id);
+            return (
+              <article
+                key={item.id}
+                className={`paper-card p-5 ${recentCandidateIds.has(item.id) ? "border-signal/50 ring-1 ring-signal/20" : ""}`}
+              >
+                <div className="flex flex-wrap justify-between gap-3">
+                  <div>
+                    <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
+                    <h3 className="mt-2 font-medium">{item.claim.text.zh}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.claim.text.en}</p>
+                  </div>
+                  <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
+                    {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
+                  </span>
                 </div>
-                <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
-                  {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
-                </span>
-              </div>
-              {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
-                <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
-                  {item.reviewReason}
-                  {item.conflictClaimIds.length > 0 && (
-                    <div className="mt-1 font-mono text-xs">{item.conflictClaimIds.join(", ")}</div>
-                  )}
+                {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
+                  <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
+                    {item.reviewReason}
+                    {item.conflictClaimIds.length > 0 && (
+                      <div className="mt-1 font-mono text-xs">
+                        {item.conflictClaimIds.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    aria-label="审核理由"
+                    placeholder="批准可直接点击；拒绝请填写理由"
+                    value={reasons[item.id] ?? ""}
+                    disabled={reviewing}
+                    onChange={(event) =>
+                      setReasons((current) => ({ ...current, [item.id]: event.target.value }))
+                    }
+                  />
+                  <Button onClick={() => decide(item, "approve")} disabled={reviewing}>
+                    <Check />
+                    {reviewing ? "处理中…" : "批准"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => decide(item, "reject")}
+                    disabled={reviewing}
+                  >
+                    <X />
+                    拒绝
+                  </Button>
                 </div>
-              )}
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Input
-                  aria-label="审核理由"
-                  placeholder="填写可审计的审核理由"
-                  value={reasons[item.id] ?? ""}
-                  onChange={(event) =>
-                    setReasons((current) => ({ ...current, [item.id]: event.target.value }))
-                  }
-                />
-                <Button onClick={() => decide(item, "approve")} disabled={busy}>
-                  <Check />
-                  批准
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => decide(item, "reject")}
-                  disabled={busy}
-                >
-                  <X />
-                  拒绝
-                </Button>
-              </div>
-            </article>
-          ))}
+                {reviewErrors[item.id] && (
+                  <p className="mt-2 text-sm text-conflict" role="alert">
+                    {reviewErrors[item.id]}
+                  </p>
+                )}
+              </article>
+            );
+          })}
         </section>
 
         {reviewHistory.length > 0 && (
