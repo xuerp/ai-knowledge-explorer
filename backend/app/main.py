@@ -102,7 +102,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-versioned-extraction-v25"
+SERVICE_RELEASE = "2026.08.14-review-method-visibility-v26"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",

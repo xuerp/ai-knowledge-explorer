@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-versioned-extraction-v25",
+        "release": "2026.08.14-review-method-visibility-v26",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -349,6 +349,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         ).json()
         grounded = next(item for item in queue if item["id"] == "review-grounded-relation")
         assert grounded["status"] == "approved"
+        assert grounded["reviewMethod"] == "automation"
         assert grounded["reviewReason"].startswith("自动批准")
         publications = automatic_client.get(
             "/api/v2/admin/publication-history",
@@ -820,6 +821,7 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert approved.json()["status"] == "approved"
     assert approved.json()["version"] == review["version"] + 1
     assert approved.json()["claim"]["confidence"] == "verified"
+    assert approved.json()["reviewMethod"] == "human"
 
     snapshot = client.get("/api/snapshot").json()
     published_claim = next(claim for claim in snapshot["claims"] if claim["id"] == "c-gpt5-1m")

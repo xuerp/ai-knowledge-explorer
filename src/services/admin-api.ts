@@ -25,6 +25,7 @@ export interface ReviewQueueItem {
   reviewedAt?: string;
   version: number;
   reviewReason?: string;
+  reviewMethod?: "human" | "automation";
 }
 
 export interface SourceView {

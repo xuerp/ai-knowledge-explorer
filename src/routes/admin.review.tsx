@@ -1391,6 +1391,11 @@ function AdminReviewPage() {
                     </div>
                     <span className="rounded-full border border-border px-2.5 py-1 text-xs">
                       {item.status === "approved" ? "已批准" : "已拒绝"}
+                      {item.reviewMethod === "automation"
+                        ? " · 自动批准"
+                        : item.reviewMethod === "human"
+                          ? " · 人工审核"
+                          : " · 历史记录"}
                     </span>
                   </div>
                 </article>

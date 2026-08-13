@@ -589,6 +589,13 @@ class KnowledgeRepository:
             **candidate.model_dump(),
             version=row.version,
             review_reason=row.review_reason,
+            review_method=(
+                "automation"
+                if row.reviewed_by == "automation@ai-radar.local"
+                else "human"
+                if row.reviewed_by
+                else None
+            ),
             conflict_claim_ids=json.loads(row.conflict_ids_json or "[]"),
         )
 
