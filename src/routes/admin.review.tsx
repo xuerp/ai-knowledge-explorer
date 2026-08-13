@@ -775,6 +775,56 @@ function AdminReviewPage() {
   const batchApproveRecentCandidates = () =>
     batchApproveCandidates(recentExtraction?.candidateIds ?? []);
 
+  const verifyAutomationApprovals = async () => {
+    if (!workspace) return;
+    const candidates = workspace.queue
+      .filter(
+        (item) =>
+          item.status === "approved" &&
+          item.reviewMethod === "automation" &&
+          item.evidenceItems.length > 0,
+      )
+      .slice(0, 50);
+    if (candidates.length === 0) {
+      setOperationMessage("当前没有需要补做人工核验的自动批准项。");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setOperationMessage(`正在人工确认 ${candidates.length} 条自动批准记录。`);
+    try {
+      const verified = await adminApi.batchVerifyAutomation(
+        token,
+        candidates.map((item) => ({
+          id: item.id,
+          expectedVersion: item.version,
+          reason: "人工复核：已对照自动批准项的官方证据确认表述一致。",
+        })),
+      );
+      const decisions = new Map(verified.map((item) => [item.id, item]));
+      setWorkspace((current) =>
+        current
+          ? {
+              ...current,
+              queue: current.queue.map((item) => decisions.get(item.id) ?? item),
+            }
+          : current,
+      );
+      setOperationMessage(`人工核验完成：${verified.length} 条自动批准记录已计入核验率。`);
+      toast.success(`已人工确认 ${verified.length} 条记录`, {
+        description: "证据核验状态和正式数据质量指标已更新。",
+        duration: 5_000,
+      });
+      await refresh(token);
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "人工核验失败";
+      setError(message);
+      toast.error("自动批准记录核验失败", { description: message, duration: 6_000 });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submitManualCandidate = async (
     event: FormEvent<HTMLFormElement>,
     source: SourceView,
@@ -967,6 +1017,12 @@ function AdminReviewPage() {
   );
   const reviewHistory = workspace.queue.filter(
     (item) => item.status === "approved" || item.status === "rejected",
+  );
+  const automationApprovals = reviewHistory.filter(
+    (item) =>
+      item.status === "approved" &&
+      item.reviewMethod === "automation" &&
+      item.evidenceItems.length > 0,
   );
   const recentCandidateIds = new Set(recentExtraction?.candidateIds ?? []);
   const recentBatchApprovable = selectBatchApprovableReviewItems(
@@ -1420,6 +1476,53 @@ function AdminReviewPage() {
             );
           })}
         </section>
+
+        {automationApprovals.length > 0 && (
+          <section className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-xl font-semibold">自动批准项待人工确认</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  这些关系已通过严格原文锚定并公开，但不会冒充人工核验。请对照下方原文后批量确认；
+                  单次最多处理 50 条。
+                </p>
+              </div>
+              <Button type="button" disabled={busy} onClick={verifyAutomationApprovals}>
+                <Check />
+                人工确认本批（{Math.min(50, automationApprovals.length)}）
+              </Button>
+            </div>
+            <div className="mt-4 max-h-96 space-y-3 overflow-y-auto pr-1">
+              {automationApprovals.slice(0, 50).map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-md border border-border bg-background/70 p-3"
+                >
+                  <p className="text-sm font-medium">{item.claim.text.zh}</p>
+                  <div className="mt-2 space-y-2">
+                    {item.evidenceItems.map((evidence) => (
+                      <div key={evidence.id} className="text-xs text-muted-foreground">
+                        {evidence.sourceExcerpt && (
+                          <blockquote className="border-l-2 border-signal/40 pl-3 leading-relaxed">
+                            {evidence.sourceExcerpt}
+                          </blockquote>
+                        )}
+                        <a
+                          className="mt-1 inline-block text-signal underline underline-offset-4"
+                          href={evidence.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          打开官方原文
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {reviewHistory.length > 0 && (
           <details className="paper-card p-5">

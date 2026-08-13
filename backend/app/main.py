@@ -104,7 +104,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-unique-worker-runtime-v34"
+SERVICE_RELEASE = "2026.08.14-human-verified-automation-v35"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -2020,6 +2020,71 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             session.rollback()
             raise
         return decisions
+
+    @app.post(
+        "/api/v2/admin/review-queue/batch-verify-automation",
+        response_model=list[ReviewQueueItem],
+    )
+    def batch_verify_automation_reviews(
+        verification: ReviewBatchApproval,
+        actor: ReviewerDependency,
+        session: SessionDependency,
+    ) -> list[ReviewQueueItem]:
+        item_ids = [item.id for item in verification.items]
+        if len(item_ids) != len(set(item_ids)):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="A review job can appear only once in a batch.",
+            )
+        verified: list[ReviewQueueItem] = []
+        try:
+            for item in verification.items:
+                row = session.scalar(
+                    select(ReviewJobRecord)
+                    .where(ReviewJobRecord.id == item.id)
+                    .with_for_update()
+                )
+                if row is None:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Review job not found.",
+                    )
+                if row.status != "approved" or row.reviewed_by != "automation@ai-radar.local":
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=(
+                            "Only an approved automation review can receive human verification."
+                        ),
+                    )
+                if row.version != item.expected_version:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"Review job version is {row.version}; refresh before verifying.",
+                    )
+                if not repository.to_queue_item(row).evidence_ids:
+                    raise HTTPException(
+                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        detail="An approved claim cannot be verified without evidence.",
+                    )
+                row.reviewed_at = datetime.now(UTC)
+                row.reviewed_by = actor.email
+                row.review_reason = item.reason
+                row.version += 1
+                repository.persist_approved_verification(row)
+                audit.record(
+                    session,
+                    actor,
+                    "review.human_verified",
+                    "review_job",
+                    row.id,
+                    {"claimId": row.claim_id, "reason": item.reason},
+                )
+                verified.append(repository.to_queue_item(row))
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        return verified
 
     @app.post(
         "/api/v2/admin/review-queue/{review_id}/approve",
