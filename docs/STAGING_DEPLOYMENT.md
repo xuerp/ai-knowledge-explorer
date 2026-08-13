@@ -6,6 +6,7 @@
 
 - 前端：`https://ai-radar-staging.1966761779.workers.dev`
 - API：`https://ai-radar-api-staging.onrender.com`
+- 浏览器同域 API 入口：`https://ai-radar-staging.1966761779.workers.dev/backend`，由 Cloudflare Worker 转发至 Render，避免浏览器直连 Render 的网络不稳定。
 - 就绪检查：`https://ai-radar-api-staging.onrender.com/ready`
 
 2026 年 8 月 9 日已完成无凭据远程冒烟验收：前端返回 `200`，API 健康检查与就绪检查通过，公开快照可读，Cloudflare 来源的 CORS 预检通过。该环境仍明确保持 `AI_RADAR_DATA_MODE=demo`。
