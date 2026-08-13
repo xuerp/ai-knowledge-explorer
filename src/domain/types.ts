@@ -30,6 +30,7 @@ export interface Evidence {
   publishedAt: string;
   collectedAt: string;
   verifiedAt?: string;
+  sourceExcerpt?: string;
   originalLanguage?: Lang;
   type: "official" | "paper" | "news" | "community" | "benchmark";
   supportsClaimIds?: string[];

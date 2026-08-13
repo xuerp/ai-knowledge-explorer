@@ -1357,6 +1357,11 @@ function AdminReviewPage() {
                           <div className="text-xs text-muted-foreground">
                             {evidence.publisher} · {evidence.type} · 采集于 {evidence.collectedAt}
                           </div>
+                          {evidence.sourceExcerpt && (
+                            <blockquote className="mt-2 border-l-2 border-signal/40 pl-3 text-xs leading-relaxed text-muted-foreground">
+                              {evidence.sourceExcerpt}
+                            </blockquote>
+                          )}
                         </div>
                         <a
                           className="shrink-0 text-sm text-signal underline underline-offset-4"

@@ -31,6 +31,7 @@ class Evidence(CamelModel):
     published_at: str
     collected_at: str
     verified_at: str | None = None
+    source_excerpt: str | None = None
     original_language: Literal["zh", "en"] | None = None
     type: Literal["official", "paper", "news", "community", "benchmark"]
     supports_claim_ids: list[str] | None = None
