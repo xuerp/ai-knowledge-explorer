@@ -1272,7 +1272,9 @@ function AdminReviewPage() {
             <div>
               <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                这里只显示需要处理的候选；已批准和已拒绝记录保留在下方历史中。
+                当前待处理 {pendingQueue.length} 条，其中 {allBatchApprovable.length}{" "}
+                条具备可见证据、{" "}
+                无冲突且可安全批量批准；其余需要单独判断。已处理记录保留在下方历史中。
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

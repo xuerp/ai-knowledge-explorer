@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-transactional-batch-review-v30",
+        "release": "2026.08.14-isolated-extraction-failures-v31",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -251,6 +251,82 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         )
         assert cooling_down.status_code == 200
         assert cooling_down.json()["result"]["extraction"]["planned"] == 0
+
+
+def test_automation_extraction_failure_does_not_block_the_next_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'isolated-extraction.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=2,
+    )
+    extraction_calls: list[str] = []
+
+    def extract_with_first_failure(
+        self,
+        source,
+        snapshot,
+        max_candidates,
+        catalog_entities=None,
+        **kwargs,
+    ):
+        extraction_calls.append(source.id)
+        if len(extraction_calls) == 1:
+            raise ExtractionUnavailableError("The first source is temporarily unavailable.")
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", extract_with_first_failure)
+    with TestClient(create_app(settings)) as automatic_client:
+        admin_headers = {"X-Admin-Token": "test-admin-token"}
+        for suffix in ("one", "two"):
+            source_id = f"source-isolated-{suffix}"
+            created = automatic_client.post(
+                "/api/v2/admin/sources",
+                headers=admin_headers,
+                json={
+                    "id": source_id,
+                    "url": f"https://example.com/isolated-{suffix}",
+                    "title": f"Isolated extraction source {suffix}",
+                    "publisher": "Example",
+                },
+            )
+            assert created.status_code == 201
+            snapshot = automatic_client.post(
+                f"/api/v2/admin/sources/{source_id}/snapshots",
+                headers=admin_headers,
+                json={"content": f"Explicit source fact for {suffix}."},
+            )
+            assert snapshot.status_code == 200
+            with automatic_client.app.state.database.session() as session:
+                source = session.get(SourceRecord, source_id)
+                assert source is not None
+                source.fetch_enabled = True
+                source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+                session.commit()
+
+        response = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers={
+                "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
+            },
+        )
+        assert response.status_code == 200
+        extraction = response.json()["result"]["extraction"]
+        assert extraction["planned"] == 2
+        assert extraction["processed"] == 1
+        assert extraction["failed"] == 1
+        assert len(extraction_calls) == 2
 
 
 def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations(

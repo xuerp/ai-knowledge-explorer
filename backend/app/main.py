@@ -103,7 +103,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-transactional-batch-review-v30"
+SERVICE_RELEASE = "2026.08.14-isolated-extraction-failures-v31"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1159,7 +1159,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 session.commit()
                 summary["failed"] = int(summary["failed"]) + 1
                 errors.append({"sourceId": source.id, "error": str(error)[:500]})
-                break
+                continue
         if errors:
             summary["errors"] = errors
         return summary
