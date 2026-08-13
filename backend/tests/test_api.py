@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-relation-deduplication-v23",
+        "release": "2026.08.14-review-provenance-v24",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -355,6 +355,13 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
             headers=admin_headers,
         ).json()
         assert publications[0]["actor"] == "automation@ai-radar.local"
+        snapshot = automatic_client.get("/api/snapshot").json()
+        automatic_evidence = next(
+            evidence
+            for evidence in snapshot["evidence"]
+            if evidence["id"] == "evidence-review-grounded-relation"
+        )
+        assert automatic_evidence["verifiedAt"] is None
 
         second_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",

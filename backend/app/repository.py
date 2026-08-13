@@ -547,12 +547,17 @@ class KnowledgeRepository:
         return claim.model_copy(update=updates)
 
     def approved_evidence(self, row: ReviewJobRecord) -> list[Evidence]:
-        verified_at = row.reviewed_at.isoformat() if row.reviewed_at else None
+        verified_at = (
+            row.reviewed_at.isoformat()
+            if row.reviewed_at
+            and row.reviewed_by
+            and row.reviewed_by != "automation@ai-radar.local"
+            else None
+        )
         evidence_items: list[Evidence] = []
         for raw_evidence in json.loads(row.evidence_json or "[]"):
             evidence = Evidence.model_validate(raw_evidence)
-            if verified_at and not evidence.verified_at:
-                evidence = evidence.model_copy(update={"verified_at": verified_at})
+            evidence = evidence.model_copy(update={"verified_at": verified_at})
             evidence_items.append(evidence)
         return evidence_items
 
