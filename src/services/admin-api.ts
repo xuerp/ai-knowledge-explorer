@@ -195,6 +195,9 @@ export interface IntegrationStatus {
   extractionConfigured: boolean;
   extractionEndpointHost?: string;
   extractionModel?: string;
+  automaticExtractionEnabled: boolean;
+  automaticExtractionMaxSnapshotsPerCycle: number;
+  automaticExtractionMaxCandidatesPerSnapshot: number;
   smtpConfigured: boolean;
   smtpHost?: string;
   smtpFrom?: string;

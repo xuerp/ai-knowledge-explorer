@@ -303,6 +303,9 @@ class IntegrationStatus(CamelModel):
     extraction_configured: bool
     extraction_endpoint_host: str | None = None
     extraction_model: str | None = None
+    automatic_extraction_enabled: bool
+    automatic_extraction_max_snapshots_per_cycle: int
+    automatic_extraction_max_candidates_per_snapshot: int
     smtp_configured: bool
     smtp_host: str | None = None
     smtp_from: str | None = None
