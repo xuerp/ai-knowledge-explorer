@@ -32,7 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-extraction-probe-v7",
+        "release": "2026.08.13-runtime-data-v8",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
