@@ -2,9 +2,10 @@ import json
 from datetime import UTC, datetime
 
 import httpx
+import pytest
 
 from app.database import DocumentSnapshotRecord, SourceRecord
-from app.extraction import StructuredExtractionService
+from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 
 
 def test_structured_extraction_is_strict_unverified_and_evidence_linked():
@@ -107,6 +108,72 @@ def test_extraction_probe_classifies_provider_failures_without_exposing_response
     assert result.error_code == "structured_output_unsupported"
     assert "sensitive" not in result.detail
     assert "secret" not in result.model
+
+
+def test_extraction_probe_falls_back_to_strictly_validated_json_object():
+    formats: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        request_json = json.loads(request.content)
+        response_format = request_json["response_format"]["type"]
+        formats.append(response_format)
+        if response_format == "json_schema":
+            return httpx.Response(400, json={"error": {"message": "unsupported"}})
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"content": '{"facts":[]}'}}]},
+        )
+
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.probe()
+
+    assert result.passed is True
+    assert formats == ["json_schema", "json_object"]
+    assert "JSON Object 兼容模式" in result.detail
+
+
+def test_extraction_json_object_fallback_remains_schema_strict():
+    def handler(request: httpx.Request) -> httpx.Response:
+        request_json = json.loads(request.content)
+        if request_json["response_format"]["type"] == "json_schema":
+            return httpx.Response(422, json={"error": {"message": "unsupported"}})
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"content": '{"facts":[],"unsafe":true}'}}]},
+        )
+
+    source = SourceRecord(
+        id="source-test",
+        url="https://example.com/spec",
+        title="Official specification",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-test",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="Official source text.",
+        observed_at=datetime.now(UTC),
+    )
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    with pytest.raises(ExtractionUnavailableError, match="invalid structured response"):
+        service.extract(source, snapshot, 5)
 
 
 def test_extraction_probe_reports_incomplete_configuration_without_network():
