@@ -700,6 +700,8 @@ class DataQualityReport(CamelModel):
     claims_remaining: int
     core_entities_below_five_relations: list[str]
     core_entity_relation_counts: dict[str, int]
+    core_entity_relation_labels: dict[str, LocalizedText]
+    core_relation_deficit: int
     golden_questions: GoldenQuestionReport | None = None
     claims_with_missing_evidence: list[str]
     relations_with_missing_evidence: list[str]

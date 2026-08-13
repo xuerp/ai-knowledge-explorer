@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-semantic-deduplication-v21",
+        "release": "2026.08.14-data-readiness-roadmap-v22",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",

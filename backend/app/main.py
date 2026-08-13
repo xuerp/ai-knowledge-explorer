@@ -92,7 +92,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-semantic-deduplication-v21"
+SERVICE_RELEASE = "2026.08.14-data-readiness-roadmap-v22"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

@@ -259,6 +259,15 @@ class KnowledgeQualityGate:
             core_entity_relation_counts={
                 entity_id: degrees[entity_id] for entity_id in core_entities_below_five
             },
+            core_entity_relation_labels={
+                entity.id: entity.name
+                for entity in snapshot.entities
+                if entity.id in core_entities_below_five
+            },
+            core_relation_deficit=sum(
+                CORE_ENTITY_RELATION_REQUIREMENT - degrees[entity_id]
+                for entity_id in core_entities_below_five
+            ),
             claims_with_missing_evidence=claims_with_missing_evidence,
             relations_with_missing_evidence=relations_with_missing_evidence,
             timeline_entries_with_missing_evidence=timeline_entries_with_missing_evidence,
