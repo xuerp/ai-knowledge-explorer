@@ -200,6 +200,17 @@ export interface IntegrationStatus {
   digestTimezone: string;
 }
 
+export interface ExtractionProbeResult {
+  configured: boolean;
+  passed: boolean;
+  checkedAt: string;
+  latencyMs: number;
+  endpointHost?: string;
+  model?: string;
+  errorCode?: string;
+  detail: string;
+}
+
 export interface ProductionReadinessCheck {
   code: string;
   title: string;
@@ -343,6 +354,13 @@ export const adminApi = {
   probeSource: (token: string, id: string) =>
     request<SourceProbeResult>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/probe`,
+      { method: "POST" },
+      token,
+    ),
+
+  probeExtraction: (token: string) =>
+    request<ExtractionProbeResult>(
+      "/api/v2/admin/integrations/extraction/probe",
       { method: "POST" },
       token,
     ),

@@ -312,6 +312,17 @@ class IntegrationStatus(CamelModel):
     digest_timezone: str
 
 
+class ExtractionProbeResult(CamelModel):
+    configured: bool
+    passed: bool
+    checked_at: datetime
+    latency_ms: int
+    endpoint_host: str | None = None
+    model: str | None = None
+    error_code: str | None = None
+    detail: str
+
+
 class ProductionReadinessCheck(CamelModel):
     code: str
     title: str

@@ -298,6 +298,25 @@ function AdminReviewPage() {
     }
   };
 
+  const probeExtraction = async () => {
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    try {
+      const result = await adminApi.probeExtraction(token);
+      const target = [result.model, result.endpointHost].filter(Boolean).join(" · ");
+      setOperationMessage(
+        result.passed
+          ? `AI 抽取预检通过：${target}，耗时 ${result.latencyMs} 毫秒。现在可以从已采集快照生成候选。`
+          : `AI 抽取预检未通过（${result.errorCode ?? "unknown"}）：${result.detail}`,
+      );
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "AI 抽取连接预检失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const updateSource = async (
     source: SourceView,
     changes: Partial<Pick<SourceView, "active" | "fetchEnabled" | "fetchIntervalMinutes">>,
@@ -854,6 +873,17 @@ function AdminReviewPage() {
                   workspace.integrations.extractionConfigured
                     ? `${workspace.integrations.extractionModel} · ${workspace.integrations.extractionEndpointHost}`
                     : "未配置 API 地址、密钥或模型"
+                }
+                action={
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={probeExtraction}
+                  >
+                    验证连接与结构化输出
+                  </Button>
                 }
               />
               <IntegrationCard
@@ -1745,10 +1775,12 @@ function IntegrationCard({
   title,
   ready,
   detail,
+  action,
 }: {
   title: string;
   ready: boolean;
   detail: string;
+  action?: ReactNode;
 }) {
   return (
     <div className="rounded-lg border border-border p-4">
@@ -1763,6 +1795,7 @@ function IntegrationCard({
         </span>
       </div>
       <p className="mt-3 text-xs leading-5 text-muted-foreground">{detail}</p>
+      {action && <div className="mt-3">{action}</div>}
     </div>
   );
 }
