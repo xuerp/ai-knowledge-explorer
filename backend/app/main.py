@@ -90,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-automatic-extraction-v16"
+SERVICE_RELEASE = "2026.08.13-automatic-extraction-status-v17"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -564,6 +564,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ),
             extraction_endpoint_host=extraction_host,
             extraction_model=app_settings.extraction_model,
+            automatic_extraction_enabled=(
+                extraction.enabled
+                and app_settings.auto_extraction_max_snapshots_per_cycle > 0
+            ),
+            automatic_extraction_max_snapshots_per_cycle=(
+                app_settings.auto_extraction_max_snapshots_per_cycle
+            ),
+            automatic_extraction_max_candidates_per_snapshot=(
+                app_settings.auto_extraction_max_candidates_per_snapshot
+            ),
             smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,

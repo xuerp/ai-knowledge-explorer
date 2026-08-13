@@ -1207,7 +1207,11 @@ function AdminReviewPage() {
                 ready={workspace.integrations.extractionConfigured}
                 detail={
                   workspace.integrations.extractionConfigured
-                    ? `${workspace.integrations.extractionModel} · ${workspace.integrations.extractionEndpointHost}`
+                    ? `${workspace.integrations.extractionModel} · ${workspace.integrations.extractionEndpointHost} · ${
+                        workspace.integrations.automaticExtractionEnabled
+                          ? `自动抽取每轮最多 ${workspace.integrations.automaticExtractionMaxSnapshotsPerCycle} 个快照、每个最多 ${workspace.integrations.automaticExtractionMaxCandidatesPerSnapshot} 条候选`
+                          : "自动抽取未启用"
+                      }`
                     : "未配置 API 地址、密钥或模型"
                 }
                 action={

@@ -34,7 +34,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-automatic-extraction-v16",
+        "release": "2026.08.13-automatic-extraction-status-v17",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -154,6 +154,13 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         automation_headers = {
             "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
         }
+        integrations = automatic_client.get(
+            "/api/v2/admin/integrations",
+            headers=admin_headers,
+        ).json()
+        assert integrations["automaticExtractionEnabled"] is True
+        assert integrations["automaticExtractionMaxSnapshotsPerCycle"] == 2
+        assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -491,6 +498,9 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "extractionConfigured": False,
         "extractionEndpointHost": None,
         "extractionModel": None,
+        "automaticExtractionEnabled": False,
+        "automaticExtractionMaxSnapshotsPerCycle": 0,
+        "automaticExtractionMaxCandidatesPerSnapshot": 10,
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,
