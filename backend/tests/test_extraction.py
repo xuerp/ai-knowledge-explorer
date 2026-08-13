@@ -62,3 +62,56 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
     assert result[0].claim.object_or_value == "2M"
     assert result[0].claim.source_ids == [result[0].evidence[0].id]
     assert result[0].evidence[0].url == source.url
+
+
+def test_extraction_probe_checks_authentication_and_json_schema_support():
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["authorization"] == "Bearer test-secret"
+        request_json = json.loads(request.content)
+        assert request_json["response_format"]["type"] == "json_schema"
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"content": '{"facts":[]}'}}]},
+        )
+
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.probe()
+
+    assert result.configured is True
+    assert result.passed is True
+    assert result.endpoint_host == "extractor.example"
+    assert result.model == "structured-model"
+    assert result.error_code is None
+    assert "JSON Schema" in result.detail
+
+
+def test_extraction_probe_classifies_provider_failures_without_exposing_response_body():
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "secret-that-must-not-leak",
+        "unsupported-model",
+        transport=httpx.MockTransport(
+            lambda _request: httpx.Response(400, text="sensitive provider response")
+        ),
+    )
+
+    result = service.probe()
+
+    assert result.passed is False
+    assert result.error_code == "structured_output_unsupported"
+    assert "sensitive" not in result.detail
+    assert "secret" not in result.model
+
+
+def test_extraction_probe_reports_incomplete_configuration_without_network():
+    result = StructuredExtractionService(None, None, None).probe()
+
+    assert result.configured is False
+    assert result.passed is False
+    assert result.error_code == "not_configured"

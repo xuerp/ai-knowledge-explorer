@@ -48,6 +48,7 @@ from .schemas import (
     EmailOutboxRetryRequest,
     EmailOutboxView,
     Entity,
+    ExtractionProbeResult,
     ExtractionRequest,
     FollowCreate,
     FollowView,
@@ -87,7 +88,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.12-worker-runtime-v6"
+SERVICE_RELEASE = "2026.08.13-extraction-probe-v7"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -558,6 +559,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             automatic_sources=sum(source.fetch_enabled for source in sources),
             digest_timezone=app_settings.digest_timezone,
         )
+
+    @app.post(
+        "/api/v2/admin/integrations/extraction/probe",
+        response_model=ExtractionProbeResult,
+    )
+    def probe_extraction_integration(
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> ExtractionProbeResult:
+        result = extraction.probe()
+        audit.record(
+            session,
+            principal,
+            "integration.extraction.probe",
+            "integration",
+            "extraction",
+            {
+                "passed": result.passed,
+                "errorCode": result.error_code,
+                "endpointHost": result.endpoint_host,
+                "model": result.model,
+                "latencyMs": result.latency_ms,
+            },
+        )
+        session.commit()
+        return result
 
     @app.get("/api/v2/admin/operations", response_model=OperationsDiagnostics)
     def operations_status(

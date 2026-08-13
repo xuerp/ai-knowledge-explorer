@@ -32,7 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.12-worker-runtime-v6",
+        "release": "2026.08.13-extraction-probe-v7",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -391,6 +391,28 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     assert "secret" not in serialized
     assert "password" not in serialized
     assert "api_key" not in serialized
+
+
+def test_admin_extraction_probe_is_protected_audited_and_safe_when_unconfigured(
+    client: TestClient,
+):
+    endpoint = "/api/v2/admin/integrations/extraction/probe"
+    assert client.post(endpoint).status_code == 401
+
+    response = client.post(endpoint, headers={"X-Admin-Token": "test-admin-token"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["configured"] is False
+    assert payload["passed"] is False
+    assert payload["errorCode"] == "not_configured"
+    assert payload["endpointHost"] is None
+    assert "api_key" not in response.text.casefold()
+    audit = client.get(
+        "/api/v2/admin/audit-log",
+        headers={"X-Admin-Token": "test-admin-token"},
+    ).json()
+    assert any(entry["action"] == "integration.extraction.probe" for entry in audit)
 
 
 def test_admin_production_readiness_reports_blockers_without_secrets(client: TestClient):
