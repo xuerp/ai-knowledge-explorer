@@ -6,6 +6,10 @@ type ReviewQueueState = {
   version: number;
 };
 
+type BatchReviewState = ReviewQueueState & {
+  conflictClaimIds: readonly string[];
+};
+
 const terminalReviewStatuses = new Set<ReviewQueueState["status"]>(["approved", "rejected"]);
 
 export const defaultApprovalReason = "已人工核对事实、来源和证据。";
@@ -45,4 +49,15 @@ export function mergeReviewQueue<T extends ReviewQueueState>(
     if (!incomingIds.has(item.id)) merged.push(item);
   }
   return merged;
+}
+
+export function selectBatchApprovableReviewItems<T extends BatchReviewState>(
+  queue: readonly T[],
+  candidateIds: readonly string[],
+): T[] {
+  const selectedIds = new Set(candidateIds);
+  return queue.filter(
+    (item) =>
+      selectedIds.has(item.id) && item.status === "pending" && item.conflictClaimIds.length === 0,
+  );
 }

@@ -523,6 +523,14 @@ class ExtractionRequest(CamelModel):
     max_candidates: int = Field(default=10, ge=1, le=30)
 
 
+class ExtractionPlanItem(CamelModel):
+    source_id: str
+    source_title: str
+    snapshot_id: str
+    observed_at: datetime
+    readable_characters: int
+
+
 Role = Literal["viewer", "reviewer", "admin"]
 
 

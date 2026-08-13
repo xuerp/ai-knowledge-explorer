@@ -15,6 +15,7 @@ from .schemas import (
     CandidateCreate,
     Claim,
     ClaimText,
+    Entity,
     Evidence,
     ExtractionProbeResult,
     LocalizedText,
@@ -276,6 +277,7 @@ class StructuredExtractionService:
         source: SourceRecord,
         snapshot: DocumentSnapshotRecord,
         max_candidates: int,
+        catalog_entities: list[Entity] | None = None,
     ) -> list[CandidateCreate]:
         if not self.enabled:
             raise ExtractionUnavailableError(
@@ -286,6 +288,10 @@ class StructuredExtractionService:
         if parsed.scheme != "https" and parsed.hostname not in {"127.0.0.1", "localhost"}:
             raise ExtractionUnavailableError("The extraction endpoint must use HTTPS.")
         schema: dict[str, Any] = _ExtractionEnvelope.model_json_schema(by_alias=True)
+        catalog_context = "\n".join(
+            f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
+            for entity in (catalog_entities or [])
+        )
         payload = {
             "model": self.model,
             "temperature": 0,
@@ -295,6 +301,10 @@ class StructuredExtractionService:
                     "content": (
                         "Extract only explicit, source-supported facts. Do not infer missing values. "
                         "Return bilingual concise claim text. Dates must be ISO-8601 when present."
+                        " When an explicit fact relates two known catalog entities, use one of these "
+                        "exact canonical predicates: developed-by, based-on, competes-with, "
+                        "benchmarked-on, uses, cited-by, part-of, successor-of. Use the catalog entity "
+                        "name verbatim as subject and objectOrValue."
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
@@ -303,6 +313,7 @@ class StructuredExtractionService:
                     "content": (
                         f"Publisher: {source.publisher}\nURL: {source.url}\n"
                         f"Maximum facts: {max_candidates}\n\n"
+                        f"Known catalog entities:\n{catalog_context or '(not provided)'}\n\n"
                         f"{snapshot.content_text[:60000]}"
                     ),
                 },
