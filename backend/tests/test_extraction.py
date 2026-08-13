@@ -5,7 +5,12 @@ import httpx
 import pytest
 
 from app.database import DocumentSnapshotRecord, SourceRecord
-from app.extraction import ExtractionUnavailableError, StructuredExtractionService
+from app.extraction import (
+    EXTRACTION_PIPELINE_VERSION,
+    ExtractionUnavailableError,
+    StructuredExtractionService,
+    extraction_audit_is_current,
+)
 
 
 def test_structured_extraction_is_strict_unverified_and_evidence_linked():
@@ -16,6 +21,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         prompt = "\n".join(message["content"] for message in request_json["messages"])
         assert "canonical predicates" in prompt
         assert "Known catalog entities" in prompt
+        assert "Priority entities with incomplete relation coverage" in prompt
         return httpx.Response(
             200,
             json={
@@ -58,7 +64,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         transport=httpx.MockTransport(handler),
     )
 
-    result = service.extract(source, snapshot, 5)
+    result = service.extract(source, snapshot, 5, priority_entity_ids=["e-gpt"])
 
     assert len(result) == 1
     assert result[0].claim.confidence == "unverified"
@@ -66,6 +72,14 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
     assert result[0].claim.object_or_value == "2M"
     assert result[0].claim.source_ids == [result[0].evidence[0].id]
     assert result[0].evidence[0].url == source.url
+
+
+def test_extraction_audit_only_accepts_the_current_pipeline_version():
+    assert extraction_audit_is_current(
+        json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION})
+    )
+    assert extraction_audit_is_current("{}") is False
+    assert extraction_audit_is_current("not-json") is False
 
 
 def test_extraction_probe_checks_authentication_and_json_schema_support():

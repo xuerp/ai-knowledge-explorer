@@ -27,7 +27,12 @@ from .database import (
 )
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
-from .extraction import ExtractionUnavailableError, StructuredExtractionService
+from .extraction import (
+    EXTRACTION_PIPELINE_VERSION,
+    ExtractionUnavailableError,
+    StructuredExtractionService,
+    extraction_audit_is_current,
+)
 from .fetching import FetchPolicyError, SafeHttpFetcher
 from .golden_questions import GoldenQuestionEvaluator
 from .ingestion import IngestionService, normalize_source_url
@@ -97,7 +102,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-review-provenance-v24"
+SERVICE_RELEASE = "2026.08.14-versioned-extraction-v25"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -779,14 +784,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         *,
         automatic_only: bool = False,
     ) -> list[tuple[SourceRecord, DocumentSnapshotRecord]]:
-        extracted_snapshot_ids = set(
-            session.scalars(
-                select(AuditLogRecord.target_id).where(
-                    AuditLogRecord.action == "extraction.run",
-                    AuditLogRecord.target_type == "document_snapshot",
-                )
-            ).all()
-        )
+        extraction_runs = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action == "extraction.run",
+                AuditLogRecord.target_type == "document_snapshot",
+            )
+        ).all()
+        extracted_snapshot_ids = {
+            row.target_id
+            for row in extraction_runs
+            if extraction_audit_is_current(row.detail_json)
+        }
         cooling_down_snapshot_ids: set[str] = set()
         if automatic_only:
             retry_after = datetime.now(UTC) - timedelta(
@@ -834,11 +842,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         max_candidates: int,
     ) -> tuple[list[ReviewQueueItem], int]:
         public_snapshot = get_catalog_snapshot(session)
+        quality = quality_gate.report(public_snapshot)
         candidates = extraction.extract(
             source,
             snapshot_row,
             max_candidates,
             public_snapshot.entities,
+            priority_entity_ids=quality.core_entities_below_five_relations,
         )
 
         def semantic_fingerprint(
@@ -1108,6 +1118,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "automatic": True,
                         "candidatesCreated": len(created),
                         "duplicatesSkipped": duplicates_skipped,
+                        "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                         "sourceId": source.id,
                     },
                 )
@@ -1130,7 +1141,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "extraction.failed",
                     "document_snapshot",
                     snapshot_row.id,
-                    {"sourceId": source.id, "error": str(error)[:500]},
+                    {
+                        "sourceId": source.id,
+                        "error": str(error)[:500],
+                        "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
+                    },
                 )
                 session.commit()
                 summary["failed"] = int(summary["failed"]) + 1
@@ -1719,6 +1734,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             {
                 "candidatesCreated": len(created),
                 "duplicatesSkipped": duplicates_skipped,
+                "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                 "sourceId": source_id,
             },
         )

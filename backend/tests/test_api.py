@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-review-provenance-v24",
+        "release": "2026.08.14-versioned-extraction-v25",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -152,7 +152,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
     monkeypatch.setattr(
         StructuredExtractionService,
         "extract",
-        lambda self, source, snapshot, max_candidates, catalog_entities=None: [],
+        lambda self, source, snapshot, max_candidates, catalog_entities=None, **kwargs: [],
     )
     with TestClient(create_app(settings)) as automatic_client:
         admin_headers = {"X-Admin-Token": "test-admin-token"}
@@ -1163,7 +1163,7 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     monkeypatch.setattr(
         StructuredExtractionService,
         "extract",
-        lambda self, source, snapshot, max_candidates, catalog_entities=None: [],
+        lambda self, source, snapshot, max_candidates, catalog_entities=None, **kwargs: [],
     )
     extracted = client.post(
         "/api/v2/admin/sources/source-extraction-plan/extract",
