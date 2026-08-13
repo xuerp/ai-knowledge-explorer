@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,6 +32,48 @@ from .schemas import (
 )
 
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
+
+RELATION_PREDICATES: dict[str, Literal[
+    "developed-by",
+    "based-on",
+    "competes-with",
+    "benchmarked-on",
+    "uses",
+    "cited-by",
+    "part-of",
+    "successor-of",
+]] = {
+    "developed-by": "developed-by",
+    "developed by": "developed-by",
+    "由其开发": "developed-by",
+    "开发方": "developed-by",
+    "based-on": "based-on",
+    "based on": "based-on",
+    "基于": "based-on",
+    "competes-with": "competes-with",
+    "competes with": "competes-with",
+    "竞争": "competes-with",
+    "benchmarked-on": "benchmarked-on",
+    "benchmarked on": "benchmarked-on",
+    "评测于": "benchmarked-on",
+    "uses": "uses",
+    "use": "uses",
+    "使用": "uses",
+    "采用": "uses",
+    "cited-by": "cited-by",
+    "cited by": "cited-by",
+    "被引用": "cited-by",
+    "part-of": "part-of",
+    "part of": "part-of",
+    "属于": "part-of",
+    "successor-of": "successor-of",
+    "successor of": "successor-of",
+    "继任": "successor-of",
+}
+
+
+def _reference_key(value: str | None) -> str:
+    return " ".join((value or "").casefold().replace("_", " ").split())
 
 # 这些条目来自随应用发布的官方目录。映射仅处理已经确认迁移或会因尾斜杠
 # 规范化而被上游拦截的旧网址，不触碰管理员自行登记的信源。
@@ -274,6 +317,60 @@ class KnowledgeRepository:
             row.updated_at = now
         session.flush()
         return edge
+
+    def relation_from_approved_claim(
+        self,
+        session: Session,
+        row: ReviewJobRecord,
+    ) -> GraphEdge | None:
+        claim = self.approved_claim(row)
+        kind = RELATION_PREDICATES.get(_reference_key(claim.predicate))
+        if not kind or not row.entity_id or not claim.object_or_value:
+            return None
+        snapshot = self.public_snapshot(session)
+        target_key = _reference_key(claim.object_or_value)
+        targets = [
+            entity
+            for entity in snapshot.entities
+            if target_key
+            in {
+                _reference_key(entity.id),
+                _reference_key(entity.slug),
+                _reference_key(entity.name.zh),
+                _reference_key(entity.name.en),
+                *(_reference_key(alias) for alias in entity.aliases or []),
+            }
+        ]
+        if len(targets) != 1 or targets[0].id == row.entity_id:
+            return None
+        target_id = targets[0].id
+        existing_row = session.scalars(
+            select(KnowledgeRelationRecord).where(
+                KnowledgeRelationRecord.from_id == row.entity_id,
+                KnowledgeRelationRecord.to_id == target_id,
+                KnowledgeRelationRecord.kind == kind,
+            )
+        ).first()
+        source_ids = list(dict.fromkeys(claim.source_ids))
+        if existing_row:
+            existing = GraphEdge.model_validate_json(existing_row.payload_json)
+            return existing.model_copy(
+                update={
+                    "confidence": "verified",
+                    "source_ids": list(dict.fromkeys([*existing.source_ids, *source_ids])),
+                }
+            )
+        digest = hashlib.sha256(f"{row.entity_id}|{kind}|{target_id}".encode()).hexdigest()[:16]
+        return GraphEdge(
+            id=f"edge-reviewed-{digest}",
+            from_id=row.entity_id,
+            to_id=target_id,
+            kind=kind,
+            confidence="verified",
+            source_ids=source_ids,
+            valid_from=claim.valid_from,
+            valid_to=claim.valid_to,
+        )
 
     def upsert_timeline(
         self,

@@ -21,6 +21,7 @@ import {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   resolveReviewReason,
+  selectBatchApprovableReviewItems,
   type ReviewAction,
 } from "@/domain/review-decision";
 import {
@@ -38,6 +39,7 @@ import {
   type AuditEntry,
   type DataQualityReport,
   type DocumentSnapshotView,
+  type ExtractionPlanItem,
   type IngestionRun,
   type IntegrationStatus,
   type OperationsDiagnostics,
@@ -66,6 +68,7 @@ export const Route = createFileRoute("/admin/review")({
 
 type Workspace = {
   queue: ReviewQueueItem[];
+  extractionPlan: ExtractionPlanItem[];
   sources: SourceView[];
   runs: IngestionRun[];
   audit: AuditEntry[];
@@ -633,6 +636,151 @@ function AdminReviewPage() {
     }
   };
 
+  const batchExtractCandidates = async () => {
+    if (!workspace || workspace.extractionPlan.length === 0) {
+      setOperationMessage("当前没有等待抽取的新快照。");
+      return;
+    }
+    const plan = workspace.extractionPlan.slice(0, 10);
+    setBusy(true);
+    setError("");
+    setOperationMessage("");
+    const created: ReviewQueueItem[] = [];
+    const failures: string[] = [];
+    for (const [index, item] of plan.entries()) {
+      setOperationMessage(
+        `正在批量抽取 ${index + 1}/${plan.length}：${item.sourceTitle}。已生成 ${created.length} 条候选。`,
+      );
+      try {
+        created.push(...(await adminApi.extractSource(token, item.sourceId, 15, item.snapshotId)));
+      } catch (failure) {
+        failures.push(
+          `${item.sourceTitle}：${failure instanceof Error ? failure.message : "抽取失败"}`,
+        );
+      }
+    }
+    const candidateIds = created.map((item) => item.id);
+    if (candidateIds.length > 0) {
+      setRecentExtraction({
+        sourceTitle: `批量抽取 ${plan.length} 个信源`,
+        candidateIds,
+      });
+      setWorkspace((current) => {
+        if (!current) return current;
+        const createdIds = new Set(candidateIds);
+        return {
+          ...current,
+          queue: [...created, ...current.queue.filter((item) => !createdIds.has(item.id))],
+          extractionPlan: current.extractionPlan.filter(
+            (item) => !plan.some((planned) => planned.snapshotId === item.snapshotId),
+          ),
+        };
+      });
+    }
+    setOperationMessage(
+      `批量抽取完成：处理 ${plan.length} 个新快照，生成 ${created.length} 条候选，失败 ${failures.length} 个。${
+        failures.length > 0 ? ` 失败项：${failures.join("；")}` : ""
+      }`,
+    );
+    try {
+      await refresh(token);
+      if (candidateIds.length > 0) {
+        window.requestAnimationFrame(() => {
+          document.getElementById("review-queue")?.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "批量抽取后刷新失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const batchApproveRecentCandidates = async () => {
+    if (!workspace || !recentExtraction) return;
+    const candidates = selectBatchApprovableReviewItems(
+      workspace.queue,
+      recentExtraction.candidateIds,
+    );
+    if (candidates.length === 0) {
+      setOperationMessage("本批没有可直接批准的无冲突待审候选。");
+      return;
+    }
+    const candidateIds = new Set(candidates.map((item) => item.id));
+    setReviewingIds((current) => new Set([...current, ...candidateIds]));
+    setError("");
+    const decisions = new Map<string, ReviewQueueItem>();
+    const failures = new Map<string, string>();
+    for (const [index, item] of candidates.entries()) {
+      setOperationMessage(
+        `正在批准本批安全候选 ${index + 1}/${candidates.length}：${item.claim.text.zh}`,
+      );
+      try {
+        const reason = resolveReviewReason("approve", reasons[item.id]);
+        decisions.set(
+          item.id,
+          await adminApi.decide(token, item.id, "approve", item.version, reason),
+        );
+      } catch (failure) {
+        const message = failure instanceof Error ? failure.message : "审核失败";
+        if (isAlreadyAppliedReviewDecision("approve", message)) {
+          decisions.set(item.id, {
+            ...item,
+            status: "approved",
+            version: item.version + 1,
+          });
+        } else {
+          failures.set(item.id, message);
+        }
+      }
+    }
+    setWorkspace((current) =>
+      current
+        ? {
+            ...current,
+            queue: current.queue.map((item) => decisions.get(item.id) ?? item),
+          }
+        : current,
+    );
+    setReviewErrors((current) => ({ ...current, ...Object.fromEntries(failures) }));
+    setReasons((current) => {
+      const next = { ...current };
+      for (const id of decisions.keys()) delete next[id];
+      return next;
+    });
+    const remainingIds = recentExtraction.candidateIds.filter((id) => !decisions.has(id));
+    setRecentExtraction(
+      remainingIds.length > 0 ? { ...recentExtraction, candidateIds: remainingIds } : null,
+    );
+    const skipped = recentExtraction.candidateIds.length - candidates.length;
+    setOperationMessage(
+      `本批审核完成：批准 ${decisions.size} 条，失败 ${failures.size} 条，保留人工判断 ${skipped} 条。`,
+    );
+    if (decisions.size > 0) {
+      toast.success(`已批准 ${decisions.size} 条候选`, {
+        description: "待审核数量和审核历史已同步更新。",
+        duration: 5_000,
+      });
+    }
+    if (failures.size > 0) {
+      toast.error(`${failures.size} 条候选批准失败`, {
+        description: "失败条目仍保留在待审核队列，可单独重试。",
+        duration: 6_000,
+      });
+    }
+    try {
+      await refresh(token);
+    } catch {
+      // 已完成的决定保留在本地，延迟刷新不能将其降级回待审核。
+    } finally {
+      setReviewingIds((current) => {
+        const next = new Set(current);
+        for (const id of candidateIds) next.delete(id);
+        return next;
+      });
+    }
+  };
+
   const submitManualCandidate = async (
     event: FormEvent<HTMLFormElement>,
     source: SourceView,
@@ -691,6 +839,29 @@ function AdminReviewPage() {
     setCatalogKind(kind);
     setCatalogJson(catalogExamples[kind]);
     setCatalogMessage("");
+  };
+
+  const prepareRelationGap = (entityId: string) => {
+    setCatalogKind("relation");
+    setCatalogJson(
+      JSON.stringify(
+        {
+          id: `edge-${entityId.replace(/^e-/, "")}-replace-target`,
+          fromId: entityId,
+          toId: "replace-with-existing-entity-id",
+          kind: "uses",
+          label: { zh: "填写可核验关系", en: "Describe verified relation" },
+          confidence: "verified",
+          sourceIds: ["replace-with-existing-evidence-id"],
+        },
+        null,
+        2,
+      ),
+    );
+    setCatalogMessage(`${entityId} 的关系模板已准备好；请只填写有证据支持的目标实体和关系类型。`);
+    window.requestAnimationFrame(() => {
+      document.getElementById("catalog-editor")?.scrollIntoView({ behavior: "smooth" });
+    });
   };
 
   const saveCatalogRecord = async () => {
@@ -804,6 +975,10 @@ function AdminReviewPage() {
     (item) => item.status === "approved" || item.status === "rejected",
   );
   const recentCandidateIds = new Set(recentExtraction?.candidateIds ?? []);
+  const recentBatchApprovable = selectBatchApprovableReviewItems(
+    workspace.queue,
+    recentExtraction?.candidateIds ?? [],
+  );
   const orderedPendingQueue = [...pendingQueue].sort(
     (left, right) =>
       Number(recentCandidateIds.has(right.id)) - Number(recentCandidateIds.has(left.id)),
@@ -985,9 +1160,21 @@ function AdminReviewPage() {
                         className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-xs"
                       >
                         <span className="font-mono">{entityId}</span>
-                        <span className="text-muted-foreground">
-                          当前 {count} · 还缺 {Math.max(0, 5 - count)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">
+                            当前 {count} · 还缺 {Math.max(0, 5 - count)}
+                          </span>
+                          {user.role === "admin" && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => prepareRelationGap(entityId)}
+                            >
+                              补关系
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -1068,21 +1255,47 @@ function AdminReviewPage() {
         )}
 
         <section id="review-queue" className="scroll-mt-6 space-y-3">
-          <div>
-            <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              这里只显示需要处理的候选；已批准和已拒绝记录保留在下方历史中。
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                这里只显示需要处理的候选；已批准和已拒绝记录保留在下方历史中。
+              </p>
+            </div>
+            {user.role === "admin" && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy || workspace.extractionPlan.length === 0}
+                onClick={batchExtractCandidates}
+              >
+                <Braces />
+                批量生成质量候选（{Math.min(10, workspace.extractionPlan.length)}）
+              </Button>
+            )}
           </div>
           {pendingQueue.length === 0 && (
             <div className="paper-card p-5 text-sm text-muted-foreground">当前没有待审核候选。</div>
           )}
           {recentExtraction && recentExtraction.candidateIds.length > 0 && (
             <div className="rounded-lg border border-signal/30 bg-signal/5 p-4 text-sm">
-              <div className="font-medium">本次抽取：{recentExtraction.sourceTitle}</div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；下方其他条目是此前尚未处理的任务，不需要混在本批一起审核。`}
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="font-medium">本次抽取：{recentExtraction.sourceTitle}</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；可批量批准其中无冲突的待审项，需要补证据的条目会自动保留。`}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={busy || recentBatchApprovable.length === 0}
+                  onClick={batchApproveRecentCandidates}
+                >
+                  <Check />
+                  批准本批安全候选（{recentBatchApprovable.length}）
+                </Button>
+              </div>
             </div>
           )}
           {orderedPendingQueue.map((item) => {
@@ -1543,7 +1756,7 @@ function AdminReviewPage() {
         </section>
 
         {user.role === "admin" && (
-          <section className="paper-card p-5">
+          <section id="catalog-editor" className="scroll-mt-6 paper-card p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">

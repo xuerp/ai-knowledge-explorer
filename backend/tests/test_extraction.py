@@ -13,6 +13,9 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         assert request.headers["authorization"] == "Bearer test-secret"
         request_json = json.loads(request.content)
         assert request_json["response_format"]["type"] == "json_schema"
+        prompt = "\n".join(message["content"] for message in request_json["messages"])
+        assert "canonical predicates" in prompt
+        assert "Known catalog entities" in prompt
         return httpx.Response(
             200,
             json={

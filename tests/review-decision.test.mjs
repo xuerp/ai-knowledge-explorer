@@ -9,6 +9,7 @@ const {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   resolveReviewReason,
+  selectBatchApprovableReviewItems,
 } = await vite.ssrLoadModule("/src/domain/review-decision.ts");
 
 test.after(async () => vite.close());
@@ -43,4 +44,17 @@ test("刷新失败返回空队列时保留当前审核状态", () => {
   const pending = { id: "review-2", status: "pending", version: 1 };
 
   assert.deepEqual(mergeReviewQueue([approved, pending], []), [approved, pending]);
+});
+
+test("批量批准只选择本批无冲突的待审候选", () => {
+  const queue = [
+    { id: "safe", status: "pending", version: 1, conflictClaimIds: [] },
+    { id: "conflict", status: "pending", version: 1, conflictClaimIds: ["claim-old"] },
+    { id: "evidence", status: "needs-more-evidence", version: 1, conflictClaimIds: [] },
+    { id: "other", status: "pending", version: 1, conflictClaimIds: [] },
+  ];
+
+  assert.deepEqual(selectBatchApprovableReviewItems(queue, ["safe", "conflict", "evidence"]), [
+    queue[0],
+  ]);
 });

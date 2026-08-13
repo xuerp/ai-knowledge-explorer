@@ -215,6 +215,14 @@ export interface ExtractionProbeResult {
   detail: string;
 }
 
+export interface ExtractionPlanItem {
+  sourceId: string;
+  sourceTitle: string;
+  snapshotId: string;
+  observedAt: string;
+  readableCharacters: number;
+}
+
 export interface ProductionReadinessCheck {
   code: string;
   title: string;
@@ -287,6 +295,7 @@ export const adminApi = {
     if (role !== "admin") {
       return {
         queue: queueResult.value,
+        extractionPlan: [],
         sources: [],
         runs: [],
         audit: [],
@@ -298,35 +307,42 @@ export const adminApi = {
         loadWarnings: queueResult.warning ? [queueResult.warning] : [],
       };
     }
-    const [sources, runs, audit, outbox, quality, integrations, operations, productionReadiness] =
-      await Promise.all([
-        settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
-        settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
-        settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
-        settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
-        settle(
-          "数据质量",
-          request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
-          null,
-        ),
-        settle(
-          "外部集成",
-          request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
-          null,
-        ),
-        settle(
-          "运行诊断",
-          request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
-          null,
-        ),
-        settle(
-          "生产预检",
-          request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
-          null,
-        ),
-      ]);
+    const [
+      extractionPlan,
+      sources,
+      runs,
+      audit,
+      outbox,
+      quality,
+      integrations,
+      operations,
+      productionReadiness,
+    ] = await Promise.all([
+      settle(
+        "批量抽取计划",
+        request<ExtractionPlanItem[]>("/api/v2/admin/extraction-plan?limit=30", {}, token),
+        [],
+      ),
+      settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
+      settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
+      settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
+      settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
+      settle("数据质量", request<DataQualityReport>("/api/v2/admin/data-quality", {}, token), null),
+      settle("外部集成", request<IntegrationStatus>("/api/v2/admin/integrations", {}, token), null),
+      settle(
+        "运行诊断",
+        request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
+        null,
+      ),
+      settle(
+        "生产预检",
+        request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
+        null,
+      ),
+    ]);
     const sections = [
       queueResult,
+      extractionPlan,
       sources,
       runs,
       audit,
@@ -338,6 +354,7 @@ export const adminApi = {
     ];
     return {
       queue: queueResult.value,
+      extractionPlan: extractionPlan.value,
       sources: sources.value,
       runs: runs.value,
       audit: audit.value,
@@ -426,10 +443,10 @@ export const adminApi = {
       token,
     ),
 
-  extractSource: (token: string, id: string, maxCandidates = 10) =>
+  extractSource: (token: string, id: string, maxCandidates = 10, snapshotId?: string) =>
     request<ReviewQueueItem[]>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
-      { method: "POST", body: JSON.stringify({ maxCandidates }) },
+      { method: "POST", body: JSON.stringify({ maxCandidates, snapshotId }) },
       token,
     ),
 

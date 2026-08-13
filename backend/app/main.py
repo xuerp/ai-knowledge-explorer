@@ -15,6 +15,7 @@ from .auth import AuditService, AuthService, Principal
 from .automation import AutomationCycleBusyError, automation_cycle_lock
 from .config import Settings
 from .database import (
+    AuditLogRecord,
     Database,
     DocumentSnapshotRecord,
     PublicationRecordRow,
@@ -48,6 +49,7 @@ from .schemas import (
     EmailOutboxRetryRequest,
     EmailOutboxView,
     Entity,
+    ExtractionPlanItem,
     ExtractionProbeResult,
     ExtractionRequest,
     FollowCreate,
@@ -88,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-verified-publication-v13"
+SERVICE_RELEASE = "2026.08.13-batch-quality-workflow-v14"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -1241,6 +1243,52 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> list[IngestionRunView]:
         return ingestion.list_runs(session, source_id, limit)
 
+    @app.get(
+        "/api/v2/admin/extraction-plan",
+        response_model=list[ExtractionPlanItem],
+    )
+    def extraction_plan(
+        response: Response,
+        _: AdminDependency,
+        session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=50)] = 20,
+    ) -> list[ExtractionPlanItem]:
+        response.headers["Cache-Control"] = "no-store"
+        extracted_snapshot_ids = set(
+            session.scalars(
+                select(AuditLogRecord.target_id).where(
+                    AuditLogRecord.action == "extraction.run",
+                    AuditLogRecord.target_type == "document_snapshot",
+                )
+            ).all()
+        )
+        snapshots = session.scalars(
+            select(DocumentSnapshotRecord).order_by(DocumentSnapshotRecord.observed_at.desc())
+        ).all()
+        planned: list[ExtractionPlanItem] = []
+        seen_sources: set[str] = set()
+        for snapshot_row in snapshots:
+            if snapshot_row.source_id in seen_sources:
+                continue
+            seen_sources.add(snapshot_row.source_id)
+            if snapshot_row.id in extracted_snapshot_ids:
+                continue
+            source = session.get(SourceRecord, snapshot_row.source_id)
+            if not source or not source.active:
+                continue
+            planned.append(
+                ExtractionPlanItem(
+                    source_id=source.id,
+                    source_title=source.title,
+                    snapshot_id=snapshot_row.id,
+                    observed_at=snapshot_row.observed_at,
+                    readable_characters=len(snapshot_row.content_text),
+                )
+            )
+            if len(planned) >= limit:
+                break
+        return planned
+
     @app.post(
         "/api/v2/admin/sources/{source_id}/extract",
         response_model=list[ReviewQueueItem],
@@ -1268,13 +1316,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="No source snapshot is available for extraction.",
             )
         try:
-            candidates = extraction.extract(source, snapshot_row, payload.max_candidates)
+            public_snapshot = get_catalog_snapshot(session)
+            candidates = extraction.extract(
+                source,
+                snapshot_row,
+                payload.max_candidates,
+                public_snapshot.entities,
+            )
         except ExtractionUnavailableError as error:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(error),
             ) from error
-        public_snapshot = get_catalog_snapshot(session)
         created: list[ReviewQueueItem] = []
         for candidate in candidates:
             assessment = quality_gate.assess(candidate, public_snapshot)
@@ -1464,9 +1517,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         row.review_reason = decision.reason
         row.reviewed_at = datetime.now(UTC)
         row.version += 1
+        published_relation = None
         if action == "approved":
             repository.persist_approved_verification(row)
             queue_item = repository.to_queue_item(row)
+            published_relation = repository.relation_from_approved_claim(session, row)
+            if published_relation:
+                repository.upsert_relation(session, published_relation)
             session.add(
                 PublicationRecordRow(
                     review_job_id=row.id,
@@ -1493,6 +1550,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "claimId": row.claim_id,
                 "reason": decision.reason,
                 "notificationsCreated": notifications_created,
+                "relationId": published_relation.id if published_relation else None,
             },
         )
         session.commit()

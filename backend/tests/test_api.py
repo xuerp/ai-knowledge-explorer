@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.database import EmailOutboxRecord
+from app.extraction import StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import create_app
 
@@ -32,7 +33,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-verified-publication-v13",
+        "release": "2026.08.13-batch-quality-workflow-v14",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -537,6 +538,65 @@ def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
     assert history.json() == []
 
 
+def test_approved_canonical_relation_claim_updates_graph(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    submitted = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-claude-code-uses-mcp",
+            "entityId": "e-claude-code",
+            "claim": {
+                "id": "claim-claude-code-uses-mcp",
+                "text": {
+                    "zh": "Claude Code 使用 MCP 连接外部工具。",
+                    "en": "Claude Code uses MCP to connect external tools.",
+                },
+                "confidence": "unverified",
+                "sourceIds": ["evidence-claude-code-uses-mcp"],
+                "updatedAt": "2026-08-13",
+                "subject": "Claude Code",
+                "predicate": "uses",
+                "objectOrValue": "MCP",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-claude-code-uses-mcp",
+                    "title": {"zh": "Claude Code 官方文档", "en": "Claude Code docs"},
+                    "url": "https://example.com/claude-code-mcp",
+                    "publisher": "Anthropic",
+                    "publishedAt": "2026-08-13",
+                    "collectedAt": "2026-08-13",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert submitted.status_code == 201
+    review = submitted.json()
+
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/approve",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reason": "Official relation evidence checked by a human reviewer.",
+        },
+    )
+    assert approved.status_code == 200
+
+    snapshot = client.get("/api/snapshot").json()
+    relation = next(
+        edge
+        for edge in snapshot["graph"]["edges"]
+        if edge["fromId"] == "e-claude-code"
+        and edge["toId"] == "e-mcp"
+        and edge["kind"] == "uses"
+    )
+    assert relation["confidence"] == "verified"
+    assert "evidence-claude-code-uses-mcp" in relation["sourceIds"]
+
+
 def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     legacy_headers = {"X-Admin-Token": "test-admin-token"}
     bootstrap = client.post(
@@ -724,6 +784,58 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(
         json={"fetchEnabled": True},
     )
     assert missing.status_code == 404
+
+
+def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-extraction-plan",
+            "url": "https://example.com/extraction-plan",
+            "title": "Extraction plan source",
+            "publisher": "Example",
+        },
+    )
+    assert created.status_code == 201
+    first = client.post(
+        "/api/v2/admin/sources/source-extraction-plan/snapshots",
+        headers=headers,
+        json={"content": "The first source document contains an explicit fact."},
+    ).json()
+    latest = client.post(
+        "/api/v2/admin/sources/source-extraction-plan/snapshots",
+        headers=headers,
+        json={"content": "The latest source document contains a revised explicit fact."},
+    ).json()
+
+    assert client.get("/api/v2/admin/extraction-plan").status_code == 401
+    planned = client.get("/api/v2/admin/extraction-plan", headers=headers)
+    assert planned.status_code == 200
+    assert planned.headers["cache-control"] == "no-store"
+    item = next(row for row in planned.json() if row["sourceId"] == "source-extraction-plan")
+    assert item["snapshotId"] == latest["snapshotId"]
+    assert item["snapshotId"] != first["snapshotId"]
+
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda self, source, snapshot, max_candidates, catalog_entities=None: [],
+    )
+    extracted = client.post(
+        "/api/v2/admin/sources/source-extraction-plan/extract",
+        headers=headers,
+        json={"snapshotId": latest["snapshotId"], "maxCandidates": 15},
+    )
+    assert extracted.status_code == 200
+    assert extracted.json() == []
+
+    refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
+    assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
 
 
 def test_source_probe_is_admin_only_read_only_and_audited(
