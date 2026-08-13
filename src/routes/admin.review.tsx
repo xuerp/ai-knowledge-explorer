@@ -1848,6 +1848,7 @@ function OperationsPanel({
   const worker = operations.worker;
   const latest = operations.recentRuns[0];
   const ingestion = asRecord(latest?.result?.ingestion);
+  const extraction = asRecord(latest?.result?.extraction);
   const digests = asRecord(latest?.result?.digests);
   const delivery = asRecord(latest?.result?.emailDelivery);
   const pendingOutbox = outbox
@@ -1927,6 +1928,8 @@ function OperationsPanel({
             <QueueMetric label="自动信源" value={operations.queues.automaticSources} />
             <QueueMetric label="当前到期" value={operations.queues.sourcesDue} />
             <QueueMetric label="采集重试" value={operations.queues.sourcesRetrying} />
+            <QueueMetric label="待抽取" value={operations.queues.extractionReady} />
+            <QueueMetric label="抽取冷却" value={operations.queues.extractionRetrying} />
             <QueueMetric label="邮件待发" value={operations.queues.emailQueued} />
             <QueueMetric label="邮件重试" value={operations.queues.emailRetrying} />
             <QueueMetric label="邮件发送中" value={operations.queues.emailSending} />
@@ -1948,6 +1951,13 @@ function OperationsPanel({
                   <div>
                     采集：到期 {numberValue(ingestion, "due")} · 成功{" "}
                     {numberValue(ingestion, "succeeded")} · 失败 {numberValue(ingestion, "failed")}
+                  </div>
+                  <div>
+                    抽取：计划 {numberValue(extraction, "planned")} · 完成{" "}
+                    {numberValue(extraction, "processed")} · 候选{" "}
+                    {numberValue(extraction, "candidatesCreated")} · 自动批准{" "}
+                    {numberValue(extraction, "relationsAutoApproved")} · 失败{" "}
+                    {numberValue(extraction, "failed")}
                   </div>
                   <div>
                     摘要：收件人 {numberValue(digests, "recipients")} · 新增邮件{" "}

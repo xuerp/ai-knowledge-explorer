@@ -123,7 +123,10 @@ def wait_with_heartbeats(
 
 def worker_health(settings: Settings) -> bool:
     database = Database(settings.database_url)
-    operations = OperationsService(settings.worker_stale_seconds)
+    operations = OperationsService(
+        settings.worker_stale_seconds,
+        settings.auto_extraction_retry_minutes,
+    )
     worker_id = resolve_worker_id(settings)
     try:
         with database.session() as session:
@@ -188,7 +191,10 @@ def main() -> None:
         retry_base_seconds=settings.email_retry_base_seconds,
         lease_seconds=settings.email_lease_seconds,
     )
-    operations = OperationsService(settings.worker_stale_seconds)
+    operations = OperationsService(
+        settings.worker_stale_seconds,
+        settings.auto_extraction_retry_minutes,
+    )
     worker_id = (
         resolve_worker_id(settings)
         if args.interval_seconds is not None

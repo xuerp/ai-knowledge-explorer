@@ -138,6 +138,8 @@ export interface OperationsDiagnostics {
     automaticSources: number;
     sourcesDue: number;
     sourcesRetrying: number;
+    extractionReady: number;
+    extractionRetrying: number;
     emailQueued: number;
     emailRetrying: number;
     emailSending: number;

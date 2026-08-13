@@ -90,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-grounded-relation-review-v19"
+SERVICE_RELEASE = "2026.08.13-extraction-observability-v20"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -127,7 +127,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         retry_base_seconds=app_settings.email_retry_base_seconds,
         lease_seconds=app_settings.email_lease_seconds,
     )
-    operations = OperationsService(app_settings.worker_stale_seconds)
+    operations = OperationsService(
+        app_settings.worker_stale_seconds,
+        app_settings.auto_extraction_retry_minutes,
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):

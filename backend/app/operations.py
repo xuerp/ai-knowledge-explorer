@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from .database import (
+    AuditLogRecord,
     AutomationRunRecord,
+    DocumentSnapshotRecord,
     EmailOutboxRecord,
     SourceRecord,
     WorkerStatusRecord,
@@ -26,8 +28,13 @@ def _utc(value: datetime) -> datetime:
 
 
 class OperationsService:
-    def __init__(self, stale_after_seconds: int = 180):
+    def __init__(
+        self,
+        stale_after_seconds: int = 180,
+        extraction_retry_minutes: int = 360,
+    ):
         self.stale_after_seconds = max(30, stale_after_seconds)
+        self.extraction_retry_minutes = max(1, extraction_retry_minutes)
 
     def register_worker(
         self,
@@ -296,6 +303,7 @@ class OperationsService:
                 SourceRecord.consecutive_failures > 0,
             ),
         )
+        extraction_ready, extraction_retrying = self._extraction_counts(session, current)
         return OperationsDiagnostics(
             generated_at=current,
             heartbeat_status=heartbeat_status,
@@ -306,6 +314,8 @@ class OperationsService:
                 automatic_sources=automatic_sources,
                 sources_due=sources_due,
                 sources_retrying=sources_retrying,
+                extraction_ready=extraction_ready,
+                extraction_retrying=extraction_retrying,
                 email_queued=self._email_count(session, "queued"),
                 email_retrying=self._email_count(session, "retrying"),
                 email_sending=self._email_count(session, "sending"),
@@ -356,6 +366,64 @@ class OperationsService:
             .select_from(EmailOutboxRecord)
             .where(EmailOutboxRecord.status == status),
         )
+
+    def _extraction_counts(
+        self,
+        session: Session,
+        current: datetime,
+    ) -> tuple[int, int]:
+        snapshots = session.scalars(
+            select(DocumentSnapshotRecord)
+            .join(SourceRecord, SourceRecord.id == DocumentSnapshotRecord.source_id)
+            .where(
+                SourceRecord.active.is_(True),
+                SourceRecord.fetch_enabled.is_(True),
+            )
+            .order_by(
+                DocumentSnapshotRecord.observed_at.desc(),
+                DocumentSnapshotRecord.id.desc(),
+            )
+        ).all()
+        seen_sources: set[str] = set()
+        latest_snapshot_ids: list[str] = []
+        for snapshot in snapshots:
+            if snapshot.source_id in seen_sources:
+                continue
+            seen_sources.add(snapshot.source_id)
+            latest_snapshot_ids.append(snapshot.id)
+        if not latest_snapshot_ids:
+            return 0, 0
+
+        extracted_snapshot_ids = set(
+            session.scalars(
+                select(AuditLogRecord.target_id).where(
+                    AuditLogRecord.action == "extraction.run",
+                    AuditLogRecord.target_type == "document_snapshot",
+                    AuditLogRecord.target_id.in_(latest_snapshot_ids),
+                )
+            ).all()
+        )
+        retry_after = current - timedelta(minutes=self.extraction_retry_minutes)
+        cooling_down_snapshot_ids = set(
+            session.scalars(
+                select(AuditLogRecord.target_id).where(
+                    AuditLogRecord.action == "extraction.failed",
+                    AuditLogRecord.target_type == "document_snapshot",
+                    AuditLogRecord.target_id.in_(latest_snapshot_ids),
+                    AuditLogRecord.created_at >= retry_after,
+                )
+            ).all()
+        )
+        ready = 0
+        retrying = 0
+        for snapshot_id in latest_snapshot_ids:
+            if snapshot_id in extracted_snapshot_ids:
+                continue
+            if snapshot_id in cooling_down_snapshot_ids:
+                retrying += 1
+            else:
+                ready += 1
+        return ready, retrying
 
     @staticmethod
     def _worker(

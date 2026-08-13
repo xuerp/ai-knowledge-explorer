@@ -493,6 +493,8 @@ class OperationsQueueSummary(CamelModel):
     automatic_sources: int
     sources_due: int
     sources_retrying: int
+    extraction_ready: int
+    extraction_retrying: int
     email_queued: int
     email_retrying: int
     email_sending: int
