@@ -397,15 +397,22 @@ class KnowledgeRepository:
         for job in jobs:
             if job.status != "approved":
                 continue
-            if job.claim_id not in claim_ids:
-                claim = Claim.model_validate_json(job.claim_json)
-                if job.entity_id:
-                    claim = claim.model_copy(update={"entity_id": job.entity_id})
+            claim = self.approved_claim(job)
+            if job.claim_id in claim_ids:
+                snapshot.claims = [
+                    claim if existing.id == job.claim_id else existing
+                    for existing in snapshot.claims
+                ]
+            else:
                 snapshot.claims.append(claim)
                 claim_ids.add(job.claim_id)
-            for raw_evidence in json.loads(job.evidence_json or "[]"):
-                evidence = Evidence.model_validate(raw_evidence)
-                if evidence.id not in evidence_ids:
+            for evidence in self.approved_evidence(job):
+                if evidence.id in evidence_ids:
+                    snapshot.evidence = [
+                        evidence if existing.id == evidence.id else existing
+                        for existing in snapshot.evidence
+                    ]
+                else:
                     snapshot.evidence.append(evidence)
                     evidence_ids.add(evidence.id)
         snapshot.review_candidates = []
@@ -433,12 +440,43 @@ class KnowledgeRepository:
         ).all()
         return [self.to_queue_item(row) for row in rows]
 
+    def approved_claim(self, row: ReviewJobRecord) -> Claim:
+        claim = Claim.model_validate_json(row.claim_json)
+        updates: dict[str, object] = {"confidence": "verified"}
+        if row.entity_id:
+            updates["entity_id"] = row.entity_id
+        if row.reviewed_at:
+            updates["updated_at"] = row.reviewed_at.date().isoformat()
+        return claim.model_copy(update=updates)
+
+    def approved_evidence(self, row: ReviewJobRecord) -> list[Evidence]:
+        verified_at = row.reviewed_at.isoformat() if row.reviewed_at else None
+        evidence_items: list[Evidence] = []
+        for raw_evidence in json.loads(row.evidence_json or "[]"):
+            evidence = Evidence.model_validate(raw_evidence)
+            if verified_at and not evidence.verified_at:
+                evidence = evidence.model_copy(update={"verified_at": verified_at})
+            evidence_items.append(evidence)
+        return evidence_items
+
+    def persist_approved_verification(self, row: ReviewJobRecord) -> None:
+        row.claim_json = self.approved_claim(row).model_dump_json(by_alias=True)
+        row.evidence_json = json.dumps(
+            [item.model_dump(mode="json", by_alias=True) for item in self.approved_evidence(row)],
+            ensure_ascii=False,
+        )
+
     def to_queue_item(self, row: ReviewJobRecord) -> ReviewQueueItem:
+        claim = (
+            self.approved_claim(row)
+            if row.status == "approved"
+            else Claim.model_validate_json(row.claim_json)
+        )
         candidate = ReviewCandidate.model_validate(
             {
                 "id": row.id,
                 "entityId": row.entity_id,
-                "claim": json.loads(row.claim_json),
+                "claim": claim.model_dump(mode="json", by_alias=True),
                 "evidenceIds": json.loads(row.evidence_ids_json),
                 "status": row.status,
                 "createdAt": row.created_at.isoformat(),

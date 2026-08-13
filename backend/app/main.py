@@ -88,7 +88,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-idempotent-review-v12"
+SERVICE_RELEASE = "2026.08.13-verified-publication-v13"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -1465,6 +1465,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         row.reviewed_at = datetime.now(UTC)
         row.version += 1
         if action == "approved":
+            repository.persist_approved_verification(row)
             queue_item = repository.to_queue_item(row)
             session.add(
                 PublicationRecordRow(
