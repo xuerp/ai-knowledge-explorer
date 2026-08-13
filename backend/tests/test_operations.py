@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from app.database import (
     DocumentSnapshotRecord,
     SourceRecord,
 )
+from app.extraction import EXTRACTION_PIPELINE_VERSION
 from app.operations import OperationsService
 
 
@@ -127,7 +129,9 @@ def test_operations_reports_ready_and_cooling_extraction_backlog(tmp_path: Path)
                     action="extraction.run",
                     target_type="document_snapshot",
                     target_id="snapshot-extracted",
-                    detail_json="{}",
+                    detail_json=json.dumps(
+                        {"pipelineVersion": EXTRACTION_PIPELINE_VERSION}
+                    ),
                     created_at=current - timedelta(minutes=1),
                 ),
             ]

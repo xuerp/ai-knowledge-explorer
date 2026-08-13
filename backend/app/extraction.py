@@ -52,6 +52,16 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
+EXTRACTION_PIPELINE_VERSION = "2026-08-relation-priority-v2"
+
+
+def extraction_audit_is_current(detail_json: str | None) -> bool:
+    try:
+        detail = json.loads(detail_json or "{}")
+    except (TypeError, ValueError):
+        return False
+    return detail.get("pipelineVersion") == EXTRACTION_PIPELINE_VERSION
+
 
 class StructuredExtractionService:
     def __init__(
@@ -278,6 +288,7 @@ class StructuredExtractionService:
         snapshot: DocumentSnapshotRecord,
         max_candidates: int,
         catalog_entities: list[Entity] | None = None,
+        priority_entity_ids: list[str] | None = None,
     ) -> list[CandidateCreate]:
         if not self.enabled:
             raise ExtractionUnavailableError(
@@ -292,6 +303,12 @@ class StructuredExtractionService:
             f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
             for entity in (catalog_entities or [])
         )
+        priority_ids = set(priority_entity_ids or [])
+        priority_context = "\n".join(
+            f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
+            for entity in (catalog_entities or [])
+            if entity.id in priority_ids
+        )
         payload = {
             "model": self.model,
             "temperature": 0,
@@ -304,7 +321,9 @@ class StructuredExtractionService:
                         " When an explicit fact relates two known catalog entities, use one of these "
                         "exact canonical predicates: developed-by, based-on, competes-with, "
                         "benchmarked-on, uses, cited-by, part-of, successor-of. Use the catalog entity "
-                        "name verbatim as subject and objectOrValue."
+                        "name verbatim as subject and objectOrValue. Prioritize explicit canonical "
+                        "relations involving the listed priority entities, but never infer a relation "
+                        "that the source does not state."
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
@@ -314,6 +333,8 @@ class StructuredExtractionService:
                         f"Publisher: {source.publisher}\nURL: {source.url}\n"
                         f"Maximum facts: {max_candidates}\n\n"
                         f"Known catalog entities:\n{catalog_context or '(not provided)'}\n\n"
+                        "Priority entities with incomplete relation coverage:\n"
+                        f"{priority_context or '(none for this pass)'}\n\n"
                         f"{snapshot.content_text[:60000]}"
                     ),
                 },

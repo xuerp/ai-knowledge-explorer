@@ -15,6 +15,7 @@ from .database import (
     SourceRecord,
     WorkerStatusRecord,
 )
+from .extraction import extraction_audit_is_current
 from .schemas import (
     AutomationRunView,
     OperationsDiagnostics,
@@ -394,15 +395,18 @@ class OperationsService:
         if not latest_snapshot_ids:
             return 0, 0
 
-        extracted_snapshot_ids = set(
-            session.scalars(
-                select(AuditLogRecord.target_id).where(
-                    AuditLogRecord.action == "extraction.run",
-                    AuditLogRecord.target_type == "document_snapshot",
-                    AuditLogRecord.target_id.in_(latest_snapshot_ids),
-                )
-            ).all()
-        )
+        extraction_runs = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action == "extraction.run",
+                AuditLogRecord.target_type == "document_snapshot",
+                AuditLogRecord.target_id.in_(latest_snapshot_ids),
+            )
+        ).all()
+        extracted_snapshot_ids = {
+            row.target_id
+            for row in extraction_runs
+            if extraction_audit_is_current(row.detail_json)
+        }
         retry_after = current - timedelta(minutes=self.extraction_retry_minutes)
         cooling_down_snapshot_ids = set(
             session.scalars(
