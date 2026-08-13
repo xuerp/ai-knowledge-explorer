@@ -21,6 +21,8 @@ export interface ReviewQueueItem {
   evidenceIds: string[];
   conflictClaimIds: string[];
   status: "pending" | "approved" | "rejected" | "needs-more-evidence";
+  createdAt: string;
+  reviewedAt?: string;
   version: number;
   reviewReason?: string;
 }
@@ -236,6 +238,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   }
   const response = await fetchWithNetworkRetry(`${apiBaseUrl}${path}`, {
     ...options,
+    cache: options.cache ?? (token ? "no-store" : undefined),
     headers: {
       Accept: "application/json",
       ...(options.body ? { "Content-Type": "application/json" } : {}),

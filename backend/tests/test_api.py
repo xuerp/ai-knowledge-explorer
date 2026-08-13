@@ -463,7 +463,9 @@ def test_admin_writes_are_disabled_without_configuration(tmp_path: Path):
 
 def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     headers = {"X-Admin-Token": "test-admin-token"}
-    queue = client.get("/api/v2/admin/review-queue", headers=headers).json()
+    queue_response = client.get("/api/v2/admin/review-queue", headers=headers)
+    assert queue_response.headers["cache-control"] == "no-store"
+    queue = queue_response.json()
     review = next(item for item in queue if item["id"] == "review-gpt-context")
 
     approved = client.post(
