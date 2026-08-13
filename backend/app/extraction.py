@@ -53,7 +53,7 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-relation-priority-v3-source-excerpts"
+EXTRACTION_PIPELINE_VERSION = "2026-08-quality-gap-priority-v4"
 
 
 def extraction_audit_is_current(detail_json: str | None) -> bool:
@@ -317,6 +317,8 @@ class StructuredExtractionService:
         max_candidates: int,
         catalog_entities: list[Entity] | None = None,
         priority_entity_ids: list[str] | None = None,
+        claims_remaining: int = 0,
+        relation_deficit: int = 0,
     ) -> list[CandidateCreate]:
         if not self.enabled:
             raise ExtractionUnavailableError(
@@ -332,10 +334,24 @@ class StructuredExtractionService:
             for entity in (catalog_entities or [])
         )
         priority_ids = set(priority_entity_ids or [])
+        source_text = snapshot.content_text.casefold()
+
+        def source_mentions(entity: Entity) -> bool:
+            references = [entity.name.zh, entity.name.en, *(entity.aliases or [])]
+            return any(
+                reference.strip() and reference.casefold() in source_text
+                for reference in references
+            )
+
         priority_context = "\n".join(
             f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
             for entity in (catalog_entities or [])
-            if entity.id in priority_ids
+            if entity.id in priority_ids and source_mentions(entity)
+        )
+        relation_candidate_target = (
+            min(max_candidates, max(1, max_candidates // 2))
+            if priority_context
+            else 0
         )
         payload = {
             "model": self.model,
@@ -351,7 +367,14 @@ class StructuredExtractionService:
                         "benchmarked-on, uses, cited-by, part-of, successor-of. Use the catalog entity "
                         "name verbatim as subject and objectOrValue. Prioritize explicit canonical "
                         "relations involving the listed priority entities, but never infer a relation "
-                        "that the source does not state."
+                        "that the source does not state. When the source supports fewer priority "
+                        "relations than requested, use every remaining slot for distinct atomic "
+                        "facts such as dated releases, measured capabilities, compatibility, "
+                        "availability, limits, or benchmark results. Each fact must stand on its "
+                        "own, express only one assertion, and differ semantically from the other "
+                        "facts. Exclude marketing language, broad summaries, and paraphrase "
+                        "duplicates. Preserve source wording for subject and objectOrValue whenever "
+                        "possible so the evidence can be located verbatim."
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
@@ -360,6 +383,17 @@ class StructuredExtractionService:
                     "content": (
                         f"Publisher: {source.publisher}\nURL: {source.url}\n"
                         f"Maximum facts: {max_candidates}\n\n"
+                        "Current reviewed-data quality gaps:\n"
+                        f"- Claims remaining: {max(0, claims_remaining)}\n"
+                        f"- Core relation links remaining: {max(0, relation_deficit)}\n"
+                        "Candidate allocation for this document:\n"
+                        "- First, extract up to "
+                        f"{relation_candidate_target} directly stated canonical relations involving "
+                        "the priority entities below.\n"
+                        "- Then, fill the remaining available fact slots with distinct, directly "
+                        "supported atomic claims.\n"
+                        "- If no listed priority entity appears in this document, use all slots for "
+                        "distinct atomic claims instead.\n\n"
                         f"Known catalog entities:\n{catalog_context or '(not provided)'}\n\n"
                         "Priority entities with incomplete relation coverage:\n"
                         f"{priority_context or '(none for this pass)'}\n\n"
