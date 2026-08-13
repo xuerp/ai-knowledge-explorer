@@ -16,6 +16,15 @@ test("Cloudflare staging config keeps workers.dev when no domain is selected", (
   assert.equal(result.preview_urls, true);
   assert.equal(result.routes, undefined);
   assert.equal(result.observability.enabled, true);
+  assert.equal(result.compatibility_date, "2026-08-13");
+});
+
+test("Cloudflare staging config never inherits a locally generated future date", () => {
+  const result = buildStagingWranglerConfig({
+    ...base,
+    compatibility_date: "2099-01-01",
+  });
+  assert.equal(result.compatibility_date, "2026-08-13");
 });
 
 test("Cloudflare staging config enables an explicit custom domain", () => {
