@@ -27,7 +27,18 @@ def handle_shutdown_signal(_signum: int, _frame: object) -> None:
 
 
 def resolve_worker_id(settings: Settings) -> str:
-    instance_id = os.getenv("RENDER_INSTANCE_ID", "").strip()
+    instance_id = next(
+        (
+            os.getenv(key, "").strip()
+            for key in (
+                "AI_RADAR_WORKER_INSTANCE_ID",
+                "RENDER_INSTANCE_ID",
+                "HOSTNAME",
+            )
+            if os.getenv(key, "").strip()
+        ),
+        "",
+    )
     if not instance_id:
         return settings.worker_id
     return f"{settings.worker_id}-{instance_id}"[:128]

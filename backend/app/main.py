@@ -104,7 +104,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-priority-source-planning-v33"
+SERVICE_RELEASE = "2026.08.14-unique-worker-runtime-v34"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
