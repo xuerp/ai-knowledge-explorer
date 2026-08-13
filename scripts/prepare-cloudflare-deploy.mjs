@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const workerNamePattern = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const domainPattern = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
+const verifiedCompatibilityDate = "2026-08-13";
 
 export function buildStagingWranglerConfig(
   baseConfig,
@@ -22,6 +23,9 @@ export function buildStagingWranglerConfig(
   delete config.route;
   delete config.routes;
   config.name = normalizedName;
+  // Nitro defaults to the local calendar date. Around UTC midnight that date can
+  // still be in Cloudflare's future, so deployments must use a verified fixed date.
+  config.compatibility_date = verifiedCompatibilityDate;
   config.workers_dev = !normalizedDomain;
   config.preview_urls = !normalizedDomain;
   config.observability = {
