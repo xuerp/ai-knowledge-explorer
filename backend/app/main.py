@@ -88,7 +88,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-extraction-probe-v7"
+SERVICE_RELEASE = "2026.08.13-runtime-data-v8"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -184,6 +184,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/ready", response_model=HealthResponse)
     def ready(session: SessionDependency) -> HealthResponse:
         try:
+            if not golden_questions.questions_path.is_file():
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Golden question runtime data is not ready.",
+                )
             session.execute(text("SELECT 1"))
             if database.engine.dialect.name != "sqlite":
                 revision = session.scalar(text("SELECT version_num FROM alembic_version"))
