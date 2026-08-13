@@ -596,6 +596,7 @@ class KnowledgeRepository:
                 if row.reviewed_by
                 else None
             ),
+            evidence_items=self.approved_evidence(row),
             conflict_claim_ids=json.loads(row.conflict_ids_json or "[]"),
         )
 

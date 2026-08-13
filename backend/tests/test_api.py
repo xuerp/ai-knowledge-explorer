@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-review-method-visibility-v26",
+        "release": "2026.08.14-review-evidence-context-v27",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -808,6 +808,9 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert queue_response.headers["cache-control"] == "no-store"
     queue = queue_response.json()
     review = next(item for item in queue if item["id"] == "review-gpt-context")
+    assert review["evidenceItems"]
+    assert review["evidenceItems"][0]["id"] in review["evidenceIds"]
+    assert review["evidenceItems"][0]["url"].startswith("https://")
 
     approved = client.post(
         f"/api/v2/admin/review-queue/{review['id']}/approve",

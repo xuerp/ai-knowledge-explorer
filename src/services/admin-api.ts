@@ -1,4 +1,4 @@
-import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
+import type { Entity, Evidence, GraphEdge, TimelineEntry } from "@/domain/types";
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
 import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
@@ -19,6 +19,7 @@ export interface ReviewQueueItem {
     confidence: string;
   };
   evidenceIds: string[];
+  evidenceItems: Evidence[];
   conflictClaimIds: string[];
   status: "pending" | "approved" | "rejected" | "needs-more-evidence";
   createdAt: string;
