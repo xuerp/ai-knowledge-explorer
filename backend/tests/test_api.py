@@ -32,7 +32,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-extraction-contract-v11",
+        "release": "2026.08.13-idempotent-review-v12",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -491,10 +491,23 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
             "reason": "Attempting the same review again.",
         },
     )
-    assert repeated.status_code == 409
+    assert repeated.status_code == 200
+    assert repeated.json()["status"] == "approved"
+    assert repeated.json()["version"] == approved.json()["version"]
+
+    opposite = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": approved.json()["version"],
+            "reason": "Attempting the opposite decision.",
+        },
+    )
+    assert opposite.status_code == 409
 
     history = client.get("/api/v2/admin/publication-history", headers=headers)
     assert history.status_code == 200
+    assert len(history.json()) == 1
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
 
 
