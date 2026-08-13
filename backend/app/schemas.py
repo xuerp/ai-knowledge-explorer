@@ -279,6 +279,7 @@ class ReviewQueueItem(ReviewCandidate):
     version: int
     review_reason: str | None = None
     review_method: Literal["human", "automation"] | None = None
+    evidence_items: list[Evidence] = Field(default_factory=list)
     conflict_claim_ids: list[str] = Field(default_factory=list)
 
 

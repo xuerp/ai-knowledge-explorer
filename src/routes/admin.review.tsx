@@ -1340,6 +1340,36 @@ function AdminReviewPage() {
                     )}
                   </div>
                 )}
+                <div className="mt-4 space-y-2 rounded-md border border-border bg-muted/20 p-3">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    核验依据（{item.evidenceItems.length}）
+                  </div>
+                  {item.evidenceItems.length === 0 ? (
+                    <p className="text-sm text-conflict">当前候选缺少可查看的证据，不能批准。</p>
+                  ) : (
+                    item.evidenceItems.map((evidence) => (
+                      <div
+                        key={evidence.id}
+                        className="flex flex-col gap-1 border-t border-border pt-2 first:border-0 first:pt-0 sm:flex-row sm:items-start sm:justify-between"
+                      >
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium">{evidence.title.zh}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {evidence.publisher} · {evidence.type} · 采集于 {evidence.collectedAt}
+                          </div>
+                        </div>
+                        <a
+                          className="shrink-0 text-sm text-signal underline underline-offset-4"
+                          href={evidence.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          打开原文
+                        </a>
+                      </div>
+                    ))
+                  )}
+                </div>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                   <Input
                     aria-label="审核理由"
@@ -1350,7 +1380,10 @@ function AdminReviewPage() {
                       setReasons((current) => ({ ...current, [item.id]: event.target.value }))
                     }
                   />
-                  <Button onClick={() => decide(item, "approve")} disabled={reviewing}>
+                  <Button
+                    onClick={() => decide(item, "approve")}
+                    disabled={reviewing || item.evidenceItems.length === 0}
+                  >
                     <Check />
                     {reviewing ? "处理中…" : "批准"}
                   </Button>
