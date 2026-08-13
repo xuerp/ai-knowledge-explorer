@@ -52,14 +52,37 @@ CORE_ENTITY_RELATION_REQUIREMENT = 5
 def claim_semantic_fingerprint(
     claim: Claim,
     entity_id: str | None = None,
+    object_entity_id: str | None = None,
 ) -> tuple[str, str, str, str, str]:
     return (
         _key(entity_id or claim.entity_id or claim.subject),
         _key(claim.predicate),
-        _key(claim.object_or_value),
+        _key(object_entity_id or claim.object_or_value),
         claim.valid_from or "",
         claim.valid_to or "",
     )
+
+
+def resolve_unique_entity_reference(
+    value: str | None,
+    entities: list[Entity],
+) -> str | None:
+    reference = _key(value)
+    if not reference:
+        return None
+    matches = [
+        entity.id
+        for entity in entities
+        if reference
+        in {
+            _key(entity.id),
+            _key(entity.slug),
+            _key(entity.name.zh),
+            _key(entity.name.en),
+            *(_key(alias) for alias in entity.aliases or []),
+        }
+    ]
+    return matches[0] if len(matches) == 1 else None
 
 
 @dataclass(slots=True)

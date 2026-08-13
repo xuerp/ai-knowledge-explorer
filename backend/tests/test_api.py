@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-data-readiness-roadmap-v22",
+        "release": "2026.08.14-relation-deduplication-v23",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -320,7 +320,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         first_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",
             headers=admin_headers,
-            json={"content": "GPT family is developed-by OpenAI according to this record."},
+            json={"content": "GPT family uses MCP according to this official record."},
         )
         assert first_snapshot.status_code == 200
         with automatic_client.app.state.database.session() as session:
@@ -333,7 +333,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
             StructuredExtractionService,
             "extract",
             lambda *args, **kwargs: [
-                candidate("review-grounded-relation", "developed-by", "OpenAI")
+                candidate("review-grounded-relation", "uses", "MCP")
             ],
         )
 
@@ -382,7 +382,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         unanchored = next(
             item for item in queue if item["id"] == "review-unanchored-relation"
         )
-        assert unanchored["status"] == "needs-more-evidence"
+        assert unanchored["status"] == "pending"
 
         merged_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",

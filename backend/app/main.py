@@ -1,4 +1,5 @@
 import json
+import re
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
@@ -32,7 +33,11 @@ from .golden_questions import GoldenQuestionEvaluator
 from .ingestion import IngestionService, normalize_source_url
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
-from .quality import KnowledgeQualityGate, claim_semantic_fingerprint
+from .quality import (
+    KnowledgeQualityGate,
+    claim_semantic_fingerprint,
+    resolve_unique_entity_reference,
+)
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
@@ -92,7 +97,16 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.14-data-readiness-roadmap-v22"
+SERVICE_RELEASE = "2026.08.14-relation-deduplication-v23"
+
+RELATION_CLAIM_PREDICATES = {
+    "developed-by",
+    "based-on",
+    "benchmarked-on",
+    "uses",
+    "part-of",
+    "successor-of",
+}
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -826,17 +840,45 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_candidates,
             public_snapshot.entities,
         )
+
+        def semantic_fingerprint(
+            claim: Claim,
+            entity_id: str | None = None,
+        ) -> tuple[str, str, str, str, str]:
+            object_entity_id = None
+            if claim.predicate in RELATION_CLAIM_PREDICATES:
+                object_entity_id = resolve_unique_entity_reference(
+                    claim.object_or_value,
+                    public_snapshot.entities,
+                )
+            return claim_semantic_fingerprint(
+                claim,
+                entity_id,
+                object_entity_id,
+            )
+
         published_fingerprints = {
-            claim_semantic_fingerprint(claim)
+            semantic_fingerprint(claim)
             for claim in public_snapshot.claims
         }
+        published_fingerprints.update(
+            (
+                edge.from_id.casefold(),
+                edge.kind.casefold(),
+                edge.to_id.casefold(),
+                edge.valid_from or "",
+                edge.valid_to or "",
+            )
+            for edge in public_snapshot.graph.edges
+            if edge.kind in RELATION_CLAIM_PREDICATES
+        )
         open_review_rows = session.scalars(
             select(ReviewJobRecord).where(
                 ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES)
             )
         ).all()
         open_fingerprints = {
-            claim_semantic_fingerprint(
+            semantic_fingerprint(
                     Claim.model_validate_json(existing_row.claim_json),
                     existing_row.entity_id,
                 ): existing_row
@@ -888,7 +930,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 candidate = candidate.model_copy(
                     update={"entity_id": assessment.resolved_entity_id}
                 )
-            fingerprint = claim_semantic_fingerprint(
+            fingerprint = semantic_fingerprint(
                 candidate.claim,
                 candidate.entity_id,
             )
@@ -930,7 +972,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             item.status != "pending"
             or item.conflict_claim_ids
             or not item.entity_id
-            or claim.predicate not in {"developed-by", "part-of", "successor-of"}
+            or claim.predicate not in RELATION_CLAIM_PREDICATES
             or not claim.subject
             or not claim.object_or_value
         ):
@@ -946,11 +988,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return False
         predicate_anchors = {
             "developed-by": ("developed-by", "developed by", "开发"),
+            "based-on": ("based-on", "based on", "基于"),
+            "benchmarked-on": (
+                "benchmarked-on",
+                "benchmarked on",
+                "evaluated on",
+                "评测",
+                "基准测试",
+            ),
+            "uses": ("uses", "using", "使用", "采用"),
             "part-of": ("part-of", "part of", "属于", "隶属于"),
             "successor-of": ("successor-of", "successor of", "继任", "后继"),
         }
+
+        def contains_anchor(anchor: str) -> bool:
+            normalized = reference_key(anchor)
+            if normalized.isascii():
+                return bool(re.search(rf"\b{re.escape(normalized)}\b", document))
+            return normalized in document
+
         if not any(
-            reference_key(anchor) in document
+            contains_anchor(anchor)
             for anchor in predicate_anchors[claim.predicate]
         ):
             return False

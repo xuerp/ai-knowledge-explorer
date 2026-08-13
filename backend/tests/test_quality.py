@@ -5,7 +5,11 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.database import Base, KnowledgeEntityRecord, SourceRecord
-from app.quality import KnowledgeQualityGate, claim_semantic_fingerprint
+from app.quality import (
+    KnowledgeQualityGate,
+    claim_semantic_fingerprint,
+    resolve_unique_entity_reference,
+)
 from app.repository import KnowledgeRepository
 from app.schemas import CandidateCreate, Entity, LocalizedText
 
@@ -85,6 +89,24 @@ def test_semantic_fingerprint_ignores_snapshot_ids_and_text_wording():
         repeated,
         "e-gpt",
     )
+
+
+def test_relation_fingerprint_normalizes_unique_entity_references():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    claim = _candidate("OpenAI").claim
+    claim.predicate = "developed-by"
+
+    target_id = resolve_unique_entity_reference(
+        claim.object_or_value,
+        snapshot.entities,
+    )
+
+    assert target_id == "e-openai"
+    assert claim_semantic_fingerprint(
+        claim,
+        "e-gpt",
+        target_id,
+    ) == ("e-gpt", "developed-by", "e-openai", "2026-07-29", "")
 
 
 def test_demo_data_quality_report_does_not_claim_formal_acceptance():
