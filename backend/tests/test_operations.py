@@ -4,7 +4,12 @@ from pathlib import Path
 import pytest
 
 from app.automation import AutomationCycleBusyError, automation_cycle_lock
-from app.database import Database
+from app.database import (
+    AuditLogRecord,
+    Database,
+    DocumentSnapshotRecord,
+    SourceRecord,
+)
 from app.operations import OperationsService
 
 
@@ -73,6 +78,65 @@ def test_worker_heartbeat_cycle_history_and_stale_detection(tmp_path: Path):
             )
             is False
         )
+
+    database.dispose()
+
+
+def test_operations_reports_ready_and_cooling_extraction_backlog(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'extraction-backlog.db').as_posix()}")
+    database.create_all()
+    service = OperationsService(extraction_retry_minutes=60)
+    current = datetime(2026, 8, 13, 4, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        for source_id in ("ready", "cooling", "extracted"):
+            session.add(
+                SourceRecord(
+                    id=f"source-{source_id}",
+                    url=f"https://example.com/{source_id}",
+                    title=source_id,
+                    publisher="Example",
+                    active=True,
+                    fetch_enabled=True,
+                    fetch_interval_minutes=240,
+                    consecutive_failures=0,
+                    created_at=current - timedelta(days=1),
+                )
+            )
+            session.add(
+                DocumentSnapshotRecord(
+                    id=f"snapshot-{source_id}",
+                    source_id=f"source-{source_id}",
+                    content_hash=source_id * 8,
+                    content_text=f"{source_id} content",
+                    observed_at=current - timedelta(minutes=5),
+                )
+            )
+        session.add_all(
+            [
+                AuditLogRecord(
+                    actor="automation@ai-radar.local",
+                    action="extraction.failed",
+                    target_type="document_snapshot",
+                    target_id="snapshot-cooling",
+                    detail_json="{}",
+                    created_at=current - timedelta(minutes=30),
+                ),
+                AuditLogRecord(
+                    actor="automation@ai-radar.local",
+                    action="extraction.run",
+                    target_type="document_snapshot",
+                    target_id="snapshot-extracted",
+                    detail_json="{}",
+                    created_at=current - timedelta(minutes=1),
+                ),
+            ]
+        )
+        session.commit()
+
+        diagnostics = service.diagnostics(session, "scheduler", now=current)
+        assert diagnostics.queues.extraction_ready == 1
+        assert diagnostics.queues.extraction_retrying == 1
 
     database.dispose()
 

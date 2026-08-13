@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-grounded-relation-review-v19",
+        "release": "2026.08.13-extraction-observability-v20",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -66,6 +66,8 @@ def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
         "automaticSources": 0,
         "sourcesDue": 0,
         "sourcesRetrying": 0,
+        "extractionReady": 0,
+        "extractionRetrying": 0,
         "emailQueued": 0,
         "emailRetrying": 0,
         "emailSending": 0,
