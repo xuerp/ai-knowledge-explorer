@@ -703,7 +703,7 @@ function AdminReviewPage() {
       recentExtraction.candidateIds,
     );
     if (candidates.length === 0) {
-      setOperationMessage("本批没有可直接批准的无冲突待审候选。");
+      setOperationMessage("本批没有同时具备可见证据且无冲突的待审候选。");
       return;
     }
     const candidateIds = new Set(candidates.map((item) => item.id));
@@ -1298,7 +1298,7 @@ function AdminReviewPage() {
                 <div>
                   <div className="font-medium">本次抽取：{recentExtraction.sourceTitle}</div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；可批量批准其中无冲突的待审项，需要补证据的条目会自动保留。`}
+                    {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；批量批准只处理具备可见证据且无冲突的待审项，其余条目会自动保留。`}
                   </p>
                 </div>
                 <Button
