@@ -90,7 +90,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260812_0015"
-SERVICE_RELEASE = "2026.08.13-automatic-extraction-status-v17"
+SERVICE_RELEASE = "2026.08.13-extraction-backoff-v18"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -574,6 +574,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             automatic_extraction_max_candidates_per_snapshot=(
                 app_settings.auto_extraction_max_candidates_per_snapshot
             ),
+            automatic_extraction_retry_minutes=app_settings.auto_extraction_retry_minutes,
             smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,
@@ -766,6 +767,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
             ).all()
         )
+        cooling_down_snapshot_ids: set[str] = set()
+        if automatic_only:
+            retry_after = datetime.now(UTC) - timedelta(
+                minutes=app_settings.auto_extraction_retry_minutes
+            )
+            cooling_down_snapshot_ids = set(
+                session.scalars(
+                    select(AuditLogRecord.target_id).where(
+                        AuditLogRecord.action == "extraction.failed",
+                        AuditLogRecord.target_type == "document_snapshot",
+                        AuditLogRecord.created_at >= retry_after,
+                    )
+                ).all()
+            )
         snapshots = session.scalars(
             select(DocumentSnapshotRecord).order_by(DocumentSnapshotRecord.observed_at.desc())
         ).all()
@@ -776,6 +791,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 continue
             seen_sources.add(snapshot_row.source_id)
             if snapshot_row.id in extracted_snapshot_ids:
+                continue
+            if snapshot_row.id in cooling_down_snapshot_ids:
                 continue
             source = session.get(SourceRecord, snapshot_row.source_id)
             if not source or not source.active:
@@ -870,6 +887,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
             except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
                 session.rollback()
+                audit.record(
+                    session,
+                    principal,
+                    "extraction.failed",
+                    "document_snapshot",
+                    snapshot_row.id,
+                    {"sourceId": source.id, "error": str(error)[:500]},
+                )
+                session.commit()
                 summary["failed"] = int(summary["failed"]) + 1
                 errors.append({"sourceId": source.id, "error": str(error)[:500]})
                 break
