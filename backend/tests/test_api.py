@@ -34,7 +34,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-automatic-extraction-status-v17",
+        "release": "2026.08.13-extraction-backoff-v18",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -161,6 +161,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         assert integrations["automaticExtractionEnabled"] is True
         assert integrations["automaticExtractionMaxSnapshotsPerCycle"] == 2
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
+        assert integrations["automaticExtractionRetryMinutes"] == 360
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -233,6 +234,12 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         assert any(
             item["snapshotId"] == changed.json()["snapshotId"] for item in retry_plan
         )
+        cooling_down = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert cooling_down.status_code == 200
+        assert cooling_down.json()["result"]["extraction"]["planned"] == 0
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):
@@ -501,6 +508,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "automaticExtractionEnabled": False,
         "automaticExtractionMaxSnapshotsPerCycle": 0,
         "automaticExtractionMaxCandidatesPerSnapshot": 10,
+        "automaticExtractionRetryMinutes": 360,
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,

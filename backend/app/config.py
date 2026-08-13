@@ -38,6 +38,7 @@ class Settings:
     extraction_model: str | None = None
     auto_extraction_max_snapshots_per_cycle: int = 0
     auto_extraction_max_candidates_per_snapshot: int = 10
+    auto_extraction_retry_minutes: int = 360
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -70,6 +71,10 @@ class Settings:
         if not 1 <= self.auto_extraction_max_candidates_per_snapshot <= 20:
             raise ValueError(
                 "AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT must be between 1 and 20."
+            )
+        if not 1 <= self.auto_extraction_retry_minutes <= 1440:
+            raise ValueError(
+                "AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440."
             )
         if not 1 <= self.email_max_attempts <= 20:
             raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
@@ -143,6 +148,9 @@ class Settings:
             ),
             auto_extraction_max_candidates_per_snapshot=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT", "10")
+            ),
+            auto_extraction_retry_minutes=int(
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES", "360")
             ),
             smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
             smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),
