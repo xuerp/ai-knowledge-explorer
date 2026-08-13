@@ -199,6 +199,7 @@ export interface GoldenQuestionReport {
 
 export interface IntegrationStatus {
   extractionConfigured: boolean;
+  extractionPipelineVersion: string;
   extractionEndpointHost?: string;
   extractionModel?: string;
   automaticExtractionEnabled: boolean;

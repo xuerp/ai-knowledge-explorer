@@ -304,6 +304,7 @@ class HealthResponse(CamelModel):
 
 class IntegrationStatus(CamelModel):
     extraction_configured: bool
+    extraction_pipeline_version: str
     extraction_endpoint_host: str | None = None
     extraction_model: str | None = None
     automatic_extraction_enabled: bool

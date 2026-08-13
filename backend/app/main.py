@@ -102,7 +102,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-source-excerpts-v28"
+SERVICE_RELEASE = "2026.08.14-pipeline-visibility-v29"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -586,6 +586,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 and app_settings.extraction_api_key
                 and app_settings.extraction_model
             ),
+            extraction_pipeline_version=EXTRACTION_PIPELINE_VERSION,
             extraction_endpoint_host=extraction_host,
             extraction_model=app_settings.extraction_model,
             automatic_extraction_enabled=(
@@ -1069,6 +1070,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         summary: dict[str, object] = {
             "configured": extraction.enabled,
             "enabled": extraction.enabled and limit > 0,
+            "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
             "planned": 0,
             "processed": 0,
             "candidatesCreated": 0,
