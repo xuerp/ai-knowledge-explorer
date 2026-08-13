@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
 import {
   isAlreadyAppliedReviewDecision,
+  mergeReviewQueue,
   resolveReviewReason,
   type ReviewAction,
 } from "@/domain/review-decision";
@@ -198,7 +199,14 @@ function AdminReviewPage() {
     const currentUser = await adminApi.me(activeToken);
     const data = await adminApi.workspace(activeToken, currentUser.role);
     setUser(currentUser);
-    setWorkspace(data);
+    setWorkspace((current) =>
+      current
+        ? {
+            ...data,
+            queue: mergeReviewQueue(current.queue, data.queue),
+          }
+        : data,
+    );
   }, []);
 
   useEffect(() => {

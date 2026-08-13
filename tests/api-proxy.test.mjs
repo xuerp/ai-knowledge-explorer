@@ -30,6 +30,17 @@ test("Cloudflare 同域代理保留 API 路径、查询、鉴权与请求体", a
   assert.equal(await forwarded.text(), '{"action":"approve"}');
 });
 
+test("Cloudflare 管理接口响应禁止缓存", async () => {
+  const response = await proxyApiRequest(
+    new Request("https://frontend.example/backend/api/v2/admin/review-queue"),
+    "https://api.example",
+    async () => Response.json([{ id: "review-1" }]),
+  );
+
+  assert.equal(response.headers.get("cache-control"), "no-store, no-cache, must-revalidate");
+  assert.equal(response.headers.get("pragma"), "no-cache");
+});
+
 test("Cloudflare 同域代理不会接管普通页面路由", async () => {
   const response = await proxyApiRequest(
     new Request("https://frontend.example/admin/review"),

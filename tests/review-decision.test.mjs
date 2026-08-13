@@ -4,8 +4,12 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { defaultApprovalReason, isAlreadyAppliedReviewDecision, resolveReviewReason } =
-  await vite.ssrLoadModule("/src/domain/review-decision.ts");
+const {
+  defaultApprovalReason,
+  isAlreadyAppliedReviewDecision,
+  mergeReviewQueue,
+  resolveReviewReason,
+} = await vite.ssrLoadModule("/src/domain/review-decision.ts");
 
 test.after(async () => vite.close());
 
@@ -25,4 +29,18 @@ test("重复的同向审核决定按成功处理", () => {
   assert.equal(isAlreadyAppliedReviewDecision("approve", "Review job is already approved."), true);
   assert.equal(isAlreadyAppliedReviewDecision("reject", "Review job is already rejected."), true);
   assert.equal(isAlreadyAppliedReviewDecision("reject", "Review job is already approved."), false);
+});
+
+test("批准成功后的本地状态不会被延迟的待审响应覆盖", () => {
+  const approved = { id: "review-1", status: "approved", version: 2, marker: "local" };
+  const stale = { id: "review-1", status: "pending", version: 1, marker: "remote" };
+
+  assert.deepEqual(mergeReviewQueue([approved], [stale]), [approved]);
+});
+
+test("刷新失败返回空队列时保留当前审核状态", () => {
+  const approved = { id: "review-1", status: "approved", version: 2 };
+  const pending = { id: "review-2", status: "pending", version: 1 };
+
+  assert.deepEqual(mergeReviewQueue([approved, pending], []), [approved, pending]);
 });
