@@ -696,12 +696,9 @@ function AdminReviewPage() {
     }
   };
 
-  const batchApproveRecentCandidates = async () => {
-    if (!workspace || !recentExtraction) return;
-    const candidates = selectBatchApprovableReviewItems(
-      workspace.queue,
-      recentExtraction.candidateIds,
-    );
+  const batchApproveCandidates = async (requestedCandidateIds: string[]) => {
+    if (!workspace) return;
+    const candidates = selectBatchApprovableReviewItems(workspace.queue, requestedCandidateIds);
     if (candidates.length === 0) {
       setOperationMessage("本批没有同时具备可见证据且无冲突的待审候选。");
       return;
@@ -740,11 +737,13 @@ function AdminReviewPage() {
       for (const id of decisions.keys()) delete next[id];
       return next;
     });
-    const remainingIds = recentExtraction.candidateIds.filter((id) => !decisions.has(id));
-    setRecentExtraction(
-      remainingIds.length > 0 ? { ...recentExtraction, candidateIds: remainingIds } : null,
-    );
-    const skipped = recentExtraction.candidateIds.length - candidates.length;
+    if (recentExtraction) {
+      const remainingIds = recentExtraction.candidateIds.filter((id) => !decisions.has(id));
+      setRecentExtraction(
+        remainingIds.length > 0 ? { ...recentExtraction, candidateIds: remainingIds } : null,
+      );
+    }
+    const skipped = requestedCandidateIds.length - candidates.length;
     setOperationMessage(
       `本批审核完成：批准 ${decisions.size} 条，失败 ${failures.size} 条，保留人工判断 ${skipped} 条。`,
     );
@@ -772,6 +771,9 @@ function AdminReviewPage() {
       });
     }
   };
+
+  const batchApproveRecentCandidates = () =>
+    batchApproveCandidates(recentExtraction?.candidateIds ?? []);
 
   const submitManualCandidate = async (
     event: FormEvent<HTMLFormElement>,
@@ -970,6 +972,10 @@ function AdminReviewPage() {
   const recentBatchApprovable = selectBatchApprovableReviewItems(
     workspace.queue,
     recentExtraction?.candidateIds ?? [],
+  );
+  const allBatchApprovable = selectBatchApprovableReviewItems(
+    workspace.queue,
+    pendingQueue.map((item) => item.id),
   );
   const orderedPendingQueue = [...pendingQueue].sort(
     (left, right) =>
@@ -1269,17 +1275,27 @@ function AdminReviewPage() {
                 这里只显示需要处理的候选；已批准和已拒绝记录保留在下方历史中。
               </p>
             </div>
-            {user.role === "admin" && (
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
-                variant="outline"
-                disabled={busy || workspace.extractionPlan.length === 0}
-                onClick={batchExtractCandidates}
+                disabled={busy || allBatchApprovable.length === 0}
+                onClick={() => batchApproveCandidates(pendingQueue.map((item) => item.id))}
               >
-                <Braces />
-                批量生成质量候选（{Math.min(10, workspace.extractionPlan.length)}）
+                <Check />
+                批准全部安全候选（{allBatchApprovable.length}）
               </Button>
-            )}
+              {user.role === "admin" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={busy || workspace.extractionPlan.length === 0}
+                  onClick={batchExtractCandidates}
+                >
+                  <Braces />
+                  批量生成质量候选（{Math.min(10, workspace.extractionPlan.length)}）
+                </Button>
+              )}
+            </div>
           </div>
           {pendingQueue.length === 0 && (
             <div className="paper-card p-5 text-sm text-muted-foreground">当前没有待审核候选。</div>
