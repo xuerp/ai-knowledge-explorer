@@ -276,6 +276,16 @@ class ReviewDecision(CamelModel):
     reason: str = Field(min_length=3, max_length=500)
 
 
+class ReviewBatchDecision(CamelModel):
+    id: str = Field(min_length=1, max_length=128)
+    expected_version: int = Field(ge=1)
+    reason: str = Field(min_length=3, max_length=500)
+
+
+class ReviewBatchApproval(CamelModel):
+    items: list[ReviewBatchDecision] = Field(min_length=1, max_length=50)
+
+
 class ReviewQueueItem(ReviewCandidate):
     version: int
     review_reason: str | None = None

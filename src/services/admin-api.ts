@@ -395,6 +395,19 @@ export const adminApi = {
       token,
     ),
 
+  batchApprove: (
+    token: string,
+    items: Array<{ id: string; expectedVersion: number; reason: string }>,
+  ) =>
+    request<ReviewQueueItem[]>(
+      "/api/v2/admin/review-queue/batch-approve",
+      {
+        method: "POST",
+        body: JSON.stringify({ items }),
+      },
+      token,
+    ),
+
   runIngestion: (token: string) =>
     request<{ due: number; succeeded: number; unchanged: number; failed: number }>(
       "/api/v2/admin/ingestion/run",

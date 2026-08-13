@@ -711,28 +711,20 @@ function AdminReviewPage() {
     setError("");
     const decisions = new Map<string, ReviewQueueItem>();
     const failures = new Map<string, string>();
-    for (const [index, item] of candidates.entries()) {
-      setOperationMessage(
-        `正在批准本批安全候选 ${index + 1}/${candidates.length}：${item.claim.text.zh}`,
+    setOperationMessage(`正在以单个事务批准 ${candidates.length} 条安全候选。`);
+    try {
+      const approved = await adminApi.batchApprove(
+        token,
+        candidates.map((item) => ({
+          id: item.id,
+          expectedVersion: item.version,
+          reason: resolveReviewReason("approve", reasons[item.id]),
+        })),
       );
-      try {
-        const reason = resolveReviewReason("approve", reasons[item.id]);
-        decisions.set(
-          item.id,
-          await adminApi.decide(token, item.id, "approve", item.version, reason),
-        );
-      } catch (failure) {
-        const message = failure instanceof Error ? failure.message : "审核失败";
-        if (isAlreadyAppliedReviewDecision("approve", message)) {
-          decisions.set(item.id, {
-            ...item,
-            status: "approved",
-            version: item.version + 1,
-          });
-        } else {
-          failures.set(item.id, message);
-        }
-      }
+      for (const item of approved) decisions.set(item.id, item);
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "批量审核失败";
+      for (const item of candidates) failures.set(item.id, message);
     }
     setWorkspace((current) =>
       current
