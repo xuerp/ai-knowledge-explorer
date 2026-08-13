@@ -1955,7 +1955,8 @@ function OperationsPanel({
                   <div>
                     抽取：计划 {numberValue(extraction, "planned")} · 完成{" "}
                     {numberValue(extraction, "processed")} · 候选{" "}
-                    {numberValue(extraction, "candidatesCreated")} · 自动批准{" "}
+                    {numberValue(extraction, "candidatesCreated")} · 合并/跳过重复{" "}
+                    {numberValue(extraction, "duplicatesSkipped")} · 自动批准{" "}
                     {numberValue(extraction, "relationsAutoApproved")} · 失败{" "}
                     {numberValue(extraction, "failed")}
                   </div>
