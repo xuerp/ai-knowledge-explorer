@@ -281,6 +281,7 @@ test("PWA manifest and service worker expose an offline application shell", asyn
     await readFile(path.resolve(process.cwd(), "public/manifest.webmanifest"), "utf8"),
   );
   const serviceWorker = await readFile(path.resolve(process.cwd(), "public/sw.js"), "utf8");
+  const staticHeaders = await readFile(path.resolve(process.cwd(), "public/_headers"), "utf8");
   const offlinePage = await readFile(path.resolve(process.cwd(), "public/offline.html"), "utf8");
 
   assert.equal(manifest.start_url, "/");
@@ -289,6 +290,8 @@ test("PWA manifest and service worker expose an offline application shell", asyn
   assert.match(serviceWorker, /offline\.html/);
   assert.match(serviceWorker, /caches\.open/);
   assert.match(serviceWorker, /fetch\(request, \{ cache: "no-store" \}\)/);
+  assert.match(staticHeaders, /\/sw\.js/);
+  assert.match(staticHeaders, /no-store/);
   assert.match(offlinePage, /最后在线缓存/);
 });
 

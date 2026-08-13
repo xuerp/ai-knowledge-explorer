@@ -1,0 +1,4 @@
+/sw.js
+  cache-control: no-store, no-cache, must-revalidate
+  pragma: no-cache
+  expires: 0
