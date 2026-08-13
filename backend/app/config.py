@@ -39,6 +39,7 @@ class Settings:
     auto_extraction_max_snapshots_per_cycle: int = 0
     auto_extraction_max_candidates_per_snapshot: int = 10
     auto_extraction_retry_minutes: int = 360
+    auto_approve_grounded_relations: bool = False
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -152,6 +153,10 @@ class Settings:
             auto_extraction_retry_minutes=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES", "360")
             ),
+            auto_approve_grounded_relations=os.getenv(
+                "AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS", "false"
+            ).lower()
+            in {"1", "true", "yes"},
             smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
             smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),
             smtp_username=os.getenv("AI_RADAR_SMTP_USERNAME") or None,
