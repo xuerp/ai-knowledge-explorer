@@ -40,7 +40,10 @@ export function PwaStatus({ dark = false }: { dark?: boolean }) {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !import.meta.env.PROD) return;
-    void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    void navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((registration) => registration.update())
+      .catch(() => undefined);
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ai-radar-shell-v1";
+const CACHE_NAME = "ai-radar-shell-v2";
 const APP_SHELL = [
   "/",
   "/knowledge",
@@ -43,7 +43,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: "no-store" })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
