@@ -1,5 +1,6 @@
 import type { Entity, GraphEdge, TimelineEntry } from "@/domain/types";
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
+import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
 
@@ -232,7 +233,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   if (!apiBaseUrl) {
     throw new Error("VITE_API_BASE_URL is not configured.");
   }
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetchWithNetworkRetry(`${apiBaseUrl}${path}`, {
     ...options,
     headers: {
       Accept: "application/json",

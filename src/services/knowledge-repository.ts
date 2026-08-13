@@ -6,6 +6,7 @@ import type {
   TimelineEvent,
 } from "@/domain/types";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
+import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 export interface EntityQuery {
   type?: EntityType;
@@ -90,7 +91,7 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
   constructor(private readonly baseUrl: string) {}
 
   private async request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal) {
-    const response = await fetch(`${this.baseUrl}${path}`, {
+    const response = await fetchWithNetworkRetry(`${this.baseUrl}${path}`, {
       ...init,
       headers: {
         Accept: "application/json",
