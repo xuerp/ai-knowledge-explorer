@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-unique-worker-runtime-v34",
+        "release": "2026.08.14-human-verified-automation-v35",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -444,6 +444,44 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
             if evidence["id"] == "evidence-review-grounded-relation"
         )
         assert automatic_evidence["verifiedAt"] is None
+
+        verified = automatic_client.post(
+            "/api/v2/admin/review-queue/batch-verify-automation",
+            headers=admin_headers,
+            json={
+                "items": [
+                    {
+                        "id": grounded["id"],
+                        "expectedVersion": grounded["version"],
+                        "reason": "人工复核：已对照官方证据确认关系表述一致。",
+                    }
+                ]
+            },
+        )
+        assert verified.status_code == 200
+        assert verified.json()[0]["reviewMethod"] == "human"
+        assert verified.json()[0]["version"] == grounded["version"] + 1
+        verified_snapshot = automatic_client.get("/api/snapshot").json()
+        verified_evidence = next(
+            evidence
+            for evidence in verified_snapshot["evidence"]
+            if evidence["id"] == "evidence-review-grounded-relation"
+        )
+        assert verified_evidence["verifiedAt"] is not None
+        repeated = automatic_client.post(
+            "/api/v2/admin/review-queue/batch-verify-automation",
+            headers=admin_headers,
+            json={
+                "items": [
+                    {
+                        "id": grounded["id"],
+                        "expectedVersion": grounded["version"],
+                        "reason": "再次确认不应覆盖首次人工复核。",
+                    }
+                ]
+            },
+        )
+        assert repeated.status_code == 409
 
         second_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",
