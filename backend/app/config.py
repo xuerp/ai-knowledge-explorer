@@ -36,6 +36,8 @@ class Settings:
     extraction_api_url: str | None = None
     extraction_api_key: str | None = None
     extraction_model: str | None = None
+    auto_extraction_max_snapshots_per_cycle: int = 0
+    auto_extraction_max_candidates_per_snapshot: int = 10
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -61,6 +63,14 @@ class Settings:
             raise ValueError("AI_RADAR_FETCH_RETRY_MAX_MINUTES must be at least the retry base.")
         if not 1 <= self.fetch_lease_minutes <= 60:
             raise ValueError("AI_RADAR_FETCH_LEASE_MINUTES must be between 1 and 60.")
+        if not 0 <= self.auto_extraction_max_snapshots_per_cycle <= 10:
+            raise ValueError(
+                "AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE must be between 0 and 10."
+            )
+        if not 1 <= self.auto_extraction_max_candidates_per_snapshot <= 20:
+            raise ValueError(
+                "AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT must be between 1 and 20."
+            )
         if not 1 <= self.email_max_attempts <= 20:
             raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
         if self.email_retry_base_seconds < 1:
@@ -128,6 +138,12 @@ class Settings:
             extraction_api_url=os.getenv("AI_RADAR_EXTRACTION_API_URL") or None,
             extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
+            auto_extraction_max_snapshots_per_cycle=int(
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")
+            ),
+            auto_extraction_max_candidates_per_snapshot=int(
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT", "10")
+            ),
             smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
             smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),
             smtp_username=os.getenv("AI_RADAR_SMTP_USERNAME") or None,

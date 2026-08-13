@@ -1,11 +1,12 @@
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
-from app.database import EmailOutboxRecord
-from app.extraction import StructuredExtractionService
+from app.database import EmailOutboxRecord, SourceRecord
+from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import create_app
 
@@ -33,7 +34,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.13-golden-readiness-v15",
+        "release": "2026.08.13-automatic-extraction-v16",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -107,6 +108,14 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "unchanged": 0,
         "failed": 0,
     }
+    assert payload["result"]["extraction"] == {
+        "configured": False,
+        "enabled": False,
+        "planned": 0,
+        "processed": 0,
+        "candidatesCreated": 0,
+        "failed": 0,
+    }
 
     operations = client.get(
         "/api/v2/admin/operations",
@@ -115,6 +124,108 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert operations["heartbeatStatus"] == "healthy"
     assert operations["worker"]["lastCycleStatus"] == "succeeded"
     assert operations["recentRuns"][0]["id"] == payload["cycleId"]
+
+
+def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'automatic-extraction.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=2,
+    )
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda self, source, snapshot, max_candidates, catalog_entities=None: [],
+    )
+    with TestClient(create_app(settings)) as automatic_client:
+        admin_headers = {"X-Admin-Token": "test-admin-token"}
+        automation_headers = {
+            "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
+        }
+        created = automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+            json={
+                "id": "source-automatic-extraction",
+                "url": "https://example.com/automatic-extraction",
+                "title": "Automatic extraction source",
+                "publisher": "Example",
+            },
+        )
+        assert created.status_code == 201
+        snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-automatic-extraction/snapshots",
+            headers=admin_headers,
+            json={"content": "This source contains an explicit, verifiable product fact."},
+        )
+        assert snapshot.status_code == 200
+        with automatic_client.app.state.database.session() as session:
+            source = session.get(SourceRecord, "source-automatic-extraction")
+            assert source is not None
+            source.fetch_enabled = True
+            source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+
+        first = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert first.status_code == 200
+        assert first.json()["result"]["extraction"] == {
+            "configured": True,
+            "enabled": True,
+            "planned": 1,
+            "processed": 1,
+            "candidatesCreated": 0,
+            "failed": 0,
+        }
+
+        second = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert second.status_code == 200
+        assert second.json()["result"]["extraction"]["planned"] == 0
+        assert second.json()["result"]["extraction"]["processed"] == 0
+
+        changed = automatic_client.post(
+            "/api/v2/admin/sources/source-automatic-extraction/snapshots",
+            headers=admin_headers,
+            json={"content": "This revised source contains another explicit product fact."},
+        )
+        assert changed.status_code == 200
+
+        def fail_extraction(*args, **kwargs):
+            raise ExtractionUnavailableError("Provider is temporarily unavailable.")
+
+        monkeypatch.setattr(StructuredExtractionService, "extract", fail_extraction)
+        failed = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert failed.status_code == 200
+        assert failed.json()["status"] == "partial"
+        assert failed.json()["result"]["extraction"]["processed"] == 0
+        assert failed.json()["result"]["extraction"]["failed"] == 1
+        retry_plan = automatic_client.get(
+            "/api/v2/admin/extraction-plan",
+            headers=admin_headers,
+        ).json()
+        assert any(
+            item["snapshotId"] == changed.json()["snapshotId"] for item in retry_plan
+        )
 
 
 def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient):
