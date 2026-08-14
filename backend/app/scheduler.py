@@ -40,6 +40,7 @@ class IngestionScheduler:
         force: bool = False,
     ) -> SchedulerRunSummary:
         current = now or datetime.now(UTC)
+        requested_source_id = source_id
         due = succeeded = unchanged = failed = 0
         for _ in range(limit):
             conditions = [
@@ -58,8 +59,8 @@ class IngestionScheduler:
                         SourceRecord.next_fetch_at <= current,
                     )
                 )
-            if source_id is not None:
-                conditions.append(SourceRecord.id == source_id)
+            if requested_source_id is not None:
+                conditions.append(SourceRecord.id == requested_source_id)
             source = session.scalars(
                 select(SourceRecord)
                 .where(*conditions)
@@ -70,7 +71,7 @@ class IngestionScheduler:
             if source is None:
                 break
             lease_token = str(uuid4())
-            source_id = source.id
+            claimed_source_id = source.id
             source_url = source.url
             etag = source.etag
             last_modified = source.last_modified
@@ -89,7 +90,7 @@ class IngestionScheduler:
                 source = session.scalars(
                     select(SourceRecord)
                     .where(
-                        SourceRecord.id == source_id,
+                        SourceRecord.id == claimed_source_id,
                         SourceRecord.fetch_lease_token == lease_token,
                     )
                     .with_for_update()
@@ -144,7 +145,7 @@ class IngestionScheduler:
                 source = session.scalars(
                     select(SourceRecord)
                     .where(
-                        SourceRecord.id == source_id,
+                        SourceRecord.id == claimed_source_id,
                         SourceRecord.fetch_lease_token == lease_token,
                     )
                     .with_for_update()
@@ -163,7 +164,7 @@ class IngestionScheduler:
                     session.add(
                         IngestionRunRecord(
                             id=str(uuid4()),
-                            source_id=source_id,
+                            source_id=claimed_source_id,
                             started_at=started,
                             finished_at=datetime.now(UTC),
                             status="failed",
