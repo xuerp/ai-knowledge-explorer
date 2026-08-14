@@ -105,7 +105,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-weighted-gap-extraction-v37"
+SERVICE_RELEASE = "2026.08.14-anchored-batch-review-v38"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1931,19 +1931,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Review job is already {row.status}.",
             )
+        queue_item = repository.to_queue_item(row)
         if batch_safe_only and (
-            row.status != "pending" or json.loads(row.conflict_ids_json or "[]")
+            row.status != "pending"
+            or json.loads(row.conflict_ids_json or "[]")
+            or not any(
+                evidence.source_excerpt and evidence.source_excerpt.strip()
+                for evidence in queue_item.evidence_items
+            )
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Review job requires individual review and cannot be batch approved.",
+                detail=(
+                    "Review job requires an anchored source excerpt and individual review."
+                ),
             )
         if row.version != decision.expected_version:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Review job version is {row.version}; refresh before deciding.",
             )
-        if action == "approved" and not repository.to_queue_item(row).evidence_ids:
+        if action == "approved" and not queue_item.evidence_ids:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="A claim cannot be published without evidence.",

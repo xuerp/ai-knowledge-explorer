@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-weighted-gap-extraction-v37",
+        "release": "2026.08.14-anchored-batch-review-v38",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -984,7 +984,22 @@ def create_batch_review_candidate(
     client: TestClient,
     headers: dict[str, str],
     suffix: str,
+    *,
+    anchored: bool = True,
 ) -> dict[str, object]:
+    evidence = {
+        "id": f"evidence-batch-context-{suffix}",
+        "title": {"zh": "GPT 官方文档", "en": "GPT official docs"},
+        "url": f"https://example.com/gpt-context-{suffix}",
+        "publisher": "OpenAI",
+        "publishedAt": "2026-08-14",
+        "collectedAt": "2026-08-14",
+        "type": "official",
+    }
+    if anchored:
+        evidence["sourceExcerpt"] = (
+            f"GPT provides configurable context capability {suffix}."
+        )
     created = client.post(
         "/api/v2/admin/review-candidates",
         headers=headers,
@@ -1004,17 +1019,7 @@ def create_batch_review_candidate(
                 "predicate": "has-capability",
                 "objectOrValue": f"configurable context {suffix}",
             },
-            "evidence": [
-                {
-                    "id": f"evidence-batch-context-{suffix}",
-                    "title": {"zh": "GPT 官方文档", "en": "GPT official docs"},
-                    "url": f"https://example.com/gpt-context-{suffix}",
-                    "publisher": "OpenAI",
-                    "publishedAt": "2026-08-14",
-                    "collectedAt": "2026-08-14",
-                    "type": "official",
-                }
-            ],
+            "evidence": [evidence],
         },
     )
     assert created.status_code == 201
@@ -1056,6 +1061,35 @@ def test_batch_approve_publishes_multiple_reviews_in_one_transaction(client: Tes
         "claim-batch-context-one",
         "claim-batch-context-two",
     }
+
+
+def test_batch_approve_rejects_evidence_without_an_anchored_excerpt(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    candidate = create_batch_review_candidate(
+        client,
+        headers,
+        "unanchored",
+        anchored=False,
+    )
+
+    response = client.post(
+        "/api/v2/admin/review-queue/batch-approve",
+        headers=headers,
+        json={
+            "items": [
+                {
+                    "id": candidate["id"],
+                    "expectedVersion": candidate["version"],
+                    "reason": "缺少原文锚点时不能批量批准。",
+                }
+            ]
+        },
+    )
+
+    assert response.status_code == 409
+    queue = client.get("/api/v2/admin/review-queue", headers=headers).json()
+    unchanged = next(item for item in queue if item["id"] == candidate["id"])
+    assert unchanged["status"] == "pending"
 
 
 def test_batch_approve_rolls_back_every_decision_when_one_item_fails(client: TestClient):

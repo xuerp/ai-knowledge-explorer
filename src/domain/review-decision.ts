@@ -8,7 +8,7 @@ type ReviewQueueState = {
 
 type BatchReviewState = ReviewQueueState & {
   conflictClaimIds: readonly string[];
-  evidenceItems: readonly unknown[];
+  evidenceItems: readonly { sourceExcerpt?: string | null }[];
 };
 
 const terminalReviewStatuses = new Set<ReviewQueueState["status"]>(["approved", "rejected"]);
@@ -62,6 +62,6 @@ export function selectBatchApprovableReviewItems<T extends BatchReviewState>(
       selectedIds.has(item.id) &&
       item.status === "pending" &&
       item.conflictClaimIds.length === 0 &&
-      item.evidenceItems.length > 0,
+      item.evidenceItems.some((evidence) => Boolean(evidence.sourceExcerpt?.trim())),
   );
 }
