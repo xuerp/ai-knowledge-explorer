@@ -28,13 +28,44 @@ export async function runAutomationCycle(env, fetchImpl = fetch) {
   return JSON.parse(body);
 }
 
+export function enqueueAutomationCycle(
+  controller,
+  env,
+  context,
+  runCycle = runAutomationCycle,
+  logger = console,
+) {
+  const scheduledAt = controller?.scheduledTime
+    ? new Date(controller.scheduledTime).toISOString()
+    : new Date().toISOString();
+  logger.log(
+    JSON.stringify({
+      event: "automation-cycle-started",
+      cron: controller?.cron ?? null,
+      scheduledAt,
+    }),
+  );
+  const task = runCycle(env)
+    .then((result) => {
+      logger.log(JSON.stringify({ event: "automation-cycle-succeeded", ...result }));
+      return result;
+    })
+    .catch((error) => {
+      logger.error(
+        JSON.stringify({
+          event: "automation-cycle-failed",
+          error: error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500),
+        }),
+      );
+      throw error;
+    });
+  context.waitUntil(task);
+  return task;
+}
+
 export default {
-  async scheduled(_controller, env, context) {
-    context.waitUntil(
-      runAutomationCycle(env).then((result) => {
-        console.log(JSON.stringify({ event: "automation-cycle", ...result }));
-      }),
-    );
+  scheduled(controller, env, context) {
+    enqueueAutomationCycle(controller, env, context);
   },
 
   async fetch(request) {
