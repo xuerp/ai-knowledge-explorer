@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-bounded-source-scheduler-v45"
+SERVICE_RELEASE = "2026.08.14-versioned-extraction-retry-v46"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -824,15 +824,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             retry_after = datetime.now(UTC) - timedelta(
                 minutes=app_settings.auto_extraction_retry_minutes
             )
-            cooling_down_snapshot_ids = set(
-                session.scalars(
-                    select(AuditLogRecord.target_id).where(
-                        AuditLogRecord.action == "extraction.failed",
-                        AuditLogRecord.target_type == "document_snapshot",
-                        AuditLogRecord.created_at >= retry_after,
-                    )
-                ).all()
-            )
+            recent_failures = session.scalars(
+                select(AuditLogRecord).where(
+                    AuditLogRecord.action == "extraction.failed",
+                    AuditLogRecord.target_type == "document_snapshot",
+                    AuditLogRecord.created_at >= retry_after,
+                )
+            ).all()
+            cooling_down_snapshot_ids = {
+                row.target_id
+                for row in recent_failures
+                if extraction_audit_is_current(row.detail_json)
+            }
         snapshots = session.scalars(
             select(DocumentSnapshotRecord).order_by(
                 DocumentSnapshotRecord.observed_at.desc(),
