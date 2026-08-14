@@ -9,23 +9,53 @@ export function normalizeApiBaseUrl(value) {
   return url.href.replace(/\/$/, "");
 }
 
-export async function runAutomationCycle(env, fetchImpl = fetch) {
+const TRANSIENT_STATUS_CODES = new Set([429, 502, 503, 504]);
+
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function runAutomationCycle(env, fetchImpl = fetch, options = {}) {
   if (!env.AI_RADAR_AUTOMATION_TOKEN || env.AI_RADAR_AUTOMATION_TOKEN.length < 32) {
     throw new Error("AI_RADAR_AUTOMATION_TOKEN is missing or too short.");
   }
   const apiBaseUrl = normalizeApiBaseUrl(env.AI_RADAR_API_BASE_URL);
-  const response = await fetchImpl(`${apiBaseUrl}/api/v2/automation/run-cycle`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "X-Automation-Token": env.AI_RADAR_AUTOMATION_TOKEN,
-    },
-  });
-  const body = await response.text();
-  if (!response.ok) {
-    throw new Error(`Automation API returned ${response.status}: ${body.slice(0, 300)}`);
+  const maxAttempts = Math.max(1, Math.min(Number(options.maxAttempts ?? 3), 3));
+  const delay = options.delay ?? wait;
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetchImpl(`${apiBaseUrl}/api/v2/automation/run-cycle`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "X-Automation-Token": env.AI_RADAR_AUTOMATION_TOKEN,
+        },
+      });
+    } catch (error) {
+      lastError = new Error(
+        `Automation API request failed on attempt ${attempt}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      if (attempt >= maxAttempts) {
+        throw lastError;
+      }
+      await delay(attempt === 1 ? 5_000 : 15_000);
+      continue;
+    }
+    const body = await response.text();
+    if (response.ok) {
+      return JSON.parse(body);
+    }
+    lastError = new Error(`Automation API returned ${response.status}: ${body.slice(0, 300)}`);
+    if (!TRANSIENT_STATUS_CODES.has(response.status) || attempt >= maxAttempts) {
+      throw lastError;
+    }
+    await delay(attempt === 1 ? 5_000 : 15_000);
   }
-  return JSON.parse(body);
+  throw lastError ?? new Error("Automation API request failed.");
 }
 
 export function enqueueAutomationCycle(

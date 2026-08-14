@@ -107,3 +107,45 @@ test("Cloudflare Cron 将部分成功周期写入独立告警事件", async () =
   assert.equal(warnings[0].event, "automation-cycle-partial");
   assert.equal(warnings[0].cycleId, "cycle-partial");
 });
+
+test("Cloudflare Cron 对供应商瞬时错误执行有限退避重试", async () => {
+  const delays = [];
+  let attempts = 0;
+  const result = await runAutomationCycle(
+    {
+      AI_RADAR_API_BASE_URL: "https://api.example.com",
+      AI_RADAR_AUTOMATION_TOKEN: "a".repeat(32),
+    },
+    async () => {
+      attempts += 1;
+      if (attempts < 3) {
+        return new Response("Render is waking", { status: 503 });
+      }
+      return new Response(JSON.stringify({ cycleId: "cycle-recovered", status: "succeeded" }));
+    },
+    { delay: async (milliseconds) => delays.push(milliseconds) },
+  );
+
+  assert.equal(attempts, 3);
+  assert.deepEqual(delays, [5_000, 15_000]);
+  assert.equal(result.cycleId, "cycle-recovered");
+});
+
+test("Cloudflare Cron 不会重试鉴权错误", async () => {
+  let attempts = 0;
+  await assert.rejects(
+    runAutomationCycle(
+      {
+        AI_RADAR_API_BASE_URL: "https://api.example.com",
+        AI_RADAR_AUTOMATION_TOKEN: "a".repeat(32),
+      },
+      async () => {
+        attempts += 1;
+        return new Response("Unauthorized", { status: 401 });
+      },
+      { delay: async () => assert.fail("鉴权错误不应进入退避等待") },
+    ),
+    /returned 401/,
+  );
+  assert.equal(attempts, 1);
+});
