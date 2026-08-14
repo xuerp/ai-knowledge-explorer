@@ -17,6 +17,9 @@ export interface ReviewQueueItem {
     id: string;
     text: { zh: string; en: string };
     confidence: string;
+    subject?: string;
+    predicate?: string;
+    objectOrValue?: string;
   };
   evidenceIds: string[];
   evidenceItems: Evidence[];
