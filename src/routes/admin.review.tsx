@@ -700,7 +700,7 @@ function AdminReviewPage() {
     if (!workspace) return;
     const candidates = selectBatchApprovableReviewItems(workspace.queue, requestedCandidateIds);
     if (candidates.length === 0) {
-      setOperationMessage("本批没有同时具备可见证据且无冲突的待审候选。");
+      setOperationMessage("本批没有同时具备原文锚点且无冲突的待审候选。");
       return;
     }
     const candidateIds = new Set(candidates.map((item) => item.id));
@@ -1329,7 +1329,7 @@ function AdminReviewPage() {
               <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 当前待处理 {pendingQueue.length} 条，其中 {allBatchApprovable.length}{" "}
-                条具备可见证据、{" "}
+                条具备可定位原文锚点、{" "}
                 无冲突且可安全批量批准；其余需要单独判断。已处理记录保留在下方历史中。
               </p>
             </div>
@@ -1364,7 +1364,7 @@ function AdminReviewPage() {
                 <div>
                   <div className="font-medium">本次抽取：{recentExtraction.sourceTitle}</div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；批量批准只处理具备可见证据且无冲突的待审项，其余条目会自动保留。`}
+                    {`蓝色边框标记的是刚生成的 ${recentExtraction.candidateIds.length} 条候选；批量批准只处理具备可定位原文锚点且无冲突的待审项，其余条目会自动保留。`}
                   </p>
                 </div>
                 <Button

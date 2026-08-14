@@ -46,22 +46,28 @@ test("刷新失败返回空队列时保留当前审核状态", () => {
   assert.deepEqual(mergeReviewQueue([approved, pending], []), [approved, pending]);
 });
 
-test("批量批准只选择本批有证据且无冲突的待审候选", () => {
+test("批量批准只选择本批有原文锚点且无冲突的待审候选", () => {
   const queue = [
-    { id: "safe", status: "pending", version: 1, conflictClaimIds: [], evidenceItems: [{}] },
+    {
+      id: "safe",
+      status: "pending",
+      version: 1,
+      conflictClaimIds: [],
+      evidenceItems: [{ sourceExcerpt: "GPT uses MCP." }],
+    },
     {
       id: "conflict",
       status: "pending",
       version: 1,
       conflictClaimIds: ["claim-old"],
-      evidenceItems: [{}],
+      evidenceItems: [{ sourceExcerpt: "Conflicting excerpt." }],
     },
     {
       id: "needs-evidence",
       status: "needs-more-evidence",
       version: 1,
       conflictClaimIds: [],
-      evidenceItems: [{}],
+      evidenceItems: [{ sourceExcerpt: "Incomplete excerpt." }],
     },
     {
       id: "missing-evidence",
@@ -70,7 +76,20 @@ test("批量批准只选择本批有证据且无冲突的待审候选", () => {
       conflictClaimIds: [],
       evidenceItems: [],
     },
-    { id: "other", status: "pending", version: 1, conflictClaimIds: [], evidenceItems: [{}] },
+    {
+      id: "missing-excerpt",
+      status: "pending",
+      version: 1,
+      conflictClaimIds: [],
+      evidenceItems: [{}],
+    },
+    {
+      id: "other",
+      status: "pending",
+      version: 1,
+      conflictClaimIds: [],
+      evidenceItems: [{ sourceExcerpt: "Other anchored fact." }],
+    },
   ];
 
   assert.deepEqual(
@@ -79,6 +98,7 @@ test("批量批准只选择本批有证据且无冲突的待审候选", () => {
       "conflict",
       "needs-evidence",
       "missing-evidence",
+      "missing-excerpt",
     ]),
     [queue[0]],
   );
