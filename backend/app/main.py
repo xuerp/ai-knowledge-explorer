@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-fresh-source-leases-v48"
+SERVICE_RELEASE = "2026.08.14-resilient-operations-history-v49"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
