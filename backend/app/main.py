@@ -105,7 +105,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-anchored-batch-review-v38"
+SERVICE_RELEASE = "2026.08.14-verbatim-evidence-anchor-v39"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1932,13 +1932,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail=f"Review job is already {row.status}.",
             )
         queue_item = repository.to_queue_item(row)
+
+        def has_anchored_excerpt() -> bool:
+            subject = " ".join((queue_item.claim.subject or "").casefold().split())
+            object_or_value = " ".join(
+                (queue_item.claim.object_or_value or "").casefold().split()
+            )
+            if not subject or not object_or_value:
+                return False
+            return any(
+                subject in " ".join(evidence.source_excerpt.casefold().split())
+                and object_or_value
+                in " ".join(evidence.source_excerpt.casefold().split())
+                for evidence in queue_item.evidence_items
+                if evidence.source_excerpt
+            )
+
         if batch_safe_only and (
             row.status != "pending"
             or json.loads(row.conflict_ids_json or "[]")
-            or not any(
-                evidence.source_excerpt and evidence.source_excerpt.strip()
-                for evidence in queue_item.evidence_items
-            )
+            or not has_anchored_excerpt()
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

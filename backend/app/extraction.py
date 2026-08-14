@@ -86,7 +86,7 @@ def locate_source_excerpt(
         return None
     segments = [
         " ".join(segment.split())
-        for segment in re.split(r"(?<=[。！？.!?])\s+|[\r\n]+", content)
+        for segment in re.split(r"(?<=[。！？!?])\s*|(?<=\.)\s+|[\r\n]+", content)
         if segment.strip()
     ]
     matches = [
@@ -97,7 +97,23 @@ def locate_source_excerpt(
     if not matches:
         return None
     excerpt = min(matches, key=len)
-    return excerpt[:max_characters].rstrip()
+    if len(excerpt) <= max_characters:
+        return excerpt
+    excerpt_key = excerpt.casefold()
+    subject_start = excerpt_key.find(subject_key)
+    object_start = excerpt_key.find(object_key)
+    anchor_start = min(subject_start, object_start)
+    anchor_end = max(
+        subject_start + len(subject_key),
+        object_start + len(object_key),
+    )
+    if anchor_end - anchor_start > max_characters:
+        return None
+    remaining = max_characters - (anchor_end - anchor_start)
+    window_start = max(0, anchor_start - remaining // 2)
+    window_end = min(len(excerpt), window_start + max_characters)
+    window_start = max(0, window_end - max_characters)
+    return excerpt[window_start:window_end].strip()
 
 
 class StructuredExtractionService:
