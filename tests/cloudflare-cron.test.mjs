@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { normalizeApiBaseUrl, runAutomationCycle } from "../ops/cloudflare-cron/worker.mjs";
+import {
+  enqueueAutomationCycle,
+  normalizeApiBaseUrl,
+  runAutomationCycle,
+} from "../ops/cloudflare-cron/worker.mjs";
 
 test("Cloudflare Cron 只接受 HTTPS API 地址", () => {
   assert.equal(normalizeApiBaseUrl("https://api.example.com/"), "https://api.example.com");
@@ -45,4 +49,42 @@ test("Cloudflare Cron 先无触发器部署，再启用按小时计划", async (
   assert.equal(setup.name, scheduled.name);
   assert.equal(setup.triggers, undefined);
   assert.deepEqual(scheduled.triggers.crons, ["17 * * * *"]);
+});
+
+test("Cloudflare Cron 为开始和成功结果写入结构化日志", async () => {
+  const logs = [];
+  let pending;
+  const result = await enqueueAutomationCycle(
+    { cron: "17 * * * *", scheduledTime: Date.UTC(2026, 7, 14, 2, 17) },
+    {},
+    { waitUntil: (task) => (pending = task) },
+    async () => ({ cycleId: "cycle-1", status: "succeeded" }),
+    { log: (message) => logs.push(JSON.parse(message)), error: assert.fail },
+  );
+
+  assert.equal(pending instanceof Promise, true);
+  assert.equal(result.cycleId, "cycle-1");
+  assert.deepEqual(
+    logs.map((entry) => entry.event),
+    ["automation-cycle-started", "automation-cycle-succeeded"],
+  );
+  assert.equal(logs[0].scheduledAt, "2026-08-14T02:17:00.000Z");
+});
+
+test("Cloudflare Cron 记录失败并保持任务失败状态", async () => {
+  const errors = [];
+  await assert.rejects(
+    enqueueAutomationCycle(
+      { cron: "17 * * * *", scheduledTime: Date.UTC(2026, 7, 14, 3, 17) },
+      {},
+      { waitUntil: () => undefined },
+      async () => {
+        throw new Error("Render request failed");
+      },
+      { log: () => undefined, error: (message) => errors.push(JSON.parse(message)) },
+    ),
+    /Render request failed/,
+  );
+  assert.equal(errors[0].event, "automation-cycle-failed");
+  assert.equal(errors[0].error, "Render request failed");
 });
