@@ -180,6 +180,25 @@ def test_quality_report_blocks_stale_unreviewed_non_official_evidence():
     assert any("within 180 days" in issue for issue in report.issues)
 
 
+def test_core_relation_coverage_ignores_edges_without_resolved_evidence():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    baseline = KnowledgeQualityGate().report(snapshot)
+    relation = next(
+        edge
+        for edge in snapshot.graph.edges
+        if edge.from_id == "e-manus" or edge.to_id == "e-manus"
+    )
+    relation.source_ids = []
+
+    report = KnowledgeQualityGate().report(snapshot)
+
+    assert relation.id in report.relations_with_missing_evidence
+    assert report.core_entity_relation_counts["e-manus"] == (
+        baseline.core_entity_relation_counts["e-manus"] - 1
+    )
+    assert report.core_relation_deficit == baseline.core_relation_deficit + 1
+
+
 def test_catalog_extension_includes_core_agents_frameworks_and_evidence():
     snapshot = KnowledgeRepository(SEED_PATH).load_seed()
     entity_ids = {entity.id for entity in snapshot.entities}

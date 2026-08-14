@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-symmetric-relation-dedup-v41"
+SERVICE_RELEASE = "2026.08.14-grounded-relation-quality-v42"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",

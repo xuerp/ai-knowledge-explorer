@@ -183,8 +183,7 @@ class KnowledgeQualityGate:
         relations_with_missing_evidence = [
             edge.id
             for edge in snapshot.graph.edges
-            if edge.confidence == "verified"
-            and (not edge.source_ids or not set(edge.source_ids).issubset(evidence_ids))
+            if not edge.source_ids or not set(edge.source_ids).issubset(evidence_ids)
         ]
         timeline_entries_with_missing_evidence = [
             entry.id
@@ -225,7 +224,14 @@ class KnowledgeQualityGate:
         fresh_evidence_ratio = _ratio(fresh_evidence_count, len(snapshot.evidence))
         verified_content_ratio = _ratio(verified_content_count, len(content_items))
         degrees = {entity.id: 0 for entity in snapshot.entities}
-        for edge in snapshot.graph.edges:
+        grounded_relations = [
+            edge
+            for edge in snapshot.graph.edges
+            if edge.confidence != "conflict"
+            and bool(edge.source_ids)
+            and set(edge.source_ids).issubset(evidence_ids)
+        ]
+        for edge in grounded_relations:
             if edge.from_id in degrees:
                 degrees[edge.from_id] += 1
             if edge.to_id in degrees:
@@ -255,7 +261,7 @@ class KnowledgeQualityGate:
         if claims_with_missing_evidence:
             issues.append("Every published claim must resolve all evidence references.")
         if relations_with_missing_evidence:
-            issues.append("Every verified relation must resolve all evidence references.")
+            issues.append("Every published relation must resolve all evidence references.")
         if timeline_entries_with_missing_evidence:
             issues.append("Every verified timeline entry must resolve all evidence references.")
         if evidence_reference_coverage < 0.98:
