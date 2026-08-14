@@ -215,6 +215,59 @@ class _FailThenSucceedFetcher:
         )
 
 
+class _RecordingFetcher:
+    def __init__(self):
+        self.urls: list[str] = []
+
+    def fetch(self, url: str, **_: object) -> FetchedDocument:
+        self.urls.append(url)
+        return FetchedDocument(
+            content=f"A sufficiently long official release document collected from {url}.",
+            content_type="text/plain",
+            etag=f'"{len(self.urls)}"',
+            last_modified=None,
+        )
+
+
+def test_scheduler_processes_multiple_due_sources_in_one_batch(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'scheduler-batch.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+    fetcher = _RecordingFetcher()
+    scheduler = IngestionScheduler(fetcher, ingestion)  # type: ignore[arg-type]
+    start = datetime(2026, 8, 14, 2, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        for source_id in ("batch-source-a", "batch-source-b"):
+            ingestion.create_source(
+                session,
+                SourceCreate(
+                    id=source_id,
+                    url=f"https://example.com/{source_id}",
+                    title=source_id,
+                    publisher="Example",
+                    fetch_interval_minutes=120,
+                ),
+            )
+            _mark_probe_passed(session, source_id)
+            ingestion.update_source(session, source_id, SourceUpdate(fetch_enabled=True))
+
+        result = scheduler.run_due(session, now=start, limit=20)
+
+        assert result.model_dump() == {
+            "due": 2,
+            "succeeded": 2,
+            "unchanged": 0,
+            "failed": 0,
+        }
+        assert set(fetcher.urls) == {
+            "https://example.com/batch-source-a",
+            "https://example.com/batch-source-b",
+        }
+
+    database.dispose()
+
+
 def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'scheduler.db').as_posix()}")
     database.create_all()
