@@ -8,6 +8,7 @@ const {
   defaultApprovalReason,
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
+  partitionReviewBatchItems,
   resolveReviewReason,
   selectBatchApprovableReviewItems,
 } = await vite.ssrLoadModule("/src/domain/review-decision.ts");
@@ -117,4 +118,17 @@ test("批量批准只选择本批有原文锚点且无冲突的待审候选", ()
     ]),
     [queue[0]],
   );
+});
+
+test("大量安全候选会按后端事务上限拆分且不遗漏", () => {
+  const items = Array.from({ length: 121 }, (_, index) => `review-${index + 1}`);
+
+  const batches = partitionReviewBatchItems(items);
+
+  assert.deepEqual(
+    batches.map((batch) => batch.length),
+    [50, 50, 21],
+  );
+  assert.deepEqual(batches.flat(), items);
+  assert.throws(() => partitionReviewBatchItems(items, 0), /正整数/);
 });
