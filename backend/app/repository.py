@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from .database import (
@@ -344,10 +344,21 @@ class KnowledgeRepository:
         if len(targets) != 1 or targets[0].id == row.entity_id:
             return None
         target_id = targets[0].id
+        endpoint_condition = and_(
+            KnowledgeRelationRecord.from_id == row.entity_id,
+            KnowledgeRelationRecord.to_id == target_id,
+        )
+        if kind == "competes-with":
+            endpoint_condition = or_(
+                endpoint_condition,
+                and_(
+                    KnowledgeRelationRecord.from_id == target_id,
+                    KnowledgeRelationRecord.to_id == row.entity_id,
+                ),
+            )
         existing_row = session.scalars(
             select(KnowledgeRelationRecord).where(
-                KnowledgeRelationRecord.from_id == row.entity_id,
-                KnowledgeRelationRecord.to_id == target_id,
+                endpoint_condition,
                 KnowledgeRelationRecord.kind == kind,
             )
         ).first()
@@ -360,11 +371,14 @@ class KnowledgeRepository:
                     "source_ids": list(dict.fromkeys([*existing.source_ids, *source_ids])),
                 }
             )
-        digest = hashlib.sha256(f"{row.entity_id}|{kind}|{target_id}".encode()).hexdigest()[:16]
+        from_id, to_id = row.entity_id, target_id
+        if kind == "competes-with":
+            from_id, to_id = sorted((from_id, to_id))
+        digest = hashlib.sha256(f"{from_id}|{kind}|{to_id}".encode()).hexdigest()[:16]
         return GraphEdge(
             id=f"edge-reviewed-{digest}",
-            from_id=row.entity_id,
-            to_id=target_id,
+            from_id=from_id,
+            to_id=to_id,
             kind=kind,
             confidence="verified",
             source_ids=source_ids,

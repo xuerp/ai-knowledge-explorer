@@ -43,6 +43,7 @@ from .quality import (
     CORE_ENTITY_RELATION_REQUIREMENT,
     KnowledgeQualityGate,
     claim_semantic_fingerprint,
+    relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
@@ -105,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-complete-relation-coverage-v40"
+SERVICE_RELEASE = "2026.08.14-symmetric-relation-dedup-v41"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -928,10 +929,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             for claim in public_snapshot.claims
         }
         published_fingerprints.update(
-            (
-                edge.from_id.casefold(),
-                edge.kind.casefold(),
-                edge.to_id.casefold(),
+            relation_semantic_fingerprint(
+                edge.from_id,
+                edge.kind,
+                edge.to_id,
                 edge.valid_from or "",
                 edge.valid_to or "",
             )
