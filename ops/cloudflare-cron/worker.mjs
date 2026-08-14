@@ -47,7 +47,13 @@ export function enqueueAutomationCycle(
   );
   const task = runCycle(env)
     .then((result) => {
-      logger.log(JSON.stringify({ event: "automation-cycle-succeeded", ...result }));
+      if (result?.status === "partial") {
+        const warn =
+          typeof logger.warn === "function" ? logger.warn.bind(logger) : logger.log.bind(logger);
+        warn(JSON.stringify({ ...result, event: "automation-cycle-partial" }));
+      } else {
+        logger.log(JSON.stringify({ ...result, event: "automation-cycle-succeeded" }));
+      }
       return result;
     })
     .catch((error) => {

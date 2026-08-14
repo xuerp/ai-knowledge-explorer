@@ -88,3 +88,22 @@ test("Cloudflare Cron 记录失败并保持任务失败状态", async () => {
   assert.equal(errors[0].event, "automation-cycle-failed");
   assert.equal(errors[0].error, "Render request failed");
 });
+
+test("Cloudflare Cron 将部分成功周期写入独立告警事件", async () => {
+  const warnings = [];
+  const result = await enqueueAutomationCycle(
+    { cron: "17 * * * *", scheduledTime: Date.UTC(2026, 7, 14, 3, 17) },
+    {},
+    { waitUntil: () => undefined },
+    async () => ({ cycleId: "cycle-partial", status: "partial" }),
+    {
+      log: () => undefined,
+      warn: (message) => warnings.push(JSON.parse(message)),
+      error: assert.fail,
+    },
+  );
+
+  assert.equal(result.status, "partial");
+  assert.equal(warnings[0].event, "automation-cycle-partial");
+  assert.equal(warnings[0].cycleId, "cycle-partial");
+});
