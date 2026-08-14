@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-anchored-batch-review-v38",
+        "release": "2026.08.14-verbatim-evidence-anchor-v39",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -997,9 +997,7 @@ def create_batch_review_candidate(
         "type": "official",
     }
     if anchored:
-        evidence["sourceExcerpt"] = (
-            f"GPT provides configurable context capability {suffix}."
-        )
+        evidence["sourceExcerpt"] = f"GPT has configurable context {suffix}."
     created = client.post(
         "/api/v2/admin/review-candidates",
         headers=headers,

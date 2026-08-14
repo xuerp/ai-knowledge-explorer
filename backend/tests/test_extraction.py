@@ -107,6 +107,25 @@ def test_source_excerpt_requires_subject_and_object_in_the_same_segment():
     assert locate_source_excerpt(content, "GPT", "OpenAI") is None
 
 
+def test_source_excerpt_splits_chinese_sentences_without_spaces():
+    content = "前一段不相关。MCP 使用 JSON-RPC 传输消息。后一段不相关。"
+
+    assert locate_source_excerpt(content, "MCP", "JSON-RPC") == (
+        "MCP 使用 JSON-RPC 传输消息。"
+    )
+
+
+def test_source_excerpt_keeps_both_anchors_when_trimming_long_text():
+    content = f"{'前置内容' * 200} GPT uses MCP to connect tools."
+
+    excerpt = locate_source_excerpt(content, "GPT", "MCP", max_characters=80)
+
+    assert excerpt is not None
+    assert len(excerpt) <= 80
+    assert "GPT" in excerpt
+    assert "MCP" in excerpt
+
+
 def test_extraction_probe_checks_authentication_and_json_schema_support():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["authorization"] == "Bearer test-secret"
