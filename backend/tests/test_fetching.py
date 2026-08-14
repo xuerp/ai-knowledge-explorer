@@ -229,6 +229,57 @@ class _RecordingFetcher:
         )
 
 
+class _LeaseInspectingFetcher:
+    def __init__(self, database: Database, source_id: str):
+        self.database = database
+        self.source_id = source_id
+        self.lease_expires_at: datetime | None = None
+
+    def fetch(self, url: str, **_: object) -> FetchedDocument:
+        with self.database.session() as session:
+            source = session.get(SourceRecord, self.source_id)
+            assert source is not None
+            self.lease_expires_at = source.fetch_lease_expires_at
+        return FetchedDocument(
+            content=f"A sufficiently long official release document collected from {url}.",
+            content_type="text/plain",
+            etag='"lease"',
+            last_modified=None,
+        )
+
+
+def test_scheduler_fetch_lease_uses_claim_time_instead_of_stale_cycle_time(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'fresh-lease.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+    source_id = "fresh-lease-source"
+    stale_cycle_time = datetime.now(UTC) - timedelta(hours=1)
+    fetcher = _LeaseInspectingFetcher(database, source_id)
+    scheduler = IngestionScheduler(fetcher, ingestion, lease_minutes=5)  # type: ignore[arg-type]
+
+    try:
+        with database.session() as session:
+            ingestion.create_source(
+                session,
+                SourceCreate(
+                    id=source_id,
+                    url="https://example.com/fresh-lease",
+                    title="Fresh lease source",
+                    publisher="Example",
+                ),
+            )
+            _mark_probe_passed(session, source_id)
+            ingestion.update_source(session, source_id, SourceUpdate(fetch_enabled=True))
+
+            result = scheduler.run_due(session, now=stale_cycle_time, limit=1, force=True)
+
+        assert result.succeeded == 1
+        assert fetcher.lease_expires_at is not None
+        assert fetcher.lease_expires_at.replace(tzinfo=UTC) > datetime.now(UTC)
+    finally:
+        database.dispose()
+
+
 def test_scheduler_processes_multiple_due_sources_in_one_batch(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'scheduler-batch.db').as_posix()}")
     database.create_all()
