@@ -8,7 +8,12 @@ from app.config import Settings
 from app.database import EmailOutboxRecord, SourceRecord
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
-from app.main import create_app
+from app.main import (
+    RELATION_CLAIM_PREDICATES,
+    RELATION_PREDICATE_ANCHORS,
+    create_app,
+)
+from app.repository import RELATION_PREDICATES
 from app.schemas import CandidateCreate
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -30,12 +35,19 @@ def client(tmp_path: Path):
         yield test_client
 
 
+def test_relation_extraction_covers_every_canonical_graph_predicate():
+    canonical_predicates = set(RELATION_PREDICATES.values())
+
+    assert RELATION_CLAIM_PREDICATES == canonical_predicates
+    assert set(RELATION_PREDICATE_ANCHORS) == canonical_predicates
+
+
 def test_health_exposes_write_boundary(client: TestClient):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-verbatim-evidence-anchor-v39",
+        "release": "2026.08.14-complete-relation-coverage-v40",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -114,7 +126,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-weighted-quality-gap-v5",
+        "pipelineVersion": "2026-08-complete-relation-coverage-v6",
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -170,7 +182,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
         assert integrations["extractionPipelineVersion"] == (
-            "2026-08-weighted-quality-gap-v5"
+            "2026-08-complete-relation-coverage-v6"
         )
         created = automatic_client.post(
             "/api/v2/admin/sources",
@@ -202,7 +214,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-weighted-quality-gap-v5",
+            "pipelineVersion": "2026-08-complete-relation-coverage-v6",
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -830,7 +842,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-weighted-quality-gap-v5",
+        "extractionPipelineVersion": "2026-08-complete-relation-coverage-v6",
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,

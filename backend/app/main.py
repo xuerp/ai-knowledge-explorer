@@ -105,15 +105,34 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-verbatim-evidence-anchor-v39"
+SERVICE_RELEASE = "2026.08.14-complete-relation-coverage-v40"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
     "based-on",
+    "competes-with",
     "benchmarked-on",
     "uses",
+    "cited-by",
     "part-of",
     "successor-of",
+}
+
+RELATION_PREDICATE_ANCHORS = {
+    "developed-by": ("developed-by", "developed by", "开发"),
+    "based-on": ("based-on", "based on", "基于"),
+    "competes-with": ("competes-with", "competes with", "竞争", "竞品"),
+    "benchmarked-on": (
+        "benchmarked-on",
+        "benchmarked on",
+        "evaluated on",
+        "评测",
+        "基准测试",
+    ),
+    "uses": ("uses", "using", "使用", "采用"),
+    "cited-by": ("cited-by", "cited by", "被引用"),
+    "part-of": ("part-of", "part of", "属于", "隶属于"),
+    "successor-of": ("successor-of", "successor of", "继任", "后继"),
 }
 
 
@@ -1039,21 +1058,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         target_key = reference_key(claim.object_or_value)
         if subject_key not in document or target_key not in document:
             return False
-        predicate_anchors = {
-            "developed-by": ("developed-by", "developed by", "开发"),
-            "based-on": ("based-on", "based on", "基于"),
-            "benchmarked-on": (
-                "benchmarked-on",
-                "benchmarked on",
-                "evaluated on",
-                "评测",
-                "基准测试",
-            ),
-            "uses": ("uses", "using", "使用", "采用"),
-            "part-of": ("part-of", "part of", "属于", "隶属于"),
-            "successor-of": ("successor-of", "successor of", "继任", "后继"),
-        }
-
         def contains_anchor(anchor: str) -> bool:
             normalized = reference_key(anchor)
             if normalized.isascii():
@@ -1062,7 +1066,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         if not any(
             contains_anchor(anchor)
-            for anchor in predicate_anchors[claim.predicate]
+            for anchor in RELATION_PREDICATE_ANCHORS[claim.predicate]
         ):
             return False
 
