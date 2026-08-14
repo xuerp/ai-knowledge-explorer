@@ -47,7 +47,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-versioned-extraction-retry-v46",
+        "release": "2026.08.14-idempotent-human-verification-v47",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -502,7 +502,9 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
                 ]
             },
         )
-        assert repeated.status_code == 409
+        assert repeated.status_code == 200
+        assert repeated.json()[0]["reviewMethod"] == "human"
+        assert repeated.json()[0]["version"] == grounded["version"] + 1
 
         second_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",
