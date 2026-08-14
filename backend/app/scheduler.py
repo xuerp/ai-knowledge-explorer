@@ -178,6 +178,8 @@ class IngestionScheduler:
                 failed += 1
             if progress:
                 progress()
+            if requested_source_id is not None:
+                break
         return SchedulerRunSummary(
             due=due,
             succeeded=succeeded,

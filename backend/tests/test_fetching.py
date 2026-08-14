@@ -298,7 +298,6 @@ def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
             now=start + timedelta(minutes=1),
             source_id="scheduled-source",
             force=True,
-            limit=1,
         )
         assert forced.due == 1
         assert forced.unchanged == 1
