@@ -43,13 +43,14 @@ class IngestionScheduler:
         requested_source_id = source_id
         due = succeeded = unchanged = failed = 0
         for _ in range(limit):
+            claim_time = datetime.now(UTC)
             conditions = [
                 SourceRecord.active.is_(True),
                 SourceRecord.fetch_enabled.is_(True),
                 or_(
                     SourceRecord.fetch_lease_token.is_(None),
                     SourceRecord.fetch_lease_expires_at.is_(None),
-                    SourceRecord.fetch_lease_expires_at <= current,
+                    SourceRecord.fetch_lease_expires_at <= claim_time,
                 ),
             ]
             if not force:
@@ -76,7 +77,7 @@ class IngestionScheduler:
             etag = source.etag
             last_modified = source.last_modified
             source.fetch_lease_token = lease_token
-            source.fetch_lease_expires_at = current + timedelta(minutes=self.lease_minutes)
+            source.fetch_lease_expires_at = claim_time + timedelta(minutes=self.lease_minutes)
             session.commit()
             due += 1
 
