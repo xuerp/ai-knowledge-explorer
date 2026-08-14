@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-versioned-extraction-retry-v46"
+SERVICE_RELEASE = "2026.08.14-idempotent-human-verification-v47"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -2088,6 +2088,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail="Review job not found.",
                     )
+                if (
+                    row.status == "approved"
+                    and row.reviewed_by
+                    and row.reviewed_by != "automation@ai-radar.local"
+                ):
+                    verified.append(repository.to_queue_item(row))
+                    continue
                 if row.status != "approved" or row.reviewed_by != "automation@ai-radar.local":
                     raise HTTPException(
                         status_code=status.HTTP_409_CONFLICT,
