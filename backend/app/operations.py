@@ -407,16 +407,19 @@ class OperationsService:
             if extraction_audit_is_current(row.detail_json)
         }
         retry_after = current - timedelta(minutes=self.extraction_retry_minutes)
-        cooling_down_snapshot_ids = set(
-            session.scalars(
-                select(AuditLogRecord.target_id).where(
-                    AuditLogRecord.action == "extraction.failed",
-                    AuditLogRecord.target_type == "document_snapshot",
-                    AuditLogRecord.target_id.in_(latest_snapshot_ids),
-                    AuditLogRecord.created_at >= retry_after,
-                )
-            ).all()
-        )
+        recent_failures = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action == "extraction.failed",
+                AuditLogRecord.target_type == "document_snapshot",
+                AuditLogRecord.target_id.in_(latest_snapshot_ids),
+                AuditLogRecord.created_at >= retry_after,
+            )
+        ).all()
+        cooling_down_snapshot_ids = {
+            row.target_id
+            for row in recent_failures
+            if extraction_audit_is_current(row.detail_json)
+        }
         ready = 0
         retrying = 0
         for snapshot_id in latest_snapshot_ids:

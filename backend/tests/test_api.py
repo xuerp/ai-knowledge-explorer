@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
-from app.database import EmailOutboxRecord, SourceRecord
+from app.database import AuditLogRecord, EmailOutboxRecord, SourceRecord
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
@@ -47,7 +47,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-bounded-source-scheduler-v45",
+        "release": "2026.08.14-versioned-extraction-retry-v46",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -205,6 +205,17 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
             source = session.get(SourceRecord, "source-automatic-extraction")
             assert source is not None
             assert source.fetch_enabled is False
+            session.add(
+                AuditLogRecord(
+                    actor="automation@ai-radar.local",
+                    action="extraction.failed",
+                    target_type="document_snapshot",
+                    target_id=snapshot.json()["snapshotId"],
+                    detail_json='{"pipelineVersion":"retired-pipeline"}',
+                    created_at=datetime.now(UTC),
+                )
+            )
+            session.commit()
 
         first = automatic_client.post(
             "/api/v2/automation/run-cycle",
