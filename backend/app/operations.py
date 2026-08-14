@@ -378,7 +378,6 @@ class OperationsService:
             .join(SourceRecord, SourceRecord.id == DocumentSnapshotRecord.source_id)
             .where(
                 SourceRecord.active.is_(True),
-                SourceRecord.fetch_enabled.is_(True),
             )
             .order_by(
                 DocumentSnapshotRecord.observed_at.desc(),

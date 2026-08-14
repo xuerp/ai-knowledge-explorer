@@ -99,7 +99,7 @@ def test_operations_reports_ready_and_cooling_extraction_backlog(tmp_path: Path)
                     title=source_id,
                     publisher="Example",
                     active=True,
-                    fetch_enabled=True,
+                    fetch_enabled=source_id != "ready",
                     fetch_interval_minutes=240,
                     consecutive_failures=0,
                     created_at=current - timedelta(days=1),

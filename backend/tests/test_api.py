@@ -47,7 +47,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-grounded-relation-quality-v42",
+        "release": "2026.08.14-complete-extraction-diagnostics-v43",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
