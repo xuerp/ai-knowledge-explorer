@@ -47,7 +47,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-complete-relation-coverage-v40",
+        "release": "2026.08.14-symmetric-relation-dedup-v41",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -126,7 +126,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-complete-relation-coverage-v6",
+        "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -182,7 +182,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
         assert integrations["extractionPipelineVersion"] == (
-            "2026-08-complete-relation-coverage-v6"
+            "2026-08-symmetric-relation-dedup-v7"
         )
         created = automatic_client.post(
             "/api/v2/admin/sources",
@@ -214,7 +214,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-complete-relation-coverage-v6",
+            "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -842,7 +842,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-complete-relation-coverage-v6",
+        "extractionPipelineVersion": "2026-08-symmetric-relation-dedup-v7",
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
@@ -1211,6 +1211,67 @@ def test_approved_canonical_relation_claim_updates_graph(client: TestClient):
     )
     assert relation["confidence"] == "verified"
     assert "evidence-claude-code-uses-mcp" in relation["sourceIds"]
+
+
+def test_reverse_competition_claim_merges_the_existing_symmetric_relation(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    before = client.get("/api/snapshot").json()
+    submitted = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-claude-competes-gpt",
+            "entityId": "e-claude",
+            "claim": {
+                "id": "claim-claude-competes-gpt",
+                "text": {
+                    "zh": "Claude 系列与 GPT 系列竞争。",
+                    "en": "Claude family competes with GPT family.",
+                },
+                "confidence": "unverified",
+                "sourceIds": ["evidence-claude-competes-gpt"],
+                "updatedAt": "2026-08-14",
+                "subject": "Claude family",
+                "predicate": "competes-with",
+                "objectOrValue": "GPT family",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-claude-competes-gpt",
+                    "title": {"zh": "官方竞争说明", "en": "Official competition note"},
+                    "url": "https://example.com/claude-competes-gpt",
+                    "publisher": "Example",
+                    "publishedAt": "2026-08-14",
+                    "collectedAt": "2026-08-14",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert submitted.status_code == 201
+    review = submitted.json()
+
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/approve",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reason": "已人工核对双向竞争关系与官方来源。",
+        },
+    )
+    assert approved.status_code == 200
+
+    after = client.get("/api/snapshot").json()
+    assert len(after["graph"]["edges"]) == len(before["graph"]["edges"])
+    relation = next(
+        edge
+        for edge in after["graph"]["edges"]
+        if {edge["fromId"], edge["toId"]} == {"e-gpt", "e-claude"}
+        and edge["kind"] == "competes-with"
+    )
+    assert "evidence-claude-competes-gpt" in relation["sourceIds"]
 
 
 def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):

@@ -54,13 +54,28 @@ def claim_semantic_fingerprint(
     entity_id: str | None = None,
     object_entity_id: str | None = None,
 ) -> tuple[str, str, str, str, str]:
-    return (
-        _key(entity_id or claim.entity_id or claim.subject),
-        _key(claim.predicate),
-        _key(object_entity_id or claim.object_or_value),
+    return relation_semantic_fingerprint(
+        entity_id or claim.entity_id or claim.subject or "",
+        claim.predicate,
+        object_entity_id or claim.object_or_value or "",
         claim.valid_from or "",
         claim.valid_to or "",
     )
+
+
+def relation_semantic_fingerprint(
+    from_id: str,
+    kind: str,
+    to_id: str,
+    valid_from: str = "",
+    valid_to: str = "",
+) -> tuple[str, str, str, str, str]:
+    from_key = _key(from_id)
+    kind_key = _key(kind)
+    to_key = _key(to_id)
+    if kind_key == "competes-with":
+        from_key, to_key = sorted((from_key, to_key))
+    return from_key, kind_key, to_key, valid_from, valid_to
 
 
 def resolve_unique_entity_reference(

@@ -8,6 +8,7 @@ from app.database import Base, KnowledgeEntityRecord, SourceRecord
 from app.quality import (
     KnowledgeQualityGate,
     claim_semantic_fingerprint,
+    relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
 from app.repository import KnowledgeRepository
@@ -107,6 +108,21 @@ def test_relation_fingerprint_normalizes_unique_entity_references():
         "e-gpt",
         target_id,
     ) == ("e-gpt", "developed-by", "e-openai", "2026-07-29", "")
+
+
+def test_competition_fingerprint_is_direction_independent():
+    assert relation_semantic_fingerprint(
+        "e-gpt",
+        "competes-with",
+        "e-claude",
+    ) == relation_semantic_fingerprint(
+        "e-claude",
+        "competes-with",
+        "e-gpt",
+    )
+    assert relation_semantic_fingerprint("e-gpt", "uses", "e-mcp") != (
+        relation_semantic_fingerprint("e-mcp", "uses", "e-gpt")
+    )
 
 
 def test_demo_data_quality_report_does_not_claim_formal_acceptance():
