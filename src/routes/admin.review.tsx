@@ -783,49 +783,65 @@ function AdminReviewPage() {
 
   const verifyAutomationApprovals = async () => {
     if (!workspace) return;
-    const candidates = workspace.queue
-      .filter(
-        (item) =>
-          item.status === "approved" &&
-          item.reviewMethod === "automation" &&
-          item.evidenceItems.length > 0,
-      )
-      .slice(0, 50);
+    const candidates = workspace.queue.filter(
+      (item) =>
+        item.status === "approved" &&
+        item.reviewMethod === "automation" &&
+        item.evidenceItems.length > 0,
+    );
     if (candidates.length === 0) {
       setOperationMessage("当前没有需要补做人工核验的自动批准项。");
       return;
     }
     setBusy(true);
     setError("");
-    setOperationMessage(`正在人工确认 ${candidates.length} 条自动批准记录。`);
-    try {
-      const verified = await adminApi.batchVerifyAutomation(
-        token,
-        candidates.map((item) => ({
-          id: item.id,
-          expectedVersion: item.version,
-          reason: "人工复核：已对照自动批准项的官方证据确认表述一致。",
-        })),
+    const decisions = new Map<string, ReviewQueueItem>();
+    const failures = new Map<string, string>();
+    const batches = partitionReviewBatchItems(candidates);
+    for (const [index, batch] of batches.entries()) {
+      setOperationMessage(
+        `正在人工确认第 ${index + 1}/${batches.length} 批自动批准记录，已完成 ${decisions.size} 条。`,
       );
-      const decisions = new Map(verified.map((item) => [item.id, item]));
-      setWorkspace((current) =>
-        current
-          ? {
-              ...current,
-              queue: current.queue.map((item) => decisions.get(item.id) ?? item),
-            }
-          : current,
-      );
-      setOperationMessage(`人工核验完成：${verified.length} 条自动批准记录已计入核验率。`);
-      toast.success(`已人工确认 ${verified.length} 条记录`, {
+      try {
+        const verified = await adminApi.batchVerifyAutomation(
+          token,
+          batch.map((item) => ({
+            id: item.id,
+            expectedVersion: item.version,
+            reason: "人工复核：已对照自动批准项的官方证据确认表述一致。",
+          })),
+        );
+        for (const item of verified) decisions.set(item.id, item);
+      } catch (failure) {
+        const message = failure instanceof Error ? failure.message : "人工核验失败";
+        for (const item of batch) failures.set(item.id, message);
+      }
+    }
+    setWorkspace((current) =>
+      current
+        ? {
+            ...current,
+            queue: current.queue.map((item) => decisions.get(item.id) ?? item),
+          }
+        : current,
+    );
+    setOperationMessage(`人工核验完成：成功 ${decisions.size} 条，失败 ${failures.size} 条。`);
+    if (decisions.size > 0) {
+      toast.success(`已人工确认 ${decisions.size} 条记录`, {
         description: "证据核验状态和正式数据质量指标已更新。",
         duration: 5_000,
       });
+    }
+    if (failures.size > 0) {
+      toast.error(`${failures.size} 条自动批准记录核验失败`, {
+        description: "失败批次仍保留为自动批准状态，可刷新后重试。",
+        duration: 6_000,
+      });
+    }
+    try {
       await refresh(token);
-    } catch (failure) {
-      const message = failure instanceof Error ? failure.message : "人工核验失败";
-      setError(message);
-      toast.error("自动批准记录核验失败", { description: message, duration: 6_000 });
+    } catch {
+      setError("人工核验已完成，但最新工作区状态刷新失败；请稍后刷新页面。");
     } finally {
       setBusy(false);
     }
