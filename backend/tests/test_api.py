@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-human-verified-automation-v35",
+        "release": "2026.08.14-stored-snapshot-extraction-v36",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -132,7 +132,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert operations["recentRuns"][0]["id"] == payload["cycleId"]
 
 
-def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
+def test_automation_cycle_extracts_each_new_stored_snapshot_once(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -192,9 +192,7 @@ def test_automation_cycle_extracts_each_new_automatic_snapshot_once(
         with automatic_client.app.state.database.session() as session:
             source = session.get(SourceRecord, "source-automatic-extraction")
             assert source is not None
-            source.fetch_enabled = True
-            source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
-            session.commit()
+            assert source.fetch_enabled is False
 
         first = automatic_client.post(
             "/api/v2/automation/run-cycle",
