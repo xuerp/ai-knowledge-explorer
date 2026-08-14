@@ -7,6 +7,7 @@ import pytest
 from app.automation import AutomationCycleBusyError, automation_cycle_lock
 from app.database import (
     AuditLogRecord,
+    AutomationRunRecord,
     Database,
     DocumentSnapshotRecord,
     SourceRecord,
@@ -80,6 +81,37 @@ def test_worker_heartbeat_cycle_history_and_stale_detection(tmp_path: Path):
             )
             is False
         )
+
+    database.dispose()
+
+
+def test_diagnostics_ignores_malformed_historical_run_result(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'malformed-run.db').as_posix()}")
+    database.create_all()
+    service = OperationsService()
+    started = datetime(2026, 8, 14, 2, 0, tzinfo=UTC)
+
+    with database.session() as session:
+        session.add(
+            AutomationRunRecord(
+                id="malformed-run",
+                worker_id="scheduler",
+                trigger="scheduled",
+                status="failed",
+                started_at=started,
+                finished_at=started + timedelta(seconds=1),
+                result_json="{not-json",
+                error="Historical result payload was damaged.",
+            )
+        )
+        session.commit()
+
+        diagnostics = service.diagnostics(session, "scheduler", now=started + timedelta(seconds=2))
+
+        assert diagnostics.recent_runs[0].id == "malformed-run"
+        assert diagnostics.recent_runs[0].status == "failed"
+        assert diagnostics.recent_runs[0].result is None
+        assert diagnostics.recent_runs[0].error == "Historical result payload was damaged."
 
     database.dispose()
 

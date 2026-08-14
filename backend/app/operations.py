@@ -498,7 +498,10 @@ class OperationsService:
             )
         result: dict[str, object] | None = None
         if row.result_json:
-            decoded = json.loads(row.result_json)
+            try:
+                decoded = json.loads(row.result_json)
+            except (json.JSONDecodeError, TypeError):
+                decoded = None
             if isinstance(decoded, dict):
                 result = decoded
         return AutomationRunView(
