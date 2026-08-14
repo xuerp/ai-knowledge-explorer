@@ -7,6 +7,10 @@ type ReviewQueueState = {
 };
 
 type BatchReviewState = ReviewQueueState & {
+  claim: {
+    subject?: string | null;
+    objectOrValue?: string | null;
+  };
   conflictClaimIds: readonly string[];
   evidenceItems: readonly { sourceExcerpt?: string | null }[];
 };
@@ -57,11 +61,25 @@ export function selectBatchApprovableReviewItems<T extends BatchReviewState>(
   candidateIds: readonly string[],
 ): T[] {
   const selectedIds = new Set(candidateIds);
-  return queue.filter(
-    (item) =>
+  return queue.filter((item) => {
+    const subject = normalizeReviewAnchor(item.claim.subject);
+    const objectOrValue = normalizeReviewAnchor(item.claim.objectOrValue);
+    const hasAnchoredExcerpt =
+      Boolean(subject && objectOrValue) &&
+      item.evidenceItems.some((evidence) => {
+        const excerpt = normalizeReviewAnchor(evidence.sourceExcerpt);
+        return excerpt.includes(subject) && excerpt.includes(objectOrValue);
+      });
+
+    return (
       selectedIds.has(item.id) &&
       item.status === "pending" &&
       item.conflictClaimIds.length === 0 &&
-      item.evidenceItems.some((evidence) => Boolean(evidence.sourceExcerpt?.trim())),
-  );
+      hasAnchoredExcerpt
+    );
+  });
+}
+
+function normalizeReviewAnchor(value: string | null | undefined): string {
+  return value?.trim().toLocaleLowerCase().replace(/\s+/g, " ") ?? "";
 }
