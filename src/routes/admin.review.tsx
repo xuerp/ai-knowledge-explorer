@@ -705,6 +705,7 @@ function AdminReviewPage() {
       return;
     }
     const candidateIds = new Set(candidates.map((item) => item.id));
+    setBusy(true);
     setReviewingIds((current) => new Set([...current, ...candidateIds]));
     setError("");
     const decisions = new Map<string, ReviewQueueItem>();
@@ -775,6 +776,7 @@ function AdminReviewPage() {
         for (const id of candidateIds) next.delete(id);
         return next;
       });
+      setBusy(false);
     }
   };
 
