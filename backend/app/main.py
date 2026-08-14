@@ -104,7 +104,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-human-verified-automation-v35"
+SERVICE_RELEASE = "2026.08.14-stored-snapshot-extraction-v36"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -830,8 +830,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 continue
             source = session.get(SourceRecord, snapshot_row.source_id)
             if not source or not source.active:
-                continue
-            if automatic_only and not source.fetch_enabled:
                 continue
             eligible.append((source, snapshot_row))
 
