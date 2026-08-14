@@ -20,6 +20,7 @@ import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candida
 import {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
+  partitionReviewBatchItems,
   resolveReviewReason,
   selectBatchApprovableReviewItems,
   type ReviewAction,
@@ -708,20 +709,25 @@ function AdminReviewPage() {
     setError("");
     const decisions = new Map<string, ReviewQueueItem>();
     const failures = new Map<string, string>();
-    setOperationMessage(`正在以单个事务批准 ${candidates.length} 条安全候选。`);
-    try {
-      const approved = await adminApi.batchApprove(
-        token,
-        candidates.map((item) => ({
-          id: item.id,
-          expectedVersion: item.version,
-          reason: resolveReviewReason("approve", reasons[item.id]),
-        })),
+    const batches = partitionReviewBatchItems(candidates);
+    for (const [index, batch] of batches.entries()) {
+      setOperationMessage(
+        `正在批准第 ${index + 1}/${batches.length} 批安全候选，已完成 ${decisions.size} 条。`,
       );
-      for (const item of approved) decisions.set(item.id, item);
-    } catch (failure) {
-      const message = failure instanceof Error ? failure.message : "批量审核失败";
-      for (const item of candidates) failures.set(item.id, message);
+      try {
+        const approved = await adminApi.batchApprove(
+          token,
+          batch.map((item) => ({
+            id: item.id,
+            expectedVersion: item.version,
+            reason: resolveReviewReason("approve", reasons[item.id]),
+          })),
+        );
+        for (const item of approved) decisions.set(item.id, item);
+      } catch (failure) {
+        const message = failure instanceof Error ? failure.message : "批量审核失败";
+        for (const item of batch) failures.set(item.id, message);
+      }
     }
     setWorkspace((current) =>
       current

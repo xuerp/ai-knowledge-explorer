@@ -80,6 +80,17 @@ export function selectBatchApprovableReviewItems<T extends BatchReviewState>(
   });
 }
 
+export function partitionReviewBatchItems<T>(items: readonly T[], batchSize = 50): T[][] {
+  if (!Number.isInteger(batchSize) || batchSize < 1) {
+    throw new Error("审核批次大小必须是正整数。");
+  }
+  const batches: T[][] = [];
+  for (let index = 0; index < items.length; index += batchSize) {
+    batches.push(items.slice(index, index + batchSize));
+  }
+  return batches;
+}
+
 function normalizeReviewAnchor(value: string | null | undefined): string {
   return value?.trim().toLocaleLowerCase().replace(/\s+/g, " ") ?? "";
 }
