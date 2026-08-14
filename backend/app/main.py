@@ -40,6 +40,7 @@ from .ingestion import IngestionService, normalize_source_url
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
 from .quality import (
+    CORE_ENTITY_RELATION_REQUIREMENT,
     KnowledgeQualityGate,
     claim_semantic_fingerprint,
     resolve_unique_entity_reference,
@@ -104,7 +105,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-stored-snapshot-extraction-v36"
+SERVICE_RELEASE = "2026.08.14-weighted-gap-extraction-v37"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -839,12 +840,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         priority_entities = [
             entity for entity in public_snapshot.entities if entity.id in priority_ids
         ]
+        priority_weights = {
+            entity_id: CORE_ENTITY_RELATION_REQUIREMENT
+            - quality.core_entity_relation_counts[entity_id]
+            for entity_id in priority_ids
+        }
 
         def priority_mentions(
             item: tuple[SourceRecord, DocumentSnapshotRecord],
         ) -> int:
             return sum(
-                entity_reference_appears(item[1].content_text, entity)
+                priority_weights[entity.id]
+                * entity_reference_appears(item[1].content_text, entity)
                 for entity in priority_entities
             )
 
@@ -872,6 +879,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             max_candidates,
             public_snapshot.entities,
             priority_entity_ids=quality.core_entities_below_five_relations,
+            priority_entity_deficits={
+                entity_id: CORE_ENTITY_RELATION_REQUIREMENT
+                - quality.core_entity_relation_counts[entity_id]
+                for entity_id in quality.core_entities_below_five_relations
+            },
             claims_remaining=quality.claims_remaining,
             relation_deficit=quality.core_relation_deficit,
         )

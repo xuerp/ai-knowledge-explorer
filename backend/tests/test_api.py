@@ -35,7 +35,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-stored-snapshot-extraction-v36",
+        "release": "2026.08.14-weighted-gap-extraction-v37",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -114,7 +114,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-quality-gap-priority-v4",
+        "pipelineVersion": "2026-08-weighted-quality-gap-v5",
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -170,7 +170,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
         assert integrations["extractionPipelineVersion"] == (
-            "2026-08-quality-gap-priority-v4"
+            "2026-08-weighted-quality-gap-v5"
         )
         created = automatic_client.post(
             "/api/v2/admin/sources",
@@ -202,7 +202,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-quality-gap-priority-v4",
+            "pipelineVersion": "2026-08-weighted-quality-gap-v5",
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -830,7 +830,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-quality-gap-priority-v4",
+        "extractionPipelineVersion": "2026-08-weighted-quality-gap-v5",
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
@@ -1414,7 +1414,11 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
     client: TestClient,
 ):
     headers = {"X-Admin-Token": "test-admin-token"}
-    for source_id in ("source-priority-plan", "source-generic-plan"):
+    for source_id in (
+        "source-high-priority-plan",
+        "source-low-priority-plan",
+        "source-generic-plan",
+    ):
         response = client.post(
             "/api/v2/admin/sources",
             headers=headers,
@@ -1427,16 +1431,18 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
         )
         assert response.status_code == 201
 
-    priority = client.post(
-        "/api/v2/admin/sources/source-priority-plan/snapshots",
+    high_priority = client.post(
+        "/api/v2/admin/sources/source-high-priority-plan/snapshots",
         headers=headers,
-        json={
-            "content": (
-                "Model Context Protocol uses JSON-RPC as its message protocol."
-            )
-        },
+        json={"content": "Manus uses an official tool integration."},
     )
-    assert priority.status_code == 200
+    assert high_priority.status_code == 200
+    low_priority = client.post(
+        "/api/v2/admin/sources/source-low-priority-plan/snapshots",
+        headers=headers,
+        json={"content": "Gemini family uses an official tool integration."},
+    )
+    assert low_priority.status_code == 200
     generic = client.post(
         "/api/v2/admin/sources/source-generic-plan/snapshots",
         headers=headers,
@@ -1449,7 +1455,10 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
         headers=headers,
     ).json()
     source_order = [row["sourceId"] for row in planned]
-    assert source_order.index("source-priority-plan") < source_order.index(
+    assert source_order.index("source-high-priority-plan") < source_order.index(
+        "source-low-priority-plan"
+    )
+    assert source_order.index("source-low-priority-plan") < source_order.index(
         "source-generic-plan"
     )
 

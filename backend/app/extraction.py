@@ -53,7 +53,7 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-quality-gap-priority-v4"
+EXTRACTION_PIPELINE_VERSION = "2026-08-weighted-quality-gap-v5"
 
 
 def extraction_audit_is_current(detail_json: str | None) -> bool:
@@ -326,6 +326,7 @@ class StructuredExtractionService:
         max_candidates: int,
         catalog_entities: list[Entity] | None = None,
         priority_entity_ids: list[str] | None = None,
+        priority_entity_deficits: dict[str, int] | None = None,
         claims_remaining: int = 0,
         relation_deficit: int = 0,
     ) -> list[CandidateCreate]:
@@ -342,12 +343,27 @@ class StructuredExtractionService:
             f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
             for entity in (catalog_entities or [])
         )
-        priority_ids = set(priority_entity_ids or [])
-        priority_context = "\n".join(
-            f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
+        priority_deficits = {
+            entity_id: max(1, int(deficit))
+            for entity_id, deficit in (priority_entity_deficits or {}).items()
+        }
+        for entity_id in priority_entity_ids or []:
+            priority_deficits.setdefault(entity_id, 1)
+        mentioned_priorities = [
+            entity
             for entity in (catalog_entities or [])
-            if entity.id in priority_ids
+            if entity.id in priority_deficits
             and entity_reference_appears(snapshot.content_text, entity)
+        ]
+        mentioned_priorities.sort(
+            key=lambda entity: (-priority_deficits[entity.id], entity.id)
+        )
+        priority_context = "\n".join(
+            (
+                f"- {entity.id}: {entity.name.zh} | {entity.name.en} "
+                f"| missing relation links: {priority_deficits[entity.id]}"
+            )
+            for entity in mentioned_priorities
         )
         relation_candidate_target = (
             min(max_candidates, max(1, max_candidates // 2))
