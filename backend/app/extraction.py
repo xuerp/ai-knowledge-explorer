@@ -53,7 +53,7 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-weighted-quality-gap-v5"
+EXTRACTION_PIPELINE_VERSION = "2026-08-complete-relation-coverage-v6"
 
 
 def extraction_audit_is_current(detail_json: str | None) -> bool:
