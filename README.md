@@ -27,7 +27,7 @@ AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知
 - 前端：<https://ai-radar-staging.1966761779.workers.dev>
 - API：<https://ai-radar-api-staging.onrender.com>
 - 数据库：Neon PostgreSQL
-- 定时任务：Cloudflare Worker `ai-radar-cron-staging`，每小时第 17 分钟运行
+- 定时任务：Cloudflare Worker `ai-radar-cron-staging`，每 30 分钟运行一次
 - 质量门禁：GitHub Actions 同时验证前端、后端、SQLite 与 PostgreSQL 迁移
 
 当前环境按生产方式部署，但公共数据继续保持 `demo/cached` 标记。公开快照包含 49 个实体、23 条 Claim、40 条证据、71 条关系和 55 条时间线；在 150 条已审核 Claim 和核心实体关系覆盖真实达标前，不切换为 `live`。
@@ -111,4 +111,4 @@ python -m alembic check
 - 自定义域名，以及正式域名下的 DNS 与证书验收。
 - 外部监控、告警接收人和备份恢复演练。
 - 将当前 23 条已发布 Claim 扩展到 150 条，并补齐 17 个核心实体约 49 条关系缺口所需的正式研究与人工审核。
-- 若把 Cron 从每小时调整为每 30 分钟，需要先确认供应商调用额度和额外模型费用。
+- Cron 已按已确认的运行预算调整为每 30 分钟一次；应持续观察供应商调用额度、自动周期耗时与失败率。

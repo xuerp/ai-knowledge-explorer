@@ -19,7 +19,7 @@
 - PostgreSQL 由 Neon Free 提供，连接串仅填写在 Render Secret 中。
 - 前端部署到 `ai-radar-staging.你的子域名.workers.dev`。
 
-免费方案明确保持 `AI_RADAR_DATA_MODE=demo`，不部署常驻 worker。仓库提供可选的 Cloudflare Cron 按小时唤醒 API 并运行一个自动周期；只有完成第 5 节的双端秘密配置和首次运行验收后，才能宣称云端自动调度已经启用。在此之前，管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
+免费方案明确保持 `AI_RADAR_DATA_MODE=demo`，不部署常驻 worker。仓库提供可选的 Cloudflare Cron，每 30 分钟唤醒 API 并运行一个自动周期；只有完成第 5 节的双端秘密配置和首次运行验收后，才能宣称云端自动调度已经启用。在此之前，管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
 
 Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤醒；免费实例也不能通过 `25`、`465`、`587` 端口发送 SMTP。Neon 免费数据库通过公网 TLS 连接，不能把连接串写入仓库、前端变量或聊天。
 
