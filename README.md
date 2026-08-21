@@ -22,13 +22,23 @@ AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知
 - 关注者通知、每日摘要 Outbox、SMTP 适配器、私密研究和主动公开分享。
 - Docker Compose、PostgreSQL CI 迁移验证、正式数据质量报告和黄金问题集。
 
+## 在线预发布环境
+
+- 前端：<https://ai-radar-staging.1966761779.workers.dev>
+- API：<https://ai-radar-api-staging.onrender.com>
+- 数据库：Neon PostgreSQL
+- 定时任务：Cloudflare Worker `ai-radar-cron-staging`，每小时第 17 分钟运行
+- 质量门禁：GitHub Actions 同时验证前端、后端、SQLite 与 PostgreSQL 迁移
+
+当前环境按生产方式部署，但公共数据继续保持 `demo/cached` 标记。公开快照包含 49 个实体、23 条 Claim、40 条证据、71 条关系和 55 条时间线；在 150 条已审核 Claim 和核心实体关系覆盖真实达标前，不切换为 `live`。
+
 ## 本地运行
 
-前端要求 Node.js 20.19+：
+前端要求 Node.js 22 和 Bun 1.3.14：
 
 ```bash
-npm install
-npm run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
 后端：
@@ -69,12 +79,18 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 ## 质量检查
 
 ```bash
-npm run check
+bun install --frozen-lockfile
+node scripts/export-demo-snapshot.mjs
+bun run check
+bun run prepare:cloudflare:staging
 cd backend
 python -m ruff format --check app tests migrations
 python -m ruff check app tests migrations
+python -m compileall -q app tests migrations
 python -m pytest
 python -m alembic upgrade head
+python -m alembic current --check-heads
+python -m alembic check
 ```
 
 详细资料：
@@ -87,10 +103,10 @@ python -m alembic upgrade head
 
 ## 仍需外部资源的事项
 
-仓库已经提供连接点，但以下结果不能在没有用户账号或凭据时伪造：
+预发布前端、API、Neon PostgreSQL、Cloudflare Cron 和结构化抽取供应商已经接通。以下事项仍需要外部账号、域名或运维决策，不能在仓库内伪造：
 
-- 真实域名、HTTPS、Cloudflare/Lovable 和后端云部署。
-- PostgreSQL 托管实例、备份告警和生产监控。
-- 结构化抽取供应商 API key 与模型费用。
-- SMTP/事务邮件账号、发件域名验证和送达率配置。
-- 将当前 49 个带来源的演示实体、22 条演示 Claim 扩展为 150 条人工审核 Claim，并补齐核心实体关系覆盖所需的正式研究与审核；黄金问题门槛已经达到，但仍不能替代数据规模和证据质量验收。
+- SMTP/事务邮件账号、已验证发件域和送达率配置。
+- 自定义域名，以及正式域名下的 DNS 与证书验收。
+- 外部监控、告警接收人和备份恢复演练。
+- 将当前 23 条已发布 Claim 扩展到 150 条，并补齐 17 个核心实体约 49 条关系缺口所需的正式研究与人工审核。
+- 若把 Cron 从每小时调整为每 30 分钟，需要先确认供应商调用额度和额外模型费用。

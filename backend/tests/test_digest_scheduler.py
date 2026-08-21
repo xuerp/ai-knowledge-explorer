@@ -123,6 +123,7 @@ def test_worker_cycle_queues_digest_without_smtp(tmp_path: Path):
             "succeeded": 0,
             "unchanged": 0,
             "failed": 0,
+            "failedSourceIds": [],
         }
         assert result["digests"] == {"recipients": 1, "messagesQueued": 1}
         assert result["emailDelivery"] == {

@@ -119,7 +119,16 @@ flowchart LR
 ## 部署结构
 
 - 本地开发：SQLite + Vite + Uvicorn。
-- 生产参考：Cloudflare 前端 + FastAPI 容器 + PostgreSQL。
+- 在线预发布：Cloudflare Workers 前端 + Render FastAPI 容器 + Neon PostgreSQL + Cloudflare Cron Worker。
 - Docker 容器启动前执行 `alembic upgrade head`。
 - CI 同时验证 SQLite 与 PostgreSQL 迁移、前端构建、后端测试和种子同步。
-- 真实域名、云账号、SMTP、模型供应商和生产监控仍需部署方凭据。
+- 线上保持 `AI_RADAR_DATA_MODE=demo`，只有正式数据质量门槛通过后才允许切换 `live`。
+- SMTP、自定义域名、外部监控和备份恢复演练仍需部署方提供外部资源。
+
+## 关键技术决策
+
+- 公共读取与审核写入分离：公开接口只组合种子和已批准记录，待审、驳回与证据不足内容不会泄漏到公共快照。
+- 自动化采用有限吞吐：每周期最多处理有限信源和快照，失败进入退避与冷却，避免供应商故障放大成本。
+- 自动批准只覆盖严格锚定的低歧义关系；普通事实仍进入人审，不以数据增长速度换取可信度。
+- Cron 使用独立自动化令牌、结构化生命周期日志和有限重试；运维诊断只记录信源 ID，不把 URL 参数、错误正文或凭据写入外部日志。
+- 图谱保持二维并提供列表替代视图，因为查询方向、路径、时间与证据比视觉炫技更重要。

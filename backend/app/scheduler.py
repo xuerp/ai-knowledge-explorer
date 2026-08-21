@@ -42,6 +42,7 @@ class IngestionScheduler:
         current = now or datetime.now(UTC)
         requested_source_id = source_id
         due = succeeded = unchanged = failed = 0
+        failed_source_ids: list[str] = []
         for _ in range(limit):
             claim_time = datetime.now(UTC)
             conditions = [
@@ -177,6 +178,7 @@ class IngestionScheduler:
                 else:
                     session.rollback()
                 failed += 1
+                failed_source_ids.append(claimed_source_id)
             if progress:
                 progress()
             if requested_source_id is not None:
@@ -186,4 +188,5 @@ class IngestionScheduler:
             succeeded=succeeded,
             unchanged=unchanged,
             failed=failed,
+            failed_source_ids=failed_source_ids,
         )
