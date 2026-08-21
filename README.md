@@ -99,6 +99,8 @@ python -m alembic check
 - [架构说明](docs/ARCHITECTURE.md)
 - [Spec 追踪](docs/SPEC_TRACEABILITY.md)
 - [3 分钟演示](docs/DEMO_SCRIPT.md)
+- [作品集案例](docs/PORTFOLIO_CASE_STUDY.md)
+- [作品集验收与截图](docs/PORTFOLIO_ACCEPTANCE.md)
 - [后端说明](backend/README.md)
 
 ## 仍需外部资源的事项
