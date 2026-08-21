@@ -17,15 +17,15 @@
 | Phase | 状态 | 验收说明 |
 | --- | --- | --- |
 | 0 — Baseline | 已完成 | 已记录线上计数、数据模式、版本、来源比例和核心实体覆盖；未知指标不伪造 |
-| 1 — Public Homepage | 已实现，待线上验收 | 静态产品叙事不被 API loading 阻断；包含 Latest Changes、核心实体、Why ChatGPT、三种体验和 Trust Layer |
-| 2 — Entity / Timeline | 已存在 | 系列与具体版本详情、关键事实、Timeline、Relation、Evidence 已复用；需要补作品集截图 |
-| 3 — Compare | 已实现，待线上验收 | 默认 GPT、Claude、Gemini 系列级路线比较，可切换具体版本，底层支持任意可比较模型 |
-| 4 — Research | 已实现，待线上验收 | 未登录可运行三条预置路径；证据不足时明确拒答；登录后仍使用私密真实研究 |
+| 1 — Public Homepage | 已完成 | 静态产品叙事不被 API loading 阻断；包含 Latest Changes、核心实体、Why ChatGPT、三种体验和 Trust Layer，线上截图已验收 |
+| 2 — Entity / Timeline | 已完成 | 系列与具体版本详情、关键事实、Timeline、Relation、Evidence 已复用；SSR 直连上游，线上 GPT Timeline 已验收 |
+| 3 — Compare | 已完成 | 默认 GPT、Claude、Gemini 系列级路线比较，可切换具体版本，底层支持任意可比较模型，线上截图已验收 |
+| 4 — Research | 已完成 | 未登录可运行三条预置路径；证据不足时明确拒答；登录后仍使用私密真实研究，线上截图已验收 |
 | 5 — Showcase Dataset | 未满足 | 49 个实体不等于 10 个完整实体；需要继续采集、抽取和人工审核，不能靠硬编码勾选 |
 | 6 — Review Automation | 已有安全底座 | 风险分级、冲突、去重、批量审核与自动批准门槛已存在；扩大自动批准仍需真实精度样本 |
-| 7 — Case Study | 已实现，待线上验收 | 新增正式公开 `/case-study`，讲清问题、转向、关键决策、风险、取舍与边界 |
-| 8 — Portfolio Assets | 进行中 | README、截图、演示脚本、简历和面试材料需要统一为最新版产品叙事 |
-| 9 — Portfolio Release Gate | 待执行 | 完整 CI、匿名浏览器 Smoke、公开关键路径和管理边界验收完成后再给最终结论 |
+| 7 — Case Study | 已完成 | 正式公开 `/case-study`，讲清问题、转向、关键决策、风险、取舍与边界，线上截图已验收 |
+| 8 — Portfolio Assets | 已完成 | README、5 张核心体验截图、演示脚本、简历和面试材料已统一为最新版产品叙事 |
+| 9 — Portfolio Release Gate | 已完成 | 前端 68 项、后端 107 项、SQLite 与 PostgreSQL 迁移、GitHub CI、匿名线上 Smoke 和截图验收均通过 |
 | 10 — Production Evolution | 持续 | Claim、关系、黄金问题、SMTP、域名、监控、备份与 Live Mode 不阻塞作品集代码收敛 |
 
 ## 风险测试策略
