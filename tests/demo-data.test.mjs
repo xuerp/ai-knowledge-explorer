@@ -291,6 +291,9 @@ test("PWA manifest and service worker expose an offline application shell", asyn
   assert.match(serviceWorker, /offline\.html/);
   assert.match(serviceWorker, /caches\.open/);
   assert.match(serviceWorker, /fetch\(request, \{ cache: "no-store" \}\)/);
+  assert.match(serviceWorker, /url\.pathname\.startsWith\("\/backend\/"\)/);
+  assert.match(serviceWorker, /url\.pathname\.startsWith\("\/admin\/"\)/);
+  assert.match(serviceWorker, /ai-radar-shell-v3/);
   assert.match(staticHeaders, /\/sw\.js/);
   assert.match(staticHeaders, /no-store/);
   assert.match(offlinePage, /最后在线缓存/);

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ai-radar-shell-v2";
+const CACHE_NAME = "ai-radar-shell-v3";
 const APP_SHELL = [
   "/",
   "/knowledge",
@@ -39,7 +39,18 @@ self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  if (
+    url.origin !== self.location.origin ||
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/backend/")
+  )
+    return;
+
+  // 管理页依赖当前标签页中的短期 JWT，不应进入离线缓存或回退到旧页面。
+  if (url.pathname.startsWith("/admin/")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(
