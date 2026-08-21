@@ -402,9 +402,7 @@ class OperationsService:
             )
         ).all()
         extracted_snapshot_ids = {
-            row.target_id
-            for row in extraction_runs
-            if extraction_audit_is_current(row.detail_json)
+            row.target_id for row in extraction_runs if extraction_audit_is_current(row.detail_json)
         }
         retry_after = current - timedelta(minutes=self.extraction_retry_minutes)
         recent_failures = session.scalars(
@@ -416,9 +414,7 @@ class OperationsService:
             )
         ).all()
         cooling_down_snapshot_ids = {
-            row.target_id
-            for row in recent_failures
-            if extraction_audit_is_current(row.detail_json)
+            row.target_id for row in recent_failures if extraction_audit_is_current(row.detail_json)
         }
         ready = 0
         retrying = 0

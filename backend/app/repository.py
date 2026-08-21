@@ -33,16 +33,19 @@ from .schemas import (
 
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
 
-RELATION_PREDICATES: dict[str, Literal[
-    "developed-by",
-    "based-on",
-    "competes-with",
-    "benchmarked-on",
-    "uses",
-    "cited-by",
-    "part-of",
-    "successor-of",
-]] = {
+RELATION_PREDICATES: dict[
+    str,
+    Literal[
+        "developed-by",
+        "based-on",
+        "competes-with",
+        "benchmarked-on",
+        "uses",
+        "cited-by",
+        "part-of",
+        "successor-of",
+    ],
+] = {
     "developed-by": "developed-by",
     "developed by": "developed-by",
     "由其开发": "developed-by",
@@ -74,6 +77,7 @@ RELATION_PREDICATES: dict[str, Literal[
 
 def _reference_key(value: str | None) -> str:
     return " ".join((value or "").casefold().replace("_", " ").split())
+
 
 # 这些条目来自随应用发布的官方目录。映射仅处理已经确认迁移或会因尾斜杠
 # 规范化而被上游拦截的旧网址，不触碰管理员自行登记的信源。

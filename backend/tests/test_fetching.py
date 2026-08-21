@@ -83,9 +83,7 @@ def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
 def test_safe_fetcher_follows_allowlisted_canonical_redirect():
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/docs/learn/architecture":
-            return httpx.Response(
-                307, headers={"location": "/docs/2026-07-28/learn/architecture"}
-            )
+            return httpx.Response(307, headers={"location": "/docs/2026-07-28/learn/architecture"})
         return httpx.Response(
             200,
             headers={"content-type": "text/plain"},
@@ -99,9 +97,7 @@ def test_safe_fetcher_follows_allowlisted_canonical_redirect():
         transport=httpx.MockTransport(handler),
     )
     document = fetcher.fetch("https://docs.example.com/docs/learn/architecture")
-    assert document.final_url == (
-        "https://docs.example.com/docs/2026-07-28/learn/architecture"
-    )
+    assert document.final_url == ("https://docs.example.com/docs/2026-07-28/learn/architecture")
     assert "canonical official architecture" in document.content
 
 

@@ -74,9 +74,7 @@ class Settings:
                 "AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT must be between 1 and 20."
             )
         if not 1 <= self.auto_extraction_retry_minutes <= 1440:
-            raise ValueError(
-                "AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440."
-            )
+            raise ValueError("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440.")
         if not 1 <= self.email_max_attempts <= 20:
             raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
         if self.email_retry_base_seconds < 1:

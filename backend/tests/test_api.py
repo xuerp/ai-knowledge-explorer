@@ -181,9 +181,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
-        assert integrations["extractionPipelineVersion"] == (
-            "2026-08-symmetric-relation-dedup-v7"
-        )
+        assert integrations["extractionPipelineVersion"] == ("2026-08-symmetric-relation-dedup-v7")
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -265,9 +263,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
             "/api/v2/admin/extraction-plan",
             headers=admin_headers,
         ).json()
-        assert any(
-            item["snapshotId"] == changed.json()["snapshotId"] for item in retry_plan
-        )
+        assert any(item["snapshotId"] == changed.json()["snapshotId"] for item in retry_plan)
         cooling_down = automatic_client.post(
             "/api/v2/automation/run-cycle",
             headers=automation_headers,
@@ -340,9 +336,7 @@ def test_automation_extraction_failure_does_not_block_the_next_snapshot(
 
         response = automatic_client.post(
             "/api/v2/automation/run-cycle",
-            headers={
-                "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
-            },
+            headers={"X-Automation-Token": "test-automation-token-with-at-least-32-characters"},
         )
         assert response.status_code == 200
         extraction = response.json()["result"]["extraction"]
@@ -434,9 +428,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         monkeypatch.setattr(
             StructuredExtractionService,
             "extract",
-            lambda *args, **kwargs: [
-                candidate("review-grounded-relation", "uses", "MCP")
-            ],
+            lambda *args, **kwargs: [candidate("review-grounded-relation", "uses", "MCP")],
         )
 
         approved = automatic_client.post(
@@ -529,9 +521,7 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
             "/api/v2/admin/review-queue",
             headers=admin_headers,
         ).json()
-        unanchored = next(
-            item for item in queue if item["id"] == "review-unanchored-relation"
-        )
+        unanchored = next(item for item in queue if item["id"] == "review-unanchored-relation")
         assert unanchored["status"] == "pending"
 
         merged_snapshot = automatic_client.post(
@@ -569,7 +559,9 @@ def test_automation_only_auto_approves_strictly_grounded_low_ambiguity_relations
         duplicate_snapshot = automatic_client.post(
             "/api/v2/admin/sources/source-grounded-relations/snapshots",
             headers=admin_headers,
-            json={"content": "GPT family is developed-by OpenAI according to this repeated record."},
+            json={
+                "content": "GPT family is developed-by OpenAI according to this repeated record."
+            },
         )
         assert duplicate_snapshot.status_code == 200
         monkeypatch.setattr(
@@ -1218,9 +1210,7 @@ def test_approved_canonical_relation_claim_updates_graph(client: TestClient):
     relation = next(
         edge
         for edge in snapshot["graph"]["edges"]
-        if edge["fromId"] == "e-claude-code"
-        and edge["toId"] == "e-mcp"
-        and edge["kind"] == "uses"
+        if edge["fromId"] == "e-claude-code" and edge["toId"] == "e-mcp" and edge["kind"] == "uses"
     )
     assert relation["confidence"] == "verified"
     assert "evidence-claude-code-uses-mcp" in relation["sourceIds"]
