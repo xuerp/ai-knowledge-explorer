@@ -4,6 +4,7 @@
 
 | Spec 能力  | 实现                                                           |
 | ---------- | -------------------------------------------------------------- |
+| 产品叙事   | 首页静态 Hero、Why ChatGPT、三种核心体验与 Trust Layer        |
 | 发现模式   | 首页、知识库、实体详情、系列/具体版本比较、关系查询图谱        |
 | 阅读与语言 | 中文/English，通俗/产品/技术，明暗主题                         |
 | 时间和证据 | Claim 双时间字段、Evidence 引用、可信状态、时间线              |
@@ -14,6 +15,7 @@
 | 公开边界   | pending/rejected/needs-more-evidence Claim 从公共快照隔离      |
 | 用户能力   | 登录、持久化关注、站内通知、已读状态、每日摘要偏好             |
 | 研究       | 已审核 Claim 检索、证据不足拒答、私密记录、主动公开、Markdown  |
+| 作品集故事 | 公开 `/case-study`、README、截图、演示脚本、简历和面试材料     |
 | 通知和邮件 | 相关关注者通知、Outbox、可选 SMTP 投递                         |
 | 工程       | PostgreSQL 驱动、Alembic、Docker Compose、CI、PWA、生产构建    |
 | 可扩展目录 | Entity、具体模型版本、关系与时间线持久化；受保护管理员增量写入 |
@@ -21,7 +23,7 @@
 
 ## 演示与真实能力的区分
 
-- `/admin/review-demo` 是明确标记的只读演示；未登录的 `/following` 和 `/ask` 也会保留明确的演示引导。
+- `/admin/review-demo` 是明确标记的只读演示；未登录的 `/following` 保留演示引导，`/ask` 可运行三条明确标记的预置研究路径。
 - 已登录且配置 API 时，`/account`、`/following`、`/ask`、私密研究详情和 `/admin/review` 均连接真实后端。
 - `AI_RADAR_DATA_MODE=demo` 时公共 API 仍明确返回 demo/cached。
 - 抽取、邮件和云部署只有在配置真实外部服务后才会执行。

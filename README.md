@@ -1,36 +1,109 @@
 # AI Radar
 
-AI Radar 是面向 AI 模型、Agent、框架、论文和 Benchmark 的时序知识图谱。产品以“变化、关系、时间和证据”为中心，不把演示数据、模型猜测或未审核候选伪装成事实。
+> 持续追踪 AI 模型、Agent 与产品生态的变化，把分散的官方资料转化为有证据的事实、时间线、关系和研究结论。
 
-## 当前交付
+[在线体验](https://ai-radar-staging.1966761779.workers.dev) · [产品 Case Study](https://ai-radar-staging.1966761779.workers.dev/case-study) · [架构说明](docs/ARCHITECTURE.md)
 
-前端已包含：
+![AI Radar 公开首页](docs/assets/portfolio/home-desktop.png)
 
-- 首页、知识库、六段式实体详情、系列/具体版本比较、关系图谱和三种阅读模式。
-- 证据化研究界面、私密研究页、公开分享、Markdown 和打印/PDF。
-- 关注、通知、个性化、PWA、离线状态和中英双语。
-- `/admin/review-demo` 只读作品集后台。
-- `/account` 真实登录账户，连接持久化关注、通知、邮件偏好和研究。
-- `/admin/review` 真实 reviewer/admin 工作台。
+## 为什么需要 AI Radar
 
-后端已包含：
+通用 AI Chat 适合一次性研究，但长期追踪几十个模型、Agent 和框架时，用户仍要重复搜索、核验来源、整理历史和重建比较维度。AI Radar 把这些重复工作沉淀为持续维护的知识层。
 
-- FastAPI/Pydantic/SQLAlchemy/Alembic，SQLite 和 PostgreSQL。
-- JWT/RBAC、审计日志、人审门禁和不可重复发布。
-- 数据库化模型系列、具体版本、关系与时间线；管理员可增量维护，前端自动读取。
-- 安全采集、内容快照/Diff、严格结构化模型抽取、实体消歧和冲突检测。
-- 关注者通知、每日摘要 Outbox、SMTP 适配器、私密研究和主动公开分享。
-- Docker Compose、PostgreSQL CI 迁移验证、正式数据质量报告和黄金问题集。
+| 通用 AI Chat | AI Radar |
+| --- | --- |
+| 每次重新提问 | 持续维护实体状态 |
+| 一次性生成 | Claim、Timeline、Relation 长期沉淀 |
+| 来源附属于回答 | Evidence 是一级数据 |
+| 对比依赖临时 Prompt | 固定维度下长期 Compare |
+| 模型直接组织结论 | Candidate 经过验证后才能公开 |
+| 内容不足时可能补全 | 证据不足时明确拒答 |
 
-## 在线预发布环境
+## 三个核心体验
 
-- 前端：<https://ai-radar-staging.1966761779.workers.dev>
-- API：<https://ai-radar-api-staging.onrender.com>
+### 1. Timeline：看一个 AI 产品如何演进
+
+实体档案把关键事实、最近变化、版本、关系、时间线和证据放在同一上下文中。“发生了什么”和“为什么重要”保持视觉与语义区分。
+
+### 2. Compare：比较 GPT、Claude 与 Gemini 的路线
+
+默认提供系列级路线比较，并可下钻到具体版本的上下文、价格、模态、工具和可用范围。底层接受任意可比较模型，不维护 Showcase 专用静态比较表。
+
+### 3. Research：基于 Evidence 做跨实体研究
+
+未登录访客可以运行三条预置研究路径；登录后研究记录进入私密账户。每个结论回到已发布 Claim 和 Evidence，覆盖不足时返回可信拒答。
+
+## 工作方式
+
+```text
+官方信源
+  ↓
+安全采集 → Snapshot / Diff
+  ↓
+LLM 结构化抽取
+  ↓
+Candidate
+  ↓
+Evidence Anchor + Schema Validation
+  ↓
+语义去重 + 冲突检测 + 风险分级
+  ↓
+自动 / 批量 / 人工审核
+  ↓
+Verified Claim
+  ↓
+Timeline / Compare / Graph / Research
+```
+
+LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出不能直接进入公开知识库。
+
+## AI 可信与产品决策
+
+- **Candidate / Verified Claim 分离：** 明确区分模型生成和系统认可。
+- **证据锚点：** 除来源链接外，保存支持结论的原文片段。
+- **结构化降级但不降标准：** 供应商不兼容 JSON Schema 时可使用 `json_object`，仍执行严格字段校验。
+- **语义去重与冲突保护：** 阻止同义重复、有效期重叠和相互矛盾内容静默发布。
+- **风险分级审核：** 低风险内容只有在真实精度达到阈值后才能扩大自动批准；价格、Benchmark、安全事件和冲突保留人工审核。
+- **Showcase / Live 分离：** 作品集使用明确标记的精选快照；正式模式继续受 Claim、关系、黄金问题和生产就绪门槛约束。
+
+完整决策说明见[产品 Case Study 文档](docs/PORTFOLIO_CASE_STUDY.md)和[简历与面试材料](docs/RESUME_AND_INTERVIEW.md)。
+
+## 当前公开状态
+
+- 前端：Cloudflare Workers
+- API：Render FastAPI
 - 数据库：Neon PostgreSQL
-- 定时任务：Cloudflare Worker `ai-radar-cron-staging`，每 30 分钟运行一次
-- 质量门禁：GitHub Actions 同时验证前端、后端、SQLite 与 PostgreSQL 迁移
+- 定时任务：Cloudflare Cron，每 30 分钟一次
+- 环境：`production`
+- 数据模式：`demo`
+- 快照新鲜度：`cached`
 
-当前环境按生产方式部署，但公共数据继续保持 `demo/cached` 标记。公开快照包含 49 个实体、23 条 Claim、40 条证据、71 条关系和 55 条时间线；在 150 条已审核 Claim 和核心实体关系覆盖真实达标前，不切换为 `live`。
+截至 2026-08-21，公开快照包含 49 个实体、23 条 Claim、40 条 Evidence、71 条 Relation 和 55 条 Timeline；34/40 条公开证据来自官方来源。正式门槛为 150 条已审核 Claim，且 17 个核心实体仍存在约 49 条关系缺口，因此不切换为 `live`。
+
+## 主要入口
+
+| 路径 | 用途 |
+| --- | --- |
+| `/` | 产品定位、最近变化、核心实体、Why ChatGPT 与三个核心体验 |
+| `/knowledge` | 分类浏览实体知识库 |
+| `/knowledge/model/gpt` | GPT 系列档案、版本和时间线 |
+| `/compare` | GPT、Claude、Gemini 路线与具体版本比较 |
+| `/graph` | 可解释关系查询、邻域、路径与来源 |
+| `/ask` | 未登录预置研究与登录后私密研究 |
+| `/case-study` | 正式公开产品故事、决策、风险和取舍 |
+| `/admin/review-demo` | 无需登录的只读审核闭环 |
+| `/admin/review` | 真实 reviewer/admin 工作台 |
+
+## 技术架构
+
+- 前端：React、TypeScript、TanStack Router/Start、Tailwind CSS、PWA。
+- 后端：FastAPI、Pydantic、SQLAlchemy、Alembic、JWT/RBAC。
+- 数据：PostgreSQL；本地和 CI 同时保护 SQLite/PostgreSQL 迁移兼容。
+- 部署：Cloudflare Workers 同域代理 → Render API → Neon PostgreSQL。
+- 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 Cloudflare Cron。
+- 质量：ESLint、TypeScript、前后端测试、Ruff、编译、生产构建、迁移验证、黄金问题和数据质量门槛。
+
+详细结构见[架构说明](docs/ARCHITECTURE.md)。
 
 ## 本地运行
 
@@ -58,23 +131,7 @@ Copy-Item .env.example .env
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-不配置 API 时，公开产品使用明确标记的本地 demo adapter；配置后 API 失败会显示错误，不会静默回退成“实时数据”。
-
-## 主要入口
-
-| 路径                   | 用途                                   |
-| ---------------------- | -------------------------------------- |
-| `/`                    | 个性化变化和行业必看                   |
-| `/knowledge`           | 分类浏览                               |
-| `/knowledge/model/gpt` | 六段式实体档案                         |
-| `/graph`               | 可解释的关系查询图谱、邻域、路径与来源 |
-| `/ask`                 | 登录后基于已发布 Claim 的私密研究；未登录明确显示演示引导 |
-| `/following`           | 登录后持久化关注、通知和摘要偏好；未登录明确显示演示体验 |
-| `/account`             | 真实登录、关注、通知、摘要和私密研究   |
-| `/admin/review-demo`   | 只读审核演示                           |
-| `/admin/review`        | 真实受保护审核工作台                   |
-
-`/admin/review` 的“扩展模型目录”支持新增模型系列、具体版本、关系和时间线。具体版本使用 `familyId` 归属系列，因此以后增加 GPT、Claude、Gemini、DeepSeek、Qwen 等细分版本时无需重写页面。
+不配置 API 时，公开产品使用明确标记的内置演示快照；配置后如果 API 暂时不可用，首屏和预置研究会显式说明正在使用该快照，不会冒充实时结果。
 
 ## 质量检查
 
@@ -93,22 +150,30 @@ python -m alembic current --check-heads
 python -m alembic check
 ```
 
-详细资料：
+项目采用风险测试：日常改动执行针对性检查，Epic 完成执行完整回归，发布时再执行匿名浏览器与线上关键路径验收。
 
-- [生产运行手册](docs/PRODUCTION_RUNBOOK.md)
-- [架构说明](docs/ARCHITECTURE.md)
-- [Spec 追踪](docs/SPEC_TRACEABILITY.md)
-- [3 分钟演示](docs/DEMO_SCRIPT.md)
-- [作品集案例](docs/PORTFOLIO_CASE_STUDY.md)
+## 路线与边界
+
+### Portfolio v1
+
+- 收敛首页、Timeline、Compare、Research、Evidence 与 Case Study。
+- 完成 README、截图、演示脚本、简历和面试材料。
+- 不降低正式数据门槛。
+
+### v1.5 Live Ready
+
+- 扩充到 150+ 已审核 Claim 与核心关系覆盖。
+- 运行黄金问题、数据质量和生产就绪检查。
+- 完成 SMTP、正式域名、外部监控和备份恢复演练。
+- 只有 `liveReady=true` 后才把 `AI_RADAR_DATA_MODE` 改为 `live`。
+
+## 项目资料
+
+- [作品集版本基线](docs/SHOWCASE_BASELINE.md)
+- [作品集实施计划](docs/SHOWCASE_IMPLEMENTATION_PLAN.md)
+- [Spec 覆盖与交付边界](docs/SPEC_TRACEABILITY.md)
 - [作品集验收与截图](docs/PORTFOLIO_ACCEPTANCE.md)
-- [后端说明](backend/README.md)
-
-## 仍需外部资源的事项
-
-预发布前端、API、Neon PostgreSQL、Cloudflare Cron 和结构化抽取供应商已经接通。以下事项仍需要外部账号、域名或运维决策，不能在仓库内伪造：
-
-- SMTP/事务邮件账号、已验证发件域和送达率配置。
-- 自定义域名，以及正式域名下的 DNS 与证书验收。
-- 外部监控、告警接收人和备份恢复演练。
-- 将当前 23 条已发布 Claim 扩展到 150 条，并补齐 17 个核心实体约 49 条关系缺口所需的正式研究与人工审核。
-- Cron 已按已确认的运行预算调整为每 30 分钟一次；应持续观察供应商调用额度、自动周期耗时与失败率。
+- [3 分钟演示与短视频脚本](docs/DEMO_SCRIPT.md)
+- [产品 Case Study 文档](docs/PORTFOLIO_CASE_STUDY.md)
+- [简历与面试材料](docs/RESUME_AND_INTERVIEW.md)
+- [生产运行手册](docs/PRODUCTION_RUNBOOK.md)

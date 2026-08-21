@@ -16,9 +16,10 @@ import {
 const NAV = [
   { to: "/", zh: "首页", en: "Home" },
   { to: "/knowledge", zh: "知识库", en: "Knowledge" },
+  { to: "/compare", zh: "AI 对比", en: "Compare" },
   { to: "/graph", zh: "洞察", en: "Insights" },
   { to: "/ask", zh: "AI 研究", en: "Ask" },
-  { to: "/following", zh: "关注", en: "Following" },
+  { to: "/case-study", zh: "关于项目", en: "About" },
 ] as const;
 
 export function TopNav() {
@@ -134,6 +135,11 @@ export function TopNav() {
             <DropdownMenuItem asChild>
               <Link to="/settings">
                 <Settings className="h-4 w-4" /> {t("设置", "Settings")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/following">
+                <BookOpen className="h-4 w-4" /> {t("关注", "Following")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

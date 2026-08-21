@@ -94,6 +94,68 @@ export const DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
       generatedAt: "2026-07-25T00:00:00Z",
       status: "ready",
     },
+    {
+      id: "research-demo-deepseek-cost",
+      question: {
+        zh: "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？",
+        en: "Is DeepSeek R2 really 10× cheaper than GPT-5?",
+      },
+      summary: {
+        zh: "当前快照只有成本推断，没有统一计费口径下的双方官方报价，因此不能把“便宜 10 倍”当作已核验事实。",
+        en: "The snapshot contains a cost inference but no official prices normalized to one billing basis, so the 10× claim is not verified.",
+      },
+      claimIds: ["c-deepseek-cost"],
+      steps: [
+        {
+          id: "understand",
+          label: { zh: "理解比较口径", en: "Understand comparison basis" },
+          status: "complete",
+        },
+        {
+          id: "evidence",
+          label: { zh: "检查报价证据", en: "Check pricing evidence" },
+          status: "complete",
+        },
+        {
+          id: "confidence",
+          label: { zh: "区分事实与推断", en: "Separate fact from inference" },
+          status: "complete",
+        },
+      ],
+      generatedAt: "2026-07-25T00:00:00Z",
+      status: "ready",
+    },
+    {
+      id: "research-demo-mcp-integrations",
+      question: {
+        zh: "MCP 协议目前有哪些已知集成？",
+        en: "Which integrations does MCP have today?",
+      },
+      summary: {
+        zh: "当前快照没有足够的已核验 Claim 枚举 MCP 集成，因此系统拒绝生成看似完整但无法追溯的列表。",
+        en: "The snapshot lacks enough verified claims to enumerate MCP integrations, so the system declines to fabricate a complete-looking list.",
+      },
+      claimIds: [],
+      steps: [
+        {
+          id: "understand",
+          label: { zh: "理解问题", en: "Understand question" },
+          status: "complete",
+        },
+        {
+          id: "evidence",
+          label: { zh: "检查证据覆盖", en: "Check evidence coverage" },
+          status: "complete",
+        },
+        {
+          id: "decline",
+          label: { zh: "避免无依据补全", en: "Avoid unsupported completion" },
+          status: "complete",
+        },
+      ],
+      generatedAt: "2026-07-25T00:00:00Z",
+      status: "insufficient-evidence",
+    },
   ],
   notifications: [
     {
