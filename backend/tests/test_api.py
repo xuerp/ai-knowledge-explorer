@@ -122,6 +122,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "succeeded": 0,
         "unchanged": 0,
         "failed": 0,
+        "failedSourceIds": [],
     }
     assert payload["result"]["extraction"] == {
         "configured": False,
@@ -1434,7 +1435,13 @@ def test_source_snapshots_are_normalized_deduplicated_and_diffed(
         headers=headers,
     )
     assert collected.status_code == 200
-    assert collected.json() == {"due": 1, "succeeded": 1, "unchanged": 0, "failed": 0}
+    assert collected.json() == {
+        "due": 1,
+        "succeeded": 1,
+        "unchanged": 0,
+        "failed": 0,
+        "failedSourceIds": [],
+    }
     assert client.post("/api/v2/admin/sources/source-demo-release/collect").status_code == 401
 
     duplicate_source = client.post(

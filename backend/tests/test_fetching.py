@@ -306,6 +306,7 @@ def test_scheduler_processes_multiple_due_sources_in_one_batch(tmp_path: Path):
             "succeeded": 2,
             "unchanged": 0,
             "failed": 0,
+            "failed_source_ids": [],
         }
         assert set(fetcher.urls) == {
             "https://example.com/batch-source-a",
@@ -391,6 +392,7 @@ def test_scheduler_retries_failures_early_and_clears_failure_state(tmp_path: Pat
             "succeeded": 0,
             "unchanged": 0,
             "failed": 1,
+            "failed_source_ids": ["retry-source"],
         }
         source = ingestion.list_sources(session)[0]
         assert source.consecutive_failures == 1

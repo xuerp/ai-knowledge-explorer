@@ -466,6 +466,7 @@ class SchedulerRunSummary(CamelModel):
     succeeded: int
     unchanged: int
     failed: int
+    failed_source_ids: list[str] = Field(default_factory=list)
 
 
 class AutomationRunView(CamelModel):

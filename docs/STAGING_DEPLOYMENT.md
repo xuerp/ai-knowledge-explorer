@@ -72,7 +72,7 @@ AI_RADAR_SMOKE_FRONTEND_URL=https://你的前端地址 \
 bun run smoke:staging
 ```
 
-## 5. 可选：启用 Cloudflare 定时任务
+## 5. 核对 Cloudflare 定时任务
 
 定时任务使用独立的 `AI_RADAR_AUTOMATION_TOKEN`，只能调用单周期自动化接口，不能登录审核后台，也不能替代管理员 JWT。不要复用 `AI_RADAR_ADMIN_TOKEN`、数据库密码或其他 API Key。
 
