@@ -68,8 +68,7 @@ def entity_reference_appears(content: str, entity: Entity) -> bool:
     content_key = content.casefold()
     references = [entity.name.zh, entity.name.en, *(entity.aliases or [])]
     return any(
-        reference.strip() and reference.casefold() in content_key
-        for reference in references
+        reference.strip() and reference.casefold() in content_key for reference in references
     )
 
 
@@ -371,9 +370,7 @@ class StructuredExtractionService:
             if entity.id in priority_deficits
             and entity_reference_appears(snapshot.content_text, entity)
         ]
-        mentioned_priorities.sort(
-            key=lambda entity: (-priority_deficits[entity.id], entity.id)
-        )
+        mentioned_priorities.sort(key=lambda entity: (-priority_deficits[entity.id], entity.id))
         priority_context = "\n".join(
             (
                 f"- {entity.id}: {entity.name.zh} | {entity.name.en} "
@@ -382,9 +379,7 @@ class StructuredExtractionService:
             for entity in mentioned_priorities
         )
         relation_candidate_target = (
-            min(max_candidates, max(1, max_candidates // 2))
-            if priority_context
-            else 0
+            min(max_candidates, max(1, max_candidates // 2)) if priority_context else 0
         )
         payload = {
             "model": self.model,

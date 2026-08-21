@@ -151,9 +151,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert any("150 reviewed claims" in issue for issue in report.issues)
     assert "e-gpt-4o" not in report.core_entities_below_five_relations
     assert set(report.core_entity_relation_counts) == set(report.core_entities_below_five_relations)
-    assert set(report.core_entity_relation_labels) == set(
-        report.core_entities_below_five_relations
-    )
+    assert set(report.core_entity_relation_labels) == set(report.core_entities_below_five_relations)
     assert all(count < 5 for count in report.core_entity_relation_counts.values())
     assert report.core_relation_deficit == sum(
         5 - count for count in report.core_entity_relation_counts.values()

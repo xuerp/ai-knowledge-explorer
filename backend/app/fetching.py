@@ -126,9 +126,7 @@ class SafeHttpFetcher:
                         location = response.headers.get("location")
                         canonical_url = urljoin(current_url, location) if location else None
                         if not canonical_url:
-                            raise FetchPolicyError(
-                                "Redirect was returned without a canonical URL."
-                            )
+                            raise FetchPolicyError("Redirect was returned without a canonical URL.")
                         self.validate_url(canonical_url)
                         if canonical_url in visited_urls:
                             raise FetchPolicyError("Source URL entered a redirect loop.")
@@ -146,9 +144,7 @@ class SafeHttpFetcher:
                             final_url=current_url,
                         )
                     response.raise_for_status()
-                    content_type = (
-                        response.headers.get("content-type", "").split(";", 1)[0].lower()
-                    )
+                    content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
                     if content_type not in {
                         "text/html",
                         "text/plain",
@@ -177,9 +173,7 @@ class SafeHttpFetcher:
                     else:
                         content = raw.strip()
                     if len(content) < 20:
-                        raise FetchPolicyError(
-                            "Source document contains too little readable text."
-                        )
+                        raise FetchPolicyError("Source document contains too little readable text.")
                     return FetchedDocument(
                         content=content,
                         content_type=content_type,

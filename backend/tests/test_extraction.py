@@ -87,9 +87,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
 
 
 def test_extraction_audit_only_accepts_the_current_pipeline_version():
-    assert extraction_audit_is_current(
-        json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION})
-    )
+    assert extraction_audit_is_current(json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}))
     assert extraction_audit_is_current("{}") is False
     assert extraction_audit_is_current("not-json") is False
 
@@ -110,9 +108,7 @@ def test_source_excerpt_requires_subject_and_object_in_the_same_segment():
 def test_source_excerpt_splits_chinese_sentences_without_spaces():
     content = "前一段不相关。MCP 使用 JSON-RPC 传输消息。后一段不相关。"
 
-    assert locate_source_excerpt(content, "MCP", "JSON-RPC") == (
-        "MCP 使用 JSON-RPC 传输消息。"
-    )
+    assert locate_source_excerpt(content, "MCP", "JSON-RPC") == ("MCP 使用 JSON-RPC 传输消息。")
 
 
 def test_source_excerpt_keeps_both_anchors_when_trimming_long_text():

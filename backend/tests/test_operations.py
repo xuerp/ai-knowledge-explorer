@@ -153,9 +153,7 @@ def test_operations_reports_ready_and_cooling_extraction_backlog(tmp_path: Path)
                     action="extraction.failed",
                     target_type="document_snapshot",
                     target_id="snapshot-cooling",
-                    detail_json=json.dumps(
-                        {"pipelineVersion": EXTRACTION_PIPELINE_VERSION}
-                    ),
+                    detail_json=json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}),
                     created_at=current - timedelta(minutes=30),
                 ),
                 AuditLogRecord(
@@ -171,9 +169,7 @@ def test_operations_reports_ready_and_cooling_extraction_backlog(tmp_path: Path)
                     action="extraction.run",
                     target_type="document_snapshot",
                     target_id="snapshot-extracted",
-                    detail_json=json.dumps(
-                        {"pipelineVersion": EXTRACTION_PIPELINE_VERSION}
-                    ),
+                    detail_json=json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}),
                     created_at=current - timedelta(minutes=1),
                 ),
             ]

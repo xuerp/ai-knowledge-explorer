@@ -613,8 +613,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             extraction_endpoint_host=extraction_host,
             extraction_model=app_settings.extraction_model,
             automatic_extraction_enabled=(
-                extraction.enabled
-                and app_settings.auto_extraction_max_snapshots_per_cycle > 0
+                extraction.enabled and app_settings.auto_extraction_max_snapshots_per_cycle > 0
             ),
             automatic_extraction_max_snapshots_per_cycle=(
                 app_settings.auto_extraction_max_snapshots_per_cycle
@@ -815,9 +814,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         ).all()
         extracted_snapshot_ids = {
-            row.target_id
-            for row in extraction_runs
-            if extraction_audit_is_current(row.detail_json)
+            row.target_id for row in extraction_runs if extraction_audit_is_current(row.detail_json)
         }
         cooling_down_snapshot_ids: set[str] = set()
         if automatic_only:
@@ -873,8 +870,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             item: tuple[SourceRecord, DocumentSnapshotRecord],
         ) -> int:
             return sum(
-                priority_weights[entity.id]
-                * entity_reference_appears(item[1].content_text, entity)
+                priority_weights[entity.id] * entity_reference_appears(item[1].content_text, entity)
                 for entity in priority_entities
             )
 
@@ -927,10 +923,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 object_entity_id,
             )
 
-        published_fingerprints = {
-            semantic_fingerprint(claim)
-            for claim in public_snapshot.claims
-        }
+        published_fingerprints = {semantic_fingerprint(claim) for claim in public_snapshot.claims}
         published_fingerprints.update(
             relation_semantic_fingerprint(
                 edge.from_id,
@@ -943,15 +936,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if edge.kind in RELATION_CLAIM_PREDICATES
         )
         open_review_rows = session.scalars(
-            select(ReviewJobRecord).where(
-                ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES)
-            )
+            select(ReviewJobRecord).where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
         ).all()
         open_fingerprints = {
             semantic_fingerprint(
-                    Claim.model_validate_json(existing_row.claim_json),
-                    existing_row.entity_id,
-                ): existing_row
+                Claim.model_validate_json(existing_row.claim_json),
+                existing_row.entity_id,
+            ): existing_row
             for existing_row in open_review_rows
         }
 
@@ -961,8 +952,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ) -> None:
             existing_claim = Claim.model_validate_json(existing_row.claim_json)
             evidence_by_id = {
-                evidence.id: evidence
-                for evidence in repository.approved_evidence(existing_row)
+                evidence.id: evidence for evidence in repository.approved_evidence(existing_row)
             }
             changed = False
             for evidence in candidate.evidence:
@@ -989,15 +979,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 [evidence.id for evidence in evidence_items]
             )
             existing_row.evidence_json = json.dumps(
-                [
-                    evidence.model_dump(mode="json", by_alias=True)
-                    for evidence in evidence_items
-                ],
+                [evidence.model_dump(mode="json", by_alias=True) for evidence in evidence_items],
                 ensure_ascii=False,
             )
             existing_row.version += 1
             if not existing_row.review_reason:
                 existing_row.review_reason = "检测到重复事实，已合并新增证据。"
+
         created: list[ReviewQueueItem] = []
         duplicates_skipped = 0
         for candidate in candidates:
@@ -1062,6 +1050,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         target_key = reference_key(claim.object_or_value)
         if subject_key not in document or target_key not in document:
             return False
+
         def contains_anchor(anchor: str) -> bool:
             normalized = reference_key(anchor)
             if normalized.isascii():
@@ -1069,8 +1058,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return normalized in document
 
         if not any(
-            contains_anchor(anchor)
-            for anchor in RELATION_PREDICATE_ANCHORS[claim.predicate]
+            contains_anchor(anchor) for anchor in RELATION_PREDICATE_ANCHORS[claim.predicate]
         ):
             return False
 
@@ -1104,8 +1092,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return False
         evidence_items = repository.approved_evidence(row)
         return bool(evidence_items) and all(
-            evidence.type == "official"
-            and str(evidence.url).rstrip("/") == source.url.rstrip("/")
+            evidence.type == "official" and str(evidence.url).rstrip("/") == source.url.rstrip("/")
             for evidence in evidence_items
         )
 
@@ -1176,15 +1163,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
                 session.commit()
                 summary["processed"] = int(summary["processed"]) + 1
-                summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(
-                    created
+                summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(created)
+                summary["duplicatesSkipped"] = (
+                    int(summary["duplicatesSkipped"]) + duplicates_skipped
                 )
-                summary["duplicatesSkipped"] = int(
-                    summary["duplicatesSkipped"]
-                ) + duplicates_skipped
-                summary["relationsAutoApproved"] = int(
-                    summary["relationsAutoApproved"]
-                ) + auto_approved
+                summary["relationsAutoApproved"] = (
+                    int(summary["relationsAutoApproved"]) + auto_approved
+                )
             except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
                 session.rollback()
                 audit.record(
@@ -1924,9 +1909,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         batch_safe_only: bool = False,
     ) -> ReviewQueueItem:
         row = session.scalar(
-            select(ReviewJobRecord)
-            .where(ReviewJobRecord.id == review_id)
-            .with_for_update()
+            select(ReviewJobRecord).where(ReviewJobRecord.id == review_id).with_for_update()
         )
         if not row:
             raise HTTPException(
@@ -1943,15 +1926,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         def has_anchored_excerpt() -> bool:
             subject = " ".join((queue_item.claim.subject or "").casefold().split())
-            object_or_value = " ".join(
-                (queue_item.claim.object_or_value or "").casefold().split()
-            )
+            object_or_value = " ".join((queue_item.claim.object_or_value or "").casefold().split())
             if not subject or not object_or_value:
                 return False
             return any(
                 subject in " ".join(evidence.source_excerpt.casefold().split())
-                and object_or_value
-                in " ".join(evidence.source_excerpt.casefold().split())
+                and object_or_value in " ".join(evidence.source_excerpt.casefold().split())
                 for evidence in queue_item.evidence_items
                 if evidence.source_excerpt
             )
@@ -1963,9 +1943,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "Review job requires an anchored source excerpt and individual review."
-                ),
+                detail=("Review job requires an anchored source excerpt and individual review."),
             )
         if row.version != decision.expected_version:
             raise HTTPException(
@@ -2079,9 +2057,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             for item in verification.items:
                 row = session.scalar(
-                    select(ReviewJobRecord)
-                    .where(ReviewJobRecord.id == item.id)
-                    .with_for_update()
+                    select(ReviewJobRecord).where(ReviewJobRecord.id == item.id).with_for_update()
                 )
                 if row is None:
                     raise HTTPException(
