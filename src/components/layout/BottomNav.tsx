@@ -1,13 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Library, Radar, Sparkles, Bookmark } from "lucide-react";
+import { Home, Library, Radar, Sparkles, GitCompareArrows } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 
 const NAV = [
   { to: "/", icon: Home, zh: "首页", en: "Home" },
   { to: "/knowledge", icon: Library, zh: "知识库", en: "Knowledge" },
+  { to: "/compare", icon: GitCompareArrows, zh: "对比", en: "Compare" },
   { to: "/graph", icon: Radar, zh: "洞察", en: "Insights" },
   { to: "/ask", icon: Sparkles, zh: "研究", en: "Ask" },
-  { to: "/following", icon: Bookmark, zh: "关注", en: "Following" },
 ] as const;
 
 export function BottomNav() {

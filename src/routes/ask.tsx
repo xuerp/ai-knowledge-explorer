@@ -13,10 +13,10 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
-import { DataStatePanel } from "@/components/data-state";
 import { useApp, pick } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
-import type { Evidence, LocalizedText } from "@/domain/types";
+import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
+import type { Evidence, LocalizedText, ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { readAuthToken } from "@/services/auth-session";
 import { userApi, type ResearchResult } from "@/services/user-api";
@@ -36,19 +36,21 @@ export const Route = createFileRoute("/ask")({
   component: AskPage,
 });
 
-const EMPTY_RESEARCH_QUESTIONS: LocalizedText[] = [];
-
 function AskPage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const researchQuestions = snapshotQuery.data?.researchQuestions ?? EMPTY_RESEARCH_QUESTIONS;
+  const snapshot = snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT;
+  const researchQuestions = snapshot.researchQuestions;
+  const showcaseAnswers = snapshot.researchAnswers;
   const initialQuestion = researchQuestions[0] ? pick(researchQuestions[0], lang) : "";
+  const token = readAuthToken();
   const [q, setQ] = useState(initialQuestion);
-  const [research, setResearch] = useState<ResearchResult | null>(null);
+  const [research, setResearch] = useState<ResearchResult | null>(() =>
+    !token && showcaseAnswers[0] ? toShowcaseResearch(showcaseAnswers[0], lang) : null,
+  );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const questionHydrated = useRef(Boolean(initialQuestion));
-  const token = readAuthToken();
 
   useEffect(() => {
     if (questionHydrated.current || !researchQuestions[0]) return;
@@ -56,8 +58,8 @@ function AskPage() {
     questionHydrated.current = true;
   }, [lang, researchQuestions]);
 
-  const claims = snapshotQuery.data?.claims ?? [];
-  const evidence = snapshotQuery.data?.evidence ?? [];
+  const claims = snapshot.claims;
+  const evidence = snapshot.evidence;
   const matchedClaims = research
     ? research.claimIds
         .map((id) => claims.find((claim) => claim.id === id))
@@ -75,11 +77,29 @@ function AskPage() {
       );
       return;
     }
-    if (!userApi.configured || !token) {
+    if (!token) {
+      const showcaseAnswer = showcaseAnswers.find(
+        (answer) => pick(answer.question, lang) === question,
+      );
+      if (!showcaseAnswer) {
+        setResearch(null);
+        setError(
+          t(
+            "当前公开快照没有足够证据回答这个问题；系统不会补写缺失结论。",
+            "The public snapshot does not contain enough evidence for this question; missing conclusions will not be invented.",
+          ),
+        );
+        return;
+      }
+      setError("");
+      setResearch(toShowcaseResearch(showcaseAnswer, lang));
+      return;
+    }
+    if (!userApi.configured) {
       setError(
         t(
-          "请先登录。真实研究会保存到你的私密账户中。",
-          "Please sign in first. Live research is saved privately to your account.",
+          "真实研究服务当前未配置；仍可退出登录体验公开快照中的预置问题。",
+          "Live research is not configured; sign out to try preset questions from the public snapshot.",
         ),
       );
       return;
@@ -97,26 +117,6 @@ function AskPage() {
     }
   };
 
-  if (!snapshotQuery.data) {
-    return (
-      <AppShell>
-        <DataStatePanel
-          kind={snapshotQuery.unavailableKind}
-          title={t(
-            snapshotQuery.error ? "研究数据加载失败" : "正在加载研究数据",
-            snapshotQuery.error ? "Research data failed to load" : "Loading research data",
-          )}
-          description={t(
-            "没有证据时不会生成伪答案，请重试。",
-            "No answer will be fabricated without evidence. Please retry.",
-          )}
-          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
-        />
-      </AppShell>
-    );
-  }
-  const researchAnswer = snapshotQuery.data.researchAnswers[0];
-
   return (
     <AppShell>
       <PageHeader
@@ -126,6 +126,21 @@ function AskPage() {
           "Answers use AI Radar's reviewed data and source evidence. Facts, inferences, unverified claims, and conflicts stay distinct; every conclusion links to sources.",
         )}
       />
+
+      {!snapshotQuery.data && (
+        <div className="page-container pt-2">
+          <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
+            {t(
+              snapshotQuery.error
+                ? "实时接口暂时不可用，当前明确使用内置演示快照完成预置研究。"
+                : "实时接口正在连接，当前可先使用内置演示快照体验预置研究。",
+              snapshotQuery.error
+                ? "The live API is temporarily unavailable; preset research explicitly uses the bundled demo snapshot."
+                : "The live API is connecting; preset research can use the bundled demo snapshot now.",
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="page-container grid gap-6 py-6 lg:grid-cols-[210px_minmax(0,1fr)_260px]">
         <ResearchSidebar questions={researchQuestions} onSelect={setQ} />
@@ -140,7 +155,7 @@ function AskPage() {
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-signal" />
               {t("提问 AI Radar", "Ask AI Radar")}
-              {snapshotQuery.data.meta.mode === "demo" && <DemoBadge className="ml-auto" />}
+              {snapshot.meta.mode === "demo" && <DemoBadge className="ml-auto" />}
             </div>
             <textarea
               value={q}
@@ -162,15 +177,19 @@ function AskPage() {
               ))}
               <Button type="submit" className="ml-auto" disabled={busy}>
                 <Send className="h-4 w-4" />{" "}
-                {busy ? t("检索中…", "Researching…") : t("提问", "Ask")}
+                {busy
+                  ? t("检索中…", "Researching…")
+                  : token
+                    ? t("开始私密研究", "Start private research")
+                    : t("体验预置研究", "Run preset research")}
               </Button>
             </div>
             {error && (
               <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
                 {error}
-                {!token && (
+                {token && !userApi.configured && (
                   <Link to="/account" className="ml-2 font-medium underline">
-                    {t("前往登录", "Sign in")}
+                    {t("查看账户状态", "View account status")}
                   </Link>
                 )}
               </div>
@@ -263,13 +282,22 @@ function AskPage() {
               </div>
 
               <div className="pt-4 flex flex-wrap gap-x-5 gap-y-2">
-                <Link
-                  to="/research/$id"
-                  params={{ id: research.id }}
-                  className="text-sm font-medium text-signal hover:underline"
-                >
-                  {t("打开完整研究记录 →", "Open full research record →")}
-                </Link>
+                {token ? (
+                  <Link
+                    to="/research/$id"
+                    params={{ id: research.id }}
+                    className="text-sm font-medium text-signal hover:underline"
+                  >
+                    {t("打开完整研究记录 →", "Open full research record →")}
+                  </Link>
+                ) : (
+                  <Link to="/account" className="text-sm font-medium text-signal hover:underline">
+                    {t(
+                      "登录后创建并保存私密研究 →",
+                      "Sign in to create and save private research →",
+                    )}
+                  </Link>
+                )}
                 <Link
                   to="/knowledge/model/$slug"
                   params={{ slug: "gpt" }}
@@ -292,6 +320,18 @@ function AskPage() {
       </div>
     </AppShell>
   );
+}
+
+function toShowcaseResearch(answer: ResearchAnswer, lang: "zh" | "en"): ResearchResult {
+  return {
+    id: answer.id,
+    question: pick(answer.question, lang),
+    summary: pick(answer.summary, lang),
+    claimIds: answer.claimIds,
+    steps: answer.steps,
+    status: answer.status,
+    createdAt: answer.generatedAt,
+  };
 }
 
 function AnswerBlock({

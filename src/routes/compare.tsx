@@ -2,17 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge, ConfidenceChip } from "@/components/common";
-import { DataStatePanel } from "@/components/data-state";
+import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import { useApp, pick } from "@/lib/app-state";
 import { useModelCatalog, useModelVersionComparison } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
-      { title: "具体版本对比 · AI Radar" },
-      { name: "description", content: "对比具体模型版本的功能、价格、上下文与工具能力。" },
-      { property: "og:title", content: "AI Radar · 具体版本对比" },
-      { property: "og:description", content: "把版本差异落到可决策的产品维度。" },
+      { title: "AI 路线对比 · AI Radar" },
+      { name: "description", content: "默认对比 GPT、Claude 与 Gemini，并可下钻到具体模型版本。" },
+      { property: "og:title", content: "AI Radar · AI 路线对比" },
+      { property: "og:description", content: "在一致维度下理解主流 AI 的产品路线与能力差异。" },
     ],
   }),
   component: ComparePage,
@@ -23,9 +23,11 @@ type Scope = "versions" | "families";
 function ComparePage() {
   const { t, lang } = useApp();
   const catalogQuery = useModelCatalog();
-  const [scope, setScope] = useState<Scope>("versions");
-  const [selected, setSelected] = useState<string[]>(["e-gpt-5", "e-claude-45"]);
-  const allModels = catalogQuery.data ?? [];
+  const [scope, setScope] = useState<Scope>("families");
+  const [selected, setSelected] = useState<string[]>(["e-gpt", "e-claude", "e-gemini"]);
+  const allModels =
+    catalogQuery.data ??
+    DEMO_KNOWLEDGE_SNAPSHOT.entities.filter((entity) => entity.type === "model");
   const models = allModels.filter((model) =>
     scope === "versions" ? Boolean(model.familyId) : !model.familyId,
   );
@@ -37,7 +39,9 @@ function ComparePage() {
 
   const changeScope = (next: Scope) => {
     setScope(next);
-    setSelected(next === "versions" ? ["e-gpt-5", "e-claude-45"] : ["e-gpt", "e-claude"]);
+    setSelected(
+      next === "versions" ? ["e-gpt-5", "e-claude-45"] : ["e-gpt", "e-claude", "e-gemini"],
+    );
   };
 
   const toggle = (id: string) =>
@@ -49,32 +53,28 @@ function ComparePage() {
           : previous,
     );
 
-  if (!catalogQuery.data) {
-    return (
-      <AppShell>
-        <DataStatePanel
-          kind={catalogQuery.error ? "error" : "loading"}
-          title={t(
-            catalogQuery.error ? "对比数据加载失败" : "正在加载对比",
-            catalogQuery.error ? "Comparison failed to load" : "Loading comparison",
-          )}
-          description={t("请稍后重试。", "Please retry shortly.")}
-          onRetry={catalogQuery.error ? () => catalogQuery.refetch() : undefined}
-        />
-      </AppShell>
-    );
-  }
-
   return (
     <AppShell>
       <PageHeader
-        title={t("具体版本对比", "Compare concrete versions")}
+        title={t("AI 路线对比", "Compare AI product directions")}
         subtitle={t(
-          "默认对比可直接采购或调用的具体版本；可切换到系列级总览。价格为演示归一化数据，并保留来源与日期语境。",
-          "Compare purchasable model versions by default, or switch to family-level overview.",
+          "默认对比 GPT、Claude 与 Gemini 的长期定位、能力重点和生态方向；需要采购决策时再切换到具体版本。所有内容均保留演示数据边界。",
+          "Start with GPT, Claude, and Gemini at the family level, then switch to concrete versions for purchasing decisions. Demo-data boundaries remain explicit.",
         )}
       />
       <div className="page-container space-y-6 pb-12 pt-3">
+        {!catalogQuery.data && (
+          <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
+            {t(
+              catalogQuery.error
+                ? "实时目录暂时不可用，当前明确使用内置演示快照进行比较。"
+                : "实时目录正在连接，当前先使用内置演示快照进行比较。",
+              catalogQuery.error
+                ? "The live catalog is temporarily unavailable; comparison explicitly uses the bundled demo snapshot."
+                : "The live catalog is connecting; comparison uses the bundled demo snapshot in the meantime.",
+            )}
+          </div>
+        )}
         <div className="inline-flex rounded-lg border border-border bg-card p-1">
           {(["versions", "families"] as const).map((item) => (
             <button
