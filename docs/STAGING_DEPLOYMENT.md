@@ -54,11 +54,12 @@ AI 抽取、SMTP 和采集白名单暂不放入 Blueprint。Render 免费实例�
 
 ## 4. 部署 Cloudflare 预览前端
 
-先使用 Render API 的 HTTPS 地址构建前端：
+使用仓库已提交的 `.env.staging` 构建预发前端。浏览器通过 Cloudflare 同域代理访问 API，SSR 直接访问 Render 上游，避免 Worker 回调自身：
 
 ```bash
-VITE_API_BASE_URL=https://你的API地址 bun run build
+bun run build:staging
 bun run prepare:cloudflare:staging
+bun run verify:cloudflare:staging
 bunx wrangler@4 deploy --config .output/server/wrangler.staging.json
 ```
 

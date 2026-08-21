@@ -160,7 +160,11 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
   }
 }
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+// 浏览器通过 Cloudflare 同域代理访问 API；SSR 若回调同一个 Worker 会被
+// Cloudflare 拒绝，因此服务端直接使用公开的 Render 上游地址。
+const apiBaseUrl = (
+  import.meta.env.SSR ? import.meta.env.VITE_API_UPSTREAM_URL : import.meta.env.VITE_API_BASE_URL
+)?.trim();
 
 export const knowledgeRepository: KnowledgeRepository = apiBaseUrl
   ? new HttpKnowledgeRepository(apiBaseUrl.replace(/\/$/, ""))

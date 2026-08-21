@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -30,4 +30,11 @@ test("预发构建确认 Cloudflare 同域代理与 Render 上游", async () => 
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("知识库 SSR 直连上游且浏览器保留同域代理", async () => {
+  const source = await readFile("src/services/knowledge-repository.ts", "utf8");
+  assert.match(source, /import\.meta\.env\.SSR/);
+  assert.match(source, /VITE_API_UPSTREAM_URL/);
+  assert.match(source, /VITE_API_BASE_URL/);
 });
