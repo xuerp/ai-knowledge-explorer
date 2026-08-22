@@ -2,6 +2,7 @@ import { BookOpen, CheckCircle2, Lightbulb, ShieldAlert } from "lucide-react";
 import { SectionHeading } from "@/components/common";
 import type { EntityDetail, LocalizedText } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
+import { getKnowledgeBlockOrder } from "@/domain/reading-mode";
 
 type Knowledge = NonNullable<EntityDetail["knowledge"]>;
 
@@ -18,11 +19,15 @@ export function KnowledgeArticle({
   articleLabel?: LocalizedText;
   articleTitle?: LocalizedText;
 }) {
-  const { t, lang } = useApp();
+  const { t, lang, mode } = useApp();
 
   return (
-    <>
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+    <div className="flex flex-col gap-8" data-reading-mode={mode}>
+      <section
+        data-reading-block="guide"
+        style={{ order: getKnowledgeBlockOrder(mode, "guide") }}
+        className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]"
+      >
         <article className="paper-card p-6 md:p-8">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-signal">
             <BookOpen className="h-4 w-4" />
@@ -81,31 +86,55 @@ export function KnowledgeArticle({
         </aside>
       </section>
 
-      <section className="mt-12">
-        <SectionHeading
-          eyebrow={sectionEyebrow}
-          title={t("适合用来做什么", "What it is useful for")}
-          description={t(
-            "先从任务出发判断是否适合，再查看规格、价格和证据。",
-            "Start from the task, then inspect specifications, price and evidence.",
-          )}
-        />
-        <div className="grid gap-4 md:grid-cols-3">
-          {knowledge.useCases.map((useCase, index) => (
-            <article key={index} className="paper-card p-5">
-              <span className="font-mono text-xs text-signal">
-                {String(index + 1).padStart(2, "0")}
+      <section
+        data-reading-block="use-cases"
+        style={{ order: getKnowledgeBlockOrder(mode, "use-cases") }}
+      >
+        {mode === "technical" ? (
+          <details className="paper-card group p-5">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-foreground marker:hidden">
+              <span className="flex items-center justify-between gap-4">
+                <span>{t("使用场景（按需展开）", "Use cases (expand when needed)")}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {t(`${knowledge.useCases.length} 项`, `${knowledge.useCases.length} items`)}
+                </span>
               </span>
-              <h3 className="mt-3 font-semibold text-foreground">{pick(useCase.title, lang)}</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-soft">
-                {pick(useCase.description, lang)}
-              </p>
-            </article>
-          ))}
-        </div>
+            </summary>
+            <div className="mt-5 grid gap-4 border-t border-border pt-5 md:grid-cols-3">
+              <UseCaseCards knowledge={knowledge} />
+            </div>
+          </details>
+        ) : (
+          <>
+            <SectionHeading
+              eyebrow={sectionEyebrow}
+              title={t("适合用来做什么", "What it is useful for")}
+              description={t(
+                "先从任务出发判断是否适合，再查看规格、价格和证据。",
+                "Start from the task, then inspect specifications, price and evidence.",
+              )}
+            />
+            {knowledge.useCases.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-3">
+                <UseCaseCards knowledge={knowledge} />
+              </div>
+            ) : (
+              <div className="paper-card p-5 text-sm text-muted-foreground">
+                {t(
+                  "当前证据不足以形成产品场景结论，请先查看证据或进入 AI 研究。",
+                  "Current evidence is insufficient for a product use-case conclusion. Review the evidence or open AI Research.",
+                )}
+              </div>
+            )}
+          </>
+        )}
       </section>
 
-      <section className="mt-8 rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]">
+      <section
+        data-reading-block="limitations"
+        style={{ order: getKnowledgeBlockOrder(mode, "limitations") }}
+        className="rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]"
+      >
         <div className="flex items-center gap-2 font-semibold">
           <ShieldAlert className="h-4 w-4" />
           {t("选择与判断边界", "Limits and interpretation")}
@@ -119,6 +148,18 @@ export function KnowledgeArticle({
           ))}
         </ul>
       </section>
-    </>
+    </div>
   );
+}
+
+function UseCaseCards({ knowledge }: { knowledge: Knowledge }) {
+  const { lang } = useApp();
+
+  return knowledge.useCases.map((useCase, index) => (
+    <article key={index} className="paper-card p-5">
+      <span className="font-mono text-xs text-signal">{String(index + 1).padStart(2, "0")}</span>
+      <h3 className="mt-3 font-semibold text-foreground">{pick(useCase.title, lang)}</h3>
+      <p className="mt-2 text-sm leading-6 text-ink-soft">{pick(useCase.description, lang)}</p>
+    </article>
+  ));
 }
