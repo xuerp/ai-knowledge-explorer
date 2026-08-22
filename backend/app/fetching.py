@@ -17,6 +17,35 @@ class FetchPolicyError(ValueError):
 PERMANENT_FETCH_FAILURE_KINDS = {"blocked", "redirect", "allowlist", "content"}
 
 
+def classify_fetch_failure_message(message: str) -> str:
+    normalized = message.casefold()
+    if "redirect" in normalized:
+        return "redirect"
+    if any(marker in normalized for marker in ("401", "403", "forbidden", "access denied")):
+        return "blocked"
+    if any(
+        marker in normalized
+        for marker in (
+            "not in ai_radar_fetch_allowed_hosts",
+            "non-public address",
+            "only https",
+            "plain hostname",
+            "standard https port",
+            "did not resolve",
+        )
+    ):
+        return "allowlist"
+    if any(
+        marker in normalized for marker in ("content type", "exceeds", "too little readable text")
+    ):
+        return "content"
+    if "429" in normalized or "rate limit" in normalized:
+        return "rate-limited"
+    if "timed out" in normalized or "timeout" in normalized:
+        return "timeout"
+    return "unknown"
+
+
 def classify_fetch_failure(error: Exception) -> str:
     if isinstance(error, httpx.TimeoutException):
         return "timeout"
@@ -31,27 +60,7 @@ def classify_fetch_failure(error: Exception) -> str:
         return "content"
     if isinstance(error, httpx.NetworkError | OSError):
         return "network"
-    if isinstance(error, FetchPolicyError):
-        message = str(error).casefold()
-        if "redirect" in message:
-            return "redirect"
-        if any(
-            marker in message
-            for marker in (
-                "not in ai_radar_fetch_allowed_hosts",
-                "non-public address",
-                "only https",
-                "plain hostname",
-                "standard https port",
-                "did not resolve",
-            )
-        ):
-            return "allowlist"
-        if any(
-            marker in message for marker in ("content type", "exceeds", "too little readable text")
-        ):
-            return "content"
-    return "unknown"
+    return classify_fetch_failure_message(str(error))
 
 
 class _TextExtractor(HTMLParser):
