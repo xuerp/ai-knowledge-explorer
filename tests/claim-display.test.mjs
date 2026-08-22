@@ -8,7 +8,7 @@ const { splitClaimsForDisplay } = await vite.ssrLoadModule("/src/domain/claim-di
 
 test.after(async () => vite.close());
 
-test("实体事实默认展示最新八条并完整保留历史", () => {
+test("实体事实默认展示最新五条并完整保留历史", () => {
   const claims = Array.from({ length: 12 }, (_, index) => ({
     id: `claim-${index + 1}`,
     updatedAt: `2026-${String(index + 1).padStart(2, "0")}-01`,
@@ -16,8 +16,8 @@ test("实体事实默认展示最新八条并完整保留历史", () => {
 
   const result = splitClaimsForDisplay(claims);
 
-  assert.equal(result.visible.length, 8);
-  assert.equal(result.history.length, 4);
+  assert.equal(result.visible.length, 5);
+  assert.equal(result.history.length, 7);
   assert.equal(result.visible[0].id, "claim-12");
   assert.equal(result.history.at(-1).id, "claim-1");
   assert.deepEqual(

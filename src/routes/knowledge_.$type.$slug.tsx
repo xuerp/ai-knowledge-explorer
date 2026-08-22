@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ConfidenceChip, DemoBadge, SectionHeading, SourceRow } from "@/components/common";
-import { splitClaimsForDisplay } from "@/domain/claim-display";
+import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import type { Entity, EntityType, KnowledgeSnapshot } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
@@ -69,7 +69,6 @@ function GenericEntityDetail() {
   );
   const timeline = snapshot.timeline[entity.id] ?? [];
   const claims = snapshot.claims.filter((claim) => claim.entityId === entity.id);
-  const displayedClaims = splitClaimsForDisplay(claims);
   const sourceIds = new Set([
     ...claims.flatMap((claim) => claim.sourceIds),
     ...relations.flatMap((edge) => edge.sourceIds),
@@ -90,27 +89,6 @@ function GenericEntityDetail() {
   const timelineSection = relationSection + 1;
   const evidenceSection = timelineSection + (timeline.length > 0 ? 1 : 0);
   const sectionNumber = (value: number) => String(value).padStart(2, "0");
-  const renderClaim = (claim: (typeof claims)[number]) => {
-    const claimSources = snapshot.evidence.filter((source) => claim.sourceIds.includes(source.id));
-    return (
-      <article key={claim.id} className="paper-card p-5 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <time className="font-mono text-xs text-muted-foreground">
-            {t("最近核验", "Last verified")} {claim.updatedAt}
-          </time>
-          <ConfidenceChip level={claim.confidence} />
-        </div>
-        <p className="mt-3 text-[15px] leading-7 text-foreground">{pick(claim.text, lang)}</p>
-        {claimSources.length > 0 && (
-          <div className="mt-4 border-t border-border pt-3">
-            {claimSources.map((source) => (
-              <SourceRow key={source.id} source={source} />
-            ))}
-          </div>
-        )}
-      </article>
-    );
-  };
 
   return (
     <AppShell>
@@ -359,18 +337,7 @@ function GenericEntityDetail() {
                 "These facts passed human review and retain direct evidence and verification dates.",
               )}
             />
-            <div className="space-y-3">{displayedClaims.visible.map(renderClaim)}</div>
-            {displayedClaims.history.length > 0 && (
-              <details className="paper-card mt-4 p-5">
-                <summary className="cursor-pointer text-sm font-medium text-signal">
-                  {t(
-                    `查看 ${displayedClaims.history.length} 条历史事实`,
-                    `View ${displayedClaims.history.length} historical facts`,
-                  )}
-                </summary>
-                <div className="mt-4 space-y-3">{displayedClaims.history.map(renderClaim)}</div>
-              </details>
-            )}
+            <ReviewedFacts key={entity.id} claims={claims} evidence={snapshot.evidence} />
           </section>
         )}
 
