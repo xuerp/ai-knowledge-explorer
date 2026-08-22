@@ -2,6 +2,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
 
 from app.config import Settings
@@ -9,6 +11,7 @@ from app.database import AuditLogRecord, EmailOutboxRecord, ReviewJobRecord, Sou
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
+    DATABASE_SCHEMA_REVISION,
     RELATION_CLAIM_PREDICATES,
     RELATION_PREDICATE_ANCHORS,
     create_app,
@@ -17,6 +20,7 @@ from app.repository import RELATION_PREDICATES
 from app.schemas import CandidateCreate
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
@@ -40,6 +44,13 @@ def test_relation_extraction_covers_every_canonical_graph_predicate():
 
     assert RELATION_CLAIM_PREDICATES == canonical_predicates
     assert set(RELATION_PREDICATE_ANCHORS) == canonical_predicates
+
+
+def test_readiness_schema_revision_matches_bundled_alembic_head():
+    config = Config(str(BACKEND_ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(BACKEND_ROOT / "migrations"))
+
+    assert ScriptDirectory.from_config(config).get_current_head() == DATABASE_SCHEMA_REVISION
 
 
 def test_health_exposes_write_boundary(client: TestClient):
