@@ -40,9 +40,14 @@ AUTOMATIC_SOURCE_IDS = {
 }
 
 MANUAL_SOURCE_IDS = {
+    "s-ernie-51",
     "s-openai-about",
     "s-openai-gpt5",
     "s-openai-codex",
+}
+
+ARCHIVED_LOW_VALUE_SOURCE_IDS = {
+    "s-community-rumor",
 }
 
 
@@ -210,6 +215,53 @@ class IngestionService:
         if rows:
             session.commit()
         return paused
+
+    def reconcile_source_portfolio(self, session: Session) -> dict[str, int]:
+        """收敛已知低价值与人工信源，避免部署后继续产生无效任务。"""
+        archived = 0
+        manualized = 0
+
+        for source_id in ARCHIVED_LOW_VALUE_SOURCE_IDS:
+            row = session.get(SourceRecord, source_id)
+            if row is None:
+                continue
+            if (
+                row.active
+                or row.fetch_enabled
+                or row.next_fetch_at is not None
+                or row.fetch_lease_token is not None
+                or row.fetch_lease_expires_at is not None
+            ):
+                archived += 1
+            row.active = False
+            row.fetch_enabled = False
+            row.next_fetch_at = None
+            row.fetch_lease_token = None
+            row.fetch_lease_expires_at = None
+
+        for source_id in MANUAL_SOURCE_IDS:
+            row = session.get(SourceRecord, source_id)
+            if row is None:
+                continue
+            effective_url = row.fetch_url or row.url
+            # 管理员若已配置并预检了替代入口，则不覆盖该人工修复。
+            if normalize_source_url(effective_url) != normalize_source_url(row.url):
+                continue
+            if (
+                row.fetch_enabled
+                or row.next_fetch_at is not None
+                or row.fetch_lease_token is not None
+                or row.fetch_lease_expires_at is not None
+            ):
+                manualized += 1
+            row.fetch_enabled = False
+            row.next_fetch_at = None
+            row.fetch_lease_token = None
+            row.fetch_lease_expires_at = None
+
+        if archived or manualized:
+            session.commit()
+        return {"archived": archived, "manualized": manualized}
 
     def update_source(
         self,
