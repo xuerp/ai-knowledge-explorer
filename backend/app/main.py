@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260822_0017"
-SERVICE_RELEASE = "2026.08.22-source-triage-v52"
+SERVICE_RELEASE = "2026.08.22-source-portfolio-v53"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -184,6 +184,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             repository.seed_catalog(session)
             repository.seed_review_jobs(session)
             ingestion.reconcile_historical_permanent_failures(session)
+            ingestion.reconcile_source_portfolio(session)
         yield
         database.dispose()
 

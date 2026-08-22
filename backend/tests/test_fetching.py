@@ -15,6 +15,7 @@ def test_seeded_source_collection_policy_separates_automatic_and_manual_entries(
     assert source_collection_policy("s-qwen-models")[0] == "automatic"
     assert source_collection_policy("s-swebench")[0] == "automatic"
     assert source_collection_policy("s-openai-about")[0] == "manual"
+    assert source_collection_policy("s-ernie-51")[0] == "manual"
     assert source_collection_policy("custom-source")[0] == "unverified"
 
 
@@ -481,6 +482,80 @@ def test_historical_permanent_failures_are_reconciled_without_another_retry(tmp_
         assert source.failure_kind == "redirect"
         assert source.auto_paused_at is not None
         assert source.next_fetch_at is None
+
+    database.dispose()
+
+
+def test_source_portfolio_archives_noise_and_stops_manual_source_retries(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'source-portfolio.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+
+    with database.session() as session:
+        for source_id in ("s-community-rumor", "s-ernie-51"):
+            ingestion.create_source(
+                session,
+                SourceCreate(
+                    id=source_id,
+                    url=f"https://example.com/{source_id}",
+                    title=source_id,
+                    publisher="Example",
+                ),
+            )
+            source = session.get(SourceRecord, source_id)
+            assert source is not None
+            source.fetch_enabled = True
+            source.next_fetch_at = datetime.now(UTC)
+        session.commit()
+
+        assert ingestion.reconcile_source_portfolio(session) == {
+            "archived": 1,
+            "manualized": 1,
+        }
+
+        community = session.get(SourceRecord, "s-community-rumor")
+        ernie = session.get(SourceRecord, "s-ernie-51")
+        assert community is not None
+        assert ernie is not None
+        assert community.active is False
+        assert community.fetch_enabled is False
+        assert community.next_fetch_at is None
+        assert ernie.active is True
+        assert ernie.fetch_enabled is False
+        assert ernie.next_fetch_at is None
+
+    database.dispose()
+
+
+def test_source_portfolio_preserves_a_manual_source_alternate_entrypoint(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'source-alternate.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="s-ernie-51",
+                url="https://example.com/original",
+                fetch_url="https://example.com/machine-readable",
+                title="ERNIE 5.1",
+                publisher="Baidu",
+            ),
+        )
+        source = session.get(SourceRecord, "s-ernie-51")
+        assert source is not None
+        source.fetch_enabled = True
+        source.next_fetch_at = datetime.now(UTC)
+        session.commit()
+
+        assert ingestion.reconcile_source_portfolio(session) == {
+            "archived": 0,
+            "manualized": 0,
+        }
+        session.refresh(source)
+        assert source.fetch_enabled is True
+        assert source.next_fetch_at is not None
 
     database.dispose()
 
