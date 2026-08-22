@@ -7,9 +7,17 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
+type WorkerEnv = {
+  AI_RADAR_API_UPSTREAM_URL?: string;
+};
+
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 const apiProxyPrefix = "/backend";
 const apiUpstreamUrl = import.meta.env.VITE_API_UPSTREAM_URL?.trim()?.replace(/\/$/, "");
+
+export function resolveApiUpstream(env?: WorkerEnv) {
+  return env?.AI_RADAR_API_UPSTREAM_URL?.trim()?.replace(/\/$/, "") || apiUpstreamUrl;
+}
 
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
@@ -104,7 +112,7 @@ export async function proxyApiRequest(
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const proxied = await proxyApiRequest(request);
+      const proxied = await proxyApiRequest(request, resolveApiUpstream(env as WorkerEnv));
       if (proxied) return proxied;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

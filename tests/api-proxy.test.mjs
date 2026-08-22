@@ -4,9 +4,17 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { proxyApiRequest, withNoStoreHtmlResponse } = await vite.ssrLoadModule("/src/server.ts");
+const { proxyApiRequest, resolveApiUpstream, withNoStoreHtmlResponse } =
+  await vite.ssrLoadModule("/src/server.ts");
 
 test.after(async () => vite.close());
+
+test("Cloudflare Worker 优先使用运行时 API 上游变量", () => {
+  assert.equal(
+    resolveApiUpstream({ AI_RADAR_API_UPSTREAM_URL: "https://runtime.example/" }),
+    "https://runtime.example",
+  );
+});
 
 test("Cloudflare 同域代理保留 API 路径、查询、鉴权与请求体", async () => {
   let forwarded;

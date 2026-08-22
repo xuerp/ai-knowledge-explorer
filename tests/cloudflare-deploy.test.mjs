@@ -17,6 +17,7 @@ test("Cloudflare staging config keeps workers.dev when no domain is selected", (
   assert.equal(result.routes, undefined);
   assert.equal(result.observability.enabled, true);
   assert.equal(result.compatibility_date, "2026-08-13");
+  assert.equal(result.vars.AI_RADAR_API_UPSTREAM_URL, "https://ai-radar-api-staging.onrender.com");
 });
 
 test("Cloudflare staging config never inherits a locally generated future date", () => {
