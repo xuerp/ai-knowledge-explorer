@@ -173,6 +173,7 @@ python -m alembic check
 - [作品集实施计划](docs/SHOWCASE_IMPLEMENTATION_PLAN.md)
 - [Spec 覆盖与交付边界](docs/SPEC_TRACEABILITY.md)
 - [审核、信源与内容新鲜度治理 Spec](docs/REVIEW_SOURCE_FRESHNESS_SPEC.md)
+- [阅读模式与知识生命周期治理 Spec](docs/READING_MODE_AND_KNOWLEDGE_LIFECYCLE_SPEC.md)
 - [作品集验收与截图](docs/PORTFOLIO_ACCEPTANCE.md)
 - [3 分钟演示与短视频脚本](docs/DEMO_SCRIPT.md)
 - [产品 Case Study 文档](docs/PORTFOLIO_CASE_STUDY.md)
