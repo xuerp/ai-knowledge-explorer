@@ -105,7 +105,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260814_0016"
+DATABASE_SCHEMA_REVISION = "20260822_0017"
 SERVICE_RELEASE = "2026.08.22-review-source-freshness-v50"
 
 RELATION_CLAIM_PREDICATES = {
