@@ -90,6 +90,7 @@ from .schemas import (
     ResearchView,
     ReviewBatchApproval,
     ReviewDecision,
+    ReviewLifecycleDecision,
     ReviewQueueItem,
     SchedulerRunSummary,
     SourceCreate,
@@ -105,8 +106,8 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260822_0017"
-SERVICE_RELEASE = "2026.08.22-source-portfolio-v53"
+DATABASE_SCHEMA_REVISION = "20260823_0018"
+SERVICE_RELEASE = "2026.08.23-claim-lifecycle-v54"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -2028,6 +2029,223 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             session.commit()
         return repository.to_queue_item(row)
 
+    def decide_claim_lifecycle(
+        review_id: str,
+        decision: ReviewLifecycleDecision,
+        publication_action: Literal["merged-evidence", "superseding"],
+        actor: Principal,
+        session: Session,
+    ) -> ReviewQueueItem:
+        row = session.scalar(
+            select(ReviewJobRecord).where(ReviewJobRecord.id == review_id).with_for_update()
+        )
+        if row is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Review job not found.",
+            )
+        if row.decision_idempotency_key:
+            if (
+                row.decision_idempotency_key == decision.idempotency_key
+                and row.publication_action == publication_action
+                and row.target_claim_id == decision.target_claim_id
+            ):
+                return repository.to_queue_item(row)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Review job already has a different lifecycle decision.",
+            )
+        if row.status not in OPEN_REVIEW_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Review job is already {row.status}.",
+            )
+        if row.version != decision.expected_version:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Review job version is {row.version}; refresh before deciding.",
+            )
+        queue_item = repository.to_queue_item(row)
+        if not queue_item.evidence_items:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="A claim cannot be published without evidence.",
+            )
+
+        key_owner = session.scalar(
+            select(ReviewJobRecord).where(
+                ReviewJobRecord.decision_idempotency_key == decision.idempotency_key
+            )
+        )
+        if key_owner is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Idempotency key is already used by another review decision.",
+            )
+        target = session.scalars(
+            select(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.claim_id == decision.target_claim_id,
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == "current",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+            .order_by(ReviewJobRecord.created_at.desc())
+            .with_for_update()
+        ).first()
+        if target is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Current approved target claim not found.",
+            )
+        if target.id == row.id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A review job cannot target itself.",
+            )
+        if target.version != decision.expected_target_version:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Target claim version is {target.version}; refresh before deciding.",
+            )
+
+        candidate_claim = queue_item.claim
+        target_claim = repository.approved_claim(target)
+        candidate_subject = " ".join((candidate_claim.subject or "").casefold().split())
+        target_subject = " ".join((target_claim.subject or "").casefold().split())
+        candidate_predicate = " ".join((candidate_claim.predicate or "").casefold().split())
+        target_predicate = " ".join((target_claim.predicate or "").casefold().split())
+        if publication_action == "merged-evidence":
+            if claim_semantic_fingerprint(
+                candidate_claim, row.entity_id
+            ) != claim_semantic_fingerprint(target_claim, target.entity_id):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Evidence can only be merged into the same semantic claim.",
+                )
+        elif (
+            row.entity_id != target.entity_id
+            or not candidate_subject
+            or candidate_subject != target_subject
+            or not candidate_predicate
+            or candidate_predicate != target_predicate
+            or candidate_claim.object_or_value == target_claim.object_or_value
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A superseding claim must change the value of the same entity fact.",
+            )
+
+        now = datetime.now(UTC)
+        row.status = "approved"
+        row.review_reason = decision.reason
+        row.reviewed_at = now
+        row.reviewed_by = actor.email
+        row.version += 1
+        row.publication_action = publication_action
+        row.target_review_job_id = target.id
+        row.target_claim_id = target.claim_id
+        row.decision_idempotency_key = decision.idempotency_key
+
+        notifications_created = 0
+        published_relation = None
+        if publication_action == "merged-evidence":
+            row.lifecycle_status = "historical"
+            incoming_evidence = [
+                evidence.model_copy(
+                    update={
+                        "supports_claim_ids": list(
+                            dict.fromkeys([*(evidence.supports_claim_ids or []), target.claim_id])
+                        )
+                    }
+                )
+                for evidence in queue_item.evidence_items
+            ]
+            row.evidence_json = json.dumps(
+                [item.model_dump(mode="json", by_alias=True) for item in incoming_evidence],
+                ensure_ascii=False,
+            )
+            existing_evidence = repository.approved_evidence(target)
+            evidence_by_id = {item.id: item for item in existing_evidence}
+            evidence_by_id.update({item.id: item for item in incoming_evidence})
+            merged_evidence = list(evidence_by_id.values())
+            merged_claim = target_claim.model_copy(
+                update={
+                    "source_ids": list(
+                        dict.fromkeys(
+                            [
+                                *target_claim.source_ids,
+                                *(item.id for item in incoming_evidence),
+                            ]
+                        )
+                    )
+                }
+            )
+            target.reviewed_at = now
+            target.reviewed_by = actor.email
+            target.version += 1
+            target.claim_json = merged_claim.model_dump_json(by_alias=True)
+            target.evidence_ids_json = json.dumps(merged_claim.source_ids, ensure_ascii=False)
+            target.evidence_json = json.dumps(
+                [item.model_dump(mode="json", by_alias=True) for item in merged_evidence],
+                ensure_ascii=False,
+            )
+            repository.persist_approved_verification(target)
+        else:
+            row.lifecycle_status = "current"
+            target.lifecycle_status = "superseded"
+            target.superseded_by_claim_id = row.claim_id
+            target.reviewed_at = now
+            target.reviewed_by = actor.email
+            target.version += 1
+            target_claim = target_claim.model_copy(
+                update={"valid_to": candidate_claim.valid_from or now.date().isoformat()}
+            )
+            target.claim_json = target_claim.model_dump_json(by_alias=True)
+            repository.persist_approved_verification(target)
+            repository.persist_approved_verification(row)
+            published_relation = repository.relation_from_approved_claim(session, row)
+            if published_relation:
+                repository.upsert_relation(session, published_relation)
+            session.add(
+                PublicationRecordRow(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    published_at=now,
+                    actor=actor.email,
+                )
+            )
+            notifications_created = engagement.notify_followers(
+                session,
+                row.entity_id,
+                row.claim_id,
+                repository.approved_claim(row).text.zh,
+            )
+
+        audit.record(
+            session,
+            actor,
+            f"review.{publication_action.replace('-', '_')}",
+            "review_job",
+            row.id,
+            {
+                "claimId": row.claim_id,
+                "targetClaimId": target.claim_id,
+                "reason": decision.reason,
+                "notificationsCreated": notifications_created,
+                "relationId": published_relation.id if published_relation else None,
+            },
+        )
+        try:
+            session.commit()
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Lifecycle decision conflicts with a concurrent request.",
+            ) from error
+        return repository.to_queue_item(row)
+
     @app.post(
         "/api/v2/admin/review-queue/batch-approve",
         response_model=list[ReviewQueueItem],
@@ -2147,6 +2365,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: SessionDependency,
     ) -> ReviewQueueItem:
         return decide_review(review_id, decision, "approved", actor, session)
+
+    @app.post(
+        "/api/v2/admin/review-queue/{review_id}/merge-evidence",
+        response_model=ReviewQueueItem,
+    )
+    def merge_review_evidence(
+        review_id: str,
+        decision: ReviewLifecycleDecision,
+        actor: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ReviewQueueItem:
+        return decide_claim_lifecycle(
+            review_id,
+            decision,
+            "merged-evidence",
+            actor,
+            session,
+        )
+
+    @app.post(
+        "/api/v2/admin/review-queue/{review_id}/approve-superseding",
+        response_model=ReviewQueueItem,
+    )
+    def approve_superseding_review(
+        review_id: str,
+        decision: ReviewLifecycleDecision,
+        actor: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ReviewQueueItem:
+        return decide_claim_lifecycle(
+            review_id,
+            decision,
+            "superseding",
+            actor,
+            session,
+        )
 
     @app.post(
         "/api/v2/admin/review-queue/{review_id}/reject",

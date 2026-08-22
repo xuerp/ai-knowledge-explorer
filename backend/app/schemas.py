@@ -276,6 +276,12 @@ class ReviewDecision(CamelModel):
     reason: str = Field(min_length=3, max_length=500)
 
 
+class ReviewLifecycleDecision(ReviewDecision):
+    target_claim_id: str = Field(min_length=1, max_length=128)
+    expected_target_version: int = Field(ge=1)
+    idempotency_key: str = Field(min_length=8, max_length=128)
+
+
 class ReviewBatchDecision(CamelModel):
     id: str = Field(min_length=1, max_length=128)
     expected_version: int = Field(ge=1)
@@ -292,6 +298,10 @@ class ReviewQueueItem(ReviewCandidate):
     review_method: Literal["human", "automation"] | None = None
     evidence_items: list[Evidence] = Field(default_factory=list)
     conflict_claim_ids: list[str] = Field(default_factory=list)
+    lifecycle_status: Literal["current", "superseded", "historical", "retracted"] = "current"
+    publication_action: Literal["new", "merged-evidence", "superseding"] = "new"
+    target_claim_id: str | None = None
+    superseded_by_claim_id: str | None = None
 
 
 class PublicationRecord(CamelModel):

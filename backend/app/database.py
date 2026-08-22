@@ -22,6 +22,13 @@ class Base(DeclarativeBase):
 
 class ReviewJobRecord(Base):
     __tablename__ = "review_jobs"
+    __table_args__ = (
+        Index(
+            "ux_review_jobs_decision_idempotency_key",
+            "decision_idempotency_key",
+            unique=True,
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(128), primary_key=True)
     entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -36,6 +43,16 @@ class ReviewJobRecord(Base):
     reviewed_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
     review_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    lifecycle_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="current", index=True
+    )
+    publication_action: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="new", index=True
+    )
+    target_review_job_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    target_claim_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    superseded_by_claim_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    decision_idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
 
 class PublicationRecordRow(Base):
