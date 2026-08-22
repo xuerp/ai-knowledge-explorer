@@ -10,6 +10,9 @@ export type RolloutOutcome =
   | { source: SourceView; enabled: false; reason: string };
 
 const rolloutPriority = [
+  "s-openai-api-changelog",
+  "s-openai-models",
+  "s-openai-deprecations",
   "s-mcp-architecture",
   "s-langchain-overview",
   "s-anthropic-company",
@@ -23,12 +26,15 @@ export function isVettedRolloutSource(source: SourceView): boolean {
 }
 
 export function isAllowlistedSource(source: SourceView, allowedHosts: string[]): boolean {
-  try {
-    const host = new URL(source.url).hostname.toLocaleLowerCase("en-US");
-    return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
-  } catch {
-    return false;
-  }
+  const urls = [source.effectiveFetchUrl || source.url, ...(source.fallbackUrls ?? [])];
+  return urls.every((url) => {
+    try {
+      const host = new URL(url).hostname.toLocaleLowerCase("en-US");
+      return allowedHosts.some((allowed) => host === allowed || host.endsWith(`.${allowed}`));
+    } catch {
+      return false;
+    }
+  });
 }
 
 export function selectRolloutSources(

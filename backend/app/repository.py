@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
@@ -32,6 +33,7 @@ from .schemas import (
 )
 
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
+logger = logging.getLogger(__name__)
 
 RELATION_PREDICATES: dict[
     str,
@@ -90,6 +92,30 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
         "master/data/info_for_leaderboard.json"
     ),
 }
+
+MACHINE_SOURCE_CATALOG = (
+    {
+        "id": "s-openai-api-changelog",
+        "url": "https://developers.openai.com/api/docs/changelog.md",
+        "title": "OpenAI API 更新日志",
+        "publisher": "OpenAI",
+        "fetch_interval_minutes": 120,
+    },
+    {
+        "id": "s-openai-models",
+        "url": "https://developers.openai.com/api/docs/models.md",
+        "title": "OpenAI 模型目录",
+        "publisher": "OpenAI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-openai-deprecations",
+        "url": "https://developers.openai.com/api/docs/deprecations.md",
+        "title": "OpenAI 弃用与下线记录",
+        "publisher": "OpenAI",
+        "fetch_interval_minutes": 1440,
+    },
+)
 
 
 def _parse_datetime(value: str) -> datetime:
@@ -177,6 +203,27 @@ class KnowledgeRepository:
                 )
             )
             known_source_ids.add(evidence.id)
+            known_source_urls.add(normalized_url)
+
+        for machine_source in MACHINE_SOURCE_CATALOG:
+            normalized_url = str(machine_source["url"]).rstrip("/")
+            source_id = str(machine_source["id"])
+            if source_id in known_source_ids or normalized_url in known_source_urls:
+                continue
+            session.add(
+                SourceRecord(
+                    id=source_id,
+                    url=normalized_url,
+                    title=str(machine_source["title"]),
+                    publisher=str(machine_source["publisher"]),
+                    active=True,
+                    fetch_enabled=False,
+                    fetch_interval_minutes=int(machine_source["fetch_interval_minutes"]),
+                    next_fetch_at=None,
+                    created_at=now,
+                )
+            )
+            known_source_ids.add(source_id)
             known_source_urls.add(normalized_url)
 
         for source_id, canonical_url in CANONICAL_SOURCE_URL_MIGRATIONS.items():
@@ -549,11 +596,33 @@ class KnowledgeRepository:
         )
         return snapshot
 
-    def queue(self, session: Session) -> list[ReviewQueueItem]:
+    def queue(
+        self,
+        session: Session,
+        *,
+        scope: Literal["open", "history", "all"] = "all",
+        limit: int = 500,
+    ) -> list[ReviewQueueItem]:
+        statement = select(ReviewJobRecord)
+        if scope == "open":
+            statement = statement.where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
+        elif scope == "history":
+            statement = statement.where(ReviewJobRecord.status.not_in(OPEN_REVIEW_STATUSES))
         rows = session.scalars(
-            select(ReviewJobRecord).order_by(ReviewJobRecord.created_at.desc())
+            statement.order_by(ReviewJobRecord.created_at.desc()).limit(limit)
         ).all()
-        return [self.to_queue_item(row) for row in rows]
+        items: list[ReviewQueueItem] = []
+        for row in rows:
+            try:
+                items.append(self.to_queue_item(row))
+            except (ValueError, TypeError, json.JSONDecodeError) as error:
+                logger.warning(
+                    "Skipping malformed review row %s while loading %s queue: %s",
+                    row.id,
+                    scope,
+                    error,
+                )
+        return items
 
     def approved_claim(self, row: ReviewJobRecord) -> Claim:
         claim = Claim.model_validate_json(row.claim_json)

@@ -8,8 +8,12 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from .database import DocumentSnapshotRecord, IngestionRunRecord, SourceRecord
-from .fetching import SafeHttpFetcher
-from .ingestion import IngestionService
+from .fetching import (
+    PERMANENT_FETCH_FAILURE_KINDS,
+    SafeHttpFetcher,
+    classify_fetch_failure,
+)
+from .ingestion import IngestionService, source_fetch_urls
 from .schemas import DocumentIngestRequest, SchedulerRunSummary
 
 
@@ -48,6 +52,7 @@ class IngestionScheduler:
             conditions = [
                 SourceRecord.active.is_(True),
                 SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_(None),
                 or_(
                     SourceRecord.fetch_lease_token.is_(None),
                     SourceRecord.fetch_lease_expires_at.is_(None),
@@ -74,9 +79,10 @@ class IngestionScheduler:
                 break
             lease_token = str(uuid4())
             claimed_source_id = source.id
-            source_url = source.url
+            fetch_urls = source_fetch_urls(source)
             etag = source.etag
             last_modified = source.last_modified
+            last_successful_fetch_url = source.last_successful_fetch_url
             source.fetch_lease_token = lease_token
             source.fetch_lease_expires_at = claim_time + timedelta(minutes=self.lease_minutes)
             session.commit()
@@ -84,11 +90,24 @@ class IngestionScheduler:
 
             started = datetime.now(UTC)
             try:
-                document = self.fetcher.fetch(
-                    source_url,
-                    etag=etag,
-                    last_modified=last_modified,
-                )
+                document = None
+                successful_fetch_url = None
+                last_error: Exception | None = None
+                for fetch_url in fetch_urls:
+                    try:
+                        document = self.fetcher.fetch(
+                            fetch_url,
+                            etag=etag if fetch_url == last_successful_fetch_url else None,
+                            last_modified=(
+                                last_modified if fetch_url == last_successful_fetch_url else None
+                            ),
+                        )
+                        successful_fetch_url = document.final_url or fetch_url
+                        break
+                    except Exception as error:  # noqa: BLE001 - try vetted fallback entrypoints
+                        last_error = error
+                if document is None or successful_fetch_url is None:
+                    raise last_error or RuntimeError("Source has no configured collection URL.")
                 source = session.scalars(
                     select(SourceRecord)
                     .where(
@@ -105,6 +124,7 @@ class IngestionScheduler:
                     continue
                 source.etag = document.etag
                 source.last_modified = document.last_modified
+                source.last_successful_fetch_url = successful_fetch_url
                 if document.not_modified:
                     snapshot = session.scalars(
                         select(DocumentSnapshotRecord)
@@ -138,6 +158,8 @@ class IngestionScheduler:
                 source.last_seen_at = datetime.now(UTC)
                 source.consecutive_failures = 0
                 source.last_fetch_error = None
+                source.failure_kind = None
+                source.auto_paused_at = None
                 source.next_fetch_at = current + timedelta(minutes=source.fetch_interval_minutes)
                 source.fetch_lease_token = None
                 source.fetch_lease_expires_at = None
@@ -155,12 +177,20 @@ class IngestionScheduler:
                 if source is not None:
                     source.consecutive_failures += 1
                     source.last_fetch_error = str(error)[:2000]
+                    source.failure_kind = classify_fetch_failure(error)
                     retry_minutes = min(
                         self.retry_base_minutes * (2 ** (source.consecutive_failures - 1)),
                         self.retry_max_minutes,
                         source.fetch_interval_minutes,
                     )
-                    source.next_fetch_at = current + timedelta(minutes=retry_minutes)
+                    if (
+                        source.failure_kind in PERMANENT_FETCH_FAILURE_KINDS
+                        and source.consecutive_failures >= 3
+                    ):
+                        source.auto_paused_at = datetime.now(UTC)
+                        source.next_fetch_at = None
+                    else:
+                        source.next_fetch_at = current + timedelta(minutes=retry_minutes)
                     source.fetch_lease_token = None
                     source.fetch_lease_expires_at = None
                     session.add(

@@ -114,6 +114,9 @@ class SourceRecord(Base):
 
     id: Mapped[str] = mapped_column(String(128), primary_key=True)
     url: Mapped[str] = mapped_column(String(2048), nullable=False, unique=True)
+    fetch_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    fallback_urls_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    last_successful_fetch_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     publisher: Mapped[str] = mapped_column(String(255), nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
@@ -124,6 +127,8 @@ class SourceRecord(Base):
     last_modified: Mapped[str | None] = mapped_column(String(512), nullable=True)
     consecutive_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     last_fetch_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    failure_kind: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    auto_paused_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     fetch_lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
     fetch_lease_expires_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

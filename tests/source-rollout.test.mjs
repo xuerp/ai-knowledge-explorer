@@ -15,6 +15,9 @@ function source(id, url, changes = {}) {
     title: id,
     publisher: "Official",
     url,
+    effectiveFetchUrl: url,
+    fallbackUrls: [],
+    healthState: "unverified",
     active: true,
     fetchEnabled: false,
     fetchIntervalMinutes: 240,
@@ -36,6 +39,16 @@ test("白名单匹配允许根域名和子域名，但拒绝伪装域名", () =>
   );
   assert.equal(
     isAllowlistedSource(source("c", "https://langchain.com.attacker.example/a"), ["langchain.com"]),
+    false,
+  );
+  assert.equal(
+    isAllowlistedSource(
+      source("fallback", "https://official.example/evidence", {
+        effectiveFetchUrl: "https://docs.official.example/page.md",
+        fallbackUrls: ["https://attacker.example/fallback"],
+      }),
+      ["official.example"],
+    ),
     false,
   );
 });

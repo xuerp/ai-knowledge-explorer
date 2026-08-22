@@ -37,6 +37,10 @@ export interface SourceView {
   title: string;
   publisher: string;
   url: string;
+  fetchUrl?: string;
+  effectiveFetchUrl: string;
+  fallbackUrls: string[];
+  lastSuccessfulFetchUrl?: string;
   active: boolean;
   fetchEnabled: boolean;
   fetchIntervalMinutes: number;
@@ -44,6 +48,18 @@ export interface SourceView {
   lastSeenAt?: string;
   consecutiveFailures: number;
   lastFetchError?: string;
+  failureKind?:
+    | "network"
+    | "timeout"
+    | "rate-limited"
+    | "upstream"
+    | "blocked"
+    | "redirect"
+    | "allowlist"
+    | "content"
+    | "unknown";
+  autoPausedAt?: string;
+  healthState: "healthy" | "retrying" | "paused" | "manual" | "unverified";
   fetchLeaseExpiresAt?: string;
   lastProbeAt?: string;
   lastProbeStatus?: "passed" | "failed";
@@ -143,6 +159,7 @@ export interface OperationsDiagnostics {
     automaticSources: number;
     sourcesDue: number;
     sourcesRetrying: number;
+    sourcesPaused: number;
     extractionReady: number;
     extractionRetrying: number;
     emailQueued: number;
@@ -302,11 +319,22 @@ export const adminApi = {
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
 
   async workspace(token: string, role: AdminUser["role"]) {
-    const queueResult = await settle(
-      "审核队列",
-      request<ReviewQueueItem[]>("/api/v2/admin/review-queue", {}, token),
-      [],
-    );
+    const [openQueueResult, historyQueueResult] = await Promise.all([
+      settle(
+        "开放审核队列",
+        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
+        [],
+      ),
+      settle(
+        "最近审核历史",
+        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=history&limit=100", {}, token),
+        [],
+      ),
+    ]);
+    const queueResult = {
+      value: [...openQueueResult.value, ...historyQueueResult.value],
+      warning: [openQueueResult.warning, historyQueueResult.warning].filter(Boolean).join("；"),
+    };
     if (role !== "admin") {
       return {
         queue: queueResult.value,
@@ -434,7 +462,9 @@ export const adminApi = {
   updateSource: (
     token: string,
     id: string,
-    changes: Partial<Pick<SourceView, "active" | "fetchEnabled" | "fetchIntervalMinutes">>,
+    changes: Partial<
+      Pick<SourceView, "active" | "fetchEnabled" | "fetchIntervalMinutes" | "fallbackUrls">
+    > & { fetchUrl?: string | null },
   ) =>
     request<SourceView>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}`,
@@ -477,7 +507,13 @@ export const adminApi = {
       token,
     ),
 
-  createSource: (token: string, source: Pick<SourceView, "id" | "title" | "publisher" | "url">) =>
+  createSource: (
+    token: string,
+    source: Pick<SourceView, "id" | "title" | "publisher" | "url"> & {
+      fetchUrl?: string;
+      fallbackUrls?: string[];
+    },
+  ) =>
     request<SourceView>(
       "/api/v2/admin/sources",
       { method: "POST", body: JSON.stringify(source) },
