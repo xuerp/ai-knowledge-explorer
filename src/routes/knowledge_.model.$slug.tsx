@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
+import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import {
   DemoBadge,
   ConfidenceChip,
@@ -22,7 +23,6 @@ import {
 } from "@/components/common";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
-import { splitClaimsForDisplay } from "@/domain/claim-display";
 import { useApp, pick } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
 import { Button } from "@/components/ui/button";
@@ -75,7 +75,6 @@ function EntityDetail() {
 
   const timeline = allTimeline[e.id] ?? [];
   const reviewedClaims = snapshot.claims.filter((claim) => claim.entityId === e.id);
-  const displayedClaims = splitClaimsForDisplay(reviewedClaims);
   const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
   const childVersions = entities
@@ -107,28 +106,6 @@ function EntityDetail() {
   const questionSection = nextSection++;
   const sourcesSection = nextSection;
   const sectionNumber = (value: number) => String(value).padStart(2, "0");
-  const renderReviewedClaim = (claim: (typeof reviewedClaims)[number]) => {
-    const claimSources = allEvidence.filter((source) => claim.sourceIds.includes(source.id));
-    return (
-      <article key={claim.id} className="paper-card p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <time className="font-mono text-xs text-muted-foreground">
-            {t("最近核验", "Last verified")} {claim.updatedAt}
-          </time>
-          <ConfidenceChip level={claim.confidence} />
-        </div>
-        <p className="mt-3 text-[15px] leading-7 text-foreground">{pick(claim.text, lang)}</p>
-        {claimSources.length > 0 && (
-          <div className="mt-4 border-t border-border pt-3">
-            {claimSources.map((source) => (
-              <SourceRow key={source.id} source={source} />
-            ))}
-          </div>
-        )}
-      </article>
-    );
-  };
-
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
     .map((r) => findEntity(r.fromId === e.id ? r.toId : r.fromId))
@@ -395,20 +372,7 @@ function EntityDetail() {
                 "New human-reviewed facts appear here with their direct evidence.",
               )}
             />
-            <div className="space-y-3">{displayedClaims.visible.map(renderReviewedClaim)}</div>
-            {displayedClaims.history.length > 0 && (
-              <details className="paper-card mt-4 p-5">
-                <summary className="cursor-pointer text-sm font-medium text-signal">
-                  {t(
-                    `查看 ${displayedClaims.history.length} 条历史事实`,
-                    `View ${displayedClaims.history.length} historical facts`,
-                  )}
-                </summary>
-                <div className="mt-4 space-y-3">
-                  {displayedClaims.history.map(renderReviewedClaim)}
-                </div>
-              </details>
-            )}
+            <ReviewedFacts key={e.id} claims={reviewedClaims} evidence={allEvidence} />
           </section>
         )}
 
