@@ -11,7 +11,7 @@ from app.quality import (
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
-from app.repository import KnowledgeRepository
+from app.repository import MACHINE_SOURCE_CATALOG, KnowledgeRepository
 from app.schemas import CandidateCreate, Entity, LocalizedText
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -249,7 +249,10 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             repository.seed_catalog(session)
             assert len(session.scalars(select(SourceRecord)).all()) == len(
                 repository.load_seed().evidence
-            )
+            ) + len(MACHINE_SOURCE_CATALOG)
+            assert session.get(SourceRecord, "s-openai-api-changelog") is not None
+            assert session.get(SourceRecord, "s-openai-models") is not None
+            assert session.get(SourceRecord, "s-openai-deprecations") is not None
             row = session.get(KnowledgeEntityRecord, "e-gpt")
             assert row is not None
             legacy = Entity.model_validate_json(row.payload_json)

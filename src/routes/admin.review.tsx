@@ -25,6 +25,7 @@ import {
   selectBatchApprovableReviewItems,
   type ReviewAction,
 } from "@/domain/review-decision";
+import { assessReviewItem, orderReviewItems } from "@/domain/review-priority";
 import {
   describeProbeFailure,
   formatRolloutSummary,
@@ -195,6 +196,9 @@ function AdminReviewPage() {
   const [operationsError, setOperationsError] = useState("");
   const [sourceSearch, setSourceSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<"all" | "allowlisted" | "automatic">("all");
+  const [reviewFilter, setReviewFilter] = useState<
+    "all" | "fresh" | "high-risk" | "batch-safe" | "stale"
+  >("all");
   const [sourceSnapshots, setSourceSnapshots] = useState<Record<string, DocumentSnapshotView[]>>(
     {},
   );
@@ -892,12 +896,41 @@ function AdminReviewPage() {
         title: String(form.get("sourceTitle")).trim(),
         publisher: String(form.get("sourcePublisher")).trim(),
         url: String(form.get("sourceUrl")).trim(),
+        fetchUrl: String(form.get("sourceFetchUrl") ?? "").trim() || undefined,
+        fallbackUrls: String(form.get("sourceFallbackUrls") ?? "")
+          .split(/[\n,]/)
+          .map((value) => value.trim())
+          .filter(Boolean),
       });
       setOperationMessage(`${created.title} 已登记；请核验域名后再启用自动采集。`);
       formElement.reset();
       await refresh(token);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Source creation failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveSourceEntrypoints = async (event: FormEvent<HTMLFormElement>, source: SourceView) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setBusy(true);
+    setError("");
+    try {
+      const fetchUrl = String(form.get("fetchUrl") ?? "").trim();
+      const fallbackUrls = String(form.get("fallbackUrls") ?? "")
+        .split(/[\n,]/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+      await adminApi.updateSource(token, source.id, {
+        fetchUrl: fetchUrl || null,
+        fallbackUrls,
+      });
+      setOperationMessage(`${source.title} 的抓取入口已更新；自动采集已暂停，请重新预检后启用。`);
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "抓取入口更新失败。");
     } finally {
       setBusy(false);
     }
@@ -1057,7 +1090,17 @@ function AdminReviewPage() {
     workspace.queue,
     pendingQueue.map((item) => item.id),
   );
-  const orderedPendingQueue = [...pendingQueue].sort(
+  const filteredPendingQueue = pendingQueue.filter((item) => {
+    const assessment = assessReviewItem(item);
+    return (
+      reviewFilter === "all" ||
+      (reviewFilter === "fresh" && assessment.freshness === "fresh") ||
+      (reviewFilter === "high-risk" && assessment.risk === "high") ||
+      (reviewFilter === "batch-safe" && assessment.batchSafe) ||
+      (reviewFilter === "stale" && assessment.freshness === "stale")
+    );
+  });
+  const orderedPendingQueue = orderReviewItems(filteredPendingQueue).sort(
     (left, right) =>
       Number(recentCandidateIds.has(right.id)) - Number(recentCandidateIds.has(left.id)),
   );
@@ -1358,6 +1401,22 @@ function AdminReviewPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <select
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                aria-label="审核队列筛选"
+                value={reviewFilter}
+                onChange={(event) =>
+                  setReviewFilter(
+                    event.target.value as "all" | "fresh" | "high-risk" | "batch-safe" | "stale",
+                  )
+                }
+              >
+                <option value="all">全部待审（{pendingQueue.length}）</option>
+                <option value="fresh">近期内容</option>
+                <option value="high-risk">高风险需判断</option>
+                <option value="batch-safe">可安全批量</option>
+                <option value="stale">历史陈旧内容</option>
+              </select>
               <Button
                 type="button"
                 disabled={busy || allBatchApprovable.length === 0}
@@ -1382,6 +1441,11 @@ function AdminReviewPage() {
           {pendingQueue.length === 0 && (
             <div className="paper-card p-5 text-sm text-muted-foreground">当前没有待审核候选。</div>
           )}
+          {pendingQueue.length > 0 && orderedPendingQueue.length === 0 && (
+            <div className="paper-card p-5 text-sm text-muted-foreground">
+              当前筛选条件下没有候选；切换为“全部待审”可查看完整开放队列。
+            </div>
+          )}
           {recentExtraction && recentExtraction.candidateIds.length > 0 && (
             <div className="rounded-lg border border-signal/30 bg-signal/5 p-4 text-sm">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1405,6 +1469,7 @@ function AdminReviewPage() {
           )}
           {orderedPendingQueue.map((item) => {
             const reviewing = reviewingIds.has(item.id);
+            const assessment = assessReviewItem(item);
             return (
               <article
                 key={item.id}
@@ -1416,9 +1481,32 @@ function AdminReviewPage() {
                     <h3 className="mt-2 font-medium">{item.claim.text.zh}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{item.claim.text.en}</p>
                   </div>
-                  <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
-                    {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
-                  </span>
+                  <div className="flex flex-wrap justify-end gap-1.5">
+                    <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
+                      {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
+                    </span>
+                    <span
+                      className={`h-fit rounded-full px-2.5 py-1 text-xs ${
+                        assessment.risk === "high"
+                          ? "bg-conflict/10 text-conflict"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {assessment.risk === "high" ? "高风险" : "标准审核"}
+                    </span>
+                    <span className="h-fit rounded-full bg-signal/10 px-2.5 py-1 text-xs text-signal">
+                      {assessment.freshness === "fresh"
+                        ? "近期"
+                        : assessment.freshness === "aging"
+                          ? "较早"
+                          : "历史"}
+                    </span>
+                    {assessment.batchSafe && (
+                      <span className="h-fit rounded-full bg-verified/10 px-2.5 py-1 text-xs text-verified">
+                        可批量
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
                   <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
@@ -1624,6 +1712,16 @@ function AdminReviewPage() {
                 <Input name="sourcePublisher" placeholder="发布机构" required minLength={2} />
                 <Input name="sourceTitle" placeholder="信源标题" required minLength={3} />
                 <Input name="sourceUrl" type="url" placeholder="https://..." required />
+                <Input
+                  name="sourceFetchUrl"
+                  type="url"
+                  placeholder="可选：实际抓取 Markdown / JSON 地址"
+                />
+                <Textarea
+                  name="sourceFallbackUrls"
+                  placeholder="可选：备用官方入口，每行一个"
+                  rows={2}
+                />
                 <div className="sm:col-span-2 flex items-center justify-between gap-3">
                   <span className="text-xs text-muted-foreground">
                     新信源默认仅登记，不会自动访问网络。
@@ -1692,12 +1790,18 @@ function AdminReviewPage() {
                     </div>
                     <span
                       className={`rounded-full px-2 py-1 text-xs ${
-                        source.fetchEnabled
-                          ? "bg-verified/10 text-verified"
-                          : "bg-muted text-muted-foreground"
+                        source.healthState === "paused"
+                          ? "bg-conflict/10 text-conflict"
+                          : source.fetchEnabled
+                            ? "bg-verified/10 text-verified"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {source.fetchEnabled ? "自动采集" : "手动采集"}
+                      {source.healthState === "paused"
+                        ? "自动熔断"
+                        : source.fetchEnabled
+                          ? "自动采集"
+                          : "手动采集"}
                     </span>
                     <span className="rounded-full border border-border px-2 py-1 text-xs text-muted-foreground">
                       {source.collectionStrategy === "automatic"
@@ -1721,12 +1825,25 @@ function AdminReviewPage() {
                   >
                     {source.url}
                   </a>
+                  {source.effectiveFetchUrl !== source.url && (
+                    <div className="mt-2 rounded-md bg-muted/40 p-2 text-xs text-muted-foreground">
+                      实际抓取：{source.effectiveFetchUrl}
+                      {source.fallbackUrls.length > 0 &&
+                        ` · ${source.fallbackUrls.length} 个备用入口`}
+                    </div>
+                  )}
                   <p className="mt-2 text-xs text-muted-foreground">{source.collectionReason}</p>
                   {source.consecutiveFailures > 0 && (
                     <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/5 p-3 text-xs">
                       <div className="font-medium text-conflict">
-                        连续失败 {source.consecutiveFailures} 次，系统正在按退避策略重试
+                        连续失败 {source.consecutiveFailures} 次
+                        {source.autoPausedAt
+                          ? "，永久性错误已触发自动熔断"
+                          : "，系统正在按退避策略重试"}
                       </div>
+                      {source.failureKind && (
+                        <p className="mt-1 text-muted-foreground">失败分类：{source.failureKind}</p>
+                      )}
                       {source.lastFetchError && (
                         <p className="mt-1 line-clamp-2 text-muted-foreground">
                           {source.lastFetchError}
@@ -1820,6 +1937,7 @@ function AdminReviewPage() {
                         busy ||
                         !source.active ||
                         !source.fetchEnabled ||
+                        Boolean(source.autoPausedAt) ||
                         isFuture(source.fetchLeaseExpiresAt)
                       }
                       title="立即采集当前信源，不影响其他信源的调度"
@@ -1861,6 +1979,31 @@ function AdminReviewPage() {
                     >
                       立即重新排队
                     </Button>
+                    <details className="w-full rounded-md border border-dashed border-border p-2">
+                      <summary className="cursor-pointer text-xs text-muted-foreground">
+                        更换实际抓取入口或备用入口
+                      </summary>
+                      <form
+                        className="mt-2 grid gap-2"
+                        onSubmit={(event) => saveSourceEntrypoints(event, source)}
+                      >
+                        <Input
+                          name="fetchUrl"
+                          type="url"
+                          defaultValue={source.fetchUrl ?? ""}
+                          placeholder="留空则抓取证据地址"
+                        />
+                        <Textarea
+                          name="fallbackUrls"
+                          defaultValue={source.fallbackUrls.join("\n")}
+                          placeholder="备用官方入口，每行一个"
+                          rows={2}
+                        />
+                        <Button type="submit" size="sm" variant="outline" disabled={busy}>
+                          保存入口并重新预检
+                        </Button>
+                      </form>
+                    </details>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -2128,6 +2271,7 @@ function OperationsPanel({
             <QueueMetric label="自动信源" value={operations.queues.automaticSources} />
             <QueueMetric label="当前到期" value={operations.queues.sourcesDue} />
             <QueueMetric label="采集重试" value={operations.queues.sourcesRetrying} />
+            <QueueMetric label="采集熔断" value={operations.queues.sourcesPaused} />
             <QueueMetric label="待抽取" value={operations.queues.extractionReady} />
             <QueueMetric label="抽取冷却" value={operations.queues.extractionRetrying} />
             <QueueMetric label="邮件待发" value={operations.queues.emailQueued} />

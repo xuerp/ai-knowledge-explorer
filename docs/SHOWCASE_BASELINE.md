@@ -6,7 +6,7 @@
 
 - 前端：<https://ai-radar-staging.1966761779.workers.dev>
 - API：<https://ai-radar-api-staging.onrender.com>
-- 后端版本：`2026.08.14-resilient-operations-history-v49`
+- 后端版本：`2026.08.22-review-source-freshness-v50`
 - 运行环境：`production`
 - 数据模式：`demo`
 - 快照新鲜度：`cached`

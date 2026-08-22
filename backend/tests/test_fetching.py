@@ -80,6 +80,26 @@ def test_safe_fetcher_enforces_allowlist_public_dns_and_content_policy():
         private_fetcher.fetch("https://example.com/release")
 
 
+def test_safe_fetcher_accepts_official_markdown_documents():
+    fetcher = SafeHttpFetcher(
+        ("example.com",),
+        10_000,
+        resolver=lambda _: ("8.8.8.8",),
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(
+                200,
+                headers={"content-type": "text/markdown; charset=utf-8"},
+                text="# Changelog\n\nA sufficiently long official Markdown release entry.",
+            )
+        ),
+    )
+
+    document = fetcher.fetch("https://docs.example.com/changelog.md")
+
+    assert document.content_type == "text/markdown"
+    assert "official Markdown" in document.content
+
+
 def test_safe_fetcher_follows_allowlisted_canonical_redirect():
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/docs/learn/architecture":
@@ -225,6 +245,28 @@ class _RecordingFetcher:
         )
 
 
+class _FallbackFetcher:
+    def __init__(self):
+        self.urls: list[str] = []
+
+    def fetch(self, url: str, **_: object) -> FetchedDocument:
+        self.urls.append(url)
+        if url.endswith("/blocked"):
+            raise FetchPolicyError("Redirect was returned without a canonical URL.")
+        return FetchedDocument(
+            content="A sufficiently long official fallback document for safe ingestion.",
+            content_type="text/markdown",
+            etag='"fallback"',
+            last_modified=None,
+            final_url=url,
+        )
+
+
+class _PermanentFailureFetcher:
+    def fetch(self, _url: str, **_: object) -> FetchedDocument:
+        raise FetchPolicyError("Redirect was returned without a canonical URL.")
+
+
 class _LeaseInspectingFetcher:
     def __init__(self, database: Database, source_id: str):
         self.database = database
@@ -312,6 +354,101 @@ def test_scheduler_processes_multiple_due_sources_in_one_batch(tmp_path: Path):
             "https://example.com/batch-source-a",
             "https://example.com/batch-source-b",
         }
+
+    database.dispose()
+
+
+def test_scheduler_uses_allowlisted_fallback_and_records_successful_entry(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'fallback.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+    fetcher = _FallbackFetcher()
+    scheduler = IngestionScheduler(fetcher, ingestion)  # type: ignore[arg-type]
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="fallback-source",
+                url="https://example.com/evidence",
+                fetch_url="https://example.com/blocked",
+                fallback_urls=["https://example.com/changelog.md"],
+                title="Fallback source",
+                publisher="Example",
+            ),
+        )
+        _mark_probe_passed(session, "fallback-source")
+        ingestion.update_source(session, "fallback-source", SourceUpdate(fetch_enabled=True))
+
+        result = scheduler.run_due(session, source_id="fallback-source", force=True)
+        source = session.get(SourceRecord, "fallback-source")
+
+        assert result.succeeded == 1
+        assert fetcher.urls == [
+            "https://example.com/blocked",
+            "https://example.com/changelog.md",
+        ]
+        assert source is not None
+        assert source.last_successful_fetch_url == "https://example.com/changelog.md"
+        assert source.failure_kind is None
+
+    database.dispose()
+
+
+def test_scheduler_auto_pauses_repeated_permanent_failure_and_retry_resumes(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'auto-pause.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+    scheduler = IngestionScheduler(_PermanentFailureFetcher(), ingestion)  # type: ignore[arg-type]
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="permanent-failure-source",
+                url="https://example.com/broken",
+                title="Broken source",
+                publisher="Example",
+            ),
+        )
+        _mark_probe_passed(session, "permanent-failure-source")
+        ingestion.update_source(
+            session,
+            "permanent-failure-source",
+            SourceUpdate(fetch_enabled=True),
+        )
+
+        for _ in range(3):
+            assert (
+                scheduler.run_due(
+                    session,
+                    source_id="permanent-failure-source",
+                    force=True,
+                ).failed
+                == 1
+            )
+
+        source = session.get(SourceRecord, "permanent-failure-source")
+        assert source is not None
+        assert source.failure_kind == "redirect"
+        assert source.auto_paused_at is not None
+        assert (
+            scheduler.run_due(
+                session,
+                source_id="permanent-failure-source",
+                force=True,
+            ).due
+            == 0
+        )
+
+        resumed = ingestion.queue_source_retry(
+            session,
+            source.id,
+            expected_failure_count=3,
+        )
+        assert resumed is not None
+        assert resumed.auto_paused_at is None
+        assert resumed.failure_kind is None
 
     database.dispose()
 

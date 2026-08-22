@@ -375,6 +375,8 @@ class SourceCreate(CamelModel):
     url: HttpUrl
     title: str = Field(min_length=3, max_length=500)
     publisher: str = Field(min_length=2, max_length=255)
+    fetch_url: HttpUrl | None = None
+    fallback_urls: list[HttpUrl] = Field(default_factory=list, max_length=5)
     fetch_enabled: bool = False
     fetch_interval_minutes: int = Field(default=240, ge=120, le=1440)
 
@@ -383,6 +385,8 @@ class SourceUpdate(CamelModel):
     active: bool | None = None
     fetch_enabled: bool | None = None
     fetch_interval_minutes: int | None = Field(default=None, ge=120, le=1440)
+    fetch_url: HttpUrl | None = None
+    fallback_urls: list[HttpUrl] | None = Field(default=None, max_length=5)
 
 
 class SourceView(CamelModel):
@@ -390,6 +394,10 @@ class SourceView(CamelModel):
     url: str
     title: str
     publisher: str
+    fetch_url: str | None = None
+    effective_fetch_url: str
+    fallback_urls: list[str] = Field(default_factory=list)
+    last_successful_fetch_url: str | None = None
     active: bool
     fetch_enabled: bool
     fetch_interval_minutes: int
@@ -398,6 +406,22 @@ class SourceView(CamelModel):
     last_seen_at: datetime | None = None
     consecutive_failures: int = 0
     last_fetch_error: str | None = None
+    failure_kind: (
+        Literal[
+            "network",
+            "timeout",
+            "rate-limited",
+            "upstream",
+            "blocked",
+            "redirect",
+            "allowlist",
+            "content",
+            "unknown",
+        ]
+        | None
+    ) = None
+    auto_paused_at: datetime | None = None
+    health_state: Literal["healthy", "retrying", "paused", "manual", "unverified"]
     fetch_lease_expires_at: datetime | None = None
     last_probe_at: datetime | None = None
     last_probe_status: Literal["passed", "failed"] | None = None
@@ -508,6 +532,7 @@ class OperationsQueueSummary(CamelModel):
     automatic_sources: int
     sources_due: int
     sources_retrying: int
+    sources_paused: int
     extraction_ready: int
     extraction_retrying: int
     email_queued: int

@@ -34,9 +34,9 @@ from .extraction import (
     entity_reference_appears,
     extraction_audit_is_current,
 )
-from .fetching import FetchPolicyError, SafeHttpFetcher
+from .fetching import FetchPolicyError, SafeHttpFetcher, classify_fetch_failure
 from .golden_questions import GoldenQuestionEvaluator
-from .ingestion import IngestionService, normalize_source_url
+from .ingestion import IngestionService, normalize_source_url, source_fetch_urls
 from .operations import OperationsService
 from .production_readiness import ProductionReadinessInputs, build_production_readiness
 from .quality import (
@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260814_0016"
-SERVICE_RELEASE = "2026.08.14-resilient-operations-history-v49"
+SERVICE_RELEASE = "2026.08.22-review-source-freshness-v50"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1525,6 +1525,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "active": source.active,
                 "fetchEnabled": source.fetch_enabled,
                 "fetchIntervalMinutes": source.fetch_interval_minutes,
+                "fetchUrl": source.fetch_url,
+                "fallbackUrlCount": len(source.fallback_urls),
+                "autoPausedAt": (
+                    source.auto_paused_at.isoformat() if source.auto_paused_at else None
+                ),
             },
         )
         session.commit()
@@ -1543,11 +1548,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if not source:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source not found.")
         try:
-            document = fetcher.fetch(source.url)
+            document = None
+            probed_url = None
+            last_error: Exception | None = None
+            for candidate_url in source_fetch_urls(source):
+                try:
+                    document = fetcher.fetch(candidate_url)
+                    probed_url = candidate_url
+                    break
+                except (FetchPolicyError, httpx.HTTPError, OSError) as error:
+                    last_error = error
+            if document is None or probed_url is None:
+                raise last_error or FetchPolicyError("Source has no configured collection URL.")
         except (FetchPolicyError, httpx.HTTPError, OSError) as error:
             source.last_probe_at = datetime.now(UTC)
             source.last_probe_status = "failed"
             source.last_probe_error = str(error)[:2000]
+            source.failure_kind = classify_fetch_failure(error)
             source.last_probe_content_type = None
             source.last_probe_readable_characters = None
             audit.record(
@@ -1566,18 +1583,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         source.last_probe_at = datetime.now(UTC)
         source.last_probe_status = "passed"
         source.last_probe_error = None
+        source.failure_kind = None
         source.last_probe_content_type = document.content_type
         source.last_probe_readable_characters = len(document.content)
-        if document.final_url and document.final_url != source.url:
-            previous_url = source.url
-            source.url = normalize_source_url(document.final_url)
+        final_url = normalize_source_url(document.final_url or probed_url)
+        if final_url != probed_url:
+            previous_url = probed_url
+            if normalize_source_url(probed_url) == normalize_source_url(source.url):
+                source.url = final_url
+            elif source.fetch_url and normalize_source_url(probed_url) == normalize_source_url(
+                source.fetch_url
+            ):
+                source.fetch_url = final_url
             audit.record(
                 session,
                 principal,
                 "source.canonical_url_adopted",
                 "source",
                 source.id,
-                {"previousUrl": previous_url, "canonicalUrl": source.url},
+                {"previousUrl": previous_url, "canonicalUrl": final_url},
             )
         audit.record(
             session,
@@ -1593,7 +1617,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session.commit()
         return SourceProbeResult(
             source_id=source.id,
-            url=source.url,
+            url=final_url,
             content_type=document.content_type,
             readable_characters=len(document.content),
             etag=document.etag,
@@ -1894,9 +1918,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response: Response,
         _: ReviewerDependency,
         session: SessionDependency,
+        scope: Annotated[Literal["open", "history", "all"], Query()] = "all",
+        limit: Annotated[int, Query(ge=1, le=500)] = 500,
     ) -> list[ReviewQueueItem]:
         response.headers["Cache-Control"] = "no-store"
-        return repository.queue(session)
+        return repository.queue(session, scope=scope, limit=limit)
 
     def decide_review(
         review_id: str,

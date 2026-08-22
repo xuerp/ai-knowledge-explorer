@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
-from app.database import AuditLogRecord, EmailOutboxRecord, SourceRecord
+from app.database import AuditLogRecord, EmailOutboxRecord, ReviewJobRecord, SourceRecord
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
@@ -47,7 +47,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.14-resilient-operations-history-v49",
+        "release": "2026.08.22-review-source-freshness-v50",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -78,6 +78,7 @@ def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
         "automaticSources": 0,
         "sourcesDue": 0,
         "sourcesRetrying": 0,
+        "sourcesPaused": 0,
         "extractionReady": 0,
         "extractionRetrying": 0,
         "emailQueued": 0,
@@ -860,7 +861,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpHost": None,
         "smtpFrom": None,
         "fetchAllowedHosts": ["example.com"],
-        "registeredSources": 30,
+        "registeredSources": 33,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }
@@ -996,6 +997,78 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert history.status_code == 200
     assert len(history.json()) == 1
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
+
+
+def test_review_queue_supports_bounded_open_and_history_scopes(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    queue = client.get("/api/v2/admin/review-queue", headers=headers).json()
+    review = next(item for item in queue if item["id"] == "review-gpt-context")
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/approve",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reason": "Official evidence checked for scoped queue testing.",
+        },
+    )
+    assert approved.status_code == 200
+
+    open_items = client.get(
+        "/api/v2/admin/review-queue",
+        params={"scope": "open", "limit": 1},
+        headers=headers,
+    )
+    history_items = client.get(
+        "/api/v2/admin/review-queue",
+        params={"scope": "history", "limit": 10},
+        headers=headers,
+    )
+
+    assert open_items.status_code == 200
+    assert len(open_items.json()) <= 1
+    assert all(item["status"] in {"pending", "needs-more-evidence"} for item in open_items.json())
+    assert history_items.status_code == 200
+    assert any(item["id"] == review["id"] for item in history_items.json())
+    assert all(item["status"] in {"approved", "rejected"} for item in history_items.json())
+    assert (
+        client.get(
+            "/api/v2/admin/review-queue",
+            params={"scope": "unsupported"},
+            headers=headers,
+        ).status_code
+        == 422
+    )
+
+
+def test_malformed_historical_review_does_not_break_workspace_queue(client: TestClient):
+    with client.app.state.database.session() as session:
+        session.add(
+            ReviewJobRecord(
+                id="malformed-history",
+                entity_id="e-gpt",
+                claim_id="malformed-claim",
+                claim_json="{bad-json",
+                evidence_ids_json="[]",
+                evidence_json="[]",
+                conflict_ids_json="[]",
+                status="rejected",
+                created_at=datetime.now(UTC),
+                reviewed_at=datetime.now(UTC),
+                reviewed_by="reviewer@example.com",
+                review_reason="历史坏数据回归测试",
+                version=2,
+            )
+        )
+        session.commit()
+
+    response = client.get(
+        "/api/v2/admin/review-queue",
+        params={"scope": "history", "limit": 100},
+        headers={"X-Admin-Token": "test-admin-token"},
+    )
+
+    assert response.status_code == 200
+    assert all(item["id"] != "malformed-history" for item in response.json())
 
 
 def create_batch_review_candidate(

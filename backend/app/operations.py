@@ -291,6 +291,7 @@ class OperationsService:
             .where(
                 SourceRecord.active.is_(True),
                 SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_(None),
                 or_(SourceRecord.next_fetch_at.is_(None), SourceRecord.next_fetch_at <= current),
             ),
         )
@@ -301,7 +302,18 @@ class OperationsService:
             .where(
                 SourceRecord.active.is_(True),
                 SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_(None),
                 SourceRecord.consecutive_failures > 0,
+            ),
+        )
+        sources_paused = self._count(
+            session,
+            select(func.count())
+            .select_from(SourceRecord)
+            .where(
+                SourceRecord.active.is_(True),
+                SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_not(None),
             ),
         )
         extraction_ready, extraction_retrying = self._extraction_counts(session, current)
@@ -315,6 +327,7 @@ class OperationsService:
                 automatic_sources=automatic_sources,
                 sources_due=sources_due,
                 sources_retrying=sources_retrying,
+                sources_paused=sources_paused,
                 extraction_ready=extraction_ready,
                 extraction_retrying=extraction_retrying,
                 email_queued=self._email_count(session, "queued"),
