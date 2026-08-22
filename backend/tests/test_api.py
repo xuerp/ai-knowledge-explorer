@@ -58,7 +58,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.23-claim-lifecycle-v54",
+        "release": "2026.08.23-review-lifecycle-workspace-v55",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -1119,6 +1119,33 @@ def test_merge_evidence_keeps_one_public_claim_and_is_idempotent(client: TestCli
         claim for claim in repeated_snapshot["claims"] if claim["id"] == target["claim"]["id"]
     )
     assert repeated_target["sourceIds"].count("evidence-lifecycle-duplicate") == 1
+
+
+def test_review_inventory_is_read_only_and_classifies_duplicates(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    target = approve_lifecycle_candidate(
+        client,
+        headers,
+        create_lifecycle_candidate(client, headers, "inventory-base", "1M"),
+    )
+    create_lifecycle_candidate(client, headers, "inventory-duplicate", "1M")
+    create_lifecycle_candidate(client, headers, "inventory-update", "2M")
+    before = client.get(
+        "/api/v2/admin/review-queue", params={"scope": "open"}, headers=headers
+    ).json()
+
+    report = client.get("/api/v2/admin/review-queue-inventory", headers=headers)
+
+    assert report.status_code == 200
+    assert report.json()["openTotal"] == len(before)
+    assert report.json()["duplicateWithPublishedItems"] == 1
+    assert report.json()["possibleUpdateGroups"] >= 1
+    assert report.json()["riskCounts"]["high"] >= 2
+    after = client.get(
+        "/api/v2/admin/review-queue", params={"scope": "open"}, headers=headers
+    ).json()
+    assert after == before
+    assert target["claim"]["id"] not in {item["claim"]["id"] for item in after}
 
 
 def test_superseding_claim_hides_old_fact_and_checks_target_version(client: TestClient):

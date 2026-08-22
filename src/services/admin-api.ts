@@ -20,6 +20,9 @@ export interface ReviewQueueItem {
     subject?: string;
     predicate?: string;
     objectOrValue?: string;
+    sourceIds?: string[];
+    validFrom?: string;
+    validTo?: string;
   };
   evidenceIds: string[];
   evidenceItems: Evidence[];
@@ -30,6 +33,26 @@ export interface ReviewQueueItem {
   version: number;
   reviewReason?: string;
   reviewMethod?: "human" | "automation";
+  lifecycleStatus?: "current" | "superseded" | "historical" | "retracted";
+  publicationAction?: "new" | "merged-evidence" | "superseding";
+  targetClaimId?: string;
+  supersededByClaimId?: string;
+}
+
+export interface ReviewInventoryReport {
+  generatedAt: string;
+  openTotal: number;
+  byEntity: Record<string, number>;
+  bySource: Record<string, number>;
+  byMonth: Record<string, number>;
+  riskCounts: Record<string, number>;
+  deterministicDuplicateGroups: number;
+  possibleUpdateGroups: number;
+  conflictItems: number;
+  missingEvidenceItems: number;
+  invalidAnchorItems: number;
+  staleItems: number;
+  duplicateWithPublishedItems: number;
 }
 
 export interface SourceView {
@@ -319,7 +342,7 @@ export const adminApi = {
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
 
   async workspace(token: string, role: AdminUser["role"]) {
-    const [openQueueResult, historyQueueResult] = await Promise.all([
+    const [openQueueResult, historyQueueResult, inventoryResult] = await Promise.all([
       settle(
         "开放审核队列",
         request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
@@ -329,6 +352,11 @@ export const adminApi = {
         "最近审核历史",
         request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=history&limit=100", {}, token),
         [],
+      ),
+      settle(
+        "审核盘点",
+        request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
+        null,
       ),
     ]);
     const queueResult = {
@@ -347,7 +375,8 @@ export const adminApi = {
         integrations: null,
         operations: null,
         productionReadiness: null,
-        loadWarnings: queueResult.warning ? [queueResult.warning] : [],
+        reviewInventory: inventoryResult.value,
+        loadWarnings: [queueResult.warning, inventoryResult.warning].filter(Boolean) as string[],
       };
     }
     const [
@@ -394,6 +423,7 @@ export const adminApi = {
       integrations,
       operations,
       productionReadiness,
+      inventoryResult,
     ];
     return {
       queue: queueResult.value,
@@ -406,6 +436,7 @@ export const adminApi = {
       integrations: integrations.value,
       operations: operations.value,
       productionReadiness: productionReadiness.value,
+      reviewInventory: inventoryResult.value,
       loadWarnings: sections.flatMap((section) => (section.warning ? [section.warning] : [])),
     };
   },
@@ -422,6 +453,32 @@ export const adminApi = {
       {
         method: "POST",
         body: JSON.stringify({ expectedVersion, reason }),
+      },
+      token,
+    ),
+
+  decideLifecycle: (
+    token: string,
+    id: string,
+    action: "merged-evidence" | "superseding",
+    target: ReviewQueueItem,
+    expectedVersion: number,
+    idempotencyKey: string,
+    reason: string,
+  ) =>
+    request<ReviewQueueItem>(
+      `/api/v2/admin/review-queue/${encodeURIComponent(id)}/${
+        action === "merged-evidence" ? "merge-evidence" : "approve-superseding"
+      }`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          expectedVersion,
+          targetClaimId: target.claim.id,
+          expectedTargetVersion: target.version,
+          idempotencyKey,
+          reason,
+        }),
       },
       token,
     ),

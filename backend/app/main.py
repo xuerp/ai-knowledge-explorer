@@ -90,6 +90,7 @@ from .schemas import (
     ResearchView,
     ReviewBatchApproval,
     ReviewDecision,
+    ReviewInventoryReport,
     ReviewLifecycleDecision,
     ReviewQueueItem,
     SchedulerRunSummary,
@@ -107,7 +108,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260823_0018"
-SERVICE_RELEASE = "2026.08.23-claim-lifecycle-v54"
+SERVICE_RELEASE = "2026.08.23-review-lifecycle-workspace-v55"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1926,6 +1927,108 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> list[ReviewQueueItem]:
         response.headers["Cache-Control"] = "no-store"
         return repository.queue(session, scope=scope, limit=limit)
+
+    @app.get(
+        "/api/v2/admin/review-queue-inventory",
+        response_model=ReviewInventoryReport,
+    )
+    def review_queue_inventory(
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ReviewInventoryReport:
+        open_items = repository.queue(session, scope="open", limit=500)
+        published_rows = session.scalars(
+            select(ReviewJobRecord).where(
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == "current",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+        ).all()
+        published_fingerprints = {
+            claim_semantic_fingerprint(repository.approved_claim(row), row.entity_id)
+            for row in published_rows
+        }
+        by_entity: dict[str, int] = {}
+        by_source: dict[str, int] = {}
+        by_month: dict[str, int] = {}
+        risk_counts = {"standard": 0, "high": 0}
+        fingerprints: dict[tuple[str, str, str, str, str], int] = {}
+        update_values: dict[tuple[str, str, str], set[str]] = {}
+        conflict_items = 0
+        missing_evidence_items = 0
+        invalid_anchor_items = 0
+        stale_items = 0
+        duplicate_with_published_items = 0
+        now = datetime.now(UTC)
+        high_risk_predicates = {
+            "price",
+            "pricing",
+            "availability",
+            "context-window",
+            "benchmark",
+            "released-at",
+            "deprecated-at",
+        }
+
+        for item in open_items:
+            entity_key = item.entity_id or "未解析实体"
+            by_entity[entity_key] = by_entity.get(entity_key, 0) + 1
+            month = item.created_at[:7]
+            by_month[month] = by_month.get(month, 0) + 1
+            publishers = {evidence.publisher for evidence in item.evidence_items} or {"缺少信源"}
+            for publisher in publishers:
+                by_source[publisher] = by_source.get(publisher, 0) + 1
+
+            predicate = " ".join((item.claim.predicate or "").casefold().split())
+            subject = " ".join((item.claim.subject or "").casefold().split())
+            value = " ".join((item.claim.object_or_value or "").casefold().split())
+            high_risk = bool(
+                item.conflict_claim_ids
+                or predicate in high_risk_predicates
+                or any(evidence.type == "community" for evidence in item.evidence_items)
+            )
+            risk_counts["high" if high_risk else "standard"] += 1
+            conflict_items += int(bool(item.conflict_claim_ids))
+            missing_evidence_items += int(not item.evidence_items)
+            anchored = bool(
+                subject
+                and value
+                and any(
+                    subject in " ".join((evidence.source_excerpt or "").casefold().split())
+                    and value in " ".join((evidence.source_excerpt or "").casefold().split())
+                    for evidence in item.evidence_items
+                )
+            )
+            invalid_anchor_items += int(not anchored)
+            try:
+                created_at = datetime.fromisoformat(item.created_at)
+                if created_at.tzinfo is None:
+                    created_at = created_at.replace(tzinfo=UTC)
+                stale_items += int(now - created_at.astimezone(UTC) > timedelta(days=90))
+            except ValueError:
+                stale_items += 1
+
+            fingerprint = claim_semantic_fingerprint(item.claim, item.entity_id)
+            fingerprints[fingerprint] = fingerprints.get(fingerprint, 0) + 1
+            duplicate_with_published_items += int(fingerprint in published_fingerprints)
+            update_key = (entity_key.casefold(), subject, predicate)
+            update_values.setdefault(update_key, set()).add(value)
+
+        return ReviewInventoryReport(
+            generated_at=now.isoformat(),
+            open_total=len(open_items),
+            by_entity=dict(sorted(by_entity.items(), key=lambda pair: (-pair[1], pair[0]))),
+            by_source=dict(sorted(by_source.items(), key=lambda pair: (-pair[1], pair[0]))),
+            by_month=dict(sorted(by_month.items())),
+            risk_counts=risk_counts,
+            deterministic_duplicate_groups=sum(count > 1 for count in fingerprints.values()),
+            possible_update_groups=sum(len(values) > 1 for values in update_values.values()),
+            conflict_items=conflict_items,
+            missing_evidence_items=missing_evidence_items,
+            invalid_anchor_items=invalid_anchor_items,
+            stale_items=stale_items,
+            duplicate_with_published_items=duplicate_with_published_items,
+        )
 
     def decide_review(
         review_id: str,

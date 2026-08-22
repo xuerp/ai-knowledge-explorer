@@ -304,6 +304,22 @@ class ReviewQueueItem(ReviewCandidate):
     superseded_by_claim_id: str | None = None
 
 
+class ReviewInventoryReport(CamelModel):
+    generated_at: str
+    open_total: int
+    by_entity: dict[str, int]
+    by_source: dict[str, int]
+    by_month: dict[str, int]
+    risk_counts: dict[str, int]
+    deterministic_duplicate_groups: int
+    possible_update_groups: int
+    conflict_items: int
+    missing_evidence_items: int
+    invalid_anchor_items: int
+    stale_items: int
+    duplicate_with_published_items: int
+
+
 class PublicationRecord(CamelModel):
     id: int
     review_job_id: str
