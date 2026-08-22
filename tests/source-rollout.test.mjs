@@ -4,8 +4,13 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { describeProbeFailure, formatRolloutSummary, isAllowlistedSource, selectRolloutSources } =
-  await vite.ssrLoadModule("/src/domain/source-rollout.ts");
+const {
+  describeProbeFailure,
+  describeSourceAction,
+  formatRolloutSummary,
+  isAllowlistedSource,
+  selectRolloutSources,
+} = await vite.ssrLoadModule("/src/domain/source-rollout.ts");
 
 test.after(async () => vite.close());
 
@@ -116,6 +121,27 @@ test("常见预检错误会转换为可操作的中文说明", () => {
   assert.match(
     describeProbeFailure("Source hostname is not in AI_RADAR_FETCH_ALLOWED_HOSTS."),
     /白名单/,
+  );
+});
+
+test("熔断与手动信源会给出不同的下一步建议", () => {
+  assert.match(
+    describeSourceAction(
+      source("redirect", "https://official.example/old", {
+        healthState: "paused",
+        failureKind: "redirect",
+      }),
+    ),
+    /规范地址.*重新预检/,
+  );
+  assert.match(
+    describeSourceAction(
+      source("manual", "https://official.example/article", {
+        healthState: "manual",
+        collectionStrategy: "manual",
+      }),
+    ),
+    /人工证据页.*机器信源/,
   );
 });
 

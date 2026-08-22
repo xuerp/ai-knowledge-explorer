@@ -58,7 +58,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.22-source-failure-reconciliation-v51",
+        "release": "2026.08.22-source-triage-v52",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -872,7 +872,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpHost": None,
         "smtpFrom": None,
         "fetchAllowedHosts": ["example.com"],
-        "registeredSources": 33,
+        "registeredSources": 34,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }

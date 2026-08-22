@@ -115,6 +115,13 @@ MACHINE_SOURCE_CATALOG = (
         "publisher": "OpenAI",
         "fetch_interval_minutes": 1440,
     },
+    {
+        "id": "s-google-gemini-api-changelog",
+        "url": "https://ai.google.dev/gemini-api/docs/changelog",
+        "title": "Gemini API 官方更新日志",
+        "publisher": "Google",
+        "fetch_interval_minutes": 240,
+    },
 )
 
 
