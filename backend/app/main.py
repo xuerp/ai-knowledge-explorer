@@ -106,7 +106,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260822_0017"
-SERVICE_RELEASE = "2026.08.22-source-failure-reconciliation-v51"
+SERVICE_RELEASE = "2026.08.22-source-triage-v52"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",

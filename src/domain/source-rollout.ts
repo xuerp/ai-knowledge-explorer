@@ -13,6 +13,7 @@ const rolloutPriority = [
   "s-openai-api-changelog",
   "s-openai-models",
   "s-openai-deprecations",
+  "s-google-gemini-api-changelog",
   "s-mcp-architecture",
   "s-langchain-overview",
   "s-anthropic-company",
@@ -20,6 +21,37 @@ const rolloutPriority = [
   "s-qwen-models",
   "s-swebench",
 ];
+
+export function describeSourceAction(source: SourceView): string {
+  if (source.healthState === "paused") {
+    if (source.failureKind === "redirect") {
+      return "更换为最终规范地址或官方 Markdown / RSS 入口，保存后重新预检；不要直接重复排队。";
+    }
+    if (source.failureKind === "blocked") {
+      return "目标拒绝云服务器访问。寻找同厂商官方更新日志、RSS、JSON 或 GitHub Releases；找不到则保留人工采集。";
+    }
+    if (source.failureKind === "allowlist") {
+      return "先核实入口确属官方域名，再加入后端白名单并重新预检；不要放行第三方跳转域名。";
+    }
+    if (source.failureKind === "content") {
+      return "当前页面体积或正文结构不适合采集，请换用更小的官方机器入口。";
+    }
+    return "检查最近错误并更换稳定入口；修复并预检通过后再恢复采集。";
+  }
+  if (source.collectionStrategy === "manual") {
+    return "作为人工证据页保留；由同厂商机器信源发现变化。若已有替代入口且内容重复，可停用此条。";
+  }
+  if (source.healthState === "retrying") {
+    return "当前属于可恢复错误，系统会有限退避；若连续失败转为永久错误，将自动熔断。";
+  }
+  if (source.collectionStrategy === "unverified") {
+    return "先完成连接预检。通过后才能启用；失败时按提示更换入口或转为人工证据。";
+  }
+  if (!source.fetchEnabled) {
+    return "官方机器入口已登记但尚未启用，可通过批量安全接入完成预检和首次采集。";
+  }
+  return "入口运行正常；保留当前周期并观察快照是否真实产生变化。";
+}
 
 export function isVettedRolloutSource(source: SourceView): boolean {
   return source.collectionStrategy === "automatic";

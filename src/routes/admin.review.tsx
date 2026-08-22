@@ -27,6 +27,7 @@ import {
 } from "@/domain/review-decision";
 import { assessReviewItem, orderReviewItems } from "@/domain/review-priority";
 import {
+  describeSourceAction,
   describeProbeFailure,
   formatRolloutSummary,
   isAllowlistedSource,
@@ -195,7 +196,9 @@ function AdminReviewPage() {
   } | null>(null);
   const [operationsError, setOperationsError] = useState("");
   const [sourceSearch, setSourceSearch] = useState("");
-  const [sourceFilter, setSourceFilter] = useState<"all" | "allowlisted" | "automatic">("all");
+  const [sourceFilter, setSourceFilter] = useState<
+    "all" | "needs-action" | "manual" | "allowlisted" | "automatic"
+  >("all");
   const [reviewFilter, setReviewFilter] = useState<
     "all" | "fresh" | "high-risk" | "batch-safe" | "stale"
   >("all");
@@ -1064,6 +1067,8 @@ function AdminReviewPage() {
     const allowlisted = isAllowlistedSource(source, allowlistedHosts);
     const matchesFilter =
       sourceFilter === "all" ||
+      (sourceFilter === "needs-action" && source.healthState === "paused") ||
+      (sourceFilter === "manual" && source.collectionStrategy === "manual") ||
       (sourceFilter === "allowlisted" && allowlisted && source.collectionStrategy !== "manual") ||
       (sourceFilter === "automatic" && source.fetchEnabled);
     return matchesSearch && matchesFilter;
@@ -1745,10 +1750,29 @@ function AdminReviewPage() {
                 aria-label="筛选信源"
                 value={sourceFilter}
                 onChange={(event) =>
-                  setSourceFilter(event.target.value as "all" | "allowlisted" | "automatic")
+                  setSourceFilter(
+                    event.target.value as
+                      | "all"
+                      | "needs-action"
+                      | "manual"
+                      | "allowlisted"
+                      | "automatic",
+                  )
                 }
               >
                 <option value="all">全部信源</option>
+                <option value="needs-action">
+                  待处理熔断（
+                  {workspace.sources.filter((source) => source.healthState === "paused").length}）
+                </option>
+                <option value="manual">
+                  手动证据（
+                  {
+                    workspace.sources.filter((source) => source.collectionStrategy === "manual")
+                      .length
+                  }
+                  ）
+                </option>
                 <option value="allowlisted">可预检信源</option>
                 <option value="automatic">自动采集信源</option>
               </select>
@@ -1833,6 +1857,10 @@ function AdminReviewPage() {
                     </div>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">{source.collectionReason}</p>
+                  <div className="mt-2 rounded-md border border-border bg-muted/20 p-2 text-xs">
+                    <span className="font-medium">建议处理：</span>
+                    <span className="text-muted-foreground">{describeSourceAction(source)}</span>
+                  </div>
                   {source.consecutiveFailures > 0 && (
                     <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/5 p-3 text-xs">
                       <div className="font-medium text-conflict">
