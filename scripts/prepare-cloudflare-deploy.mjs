@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const workerNamePattern = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const domainPattern = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 const verifiedCompatibilityDate = "2026-08-13";
+const stagingApiUpstreamUrl = "https://ai-radar-api-staging.onrender.com";
 
 export function buildStagingWranglerConfig(
   baseConfig,
@@ -31,6 +32,10 @@ export function buildStagingWranglerConfig(
   config.observability = {
     enabled: true,
     head_sampling_rate: 1,
+  };
+  config.vars = {
+    ...(config.vars ?? {}),
+    AI_RADAR_API_UPSTREAM_URL: stagingApiUpstreamUrl,
   };
   if (normalizedDomain) {
     config.routes = [{ pattern: normalizedDomain, custom_domain: true }];
