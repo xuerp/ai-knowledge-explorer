@@ -23,6 +23,7 @@ import {
 } from "@/components/common";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
+import { getEntitySectionPresentation, type EntitySection } from "@/domain/reading-mode";
 import { useApp, pick } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
 import { Button } from "@/components/ui/button";
@@ -97,15 +98,18 @@ function EntityDetail() {
   }
   const evidence = allEvidence.filter((source) => relevantSourceIds.has(source.id));
 
-  let nextSection = 3;
-  const reviewedClaimsSection = reviewedClaims.length > 0 ? nextSection++ : undefined;
-  const lineageSection = childVersions.length > 0 ? nextSection++ : undefined;
-  const relationshipSection = nextSection++;
-  const timelineSection = nextSection++;
-  const comparisonSection = nextSection++;
-  const questionSection = nextSection++;
-  const sourcesSection = nextSection;
-  const sectionNumber = (value: number) => String(value).padStart(2, "0");
+  const visibleSections: EntitySection[] = [
+    "guide",
+    "profile",
+    ...(reviewedClaims.length > 0 ? (["claims"] as const) : []),
+    ...(childVersions.length > 0 ? (["lineage"] as const) : []),
+    "relationships",
+    "timeline",
+    "comparison",
+    "questions",
+    "evidence",
+  ];
+  const sectionPresentation = getEntitySectionPresentation(mode, "model", visibleSections);
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
     .map((r) => findEntity(r.fromId === e.id ? r.toId : r.fromId))
@@ -191,30 +195,35 @@ function EntityDetail() {
         </div>
       </div>
 
-      <div className="page-container space-y-12 pb-12 pt-5">
-        <KnowledgeArticle
-          knowledge={knowledge}
-          entityName={e.name}
-          sectionEyebrow="01"
-          articleLabel={
-            e.familyId
-              ? { zh: "具体版本导读", en: "Model release guide" }
-              : { zh: "模型系列导读", en: "Model family guide" }
-          }
-          articleTitle={
-            e.familyId
-              ? {
-                  zh: `${e.name.zh} 是什么版本？`,
-                  en: `Where does ${e.name.en} fit?`,
-                }
-              : undefined
-          }
-        />
+      <div className="page-container flex flex-col gap-12 pb-12 pt-5">
+        <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
+          <KnowledgeArticle
+            knowledge={knowledge}
+            entityName={e.name}
+            sectionEyebrow={sectionPresentation.guide.eyebrow}
+            articleLabel={
+              e.familyId
+                ? { zh: "具体版本导读", en: "Model release guide" }
+                : { zh: "模型系列导读", en: "Model family guide" }
+            }
+            articleTitle={
+              e.familyId
+                ? {
+                    zh: `${e.name.zh} 是什么版本？`,
+                    en: `Where does ${e.name.en} fit?`,
+                  }
+                : undefined
+            }
+          />
+        </div>
 
         {/* 1. 结构化档案 */}
-        <section>
+        <section
+          data-reading-section="profile"
+          style={{ order: sectionPresentation.profile.order }}
+        >
           <SectionHeading
-            eyebrow="02"
+            eyebrow={sectionPresentation.profile.eyebrow}
             title={t("结构化档案", "Structured profile")}
             description={t(
               "关于该实体的核心事实、能力与最新指标，所有条目都标注置信度与来源。",
@@ -362,10 +371,13 @@ function EntityDetail() {
           )}
         </section>
 
-        {reviewedClaimsSection && (
-          <section>
+        {reviewedClaims.length > 0 && (
+          <section
+            data-reading-section="claims"
+            style={{ order: sectionPresentation.claims.order }}
+          >
             <SectionHeading
-              eyebrow={sectionNumber(reviewedClaimsSection)}
+              eyebrow={sectionPresentation.claims.eyebrow}
               title={t("已审核事实", "Reviewed facts")}
               description={t(
                 "人工审核通过的新事实会在这里与直接证据一起展示。",
@@ -377,9 +389,12 @@ function EntityDetail() {
         )}
 
         {childVersions.length > 0 && (
-          <section>
+          <section
+            data-reading-section="lineage"
+            style={{ order: sectionPresentation.lineage.order }}
+          >
             <SectionHeading
-              eyebrow={sectionNumber(lineageSection ?? 3)}
+              eyebrow={sectionPresentation.lineage.eyebrow}
               title={t("版本谱系与迭代差异", "Version lineage and iteration changes")}
               description={t(
                 "系列不是一个模糊的大标签：每个版本分别记录发布时间、上下文、价格和能力变化。",
@@ -447,9 +462,12 @@ function EntityDetail() {
         )}
 
         {/* 局部关系概览 */}
-        <section>
+        <section
+          data-reading-section="relationships"
+          style={{ order: sectionPresentation.relationships.order }}
+        >
           <SectionHeading
-            eyebrow={sectionNumber(relationshipSection)}
+            eyebrow={sectionPresentation.relationships.eyebrow}
             title={t("关系概览", "Relationship overview")}
             description={t(
               `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
@@ -492,9 +510,12 @@ function EntityDetail() {
         </section>
 
         {/* Timeline */}
-        <section>
+        <section
+          data-reading-section="timeline"
+          style={{ order: sectionPresentation.timeline.order }}
+        >
           <SectionHeading
-            eyebrow={sectionNumber(timelineSection)}
+            eyebrow={sectionPresentation.timeline.eyebrow}
             title={t("版本演进时间线", "Version evolution timeline")}
             description={t(
               "每次迭代明确记录功能、上下文和价格变化；不会用最新值覆盖历史状态。",
@@ -526,9 +547,12 @@ function EntityDetail() {
         </section>
 
         {/* Compare */}
-        <section>
+        <section
+          data-reading-section="comparison"
+          style={{ order: sectionPresentation.comparison.order }}
+        >
           <SectionHeading
-            eyebrow={sectionNumber(comparisonSection)}
+            eyebrow={sectionPresentation.comparison.eyebrow}
             title={t("进入具体版本对比", "Compare concrete versions")}
             action={
               <Link
@@ -589,9 +613,12 @@ function EntityDetail() {
         </section>
 
         {/* AI 问答 */}
-        <section>
+        <section
+          data-reading-section="questions"
+          style={{ order: sectionPresentation.questions.order }}
+        >
           <SectionHeading
-            eyebrow={sectionNumber(questionSection)}
+            eyebrow={sectionPresentation.questions.eyebrow}
             title={t("AI 问答", "Ask AI")}
             description={t(
               "所有 AI 回答均基于已审核数据与来源证据，事实 / 推断 / 未核验分开呈现。",
@@ -653,9 +680,12 @@ function EntityDetail() {
         </section>
 
         {/* 来源 */}
-        <section>
+        <section
+          data-reading-section="evidence"
+          style={{ order: sectionPresentation.evidence.order }}
+        >
           <SectionHeading
-            eyebrow={sectionNumber(sourcesSection)}
+            eyebrow={sectionPresentation.evidence.eyebrow}
             title={t("来源", "Sources")}
             description={t(
               "每条事实至少一个来源。列表按发布时间倒序。",

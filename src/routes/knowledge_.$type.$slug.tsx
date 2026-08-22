@@ -1,22 +1,20 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
   ArrowRight,
-  BookOpen,
   Building2,
   CalendarDays,
-  CheckCircle2,
   ExternalLink,
   GitBranch,
-  Lightbulb,
   Layers3,
   MapPin,
-  ShieldAlert,
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ConfidenceChip, DemoBadge, SectionHeading, SourceRow } from "@/components/common";
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
+import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
+import { getEntitySectionPresentation, type EntitySection } from "@/domain/reading-mode";
 import type { Entity, EntityType, KnowledgeSnapshot } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
@@ -62,7 +60,7 @@ function GenericEntityDetail() {
     entity: Entity;
     snapshot: KnowledgeSnapshot;
   };
-  const { t, lang } = useApp();
+  const { t, lang, mode } = useApp();
   const entityById = new Map(snapshot.entities.map((item) => [item.id, item]));
   const relations = snapshot.graph.edges.filter(
     (edge) => edge.fromId === entity.id || edge.toId === entity.id,
@@ -83,12 +81,15 @@ function GenericEntityDetail() {
       : entity.origin
         ? t("海外", "Overseas")
         : "—";
-  const baseSection = entity.knowledge ? 2 : 1;
-  const claimSection = baseSection + 1;
-  const relationSection = claimSection + (claims.length > 0 ? 1 : 0);
-  const timelineSection = relationSection + 1;
-  const evidenceSection = timelineSection + (timeline.length > 0 ? 1 : 0);
-  const sectionNumber = (value: number) => String(value).padStart(2, "0");
+  const visibleSections: EntitySection[] = [
+    ...(entity.knowledge ? (["guide"] as const) : []),
+    "profile",
+    ...(claims.length > 0 ? (["claims"] as const) : []),
+    "relationships",
+    ...(timeline.length > 0 ? (["timeline"] as const) : []),
+    "evidence",
+  ];
+  const sectionPresentation = getEntitySectionPresentation(mode, "generic", visibleSections);
 
   return (
     <AppShell>
@@ -155,293 +156,223 @@ function GenericEntityDetail() {
           </div>
         </header>
 
-        {entity.knowledge && (
-          <>
-            <section className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
-              <article className="paper-card p-6 md:p-8">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-signal">
-                  <BookOpen className="h-4 w-4" />
-                  {t("知识导读", "Knowledge guide")}
-                </div>
-                <h2 className="mt-3 text-2xl font-semibold text-foreground">
-                  {t(`什么是 ${entity.name.zh}？`, `What is ${entity.name.en}?`)}
-                </h2>
-                <div className="mt-5 space-y-4 text-[15px] leading-8 text-ink-soft">
-                  {entity.knowledge.introduction.map((paragraph, index) => (
-                    <p key={index}>{pick(paragraph, lang)}</p>
-                  ))}
-                </div>
-                <div className="mt-7 rounded-xl border border-signal/20 bg-signal/5 p-5">
-                  <div className="flex items-center gap-2 font-semibold text-signal">
-                    <Lightbulb className="h-4 w-4" />
-                    {t("为什么重要", "Why it matters")}
-                  </div>
-                  <p className="mt-2 text-sm leading-7 text-foreground">
-                    {pick(entity.knowledge.significance, lang)}
-                  </p>
-                </div>
+        <div className="flex flex-col gap-12 pt-10">
+          {entity.knowledge && (
+            <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
+              <KnowledgeArticle
+                knowledge={entity.knowledge}
+                entityName={entity.name}
+                sectionEyebrow={sectionPresentation.guide.eyebrow}
+              />
+            </div>
+          )}
+
+          <section
+            data-reading-section="profile"
+            style={{ order: sectionPresentation.profile.order }}
+          >
+            <SectionHeading
+              eyebrow={sectionPresentation.profile.eyebrow}
+              title={t("基础档案", "Reference profile")}
+              description={t(
+                "用于检索、筛选和数据核验的结构化信息。",
+                "Structured information for search, filtering and verification.",
+              )}
+            />
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
+              <article className="paper-card p-5 md:p-6">
+                <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
+                <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+                  <ProfileField
+                    label={t("实体类型", "Entity type")}
+                    value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                  />
+                  <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
+                  <ProfileField
+                    label={t("所属组织", "Organization")}
+                    value={entity.vendor ?? "—"}
+                  />
+                  <ProfileField label={t("来源区域", "Region")} value={origin} />
+                  <ProfileField
+                    label={t("首次收录 / 发布", "First recorded / released")}
+                    value={entity.firstReleasedAt ?? "—"}
+                  />
+                  <ProfileField
+                    label={t("最近核验", "Last verified")}
+                    value={entity.lastUpdatedAt}
+                  />
+                  <ProfileField
+                    label={t("别名", "Aliases")}
+                    value={entity.aliases?.join(" · ") || "—"}
+                    wide
+                  />
+                  <ProfileField
+                    label={t("标签", "Tags")}
+                    value={entity.tags.join(" · ") || "—"}
+                    wide
+                  />
+                </dl>
               </article>
 
-              <aside className="paper-card p-6">
-                <div className="text-xs font-medium uppercase tracking-widest text-signal">
-                  {t("30 秒看懂", "Understand in 30 seconds")}
+              <article className="paper-card p-5 md:p-6">
+                <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <Stat value={relations.length} label={t("已收录关系", "Relations")} />
+                  <Stat value={sources.length} label={t("直接来源", "Sources")} />
+                  <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
+                  <Stat
+                    value={new Set(relations.map((edge) => edge.kind)).size}
+                    label={t("关系类型", "Relation types")}
+                  />
                 </div>
-                <div className="mt-5 space-y-5">
-                  {entity.knowledge.keyPoints.map((point, index) => (
-                    <div
-                      key={index}
-                      className="border-b border-border pb-5 last:border-0 last:pb-0"
-                    >
-                      <div className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
-                        <div>
-                          <h3 className="text-sm font-semibold text-foreground">
-                            {pick(point.title, lang)}
-                          </h3>
-                          <p className="mt-1.5 text-sm leading-6 text-ink-soft">
-                            {pick(point.description, lang)}
-                          </p>
-                          {point.sourceIds && point.sourceIds.length > 0 && (
-                            <span className="mt-2 inline-block text-[11px] text-verified">
-                              {t(
-                                `${point.sourceIds.length} 个直接来源`,
-                                `${point.sourceIds.length} direct source${point.sourceIds.length > 1 ? "s" : ""}`,
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                {entity.capabilities && entity.capabilities.length > 0 && (
+                  <div className="mt-5 border-t border-border pt-5">
+                    <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      {t("能力 / 特征", "Capabilities / traits")}
                     </div>
-                  ))}
-                </div>
-              </aside>
-            </section>
+                    <ul className="space-y-3">
+                      {entity.capabilities.map((capability, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                          <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
+                          <ConfidenceChip level={capability.confidence} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </article>
+            </div>
+          </section>
 
-            <section className="mt-12">
+          {claims.length > 0 && (
+            <section
+              data-reading-section="claims"
+              style={{ order: sectionPresentation.claims.order }}
+            >
               <SectionHeading
-                eyebrow="01"
-                title={t("它能用来做什么", "What it is useful for")}
+                eyebrow={sectionPresentation.claims.eyebrow}
+                title={t("已审核事实", "Reviewed facts")}
                 description={t(
-                  "从实际问题出发理解这个实体，而不是只记住一个名称。",
-                  "Understand the entity through practical questions, not just a name.",
+                  "这些事实已经通过人工审核，并保留直接证据与最近核验时间。",
+                  "These facts passed human review and retain direct evidence and verification dates.",
                 )}
               />
-              <div className="grid gap-4 md:grid-cols-3">
-                {entity.knowledge.useCases.map((useCase, index) => (
-                  <article key={index} className="paper-card p-5">
-                    <span className="font-mono text-xs text-signal">0{index + 1}</span>
-                    <h3 className="mt-3 font-semibold text-foreground">
-                      {pick(useCase.title, lang)}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      {pick(useCase.description, lang)}
-                    </p>
+              <ReviewedFacts key={entity.id} claims={claims} evidence={snapshot.evidence} />
+            </section>
+          )}
+
+          <section
+            data-reading-section="relationships"
+            style={{ order: sectionPresentation.relationships.order }}
+          >
+            <SectionHeading
+              eyebrow={sectionPresentation.relationships.eyebrow}
+              title={t("它与谁有什么关系", "How this entity is connected")}
+              description={t(
+                "每条关系都明确显示起点、关系语义、终点和置信度；点击相关实体可继续追踪。",
+                "Every row names its source, relationship, target and confidence. Open a related entity to continue exploring.",
+              )}
+              action={
+                <Link
+                  to="/graph"
+                  search={{ entity: entity.id, mode: "ecosystem" }}
+                  className="text-sm text-signal hover:underline"
+                >
+                  {t("打开关系洞察", "Open relationship insights")} →
+                </Link>
+              }
+            />
+            <div className="paper-card divide-y divide-border">
+              {relations.map((edge) => {
+                const from = entityById.get(edge.fromId);
+                const to = entityById.get(edge.toId);
+                const other = edge.fromId === entity.id ? to : from;
+                if (!from || !to || !other) return null;
+                return (
+                  <div
+                    key={edge.id}
+                    className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] md:items-center"
+                  >
+                    <EntityLink entity={from} />
+                    <span className="inline-flex items-center gap-2 text-sm font-medium text-signal">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                      {pick(RELATION_LABELS[edge.kind], lang)}
+                    </span>
+                    <EntityLink entity={to} />
+                    <ConfidenceChip level={edge.confidence} />
+                  </div>
+                );
+              })}
+              {relations.length === 0 && (
+                <p className="p-6 text-sm text-muted-foreground">
+                  {t("尚未收录该实体的关系。", "No relationships have been recorded yet.")}
+                </p>
+              )}
+            </div>
+          </section>
+
+          {timeline.length > 0 && (
+            <section
+              data-reading-section="timeline"
+              style={{ order: sectionPresentation.timeline.order }}
+            >
+              <SectionHeading
+                eyebrow={sectionPresentation.timeline.eyebrow}
+                title={t("时间线", "Timeline")}
+                description={t(
+                  "按时间记录发布、更新、评测与重要事件。",
+                  "Releases, updates, benchmarks and important events in chronological context.",
+                )}
+              />
+              <div className="space-y-3">
+                {timeline.map((event) => (
+                  <article key={event.id} className="paper-card flex gap-4 p-4">
+                    <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <time className="font-mono text-xs text-signal">{event.date}</time>
+                        <h3 className="font-semibold">{pick(event.title, lang)}</h3>
+                        <ConfidenceChip level={event.confidence} />
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                        {pick(event.summary, lang)}
+                      </p>
+                    </div>
                   </article>
                 ))}
               </div>
             </section>
+          )}
 
-            <section className="mt-8 rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]">
-              <div className="flex items-center gap-2 font-semibold">
-                <ShieldAlert className="h-4 w-4" />
-                {t("使用与判断边界", "Limits and interpretation")}
-              </div>
-              <ul className="mt-3 grid gap-2 text-sm leading-6 md:grid-cols-2">
-                {entity.knowledge.limitations.map((limitation, index) => (
-                  <li key={index} className="flex gap-2">
-                    <span aria-hidden="true">•</span>
-                    <span>{pick(limitation, lang)}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </>
-        )}
-
-        <section className="mt-12">
-          <SectionHeading
-            eyebrow={sectionNumber(baseSection)}
-            title={t("基础档案", "Reference profile")}
-            description={t(
-              "用于检索、筛选和数据核验的结构化信息。",
-              "Structured information for search, filtering and verification.",
-            )}
-          />
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
-            <article className="paper-card p-5 md:p-6">
-              <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
-              <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
-                <ProfileField
-                  label={t("实体类型", "Entity type")}
-                  value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                />
-                <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
-                <ProfileField label={t("所属组织", "Organization")} value={entity.vendor ?? "—"} />
-                <ProfileField label={t("来源区域", "Region")} value={origin} />
-                <ProfileField
-                  label={t("首次收录 / 发布", "First recorded / released")}
-                  value={entity.firstReleasedAt ?? "—"}
-                />
-                <ProfileField label={t("最近核验", "Last verified")} value={entity.lastUpdatedAt} />
-                <ProfileField
-                  label={t("别名", "Aliases")}
-                  value={entity.aliases?.join(" · ") || "—"}
-                  wide
-                />
-                <ProfileField
-                  label={t("标签", "Tags")}
-                  value={entity.tags.join(" · ") || "—"}
-                  wide
-                />
-              </dl>
-            </article>
-
-            <article className="paper-card p-5 md:p-6">
-              <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <Stat value={relations.length} label={t("已收录关系", "Relations")} />
-                <Stat value={sources.length} label={t("直接来源", "Sources")} />
-                <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
-                <Stat
-                  value={new Set(relations.map((edge) => edge.kind)).size}
-                  label={t("关系类型", "Relation types")}
-                />
-              </div>
-              {entity.capabilities && entity.capabilities.length > 0 && (
-                <div className="mt-5 border-t border-border pt-5">
-                  <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("能力 / 特征", "Capabilities / traits")}
-                  </div>
-                  <ul className="space-y-3">
-                    {entity.capabilities.map((capability, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                        <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
-                        <ConfidenceChip level={capability.confidence} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </article>
-          </div>
-        </section>
-
-        {claims.length > 0 && (
-          <section className="mt-12">
+          <section
+            data-reading-section="evidence"
+            style={{ order: sectionPresentation.evidence.order }}
+          >
             <SectionHeading
-              eyebrow={sectionNumber(claimSection)}
-              title={t("已审核事实", "Reviewed facts")}
+              eyebrow={sectionPresentation.evidence.eyebrow}
+              title={t("事实与关系证据", "Fact and relationship evidence")}
               description={t(
-                "这些事实已经通过人工审核，并保留直接证据与最近核验时间。",
-                "These facts passed human review and retain direct evidence and verification dates.",
+                "这里只列出直接支持本实体事实、关系或时间事件的来源。",
+                "Only sources directly supporting this entity's facts, relationships or timeline are listed.",
               )}
             />
-            <ReviewedFacts key={entity.id} claims={claims} evidence={snapshot.evidence} />
-          </section>
-        )}
-
-        <section className="mt-12">
-          <SectionHeading
-            eyebrow={sectionNumber(relationSection)}
-            title={t("它与谁有什么关系", "How this entity is connected")}
-            description={t(
-              "每条关系都明确显示起点、关系语义、终点和置信度；点击相关实体可继续追踪。",
-              "Every row names its source, relationship, target and confidence. Open a related entity to continue exploring.",
-            )}
-            action={
-              <Link
-                to="/graph"
-                search={{ entity: entity.id, mode: "ecosystem" }}
-                className="text-sm text-signal hover:underline"
-              >
-                {t("打开关系洞察", "Open relationship insights")} →
-              </Link>
-            }
-          />
-          <div className="paper-card divide-y divide-border">
-            {relations.map((edge) => {
-              const from = entityById.get(edge.fromId);
-              const to = entityById.get(edge.toId);
-              const other = edge.fromId === entity.id ? to : from;
-              if (!from || !to || !other) return null;
-              return (
-                <div
-                  key={edge.id}
-                  className="grid gap-3 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] md:items-center"
-                >
-                  <EntityLink entity={from} />
-                  <span className="inline-flex items-center gap-2 text-sm font-medium text-signal">
-                    <ArrowRight className="h-3.5 w-3.5" />
-                    {pick(RELATION_LABELS[edge.kind], lang)}
-                  </span>
-                  <EntityLink entity={to} />
-                  <ConfidenceChip level={edge.confidence} />
-                </div>
-              );
-            })}
-            {relations.length === 0 && (
-              <p className="p-6 text-sm text-muted-foreground">
-                {t("尚未收录该实体的关系。", "No relationships have been recorded yet.")}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {timeline.length > 0 && (
-          <section className="mt-12">
-            <SectionHeading
-              eyebrow={sectionNumber(timelineSection)}
-              title={t("时间线", "Timeline")}
-              description={t(
-                "按时间记录发布、更新、评测与重要事件。",
-                "Releases, updates, benchmarks and important events in chronological context.",
-              )}
-            />
-            <div className="space-y-3">
-              {timeline.map((event) => (
-                <article key={event.id} className="paper-card flex gap-4 p-4">
-                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <time className="font-mono text-xs text-signal">{event.date}</time>
-                      <h3 className="font-semibold">{pick(event.title, lang)}</h3>
-                      <ConfidenceChip level={event.confidence} />
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                      {pick(event.summary, lang)}
-                    </p>
-                  </div>
-                </article>
+            <div className="paper-card divide-y divide-border">
+              {sources.map((source) => (
+                <SourceRow key={source.id} source={source} />
               ))}
+              {sources.length === 0 && (
+                <div className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4" />
+                  {t(
+                    "尚无可直接展示的来源，相关关系将保持未核验状态。",
+                    "No directly displayable sources yet; related claims remain unverified.",
+                  )}
+                </div>
+              )}
             </div>
           </section>
-        )}
-
-        <section className="mt-12">
-          <SectionHeading
-            eyebrow={sectionNumber(evidenceSection)}
-            title={t("事实与关系证据", "Fact and relationship evidence")}
-            description={t(
-              "这里只列出直接支持本实体事实、关系或时间事件的来源。",
-              "Only sources directly supporting this entity's facts, relationships or timeline are listed.",
-            )}
-          />
-          <div className="paper-card divide-y divide-border">
-            {sources.map((source) => (
-              <SourceRow key={source.id} source={source} />
-            ))}
-            {sources.length === 0 && (
-              <div className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                {t(
-                  "尚无可直接展示的来源，相关关系将保持未核验状态。",
-                  "No directly displayable sources yet; related claims remain unverified.",
-                )}
-              </div>
-            )}
-          </div>
-        </section>
+        </div>
       </div>
     </AppShell>
   );

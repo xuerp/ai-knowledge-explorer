@@ -10,9 +10,10 @@ import {
   UserRound,
   Settings,
 } from "lucide-react";
-import { useApp } from "@/lib/app-state";
+import { pick, useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import { backNavigationFor } from "@/domain/back-navigation";
+import { getReadingModeOption, READING_MODE_OPTIONS } from "@/domain/reading-mode";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,7 @@ export function TopNav() {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const backNavigation = backNavigationFor(pathname, 0);
+  const currentReadingMode = getReadingModeOption(mode);
 
   const navigateBack = () => {
     const action = backNavigationFor(pathname, window.history.length).action;
@@ -111,22 +113,35 @@ export function TopNav() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
-              className="hidden sm:inline-flex"
-              aria-label="Reading mode"
+              size="sm"
+              className="hidden gap-2 px-2.5 lg:inline-flex"
+              aria-label={t(
+                `阅读模式：${currentReadingMode.shortLabel.zh}`,
+                `Reading mode: ${currentReadingMode.shortLabel.en}`,
+              )}
             >
               <BookOpen className="h-4 w-4" />
+              <span>{pick(currentReadingMode.shortLabel, lang)}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuLabel>{t("阅读模式", "Reading mode")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-              <DropdownMenuRadioItem value="general">{t("通俗", "General")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="product">{t("产品", "Product")}</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="technical">
-                {t("技术", "Technical")}
-              </DropdownMenuRadioItem>
+              {READING_MODE_OPTIONS.map((option) => (
+                <DropdownMenuRadioItem
+                  key={option.id}
+                  value={option.id}
+                  className="items-start py-2.5"
+                >
+                  <span>
+                    <span className="block text-sm font-medium">{pick(option.label, lang)}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+                      {pick(option.description, lang)}
+                    </span>
+                  </span>
+                </DropdownMenuRadioItem>
+              ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>

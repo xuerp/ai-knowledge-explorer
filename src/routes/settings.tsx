@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Bell, BookOpen, Languages, LockKeyhole, Moon, Sun, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader } from "@/components/common";
-import { useApp } from "@/lib/app-state";
+import { pick, useApp } from "@/lib/app-state";
 import {
   readNotificationPreferences,
   writeNotificationPreferences,
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { READING_MODE_OPTIONS } from "@/domain/reading-mode";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -91,52 +92,31 @@ function SettingsPage() {
             )}
           >
             <div className="grid gap-2">
-              {[
-                {
-                  value: "general",
-                  zh: "通俗模式",
-                  en: "General",
-                  zhDesc: "面向普通用户，解释术语并突出发生了什么。",
-                  enDesc: "Plain language with terminology explained.",
-                },
-                {
-                  value: "product",
-                  zh: "产品模式",
-                  en: "Product",
-                  zhDesc: "聚焦用户场景、产品机会、限制与风险。",
-                  enDesc: "Focus on use cases, opportunities, limits, and risks.",
-                },
-                {
-                  value: "technical",
-                  zh: "技术模式",
-                  en: "Technical",
-                  zhDesc: "聚焦架构、API、Benchmark 与原始技术资料。",
-                  enDesc: "Focus on architecture, APIs, benchmarks, and primary sources.",
-                },
-              ].map((option) => (
+              {READING_MODE_OPTIONS.map((option) => (
                 <button
-                  key={option.value}
+                  key={option.id}
                   type="button"
-                  onClick={() => setMode(option.value as typeof mode)}
+                  onClick={() => setMode(option.id)}
+                  aria-pressed={mode === option.id}
                   className={`flex items-start gap-3 rounded-lg border p-4 text-left transition-colors ${
-                    mode === option.value
+                    mode === option.id
                       ? "border-signal bg-accent"
                       : "border-border hover:border-border-strong"
                   }`}
                 >
                   <span
                     className={`mt-0.5 h-4 w-4 rounded-full border-4 ${
-                      mode === option.value
+                      mode === option.id
                         ? "border-signal bg-white"
                         : "border-border-strong bg-white"
                     }`}
                   />
                   <span>
                     <span className="block text-sm font-medium text-foreground">
-                      {t(option.zh, option.en)}
+                      {pick(option.label, lang)}
                     </span>
                     <span className="mt-1 block text-xs text-muted-foreground">
-                      {t(option.zhDesc, option.enDesc)}
+                      {pick(option.description, lang)}
                     </span>
                   </span>
                 </button>
