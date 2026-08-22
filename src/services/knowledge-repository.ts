@@ -1,16 +1,24 @@
 import type {
   DataMode,
+  Claim,
   Entity,
   EntityType,
   KnowledgeSnapshot,
   TimelineEvent,
 } from "@/domain/types";
+import type { Source } from "@/domain/types";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 export interface EntityQuery {
   type?: EntityType;
   query?: string;
+}
+
+export interface EntityClaimPage {
+  items: Claim[];
+  evidence: Source[];
+  nextCursor?: string;
 }
 
 export interface KnowledgeRepository {
@@ -26,6 +34,13 @@ export interface KnowledgeRepository {
   getModelFamilies: (signal?: AbortSignal) => Promise<Entity[]>;
   getFamilyVersions: (familyId: string, signal?: AbortSignal) => Promise<Entity[]>;
   compareModelVersions: (versionIds: string[], signal?: AbortSignal) => Promise<Entity[]>;
+  getEntityClaims: (
+    entityId: string,
+    scope: "current" | "history" | "all",
+    cursor?: string,
+    limit?: number,
+    signal?: AbortSignal,
+  ) => Promise<EntityClaimPage>;
 }
 
 function filterDemoEntities(query: EntityQuery = {}) {
@@ -82,6 +97,34 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
     return versionIds
       .map((id) => entityById.get(id))
       .filter((entity): entity is Entity => Boolean(entity?.familyId));
+  }
+
+  async getEntityClaims(
+    entityId: string,
+    scope: "current" | "history" | "all",
+    cursor?: string,
+    limit = 10,
+  ) {
+    const ordered = DEMO_KNOWLEDGE_SNAPSHOT.claims
+      .filter((claim) => claim.entityId === entityId)
+      .sort(
+        (left, right) =>
+          right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id),
+      );
+    const scoped = scope === "history" ? ordered.slice(5) : ordered;
+    const remaining = cursor
+      ? scoped.filter((claim) => `${claim.updatedAt}|${claim.id}` < cursor)
+      : scoped;
+    const items = remaining.slice(0, limit);
+    const sourceIds = new Set(items.flatMap((claim) => claim.sourceIds));
+    return {
+      items,
+      evidence: DEMO_KNOWLEDGE_SNAPSHOT.evidence.filter((item) => sourceIds.has(item.id)),
+      nextCursor:
+        remaining.length > limit && items.length
+          ? `${items.at(-1)?.updatedAt}|${items.at(-1)?.id}`
+          : undefined,
+    };
   }
 }
 
@@ -155,6 +198,22 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
         method: "POST",
         body: JSON.stringify({ versionIds }),
       },
+      signal,
+    );
+  }
+
+  getEntityClaims(
+    entityId: string,
+    scope: "current" | "history" | "all",
+    cursor?: string,
+    limit = 10,
+    signal?: AbortSignal,
+  ) {
+    const params = new URLSearchParams({ scope, limit: String(limit) });
+    if (cursor) params.set("cursor", cursor);
+    return this.request<EntityClaimPage>(
+      `/api/v2/entities/${encodeURIComponent(entityId)}/claims?${params.toString()}`,
+      {},
       signal,
     );
   }

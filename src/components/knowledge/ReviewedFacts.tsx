@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, History, LibraryBig } from "lucide-react";
 import { ConfidenceChip, SourceRow } from "@/components/common";
 import { splitClaimsForDisplay } from "@/domain/claim-display";
 import type { Claim, Source } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
+import { knowledgeRepository } from "@/services/knowledge-repository";
 
 const HISTORY_PAGE_SIZE = 10;
 
@@ -17,13 +18,66 @@ function displayDate(value: string, lang: "zh" | "en") {
   }).format(date);
 }
 
-export function ReviewedFacts({ claims, evidence }: { claims: Claim[]; evidence: Source[] }) {
+export function ReviewedFacts({
+  entityId,
+  claims,
+  evidence,
+}: {
+  entityId: string;
+  claims: Claim[];
+  evidence: Source[];
+}) {
   const { t, lang } = useApp();
   const displayed = splitClaimsForDisplay(claims);
-  const [historyLimit, setHistoryLimit] = useState(HISTORY_PAGE_SIZE);
-  const visibleHistory = displayed.history.slice(0, historyLimit);
-  const remainingHistory = displayed.history.length - visibleHistory.length;
-  const evidenceById = new Map(evidence.map((source) => [source.id, source]));
+  const [remoteHistory, setRemoteHistory] = useState<Claim[]>([]);
+  const [remoteEvidence, setRemoteEvidence] = useState<Source[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | undefined>();
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const visibleHistory = remoteHistory.length
+    ? remoteHistory
+    : displayed.history.slice(0, HISTORY_PAGE_SIZE);
+  const remainingHistory = remoteHistory.length
+    ? Number(Boolean(nextCursor))
+    : displayed.history.length - visibleHistory.length;
+  const evidenceById = new Map(
+    [...evidence, ...remoteEvidence].map((source) => [source.id, source]),
+  );
+
+  const loadMoreHistory = async () => {
+    setLoadingHistory(true);
+    try {
+      const page = await knowledgeRepository.getEntityClaims(
+        entityId,
+        "history",
+        remoteHistory.length ? nextCursor : undefined,
+        HISTORY_PAGE_SIZE,
+      );
+      setRemoteHistory((current) =>
+        Array.from(new Map([...current, ...page.items].map((claim) => [claim.id, claim])).values()),
+      );
+      setRemoteEvidence((current) =>
+        Array.from(
+          new Map([...current, ...page.evidence].map((source) => [source.id, source])).values(),
+        ),
+      );
+      setNextCursor(page.nextCursor);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void knowledgeRepository
+      .getEntityClaims(entityId, "history", undefined, HISTORY_PAGE_SIZE, controller.signal)
+      .then((page) => {
+        setRemoteHistory(page.items);
+        setRemoteEvidence(page.evidence);
+        setNextCursor(page.nextCursor);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [entityId]);
 
   const renderClaim = (claim: Claim, compact = false) => {
     const claimSources = claim.sourceIds
@@ -81,14 +135,14 @@ export function ReviewedFacts({ claims, evidence }: { claims: Claim[]; evidence:
         </div>
       </div>
 
-      {displayed.history.length > 0 && (
+      {visibleHistory.length > 0 && (
         <details className="paper-card group overflow-hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 md:px-5">
             <span className="inline-flex items-center gap-2 text-sm font-medium text-signal">
               <History className="h-4 w-4" />
               {t(
-                `历史事实（${displayed.history.length}）`,
-                `Fact history (${displayed.history.length})`,
+                `历史事实（已加载 ${visibleHistory.length} 条）`,
+                `Fact history (${visibleHistory.length} loaded)`,
               )}
             </span>
             <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
@@ -102,11 +156,12 @@ export function ReviewedFacts({ claims, evidence }: { claims: Claim[]; evidence:
                 <button
                   type="button"
                   className="rounded-md border border-border px-4 py-2 text-sm font-medium text-signal transition-colors hover:bg-accent"
-                  onClick={() => setHistoryLimit((limit) => limit + HISTORY_PAGE_SIZE)}
+                  disabled={loadingHistory}
+                  onClick={() => void loadMoreHistory()}
                 >
                   {t(
-                    `再加载 ${Math.min(HISTORY_PAGE_SIZE, remainingHistory)} 条`,
-                    `Load ${Math.min(HISTORY_PAGE_SIZE, remainingHistory)} more`,
+                    loadingHistory ? "加载中…" : "再加载 10 条",
+                    loadingHistory ? "Loading…" : "Load 10 more",
                   )}
                 </button>
               </div>
