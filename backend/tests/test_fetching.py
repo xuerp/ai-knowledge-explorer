@@ -453,6 +453,38 @@ def test_scheduler_auto_pauses_repeated_permanent_failure_and_retry_resumes(tmp_
     database.dispose()
 
 
+def test_historical_permanent_failures_are_reconciled_without_another_retry(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'historical-failure.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+
+    with database.session() as session:
+        ingestion.create_source(
+            session,
+            SourceCreate(
+                id="historical-redirect",
+                url="https://example.com/old-entry",
+                title="Historical redirect",
+                publisher="Example",
+            ),
+        )
+        source = session.get(SourceRecord, "historical-redirect")
+        assert source is not None
+        source.fetch_enabled = True
+        source.consecutive_failures = 48
+        source.last_fetch_error = "Redirect was returned without a canonical URL."
+        source.next_fetch_at = datetime.now(UTC)
+        session.commit()
+
+        assert ingestion.reconcile_historical_permanent_failures(session) == 1
+        session.refresh(source)
+        assert source.failure_kind == "redirect"
+        assert source.auto_paused_at is not None
+        assert source.next_fetch_at is None
+
+    database.dispose()
+
+
 def test_scheduler_runs_due_sources_and_records_not_modified(tmp_path: Path):
     database = Database(f"sqlite:///{(tmp_path / 'scheduler.db').as_posix()}")
     database.create_all()

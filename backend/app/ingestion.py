@@ -15,6 +15,7 @@ from .database import (
     ReviewJobRecord,
     SourceRecord,
 )
+from .fetching import PERMANENT_FETCH_FAILURE_KINDS, classify_fetch_failure_message
 from .schemas import (
     CandidateCreate,
     DocumentIngestRequest,
@@ -184,6 +185,30 @@ class IngestionService:
     def list_sources(self, session: Session) -> list[SourceView]:
         rows = session.scalars(select(SourceRecord).order_by(SourceRecord.created_at)).all()
         return [self.to_source_view(row) for row in rows]
+
+    def reconcile_historical_permanent_failures(self, session: Session) -> int:
+        """将旧版本遗留的永久失败信源纳入熔断，避免继续无限退避。"""
+        rows = session.scalars(
+            select(SourceRecord).where(
+                SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_(None),
+                SourceRecord.consecutive_failures >= 3,
+                SourceRecord.last_fetch_error.is_not(None),
+            )
+        ).all()
+        paused = 0
+        current = datetime.now(UTC)
+        for row in rows:
+            failure_kind = classify_fetch_failure_message(row.last_fetch_error or "")
+            row.failure_kind = failure_kind
+            if failure_kind not in PERMANENT_FETCH_FAILURE_KINDS:
+                continue
+            row.auto_paused_at = current
+            row.next_fetch_at = None
+            paused += 1
+        if rows:
+            session.commit()
+        return paused
 
     def update_source(
         self,
