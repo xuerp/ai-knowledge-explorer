@@ -558,13 +558,21 @@ class KnowledgeRepository:
 
         jobs = session.scalars(select(ReviewJobRecord)).all()
         blocked_claim_ids = {
-            job.claim_id for job in jobs if job.status in OPEN_REVIEW_STATUSES | {"rejected"}
+            job.claim_id
+            for job in jobs
+            if job.status in OPEN_REVIEW_STATUSES | {"rejected"}
+            or job.lifecycle_status != "current"
+            or job.publication_action == "merged-evidence"
         }
         snapshot.claims = [claim for claim in snapshot.claims if claim.id not in blocked_claim_ids]
         claim_ids = {claim.id for claim in snapshot.claims}
         evidence_ids = {evidence.id for evidence in snapshot.evidence}
         for job in jobs:
-            if job.status != "approved":
+            if (
+                job.status != "approved"
+                or job.publication_action == "merged-evidence"
+                or job.lifecycle_status != "current"
+            ):
                 continue
             claim = self.approved_claim(job)
             if job.claim_id in claim_ids:
@@ -692,6 +700,10 @@ class KnowledgeRepository:
             ),
             evidence_items=self.approved_evidence(row),
             conflict_claim_ids=json.loads(row.conflict_ids_json or "[]"),
+            lifecycle_status=row.lifecycle_status,
+            publication_action=row.publication_action,
+            target_claim_id=row.target_claim_id,
+            superseded_by_claim_id=row.superseded_by_claim_id,
         )
 
     def publication_history(self, session: Session) -> list[PublicationRecord]:

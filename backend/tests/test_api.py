@@ -58,7 +58,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.22-source-portfolio-v53",
+        "release": "2026.08.23-claim-lifecycle-v54",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -1008,6 +1008,160 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert history.status_code == 200
     assert len(history.json()) == 1
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
+
+
+def create_lifecycle_candidate(
+    client: TestClient,
+    headers: dict[str, str],
+    suffix: str,
+    value: str,
+) -> dict[str, object]:
+    created = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": f"review-lifecycle-{suffix}",
+            "entityId": "e-gpt",
+            "claim": {
+                "id": f"claim-lifecycle-{suffix}",
+                "text": {
+                    "zh": f"GPT 的上下文窗口为 {value}。",
+                    "en": f"GPT has a {value} context window.",
+                },
+                "confidence": "unverified",
+                "sourceIds": [f"evidence-lifecycle-{suffix}"],
+                "updatedAt": "2026-08-22",
+                "subject": "GPT",
+                "predicate": "context-window",
+                "objectOrValue": value,
+                "validFrom": "2026-08-22",
+            },
+            "evidence": [
+                {
+                    "id": f"evidence-lifecycle-{suffix}",
+                    "title": {"zh": "GPT 官方规格", "en": "GPT official specification"},
+                    "url": f"https://example.com/gpt-spec-{suffix}",
+                    "publisher": "OpenAI",
+                    "publishedAt": "2026-08-22",
+                    "collectedAt": "2026-08-22",
+                    "sourceExcerpt": f"GPT context-window {value}.",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert created.status_code == 201
+    return created.json()
+
+
+def approve_lifecycle_candidate(
+    client: TestClient,
+    headers: dict[str, str],
+    candidate: dict[str, object],
+) -> dict[str, object]:
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{candidate['id']}/approve",
+        headers=headers,
+        json={
+            "expectedVersion": candidate["version"],
+            "reason": "已人工核对官方规格、有效期和证据锚点。",
+        },
+    )
+    assert approved.status_code == 200
+    return approved.json()
+
+
+def test_merge_evidence_keeps_one_public_claim_and_is_idempotent(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    target = approve_lifecycle_candidate(
+        client,
+        headers,
+        create_lifecycle_candidate(client, headers, "base", "1M"),
+    )
+    duplicate = create_lifecycle_candidate(client, headers, "duplicate", "1M")
+    decision = {
+        "expectedVersion": duplicate["version"],
+        "targetClaimId": target["claim"]["id"],
+        "expectedTargetVersion": target["version"],
+        "idempotencyKey": "merge-lifecycle-duplicate-v1",
+        "reason": "事实相同，仅把新的官方证据合并到已有事实。",
+    }
+
+    merged = client.post(
+        f"/api/v2/admin/review-queue/{duplicate['id']}/merge-evidence",
+        headers=headers,
+        json=decision,
+    )
+    assert merged.status_code == 200
+    assert merged.json()["publicationAction"] == "merged-evidence"
+    assert merged.json()["targetClaimId"] == target["claim"]["id"]
+
+    snapshot = client.get("/api/snapshot").json()
+    lifecycle_claims = [
+        claim for claim in snapshot["claims"] if claim["id"].startswith("claim-lifecycle-")
+    ]
+    assert [claim["id"] for claim in lifecycle_claims] == [target["claim"]["id"]]
+    assert set(lifecycle_claims[0]["sourceIds"]) == {
+        "evidence-lifecycle-base",
+        "evidence-lifecycle-duplicate",
+    }
+    assert "evidence-lifecycle-duplicate" in {evidence["id"] for evidence in snapshot["evidence"]}
+
+    repeated = client.post(
+        f"/api/v2/admin/review-queue/{duplicate['id']}/merge-evidence",
+        headers=headers,
+        json=decision,
+    )
+    assert repeated.status_code == 200
+    assert repeated.json()["version"] == merged.json()["version"]
+    repeated_snapshot = client.get("/api/snapshot").json()
+    repeated_target = next(
+        claim for claim in repeated_snapshot["claims"] if claim["id"] == target["claim"]["id"]
+    )
+    assert repeated_target["sourceIds"].count("evidence-lifecycle-duplicate") == 1
+
+
+def test_superseding_claim_hides_old_fact_and_checks_target_version(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    target = approve_lifecycle_candidate(
+        client,
+        headers,
+        create_lifecycle_candidate(client, headers, "old", "1M"),
+    )
+    replacement = create_lifecycle_candidate(client, headers, "new", "2M")
+    endpoint = f"/api/v2/admin/review-queue/{replacement['id']}/approve-superseding"
+    decision = {
+        "expectedVersion": replacement["version"],
+        "targetClaimId": target["claim"]["id"],
+        "expectedTargetVersion": target["version"],
+        "idempotencyKey": "supersede-lifecycle-context-v1",
+        "reason": "新版官方规格改变了同一有效期内的上下文窗口值。",
+    }
+
+    stale = client.post(
+        endpoint,
+        headers=headers,
+        json={**decision, "expectedTargetVersion": target["version"] + 1},
+    )
+    assert stale.status_code == 409
+
+    superseding = client.post(endpoint, headers=headers, json=decision)
+    assert superseding.status_code == 200
+    assert superseding.json()["publicationAction"] == "superseding"
+    assert superseding.json()["lifecycleStatus"] == "current"
+    assert superseding.json()["targetClaimId"] == target["claim"]["id"]
+
+    snapshot = client.get("/api/snapshot").json()
+    public_ids = {claim["id"] for claim in snapshot["claims"]}
+    assert replacement["claim"]["id"] in public_ids
+    assert target["claim"]["id"] not in public_ids
+
+    history = client.get(
+        "/api/v2/admin/review-queue", params={"scope": "history"}, headers=headers
+    ).json()
+    old = next(item for item in history if item["id"] == target["id"])
+    assert old["lifecycleStatus"] == "superseded"
+    assert old["supersededByClaimId"] == replacement["claim"]["id"]
 
 
 def test_review_queue_supports_bounded_open_and_history_scopes(client: TestClient):
