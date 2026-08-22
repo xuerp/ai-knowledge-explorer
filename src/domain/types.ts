@@ -49,6 +49,9 @@ export interface Claim {
   validFrom?: string;
   validTo?: string;
   observedAt?: string;
+  subject?: string;
+  predicate?: string;
+  objectOrValue?: string;
 }
 
 export interface TimelineEntry {

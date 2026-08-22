@@ -64,6 +64,7 @@ from .schemas import (
     EmailOutboxRetryRequest,
     EmailOutboxView,
     Entity,
+    EntityClaimPage,
     ExtractionPlanItem,
     ExtractionProbeResult,
     ExtractionRequest,
@@ -108,7 +109,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260823_0018"
-SERVICE_RELEASE = "2026.08.23-review-lifecycle-workspace-v55"
+SERVICE_RELEASE = "2026.08.23-paginated-claim-history-v56"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -1253,6 +1254,71 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 or any(needle in alias.casefold() for alias in item.aliases or [])
             ]
         return items
+
+    @app.get(
+        "/api/v2/entities/{entity_id}/claims",
+        response_model=EntityClaimPage,
+    )
+    def entity_claims(
+        entity_id: str,
+        session: SessionDependency,
+        scope: Annotated[Literal["current", "history", "all"], Query()] = "current",
+        topic: str | None = None,
+        cursor: str | None = None,
+        limit: Annotated[int, Query(ge=1, le=50)] = 10,
+    ) -> EntityClaimPage:
+        public_snapshot = get_public_snapshot(session)
+        current = [claim for claim in public_snapshot.claims if claim.entity_id == entity_id]
+        rows = session.scalars(
+            select(ReviewJobRecord).where(
+                ReviewJobRecord.entity_id == entity_id,
+                ReviewJobRecord.status == "approved",
+            )
+        ).all()
+        historical = [
+            repository.approved_claim(row)
+            for row in rows
+            if row.lifecycle_status != "current" and row.publication_action != "merged-evidence"
+        ]
+        ordered_current = sorted(
+            current,
+            key=lambda claim: (claim.updated_at, claim.id),
+            reverse=True,
+        )
+        if scope == "current":
+            items = ordered_current
+        elif scope == "history":
+            items = [*ordered_current[5:], *historical]
+        else:
+            items = [*ordered_current, *historical]
+        if topic:
+            topic_key = " ".join(topic.casefold().split())
+            items = [
+                claim
+                for claim in items
+                if " ".join((claim.predicate or "").casefold().split()) == topic_key
+            ]
+        items = sorted(items, key=lambda claim: (claim.updated_at, claim.id), reverse=True)
+        if cursor:
+            items = [claim for claim in items if f"{claim.updated_at}|{claim.id}" < cursor]
+        page_items = items[:limit]
+        next_cursor = (
+            f"{page_items[-1].updated_at}|{page_items[-1].id}"
+            if len(items) > limit and page_items
+            else None
+        )
+        evidence_by_id = {item.id: item for item in public_snapshot.evidence}
+        for row in rows:
+            for evidence in repository.approved_evidence(row):
+                evidence_by_id[evidence.id] = evidence
+        source_ids = {source_id for claim in page_items for source_id in claim.source_ids}
+        return EntityClaimPage(
+            items=page_items,
+            evidence=[
+                evidence_by_id[item_id] for item_id in source_ids if item_id in evidence_by_id
+            ],
+            next_cursor=next_cursor,
+        )
 
     @app.get("/api/v2/model-families", response_model=list[Entity])
     def model_families(session: SessionDependency) -> list[Entity]:

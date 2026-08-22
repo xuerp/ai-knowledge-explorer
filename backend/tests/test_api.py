@@ -58,7 +58,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.23-review-lifecycle-workspace-v55",
+        "release": "2026.08.23-paginated-claim-history-v56",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -1189,6 +1189,15 @@ def test_superseding_claim_hides_old_fact_and_checks_target_version(client: Test
     old = next(item for item in history if item["id"] == target["id"])
     assert old["lifecycleStatus"] == "superseded"
     assert old["supersededByClaimId"] == replacement["claim"]["id"]
+
+    first_page = client.get(
+        "/api/v2/entities/e-gpt/claims",
+        params={"scope": "history", "limit": 1},
+    )
+    assert first_page.status_code == 200
+    assert first_page.json()["items"][0]["id"] == target["claim"]["id"]
+    assert first_page.json()["items"][0]["validTo"] == "2026-08-22"
+    assert first_page.json()["evidence"]
 
 
 def test_review_queue_supports_bounded_open_and_history_scopes(client: TestClient):

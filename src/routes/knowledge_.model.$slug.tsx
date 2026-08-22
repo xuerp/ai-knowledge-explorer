@@ -384,7 +384,12 @@ function EntityDetail() {
                 "New human-reviewed facts appear here with their direct evidence.",
               )}
             />
-            <ReviewedFacts key={e.id} claims={reviewedClaims} evidence={allEvidence} />
+            <ReviewedFacts
+              key={e.id}
+              entityId={e.id}
+              claims={reviewedClaims}
+              evidence={allEvidence}
+            />
           </section>
         )}
 

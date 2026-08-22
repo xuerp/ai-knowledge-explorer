@@ -320,6 +320,12 @@ class ReviewInventoryReport(CamelModel):
     duplicate_with_published_items: int
 
 
+class EntityClaimPage(CamelModel):
+    items: list[Claim]
+    evidence: list[Evidence]
+    next_cursor: str | None = None
+
+
 class PublicationRecord(CamelModel):
     id: int
     review_job_id: str

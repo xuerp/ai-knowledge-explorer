@@ -258,7 +258,12 @@ function GenericEntityDetail() {
                   "These facts passed human review and retain direct evidence and verification dates.",
                 )}
               />
-              <ReviewedFacts key={entity.id} claims={claims} evidence={snapshot.evidence} />
+              <ReviewedFacts
+                key={entity.id}
+                entityId={entity.id}
+                claims={claims}
+                evidence={snapshot.evidence}
+              />
             </section>
           )}
 
