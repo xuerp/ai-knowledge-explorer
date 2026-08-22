@@ -1,7 +1,18 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Diamond, Search, Moon, Sun, Languages, BookOpen, UserRound, Settings } from "lucide-react";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Diamond,
+  Search,
+  Moon,
+  Sun,
+  Languages,
+  BookOpen,
+  UserRound,
+  Settings,
+} from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
+import { backNavigationFor } from "@/domain/back-navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,11 +35,37 @@ const NAV = [
 
 export function TopNav() {
   const { lang, setLang, theme, setTheme, mode, setMode, t } = useApp();
+  const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const backNavigation = backNavigationFor(pathname, 0);
+
+  const navigateBack = () => {
+    const action = backNavigationFor(pathname, window.history.length).action;
+    if (action === "history") {
+      window.history.back();
+      return;
+    }
+    void router.navigate({ to: "/" });
+  };
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card/95 text-foreground backdrop-blur">
       <div className="page-container h-14 flex items-center gap-3">
+        {backNavigation.visible && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="-ml-2 shrink-0 gap-1.5 px-2 text-ink-soft hover:text-foreground"
+            aria-label={t("返回上一页", "Back to previous page")}
+            title={t("返回上一页", "Back to previous page")}
+            onClick={navigateBack}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden lg:inline">{t("返回", "Back")}</span>
+          </Button>
+        )}
+
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <Diamond className="h-4 w-4 fill-signal text-signal" />
           <span className="text-base font-semibold tracking-tight text-signal">AI Radar</span>
