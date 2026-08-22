@@ -18,6 +18,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { buildManualCandidate, suggestedEntityId } from "@/domain/manual-candidate";
 import {
+  findClaimLifecycleMatches,
+  lifecycleIdempotencyKey,
+  type ClaimLifecycleMatch,
+} from "@/domain/claim-lifecycle";
+import {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   partitionReviewBatchItems,
@@ -50,6 +55,7 @@ import {
   type ProductionReadiness,
   type ProductionReadinessCheck,
   type ReviewQueueItem,
+  type ReviewInventoryReport,
   type SourceView,
 } from "@/services/admin-api";
 import {
@@ -80,6 +86,7 @@ type Workspace = {
   integrations: IntegrationStatus | null;
   operations: OperationsDiagnostics | null;
   productionReadiness: ProductionReadiness | null;
+  reviewInventory: ReviewInventoryReport | null;
   loadWarnings: string[];
 };
 
@@ -385,6 +392,51 @@ function AdminReviewPage() {
         [item.id]: message,
       }));
       toast.error("审核失败", { description: message, duration: 6_000 });
+    } finally {
+      setReviewingIds((current) => {
+        const next = new Set(current);
+        next.delete(item.id);
+        return next;
+      });
+    }
+  };
+
+  const decideLifecycle = async (item: ReviewQueueItem, match: ClaimLifecycleMatch) => {
+    const action = match.relationship === "duplicate" ? "merged-evidence" : "superseding";
+    const reason =
+      reasons[item.id]?.trim() ||
+      (action === "merged-evidence"
+        ? "确定性语义指纹一致，合并新的证据来源。"
+        : "同一实体与谓词出现新值，人工确认以新事实替代旧事实。");
+    setReviewingIds((current) => new Set(current).add(item.id));
+    setReviewErrors((current) => ({ ...current, [item.id]: "" }));
+    try {
+      const decided = await adminApi.decideLifecycle(
+        token,
+        item.id,
+        action,
+        match.target,
+        item.version,
+        lifecycleIdempotencyKey(item, match.target, action),
+        reason,
+      );
+      setOperationMessage(
+        action === "merged-evidence"
+          ? "新证据已合并到已有事实，未新增公共事实卡片。"
+          : "新事实已发布，旧事实已转入可追溯历史。",
+      );
+      toast.success(action === "merged-evidence" ? "证据合并成功" : "事实替代成功");
+      await refresh(token);
+      setReasons((current) => {
+        const next = { ...current };
+        delete next[item.id];
+        return next;
+      });
+      return decided;
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "事实生命周期操作失败。";
+      setReviewErrors((current) => ({ ...current, [item.id]: message }));
+      toast.error("无法提交生命周期操作", { description: message });
     } finally {
       setReviewingIds((current) => {
         const next = new Set(current);
@@ -1395,6 +1447,38 @@ function AdminReviewPage() {
           />
         )}
 
+        {workspace.reviewInventory && (
+          <section className="paper-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-xl font-semibold">存量队列只读盘点</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  本报告只做确定性分类，不修改候选，也不调用外部模型。先合并明确重复，再人工判断更新与冲突。
+                </p>
+              </div>
+              <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                共 {workspace.reviewInventory.openTotal} 条开放候选
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Metric
+                label="与已发布事实重复"
+                value={workspace.reviewInventory.duplicateWithPublishedItems}
+              />
+              <Metric
+                label="队列内重复组"
+                value={workspace.reviewInventory.deterministicDuplicateGroups}
+              />
+              <Metric label="可能更新组" value={workspace.reviewInventory.possibleUpdateGroups} />
+              <Metric label="冲突候选" value={workspace.reviewInventory.conflictItems} />
+              <Metric label="超过 90 天" value={workspace.reviewInventory.staleItems} />
+              <Metric label="原文锚点无效" value={workspace.reviewInventory.invalidAnchorItems} />
+              <Metric label="缺少证据" value={workspace.reviewInventory.missingEvidenceItems} />
+              <Metric label="高风险" value={workspace.reviewInventory.riskCounts.high ?? 0} />
+            </div>
+          </section>
+        )}
+
         <section id="review-queue" className="scroll-mt-6 space-y-3">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -1475,6 +1559,7 @@ function AdminReviewPage() {
           {orderedPendingQueue.map((item) => {
             const reviewing = reviewingIds.has(item.id);
             const assessment = assessReviewItem(item);
+            const lifecycleMatches = findClaimLifecycleMatches(item, reviewHistory);
             return (
               <article
                 key={item.id}
@@ -1558,6 +1643,39 @@ function AdminReviewPage() {
                     ))
                   )}
                 </div>
+                {lifecycleMatches.length > 0 && (
+                  <div className="mt-4 rounded-md border border-signal/30 bg-signal/5 p-3">
+                    <div className="text-sm font-medium">可能关联的已发布事实</div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      系统只按实体、谓词、标准化值和有效期做确定性提示，最终动作仍由审核员确认。
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {lifecycleMatches.map((match) => (
+                        <div
+                          key={match.target.id}
+                          className="flex flex-col gap-2 rounded-md border border-border bg-background/70 p-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-sm">{match.target.claim.text.zh}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {match.relationship === "duplicate" ? "完全重复" : "可能更新"} · 目标{" "}
+                              {match.target.claim.id} · {match.target.evidenceItems.length} 条证据
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={match.relationship === "duplicate" ? "outline" : "default"}
+                            disabled={reviewing}
+                            onClick={() => decideLifecycle(item, match)}
+                          >
+                            {match.relationship === "duplicate" ? "合并证据" : "替代此事实"}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                   <Input
                     aria-label="审核理由"
