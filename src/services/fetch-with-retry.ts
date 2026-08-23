@@ -5,6 +5,7 @@ export type FetchWithRetryOptions = {
 };
 
 const RETRYABLE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
 
 export async function fetchWithNetworkRetry(
   input: RequestInfo | URL,
@@ -19,7 +20,11 @@ export async function fetchWithNetworkRetry(
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      return await fetcher(input, init);
+      const response = await fetcher(input, init);
+      if (!retryable || !RETRYABLE_STATUSES.has(response.status) || attempt >= attempts) {
+        return response;
+      }
+      await wait(baseDelayMs * attempt, init.signal);
     } catch (error) {
       if (isAbortError(error)) throw error;
       if (!retryable || attempt >= attempts) {
