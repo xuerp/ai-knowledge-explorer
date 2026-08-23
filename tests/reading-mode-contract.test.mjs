@@ -24,7 +24,7 @@ test("阅读模式由一份共享配置驱动顶部入口与设置页", async ()
   assert.match(settings, /READING_MODE_OPTIONS\.map/);
 });
 
-test("模型与通用实体页按阅读模式重排同一份知识", async () => {
+test("模型与通用实体页按阅读模式展示不同重点信息", async () => {
   const [config, article, modelPage, entityPage] = await Promise.all([
     read("src/domain/reading-mode.ts"),
     read("src/components/knowledge/KnowledgeArticle.tsx"),
@@ -33,6 +33,8 @@ test("模型与通用实体页按阅读模式重排同一份知识", async () =>
   ]);
 
   assert.match(config, /getEntitySectionPresentation/);
+  assert.match(config, /getVisibleEntitySections/);
+  assert.match(config, /ENTITY_SECTION_DENSITY/);
   assert.match(config, /knowledgeBlockOrder/);
   assert.match(
     config,
@@ -45,8 +47,14 @@ test("模型与通用实体页按阅读模式重排同一份知识", async () =>
   assert.match(article, /data-reading-block="guide"/);
   assert.match(article, /data-reading-block="use-cases"/);
   assert.match(article, /data-reading-block="limitations"/);
+  assert.match(article, /data-reading-view="general"/);
+  assert.match(article, /data-reading-view="product"/);
+  assert.match(article, /data-reading-view="technical"/);
   assert.match(modelPage, /data-reading-section="profile"/);
   assert.match(modelPage, /data-reading-section="lineage"/);
+  assert.match(modelPage, /hidden=\{!sectionVisible\("comparison"\)\}/);
+  assert.match(modelPage, /data-reading-focus=\{mode\}/);
   assert.match(entityPage, /data-reading-section="relationships"/);
   assert.match(entityPage, /data-reading-section="evidence"/);
+  assert.match(entityPage, /hidden=\{!sectionVisible\("evidence"\)\}/);
 });

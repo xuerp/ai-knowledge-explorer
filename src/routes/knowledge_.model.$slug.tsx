@@ -23,7 +23,12 @@ import {
 } from "@/components/common";
 import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
-import { getEntitySectionPresentation, type EntitySection } from "@/domain/reading-mode";
+import {
+  getEntitySectionPresentation,
+  getReadingModeOption,
+  getVisibleEntitySections,
+  type EntitySection,
+} from "@/domain/reading-mode";
 import { useApp, pick } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
 import { Button } from "@/components/ui/button";
@@ -98,7 +103,7 @@ function EntityDetail() {
   }
   const evidence = allEvidence.filter((source) => relevantSourceIds.has(source.id));
 
-  const visibleSections: EntitySection[] = [
+  const availableSections: EntitySection[] = [
     "guide",
     "profile",
     ...(reviewedClaims.length > 0 ? (["claims"] as const) : []),
@@ -109,7 +114,10 @@ function EntityDetail() {
     "questions",
     "evidence",
   ];
+  const visibleSections = getVisibleEntitySections(mode, "model", availableSections);
+  const sectionVisible = (section: EntitySection) => visibleSections.includes(section);
   const sectionPresentation = getEntitySectionPresentation(mode, "model", visibleSections);
+  const readingMode = getReadingModeOption(mode);
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
     .map((r) => findEntity(r.fromId === e.id ? r.toId : r.fromId))
@@ -196,6 +204,20 @@ function EntityDetail() {
       </div>
 
       <div className="page-container flex flex-col gap-12 pb-12 pt-5">
+        <div
+          className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
+          data-reading-focus={mode}
+        >
+          <div className="text-sm font-semibold text-signal">{pick(readingMode.label, lang)}</div>
+          <p className="mt-1 text-sm leading-6 text-ink-soft">
+            {pick(readingMode.description, lang)}{" "}
+            {t(
+              "页面只展开本模式的重点信息。",
+              "Only this mode's priority information is expanded on the page.",
+            )}
+          </p>
+        </div>
+
         <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
           <KnowledgeArticle
             knowledge={knowledge}
@@ -220,6 +242,7 @@ function EntityDetail() {
         {/* 1. 结构化档案 */}
         <section
           data-reading-section="profile"
+          hidden={!sectionVisible("profile")}
           style={{ order: sectionPresentation.profile.order }}
         >
           <SectionHeading
@@ -371,7 +394,7 @@ function EntityDetail() {
           )}
         </section>
 
-        {reviewedClaims.length > 0 && (
+        {reviewedClaims.length > 0 && sectionVisible("claims") && (
           <section
             data-reading-section="claims"
             style={{ order: sectionPresentation.claims.order }}
@@ -393,7 +416,7 @@ function EntityDetail() {
           </section>
         )}
 
-        {childVersions.length > 0 && (
+        {childVersions.length > 0 && sectionVisible("lineage") && (
           <section
             data-reading-section="lineage"
             style={{ order: sectionPresentation.lineage.order }}
@@ -469,6 +492,7 @@ function EntityDetail() {
         {/* 局部关系概览 */}
         <section
           data-reading-section="relationships"
+          hidden={!sectionVisible("relationships")}
           style={{ order: sectionPresentation.relationships.order }}
         >
           <SectionHeading
@@ -517,6 +541,7 @@ function EntityDetail() {
         {/* Timeline */}
         <section
           data-reading-section="timeline"
+          hidden={!sectionVisible("timeline")}
           style={{ order: sectionPresentation.timeline.order }}
         >
           <SectionHeading
@@ -554,6 +579,7 @@ function EntityDetail() {
         {/* Compare */}
         <section
           data-reading-section="comparison"
+          hidden={!sectionVisible("comparison")}
           style={{ order: sectionPresentation.comparison.order }}
         >
           <SectionHeading
@@ -620,6 +646,7 @@ function EntityDetail() {
         {/* AI 问答 */}
         <section
           data-reading-section="questions"
+          hidden={!sectionVisible("questions")}
           style={{ order: sectionPresentation.questions.order }}
         >
           <SectionHeading
@@ -687,6 +714,7 @@ function EntityDetail() {
         {/* 来源 */}
         <section
           data-reading-section="evidence"
+          hidden={!sectionVisible("evidence")}
           style={{ order: sectionPresentation.evidence.order }}
         >
           <SectionHeading

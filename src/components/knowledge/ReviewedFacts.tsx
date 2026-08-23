@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, History, LibraryBig } from "lucide-react";
 import { ConfidenceChip, SourceRow } from "@/components/common";
 import { splitClaimsForDisplay } from "@/domain/claim-display";
+import { claimTextForReadingMode, rankClaimsForReadingMode } from "@/domain/claim-reading-mode";
 import type { Claim, Source } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
@@ -27,8 +28,10 @@ export function ReviewedFacts({
   claims: Claim[];
   evidence: Source[];
 }) {
-  const { t, lang } = useApp();
-  const displayed = splitClaimsForDisplay(claims);
+  const { t, lang, mode } = useApp();
+  const visibleLimit = mode === "general" ? 3 : mode === "product" ? 5 : 8;
+  const rankedClaims = rankClaimsForReadingMode(claims, mode);
+  const displayed = splitClaimsForDisplay(rankedClaims, visibleLimit, true);
   const [remoteHistory, setRemoteHistory] = useState<Claim[]>([]);
   const [remoteEvidence, setRemoteEvidence] = useState<Source[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
@@ -93,7 +96,7 @@ export function ReviewedFacts({
           <ConfidenceChip level={claim.confidence} />
         </div>
         <p className="mt-2 text-sm leading-6 text-foreground md:text-[15px]">
-          {pick(claim.text, lang)}
+          {pick(claimTextForReadingMode(claim, mode), lang)}
         </p>
         {claimSources.length > 0 && (
           <details className="group mt-2">
@@ -121,12 +124,23 @@ export function ReviewedFacts({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-3 md:px-5">
           <div className="flex items-center gap-2 text-sm font-medium text-foreground">
             <LibraryBig className="h-4 w-4 text-signal" />
-            {t("当前事实摘要", "Current fact summary")}
+            {t(
+              mode === "general"
+                ? "关键事实"
+                : mode === "product"
+                  ? "产品决策事实"
+                  : "技术与证据事实",
+              mode === "general"
+                ? "Key facts"
+                : mode === "product"
+                  ? "Product decision facts"
+                  : "Technical and evidence facts",
+            )}
           </div>
           <div className="text-xs text-muted-foreground">
             {t(
-              `共 ${claims.length} 条，展示最近 ${displayed.visible.length} 条`,
-              `${claims.length} total · showing ${displayed.visible.length} recent`,
+              `共 ${claims.length} 条，本模式重点展示 ${displayed.visible.length} 条`,
+              `${claims.length} total · ${displayed.visible.length} prioritized for this mode`,
             )}
           </div>
         </div>
