@@ -3,7 +3,11 @@ import test from "node:test";
 
 import { createServer } from "vite";
 
-const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
+const vite = await createServer({
+  server: { middlewareMode: true },
+  appType: "custom",
+  optimizeDeps: { noDiscovery: true },
+});
 const { fetchWithNetworkRetry } = await vite.ssrLoadModule("/src/services/fetch-with-retry.ts");
 
 test.after(async () => vite.close());

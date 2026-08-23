@@ -3,7 +3,11 @@ import test from "node:test";
 
 import { createServer } from "vite";
 
-const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
+const vite = await createServer({
+  server: { middlewareMode: true },
+  appType: "custom",
+  optimizeDeps: { noDiscovery: true },
+});
 const { authSessionExpiredEvent, authSessionKey, expireAuthSession } = await vite.ssrLoadModule(
   "/src/services/auth-session.ts",
 );
