@@ -50,11 +50,13 @@ test("模型与通用实体页按阅读模式展示不同重点信息", async ()
   assert.match(article, /data-reading-view="general"/);
   assert.match(article, /data-reading-view="product"/);
   assert.match(article, /data-reading-view="technical"/);
-  assert.match(modelPage, /data-reading-section="profile"/);
+  assert.match(modelPage, /section="profile"/);
   assert.match(modelPage, /data-reading-section="lineage"/);
-  assert.match(modelPage, /hidden=\{!sectionVisible\("comparison"\)\}/);
+  assert.match(modelPage, /visible=\{sectionVisible\("comparison"\)\}/);
   assert.match(modelPage, /data-reading-focus=\{mode\}/);
-  assert.match(entityPage, /data-reading-section="relationships"/);
-  assert.match(entityPage, /data-reading-section="evidence"/);
-  assert.match(entityPage, /hidden=\{!sectionVisible\("evidence"\)\}/);
+  assert.match(entityPage, /section="relationships"/);
+  assert.match(entityPage, /section="evidence"/);
+  assert.match(entityPage, /visible=\{sectionVisible\("evidence"\)\}/);
+  assert.doesNotMatch(modelPage, /getEntityBySlug/);
+  assert.doesNotMatch(entityPage, /getEntityBySlug/);
 });

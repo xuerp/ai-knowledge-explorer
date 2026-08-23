@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, History, LibraryBig } from "lucide-react";
 import { ConfidenceChip, SourceRow } from "@/components/common";
-import { splitClaimsForDisplay } from "@/domain/claim-display";
+import { getClaimDisplayDate, splitClaimsForDisplay } from "@/domain/claim-display";
 import { claimTextForReadingMode, rankClaimsForReadingMode } from "@/domain/claim-reading-mode";
 import type { Claim, Source } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
@@ -86,13 +86,21 @@ export function ReviewedFacts({
     const claimSources = claim.sourceIds
       .map((sourceId) => evidenceById.get(sourceId))
       .filter((source): source is Source => Boolean(source));
+    const primaryDate = getClaimDisplayDate(claim, claimSources);
 
     return (
       <article key={claim.id} className={compact ? "px-4 py-4 md:px-5" : "px-4 py-5 md:px-5"}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <time className="font-mono text-xs text-muted-foreground">
-            {t("最近核验", "Last verified")} {displayDate(claim.updatedAt, lang)}
-          </time>
+          {primaryDate ? (
+            <time className="font-mono text-xs text-muted-foreground">
+              {primaryDate.kind === "effective"
+                ? t("发生 / 生效", "Occurred / effective")
+                : t("官方资料发布", "Official source published")}{" "}
+              {displayDate(primaryDate.value, lang)}
+            </time>
+          ) : (
+            <span />
+          )}
           <ConfidenceChip level={claim.confidence} />
         </div>
         <p className="mt-2 text-sm leading-6 text-foreground md:text-[15px]">
