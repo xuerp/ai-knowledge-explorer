@@ -776,6 +776,8 @@ class DataQualityReport(CamelModel):
     core_relation_deficit: int
     golden_questions: GoldenQuestionReport | None = None
     claims_with_missing_evidence: list[str]
+    claims_with_missing_entity: list[str]
+    claims_with_missing_fact_date: list[str]
     relations_with_missing_evidence: list[str]
     timeline_entries_with_missing_evidence: list[str]
     live_ready: bool

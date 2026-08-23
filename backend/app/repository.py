@@ -18,6 +18,7 @@ from .database import (
     ReviewJobRecord,
     SourceRecord,
 )
+from .quality import resolve_claim_entity_reference
 from .schemas import (
     Claim,
     Entity,
@@ -592,6 +593,13 @@ class KnowledgeRepository:
                 else:
                     snapshot.evidence.append(evidence)
                     evidence_ids.add(evidence.id)
+        snapshot.claims = [
+            claim.model_copy(update={"entity_id": resolved_entity_id})
+            if not claim.entity_id
+            and (resolved_entity_id := resolve_claim_entity_reference(claim, snapshot.entities))
+            else claim
+            for claim in snapshot.claims
+        ]
         snapshot.review_candidates = []
         snapshot.sync_runs = []
         snapshot.meta.mode = self.data_mode
