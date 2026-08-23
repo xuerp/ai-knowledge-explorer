@@ -2094,6 +2094,15 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert research.status_code == 200
     assert research.json()["status"] == "ready"
     assert "claim-gpt-notification" in research.json()["claimIds"]
+    assert research.json()["retrievalMode"] == "lexical"
+    assert research.json()["answerMode"] == "extractive"
+    assert research.json()["retrievalDiagnostics"]["returnedCount"] > 0
+    notification_citation = next(
+        item
+        for item in research.json()["citations"]
+        if item["claim"]["id"] == "claim-gpt-notification"
+    )
+    assert notification_citation["evidence"][0]["publisher"] == "Example"
 
     agent_research = client.post(
         "/api/v2/research",

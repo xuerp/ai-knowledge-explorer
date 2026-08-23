@@ -12,6 +12,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     create_engine,
+    func,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
@@ -268,10 +269,41 @@ class ResearchRecord(Base):
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     claim_ids_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     steps_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    citations_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    retrieval_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="lexical")
+    answer_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="extractive")
+    retrieval_diagnostics_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class RagClaimDocumentRecord(Base):
+    __tablename__ = "rag_claim_documents"
+    __table_args__ = (
+        Index("ix_rag_claim_documents_entity_id", "entity_id"),
+        Index("ix_rag_claim_documents_lifecycle_status", "lifecycle_status"),
+    )
+
+    claim_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    entity_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    claim_json: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence_json: Mapped[str] = mapped_column(Text, nullable=False)
+    search_text: Mapped[str] = mapped_column(Text, nullable=False)
+    lifecycle_status: Mapped[str] = mapped_column(String(32), nullable=False, default="current")
+    valid_from: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    valid_to: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    source_published_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+Index(
+    "ix_rag_claim_documents_search_fts",
+    func.to_tsvector("simple", RagClaimDocumentRecord.search_text),
+    postgresql_using="gin",
+).ddl_if(dialect="postgresql")
 
 
 class EmailOutboxRecord(Base):

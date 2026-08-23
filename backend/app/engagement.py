@@ -17,6 +17,7 @@ from .database import (
     ResearchRecord,
     UserRecord,
 )
+from .rag import LexicalRagRetriever
 from .schemas import (
     DigestRunSummary,
     EmailOutboxView,
@@ -32,6 +33,9 @@ from .schemas import (
 
 
 class EngagementService:
+    def __init__(self, retriever: LexicalRagRetriever | None = None):
+        self.retriever = retriever or LexicalRagRetriever()
+
     def follow(
         self,
         session: Session,
@@ -142,59 +146,9 @@ class EngagementService:
         payload: ResearchCreate,
         snapshot: KnowledgeSnapshot,
     ) -> ResearchView:
-        question_key = payload.question.casefold()
-        entity_matches: list[tuple[str, str]] = []
-        for entity in snapshot.entities:
-            tokens = {
-                token.casefold().strip()
-                for token in [
-                    entity.slug,
-                    entity.name.zh,
-                    entity.name.en,
-                    *(entity.aliases or []),
-                ]
-                if token.strip()
-            }
-            matching_tokens = [token for token in tokens if token in question_key]
-            if matching_tokens:
-                entity_matches.append((entity.id, max(matching_tokens, key=len)))
-
-        # Prefer the most specific entity mention. For example, “OpenAI Codex”
-        # should resolve to the product instead of also matching the broader
-        # “OpenAI” company node; “Claude Code” should not pull in all Claude claims.
-        matched_entity_ids = {
-            entity_id
-            for entity_id, token in entity_matches
-            if not any(
-                token != other_token and token in other_token for _, other_token in entity_matches
-            )
-        }
-        matched_claims = [
-            claim
-            for claim in snapshot.claims
-            if claim.subject and claim.subject.casefold() in question_key
-        ]
-        if matched_entity_ids:
-            entity_terms = {
-                value.casefold()
-                for entity in snapshot.entities
-                if entity.id in matched_entity_ids
-                for value in [
-                    entity.id,
-                    entity.slug,
-                    entity.name.zh,
-                    entity.name.en,
-                    *(entity.aliases or []),
-                ]
-            }
-            matched_claims.extend(
-                claim
-                for claim in snapshot.claims
-                if claim.id not in {item.id for item in matched_claims}
-                and claim.subject
-                and claim.subject.casefold() in entity_terms
-            )
-        matched_claims = matched_claims[:8]
+        retrieval = self.retriever.search(session, snapshot, payload.question, limit=8)
+        matched_claims = [item.claim for item in retrieval.citations]
+        matched_entity_ids = set(retrieval.diagnostics.matched_entity_ids)
         status = "ready" if matched_claims else "insufficient-evidence"
         if matched_claims:
             statements = [
@@ -235,6 +189,13 @@ class EngagementService:
             question=payload.question,
             summary=summary,
             claim_ids_json=json.dumps([claim.id for claim in matched_claims]),
+            citations_json=json.dumps(
+                [item.model_dump(mode="json", by_alias=True) for item in retrieval.citations],
+                ensure_ascii=False,
+            ),
+            retrieval_mode="lexical",
+            answer_mode="extractive",
+            retrieval_diagnostics_json=retrieval.diagnostics.model_dump_json(by_alias=True),
             steps_json=json.dumps(
                 [step.model_dump(mode="json", by_alias=True) for step in steps],
                 ensure_ascii=False,
@@ -409,6 +370,10 @@ class EngagementService:
             question=row.question,
             summary=row.summary,
             claim_ids=json.loads(row.claim_ids_json),
+            citations=json.loads(row.citations_json or "[]"),
+            retrieval_mode=row.retrieval_mode,
+            answer_mode=row.answer_mode,
+            retrieval_diagnostics=json.loads(row.retrieval_diagnostics_json or "{}"),
             steps=[ResearchStep.model_validate(item) for item in json.loads(row.steps_json)],
             status=row.status,
             published_slug=row.published_slug,
