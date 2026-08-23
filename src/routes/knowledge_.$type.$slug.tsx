@@ -222,10 +222,6 @@ function GenericEntityDetail() {
                     value={entity.firstReleasedAt ?? "—"}
                   />
                   <ProfileField
-                    label={t("最近核验", "Last verified")}
-                    value={entity.lastUpdatedAt}
-                  />
-                  <ProfileField
                     label={t("别名", "Aliases")}
                     value={entity.aliases?.join(" · ") || "—"}
                     wide
@@ -278,8 +274,8 @@ function GenericEntityDetail() {
                 eyebrow={sectionPresentation.claims.eyebrow}
                 title={t("已审核事实", "Reviewed facts")}
                 description={t(
-                  "这些事实已经通过人工审核，并保留直接证据与最近核验时间。",
-                  "These facts passed human review and retain direct evidence and verification dates.",
+                  "这些事实已经通过人工审核，并保留直接证据与事实发生、正式生效或官方资料发布时间。",
+                  "These facts passed human review and retain direct evidence plus occurrence, effective or official-source publication dates.",
                 )}
               />
               <ReviewedFacts
