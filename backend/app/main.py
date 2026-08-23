@@ -108,7 +108,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260823_0018"
+DATABASE_SCHEMA_REVISION = "20260824_0019"
 SERVICE_RELEASE = "2026.08.23-paginated-claim-history-v56"
 
 RELATION_CLAIM_PREDICATES = {
@@ -526,7 +526,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     ],
                 )
             )
-        return PublishedResearchView(**result.model_dump(), citations=citations)
+        return PublishedResearchView.model_validate(
+            {
+                **result.model_dump(mode="json", by_alias=True),
+                "citations": [item.model_dump(mode="json", by_alias=True) for item in citations],
+            }
+        )
 
     @app.get("/api/v2/share/{slug}", response_model=PublishedResearchView)
     def public_research(slug: str, session: SessionDependency) -> PublishedResearchView:

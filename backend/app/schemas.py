@@ -686,6 +686,20 @@ class ResearchCreate(CamelModel):
     language: Literal["zh", "en"] = "zh"
 
 
+class ResearchCitation(CamelModel):
+    claim: Claim
+    evidence: list[Evidence]
+
+
+class RetrievalDiagnostics(CamelModel):
+    candidate_count: int = 0
+    returned_count: int = 0
+    filtered_count: int = 0
+    elapsed_ms: int = 0
+    matched_entity_ids: list[str] = Field(default_factory=list)
+    fallback_reason: str | None = None
+
+
 class ResearchView(CamelModel):
     id: str
     question: str
@@ -693,18 +707,17 @@ class ResearchView(CamelModel):
     claim_ids: list[str]
     steps: list[ResearchStep]
     status: Literal["ready", "insufficient-evidence", "failed", "cancelled"]
+    citations: list[ResearchCitation] = Field(default_factory=list)
+    retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
+    answer_mode: Literal["extractive", "generated"] = "extractive"
+    retrieval_diagnostics: RetrievalDiagnostics = Field(default_factory=RetrievalDiagnostics)
     published_slug: str | None = None
     created_at: datetime
     published_at: datetime | None = None
 
 
-class ResearchCitation(CamelModel):
-    claim: Claim
-    evidence: list[Evidence]
-
-
 class PublishedResearchView(ResearchView):
-    citations: list[ResearchCitation]
+    pass
 
 
 class EmailOutboxView(CamelModel):
