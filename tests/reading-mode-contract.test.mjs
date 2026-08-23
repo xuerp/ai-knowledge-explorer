@@ -54,6 +54,8 @@ test("模型与通用实体页按阅读模式展示不同重点信息", async ()
   assert.match(modelPage, /data-reading-section="lineage"/);
   assert.match(modelPage, /visible=\{sectionVisible\("comparison"\)\}/);
   assert.match(modelPage, /data-reading-focus=\{mode\}/);
+  assert.doesNotMatch(entityPage, /label=\{t\("最近核验", "Last verified"\)\}/);
+  assert.doesNotMatch(entityPage, /保留直接证据与最近核验时间/);
   assert.match(entityPage, /section="relationships"/);
   assert.match(entityPage, /section="evidence"/);
   assert.match(entityPage, /visible=\{sectionVisible\("evidence"\)\}/);
