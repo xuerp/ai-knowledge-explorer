@@ -12,6 +12,7 @@ export type EntitySection =
   | "questions"
   | "evidence";
 export type EntityPageKind = "model" | "generic";
+export type SectionDensity = "focus" | "supporting" | "hidden";
 
 export interface ReadingModeOption {
   id: ReadingMode;
@@ -100,6 +101,73 @@ const ENTITY_SECTION_ORDER: Record<
   },
 };
 
+const ENTITY_SECTION_DENSITY: Record<
+  EntityPageKind,
+  Record<ReadingMode, Partial<Record<EntitySection, SectionDensity>>>
+> = {
+  model: {
+    general: {
+      guide: "focus",
+      claims: "focus",
+      lineage: "supporting",
+      timeline: "supporting",
+      questions: "supporting",
+      profile: "hidden",
+      relationships: "hidden",
+      comparison: "hidden",
+      evidence: "hidden",
+    },
+    product: {
+      guide: "focus",
+      claims: "focus",
+      lineage: "focus",
+      comparison: "focus",
+      relationships: "supporting",
+      timeline: "supporting",
+      profile: "hidden",
+      questions: "hidden",
+      evidence: "hidden",
+    },
+    technical: {
+      profile: "focus",
+      claims: "focus",
+      relationships: "focus",
+      timeline: "focus",
+      evidence: "focus",
+      lineage: "supporting",
+      guide: "supporting",
+      comparison: "hidden",
+      questions: "hidden",
+    },
+  },
+  generic: {
+    general: {
+      guide: "focus",
+      claims: "focus",
+      timeline: "supporting",
+      profile: "hidden",
+      relationships: "hidden",
+      evidence: "hidden",
+    },
+    product: {
+      guide: "focus",
+      claims: "focus",
+      relationships: "focus",
+      timeline: "supporting",
+      profile: "hidden",
+      evidence: "hidden",
+    },
+    technical: {
+      profile: "focus",
+      claims: "focus",
+      relationships: "focus",
+      timeline: "focus",
+      evidence: "focus",
+      guide: "supporting",
+    },
+  },
+};
+
 export const getReadingModeOption = (mode: ReadingMode): ReadingModeOption =>
   READING_MODE_OPTIONS.find((option) => option.id === mode) ?? READING_MODE_OPTIONS[0];
 
@@ -125,4 +193,22 @@ export function getEntitySectionPresentation(
   });
 
   return result;
+}
+
+export function getEntitySectionDensity(
+  mode: ReadingMode,
+  page: EntityPageKind,
+  section: EntitySection,
+): SectionDensity {
+  return ENTITY_SECTION_DENSITY[page][mode][section] ?? "hidden";
+}
+
+export function getVisibleEntitySections(
+  mode: ReadingMode,
+  page: EntityPageKind,
+  availableSections: readonly EntitySection[],
+): EntitySection[] {
+  return availableSections.filter(
+    (section) => getEntitySectionDensity(mode, page, section) !== "hidden",
+  );
 }

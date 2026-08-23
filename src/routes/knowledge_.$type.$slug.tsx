@@ -14,7 +14,12 @@ import { ConfidenceChip, DemoBadge, SectionHeading, SourceRow } from "@/componen
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
-import { getEntitySectionPresentation, type EntitySection } from "@/domain/reading-mode";
+import {
+  getEntitySectionPresentation,
+  getReadingModeOption,
+  getVisibleEntitySections,
+  type EntitySection,
+} from "@/domain/reading-mode";
 import type { Entity, EntityType, KnowledgeSnapshot } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
 import { knowledgeRepository } from "@/services/knowledge-repository";
@@ -81,7 +86,7 @@ function GenericEntityDetail() {
       : entity.origin
         ? t("海外", "Overseas")
         : "—";
-  const visibleSections: EntitySection[] = [
+  const availableSections: EntitySection[] = [
     ...(entity.knowledge ? (["guide"] as const) : []),
     "profile",
     ...(claims.length > 0 ? (["claims"] as const) : []),
@@ -89,7 +94,10 @@ function GenericEntityDetail() {
     ...(timeline.length > 0 ? (["timeline"] as const) : []),
     "evidence",
   ];
+  const visibleSections = getVisibleEntitySections(mode, "generic", availableSections);
+  const sectionVisible = (section: EntitySection) => visibleSections.includes(section);
   const sectionPresentation = getEntitySectionPresentation(mode, "generic", visibleSections);
+  const readingMode = getReadingModeOption(mode);
 
   return (
     <AppShell>
@@ -157,6 +165,20 @@ function GenericEntityDetail() {
         </header>
 
         <div className="flex flex-col gap-12 pt-10">
+          <div
+            className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
+            data-reading-focus={mode}
+          >
+            <div className="text-sm font-semibold text-signal">{pick(readingMode.label, lang)}</div>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">
+              {pick(readingMode.description, lang)}{" "}
+              {t(
+                "页面只展开本模式的重点信息。",
+                "Only this mode's priority information is expanded on the page.",
+              )}
+            </p>
+          </div>
+
           {entity.knowledge && (
             <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
               <KnowledgeArticle
@@ -169,6 +191,7 @@ function GenericEntityDetail() {
 
           <section
             data-reading-section="profile"
+            hidden={!sectionVisible("profile")}
             style={{ order: sectionPresentation.profile.order }}
           >
             <SectionHeading
@@ -245,7 +268,7 @@ function GenericEntityDetail() {
             </div>
           </section>
 
-          {claims.length > 0 && (
+          {claims.length > 0 && sectionVisible("claims") && (
             <section
               data-reading-section="claims"
               style={{ order: sectionPresentation.claims.order }}
@@ -269,6 +292,7 @@ function GenericEntityDetail() {
 
           <section
             data-reading-section="relationships"
+            hidden={!sectionVisible("relationships")}
             style={{ order: sectionPresentation.relationships.order }}
           >
             <SectionHeading
@@ -317,7 +341,7 @@ function GenericEntityDetail() {
             </div>
           </section>
 
-          {timeline.length > 0 && (
+          {timeline.length > 0 && sectionVisible("timeline") && (
             <section
               data-reading-section="timeline"
               style={{ order: sectionPresentation.timeline.order }}
@@ -352,6 +376,7 @@ function GenericEntityDetail() {
 
           <section
             data-reading-section="evidence"
+            hidden={!sectionVisible("evidence")}
             style={{ order: sectionPresentation.evidence.order }}
           >
             <SectionHeading
