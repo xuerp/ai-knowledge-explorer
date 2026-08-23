@@ -9,6 +9,7 @@ const vite = await createServer({
   configFile: false,
   appType: "custom",
   logLevel: "silent",
+  optimizeDeps: { noDiscovery: true },
   define: { "import.meta.env.VITE_API_BASE_URL": "undefined" },
   resolve: { alias: { "@": path.resolve(process.cwd(), "src") } },
   server: { middlewareMode: true },
