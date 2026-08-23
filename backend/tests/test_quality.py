@@ -197,6 +197,21 @@ def test_core_relation_coverage_ignores_edges_without_resolved_evidence():
     assert report.core_relation_deficit == baseline.core_relation_deficit + 1
 
 
+def test_public_snapshot_resolves_legacy_claim_entities_and_reports_fact_time():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+
+    gpt_claim = next(claim for claim in snapshot.claims if claim.id == "c-gpt5-swe")
+    assert gpt_claim.entity_id == "e-gpt-5"
+    report = KnowledgeQualityGate().report(snapshot)
+    assert "c-gpt5-swe" not in report.claims_with_missing_entity
+    assert "c-gpt5-swe" not in report.claims_with_missing_fact_date
+
+
 def test_catalog_extension_includes_core_agents_frameworks_and_evidence():
     snapshot = KnowledgeRepository(SEED_PATH).load_seed()
     entity_ids = {entity.id for entity in snapshot.entities}

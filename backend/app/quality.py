@@ -100,6 +100,42 @@ def resolve_unique_entity_reference(
     return matches[0] if len(matches) == 1 else None
 
 
+def resolve_claim_entity_reference(claim: Claim, entities: list[Entity]) -> str | None:
+    resolved = resolve_unique_entity_reference(claim.subject, entities)
+    if resolved:
+        return resolved
+    texts = [_key(claim.text.zh), _key(claim.text.en)]
+    candidates: list[tuple[tuple[int, int, int, int], str]] = []
+    for entity in entities:
+        canonical_tokens = {
+            token
+            for token in [_key(entity.slug), _key(entity.name.zh), _key(entity.name.en)]
+            if len(token) >= 2
+        }
+        alias_tokens = {_key(alias) for alias in entity.aliases or [] if len(_key(alias)) >= 2}
+        occurrences = [
+            (text_index, position, len(token), priority)
+            for text_index, text in enumerate(texts)
+            for token, priority in [
+                *((token, 2) for token in canonical_tokens),
+                *((token, 1) for token in alias_tokens - canonical_tokens),
+            ]
+            if (position := text.find(token)) >= 0
+        ]
+        if not occurrences:
+            continue
+        text_index, position, token_length, priority = min(
+            occurrences,
+            key=lambda item: (item[0], item[1], -item[3], -item[2]),
+        )
+        candidates.append(((-text_index, -position, priority, token_length), entity.id))
+    if not candidates:
+        return None
+    best_score = max(score for score, _ in candidates)
+    best_ids = {entity_id for score, entity_id in candidates if score == best_score}
+    return next(iter(best_ids)) if len(best_ids) == 1 else None
+
+
 @dataclass(slots=True)
 class KnowledgeQualityGate:
     def _resolve_entity(
@@ -175,10 +211,25 @@ class KnowledgeQualityGate:
     ) -> DataQualityReport:
         current = (now or datetime.now(UTC)).astimezone(UTC)
         evidence_ids = {item.id for item in snapshot.evidence}
+        evidence_by_id = {item.id: item for item in snapshot.evidence}
+        entity_ids = {item.id for item in snapshot.entities}
+        claims_with_missing_entity = [
+            claim.id for claim in snapshot.claims if claim.entity_id not in entity_ids
+        ]
         claims_with_missing_evidence = [
             claim.id
             for claim in snapshot.claims
             if not claim.source_ids or not set(claim.source_ids).issubset(evidence_ids)
+        ]
+        claims_with_missing_fact_date = [
+            claim.id
+            for claim in snapshot.claims
+            if not claim.valid_from
+            and not any(
+                evidence_by_id[source_id].published_at
+                for source_id in claim.source_ids
+                if source_id in evidence_by_id
+            )
         ]
         relations_with_missing_evidence = [
             edge.id
@@ -260,6 +311,12 @@ class KnowledgeQualityGate:
             issues.append("Every core entity requires at least five explainable relations.")
         if claims_with_missing_evidence:
             issues.append("Every published claim must resolve all evidence references.")
+        if claims_with_missing_entity:
+            issues.append("Every published claim must resolve exactly one knowledge entity.")
+        if claims_with_missing_fact_date:
+            issues.append(
+                "Every published claim must have an effective date or official source date."
+            )
         if relations_with_missing_evidence:
             issues.append("Every published relation must resolve all evidence references.")
         if timeline_entries_with_missing_evidence:
@@ -313,6 +370,8 @@ class KnowledgeQualityGate:
                 for entity_id in core_entities_below_five
             ),
             claims_with_missing_evidence=claims_with_missing_evidence,
+            claims_with_missing_entity=claims_with_missing_entity,
+            claims_with_missing_fact_date=claims_with_missing_fact_date,
             relations_with_missing_evidence=relations_with_missing_evidence,
             timeline_entries_with_missing_evidence=timeline_entries_with_missing_evidence,
             live_ready=not issues,
