@@ -4,7 +4,9 @@ import test from "node:test";
 import { createServer } from "vite";
 
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
-const { splitClaimsForDisplay } = await vite.ssrLoadModule("/src/domain/claim-display.ts");
+const { getClaimDisplayDate, splitClaimsForDisplay } = await vite.ssrLoadModule(
+  "/src/domain/claim-display.ts",
+);
 
 test.after(async () => vite.close());
 
@@ -25,4 +27,20 @@ test("实体事实默认展示最新五条并完整保留历史", () => {
     claims.map((claim) => claim.id).sort(),
   );
   assert.throws(() => splitClaimsForDisplay(claims, 0), /正整数/);
+});
+
+test("事实卡优先展示发生时间或官方发布时间且不把审核时间当主时间", () => {
+  const evidence = [
+    { id: "later", publishedAt: "2026-08-20" },
+    { id: "official", publishedAt: "2026-08-18" },
+  ];
+  assert.deepEqual(
+    getClaimDisplayDate({ validFrom: "2026-08-17", sourceIds: ["official"] }, evidence),
+    { value: "2026-08-17", kind: "effective" },
+  );
+  assert.deepEqual(getClaimDisplayDate({ sourceIds: ["later", "official"] }, evidence), {
+    value: "2026-08-18",
+    kind: "published",
+  });
+  assert.equal(getClaimDisplayDate({ sourceIds: [] }, evidence), undefined);
 });

@@ -1,4 +1,23 @@
-import type { Claim } from "@/domain/types";
+import type { Claim, Source } from "@/domain/types";
+
+export type ClaimDisplayDate = {
+  value: string;
+  kind: "effective" | "published";
+};
+
+export function getClaimDisplayDate(
+  claim: Pick<Claim, "validFrom" | "sourceIds">,
+  evidence: readonly Pick<Source, "id" | "publishedAt">[],
+): ClaimDisplayDate | undefined {
+  if (claim.validFrom) return { value: claim.validFrom, kind: "effective" };
+
+  const sourceIds = new Set(claim.sourceIds);
+  const publishedAt = evidence
+    .filter((source) => sourceIds.has(source.id) && source.publishedAt)
+    .map((source) => source.publishedAt)
+    .sort()[0];
+  return publishedAt ? { value: publishedAt, kind: "published" } : undefined;
+}
 
 export function splitClaimsForDisplay<T extends Pick<Claim, "updatedAt" | "id">>(
   claims: readonly T[],

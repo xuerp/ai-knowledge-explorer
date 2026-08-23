@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import {
   ArrowRight,
   Building2,
@@ -41,10 +42,10 @@ export const Route = createFileRoute("/knowledge_/$type/$slug")({
   loader: async ({ params }) => {
     if (!ENTITY_TYPES.has(params.type as EntityType)) throw notFound();
     const entityType = params.type as EntityType;
-    const [snapshot, entity] = await Promise.all([
-      knowledgeRepository.getSnapshot(),
-      knowledgeRepository.getEntityBySlug(params.slug, entityType),
-    ]);
+    const snapshot = await knowledgeRepository.getSnapshot();
+    const entity =
+      snapshot.entities.find((item) => item.type === entityType && item.slug === params.slug) ??
+      null;
     if (!entity) throw notFound();
     return { entity, snapshot };
   },
@@ -189,10 +190,10 @@ function GenericEntityDetail() {
             </div>
           )}
 
-          <section
-            data-reading-section="profile"
-            hidden={!sectionVisible("profile")}
-            style={{ order: sectionPresentation.profile.order }}
+          <ReadingModeSection
+            section="profile"
+            visible={sectionVisible("profile")}
+            order={sectionPresentation.profile.order}
           >
             <SectionHeading
               eyebrow={sectionPresentation.profile.eyebrow}
@@ -266,7 +267,7 @@ function GenericEntityDetail() {
                 )}
               </article>
             </div>
-          </section>
+          </ReadingModeSection>
 
           {claims.length > 0 && sectionVisible("claims") && (
             <section
@@ -290,10 +291,10 @@ function GenericEntityDetail() {
             </section>
           )}
 
-          <section
-            data-reading-section="relationships"
-            hidden={!sectionVisible("relationships")}
-            style={{ order: sectionPresentation.relationships.order }}
+          <ReadingModeSection
+            section="relationships"
+            visible={sectionVisible("relationships")}
+            order={sectionPresentation.relationships.order}
           >
             <SectionHeading
               eyebrow={sectionPresentation.relationships.eyebrow}
@@ -339,7 +340,7 @@ function GenericEntityDetail() {
                 </p>
               )}
             </div>
-          </section>
+          </ReadingModeSection>
 
           {timeline.length > 0 && sectionVisible("timeline") && (
             <section
@@ -374,10 +375,10 @@ function GenericEntityDetail() {
             </section>
           )}
 
-          <section
-            data-reading-section="evidence"
-            hidden={!sectionVisible("evidence")}
-            style={{ order: sectionPresentation.evidence.order }}
+          <ReadingModeSection
+            section="evidence"
+            visible={sectionVisible("evidence")}
+            order={sectionPresentation.evidence.order}
           >
             <SectionHeading
               eyebrow={sectionPresentation.evidence.eyebrow}
@@ -401,10 +402,29 @@ function GenericEntityDetail() {
                 </div>
               )}
             </div>
-          </section>
+          </ReadingModeSection>
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function ReadingModeSection({
+  section,
+  visible,
+  order,
+  children,
+}: {
+  section: EntitySection;
+  visible: boolean;
+  order: number;
+  children: ReactNode;
+}) {
+  if (!visible) return null;
+  return (
+    <section data-reading-section={section} style={{ order }}>
+      {children}
+    </section>
   );
 }
 

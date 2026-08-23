@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
   Building2,
   Calendar,
@@ -37,10 +37,9 @@ import type { Entity, EntityDetail, KnowledgeSnapshot } from "@/domain/types";
 
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
-    const [snapshot, entity] = await Promise.all([
-      knowledgeRepository.getSnapshot(),
-      knowledgeRepository.getEntityBySlug(params.slug, "model"),
-    ]);
+    const snapshot = await knowledgeRepository.getSnapshot();
+    const entity =
+      snapshot.entities.find((item) => item.type === "model" && item.slug === params.slug) ?? null;
     if (!entity) throw notFound();
     return { entity, snapshot };
   },
@@ -240,10 +239,10 @@ function EntityDetail() {
         </div>
 
         {/* 1. 结构化档案 */}
-        <section
-          data-reading-section="profile"
-          hidden={!sectionVisible("profile")}
-          style={{ order: sectionPresentation.profile.order }}
+        <ReadingModeSection
+          section="profile"
+          visible={sectionVisible("profile")}
+          order={sectionPresentation.profile.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.profile.eyebrow}
@@ -392,7 +391,7 @@ function EntityDetail() {
               </div>
             </div>
           )}
-        </section>
+        </ReadingModeSection>
 
         {reviewedClaims.length > 0 && sectionVisible("claims") && (
           <section
@@ -490,10 +489,10 @@ function EntityDetail() {
         )}
 
         {/* 局部关系概览 */}
-        <section
-          data-reading-section="relationships"
-          hidden={!sectionVisible("relationships")}
-          style={{ order: sectionPresentation.relationships.order }}
+        <ReadingModeSection
+          section="relationships"
+          visible={sectionVisible("relationships")}
+          order={sectionPresentation.relationships.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.relationships.eyebrow}
@@ -536,13 +535,13 @@ function EntityDetail() {
               );
             })}
           </div>
-        </section>
+        </ReadingModeSection>
 
         {/* Timeline */}
-        <section
-          data-reading-section="timeline"
-          hidden={!sectionVisible("timeline")}
-          style={{ order: sectionPresentation.timeline.order }}
+        <ReadingModeSection
+          section="timeline"
+          visible={sectionVisible("timeline")}
+          order={sectionPresentation.timeline.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.timeline.eyebrow}
@@ -574,13 +573,13 @@ function EntityDetail() {
               </li>
             )}
           </ol>
-        </section>
+        </ReadingModeSection>
 
         {/* Compare */}
-        <section
-          data-reading-section="comparison"
-          hidden={!sectionVisible("comparison")}
-          style={{ order: sectionPresentation.comparison.order }}
+        <ReadingModeSection
+          section="comparison"
+          visible={sectionVisible("comparison")}
+          order={sectionPresentation.comparison.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.comparison.eyebrow}
@@ -641,13 +640,13 @@ function EntityDetail() {
               </table>
             </div>
           </div>
-        </section>
+        </ReadingModeSection>
 
         {/* AI 问答 */}
-        <section
-          data-reading-section="questions"
-          hidden={!sectionVisible("questions")}
-          style={{ order: sectionPresentation.questions.order }}
+        <ReadingModeSection
+          section="questions"
+          visible={sectionVisible("questions")}
+          order={sectionPresentation.questions.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.questions.eyebrow}
@@ -709,13 +708,13 @@ function EntityDetail() {
               </TabsContent>
             </Tabs>
           </div>
-        </section>
+        </ReadingModeSection>
 
         {/* 来源 */}
-        <section
-          data-reading-section="evidence"
-          hidden={!sectionVisible("evidence")}
-          style={{ order: sectionPresentation.evidence.order }}
+        <ReadingModeSection
+          section="evidence"
+          visible={sectionVisible("evidence")}
+          order={sectionPresentation.evidence.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.evidence.eyebrow}
@@ -743,9 +742,28 @@ function EntityDetail() {
           <div className="mt-6 flex flex-wrap gap-2">
             {competitors.slice(0, 4).map((c) => c && <EntityChip key={c.id} entity={c} />)}
           </div>
-        </section>
+        </ReadingModeSection>
       </div>
     </AppShell>
+  );
+}
+
+function ReadingModeSection({
+  section,
+  visible,
+  order,
+  children,
+}: {
+  section: EntitySection;
+  visible: boolean;
+  order: number;
+  children: ReactNode;
+}) {
+  if (!visible) return null;
+  return (
+    <section data-reading-section={section} style={{ order }}>
+      {children}
+    </section>
   );
 }
 
