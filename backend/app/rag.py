@@ -92,35 +92,53 @@ class LexicalRagRetriever:
         started = perf_counter()
         self.sync_snapshot(session, snapshot)
         matched_entity_ids = self.resolve_mentions(snapshot.entities, question)
-        statement = select(RagClaimDocumentRecord).where(
+        search_entity_ids = self.expand_entity_scope(snapshot.entities, matched_entity_ids)
+        base_statement = select(RagClaimDocumentRecord).where(
             RagClaimDocumentRecord.lifecycle_status == "current"
         )
         fallback_reason: str | None = None
-        if matched_entity_ids:
-            statement = statement.where(RagClaimDocumentRecord.entity_id.in_(matched_entity_ids))
-        elif session.get_bind().dialect.name == "postgresql":
-            query_text = self.postgres_query_text(question)
-            if query_text:
-                query = func.websearch_to_tsquery("simple", query_text)
-                vector = func.to_tsvector("simple", RagClaimDocumentRecord.search_text)
-                statement = statement.where(vector.op("@@")(query))
-            else:
-                fallback_reason = "query-has-no-indexable-terms"
-        rows = list(session.scalars(statement).all())
-        if not rows and not matched_entity_ids:
-            fallback_reason = fallback_reason or "full-text-no-match"
+        rows: list[RagClaimDocumentRecord] = []
+        if search_entity_ids:
             rows = list(
                 session.scalars(
-                    select(RagClaimDocumentRecord).where(
-                        RagClaimDocumentRecord.lifecycle_status == "current"
-                    )
+                    base_statement.where(RagClaimDocumentRecord.entity_id.in_(search_entity_ids))
                 ).all()
             )
+            covered = {
+                entity_id
+                for entity_id in matched_entity_ids
+                if any(
+                    row.entity_id in self.expand_entity_scope(snapshot.entities, {entity_id})
+                    for row in rows
+                )
+            }
+            if covered != matched_entity_ids:
+                fallback_reason = "entity-scope-incomplete"
+        if not search_entity_ids or fallback_reason == "entity-scope-incomplete":
+            related_statement = base_statement
+            query_text = self.postgres_query_text(question)
+            if session.get_bind().dialect.name == "postgresql" and query_text:
+                query = func.websearch_to_tsquery("simple", query_text)
+                vector = func.to_tsvector("simple", RagClaimDocumentRecord.search_text)
+                related_statement = related_statement.where(vector.op("@@")(query))
+            elif session.get_bind().dialect.name == "postgresql":
+                fallback_reason = "query-has-no-indexable-terms"
+            related_rows = list(session.scalars(related_statement).all())
+            rows_by_id = {row.claim_id: row for row in [*rows, *related_rows]}
+            rows = list(rows_by_id.values())
+        if not rows and not matched_entity_ids:
+            fallback_reason = fallback_reason or "full-text-no-match"
+            rows = list(session.scalars(base_statement).all())
         scored = sorted(
-            ((self.score(row, question, matched_entity_ids), row) for row in rows),
+            ((self.score(row, question, search_entity_ids), row) for row in rows),
             key=lambda item: (-item[0], item[1].claim_id),
         )
-        selected = [row for score, row in scored if score > 0][:limit]
+        selected = self.select_diverse_rows(
+            scored,
+            snapshot.entities,
+            matched_entity_ids,
+            limit,
+        )
         citations = [
             ResearchCitation(
                 claim=Claim.model_validate_json(row.claim_json),
@@ -281,6 +299,51 @@ class LexicalRagRetriever:
             for entity_id, token, _ in matches
             if not any(token != other and token in other for _, other, _ in matches)
         }
+
+    @staticmethod
+    def expand_entity_scope(entities: list[Entity], matched_entity_ids: set[str]) -> set[str]:
+        """系列问题同时检索具体版本，但具体版本问题不会反向扩大到整个系列。"""
+        scope = set(matched_entity_ids)
+        while True:
+            children = {
+                entity.id
+                for entity in entities
+                if entity.family_id is not None and entity.family_id in scope
+            }
+            expanded = scope | children
+            if expanded == scope:
+                return scope
+            scope = expanded
+
+    @classmethod
+    def select_diverse_rows(
+        cls,
+        scored: list[tuple[float, RagClaimDocumentRecord]],
+        entities: list[Entity],
+        matched_entity_ids: set[str],
+        limit: int,
+    ) -> list[RagClaimDocumentRecord]:
+        """多实体问题先为每个实体保留一个结果，再按总分补足。"""
+        eligible = [(score, row) for score, row in scored if score > 0]
+        selected: list[RagClaimDocumentRecord] = []
+        selected_ids: set[str] = set()
+        if len(matched_entity_ids) > 1:
+            for entity_id in sorted(matched_entity_ids):
+                scope = cls.expand_entity_scope(entities, {entity_id})
+                match = next((row for _, row in eligible if row.entity_id in scope), None)
+                if match is not None and match.claim_id not in selected_ids:
+                    selected.append(match)
+                    selected_ids.add(match.claim_id)
+                    if len(selected) >= limit:
+                        return selected
+        for _, row in eligible:
+            if row.claim_id in selected_ids:
+                continue
+            selected.append(row)
+            selected_ids.add(row.claim_id)
+            if len(selected) >= limit:
+                break
+        return selected
 
     @classmethod
     def tokens(cls, value: str) -> set[str]:

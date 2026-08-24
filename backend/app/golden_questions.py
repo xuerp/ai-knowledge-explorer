@@ -13,6 +13,7 @@ from .schemas import (
     GraphEdge,
     KnowledgeSnapshot,
     RagEvaluationMetrics,
+    ResearchCitation,
 )
 
 if TYPE_CHECKING:
@@ -88,9 +89,7 @@ class GoldenQuestionEvaluator:
             retrieval = retriever.search(session, snapshot, str(question["question"]), limit=8)
             citations = retrieval.citations
             retrieved_ids = [item.claim.id for item in citations]
-            retrieved_entities = {
-                item.claim.entity_id for item in citations if item.claim.entity_id
-            }
+            retrieved_entities = self._citation_entity_ids(snapshot, citations)
             expected_entities = {str(item) for item in question.get("expectedEntityIds", [])}
             expected_claims = {str(item) for item in question.get("expectedClaimIds", [])}
             entity_recall = (
@@ -175,6 +174,51 @@ class GoldenQuestionEvaluator:
     @staticmethod
     def _boolean_ratio(values: list[bool]) -> float:
         return round(sum(values) / len(values), 4) if values else 1.0
+
+    @staticmethod
+    def _expand_entity_families(
+        snapshot: KnowledgeSnapshot,
+        entity_ids: set[str],
+    ) -> set[str]:
+        """具体版本命中可满足其系列预期，同时保留版本级精确评估。"""
+        family_by_id = {entity.id: entity.family_id for entity in snapshot.entities}
+        expanded = set(entity_ids)
+        pending = list(entity_ids)
+        while pending:
+            family_id = family_by_id.get(pending.pop())
+            if family_id and family_id not in expanded:
+                expanded.add(family_id)
+                pending.append(family_id)
+        return expanded
+
+    @classmethod
+    def _citation_entity_ids(
+        cls,
+        snapshot: KnowledgeSnapshot,
+        citations: list[ResearchCitation],
+    ) -> set[str]:
+        """Claim 归属实体和正文、证据锚点明确提及的实体都计入召回。"""
+        entity_ids = {
+            item.claim.entity_id for item in citations if item.claim.entity_id is not None
+        }
+        for item in citations:
+            text = "\n".join(
+                value
+                for value in [
+                    item.claim.subject,
+                    item.claim.predicate,
+                    item.claim.object_or_value,
+                    item.claim.text.zh,
+                    item.claim.text.en,
+                    item.claim.text.technical.zh if item.claim.text.technical else None,
+                    item.claim.text.technical.en if item.claim.text.technical else None,
+                    *(source.publisher for source in item.evidence),
+                    *(source.source_excerpt for source in item.evidence),
+                ]
+                if value
+            )
+            entity_ids.update(cls._resolve_mentions(snapshot, text))
+        return cls._expand_entity_families(snapshot, entity_ids)
 
     def _evaluate_question(
         self,
