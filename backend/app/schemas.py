@@ -337,6 +337,9 @@ class PublicationRecord(CamelModel):
 class HealthResponse(CamelModel):
     ok: bool
     release: str
+    build_commit: str
+    schema_revision: str
+    built_at: str | None = None
     environment: str
     data_mode: Literal["demo", "live"]
     database: str
@@ -389,6 +392,42 @@ class ProductionReadiness(CamelModel):
     warning_count: int
     checks: list[ProductionReadinessCheck]
     manual_checks: list[ProductionReadinessCheck]
+
+
+class ReleaseClaimMetrics(CamelModel):
+    public_claim_count: int
+    entity_linked_public_claim_count: int
+    approved_claim_count: int
+    human_reviewed_claim_count: int
+    auto_approved_relation_claim_count: int
+    current_claim_count: int
+    historical_claim_count: int
+
+
+class ClaimEntityAuditItem(CamelModel):
+    claim_id: str
+    current_entity_id: str | None = None
+    subject: str | None = None
+    resolution: Literal[
+        "deterministic",
+        "review-required",
+        "ambiguous",
+        "unresolved",
+        "invalid",
+    ]
+    proposed_entity_id: str | None = None
+    candidate_entity_ids: list[str] = Field(default_factory=list)
+    reason: str
+
+
+class ClaimEntityAuditReport(CamelModel):
+    generated_at: datetime
+    public_claim_count: int
+    linked_claim_count: int
+    missing_or_invalid_count: int
+    deterministic_repair_count: int
+    manual_review_count: int
+    items: list[ClaimEntityAuditItem]
 
 
 class GraphQuery(CamelModel):
@@ -828,3 +867,16 @@ class DataQualityReport(CamelModel):
     timeline_entries_with_missing_evidence: list[str]
     live_ready: bool
     issues: list[str]
+
+
+class ReleaseBaseline(CamelModel):
+    generated_at: datetime
+    build: HealthResponse
+    claims: ReleaseClaimMetrics
+    quality: DataQualityReport
+    golden_questions: GoldenQuestionReport
+    review_queue: ReviewInventoryReport
+    operations: OperationsDiagnostics
+    source_health: dict[str, int]
+    integrations: IntegrationStatus
+    readiness: ProductionReadiness

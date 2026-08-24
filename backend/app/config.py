@@ -55,6 +55,8 @@ class Settings:
     worker_id: str = "scheduler"
     worker_heartbeat_seconds: int = 30
     worker_stale_seconds: int = 180
+    build_commit: str = "local"
+    built_at: str | None = None
 
     def __post_init__(self) -> None:
         if self.automation_token is not None and len(self.automation_token) < 32:
@@ -175,4 +177,11 @@ class Settings:
             worker_id=os.getenv("AI_RADAR_WORKER_ID", "scheduler").strip() or "scheduler",
             worker_heartbeat_seconds=int(os.getenv("AI_RADAR_WORKER_HEARTBEAT_SECONDS", "30")),
             worker_stale_seconds=int(os.getenv("AI_RADAR_WORKER_STALE_SECONDS", "180")),
+            build_commit=(
+                (
+                    os.getenv("AI_RADAR_BUILD_COMMIT") or os.getenv("RENDER_GIT_COMMIT") or "local"
+                ).strip()
+                or "local"
+            ),
+            built_at=os.getenv("AI_RADAR_BUILT_AT") or None,
         )

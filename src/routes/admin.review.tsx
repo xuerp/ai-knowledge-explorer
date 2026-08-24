@@ -45,11 +45,13 @@ import {
   adminApi,
   type AdminUser,
   type AuditEntry,
+  type ClaimEntityAuditReport,
   type DataQualityReport,
   type DocumentSnapshotView,
   type ExtractionPlanItem,
   type IngestionRun,
   type IntegrationStatus,
+  type HealthStatus,
   type OperationsDiagnostics,
   type OutboxEntry,
   type ProductionReadiness,
@@ -87,6 +89,8 @@ type Workspace = {
   operations: OperationsDiagnostics | null;
   productionReadiness: ProductionReadiness | null;
   reviewInventory: ReviewInventoryReport | null;
+  build: HealthStatus | null;
+  claimEntityAudit: ClaimEntityAuditReport | null;
   loadWarnings: string[];
 };
 
@@ -1174,6 +1178,13 @@ function AdminReviewPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               {user.email} · {user.role}
             </p>
+            {workspace.build && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                发布 {workspace.build.release} · 构建{" "}
+                <span className="font-mono">{workspace.build.buildCommit.slice(0, 12)}</span> · 迁移{" "}
+                <span className="font-mono">{workspace.build.schemaRevision}</span>
+              </p>
+            )}
           </div>
           <div className="flex gap-2">
             {user.role === "admin" && (
@@ -1221,6 +1232,47 @@ function AdminReviewPage() {
           <Metric label="邮件 Outbox" value={workspace.outbox.length} />
           <Metric label="正式数据门槛" value={workspace.quality?.liveReady ? "通过" : "未通过"} />
         </section>
+
+        {workspace.claimEntityAudit && workspace.claimEntityAudit.missingOrInvalidCount > 0 && (
+          <section className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-xl font-semibold">Claim 实体关联审计</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  只读报告不会修改数据；无合法实体的候选已经无法批准发布。
+                </p>
+              </div>
+              <span className="rounded-full border border-amber-400/50 px-2.5 py-1 text-xs">
+                {workspace.claimEntityAudit.missingOrInvalidCount} 条待处理
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <Metric label="公开 Claim" value={workspace.claimEntityAudit.publicClaimCount} />
+              <Metric
+                label="可确定性回填"
+                value={workspace.claimEntityAudit.deterministicRepairCount}
+              />
+              <Metric label="需人工判断" value={workspace.claimEntityAudit.manualReviewCount} />
+            </div>
+            <details className="mt-4 rounded-md border border-border bg-background/60 p-3">
+              <summary className="cursor-pointer text-sm font-medium">查看关联问题明细</summary>
+              <div className="mt-3 space-y-2">
+                {workspace.claimEntityAudit.items.slice(0, 50).map((item) => (
+                  <div
+                    key={item.claimId}
+                    className="grid gap-1 rounded border border-border px-3 py-2 text-xs md:grid-cols-[1fr_1fr_2fr]"
+                  >
+                    <span className="font-mono">{item.claimId}</span>
+                    <span>
+                      {item.subject || "无主体"} → {item.proposedEntityId || "未解析"}
+                    </span>
+                    <span className="text-muted-foreground">{item.reason}</span>
+                  </div>
+                ))}
+              </div>
+            </details>
+          </section>
+        )}
 
         {workspace.quality && !workspace.quality.liveReady && (
           <section className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
