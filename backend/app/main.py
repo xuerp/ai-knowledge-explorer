@@ -21,6 +21,7 @@ from .database import (
     AuditLogRecord,
     Database,
     DocumentSnapshotRecord,
+    KnowledgeEntityRecord,
     PublicationRecordRow,
     ReviewJobRecord,
     SourceRecord,
@@ -28,6 +29,7 @@ from .database import (
 )
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
+from .entity_linkage import audit_claim_entity_links
 from .extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionUnavailableError,
@@ -57,6 +59,7 @@ from .schemas import (
     CandidateAssessment,
     CandidateCreate,
     Claim,
+    ClaimEntityAuditReport,
     DataQualityReport,
     DigestPreference,
     DigestRunSummary,
@@ -88,6 +91,8 @@ from .schemas import (
     ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
+    ReleaseBaseline,
+    ReleaseClaimMetrics,
     ResearchCitation,
     ResearchCreate,
     ResearchView,
@@ -111,7 +116,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.23-paginated-claim-history-v56"
+SERVICE_RELEASE = "2026.08.25-release-baseline-v57"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -238,6 +243,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return HealthResponse(
             ok=True,
             release=SERVICE_RELEASE,
+            build_commit=app_settings.build_commit,
+            schema_revision=DATABASE_SCHEMA_REVISION,
+            built_at=app_settings.built_at,
             environment=app_settings.environment,
             data_mode=app_settings.data_mode,
             database=app_settings.database_url.split(":", 1)[0],
@@ -820,6 +828,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def get_catalog_snapshot(session: Session) -> KnowledgeSnapshot:
         return repository.public_snapshot(session)
+
+    def require_publishable_entity(row: ReviewJobRecord, session: Session) -> None:
+        if not row.entity_id or session.get(KnowledgeEntityRecord, row.entity_id) is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="A claim cannot be published without one valid knowledge entity.",
+            )
 
     def build_extraction_plan(
         session: Session,
@@ -2119,6 +2134,86 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             duplicate_with_published_items=duplicate_with_published_items,
         )
 
+    @app.get(
+        "/api/v2/admin/claim-entity-audit",
+        response_model=ClaimEntityAuditReport,
+    )
+    def claim_entity_audit(
+        response: Response,
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ClaimEntityAuditReport:
+        response.headers["Cache-Control"] = "no-store"
+        return audit_claim_entity_links(get_catalog_snapshot(session))
+
+    @app.get(
+        "/api/v2/admin/release-baseline",
+        response_model=ReleaseBaseline,
+    )
+    def release_baseline(
+        response: Response,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> ReleaseBaseline:
+        response.headers["Cache-Control"] = "no-store"
+        snapshot = get_catalog_snapshot(session)
+        entity_ids = {entity.id for entity in snapshot.entities}
+        approved_rows = session.scalars(
+            select(ReviewJobRecord).where(
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+        ).all()
+        auto_approved_relation_claim_count = 0
+        for row in approved_rows:
+            if row.reviewed_by != "automation@ai-radar.local":
+                continue
+            try:
+                predicate = Claim.model_validate_json(row.claim_json).predicate
+            except (ValueError, TypeError, json.JSONDecodeError):
+                continue
+            auto_approved_relation_claim_count += int(predicate in RELATION_CLAIM_PREDICATES)
+
+        quality = get_quality_report(session)
+        golden = quality.golden_questions or get_golden_question_report(session)
+        sources = ingestion.list_sources(session)
+        source_health = {
+            state: sum(source.health_state == state for source in sources)
+            for state in ("healthy", "retrying", "paused", "manual", "unverified")
+        }
+        return ReleaseBaseline(
+            generated_at=datetime.now(UTC),
+            build=health(),
+            claims=ReleaseClaimMetrics(
+                public_claim_count=len(snapshot.claims),
+                entity_linked_public_claim_count=sum(
+                    claim.entity_id in entity_ids for claim in snapshot.claims
+                ),
+                approved_claim_count=len(approved_rows),
+                human_reviewed_claim_count=sum(
+                    bool(row.reviewed_by) and row.reviewed_by != "automation@ai-radar.local"
+                    for row in approved_rows
+                ),
+                auto_approved_relation_claim_count=auto_approved_relation_claim_count,
+                current_claim_count=len(snapshot.claims),
+                historical_claim_count=sum(
+                    row.lifecycle_status in {"historical", "superseded", "retracted"}
+                    for row in approved_rows
+                ),
+            ),
+            quality=quality,
+            golden_questions=golden,
+            review_queue=review_queue_inventory(principal, session),
+            operations=operations.diagnostics(
+                session,
+                app_settings.worker_id,
+                run_limit=20,
+            ),
+            source_health=source_health,
+            integrations=integration_status(principal, session),
+            readiness=production_readiness(Response(), principal, session),
+        )
+
     def decide_review(
         review_id: str,
         decision: ReviewDecision,
@@ -2176,6 +2271,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="A claim cannot be published without evidence.",
             )
+        if action == "approved":
+            require_publishable_entity(row, session)
         row.status = action
         row.review_reason = decision.reason
         row.reviewed_at = datetime.now(UTC)
@@ -2258,6 +2355,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail=f"Review job version is {row.version}; refresh before deciding.",
             )
         queue_item = repository.to_queue_item(row)
+        require_publishable_entity(row, session)
         if not queue_item.evidence_items:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

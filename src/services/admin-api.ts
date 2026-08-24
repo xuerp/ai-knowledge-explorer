@@ -10,6 +10,37 @@ export interface AdminUser {
   role: "viewer" | "reviewer" | "admin";
 }
 
+export interface HealthStatus {
+  ok: boolean;
+  release: string;
+  buildCommit: string;
+  schemaRevision: string;
+  builtAt?: string | null;
+  environment: string;
+  dataMode: "demo" | "live";
+  database: string;
+  adminWritesEnabled: boolean;
+  authEnabled: boolean;
+}
+
+export interface ClaimEntityAuditReport {
+  generatedAt: string;
+  publicClaimCount: number;
+  linkedClaimCount: number;
+  missingOrInvalidCount: number;
+  deterministicRepairCount: number;
+  manualReviewCount: number;
+  items: Array<{
+    claimId: string;
+    currentEntityId?: string | null;
+    subject?: string | null;
+    resolution: "deterministic" | "review-required" | "ambiguous" | "unresolved" | "invalid";
+    proposedEntityId?: string | null;
+    candidateEntityIds: string[];
+    reason: string;
+  }>;
+}
+
 export interface ReviewQueueItem {
   id: string;
   entityId?: string;
@@ -217,6 +248,8 @@ export interface DataQualityReport {
   coreRelationDeficit: number;
   goldenQuestions?: GoldenQuestionReport;
   claimsWithMissingEvidence: string[];
+  claimsWithMissingEntity: string[];
+  claimsWithMissingFactDate: string[];
   relationsWithMissingEvidence: string[];
   timelineEntriesWithMissingEvidence: string[];
   liveReady: boolean;
@@ -342,23 +375,34 @@ export const adminApi = {
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
 
   async workspace(token: string, role: AdminUser["role"]) {
-    const [openQueueResult, historyQueueResult, inventoryResult] = await Promise.all([
-      settle(
-        "开放审核队列",
-        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
-        [],
-      ),
-      settle(
-        "最近审核历史",
-        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=history&limit=100", {}, token),
-        [],
-      ),
-      settle(
-        "审核盘点",
-        request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
-        null,
-      ),
-    ]);
+    const [openQueueResult, historyQueueResult, inventoryResult, healthResult, entityAuditResult] =
+      await Promise.all([
+        settle(
+          "开放审核队列",
+          request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
+          [],
+        ),
+        settle(
+          "最近审核历史",
+          request<ReviewQueueItem[]>(
+            "/api/v2/admin/review-queue?scope=history&limit=100",
+            {},
+            token,
+          ),
+          [],
+        ),
+        settle(
+          "审核盘点",
+          request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
+          null,
+        ),
+        settle("构建信息", request<HealthStatus>("/health", {}, token), null),
+        settle(
+          "Claim 实体审计",
+          request<ClaimEntityAuditReport>("/api/v2/admin/claim-entity-audit", {}, token),
+          null,
+        ),
+      ]);
     const queueResult = {
       value: [...openQueueResult.value, ...historyQueueResult.value],
       warning: [openQueueResult.warning, historyQueueResult.warning].filter(Boolean).join("；"),
@@ -376,7 +420,14 @@ export const adminApi = {
         operations: null,
         productionReadiness: null,
         reviewInventory: inventoryResult.value,
-        loadWarnings: [queueResult.warning, inventoryResult.warning].filter(Boolean) as string[],
+        build: healthResult.value,
+        claimEntityAudit: entityAuditResult.value,
+        loadWarnings: [
+          queueResult.warning,
+          inventoryResult.warning,
+          healthResult.warning,
+          entityAuditResult.warning,
+        ].filter(Boolean) as string[],
       };
     }
     const [
@@ -424,6 +475,8 @@ export const adminApi = {
       operations,
       productionReadiness,
       inventoryResult,
+      healthResult,
+      entityAuditResult,
     ];
     return {
       queue: queueResult.value,
@@ -437,6 +490,8 @@ export const adminApi = {
       operations: operations.value,
       productionReadiness: productionReadiness.value,
       reviewInventory: inventoryResult.value,
+      build: healthResult.value,
+      claimEntityAudit: entityAuditResult.value,
       loadWarnings: sections.flatMap((section) => (section.warning ? [section.warning] : [])),
     };
   },

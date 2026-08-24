@@ -16,6 +16,7 @@ from app.main import (
     RELATION_PREDICATE_ANCHORS,
     create_app,
 )
+from app.release_baseline import render_markdown
 from app.repository import RELATION_PREDICATES
 from app.schemas import CandidateCreate
 
@@ -34,6 +35,8 @@ def client(tmp_path: Path):
         environment="test",
         jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
         fetch_allowed_hosts=("example.com",),
+        build_commit="test-build-commit",
+        built_at="2026-08-25T00:00:00Z",
     )
     with TestClient(create_app(settings)) as test_client:
         yield test_client
@@ -58,7 +61,10 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.23-paginated-claim-history-v56",
+        "release": "2026.08.25-release-baseline-v57",
+        "buildCommit": "test-build-commit",
+        "schemaRevision": "20260824_0019",
+        "builtAt": "2026-08-25T00:00:00Z",
         "environment": "test",
         "dataMode": "demo",
         "database": "sqlite",
@@ -69,6 +75,64 @@ def test_health_exposes_write_boundary(client: TestClient):
     ready = client.get("/ready")
     assert ready.status_code == 200
     assert ready.json() == response.json()
+
+
+def test_release_baseline_is_protected_read_only_and_uses_precise_claim_metrics(
+    client: TestClient,
+):
+    endpoint = "/api/v2/admin/release-baseline"
+    assert client.get(endpoint).status_code == 401
+    before = client.get("/api/snapshot").json()
+
+    response = client.get(endpoint, headers={"X-Admin-Token": "test-admin-token"})
+
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    payload = response.json()
+    assert payload["build"]["buildCommit"] == "test-build-commit"
+    assert payload["build"]["schemaRevision"] == DATABASE_SCHEMA_REVISION
+    assert payload["claims"]["publicClaimCount"] == len(before["claims"])
+    assert payload["claims"]["entityLinkedPublicClaimCount"] == sum(
+        bool(claim["entityId"]) for claim in before["claims"]
+    )
+    assert payload["claims"]["approvedClaimCount"] >= payload["claims"]["humanReviewedClaimCount"]
+    assert payload["quality"]["claimCount"] == len(before["claims"])
+    assert payload["goldenQuestions"]["total"] == 20
+    assert sum(payload["sourceHealth"].values()) == payload["integrations"]["registeredSources"]
+    assert client.get("/api/snapshot").json()["claims"] == before["claims"]
+    serialized = response.text.casefold()
+    assert "test-admin-token" not in serialized
+    assert "jwt-secret" not in serialized
+    assert "api_key" not in serialized
+    assert "database_url" not in serialized
+    markdown = render_markdown(payload)
+    assert "# AI Radar 发布基线" in markdown
+    assert "| 公开 Claim |" in markdown
+    assert "test-admin-token" not in markdown
+    assert "jwt-secret" not in markdown
+
+
+def test_claim_entity_audit_is_protected_and_matches_quality_report(client: TestClient):
+    endpoint = "/api/v2/admin/claim-entity-audit"
+    headers = {"X-Admin-Token": "test-admin-token"}
+    assert client.get(endpoint).status_code == 401
+
+    response = client.get(endpoint, headers=headers)
+    quality = client.get("/api/v2/admin/data-quality", headers=headers).json()
+
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    payload = response.json()
+    assert payload["missingOrInvalidCount"] == len(payload["items"])
+    assert (
+        payload["linkedClaimCount"] + payload["missingOrInvalidCount"]
+        == payload["publicClaimCount"]
+    )
+    assert {item["claimId"] for item in payload["items"]} == set(quality["claimsWithMissingEntity"])
+    assert (
+        payload["deterministicRepairCount"] + payload["manualReviewCount"]
+        == payload["missingOrInvalidCount"]
+    )
 
 
 def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
@@ -1013,6 +1077,68 @@ def test_approve_publishes_claim_once_and_records_history(client: TestClient):
     assert history.status_code == 200
     assert len(history.json()) == 1
     assert history.json()[0]["claimId"] == "c-gpt5-1m"
+
+
+def test_approval_rejects_candidate_without_a_valid_entity(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-unresolved-entity",
+            "claim": {
+                "id": "claim-unresolved-entity",
+                "text": {
+                    "zh": "一个尚未登记的产品发布了新功能。",
+                    "en": "An unregistered product released a new capability.",
+                },
+                "confidence": "unverified",
+                "sourceIds": ["evidence-unresolved-entity"],
+                "updatedAt": "2026-08-25",
+                "subject": "尚未登记的产品",
+                "predicate": "released-at",
+                "objectOrValue": "2026-08-25",
+                "validFrom": "2026-08-25",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-unresolved-entity",
+                    "title": {"zh": "官方发布", "en": "Official release"},
+                    "url": "https://example.com/unresolved-product",
+                    "publisher": "Example",
+                    "publishedAt": "2026-08-25",
+                    "collectedAt": "2026-08-25",
+                    "sourceExcerpt": "An unregistered product released a new capability.",
+                    "type": "official",
+                }
+            ],
+        },
+    )
+    assert created.status_code == 201
+    candidate = created.json()
+    assert candidate["entityId"] is None
+
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{candidate['id']}/approve",
+        headers=headers,
+        json={
+            "expectedVersion": candidate["version"],
+            "reason": "尝试批准没有实体关联的候选。",
+        },
+    )
+
+    assert approved.status_code == 422
+    assert approved.json()["detail"] == (
+        "A claim cannot be published without one valid knowledge entity."
+    )
+    queue = client.get(
+        "/api/v2/admin/review-queue",
+        params={"scope": "open"},
+        headers=headers,
+    ).json()
+    unchanged = next(item for item in queue if item["id"] == candidate["id"])
+    assert unchanged["status"] == candidate["status"]
+    assert unchanged["version"] == candidate["version"]
 
 
 def create_lifecycle_candidate(
