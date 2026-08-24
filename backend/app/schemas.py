@@ -691,6 +691,21 @@ class ResearchCitation(CamelModel):
     evidence: list[Evidence]
 
 
+class GeneratedAnswerStatement(CamelModel):
+    text_zh: str = Field(min_length=1)
+    text_en: str = Field(min_length=1)
+    claim_ids: list[str] = Field(min_length=1)
+
+
+class GeneratedAnswerPayload(CamelModel):
+    answer_zh: str = Field(min_length=1)
+    answer_en: str = Field(min_length=1)
+    statements: list[GeneratedAnswerStatement] = Field(default_factory=list)
+    uncertainties: list[str] = Field(default_factory=list)
+    refused: bool = False
+    refusal_reason: str | None = None
+
+
 class RetrievalDiagnostics(CamelModel):
     candidate_count: int = 0
     returned_count: int = 0
@@ -698,6 +713,7 @@ class RetrievalDiagnostics(CamelModel):
     elapsed_ms: int = 0
     matched_entity_ids: list[str] = Field(default_factory=list)
     fallback_reason: str | None = None
+    generation_fallback_reason: str | None = None
 
 
 class ResearchView(CamelModel):
