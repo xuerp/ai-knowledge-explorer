@@ -17,4 +17,6 @@ test("审核后台展示后端构建与 Claim 实体关联审计", () => {
   assert.match(reviewSource, /deterministicRepairCount/);
   assert.match(reviewSource, /运行确定性 Dry Run/);
   assert.match(reviewSource, /claimEntityRepair\(token, mode, claimIds\)/);
+  assert.match(reviewSource, /classifyReviewLane\(item, approvedHistory\) === "fresh-safe"/);
+  assert.match(reviewSource, /批准新鲜安全候选/);
 });
