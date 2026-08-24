@@ -12,7 +12,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     create_engine,
-    func,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 
@@ -301,7 +301,8 @@ class RagClaimDocumentRecord(Base):
 
 Index(
     "ix_rag_claim_documents_search_fts",
-    func.to_tsvector("simple", RagClaimDocumentRecord.search_text),
+    text("to_tsvector('simple', search_text)"),
+    _table=RagClaimDocumentRecord.__table__,
     postgresql_using="gin",
 ).ddl_if(dialect="postgresql")
 

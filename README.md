@@ -33,6 +33,12 @@
 
 未登录访客可以运行三条预置研究路径；登录后研究记录进入私密账户。每个结论回到已发布 Claim 和 Evidence，覆盖不足时返回可信拒答。
 
+### 4. 可信 RAG：先检索可核验事实，再生成回答
+
+当前研究链路已经具备 PostgreSQL 全文检索、逐条 Claim 引用、Evidence 校验、检索诊断和黄金问题评估。Embedding、混合检索、Reranker 与带引用生成均采用默认关闭的扩展接口；未确认供应商和费用上限时，系统保持零额外模型费用的 `lexical + extractive` 模式。
+
+最近一次本地基线中，引用覆盖率为 100%，但 RAG 检索通过率仅为 20%、实体 Recall@8 为 29.17%，因此 `ragReady=false`。项目不会用“能生成回答”替代真实召回质量。
+
 ## 工作方式
 
 ```text
@@ -101,7 +107,8 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 数据：PostgreSQL；本地和 CI 同时保护 SQLite/PostgreSQL 迁移兼容。
 - 部署：Cloudflare Workers 同域代理 → Render API → Neon PostgreSQL。
 - 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 Cloudflare Cron。
-- 质量：ESLint、TypeScript、前后端测试、Ruff、编译、生产构建、迁移验证、黄金问题和数据质量门槛。
+- RAG：PostgreSQL 全文检索、GIN 投影索引、逐 Claim 引用、严格生成 Schema、失败降级与黄金问题评估。
+- 质量：ESLint、TypeScript、83 项前端测试、130 项后端测试、Ruff、生产构建、SQLite/PostgreSQL 迁移验证和数据质量门槛。
 
 详细结构见[架构说明](docs/ARCHITECTURE.md)。
 
@@ -151,6 +158,13 @@ python -m alembic check
 ```
 
 项目采用风险测试：日常改动执行针对性检查，Epic 完成执行完整回归，发布时再执行匿名浏览器与线上关键路径验收。
+
+## 安全与负责任披露
+
+- 真实 `.env`、数据库连接串、模型 Key、JWT Secret、SMTP 密码和云平台 Token 不进入 Git。
+- Render 与 Cloudflare 只通过平台 Secret 注入凭据，前端变量不得保存敏感信息。
+- 管理员初始化完成后移除静态 bootstrap Token，日常管理使用短期 JWT 与 RBAC。
+- 安全问题请按照[安全策略](SECURITY.md)私密报告，不要在公开 Issue 中提交凭据或漏洞细节。
 
 ## 路线与边界
 
