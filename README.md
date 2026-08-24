@@ -84,7 +84,7 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 数据模式：`demo`
 - 快照新鲜度：`cached`
 
-截至 2026-08-21，公开快照包含 49 个实体、23 条 Claim、40 条 Evidence、71 条 Relation 和 55 条 Timeline；34/40 条公开证据来自官方来源。正式门槛为 150 条已审核 Claim，且 17 个核心实体仍存在约 49 条关系缺口，因此不切换为 `live`。
+截至 2026-08-24，匿名公开快照包含 49 个实体、177 条 Claim、198 条 Evidence、75 条 Relation 和 55 条 Timeline；其中 150 条 Claim 已绑定实体，仍有 27 条缺少合法实体关联，192/198 条公开证据来自官方来源。这里的 177 条是公开快照数量，不等同于 177 条人工审核事实；正式门槛采用统一审核口径，且 16 个核心实体仍缺 46 条带证据关系，因此继续保持 `demo/cached`，不切换为 `live`。
 
 ## 主要入口
 
@@ -188,6 +188,7 @@ python -m alembic check
 - [Spec 覆盖与交付边界](docs/SPEC_TRACEABILITY.md)
 - [审核、信源与内容新鲜度治理 Spec](docs/REVIEW_SOURCE_FRESHNESS_SPEC.md)
 - [阅读模式与知识生命周期治理 Spec](docs/READING_MODE_AND_KNOWLEDGE_LIFECYCLE_SPEC.md)
+- [剩余问题治理与 Live Ready 实施 Spec](docs/REMAINING_ISSUES_RESOLUTION_SPEC.md)
 - [作品集验收与截图](docs/PORTFOLIO_ACCEPTANCE.md)
 - [3 分钟演示与短视频脚本](docs/DEMO_SCRIPT.md)
 - [产品 Case Study 文档](docs/PORTFOLIO_CASE_STUDY.md)
