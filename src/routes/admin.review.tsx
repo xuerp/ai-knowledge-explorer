@@ -46,6 +46,7 @@ import {
   type AdminUser,
   type AuditEntry,
   type ClaimEntityAuditReport,
+  type ClaimEntityRepairReport,
   type DataQualityReport,
   type DocumentSnapshotView,
   type ExtractionPlanItem,
@@ -196,6 +197,9 @@ function AdminReviewPage() {
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [reviewingIds, setReviewingIds] = useState<Set<string>>(() => new Set());
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
+  const [entityRepairReport, setEntityRepairReport] = useState<ClaimEntityRepairReport | null>(
+    null,
+  );
   const [catalogKind, setCatalogKind] = useState<CatalogRecordKind>("entity");
   const [catalogJson, setCatalogJson] = useState(catalogExamples.entity);
   const [timelineEntityId, setTimelineEntityId] = useState("");
@@ -402,6 +406,44 @@ function AdminReviewPage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const runEntityRepair = async (mode: "dry-run" | "apply") => {
+    if (user?.role !== "admin") return;
+    const claimIds =
+      mode === "apply"
+        ? (entityRepairReport?.items
+            .filter((item) => item.status === "repairable")
+            .map((item) => item.claimId) ?? [])
+        : [];
+    if (mode === "apply" && claimIds.length === 0) {
+      setError("没有可以确定性回填的 Claim。");
+      return;
+    }
+    if (
+      mode === "apply" &&
+      !window.confirm(
+        "确认回填 " + claimIds.length + " 条确定性实体关联？操作会写入审计与发布历史。",
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const report = await adminApi.claimEntityRepair(token, mode, claimIds);
+      setEntityRepairReport(report);
+      setOperationMessage(
+        mode === "dry-run"
+          ? "实体关联 Dry Run 完成：" + report.repairableCount + " 条可确定性回填。"
+          : "已回填 " + report.repairedCount + " 条实体关联，并记录审计与发布历史。",
+      );
+      if (mode === "apply") await refresh(token);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "实体关联处理失败。");
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -1271,6 +1313,31 @@ function AdminReviewPage() {
                 ))}
               </div>
             </details>
+            {user.role === "admin" && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => runEntityRepair("dry-run")}
+                >
+                  运行确定性 Dry Run
+                </Button>
+                <Button
+                  type="button"
+                  disabled={busy || !entityRepairReport?.repairableCount}
+                  onClick={() => runEntityRepair("apply")}
+                >
+                  回填 {entityRepairReport?.repairableCount ?? 0} 条确定性关联
+                </Button>
+                {entityRepairReport && (
+                  <span className="text-xs text-muted-foreground">
+                    本次扫描 {entityRepairReport.total} 条；已修复{" "}
+                    {entityRepairReport.repairedCount} 条。
+                  </span>
+                )}
+              </div>
+            )}
           </section>
         )}
 
