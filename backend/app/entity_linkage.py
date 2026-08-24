@@ -46,7 +46,7 @@ def _text_matches(claim: Claim, entities: list[Entity]) -> list[str]:
     return sorted(matches)
 
 
-def _classify_unlinked_claim(claim: Claim, entities: list[Entity]) -> ClaimEntityAuditItem:
+def classify_unlinked_claim(claim: Claim, entities: list[Entity]) -> ClaimEntityAuditItem:
     exact = _exact_matches(claim, entities)
     if len(exact) == 1:
         return ClaimEntityAuditItem(
@@ -105,7 +105,7 @@ def audit_claim_entity_links(snapshot: KnowledgeSnapshot) -> ClaimEntityAuditRep
         if claim.entity_id in entity_ids:
             linked_claim_count += 1
             continue
-        item = _classify_unlinked_claim(claim, snapshot.entities)
+        item = classify_unlinked_claim(claim, snapshot.entities)
         if claim.entity_id:
             item = item.model_copy(
                 update={

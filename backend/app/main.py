@@ -29,7 +29,7 @@ from .database import (
 )
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .engagement import EngagementService
-from .entity_linkage import audit_claim_entity_links
+from .entity_linkage import audit_claim_entity_links, classify_unlinked_claim
 from .extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionUnavailableError,
@@ -60,6 +60,9 @@ from .schemas import (
     CandidateCreate,
     Claim,
     ClaimEntityAuditReport,
+    ClaimEntityRepairItem,
+    ClaimEntityRepairReport,
+    ClaimEntityRepairRequest,
     DataQualityReport,
     DigestPreference,
     DigestRunSummary,
@@ -116,7 +119,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.25-release-baseline-v57"
+SERVICE_RELEASE = "2026.08.25-entity-link-repair-v58"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -2145,6 +2148,144 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> ClaimEntityAuditReport:
         response.headers["Cache-Control"] = "no-store"
         return audit_claim_entity_links(get_catalog_snapshot(session))
+
+    @app.post(
+        "/api/v2/admin/claim-entity-repair",
+        response_model=ClaimEntityRepairReport,
+    )
+    def repair_claim_entities(
+        payload: ClaimEntityRepairRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> ClaimEntityRepairReport:
+        if payload.mode == "apply" and not payload.claim_ids:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Apply mode requires an explicit list of at most 50 claim ids.",
+            )
+
+        snapshot = get_catalog_snapshot(session)
+        entity_ids = {entity.id for entity in snapshot.entities}
+        statement = select(ReviewJobRecord).where(
+            ReviewJobRecord.status == "approved",
+            ReviewJobRecord.publication_action != "merged-evidence",
+        )
+        if payload.claim_ids:
+            statement = statement.where(ReviewJobRecord.claim_id.in_(payload.claim_ids))
+        rows = session.scalars(
+            statement.order_by(ReviewJobRecord.created_at, ReviewJobRecord.id).limit(500)
+        ).all()
+        explicit_selection = bool(payload.claim_ids)
+        items: list[ClaimEntityRepairItem] = []
+        repairable_count = 0
+        repaired_count = 0
+        for row in rows:
+            if row.entity_id in entity_ids:
+                if explicit_selection:
+                    items.append(
+                        ClaimEntityRepairItem(
+                            review_job_id=row.id,
+                            claim_id=row.claim_id,
+                            previous_entity_id=row.entity_id,
+                            proposed_entity_id=row.entity_id,
+                            status="skipped",
+                            reason="该 Claim 已关联合法实体，无需修复。",
+                        )
+                    )
+                continue
+            try:
+                claim = Claim.model_validate_json(row.claim_json)
+            except (ValueError, TypeError, json.JSONDecodeError):
+                items.append(
+                    ClaimEntityRepairItem(
+                        review_job_id=row.id,
+                        claim_id=row.claim_id,
+                        previous_entity_id=row.entity_id,
+                        status="skipped",
+                        reason="Claim 结构无效，必须人工修复原始记录。",
+                    )
+                )
+                continue
+
+            proposed_entity_id = claim.entity_id if claim.entity_id in entity_ids else None
+            repair_reason = (
+                "Claim 载荷已经包含合法实体，可以确定性同步到审核记录。"
+                if proposed_entity_id
+                else "主体精确命中唯一实体，允许确定性回填。"
+            )
+            classification = classify_unlinked_claim(
+                claim.model_copy(update={"entity_id": None}),
+                snapshot.entities,
+            )
+            if proposed_entity_id is None and classification.resolution == "deterministic":
+                proposed_entity_id = classification.proposed_entity_id
+            if proposed_entity_id is None:
+                items.append(
+                    ClaimEntityRepairItem(
+                        review_job_id=row.id,
+                        claim_id=row.claim_id,
+                        previous_entity_id=row.entity_id,
+                        proposed_entity_id=classification.proposed_entity_id,
+                        status="skipped",
+                        reason=classification.reason,
+                    )
+                )
+                continue
+
+            repairable_count += 1
+            item_status: Literal["repairable", "repaired"] = "repairable"
+            previous_entity_id = row.entity_id
+            if payload.mode == "apply":
+                row.entity_id = proposed_entity_id
+                row.claim_json = claim.model_copy(
+                    update={"entity_id": proposed_entity_id}
+                ).model_dump_json(by_alias=True)
+                row.version += 1
+                audit.record(
+                    session,
+                    principal,
+                    "claim.entity.repair",
+                    "review_job",
+                    row.id,
+                    {
+                        "claimId": row.claim_id,
+                        "previousEntityId": previous_entity_id,
+                        "entityId": proposed_entity_id,
+                        "method": "deterministic",
+                    },
+                )
+                if row.lifecycle_status == "current":
+                    session.add(
+                        PublicationRecordRow(
+                            review_job_id=row.id,
+                            claim_id=row.claim_id,
+                            published_at=datetime.now(UTC),
+                            actor=principal.email,
+                        )
+                    )
+                repaired_count += 1
+                item_status = "repaired"
+            items.append(
+                ClaimEntityRepairItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    previous_entity_id=previous_entity_id,
+                    proposed_entity_id=proposed_entity_id,
+                    status=item_status,
+                    reason=repair_reason,
+                )
+            )
+
+        if payload.mode == "apply":
+            session.commit()
+        return ClaimEntityRepairReport(
+            generated_at=datetime.now(UTC),
+            mode=payload.mode,
+            total=len(items),
+            repairable_count=repairable_count,
+            repaired_count=repaired_count,
+            items=items,
+        )
 
     @app.get(
         "/api/v2/admin/release-baseline",

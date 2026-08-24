@@ -41,6 +41,22 @@ export interface ClaimEntityAuditReport {
   }>;
 }
 
+export interface ClaimEntityRepairReport {
+  generatedAt: string;
+  mode: "dry-run" | "apply";
+  total: number;
+  repairableCount: number;
+  repairedCount: number;
+  items: Array<{
+    reviewJobId: string;
+    claimId: string;
+    previousEntityId?: string | null;
+    proposedEntityId?: string | null;
+    status: "repairable" | "repaired" | "skipped";
+    reason: string;
+  }>;
+}
+
 export interface ReviewQueueItem {
   id: string;
   entityId?: string;
@@ -373,6 +389,16 @@ export const adminApi = {
 
   productionReadiness: (token: string) =>
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
+
+  claimEntityRepair: (token: string, mode: "dry-run" | "apply", claimIds: string[] = []) =>
+    request<ClaimEntityRepairReport>(
+      "/api/v2/admin/claim-entity-repair",
+      {
+        method: "POST",
+        body: JSON.stringify({ mode, claimIds }),
+      },
+      token,
+    ),
 
   async workspace(token: string, role: AdminUser["role"]) {
     const [openQueueResult, historyQueueResult, inventoryResult, healthResult, entityAuditResult] =

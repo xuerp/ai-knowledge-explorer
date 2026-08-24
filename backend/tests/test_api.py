@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -7,7 +8,13 @@ from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
 
 from app.config import Settings
-from app.database import AuditLogRecord, EmailOutboxRecord, ReviewJobRecord, SourceRecord
+from app.database import (
+    AuditLogRecord,
+    EmailOutboxRecord,
+    PublicationRecordRow,
+    ReviewJobRecord,
+    SourceRecord,
+)
 from app.extraction import ExtractionUnavailableError, StructuredExtractionService
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
@@ -61,7 +68,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.25-release-baseline-v57",
+        "release": "2026.08.25-entity-link-repair-v58",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260824_0019",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -133,6 +140,91 @@ def test_claim_entity_audit_is_protected_and_matches_quality_report(client: Test
         payload["deterministicRepairCount"] + payload["manualReviewCount"]
         == payload["missingOrInvalidCount"]
     )
+
+
+def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    claim = {
+        "id": "claim-legacy-unlinked",
+        "text": {
+            "zh": "GPT 是 OpenAI 的模型系列。",
+            "en": "GPT is an OpenAI model family.",
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-legacy-unlinked"],
+        "updatedAt": "2026-08-20",
+        "subject": "GPT",
+        "predicate": "description",
+        "objectOrValue": "OpenAI 模型系列",
+        "validFrom": "2026-08-20",
+    }
+    with client.app.state.database.session() as session:
+        session.add(
+            ReviewJobRecord(
+                id="review-legacy-unlinked",
+                entity_id=None,
+                claim_id=claim["id"],
+                claim_json=json.dumps(claim, ensure_ascii=False),
+                evidence_ids_json='["evidence-legacy-unlinked"]',
+                evidence_json="[]",
+                conflict_ids_json="[]",
+                status="approved",
+                created_at=datetime.now(UTC),
+                reviewed_at=datetime.now(UTC),
+                reviewed_by="reviewer@example.com",
+                review_reason="历史记录缺少持久化实体关联。",
+                version=1,
+            )
+        )
+        session.commit()
+
+    endpoint = "/api/v2/admin/claim-entity-repair"
+    assert client.post(endpoint, json={"mode": "dry-run"}).status_code == 401
+    dry_run = client.post(endpoint, headers=headers, json={"mode": "dry-run"})
+    assert dry_run.status_code == 200
+    assert dry_run.json()["repairableCount"] == 1
+    assert dry_run.json()["repairedCount"] == 0
+    assert dry_run.json()["items"][0]["proposedEntityId"] == "e-gpt"
+
+    unsafe_apply = client.post(endpoint, headers=headers, json={"mode": "apply"})
+    assert unsafe_apply.status_code == 422
+
+    applied = client.post(
+        endpoint,
+        headers=headers,
+        json={"mode": "apply", "claimIds": [claim["id"]]},
+    )
+    assert applied.status_code == 200
+    assert applied.json()["repairableCount"] == 1
+    assert applied.json()["repairedCount"] == 1
+    assert applied.json()["items"][0]["status"] == "repaired"
+    assert applied.json()["items"][0]["previousEntityId"] is None
+
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, "review-legacy-unlinked")
+        assert row is not None
+        assert row.entity_id == "e-gpt"
+        assert row.version == 2
+        assert json.loads(row.claim_json)["entityId"] == "e-gpt"
+        assert session.query(PublicationRecordRow).filter_by(claim_id=claim["id"]).count() == 1
+        audit_entry = (
+            session.query(AuditLogRecord)
+            .filter_by(
+                action="claim.entity.repair",
+                target_id=row.id,
+            )
+            .one()
+        )
+        assert json.loads(audit_entry.detail_json)["entityId"] == "e-gpt"
+
+    repeated = client.post(
+        endpoint,
+        headers=headers,
+        json={"mode": "apply", "claimIds": [claim["id"]]},
+    )
+    assert repeated.status_code == 200
+    assert repeated.json()["repairedCount"] == 0
+    assert repeated.json()["items"][0]["status"] == "skipped"
 
 
 def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(
