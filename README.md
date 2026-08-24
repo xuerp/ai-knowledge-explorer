@@ -193,3 +193,7 @@ python -m alembic check
 - [产品 Case Study 文档](docs/PORTFOLIO_CASE_STUDY.md)
 - [简历与面试材料](docs/RESUME_AND_INTERVIEW.md)
 - [生产运行手册](docs/PRODUCTION_RUNBOOK.md)
+
+## 开源许可
+
+项目采用 [MIT License](LICENSE)。允许学习、使用、修改和分发，但必须保留原始版权与许可声明。
