@@ -31,6 +31,7 @@ import {
   type ReviewAction,
 } from "@/domain/review-decision";
 import { assessReviewItem, orderReviewItems } from "@/domain/review-priority";
+import { classifyReviewLane, reviewLaneCounts, type ReviewLane } from "@/domain/review-lanes";
 import {
   describeSourceAction,
   describeProbeFailure,
@@ -214,9 +215,7 @@ function AdminReviewPage() {
   const [sourceFilter, setSourceFilter] = useState<
     "all" | "needs-action" | "manual" | "allowlisted" | "automatic"
   >("all");
-  const [reviewFilter, setReviewFilter] = useState<
-    "all" | "fresh" | "high-risk" | "batch-safe" | "stale"
-  >("all");
+  const [reviewFilter, setReviewFilter] = useState<"all" | ReviewLane>("all");
   const [sourceSnapshots, setSourceSnapshots] = useState<Record<string, DocumentSnapshotView[]>>(
     {},
   );
@@ -804,9 +803,22 @@ function AdminReviewPage() {
 
   const batchApproveCandidates = async (requestedCandidateIds: string[]) => {
     if (!workspace) return;
-    const candidates = selectBatchApprovableReviewItems(workspace.queue, requestedCandidateIds);
+    const approvedHistory = workspace.queue.filter((item) => item.status === "approved");
+    const freshSafeIds = new Set(
+      workspace.queue
+        .filter(
+          (item) =>
+            requestedCandidateIds.includes(item.id) &&
+            classifyReviewLane(item, approvedHistory) === "fresh-safe",
+        )
+        .map((item) => item.id),
+    );
+    const candidates = selectBatchApprovableReviewItems(
+      workspace.queue,
+      requestedCandidateIds.filter((id) => freshSafeIds.has(id)),
+    );
     if (candidates.length === 0) {
-      setOperationMessage("本批没有同时具备原文锚点且无冲突的待审候选。");
+      setOperationMessage("本批没有同时属于新鲜安全通道、具备原文锚点且无冲突的候选。");
       return;
     }
     const candidateIds = new Set(candidates.map((item) => item.id));
@@ -1185,23 +1197,22 @@ function AdminReviewPage() {
       item.evidenceItems.length > 0,
   );
   const recentCandidateIds = new Set(recentExtraction?.candidateIds ?? []);
+  const freshSafeCandidateIds = new Set(
+    pendingQueue
+      .filter((item) => classifyReviewLane(item, reviewHistory) === "fresh-safe")
+      .map((item) => item.id),
+  );
   const recentBatchApprovable = selectBatchApprovableReviewItems(
     workspace.queue,
-    recentExtraction?.candidateIds ?? [],
+    (recentExtraction?.candidateIds ?? []).filter((id) => freshSafeCandidateIds.has(id)),
   );
   const allBatchApprovable = selectBatchApprovableReviewItems(
     workspace.queue,
-    pendingQueue.map((item) => item.id),
+    pendingQueue.map((item) => item.id).filter((id) => freshSafeCandidateIds.has(id)),
   );
+  const laneCounts = reviewLaneCounts(pendingQueue, reviewHistory);
   const filteredPendingQueue = pendingQueue.filter((item) => {
-    const assessment = assessReviewItem(item);
-    return (
-      reviewFilter === "all" ||
-      (reviewFilter === "fresh" && assessment.freshness === "fresh") ||
-      (reviewFilter === "high-risk" && assessment.risk === "high") ||
-      (reviewFilter === "batch-safe" && assessment.batchSafe) ||
-      (reviewFilter === "stale" && assessment.freshness === "stale")
-    );
+    return reviewFilter === "all" || classifyReviewLane(item, reviewHistory) === reviewFilter;
   });
   const orderedPendingQueue = orderReviewItems(filteredPendingQueue).sort(
     (left, right) =>
@@ -1603,9 +1614,8 @@ function AdminReviewPage() {
             <div>
               <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                当前待处理 {pendingQueue.length} 条，其中 {allBatchApprovable.length}{" "}
-                条具备可定位原文锚点、{" "}
-                无冲突且可安全批量批准；其余需要单独判断。已处理记录保留在下方历史中。
+                当前待处理 {pendingQueue.length} 条。五条工作通道互斥分类，重复事实优先合并
+                Evidence，可能更新与高风险事实逐条判断，无效陈旧项先补证据或拒绝。
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -1613,17 +1623,14 @@ function AdminReviewPage() {
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
                 aria-label="审核队列筛选"
                 value={reviewFilter}
-                onChange={(event) =>
-                  setReviewFilter(
-                    event.target.value as "all" | "fresh" | "high-risk" | "batch-safe" | "stale",
-                  )
-                }
+                onChange={(event) => setReviewFilter(event.target.value as "all" | ReviewLane)}
               >
                 <option value="all">全部待审（{pendingQueue.length}）</option>
-                <option value="fresh">近期内容</option>
-                <option value="high-risk">高风险需判断</option>
-                <option value="batch-safe">可安全批量</option>
-                <option value="stale">历史陈旧内容</option>
+                <option value="fresh-safe">新鲜安全候选（{laneCounts["fresh-safe"]}）</option>
+                <option value="duplicate">确定性重复（{laneCounts.duplicate}）</option>
+                <option value="possible-update">可能更新（{laneCounts["possible-update"]}）</option>
+                <option value="high-risk">高风险与冲突（{laneCounts["high-risk"]}）</option>
+                <option value="invalid-stale">无效与陈旧（{laneCounts["invalid-stale"]}）</option>
               </select>
               <Button
                 type="button"
@@ -1631,7 +1638,7 @@ function AdminReviewPage() {
                 onClick={() => batchApproveCandidates(pendingQueue.map((item) => item.id))}
               >
                 <Check />
-                批准全部安全候选（{allBatchApprovable.length}）
+                批准新鲜安全候选（{allBatchApprovable.length}）
               </Button>
               {user.role === "admin" && (
                 <Button

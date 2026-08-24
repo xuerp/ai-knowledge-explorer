@@ -119,7 +119,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.25-entity-link-repair-v58"
+SERVICE_RELEASE = "2026.08.25-review-lanes-v59"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
