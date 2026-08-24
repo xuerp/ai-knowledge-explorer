@@ -1870,11 +1870,7 @@ function AdminReviewPage() {
                 onChange={(event) =>
                   setSourceFilter(
                     event.target.value as
-                      | "all"
-                      | "needs-action"
-                      | "manual"
-                      | "allowlisted"
-                      | "automatic",
+                      "all" | "needs-action" | "manual" | "allowlisted" | "automatic",
                   )
                 }
               >

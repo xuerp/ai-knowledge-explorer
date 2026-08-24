@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import create_engine, select
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from app.database import Base, KnowledgeEntityRecord, SourceRecord
@@ -15,6 +16,22 @@ from app.repository import MACHINE_SOURCE_CATALOG, KnowledgeRepository
 from app.schemas import CandidateCreate, Entity, LocalizedText
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
+
+
+def test_rag_fulltext_index_compiles_with_postgresql_literal_binds():
+    index = next(
+        index
+        for index in Base.metadata.tables["rag_claim_documents"].indexes
+        if index.name == "ix_rag_claim_documents_search_fts"
+    )
+
+    expression = index.expressions[0].compile(
+        dialect=postgresql.dialect(),
+        compile_kwargs={"literal_binds": True},
+    )
+
+    assert str(expression) == "to_tsvector('simple', search_text)"
+    assert index.dialect_options["postgresql"]["using"] == "gin"
 
 
 def _candidate(value: str) -> CandidateCreate:
