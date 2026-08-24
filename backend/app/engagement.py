@@ -17,7 +17,7 @@ from .database import (
     ResearchRecord,
     UserRecord,
 )
-from .rag import LexicalRagRetriever
+from .rag import LexicalRagRetriever, RagRetriever
 from .schemas import (
     DigestRunSummary,
     EmailOutboxView,
@@ -33,7 +33,7 @@ from .schemas import (
 
 
 class EngagementService:
-    def __init__(self, retriever: LexicalRagRetriever | None = None):
+    def __init__(self, retriever: RagRetriever | None = None):
         self.retriever = retriever or LexicalRagRetriever()
 
     def follow(
@@ -193,7 +193,7 @@ class EngagementService:
                 [item.model_dump(mode="json", by_alias=True) for item in retrieval.citations],
                 ensure_ascii=False,
             ),
-            retrieval_mode="lexical",
+            retrieval_mode=retrieval.retrieval_mode,
             answer_mode="extractive",
             retrieval_diagnostics_json=retrieval.diagnostics.model_dump_json(by_alias=True),
             steps_json=json.dumps(

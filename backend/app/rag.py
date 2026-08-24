@@ -6,6 +6,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import perf_counter
+from typing import Protocol
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
@@ -28,6 +29,55 @@ CJK_SEQUENCE = re.compile(r"[\u3400-\u9fff]+")
 class RagSearchResult:
     citations: list[ResearchCitation]
     diagnostics: RetrievalDiagnostics
+    retrieval_mode: str = "lexical"
+
+
+class RagRetriever(Protocol):
+    def search(
+        self,
+        session: Session,
+        snapshot: KnowledgeSnapshot,
+        question: str,
+        *,
+        limit: int = 8,
+    ) -> RagSearchResult: ...
+
+
+class EmbeddingProvider(Protocol):
+    @property
+    def model_name(self) -> str: ...
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
+
+    def embed_query(self, text: str) -> list[float]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class VectorDocument:
+    claim_id: str
+    content_hash: str
+    model_name: str
+    vector: list[float]
+
+
+@dataclass(frozen=True, slots=True)
+class VectorSearchHit:
+    claim_id: str
+    score: float
+
+
+class VectorClaimIndex(Protocol):
+    def upsert(self, documents: list[VectorDocument]) -> None: ...
+
+    def search(self, vector: list[float], *, limit: int) -> list[VectorSearchHit]: ...
+
+
+class ClaimReranker(Protocol):
+    def rerank(
+        self,
+        question: str,
+        citations: list[ResearchCitation],
+    ) -> list[str]: ...
 
 
 class LexicalRagRetriever:
@@ -246,3 +296,105 @@ class LexicalRagRetriever:
     @classmethod
     def postgres_query_text(cls, question: str) -> str:
         return " OR ".join(sorted(cls.tokens(question)))
+
+
+class HybridRagRetriever:
+    """可选混合检索层；依赖缺失或异常时始终安全降级到全文检索。"""
+
+    def __init__(
+        self,
+        lexical: LexicalRagRetriever | None = None,
+        *,
+        embedding_provider: EmbeddingProvider | None = None,
+        vector_index: VectorClaimIndex | None = None,
+        reranker: ClaimReranker | None = None,
+        enabled: bool = False,
+        rrf_k: int = 60,
+    ) -> None:
+        self.lexical = lexical or LexicalRagRetriever()
+        self.embedding_provider = embedding_provider
+        self.vector_index = vector_index
+        self.reranker = reranker
+        self.enabled = enabled
+        self.rrf_k = rrf_k
+
+    def search(
+        self,
+        session: Session,
+        snapshot: KnowledgeSnapshot,
+        question: str,
+        *,
+        limit: int = 8,
+    ) -> RagSearchResult:
+        lexical_result = self.lexical.search(session, snapshot, question, limit=max(32, limit * 4))
+        if not self.enabled:
+            return self._lexical_fallback(lexical_result, limit, "hybrid-disabled")
+        if self.embedding_provider is None or self.vector_index is None:
+            return self._lexical_fallback(lexical_result, limit, "hybrid-unavailable")
+
+        try:
+            vector = self.embedding_provider.embed_query(question)
+            vector_hits = self.vector_index.search(vector, limit=max(32, limit * 4))
+            citations = self._fuse(lexical_result.citations, vector_hits)
+            if self.reranker is not None and citations:
+                citations = self._apply_reranker(question, citations)
+        except Exception:  # noqa: BLE001 -- 第三方供应商异常必须统一降级，不能中断研究接口。
+            return self._lexical_fallback(lexical_result, limit, "hybrid-provider-error")
+
+        selected = citations[:limit]
+        diagnostics = lexical_result.diagnostics.model_copy(
+            update={
+                "returned_count": len(selected),
+                "filtered_count": max(0, len(citations) - len(selected)),
+                "fallback_reason": None,
+            }
+        )
+        return RagSearchResult(
+            citations=selected,
+            diagnostics=diagnostics,
+            retrieval_mode="hybrid",
+        )
+
+    def _fuse(
+        self,
+        lexical_citations: list[ResearchCitation],
+        vector_hits: list[VectorSearchHit],
+    ) -> list[ResearchCitation]:
+        by_id = {item.claim.id: item for item in lexical_citations}
+        scores: dict[str, float] = {}
+        for rank, citation in enumerate(lexical_citations, start=1):
+            scores[citation.claim.id] = scores.get(citation.claim.id, 0.0) + 1 / (self.rrf_k + rank)
+        for rank, hit in enumerate(vector_hits, start=1):
+            if hit.claim_id in by_id:
+                scores[hit.claim_id] = scores.get(hit.claim_id, 0.0) + 1 / (self.rrf_k + rank)
+        return [
+            by_id[claim_id] for claim_id in sorted(scores, key=lambda item: (-scores[item], item))
+        ]
+
+    def _apply_reranker(
+        self,
+        question: str,
+        citations: list[ResearchCitation],
+    ) -> list[ResearchCitation]:
+        assert self.reranker is not None
+        requested_ids = self.reranker.rerank(question, citations)
+        by_id = {item.claim.id: item for item in citations}
+        ordered_ids = [claim_id for claim_id in requested_ids if claim_id in by_id]
+        ordered_ids.extend(claim_id for claim_id in by_id if claim_id not in ordered_ids)
+        return [by_id[claim_id] for claim_id in ordered_ids]
+
+    @staticmethod
+    def _lexical_fallback(
+        result: RagSearchResult,
+        limit: int,
+        reason: str,
+    ) -> RagSearchResult:
+        citations = result.citations[:limit]
+        diagnostics = result.diagnostics.model_copy(
+            update={
+                "returned_count": len(citations),
+                "filtered_count": max(0, result.diagnostics.candidate_count - len(citations)),
+                "fallback_reason": reason,
+            }
+        )
+        return RagSearchResult(citations=citations, diagnostics=diagnostics)
