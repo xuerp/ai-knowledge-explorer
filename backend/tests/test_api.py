@@ -112,7 +112,12 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert payload["passed"] == 18
     assert payload["passRatio"] == 0.9
     assert payload["requiredRatio"] == 0.85
-    assert payload["ready"] is True
+    assert payload["ready"] is False
+    assert payload["retrievalPassRatio"] == 0.2
+    assert payload["ragReady"] is False
+    assert payload["ragMetrics"]["citationCoverage"] == 1.0
+    assert payload["ragMetrics"]["lifecyclePrecision"] == 1.0
+    assert payload["ragMetrics"]["entityRecallAt8"] == 0.2917
     assert len(payload["results"]) == 20
 
 

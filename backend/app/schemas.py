@@ -752,6 +752,20 @@ class GoldenQuestionResult(CamelModel):
     matched_entity_ids: list[str]
     missing_entity_ids: list[str]
     reason: str
+    retrieved_claim_ids: list[str] = Field(default_factory=list)
+    retrieval_passed: bool | None = None
+    entity_recall_at_8: float | None = None
+    citation_coverage: float | None = None
+
+
+class RagEvaluationMetrics(CamelModel):
+    entity_recall_at_8: float
+    claim_recall_at_8: float
+    citation_coverage: float
+    official_source_ratio: float
+    temporal_accuracy: float
+    refusal_accuracy: float
+    lifecycle_precision: float
 
 
 class GoldenQuestionReport(CamelModel):
@@ -762,6 +776,9 @@ class GoldenQuestionReport(CamelModel):
     required_ratio: float
     ready: bool
     results: list[GoldenQuestionResult]
+    retrieval_pass_ratio: float | None = None
+    rag_ready: bool | None = None
+    rag_metrics: RagEvaluationMetrics | None = None
 
 
 class DataQualityReport(CamelModel):
