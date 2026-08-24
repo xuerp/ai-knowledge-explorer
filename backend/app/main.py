@@ -1203,12 +1203,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return summary
 
     def get_golden_question_report(session: Session) -> GoldenQuestionReport:
-        return golden_questions.evaluate(get_catalog_snapshot(session))
+        return golden_questions.evaluate(
+            get_catalog_snapshot(session),
+            session=session,
+            retriever=engagement.retriever,
+        )
 
     def get_quality_report(session: Session) -> DataQualityReport:
         snapshot = get_catalog_snapshot(session)
         report = quality_gate.report(snapshot)
-        golden = golden_questions.evaluate(snapshot)
+        golden = golden_questions.evaluate(
+            snapshot,
+            session=session,
+            retriever=engagement.retriever,
+        )
         issues = [*report.issues]
         if not golden.ready:
             issues.append(

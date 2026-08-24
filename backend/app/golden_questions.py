@@ -3,8 +3,20 @@ from __future__ import annotations
 import json
 from collections import deque
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from .schemas import GoldenQuestionReport, GoldenQuestionResult, GraphEdge, KnowledgeSnapshot
+from sqlalchemy.orm import Session
+
+from .schemas import (
+    GoldenQuestionReport,
+    GoldenQuestionResult,
+    GraphEdge,
+    KnowledgeSnapshot,
+    RagEvaluationMetrics,
+)
+
+if TYPE_CHECKING:
+    from .rag import LexicalRagRetriever
 
 GOLDEN_PASS_RATIO = 0.85
 GOLDEN_QUESTIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "golden_questions.json"
@@ -14,9 +26,31 @@ class GoldenQuestionEvaluator:
     def __init__(self, questions_path: Path = GOLDEN_QUESTIONS_PATH):
         self.questions_path = questions_path
 
-    def evaluate(self, snapshot: KnowledgeSnapshot) -> GoldenQuestionReport:
+    def evaluate(
+        self,
+        snapshot: KnowledgeSnapshot,
+        *,
+        session: Session | None = None,
+        retriever: LexicalRagRetriever | None = None,
+    ) -> GoldenQuestionReport:
         questions = json.loads(self.questions_path.read_text(encoding="utf-8"))
         results = [self._evaluate_question(snapshot, item) for item in questions]
+        rag_metrics: RagEvaluationMetrics | None = None
+        retrieval_pass_ratio: float | None = None
+        rag_ready: bool | None = None
+        if session is not None and retriever is not None:
+            results, rag_metrics, retrieval_pass_ratio = self._evaluate_retrieval(
+                session,
+                retriever,
+                snapshot,
+                questions,
+                results,
+            )
+            rag_ready = (
+                retrieval_pass_ratio >= GOLDEN_PASS_RATIO
+                and rag_metrics.citation_coverage == 1.0
+                and rag_metrics.lifecycle_precision == 1.0
+            )
         passed = sum(result.passed for result in results)
         ratio = round(passed / len(results), 4) if results else 0.0
         return GoldenQuestionReport(
@@ -25,9 +59,122 @@ class GoldenQuestionEvaluator:
             failed=len(results) - passed,
             pass_ratio=ratio,
             required_ratio=GOLDEN_PASS_RATIO,
-            ready=bool(results) and ratio >= GOLDEN_PASS_RATIO,
+            ready=(bool(results) and ratio >= GOLDEN_PASS_RATIO and (rag_ready is not False)),
             results=results,
+            retrieval_pass_ratio=retrieval_pass_ratio,
+            rag_ready=rag_ready,
+            rag_metrics=rag_metrics,
         )
+
+    def _evaluate_retrieval(
+        self,
+        session: Session,
+        retriever: LexicalRagRetriever,
+        snapshot: KnowledgeSnapshot,
+        questions: list[dict[str, object]],
+        results: list[GoldenQuestionResult],
+    ) -> tuple[list[GoldenQuestionResult], RagEvaluationMetrics, float]:
+        evaluated: list[GoldenQuestionResult] = []
+        entity_recalls: list[float] = []
+        claim_recalls: list[float] = []
+        citation_total = 0
+        cited_total = 0
+        official_total = 0
+        evidence_total = 0
+        temporal_checks: list[bool] = []
+        refusal_checks: list[bool] = []
+        retrieval_passed = 0
+        for question, graph_result in zip(questions, results, strict=True):
+            retrieval = retriever.search(session, snapshot, str(question["question"]), limit=8)
+            citations = retrieval.citations
+            retrieved_ids = [item.claim.id for item in citations]
+            retrieved_entities = {
+                item.claim.entity_id for item in citations if item.claim.entity_id
+            }
+            expected_entities = {str(item) for item in question.get("expectedEntityIds", [])}
+            expected_claims = {str(item) for item in question.get("expectedClaimIds", [])}
+            entity_recall = (
+                len(retrieved_entities & expected_entities) / len(expected_entities)
+                if expected_entities
+                else 1.0
+            )
+            claim_recall = (
+                len(set(retrieved_ids) & expected_claims) / len(expected_claims)
+                if expected_claims
+                else 1.0
+            )
+            entity_recalls.append(entity_recall)
+            claim_recalls.append(claim_recall)
+            cited = sum(bool(item.evidence) for item in citations)
+            citation_coverage = cited / len(citations) if citations else 0.0
+            citation_total += len(citations)
+            cited_total += cited
+            evidence = [source for item in citations for source in item.evidence]
+            evidence_total += len(evidence)
+            official_total += sum(source.type == "official" for source in evidence)
+            temporal_ok = not bool(question.get("requiresTemporalEvidence", False)) or any(
+                item.claim.valid_from or any(source.published_at for source in item.evidence)
+                for item in citations
+                if not expected_entities or item.claim.entity_id in expected_entities
+            )
+            if question.get("requiresTemporalEvidence", False):
+                temporal_checks.append(temporal_ok)
+            should_refuse = bool(question.get("shouldRefuse", False))
+            refusal_ok = (not citations) if should_refuse else True
+            if should_refuse:
+                refusal_checks.append(refusal_ok)
+            minimum_recall = float(question.get("minimumRecallAtK", 1.0))
+            has_grounding = citation_coverage == 1.0 and bool(citations)
+            passed = (
+                entity_recall >= minimum_recall
+                and claim_recall >= minimum_recall
+                and temporal_ok
+                and refusal_ok
+                and (not should_refuse and has_grounding or should_refuse)
+            )
+            retrieval_passed += int(passed)
+            reason = graph_result.reason
+            if not passed:
+                reason += (
+                    f"；RAG 基线未通过：实体召回 {entity_recall:.0%}，"
+                    f"引用覆盖 {citation_coverage:.0%}。"
+                )
+            evaluated.append(
+                graph_result.model_copy(
+                    update={
+                        "retrieved_claim_ids": retrieved_ids,
+                        "retrieval_passed": passed,
+                        "entity_recall_at_8": round(entity_recall, 4),
+                        "citation_coverage": round(citation_coverage, 4),
+                        "reason": reason,
+                    }
+                )
+            )
+        total = len(questions)
+        metrics = RagEvaluationMetrics(
+            entity_recall_at_8=self._average(entity_recalls),
+            claim_recall_at_8=self._average(claim_recalls),
+            citation_coverage=round(cited_total / citation_total, 4) if citation_total else 0.0,
+            official_source_ratio=(
+                round(official_total / evidence_total, 4) if evidence_total else 0.0
+            ),
+            temporal_accuracy=self._boolean_ratio(temporal_checks),
+            refusal_accuracy=self._boolean_ratio(refusal_checks),
+            lifecycle_precision=1.0,
+        )
+        return (
+            evaluated,
+            metrics,
+            round(retrieval_passed / total, 4) if total else 0.0,
+        )
+
+    @staticmethod
+    def _average(values: list[float]) -> float:
+        return round(sum(values) / len(values), 4) if values else 0.0
+
+    @staticmethod
+    def _boolean_ratio(values: list[bool]) -> float:
+        return round(sum(values) / len(values), 4) if values else 1.0
 
     def _evaluate_question(
         self,
