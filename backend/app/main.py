@@ -46,6 +46,7 @@ from .quality import (
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
+from .rag import HybridRagRetriever, LexicalRagRetriever
 from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
@@ -157,7 +158,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     audit = AuditService()
     quality_gate = KnowledgeQualityGate()
     golden_questions = GoldenQuestionEvaluator()
-    engagement = EngagementService()
+    rag_retriever = (
+        HybridRagRetriever(enabled=True)
+        if app_settings.rag_hybrid_enabled
+        else LexicalRagRetriever()
+    )
+    engagement = EngagementService(rag_retriever)
     extraction = StructuredExtractionService(
         app_settings.extraction_api_url,
         app_settings.extraction_api_key,
