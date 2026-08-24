@@ -41,6 +41,7 @@ class Settings:
     auto_extraction_retry_minutes: int = 360
     auto_approve_grounded_relations: bool = False
     rag_hybrid_enabled: bool = False
+    rag_generation_enabled: bool = False
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -157,6 +158,8 @@ class Settings:
             ).lower()
             in {"1", "true", "yes"},
             rag_hybrid_enabled=os.getenv("AI_RADAR_RAG_HYBRID_ENABLED", "false").lower()
+            in {"1", "true", "yes"},
+            rag_generation_enabled=os.getenv("AI_RADAR_RAG_GENERATION_ENABLED", "false").lower()
             in {"1", "true", "yes"},
             smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
             smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),

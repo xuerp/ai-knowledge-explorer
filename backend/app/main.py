@@ -13,6 +13,7 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from .answer_generation import CitedAnswerService
 from .auth import AuditService, AuthService, Principal
 from .automation import AutomationCycleBusyError, automation_cycle_lock
 from .config import Settings
@@ -163,7 +164,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if app_settings.rag_hybrid_enabled
         else LexicalRagRetriever()
     )
-    engagement = EngagementService(rag_retriever)
+    engagement = EngagementService(
+        rag_retriever,
+        CitedAnswerService(enabled=app_settings.rag_generation_enabled),
+    )
     extraction = StructuredExtractionService(
         app_settings.extraction_api_url,
         app_settings.extraction_api_key,

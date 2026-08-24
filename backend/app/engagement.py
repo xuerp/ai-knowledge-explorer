@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .answer_generation import CitedAnswerService
 from .database import (
     EmailOutboxRecord,
     FollowRecord,
@@ -33,8 +34,13 @@ from .schemas import (
 
 
 class EngagementService:
-    def __init__(self, retriever: RagRetriever | None = None):
+    def __init__(
+        self,
+        retriever: RagRetriever | None = None,
+        answer_service: CitedAnswerService | None = None,
+    ):
         self.retriever = retriever or LexicalRagRetriever()
+        self.answer_service = answer_service or CitedAnswerService()
 
     def follow(
         self,
@@ -150,18 +156,15 @@ class EngagementService:
         matched_claims = [item.claim for item in retrieval.citations]
         matched_entity_ids = set(retrieval.diagnostics.matched_entity_ids)
         status = "ready" if matched_claims else "insufficient-evidence"
-        if matched_claims:
-            statements = [
-                claim.text.zh if payload.language == "zh" else claim.text.en
-                for claim in matched_claims
-            ]
-            summary = "\n\n".join(f"- {statement}" for statement in statements)
-        else:
-            summary = (
-                "当前已审核图谱没有足够证据回答此问题，系统未生成推测性结论。"
-                if payload.language == "zh"
-                else "The reviewed graph has insufficient evidence; no speculative answer was generated."
-            )
+        answer = self.answer_service.answer(
+            payload.question,
+            retrieval.citations,
+            payload.language,
+        )
+        summary = answer.summary
+        diagnostics = retrieval.diagnostics.model_copy(
+            update={"generation_fallback_reason": answer.fallback_reason}
+        )
         steps = [
             ResearchStep(
                 id="understand",
@@ -194,8 +197,8 @@ class EngagementService:
                 ensure_ascii=False,
             ),
             retrieval_mode=retrieval.retrieval_mode,
-            answer_mode="extractive",
-            retrieval_diagnostics_json=retrieval.diagnostics.model_dump_json(by_alias=True),
+            answer_mode=answer.answer_mode,
+            retrieval_diagnostics_json=diagnostics.model_dump_json(by_alias=True),
             steps_json=json.dumps(
                 [step.model_dump(mode="json", by_alias=True) for step in steps],
                 ensure_ascii=False,
