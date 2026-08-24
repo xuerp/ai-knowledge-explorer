@@ -68,7 +68,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.25-review-lanes-v59",
+        "release": "2026.08.25-lexical-rag-v60",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260824_0019",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -269,11 +269,11 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert payload["passRatio"] == 0.9
     assert payload["requiredRatio"] == 0.85
     assert payload["ready"] is False
-    assert payload["retrievalPassRatio"] == 0.2
+    assert payload["retrievalPassRatio"] == 0.6
     assert payload["ragReady"] is False
     assert payload["ragMetrics"]["citationCoverage"] == 1.0
     assert payload["ragMetrics"]["lifecyclePrecision"] == 1.0
-    assert payload["ragMetrics"]["entityRecallAt8"] == 0.2917
+    assert payload["ragMetrics"]["entityRecallAt8"] == 0.625
     assert len(payload["results"]) == 20
 
 

@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.database import Base, RagClaimDocumentRecord
+from app.golden_questions import GoldenQuestionEvaluator
 from app.rag import HybridRagRetriever, LexicalRagRetriever, VectorSearchHit
 from app.repository import KnowledgeRepository
 
@@ -41,6 +42,50 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
         unresolved.confidence = "unverified"
         retriever.sync_snapshot(session, snapshot)
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
+
+
+def test_lexical_rag_expands_family_mentions_to_concrete_versions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "GPT 最近有哪些已核验变化？")
+
+    assert result.diagnostics.matched_entity_ids == ["e-gpt"]
+    assert any(item.claim.entity_id == "e-gpt-5" for item in result.citations)
+
+
+def test_lexical_rag_keeps_each_family_in_multi_entity_questions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "GPT 与 Claude 最近有什么变化？")
+
+    retrieved = GoldenQuestionEvaluator._expand_entity_families(
+        snapshot,
+        {item.claim.entity_id for item in result.citations if item.claim.entity_id},
+    )
+    assert {"e-gpt", "e-claude"}.issubset(retrieved)
+
+
+def test_lexical_rag_can_find_related_claim_when_entity_has_no_direct_claim():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "SWE-bench Verified 衡量什么？")
+
+    assert any("SWE-bench" in item.claim.text.en for item in result.citations)
 
 
 class FakeEmbeddingProvider:
