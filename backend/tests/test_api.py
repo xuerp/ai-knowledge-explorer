@@ -69,7 +69,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.28-historical-relation-repair-v61",
+        "release": "2026.08.28-manual-entity-resolution-v62",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260824_0019",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -343,6 +343,168 @@ def test_historical_relation_repair_is_dry_run_first_explicit_and_idempotent(
     assert repeated.status_code == 200
     assert repeated.json()["repairedCount"] == 0
     assert repeated.json()["items"][0]["status"] == "skipped"
+
+
+def test_manual_entity_resolution_assigns_or_retracts_only_unlinked_public_claims(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    endpoint = "/api/v2/admin/claim-entity-resolution"
+    manual_claim = {
+        "id": "claim-manual-unlinked",
+        "text": {
+            "zh": "Manus 是自主通用 AI Agent。",
+            "en": "Manus is an autonomous general AI agent.",
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-manus-docs"],
+        "updatedAt": "2026-08-20",
+        "subject": "Manus",
+        "predicate": "product-type",
+        "objectOrValue": "autonomous general AI agent",
+    }
+    with client.app.state.database.session() as session:
+        session.add(
+            ReviewJobRecord(
+                id="review-manual-unlinked",
+                entity_id=None,
+                claim_id=manual_claim["id"],
+                claim_json=json.dumps(manual_claim, ensure_ascii=False),
+                evidence_ids_json='["s-manus-docs"]',
+                evidence_json="[]",
+                conflict_ids_json="[]",
+                status="approved",
+                lifecycle_status="current",
+                created_at=datetime.now(UTC),
+                reviewed_at=datetime.now(UTC),
+                reviewed_by="reviewer@example.com",
+                review_reason="旧版本未保存人工消歧后的实体。",
+                version=1,
+            )
+        )
+        session.commit()
+
+    audit_payload = client.get(
+        "/api/v2/admin/claim-entity-audit",
+        headers=headers,
+    ).json()
+    ambiguous = next(
+        item for item in audit_payload["items"] if item["claimId"] == manual_claim["id"]
+    )
+    assert ambiguous["reviewJobId"]
+    assert ambiguous["version"] >= 1
+
+    assignment = {
+        "claimId": manual_claim["id"],
+        "action": "assign",
+        "entityId": "e-manus",
+        "expectedVersion": ambiguous["version"],
+        "reason": "根据官方产品说明，人工确认该事实属于 Manus 产品实体。",
+    }
+    assert client.post(endpoint, json=assignment).status_code == 401
+    assigned = client.post(endpoint, headers=headers, json=assignment)
+    assert assigned.status_code == 200
+    assert assigned.json()["status"] == "assigned"
+    assert assigned.json()["entityId"] == "e-manus"
+
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, ambiguous["reviewJobId"])
+        assert row is not None
+        assert row.entity_id == "e-manus"
+        assert json.loads(row.claim_json)["entityId"] == "e-manus"
+        assert row.version == ambiguous["version"] + 1
+        assert (
+            session.query(AuditLogRecord)
+            .filter_by(
+                action="claim.entity.manual-assign",
+                target_id=row.id,
+            )
+            .count()
+            == 1
+        )
+
+    assert client.post(endpoint, headers=headers, json=assignment).status_code == 409
+
+    noise_claim = {
+        "id": "claim-unlinked-noise",
+        "text": {
+            "zh": "arXiv 是开放访问存档。",
+            "en": "arXiv is an open-access archive.",
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-unlinked-noise"],
+        "updatedAt": "2026-08-20",
+        "subject": "arXiv",
+        "predicate": "archive-type",
+        "objectOrValue": "open-access archive",
+    }
+    with client.app.state.database.session() as session:
+        session.add(
+            ReviewJobRecord(
+                id="review-unlinked-noise",
+                entity_id=None,
+                claim_id=noise_claim["id"],
+                claim_json=json.dumps(noise_claim, ensure_ascii=False),
+                evidence_ids_json='["evidence-unlinked-noise"]',
+                evidence_json="[]",
+                conflict_ids_json="[]",
+                status="approved",
+                lifecycle_status="current",
+                created_at=datetime.now(UTC),
+                reviewed_at=datetime.now(UTC),
+                reviewed_by="reviewer@example.com",
+                review_reason="旧抽取器将来源页说明误当作实体事实。",
+                version=1,
+            )
+        )
+        session.commit()
+
+    retracted = client.post(
+        endpoint,
+        headers=headers,
+        json={
+            "claimId": noise_claim["id"],
+            "action": "retract",
+            "expectedVersion": 1,
+            "reason": "事实主体不是知识库实体，确认为历史抽取噪声并撤回。",
+        },
+    )
+    assert retracted.status_code == 200
+    assert retracted.json()["status"] == "retracted"
+    assert retracted.json()["lifecycleStatus"] == "retracted"
+    assert noise_claim["id"] not in {
+        claim["id"] for claim in client.get("/api/v2/snapshot").json()["claims"]
+    }
+
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, "review-unlinked-noise")
+        assert row is not None
+        assert row.lifecycle_status == "retracted"
+        assert (
+            session.query(AuditLogRecord)
+            .filter_by(
+                action="claim.entity.retract-unlinked",
+                target_id=row.id,
+            )
+            .count()
+            == 1
+        )
+
+    with client.app.state.database.session() as session:
+        valid_row = session.get(ReviewJobRecord, ambiguous["reviewJobId"])
+        assert valid_row is not None
+        valid_version = valid_row.version
+    blocked = client.post(
+        endpoint,
+        headers=headers,
+        json={
+            "claimId": manual_claim["id"],
+            "action": "retract",
+            "expectedVersion": valid_version,
+            "reason": "不应允许通过未关联 Claim 清理入口撤回正常事实。",
+        },
+    )
+    assert blocked.status_code == 409
 
 
 def test_admin_operations_requires_admin_and_starts_without_false_heartbeat(

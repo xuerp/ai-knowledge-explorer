@@ -38,8 +38,10 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
     with Session(engine) as session:
         repository.seed_catalog(session)
         snapshot = repository.public_snapshot(session)
-        unresolved = next(claim for claim in snapshot.claims if claim.entity_id is None)
-        unresolved.confidence = "unverified"
+        unresolved = snapshot.claims[0].model_copy(
+            update={"id": "c-test-unmapped", "entity_id": None, "confidence": "unverified"}
+        )
+        snapshot.claims.append(unresolved)
         retriever.sync_snapshot(session, snapshot)
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
 
@@ -73,6 +75,23 @@ def test_lexical_rag_keeps_each_family_in_multi_entity_questions():
         {item.claim.entity_id for item in result.citations if item.claim.entity_id},
     )
     assert {"e-gpt", "e-claude"}.issubset(retrieved)
+
+
+def test_lexical_rag_prioritizes_model_facts_for_broad_model_questions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "过去一年有哪些模型能力发生了变化？")
+
+    retrieved = GoldenQuestionEvaluator._expand_entity_families(
+        snapshot,
+        {item.claim.entity_id for item in result.citations if item.claim.entity_id},
+    )
+    assert {"e-gpt", "e-claude", "e-gemini"}.issubset(retrieved)
 
 
 def test_lexical_rag_can_find_related_claim_when_entity_has_no_direct_claim():

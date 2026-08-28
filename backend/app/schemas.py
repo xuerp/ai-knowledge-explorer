@@ -406,6 +406,8 @@ class ReleaseClaimMetrics(CamelModel):
 
 class ClaimEntityAuditItem(CamelModel):
     claim_id: str
+    review_job_id: str | None = None
+    version: int | None = None
     current_entity_id: str | None = None
     subject: str | None = None
     resolution: Literal[
@@ -451,6 +453,24 @@ class ClaimEntityRepairReport(CamelModel):
     repairable_count: int
     repaired_count: int
     items: list[ClaimEntityRepairItem]
+
+
+class ClaimEntityResolutionRequest(CamelModel):
+    claim_id: str = Field(min_length=1, max_length=128)
+    action: Literal["assign", "retract"]
+    entity_id: str | None = Field(default=None, min_length=1, max_length=128)
+    expected_version: int = Field(ge=1)
+    reason: str = Field(min_length=8, max_length=500)
+
+
+class ClaimEntityResolutionResult(CamelModel):
+    review_job_id: str
+    claim_id: str
+    status: Literal["assigned", "retracted"]
+    previous_entity_id: str | None = None
+    entity_id: str | None = None
+    lifecycle_status: Literal["current", "retracted"]
+    version: int
 
 
 class RelationClaimAuditItem(CamelModel):
