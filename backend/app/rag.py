@@ -33,6 +33,8 @@ class RagSearchResult:
 
 
 class RagRetriever(Protocol):
+    def prepare(self, session: Session, snapshot: KnowledgeSnapshot) -> None: ...
+
     def search(
         self,
         session: Session,
@@ -40,6 +42,7 @@ class RagRetriever(Protocol):
         question: str,
         *,
         limit: int = 8,
+        prepared: bool = False,
     ) -> RagSearchResult: ...
 
 
@@ -81,6 +84,9 @@ class ClaimReranker(Protocol):
 
 
 class LexicalRagRetriever:
+    def prepare(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
+        self.sync_snapshot(session, snapshot)
+
     def search(
         self,
         session: Session,
@@ -88,9 +94,11 @@ class LexicalRagRetriever:
         question: str,
         *,
         limit: int = 8,
+        prepared: bool = False,
     ) -> RagSearchResult:
         started = perf_counter()
-        self.sync_snapshot(session, snapshot)
+        if not prepared:
+            self.prepare(session, snapshot)
         matched_entity_ids = self.resolve_mentions(snapshot.entities, question)
         search_entity_ids = self.expand_entity_scope(snapshot.entities, matched_entity_ids)
         base_statement = select(RagClaimDocumentRecord).where(
@@ -415,6 +423,9 @@ class HybridRagRetriever:
         self.enabled = enabled
         self.rrf_k = rrf_k
 
+    def prepare(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
+        self.lexical.prepare(session, snapshot)
+
     def search(
         self,
         session: Session,
@@ -422,8 +433,15 @@ class HybridRagRetriever:
         question: str,
         *,
         limit: int = 8,
+        prepared: bool = False,
     ) -> RagSearchResult:
-        lexical_result = self.lexical.search(session, snapshot, question, limit=max(32, limit * 4))
+        lexical_result = self.lexical.search(
+            session,
+            snapshot,
+            question,
+            limit=max(32, limit * 4),
+            prepared=prepared,
+        )
         if not self.enabled:
             return self._lexical_fallback(lexical_result, limit, "hybrid-disabled")
         if self.embedding_provider is None or self.vector_index is None:

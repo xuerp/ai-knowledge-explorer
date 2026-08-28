@@ -17,7 +17,7 @@ from .schemas import (
 )
 
 if TYPE_CHECKING:
-    from .rag import LexicalRagRetriever
+    from .rag import RagRetriever
 
 GOLDEN_PASS_RATIO = 0.85
 GOLDEN_QUESTIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "golden_questions.json"
@@ -32,7 +32,7 @@ class GoldenQuestionEvaluator:
         snapshot: KnowledgeSnapshot,
         *,
         session: Session | None = None,
-        retriever: LexicalRagRetriever | None = None,
+        retriever: RagRetriever | None = None,
     ) -> GoldenQuestionReport:
         questions = json.loads(self.questions_path.read_text(encoding="utf-8"))
         results = [self._evaluate_question(snapshot, item) for item in questions]
@@ -70,7 +70,7 @@ class GoldenQuestionEvaluator:
     def _evaluate_retrieval(
         self,
         session: Session,
-        retriever: LexicalRagRetriever,
+        retriever: RagRetriever,
         snapshot: KnowledgeSnapshot,
         questions: list[dict[str, object]],
         results: list[GoldenQuestionResult],
@@ -85,8 +85,15 @@ class GoldenQuestionEvaluator:
         temporal_checks: list[bool] = []
         refusal_checks: list[bool] = []
         retrieval_passed = 0
+        retriever.prepare(session, snapshot)
         for question, graph_result in zip(questions, results, strict=True):
-            retrieval = retriever.search(session, snapshot, str(question["question"]), limit=8)
+            retrieval = retriever.search(
+                session,
+                snapshot,
+                str(question["question"]),
+                limit=8,
+                prepared=True,
+            )
             citations = retrieval.citations
             retrieved_ids = [item.claim.id for item in citations]
             retrieved_entities = self._citation_entity_ids(snapshot, citations)
