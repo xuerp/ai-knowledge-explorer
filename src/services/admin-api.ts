@@ -394,20 +394,29 @@ export interface ProductionReadiness {
   manualChecks: ProductionReadinessCheck[];
 }
 
-async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string,
+  timeoutMs = 30_000,
+): Promise<T> {
   if (!apiBaseUrl) {
     throw new Error("VITE_API_BASE_URL is not configured.");
   }
-  const response = await fetchWithNetworkRetry(`${apiBaseUrl}${path}`, {
-    ...options,
-    cache: options.cache ?? (token ? "no-store" : undefined),
-    headers: {
-      Accept: "application/json",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
+  const response = await fetchWithNetworkRetry(
+    `${apiBaseUrl}${path}`,
+    {
+      ...options,
+      cache: options.cache ?? (token ? "no-store" : undefined),
+      headers: {
+        Accept: "application/json",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
     },
-  });
+    { timeoutMs },
+  );
   if (!response.ok) {
     if (response.status === 401 && token) {
       expireAuthSession();
@@ -426,10 +435,15 @@ export const adminApi = {
     return request<{
       accessToken: string;
       user: AdminUser;
-    }>("/api/v2/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    }>(
+      "/api/v2/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      },
+      undefined,
+      90_000,
+    );
   },
 
   me: (token: string) => request<AdminUser>("/api/v2/auth/me", {}, token),
