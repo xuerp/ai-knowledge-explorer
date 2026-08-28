@@ -1341,7 +1341,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpHost": None,
         "smtpFrom": None,
         "fetchAllowedHosts": ["example.com"],
-        "registeredSources": 34,
+            "registeredSources": 35,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }
@@ -1677,6 +1677,54 @@ def test_review_inventory_is_read_only_and_classifies_duplicates(client: TestCli
     ).json()
     assert after == before
     assert target["claim"]["id"] not in {item["claim"]["id"] for item in after}
+
+
+def test_batch_merge_duplicates_keeps_one_current_claim(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    target = approve_lifecycle_candidate(
+        client,
+        headers,
+        create_lifecycle_candidate(client, headers, "batch-merge-base", "1M"),
+    )
+    duplicate = create_lifecycle_candidate(client, headers, "batch-merge-duplicate", "1M")
+
+    merged = client.post(
+        "/api/v2/admin/review-queue/batch-merge-duplicates?limit=50",
+        headers=headers,
+    )
+
+    assert merged.status_code == 200
+    matching = next(item for item in merged.json() if item["id"] == duplicate["id"])
+    assert matching["publicationAction"] == "merged-evidence"
+    snapshot = client.get("/api/snapshot").json()
+    matching_claims = [
+        claim for claim in snapshot["claims"] if claim["id"] == target["claim"]["id"]
+    ]
+    assert len(matching_claims) == 1
+    assert "evidence-lifecycle-batch-merge-duplicate" in matching_claims[0]["sourceIds"]
+
+
+def test_batch_reject_invalid_only_rejects_deterministically_unpublishable_items(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    candidate = create_lifecycle_candidate(client, headers, "batch-reject-invalid", "1M")
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, candidate["id"])
+        assert row is not None
+        row.evidence_ids_json = "[]"
+        row.evidence_json = "[]"
+        session.commit()
+
+    rejected = client.post(
+        "/api/v2/admin/review-queue/batch-reject-invalid?limit=50",
+        headers=headers,
+    )
+
+    assert rejected.status_code == 200
+    matching = next(item for item in rejected.json() if item["id"] == candidate["id"])
+    assert matching["status"] == "rejected"
+    assert "确定性队列治理" in matching["reviewReason"]
 
 
 def test_superseding_claim_hides_old_fact_and_checks_target_version(client: TestClient):

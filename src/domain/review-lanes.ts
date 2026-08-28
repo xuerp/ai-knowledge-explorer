@@ -3,7 +3,7 @@ import { assessReviewItem } from "@/domain/review-priority";
 import type { ReviewQueueItem } from "@/services/admin-api";
 
 export type ReviewLane =
-  "fresh-safe" | "duplicate" | "possible-update" | "high-risk" | "invalid-stale";
+  "fresh-safe" | "duplicate" | "possible-update" | "high-risk" | "invalid" | "stale";
 
 function normalize(value?: string) {
   return (value ?? "").trim().toLocaleLowerCase().replaceAll(/\s+/g, " ");
@@ -28,13 +28,11 @@ export function classifyReviewLane(
   now: Date = new Date(),
 ): ReviewLane {
   const assessment = assessReviewItem(item, now);
-  if (
-    !item.entityId ||
-    item.evidenceItems.length === 0 ||
-    !hasAnchoredExcerpt(item) ||
-    assessment.freshness === "stale"
-  ) {
-    return "invalid-stale";
+  if (!item.entityId || item.evidenceItems.length === 0 || !hasAnchoredExcerpt(item)) {
+    return "invalid";
+  }
+  if (assessment.freshness === "stale") {
+    return "stale";
   }
 
   const lifecycleMatches = findClaimLifecycleMatches(item, history);
@@ -60,7 +58,8 @@ export function reviewLaneCounts(
     duplicate: 0,
     "possible-update": 0,
     "high-risk": 0,
-    "invalid-stale": 0,
+    invalid: 0,
+    stale: 0,
   };
   for (const item of items) {
     counts[classifyReviewLane(item, history, now)] += 1;

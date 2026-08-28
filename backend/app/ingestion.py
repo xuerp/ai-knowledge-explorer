@@ -31,6 +31,7 @@ AUTOMATIC_SOURCE_IDS = {
     "s-openai-models",
     "s-openai-deprecations",
     "s-google-gemini-api-changelog",
+    "s-anthropic-api-release-notes",
     "s-mcp-architecture",
     "s-langchain-overview",
     "s-anthropic-company",

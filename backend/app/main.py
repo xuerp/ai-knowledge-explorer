@@ -1,3 +1,4 @@
+import hashlib
 import json
 import re
 from contextlib import asynccontextmanager
@@ -157,6 +158,24 @@ RELATION_PREDICATE_ANCHORS = {
     "successor-of": ("successor-of", "successor of", "继任", "后继"),
     "integrates-with": ("integrates-with", "integrates with", "集成", "兼容"),
 }
+
+
+def review_item_has_anchored_excerpt(item: ReviewQueueItem) -> bool:
+    subject = " ".join((item.claim.subject or "").casefold().split())
+    object_or_value = " ".join((item.claim.object_or_value or "").casefold().split())
+    if not subject or not object_or_value:
+        return False
+    return any(
+        subject in " ".join((evidence.source_excerpt or "").casefold().split())
+        and object_or_value in " ".join((evidence.source_excerpt or "").casefold().split())
+        for evidence in item.evidence_items
+    )
+
+
+def review_item_is_deterministically_invalid(item: ReviewQueueItem) -> bool:
+    return (
+        not item.entity_id or not item.evidence_items or not review_item_has_anchored_excerpt(item)
+    )
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -2766,22 +2785,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         queue_item = repository.to_queue_item(row)
 
-        def has_anchored_excerpt() -> bool:
-            subject = " ".join((queue_item.claim.subject or "").casefold().split())
-            object_or_value = " ".join((queue_item.claim.object_or_value or "").casefold().split())
-            if not subject or not object_or_value:
-                return False
-            return any(
-                subject in " ".join(evidence.source_excerpt.casefold().split())
-                and object_or_value in " ".join(evidence.source_excerpt.casefold().split())
-                for evidence in queue_item.evidence_items
-                if evidence.source_excerpt
-            )
-
         if batch_safe_only and (
             row.status != "pending"
             or json.loads(row.conflict_ids_json or "[]")
-            or not has_anchored_excerpt()
+            or not review_item_has_anchored_excerpt(queue_item)
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -2850,6 +2857,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         publication_action: Literal["merged-evidence", "superseding"],
         actor: Principal,
         session: Session,
+        *,
+        commit: bool = True,
     ) -> ReviewQueueItem:
         row = session.scalar(
             select(ReviewJobRecord).where(ReviewJobRecord.id == review_id).with_for_update()
@@ -3052,14 +3061,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "relationId": published_relation.id if published_relation else None,
             },
         )
-        try:
-            session.commit()
-        except IntegrityError as error:
-            session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Lifecycle decision conflicts with a concurrent request.",
-            ) from error
+        if commit:
+            try:
+                session.commit()
+            except IntegrityError as error:
+                session.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Lifecycle decision conflicts with a concurrent request.",
+                ) from error
+        else:
+            session.flush()
         return repository.to_queue_item(row)
 
     @app.post(
@@ -3099,6 +3111,114 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             session.rollback()
             raise
         return decisions
+
+    @app.post(
+        "/api/v2/admin/review-queue/batch-merge-duplicates",
+        response_model=list[ReviewQueueItem],
+    )
+    def batch_merge_duplicate_reviews(
+        actor: ReviewerDependency,
+        session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=50)] = 50,
+    ) -> list[ReviewQueueItem]:
+        target_rows = session.scalars(
+            select(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == "current",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+            .order_by(ReviewJobRecord.reviewed_at.desc())
+        ).all()
+        targets_by_fingerprint: dict[tuple[str, str, str, str, str], ReviewJobRecord] = {}
+        for target in target_rows:
+            fingerprint = claim_semantic_fingerprint(
+                repository.approved_claim(target),
+                target.entity_id,
+            )
+            targets_by_fingerprint.setdefault(fingerprint, target)
+
+        open_rows = session.scalars(
+            select(ReviewJobRecord)
+            .where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
+            .order_by(ReviewJobRecord.created_at.desc())
+        ).all()
+        merged: list[ReviewQueueItem] = []
+        try:
+            for row in open_rows:
+                item = repository.to_queue_item(row)
+                target = targets_by_fingerprint.get(
+                    claim_semantic_fingerprint(item.claim, item.entity_id)
+                )
+                if target is None or target.id == row.id:
+                    continue
+                digest = hashlib.sha256(f"{row.id}:{row.version}".encode()).hexdigest()[:32]
+                merged.append(
+                    decide_claim_lifecycle(
+                        row.id,
+                        ReviewLifecycleDecision(
+                            expected_version=row.version,
+                            target_claim_id=target.claim_id,
+                            expected_target_version=target.version,
+                            idempotency_key=f"queue-deduplicate-{digest}",
+                            reason="确定性队列治理：语义完全相同，已将新证据合并到当前事实。",
+                        ),
+                        "merged-evidence",
+                        actor,
+                        session,
+                        commit=False,
+                    )
+                )
+                if len(merged) >= limit:
+                    break
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        return merged
+
+    @app.post(
+        "/api/v2/admin/review-queue/batch-reject-invalid",
+        response_model=list[ReviewQueueItem],
+    )
+    def batch_reject_invalid_reviews(
+        actor: ReviewerDependency,
+        session: SessionDependency,
+        limit: Annotated[int, Query(ge=1, le=50)] = 50,
+    ) -> list[ReviewQueueItem]:
+        open_rows = session.scalars(
+            select(ReviewJobRecord)
+            .where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
+            .order_by(ReviewJobRecord.created_at.asc())
+        ).all()
+        rejected: list[ReviewQueueItem] = []
+        try:
+            for row in open_rows:
+                item = repository.to_queue_item(row)
+                if not review_item_is_deterministically_invalid(item):
+                    continue
+                rejected.append(
+                    decide_review(
+                        row.id,
+                        ReviewDecision(
+                            expected_version=row.version,
+                            reason=(
+                                "确定性队列治理：候选缺少可发布实体、直接证据或可定位原文锚点。"
+                            ),
+                        ),
+                        "rejected",
+                        actor,
+                        session,
+                        commit=False,
+                    )
+                )
+                if len(rejected) >= limit:
+                    break
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        return rejected
 
     @app.post(
         "/api/v2/admin/review-queue/batch-verify-automation",
