@@ -69,7 +69,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.28-manual-entity-resolution-v62",
+        "release": "2026.08.28-guided-entity-triage-v63",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260824_0019",
         "builtAt": "2026-08-25T00:00:00Z",

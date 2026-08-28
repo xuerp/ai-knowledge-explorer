@@ -504,8 +504,12 @@ function AdminReviewPage() {
       setError("这条历史事实没有可写审核记录，需先通过数据迁移修正种子目录。");
       return;
     }
-    const entityId = manualEntitySelections[item.claimId]?.trim();
-    const reason = manualEntityReasons[item.claimId]?.trim() ?? "";
+    const entityId = (
+      manualEntitySelections[item.claimId] ??
+      item.recommendedEntityId ??
+      ""
+    ).trim();
+    const reason = (manualEntityReasons[item.claimId] ?? item.recommendationReason ?? "").trim();
     if (action === "assign" && !entityId) {
       setError("请先为这条事实选择目标实体。");
       return;
@@ -1411,13 +1415,19 @@ function AdminReviewPage() {
                 {workspace.claimEntityAudit.missingOrInvalidCount} 条待处理
               </span>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
               <Metric label="公开 Claim" value={workspace.claimEntityAudit.publicClaimCount} />
               <Metric
                 label="可确定性回填"
                 value={workspace.claimEntityAudit.deterministicRepairCount}
               />
               <Metric label="需人工判断" value={workspace.claimEntityAudit.manualReviewCount} />
+              <Metric
+                label="已有处置建议"
+                value={
+                  workspace.claimEntityAudit.items.filter((item) => item.recommendedAction).length
+                }
+              />
             </div>
             <details className="mt-4 rounded-md border border-border bg-background/60 p-3">
               <summary className="cursor-pointer text-sm font-medium">查看关联问题明细</summary>
@@ -1434,12 +1444,39 @@ function AdminReviewPage() {
                       </span>
                       <span className="text-muted-foreground">{item.reason}</span>
                     </div>
+                    {item.recommendedAction && item.recommendationReason && (
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2">
+                        <div>
+                          <div className="font-medium text-emerald-700 dark:text-emerald-300">
+                            {item.recommendedAction === "assign"
+                              ? `建议关联：${item.recommendedEntityId}`
+                              : "建议撤回：网页模板噪声"}
+                          </div>
+                          <p className="mt-1 text-muted-foreground">{item.recommendationReason}</p>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={item.recommendedAction === "retract" ? "destructive" : "outline"}
+                          disabled={
+                            user.role !== "admin" ||
+                            !item.reviewJobId ||
+                            resolvingClaimIds.has(item.claimId)
+                          }
+                          onClick={() => resolveUnlinkedClaim(item, item.recommendedAction!)}
+                        >
+                          {item.recommendedAction === "assign" ? "采纳关联建议" : "确认撤回噪声"}
+                        </Button>
+                      </div>
+                    )}
                     {user.role === "admin" && item.resolution !== "deterministic" && (
                       <div className="mt-3 grid gap-2 border-t border-border pt-3 lg:grid-cols-[minmax(12rem,1fr)_minmax(16rem,2fr)_auto_auto]">
                         <select
                           className="h-9 rounded-md border border-input bg-background px-3 text-xs text-foreground"
                           aria-label={`${item.claimId} 目标实体`}
-                          value={manualEntitySelections[item.claimId] ?? ""}
+                          value={
+                            manualEntitySelections[item.claimId] ?? item.recommendedEntityId ?? ""
+                          }
                           disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
                           onChange={(event) =>
                             setManualEntitySelections((current) => ({
@@ -1458,7 +1495,9 @@ function AdminReviewPage() {
                         <Input
                           aria-label={`${item.claimId} 处理理由`}
                           placeholder="处理理由（至少 8 个字符）"
-                          value={manualEntityReasons[item.claimId] ?? ""}
+                          value={
+                            manualEntityReasons[item.claimId] ?? item.recommendationReason ?? ""
+                          }
                           disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
                           onChange={(event) =>
                             setManualEntityReasons((current) => ({

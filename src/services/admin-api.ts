@@ -40,6 +40,9 @@ export interface ClaimEntityAuditReport {
     proposedEntityId?: string | null;
     candidateEntityIds: string[];
     reason: string;
+    recommendedAction?: "assign" | "retract" | null;
+    recommendedEntityId?: string | null;
+    recommendationReason?: string | null;
   }>;
 }
 
