@@ -28,3 +28,14 @@ test("审核后台展示后端构建与 Claim 实体关联审计", () => {
   assert.match(reviewSource, /classifyReviewLane\(item, approvedHistory\) === "fresh-safe"/);
   assert.match(reviewSource, /批准新鲜安全候选/);
 });
+
+test("审核认证成功不会被后续工作区请求伪装成持续登录", () => {
+  const authenticatedAt = reviewSource.indexOf("setUser(response.user)");
+  const workspaceRefreshAt = reviewSource.indexOf("await refresh(response.accessToken)");
+
+  assert.ok(authenticatedAt >= 0);
+  assert.ok(workspaceRefreshAt > authenticatedAt);
+  assert.match(reviewSource, /登录成功，正在加载审核工作区/);
+  assert.match(reviewSource, /重试加载/);
+  assert.match(apiSource, /timeoutMs = 30_000/);
+});

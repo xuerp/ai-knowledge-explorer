@@ -91,3 +91,26 @@ test("写请求收到 HTTP 503 时不会自动重放", async () => {
   assert.equal(calls, 1);
   assert.equal(response.status, 503);
 });
+
+test("悬挂请求达到总超时后会结束而不是无限等待", async () => {
+  await assert.rejects(
+    fetchWithNetworkRetry(
+      "https://api.example/admin/workspace",
+      {},
+      {
+        attempts: 3,
+        baseDelayMs: 0,
+        timeoutMs: 10,
+        fetcher: (_input, init) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener(
+              "abort",
+              () => reject(new DOMException("The request timed out.", "AbortError")),
+              { once: true },
+            );
+          }),
+      },
+    ),
+    /请求超时/,
+  );
+});

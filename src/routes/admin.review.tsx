@@ -315,6 +315,7 @@ function AdminReviewPage() {
       }
       writeAuthToken(response.accessToken);
       setToken(response.accessToken);
+      setUser(response.user);
       await refresh(response.accessToken);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Login failed.");
@@ -1230,6 +1231,19 @@ function AdminReviewPage() {
     setWorkspace(null);
   };
 
+  const retryWorkspace = async () => {
+    if (!token) return;
+    setBusy(true);
+    setError("");
+    try {
+      await refresh(token);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "审核工作区加载失败，请重试。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (!adminApi.configured) {
     return (
       <AppShell>
@@ -1241,7 +1255,7 @@ function AdminReviewPage() {
     );
   }
 
-  if (!user || !workspace) {
+  if (!user) {
     return (
       <AppShell>
         <main className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md items-center px-4">
@@ -1277,6 +1291,39 @@ function AdminReviewPage() {
               {busy ? "正在登录…" : "登录"}
             </Button>
           </form>
+        </main>
+      </AppShell>
+    );
+  }
+
+  if (!workspace) {
+    return (
+      <AppShell>
+        <main className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md items-center px-4">
+          <section className="paper-card w-full space-y-4 p-6 text-center">
+            <RefreshCw className={`mx-auto h-6 w-6 text-signal ${busy ? "animate-spin" : ""}`} />
+            <div>
+              <h1 className="font-serif text-2xl font-semibold">
+                {busy ? "登录成功，正在加载审核工作区" : "已登录，但工作区尚未加载完成"}
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                单个诊断接口超时不会再阻塞整个后台，加载完成后会显示对应警告。
+              </p>
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            {!busy && (
+              <div className="flex justify-center gap-3">
+                <Button onClick={() => void retryWorkspace()}>
+                  <RefreshCw />
+                  重试加载
+                </Button>
+                <Button variant="outline" onClick={logout}>
+                  <LogOut />
+                  退出登录
+                </Button>
+              </div>
+            )}
+          </section>
         </main>
       </AppShell>
     );
