@@ -927,6 +927,7 @@ class GoldenQuestionReport(CamelModel):
 
 
 class DataQualityReport(CamelModel):
+    evaluation_scope: Literal["overview", "full"] = "full"
     entity_count: int
     claim_count: int
     evidence_count: int

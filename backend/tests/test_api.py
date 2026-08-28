@@ -13,6 +13,7 @@ from app.database import (
     EmailOutboxRecord,
     KnowledgeRelationRecord,
     PublicationRecordRow,
+    RagClaimDocumentRecord,
     ReviewJobRecord,
     SourceRecord,
 )
@@ -129,6 +130,9 @@ def test_claim_entity_audit_is_protected_and_matches_quality_report(client: Test
     quality = client.get("/api/v2/admin/data-quality", headers=headers).json()
 
     assert response.status_code == 200
+    assert quality["evaluationScope"] == "overview"
+    assert quality["goldenQuestions"]["ragMetrics"] is None
+    assert quality["liveReady"] is False
     assert response.headers["cache-control"] == "no-store"
     payload = response.json()
     assert payload["missingOrInvalidCount"] == len(payload["items"])
@@ -141,6 +145,19 @@ def test_claim_entity_audit_is_protected_and_matches_quality_report(client: Test
         payload["deterministicRepairCount"] + payload["manualReviewCount"]
         == payload["missingOrInvalidCount"]
     )
+
+
+def test_data_quality_overview_does_not_run_full_rag_index_sync(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    with client.app.state.database.session() as session:
+        before = session.query(RagClaimDocumentRecord).count()
+
+    response = client.get("/api/v2/admin/data-quality", headers=headers)
+
+    assert response.status_code == 200
+    assert response.json()["evaluationScope"] == "overview"
+    with client.app.state.database.session() as session:
+        assert session.query(RagClaimDocumentRecord).count() == before
 
 
 def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client: TestClient):

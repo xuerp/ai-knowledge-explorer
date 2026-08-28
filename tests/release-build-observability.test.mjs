@@ -47,6 +47,7 @@ test("生产预检在基础工作区显示后再加载，避免重复质量评�
 
   assert.doesNotMatch(workspaceSource, /生产预检/);
   assert.match(reviewSource, /adminApi\.productionReadiness\(token\)/);
+  assert.match(reviewSource, /完整 RAG 黄金问题检索仅在独立评估和发布基线中运行/);
 });
 
 test("刷新后台会先恢复现有会话而不是闪回登录表单", () => {
