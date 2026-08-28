@@ -420,6 +420,9 @@ class ClaimEntityAuditItem(CamelModel):
     proposed_entity_id: str | None = None
     candidate_entity_ids: list[str] = Field(default_factory=list)
     reason: str
+    recommended_action: Literal["assign", "retract"] | None = None
+    recommended_entity_id: str | None = None
+    recommendation_reason: str | None = None
 
 
 class ClaimEntityAuditReport(CamelModel):
