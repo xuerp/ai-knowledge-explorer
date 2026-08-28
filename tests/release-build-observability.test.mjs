@@ -12,8 +12,11 @@ test("审核后台展示后端构建与 Claim 实体关联审计", () => {
   assert.match(apiSource, /request<HealthStatus>\("\/health"/);
   assert.match(apiSource, /\/api\/v2\/admin\/claim-entity-audit/);
   assert.match(apiSource, /\/api\/v2\/admin\/claim-entity-repair/);
+  assert.match(apiSource, /\/api\/v2\/admin\/relation-claim-audit/);
+  assert.match(apiSource, /\/api\/v2\/admin\/relation-claim-repair/);
   assert.match(reviewSource, /workspace\.build\.buildCommit\.slice/);
   assert.match(reviewSource, /Claim 实体关联审计/);
+  assert.match(reviewSource, /历史关系 Claim 审计/);
   assert.match(reviewSource, /deterministicRepairCount/);
   assert.match(reviewSource, /运行确定性 Dry Run/);
   assert.match(reviewSource, /claimEntityRepair\(token, mode, claimIds\)/);

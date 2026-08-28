@@ -11,6 +11,7 @@ from app.config import Settings
 from app.database import (
     AuditLogRecord,
     EmailOutboxRecord,
+    KnowledgeRelationRecord,
     PublicationRecordRow,
     ReviewJobRecord,
     SourceRecord,
@@ -68,7 +69,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.25-lexical-rag-v60",
+        "release": "2026.08.28-historical-relation-repair-v61",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260824_0019",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -219,6 +220,123 @@ def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client:
 
     repeated = client.post(
         endpoint,
+        headers=headers,
+        json={"mode": "apply", "claimIds": [claim["id"]]},
+    )
+    assert repeated.status_code == 200
+    assert repeated.json()["repairedCount"] == 0
+    assert repeated.json()["items"][0]["status"] == "skipped"
+
+
+def test_historical_relation_repair_is_dry_run_first_explicit_and_idempotent(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    claim = {
+        "id": "claim-legacy-relation",
+        "entityId": "e-devin",
+        "text": {
+            "zh": "Devin 使用 Model Context Protocol。",
+            "en": "Devin uses the Model Context Protocol.",
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-legacy-relation"],
+        "updatedAt": "2026-08-20",
+        "subject": "Devin",
+        "predicate": "uses",
+        "objectOrValue": "Model Context Protocol",
+        "validFrom": "2026-08-20",
+    }
+    evidence = [
+        {
+            "id": "evidence-legacy-relation",
+            "title": {"zh": "官方集成说明", "en": "Official integration notes"},
+            "url": "https://example.com/devin-mcp",
+            "publisher": "Example",
+            "publishedAt": "2026-08-20",
+            "collectedAt": "2026-08-20",
+            "type": "official",
+            "sourceExcerpt": "Devin uses the Model Context Protocol.",
+        }
+    ]
+    with client.app.state.database.session() as session:
+        session.add(
+            ReviewJobRecord(
+                id="review-legacy-relation",
+                entity_id="e-devin",
+                claim_id=claim["id"],
+                claim_json=json.dumps(claim, ensure_ascii=False),
+                evidence_ids_json='["evidence-legacy-relation"]',
+                evidence_json=json.dumps(evidence, ensure_ascii=False),
+                conflict_ids_json="[]",
+                status="approved",
+                created_at=datetime.now(UTC),
+                reviewed_at=datetime.now(UTC),
+                reviewed_by="reviewer@example.com",
+                review_reason="历史批准发生在关系自动发布能力上线之前。",
+                version=1,
+            )
+        )
+        session.commit()
+
+    audit_endpoint = "/api/v2/admin/relation-claim-audit"
+    repair_endpoint = "/api/v2/admin/relation-claim-repair"
+    assert client.get(audit_endpoint).status_code == 401
+    audit_response = client.get(audit_endpoint, headers=headers)
+    assert audit_response.status_code == 200
+    assert audit_response.headers["cache-control"] == "no-store"
+    audit_payload = audit_response.json()
+    item = next(item for item in audit_payload["items"] if item["claimId"] == claim["id"])
+    assert item["status"] == "repairable"
+    assert item["sourceEntityId"] == "e-devin"
+    assert item["proposedTargetEntityId"] == "e-mcp"
+    assert item["relationKind"] == "uses"
+
+    assert client.post(repair_endpoint, json={"mode": "dry-run"}).status_code == 401
+    dry_run = client.post(repair_endpoint, headers=headers, json={"mode": "dry-run"})
+    assert dry_run.status_code == 200
+    dry_run_item = next(item for item in dry_run.json()["items"] if item["claimId"] == claim["id"])
+    assert dry_run_item["status"] == "repairable"
+    assert dry_run.json()["repairableCount"] >= 1
+    assert dry_run.json()["repairedCount"] == 0
+
+    with client.app.state.database.session() as session:
+        assert (
+            session.query(KnowledgeRelationRecord)
+            .filter_by(from_id="e-devin", to_id="e-mcp", kind="uses")
+            .count()
+            == 0
+        )
+
+    assert client.post(repair_endpoint, headers=headers, json={"mode": "apply"}).status_code == 422
+    applied = client.post(
+        repair_endpoint,
+        headers=headers,
+        json={"mode": "apply", "claimIds": [claim["id"]]},
+    )
+    assert applied.status_code == 200
+    assert applied.json()["repairedCount"] == 1
+    assert applied.json()["items"][0]["status"] == "repaired"
+
+    with client.app.state.database.session() as session:
+        relation = (
+            session.query(KnowledgeRelationRecord)
+            .filter_by(from_id="e-devin", to_id="e-mcp", kind="uses")
+            .one()
+        )
+        assert "evidence-legacy-relation" in json.loads(relation.payload_json)["sourceIds"]
+        audit_entry = (
+            session.query(AuditLogRecord)
+            .filter_by(
+                action="relation.claim.repair",
+                target_id="review-legacy-relation",
+            )
+            .one()
+        )
+        assert json.loads(audit_entry.detail_json)["relationId"] == relation.id
+
+    repeated = client.post(
+        repair_endpoint,
         headers=headers,
         json={"mode": "apply", "claimIds": [claim["id"]]},
     )

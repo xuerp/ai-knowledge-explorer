@@ -453,6 +453,50 @@ class ClaimEntityRepairReport(CamelModel):
     items: list[ClaimEntityRepairItem]
 
 
+class RelationClaimAuditItem(CamelModel):
+    review_job_id: str
+    claim_id: str
+    source_entity_id: str | None = None
+    predicate: str | None = None
+    target_reference: str | None = None
+    proposed_target_entity_id: str | None = None
+    relation_id: str | None = None
+    relation_kind: str | None = None
+    status: Literal["repairable", "linked", "review-required", "invalid"]
+    reason: str
+
+
+class RelationClaimAuditReport(CamelModel):
+    generated_at: datetime
+    total_relation_claims: int
+    linked_count: int
+    repairable_count: int
+    manual_review_count: int
+    items: list[RelationClaimAuditItem]
+
+
+class RelationClaimRepairRequest(CamelModel):
+    mode: Literal["dry-run", "apply"] = "dry-run"
+    claim_ids: list[str] = Field(default_factory=list, max_length=50)
+
+
+class RelationClaimRepairItem(CamelModel):
+    review_job_id: str
+    claim_id: str
+    relation_id: str | None = None
+    status: Literal["repairable", "repaired", "skipped"]
+    reason: str
+
+
+class RelationClaimRepairReport(CamelModel):
+    generated_at: datetime
+    mode: Literal["dry-run", "apply"]
+    total: int
+    repairable_count: int
+    repaired_count: int
+    items: list[RelationClaimRepairItem]
+
+
 class GraphQuery(CamelModel):
     entity_types: list[str] = Field(default_factory=list)
     confidences: list[Confidence] = Field(default_factory=list)
