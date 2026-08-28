@@ -2264,7 +2264,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 None,
             )
 
-        proposed = repository.relation_from_approved_claim(session, row)
+        proposed = repository.relation_from_approved_claim(session, row, snapshot)
         if proposed is None:
             return (
                 RelationClaimAuditItem(

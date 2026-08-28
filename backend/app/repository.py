@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .database import (
@@ -386,12 +386,13 @@ class KnowledgeRepository:
         self,
         session: Session,
         row: ReviewJobRecord,
+        snapshot: KnowledgeSnapshot | None = None,
     ) -> GraphEdge | None:
         claim = self.approved_claim(row)
         kind = RELATION_PREDICATES.get(_reference_key(claim.predicate))
         if not kind or not row.entity_id or not claim.object_or_value:
             return None
-        snapshot = self.public_snapshot(session)
+        snapshot = snapshot or self.public_snapshot(session)
         target_key = _reference_key(claim.object_or_value)
         targets = [
             entity
@@ -408,27 +409,24 @@ class KnowledgeRepository:
         if len(targets) != 1 or targets[0].id == row.entity_id:
             return None
         target_id = targets[0].id
-        endpoint_condition = and_(
-            KnowledgeRelationRecord.from_id == row.entity_id,
-            KnowledgeRelationRecord.to_id == target_id,
+        existing = next(
+            (
+                edge
+                for edge in snapshot.graph.edges
+                if edge.kind == kind
+                and (
+                    (edge.from_id == row.entity_id and edge.to_id == target_id)
+                    or (
+                        kind == "competes-with"
+                        and edge.from_id == target_id
+                        and edge.to_id == row.entity_id
+                    )
+                )
+            ),
+            None,
         )
-        if kind == "competes-with":
-            endpoint_condition = or_(
-                endpoint_condition,
-                and_(
-                    KnowledgeRelationRecord.from_id == target_id,
-                    KnowledgeRelationRecord.to_id == row.entity_id,
-                ),
-            )
-        existing_row = session.scalars(
-            select(KnowledgeRelationRecord).where(
-                endpoint_condition,
-                KnowledgeRelationRecord.kind == kind,
-            )
-        ).first()
         source_ids = list(dict.fromkeys(claim.source_ids))
-        if existing_row:
-            existing = GraphEdge.model_validate_json(existing_row.payload_json)
+        if existing:
             return existing.model_copy(
                 update={
                     "confidence": "verified",

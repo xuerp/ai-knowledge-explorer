@@ -562,39 +562,33 @@ export const adminApi = {
         ].filter(Boolean) as string[],
       };
     }
-    const [
-      extractionPlan,
-      sources,
-      runs,
-      audit,
-      outbox,
-      quality,
-      integrations,
-      operations,
-      productionReadiness,
-    ] = await Promise.all([
-      settle(
-        "批量抽取计划",
-        request<ExtractionPlanItem[]>("/api/v2/admin/extraction-plan?limit=30", {}, token),
-        [],
-      ),
-      settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
-      settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
-      settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
-      settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
-      settle("数据质量", request<DataQualityReport>("/api/v2/admin/data-quality", {}, token), null),
-      settle("外部集成", request<IntegrationStatus>("/api/v2/admin/integrations", {}, token), null),
-      settle(
-        "运行诊断",
-        request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
-        null,
-      ),
-      settle(
-        "生产预检",
-        request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
-        null,
-      ),
-    ]);
+    const [extractionPlan, sources, runs, audit, outbox, quality, integrations, operations] =
+      await Promise.all([
+        settle(
+          "批量抽取计划",
+          request<ExtractionPlanItem[]>("/api/v2/admin/extraction-plan?limit=30", {}, token),
+          [],
+        ),
+        settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
+        settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
+        settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
+        settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
+        settle(
+          "数据质量",
+          request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
+          null,
+        ),
+        settle(
+          "外部集成",
+          request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
+          null,
+        ),
+        settle(
+          "运行诊断",
+          request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
+          null,
+        ),
+      ]);
     const sections = [
       queueResult,
       extractionPlan,
@@ -605,7 +599,6 @@ export const adminApi = {
       quality,
       integrations,
       operations,
-      productionReadiness,
       inventoryResult,
       healthResult,
       entityAuditResult,
@@ -623,7 +616,7 @@ export const adminApi = {
       quality: quality.value,
       integrations: integrations.value,
       operations: operations.value,
-      productionReadiness: productionReadiness.value,
+      productionReadiness: null,
       reviewInventory: inventoryResult.value,
       build: healthResult.value,
       claimEntityAudit: entityAuditResult.value,
