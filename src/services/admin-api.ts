@@ -290,6 +290,7 @@ export interface OperationsDiagnostics {
 }
 
 export interface DataQualityReport {
+  evaluationScope: "overview" | "full";
   entityCount: number;
   claimCount: number;
   evidenceCount: number;

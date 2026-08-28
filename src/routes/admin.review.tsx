@@ -1719,6 +1719,12 @@ function AdminReviewPage() {
               {workspace.quality.relationCount}{" "}
               条关系。演示和工程闭环可用，但不能据此宣称正式数据完备。
             </p>
+            {workspace.quality.evaluationScope === "overview" && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                当前为快速质量概览；完整 RAG 黄金问题检索仅在独立评估和发布基线中运行，
+                不再阻塞后台登录与刷新。
+              </p>
+            )}
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border border-border bg-background/60 p-3 text-sm">
                 <div className="font-medium">Claim 审核进度</div>

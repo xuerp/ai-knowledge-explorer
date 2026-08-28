@@ -620,7 +620,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _: ReviewerDependency,
         session: SessionDependency,
     ) -> DataQualityReport:
-        return get_quality_report(session)
+        return get_quality_report(session, include_retrieval=False)
 
     @app.get(
         "/api/v2/admin/golden-questions",
@@ -723,7 +723,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> ProductionReadiness:
         response.headers["Cache-Control"] = "no-store"
         sources = ingestion.list_sources(session)
-        quality = get_quality_report(session)
+        quality = get_quality_report(session, include_retrieval=False)
         diagnostics = operations.diagnostics(session, app_settings.worker_id, run_limit=1)
         revision: str | None = None
         if database.engine.dialect.name != "sqlite":
@@ -1246,15 +1246,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             retriever=engagement.retriever,
         )
 
-    def get_quality_report(session: Session) -> DataQualityReport:
+    def get_quality_report(
+        session: Session,
+        *,
+        include_retrieval: bool = True,
+    ) -> DataQualityReport:
         snapshot = get_catalog_snapshot(session)
         report = quality_gate.report(snapshot)
         golden = golden_questions.evaluate(
             snapshot,
-            session=session,
-            retriever=engagement.retriever,
+            session=session if include_retrieval else None,
+            retriever=engagement.retriever if include_retrieval else None,
         )
         issues = [*report.issues]
+        if not include_retrieval:
+            issues.append("完整 RAG 检索评估未在快速概览中执行，正式发布前必须单独运行。")
         if not golden.ready:
             issues.append(
                 f"Golden question pass ratio must reach {golden.required_ratio:.0%}; "
@@ -1262,8 +1268,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return report.model_copy(
             update={
+                "evaluation_scope": "full" if include_retrieval else "overview",
                 "golden_questions": golden,
-                "live_ready": report.live_ready and golden.ready,
+                "live_ready": report.live_ready and golden.ready and include_retrieval,
                 "issues": issues,
             }
         )
