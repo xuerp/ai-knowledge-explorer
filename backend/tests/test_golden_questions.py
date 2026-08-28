@@ -64,3 +64,31 @@ def test_citation_text_can_satisfy_a_related_entity_expectation():
 
     entities = GoldenQuestionEvaluator._citation_entity_ids(snapshot, result.citations)
     assert "e-swebench" in entities
+
+
+def test_retrieval_evaluation_prepares_the_index_only_once(monkeypatch):
+    data = Path(__file__).resolve().parents[1] / "data"
+    repository = KnowledgeRepository(data / "demo_snapshot.json")
+    retriever = LexicalRagRetriever()
+    original_prepare = retriever.prepare
+    prepare_calls = 0
+
+    def counted_prepare(session, snapshot):
+        nonlocal prepare_calls
+        prepare_calls += 1
+        original_prepare(session, snapshot)
+
+    monkeypatch.setattr(retriever, "prepare", counted_prepare)
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(
+            snapshot,
+            session=session,
+            retriever=retriever,
+        )
+
+    assert report.rag_metrics is not None
+    assert prepare_calls == 1
