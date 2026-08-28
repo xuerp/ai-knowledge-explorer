@@ -128,6 +128,13 @@ MACHINE_SOURCE_CATALOG = (
         "publisher": "Google",
         "fetch_interval_minutes": 240,
     },
+    {
+        "id": "s-anthropic-api-release-notes",
+        "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+        "title": "Anthropic Claude API 更新日志",
+        "publisher": "Anthropic",
+        "fetch_interval_minutes": 240,
+    },
 )
 
 

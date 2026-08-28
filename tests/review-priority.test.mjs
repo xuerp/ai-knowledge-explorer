@@ -81,7 +81,7 @@ test("审核候选会区分批量安全、新鲜度和高风险", () => {
   );
 });
 
-test("审核队列按五条互斥工作通道分类", () => {
+test("审核队列按六条互斥工作通道分类", () => {
   const now = new Date("2026-08-22T00:00:00Z");
   const approved = item({
     id: "approved",
@@ -137,7 +137,7 @@ test("审核队列按五条互斥工作通道分类", () => {
   assert.equal(classifyReviewLane(duplicate, [approved], now), "duplicate");
   assert.equal(classifyReviewLane(update, [approved], now), "possible-update");
   assert.equal(classifyReviewLane(highRisk, [], now), "high-risk");
-  assert.equal(classifyReviewLane(invalid, [], now), "invalid-stale");
+  assert.equal(classifyReviewLane(invalid, [], now), "invalid");
   assert.equal(classifyReviewLane(safe, [], now), "fresh-safe");
   assert.deepEqual(
     reviewLaneCounts([duplicate, update, highRisk, invalid, safe], [approved], now),
@@ -146,7 +146,8 @@ test("审核队列按五条互斥工作通道分类", () => {
       duplicate: 1,
       "possible-update": 1,
       "high-risk": 1,
-      "invalid-stale": 1,
+      invalid: 1,
+      stale: 0,
     },
   );
 });

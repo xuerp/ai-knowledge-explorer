@@ -1026,6 +1026,48 @@ function AdminReviewPage() {
   const batchApproveRecentCandidates = () =>
     batchApproveCandidates(recentExtraction?.candidateIds ?? []);
 
+  const batchMergeDeterministicDuplicates = async () => {
+    if (!window.confirm("确认把与已发布事实完全相同的候选合并为补充证据？原候选会保留在历史中。")) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const merged = await adminApi.batchMergeDuplicates(token, 50);
+      setOperationMessage(
+        merged.length > 0
+          ? `已合并 ${merged.length} 条确定性重复候选；证据已归并到当前事实。`
+          : "没有找到可安全合并的确定性重复候选。",
+      );
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "批量合并重复候选失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const batchRejectDeterministicallyInvalid = async () => {
+    if (!window.confirm("确认拒绝缺少实体、证据或原文锚点的候选？这些记录会保留在审核历史中。")) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const rejected = await adminApi.batchRejectInvalid(token, 50);
+      setOperationMessage(
+        rejected.length > 0
+          ? `已拒绝 ${rejected.length} 条确定性无效候选；记录仍保留在审核历史中。`
+          : "没有找到可确定判为无效的候选，陈旧但证据完整的内容未被处理。",
+      );
+      await refresh(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "批量清理无效候选失败。");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const verifyAutomationApprovals = async () => {
     if (!workspace) return;
     const candidates = workspace.queue.filter(
@@ -1995,8 +2037,25 @@ function AdminReviewPage() {
                 <option value="duplicate">确定性重复（{laneCounts.duplicate}）</option>
                 <option value="possible-update">可能更新（{laneCounts["possible-update"]}）</option>
                 <option value="high-risk">高风险与冲突（{laneCounts["high-risk"]}）</option>
-                <option value="invalid-stale">无效与陈旧（{laneCounts["invalid-stale"]}）</option>
+                <option value="invalid">确定性无效（{laneCounts.invalid}）</option>
+                <option value="stale">陈旧但待判断（{laneCounts.stale}）</option>
               </select>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy || laneCounts.duplicate === 0}
+                onClick={batchMergeDeterministicDuplicates}
+              >
+                合并确定性重复（{laneCounts.duplicate}）
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy || laneCounts.invalid === 0}
+                onClick={batchRejectDeterministicallyInvalid}
+              >
+                清理确定性无效（{laneCounts.invalid}）
+              </Button>
               <Button
                 type="button"
                 disabled={busy || allBatchApprovable.length === 0}

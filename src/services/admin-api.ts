@@ -681,6 +681,20 @@ export const adminApi = {
       token,
     ),
 
+  batchMergeDuplicates: (token: string, limit = 50) =>
+    request<ReviewQueueItem[]>(
+      `/api/v2/admin/review-queue/batch-merge-duplicates?limit=${limit}`,
+      { method: "POST" },
+      token,
+    ),
+
+  batchRejectInvalid: (token: string, limit = 50) =>
+    request<ReviewQueueItem[]>(
+      `/api/v2/admin/review-queue/batch-reject-invalid?limit=${limit}`,
+      { method: "POST" },
+      token,
+    ),
+
   batchVerifyAutomation: (
     token: string,
     items: Array<{ id: string; expectedVersion: number; reason: string }>,

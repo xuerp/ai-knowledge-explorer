@@ -9,6 +9,7 @@ test("Render 只将首批官方证据域名加入自动采集白名单", () => {
   for (const host of [
     "openai.com",
     "anthropic.com",
+    "platform.claude.com",
     "deepmind.google",
     "modelcontextprotocol.io",
     "docs.langchain.com",
