@@ -83,6 +83,7 @@ export const Route = createFileRoute("/admin/review")({
 
 type Workspace = {
   queue: ReviewQueueItem[];
+  entities: Entity[];
   extractionPlan: ExtractionPlanItem[];
   sources: SourceView[];
   runs: IngestionRun[];
@@ -206,6 +207,9 @@ function AdminReviewPage() {
   );
   const [relationRepairReport, setRelationRepairReport] =
     useState<RelationClaimRepairReport | null>(null);
+  const [manualEntitySelections, setManualEntitySelections] = useState<Record<string, string>>({});
+  const [manualEntityReasons, setManualEntityReasons] = useState<Record<string, string>>({});
+  const [resolvingClaimIds, setResolvingClaimIds] = useState<Set<string>>(() => new Set());
   const [catalogKind, setCatalogKind] = useState<CatalogRecordKind>("entity");
   const [catalogJson, setCatalogJson] = useState(catalogExamples.entity);
   const [timelineEntityId, setTimelineEntityId] = useState("");
@@ -488,6 +492,69 @@ function AdminReviewPage() {
       setError(reason instanceof Error ? reason.message : "历史关系处理失败。");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const resolveUnlinkedClaim = async (
+    item: ClaimEntityAuditReport["items"][number],
+    action: "assign" | "retract",
+  ) => {
+    if (user?.role !== "admin") return;
+    if (!item.reviewJobId || item.version === null || item.version === undefined) {
+      setError("这条历史事实没有可写审核记录，需先通过数据迁移修正种子目录。");
+      return;
+    }
+    const entityId = manualEntitySelections[item.claimId]?.trim();
+    const reason = manualEntityReasons[item.claimId]?.trim() ?? "";
+    if (action === "assign" && !entityId) {
+      setError("请先为这条事实选择目标实体。");
+      return;
+    }
+    if (reason.length < 8) {
+      setError("请填写至少 8 个字符的处理理由，便于后续审计。");
+      return;
+    }
+    if (
+      action === "retract" &&
+      !window.confirm("确认将这条未关联事实判定为抽取噪声并从公开数据撤回？")
+    ) {
+      return;
+    }
+    setResolvingClaimIds((current) => new Set(current).add(item.claimId));
+    setError("");
+    try {
+      const result = await adminApi.claimEntityResolution(token, {
+        claimId: item.claimId,
+        action,
+        ...(action === "assign" ? { entityId } : {}),
+        expectedVersion: item.version,
+        reason,
+      });
+      setOperationMessage(
+        action === "assign"
+          ? `已将 ${result.claimId} 关联到 ${result.entityId}，并记录发布历史。`
+          : `已撤回抽取噪声 ${result.claimId}，公开知识库将不再展示。`,
+      );
+      toast.success(action === "assign" ? "实体关联已保存" : "抽取噪声已撤回");
+      setManualEntitySelections((current) => {
+        const next = { ...current };
+        delete next[item.claimId];
+        return next;
+      });
+      setManualEntityReasons((current) => {
+        const next = { ...current };
+        delete next[item.claimId];
+        return next;
+      });
+      await refresh(token);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "历史事实处理失败。");
+    } finally {
+      setResolvingClaimIds((current) => {
+        const next = new Set(current);
+        next.delete(item.claimId);
+        return next;
+      });
     }
   };
 
@@ -1354,17 +1421,76 @@ function AdminReviewPage() {
             </div>
             <details className="mt-4 rounded-md border border-border bg-background/60 p-3">
               <summary className="cursor-pointer text-sm font-medium">查看关联问题明细</summary>
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 space-y-3">
                 {workspace.claimEntityAudit.items.slice(0, 50).map((item) => (
                   <div
                     key={item.claimId}
-                    className="grid gap-1 rounded border border-border px-3 py-2 text-xs md:grid-cols-[1fr_1fr_2fr]"
+                    className="rounded border border-border px-3 py-3 text-xs"
                   >
-                    <span className="font-mono">{item.claimId}</span>
-                    <span>
-                      {item.subject || "无主体"} → {item.proposedEntityId || "未解析"}
-                    </span>
-                    <span className="text-muted-foreground">{item.reason}</span>
+                    <div className="grid gap-1 md:grid-cols-[1fr_1fr_2fr]">
+                      <span className="font-mono">{item.claimId}</span>
+                      <span>
+                        {item.subject || "无主体"} → {item.proposedEntityId || "未解析"}
+                      </span>
+                      <span className="text-muted-foreground">{item.reason}</span>
+                    </div>
+                    {user.role === "admin" && item.resolution !== "deterministic" && (
+                      <div className="mt-3 grid gap-2 border-t border-border pt-3 lg:grid-cols-[minmax(12rem,1fr)_minmax(16rem,2fr)_auto_auto]">
+                        <select
+                          className="h-9 rounded-md border border-input bg-background px-3 text-xs text-foreground"
+                          aria-label={`${item.claimId} 目标实体`}
+                          value={manualEntitySelections[item.claimId] ?? ""}
+                          disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
+                          onChange={(event) =>
+                            setManualEntitySelections((current) => ({
+                              ...current,
+                              [item.claimId]: event.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">选择目标实体</option>
+                          {workspace.entities.map((entity) => (
+                            <option key={entity.id} value={entity.id}>
+                              {entity.name.zh}（{entity.id}）
+                            </option>
+                          ))}
+                        </select>
+                        <Input
+                          aria-label={`${item.claimId} 处理理由`}
+                          placeholder="处理理由（至少 8 个字符）"
+                          value={manualEntityReasons[item.claimId] ?? ""}
+                          disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
+                          onChange={(event) =>
+                            setManualEntityReasons((current) => ({
+                              ...current,
+                              [item.claimId]: event.target.value,
+                            }))
+                          }
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
+                          onClick={() => resolveUnlinkedClaim(item, "assign")}
+                        >
+                          人工关联实体
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          disabled={!item.reviewJobId || resolvingClaimIds.has(item.claimId)}
+                          onClick={() => resolveUnlinkedClaim(item, "retract")}
+                        >
+                          撤回抽取噪声
+                        </Button>
+                        {!item.reviewJobId && (
+                          <p className="text-muted-foreground lg:col-span-4">
+                            这条记录来自静态种子目录，需通过版本化数据修正处理。
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

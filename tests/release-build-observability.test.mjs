@@ -17,6 +17,9 @@ test("审核后台展示后端构建与 Claim 实体关联审计", () => {
   assert.match(reviewSource, /workspace\.build\.buildCommit\.slice/);
   assert.match(reviewSource, /Claim 实体关联审计/);
   assert.match(reviewSource, /历史关系 Claim 审计/);
+  assert.match(reviewSource, /人工关联实体/);
+  assert.match(reviewSource, /撤回抽取噪声/);
+  assert.match(apiSource, /\/api\/v2\/admin\/claim-entity-resolution/);
   assert.match(reviewSource, /deterministicRepairCount/);
   assert.match(reviewSource, /运行确定性 Dry Run/);
   assert.match(reviewSource, /claimEntityRepair\(token, mode, claimIds\)/);

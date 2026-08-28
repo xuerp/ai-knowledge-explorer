@@ -129,8 +129,23 @@ class LexicalRagRetriever:
         if not rows and not matched_entity_ids:
             fallback_reason = fallback_reason or "full-text-no-match"
             rows = list(session.scalars(base_statement).all())
+        entity_type_by_id = {entity.id: entity.type for entity in snapshot.entities}
+        preferred_entity_types = (
+            self.resolve_entity_type_intent(question) if not matched_entity_ids else set()
+        )
         scored = sorted(
-            ((self.score(row, question, search_entity_ids), row) for row in rows),
+            (
+                (
+                    self.score(row, question, search_entity_ids)
+                    + (
+                        0.3
+                        if entity_type_by_id.get(row.entity_id) in preferred_entity_types
+                        else 0.0
+                    ),
+                    row,
+                )
+                for row in rows
+            ),
             key=lambda item: (-item[0], item[1].claim_id),
         )
         selected = self.select_diverse_rows(
@@ -299,6 +314,25 @@ class LexicalRagRetriever:
             for entity_id, token, _ in matches
             if not any(token != other and token in other for _, other, _ in matches)
         }
+
+    @staticmethod
+    def resolve_entity_type_intent(question: str) -> set[str]:
+        """在没有点名具体实体的宽泛问题中，优先召回与问题类型一致的事实。"""
+        key = question.casefold()
+        intents: set[str] = set()
+        if "模型" in key or "model" in key:
+            intents.add("model")
+        if "agent" in key or "智能体" in key:
+            intents.add("agent")
+        if "框架" in key or "framework" in key:
+            intents.add("framework")
+        if "公司" in key or "company" in key or "机构" in key:
+            intents.add("company")
+        if "论文" in key or "paper" in key:
+            intents.add("paper")
+        if "基准" in key or "benchmark" in key:
+            intents.add("benchmark")
+        return intents
 
     @staticmethod
     def expand_entity_scope(entities: list[Entity], matched_entity_ids: set[str]) -> set[str]:

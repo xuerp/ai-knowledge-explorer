@@ -63,6 +63,8 @@ from .schemas import (
     ClaimEntityRepairItem,
     ClaimEntityRepairReport,
     ClaimEntityRepairRequest,
+    ClaimEntityResolutionRequest,
+    ClaimEntityResolutionResult,
     DataQualityReport,
     DigestPreference,
     DigestRunSummary,
@@ -124,7 +126,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.28-historical-relation-repair-v61"
+SERVICE_RELEASE = "2026.08.28-manual-entity-resolution-v62"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -2154,7 +2156,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: SessionDependency,
     ) -> ClaimEntityAuditReport:
         response.headers["Cache-Control"] = "no-store"
-        return audit_claim_entity_links(get_catalog_snapshot(session))
+        report = audit_claim_entity_links(get_catalog_snapshot(session))
+        claim_ids = [item.claim_id for item in report.items]
+        rows = session.scalars(
+            select(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.claim_id.in_(claim_ids),
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == "current",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+            .order_by(ReviewJobRecord.created_at.desc(), ReviewJobRecord.id.desc())
+        ).all()
+        row_by_claim_id: dict[str, ReviewJobRecord] = {}
+        for row in rows:
+            row_by_claim_id.setdefault(row.claim_id, row)
+        return report.model_copy(
+            update={
+                "items": [
+                    item.model_copy(
+                        update={
+                            "review_job_id": row_by_claim_id[item.claim_id].id,
+                            "version": row_by_claim_id[item.claim_id].version,
+                        }
+                    )
+                    if item.claim_id in row_by_claim_id
+                    else item
+                    for item in report.items
+                ]
+            }
+        )
 
     def approved_relation_rows(
         session: Session,
@@ -2516,6 +2547,122 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             repairable_count=repairable_count,
             repaired_count=repaired_count,
             items=items,
+        )
+
+    @app.post(
+        "/api/v2/admin/claim-entity-resolution",
+        response_model=ClaimEntityResolutionResult,
+    )
+    def resolve_claim_entity_manually(
+        payload: ClaimEntityResolutionRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> ClaimEntityResolutionResult:
+        row = session.scalars(
+            select(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.claim_id == payload.claim_id,
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == "current",
+                ReviewJobRecord.publication_action != "merged-evidence",
+            )
+            .order_by(ReviewJobRecord.created_at.desc(), ReviewJobRecord.id.desc())
+            .with_for_update()
+        ).first()
+        if row is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Current approved claim not found.",
+            )
+        if row.version != payload.expected_version:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Review job version is {row.version}; refresh before correcting it.",
+            )
+
+        snapshot = get_catalog_snapshot(session)
+        entity_ids = {entity.id for entity in snapshot.entities}
+        if row.entity_id in entity_ids:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This claim already has a valid entity and cannot use the unlinked-claim correction flow.",
+            )
+        try:
+            claim = Claim.model_validate_json(row.claim_json)
+        except (ValueError, TypeError, json.JSONDecodeError) as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Claim structure is invalid and must be repaired before entity resolution.",
+            ) from error
+
+        previous_entity_id = row.entity_id
+        now = datetime.now(UTC)
+        relation_id: str | None = None
+        if payload.action == "assign":
+            if payload.entity_id not in entity_ids:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="Assign mode requires an existing target entity id.",
+                )
+            row.entity_id = payload.entity_id
+            row.claim_json = claim.model_copy(
+                update={"entity_id": payload.entity_id}
+            ).model_dump_json(by_alias=True)
+            audit_action = "claim.entity.manual-assign"
+            result_status: Literal["assigned", "retracted"] = "assigned"
+            lifecycle_status: Literal["current", "retracted"] = "current"
+        else:
+            if payload.entity_id is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="Retract mode does not accept an entity id.",
+                )
+            row.lifecycle_status = "retracted"
+            audit_action = "claim.entity.retract-unlinked"
+            result_status = "retracted"
+            lifecycle_status = "retracted"
+
+        row.review_reason = payload.reason
+        row.reviewed_at = now
+        row.reviewed_by = principal.email
+        row.version += 1
+        if payload.action == "assign":
+            relation = repository.relation_from_approved_claim(session, row)
+            if relation is not None:
+                repository.upsert_relation(session, relation)
+                relation_id = relation.id
+        audit.record(
+            session,
+            principal,
+            audit_action,
+            "review_job",
+            row.id,
+            {
+                "claimId": row.claim_id,
+                "previousEntityId": previous_entity_id,
+                "entityId": row.entity_id,
+                "lifecycleStatus": row.lifecycle_status,
+                "reason": payload.reason,
+                "relationId": relation_id,
+            },
+        )
+        session.add(
+            PublicationRecordRow(
+                review_job_id=row.id,
+                claim_id=row.claim_id,
+                published_at=now,
+                actor=principal.email,
+            )
+        )
+        session.commit()
+        return ClaimEntityResolutionResult(
+            review_job_id=row.id,
+            claim_id=row.claim_id,
+            status=result_status,
+            previous_entity_id=previous_entity_id,
+            entity_id=row.entity_id,
+            lifecycle_status=lifecycle_status,
+            version=row.version,
         )
 
     @app.get(

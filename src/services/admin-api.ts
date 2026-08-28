@@ -32,6 +32,8 @@ export interface ClaimEntityAuditReport {
   manualReviewCount: number;
   items: Array<{
     claimId: string;
+    reviewJobId?: string | null;
+    version?: number | null;
     currentEntityId?: string | null;
     subject?: string | null;
     resolution: "deterministic" | "review-required" | "ambiguous" | "unresolved" | "invalid";
@@ -55,6 +57,16 @@ export interface ClaimEntityRepairReport {
     status: "repairable" | "repaired" | "skipped";
     reason: string;
   }>;
+}
+
+export interface ClaimEntityResolutionResult {
+  reviewJobId: string;
+  claimId: string;
+  status: "assigned" | "retracted";
+  previousEntityId?: string | null;
+  entityId?: string | null;
+  lifecycleStatus: "current" | "retracted";
+  version: number;
 }
 
 export interface RelationClaimAuditReport {
@@ -435,6 +447,25 @@ export const adminApi = {
       token,
     ),
 
+  claimEntityResolution: (
+    token: string,
+    payload: {
+      claimId: string;
+      action: "assign" | "retract";
+      entityId?: string;
+      expectedVersion: number;
+      reason: string;
+    },
+  ) =>
+    request<ClaimEntityResolutionResult>(
+      "/api/v2/admin/claim-entity-resolution",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      token,
+    ),
+
   relationClaimRepair: (token: string, mode: "dry-run" | "apply", claimIds: string[] = []) =>
     request<RelationClaimRepairReport>(
       "/api/v2/admin/relation-claim-repair",
@@ -453,6 +484,7 @@ export const adminApi = {
       healthResult,
       entityAuditResult,
       relationAuditResult,
+      entitiesResult,
     ] = await Promise.all([
       settle(
         "开放审核队列",
@@ -480,6 +512,7 @@ export const adminApi = {
         request<RelationClaimAuditReport>("/api/v2/admin/relation-claim-audit", {}, token),
         null,
       ),
+      settle("实体目录", request<Entity[]>("/api/v2/entities", {}, token), []),
     ]);
     const queueResult = {
       value: [...openQueueResult.value, ...historyQueueResult.value],
@@ -488,6 +521,7 @@ export const adminApi = {
     if (role !== "admin") {
       return {
         queue: queueResult.value,
+        entities: entitiesResult.value,
         extractionPlan: [],
         sources: [],
         runs: [],
@@ -507,6 +541,7 @@ export const adminApi = {
           healthResult.warning,
           entityAuditResult.warning,
           relationAuditResult.warning,
+          entitiesResult.warning,
         ].filter(Boolean) as string[],
       };
     }
@@ -558,9 +593,11 @@ export const adminApi = {
       healthResult,
       entityAuditResult,
       relationAuditResult,
+      entitiesResult,
     ];
     return {
       queue: queueResult.value,
+      entities: entitiesResult.value,
       extractionPlan: extractionPlan.value,
       sources: sources.value,
       runs: runs.value,
