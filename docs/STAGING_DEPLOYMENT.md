@@ -63,6 +63,8 @@ bun run verify:cloudflare:staging
 bunx wrangler@4 deploy --config .output/server/wrangler.staging.json
 ```
 
+不得使用默认 `bun run build` 的产物部署预发 Worker。Nitro 的 Cloudflare 适配层不会把 Worker 运行时变量继续传入 SSR 服务；预发构建必须通过 `--mode staging` 将 Render 上游写入服务端运行时代码。`verify:cloudflare:staging` 会分别检查浏览器代理地址和 SSR 上游地址，只有 Wrangler 配置中存在变量也不能通过。
+
 未指定自定义域名时，部署使用 Cloudflare 的 `workers.dev` 地址。脚本只修改被 Git 忽略的 `.output` 目录，不读取 Cloudflare Token；凭据由 Wrangler 浏览器登录提供。
 
 部署完成后，将最终前端 HTTPS 地址回填到 Render API 的 `AI_RADAR_CORS_ORIGINS`，再执行无凭据冒烟检查：

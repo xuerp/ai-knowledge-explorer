@@ -30,8 +30,11 @@ jobs:
           git diff --exit-code -- backend/data/demo_snapshot.json
       - name: Frontend checks
         run: bun run check
-      - name: Verify Cloudflare staging config
-        run: bun run prepare:cloudflare:staging
+      - name: Verify Cloudflare staging build and config
+        run: |
+          bun run build:staging
+          bun run verify:cloudflare:staging
+          bun run prepare:cloudflare:staging
 
   backend:
     runs-on: ubuntu-latest
