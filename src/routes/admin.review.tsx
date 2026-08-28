@@ -197,6 +197,7 @@ function AdminReviewPage() {
   const [token, setToken] = useState("");
   const [user, setUser] = useState<AdminUser | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
+  const [sessionChecking, setSessionChecking] = useState(true);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reasons, setReasons] = useState<Record<string, string>>({});
@@ -231,13 +232,14 @@ function AdminReviewPage() {
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
-    const data = await adminApi.workspace(activeToken, currentUser.role);
     setUser(currentUser);
+    const data = await adminApi.workspace(activeToken, currentUser.role);
     setWorkspace((current) =>
       current
         ? {
             ...data,
             queue: mergeReviewQueue(current.queue, data.queue),
+            productionReadiness: data.productionReadiness ?? current.productionReadiness,
           }
         : data,
     );
@@ -245,13 +247,20 @@ function AdminReviewPage() {
 
   useEffect(() => {
     const stored = readAuthToken();
-    if (!stored) return;
+    if (!stored) {
+      setSessionChecking(false);
+      return;
+    }
     setToken(stored);
-    refresh(stored).catch((reason: unknown) => {
-      clearAuthToken();
-      setToken("");
-      setError(reason instanceof Error ? reason.message : "Session validation failed.");
-    });
+    refresh(stored)
+      .catch((reason: unknown) => {
+        clearAuthToken();
+        setToken("");
+        setUser(null);
+        setWorkspace(null);
+        setError(reason instanceof Error ? reason.message : "Session validation failed.");
+      })
+      .finally(() => setSessionChecking(false));
   }, [refresh]);
 
   useEffect(() => {
@@ -1251,6 +1260,24 @@ function AdminReviewPage() {
           title="真实管理后台尚未连接 API"
           detail="在前端环境设置 VITE_API_BASE_URL（例如 http://127.0.0.1:8000），重新启动后即可登录。只读演示页仍可使用。"
         />
+      </AppShell>
+    );
+  }
+
+  if (sessionChecking && !user) {
+    return (
+      <AppShell>
+        <main className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md items-center px-4">
+          <section className="paper-card w-full space-y-4 p-6 text-center">
+            <RefreshCw className="mx-auto h-6 w-6 animate-spin text-signal" />
+            <div>
+              <h1 className="font-serif text-2xl font-semibold">正在恢复登录状态</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                只有令牌确实失效时才会返回登录页面。
+              </p>
+            </div>
+          </section>
+        </main>
       </AppShell>
     );
   }

@@ -39,3 +39,22 @@ test("审核认证成功不会被后续工作区请求伪装成持续登录", ()
   assert.match(reviewSource, /重试加载/);
   assert.match(apiSource, /timeoutMs = 30_000/);
 });
+
+test("生产预检在基础工作区显示后再加载，避免重复质量评估争抢连接", () => {
+  const workspaceStart = apiSource.indexOf("async workspace(token:");
+  const workspaceEnd = apiSource.indexOf("\n  decide:", workspaceStart);
+  const workspaceSource = apiSource.slice(workspaceStart, workspaceEnd);
+
+  assert.doesNotMatch(workspaceSource, /生产预检/);
+  assert.match(reviewSource, /adminApi\.productionReadiness\(token\)/);
+});
+
+test("刷新后台会先恢复现有会话而不是闪回登录表单", () => {
+  const restoreStateAt = reviewSource.indexOf("sessionChecking && !user");
+  const loginFormAt = reviewSource.indexOf("if (!user) {", restoreStateAt);
+
+  assert.ok(restoreStateAt >= 0);
+  assert.ok(loginFormAt > restoreStateAt);
+  assert.match(reviewSource, /正在恢复登录状态/);
+  assert.match(reviewSource, /setUser\(currentUser\);[\s\S]*adminApi\.workspace/);
+});

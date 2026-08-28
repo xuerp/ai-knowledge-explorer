@@ -230,6 +230,7 @@ def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client:
 
 def test_historical_relation_repair_is_dry_run_first_explicit_and_idempotent(
     client: TestClient,
+    monkeypatch,
 ):
     headers = {"X-Admin-Token": "test-admin-token"}
     claim = {
@@ -282,8 +283,18 @@ def test_historical_relation_repair_is_dry_run_first_explicit_and_idempotent(
     audit_endpoint = "/api/v2/admin/relation-claim-audit"
     repair_endpoint = "/api/v2/admin/relation-claim-repair"
     assert client.get(audit_endpoint).status_code == 401
+    original_public_snapshot = client.app.state.repository.public_snapshot
+    snapshot_calls = 0
+
+    def counted_public_snapshot(session):
+        nonlocal snapshot_calls
+        snapshot_calls += 1
+        return original_public_snapshot(session)
+
+    monkeypatch.setattr(client.app.state.repository, "public_snapshot", counted_public_snapshot)
     audit_response = client.get(audit_endpoint, headers=headers)
     assert audit_response.status_code == 200
+    assert snapshot_calls == 1
     assert audit_response.headers["cache-control"] == "no-store"
     audit_payload = audit_response.json()
     item = next(item for item in audit_payload["items"] if item["claimId"] == claim["id"])
