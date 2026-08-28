@@ -47,6 +47,7 @@ RELATION_PREDICATES: dict[
         "cited-by",
         "part-of",
         "successor-of",
+        "integrates-with",
     ],
 ] = {
     "developed-by": "developed-by",
@@ -75,6 +76,10 @@ RELATION_PREDICATES: dict[
     "successor-of": "successor-of",
     "successor of": "successor-of",
     "继任": "successor-of",
+    "integrates-with": "integrates-with",
+    "integrates with": "integrates-with",
+    "集成": "integrates-with",
+    "兼容": "integrates-with",
 }
 
 

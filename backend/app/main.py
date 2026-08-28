@@ -50,7 +50,7 @@ from .quality import (
     resolve_unique_entity_reference,
 )
 from .rag import HybridRagRetriever, LexicalRagRetriever
-from .repository import OPEN_REVIEW_STATUSES, KnowledgeRepository
+from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
     AuditLogView,
@@ -94,6 +94,11 @@ from .schemas import (
     ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
+    RelationClaimAuditItem,
+    RelationClaimAuditReport,
+    RelationClaimRepairItem,
+    RelationClaimRepairReport,
+    RelationClaimRepairRequest,
     ReleaseBaseline,
     ReleaseClaimMetrics,
     ResearchCitation,
@@ -119,7 +124,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.25-lexical-rag-v60"
+SERVICE_RELEASE = "2026.08.28-historical-relation-repair-v61"
 
 RELATION_CLAIM_PREDICATES = {
     "developed-by",
@@ -130,6 +135,7 @@ RELATION_CLAIM_PREDICATES = {
     "cited-by",
     "part-of",
     "successor-of",
+    "integrates-with",
 }
 
 RELATION_PREDICATE_ANCHORS = {
@@ -147,6 +153,7 @@ RELATION_PREDICATE_ANCHORS = {
     "cited-by": ("cited-by", "cited by", "被引用"),
     "part-of": ("part-of", "part of", "属于", "隶属于"),
     "successor-of": ("successor-of", "successor of", "继任", "后继"),
+    "integrates-with": ("integrates-with", "integrates with", "集成", "兼容"),
 }
 
 
@@ -2148,6 +2155,230 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> ClaimEntityAuditReport:
         response.headers["Cache-Control"] = "no-store"
         return audit_claim_entity_links(get_catalog_snapshot(session))
+
+    def approved_relation_rows(
+        session: Session,
+        claim_ids: list[str] | None = None,
+    ) -> list[ReviewJobRecord]:
+        statement = select(ReviewJobRecord).where(
+            ReviewJobRecord.status == "approved",
+            ReviewJobRecord.publication_action != "merged-evidence",
+        )
+        if claim_ids:
+            statement = statement.where(ReviewJobRecord.claim_id.in_(claim_ids))
+        rows = session.scalars(
+            statement.order_by(ReviewJobRecord.created_at, ReviewJobRecord.id).limit(500)
+        ).all()
+        relation_rows: list[ReviewJobRecord] = []
+        for row in rows:
+            try:
+                claim = Claim.model_validate_json(row.claim_json)
+            except (ValueError, TypeError, json.JSONDecodeError):
+                if claim_ids:
+                    relation_rows.append(row)
+                continue
+            predicate_key = " ".join((claim.predicate or "").casefold().split())
+            if predicate_key in RELATION_PREDICATES:
+                relation_rows.append(row)
+        return relation_rows
+
+    def assess_historical_relation_claim(
+        session: Session,
+        row: ReviewJobRecord,
+        snapshot: KnowledgeSnapshot,
+    ) -> tuple[RelationClaimAuditItem, GraphEdge | None]:
+        try:
+            claim = Claim.model_validate_json(row.claim_json)
+        except (ValueError, TypeError, json.JSONDecodeError):
+            return (
+                RelationClaimAuditItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    source_entity_id=row.entity_id,
+                    status="invalid",
+                    reason="Claim 结构无效，必须先人工修复原始记录。",
+                ),
+                None,
+            )
+
+        predicate_key = " ".join((claim.predicate or "").casefold().split())
+        relation_kind = RELATION_PREDICATES.get(predicate_key)
+        if relation_kind is None:
+            return (
+                RelationClaimAuditItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    source_entity_id=row.entity_id,
+                    predicate=claim.predicate,
+                    target_reference=claim.object_or_value,
+                    status="invalid",
+                    reason="该 Claim 不是受支持的关系谓词。",
+                ),
+                None,
+            )
+
+        entity_ids = {entity.id for entity in snapshot.entities}
+        if row.entity_id not in entity_ids:
+            return (
+                RelationClaimAuditItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    source_entity_id=row.entity_id,
+                    predicate=claim.predicate,
+                    target_reference=claim.object_or_value,
+                    relation_kind=relation_kind,
+                    status="review-required",
+                    reason="关系 Claim 缺少合法源实体，必须先完成实体关联修复。",
+                ),
+                None,
+            )
+
+        proposed = repository.relation_from_approved_claim(session, row)
+        if proposed is None:
+            return (
+                RelationClaimAuditItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    source_entity_id=row.entity_id,
+                    predicate=claim.predicate,
+                    target_reference=claim.object_or_value,
+                    relation_kind=relation_kind,
+                    status="review-required",
+                    reason="关系目标未唯一解析到现有实体，不能自动生成图谱边。",
+                ),
+                None,
+            )
+
+        target_entity_id = proposed.to_id if proposed.from_id == row.entity_id else proposed.from_id
+        existing = next((edge for edge in snapshot.graph.edges if edge.id == proposed.id), None)
+        if existing is None:
+            status_value: Literal["repairable", "linked"] = "repairable"
+            reason = "已审核关系 Claim 可唯一解析，图谱中尚无对应关系，可以确定性补建。"
+        elif existing.confidence != proposed.confidence or set(existing.source_ids) != set(
+            proposed.source_ids
+        ):
+            status_value = "repairable"
+            reason = "图谱关系已存在，但需要确定性合并该 Claim 的 Evidence。"
+        else:
+            status_value = "linked"
+            reason = "关系 Claim 已完整发布到图谱，无需修复。"
+        return (
+            RelationClaimAuditItem(
+                review_job_id=row.id,
+                claim_id=row.claim_id,
+                source_entity_id=row.entity_id,
+                predicate=claim.predicate,
+                target_reference=claim.object_or_value,
+                proposed_target_entity_id=target_entity_id,
+                relation_id=proposed.id,
+                relation_kind=proposed.kind,
+                status=status_value,
+                reason=reason,
+            ),
+            proposed,
+        )
+
+    @app.get(
+        "/api/v2/admin/relation-claim-audit",
+        response_model=RelationClaimAuditReport,
+    )
+    def relation_claim_audit(
+        response: Response,
+        _: ReviewerDependency,
+        session: SessionDependency,
+    ) -> RelationClaimAuditReport:
+        response.headers["Cache-Control"] = "no-store"
+        snapshot = get_catalog_snapshot(session)
+        items = [
+            assess_historical_relation_claim(session, row, snapshot)[0]
+            for row in approved_relation_rows(session)
+        ]
+        return RelationClaimAuditReport(
+            generated_at=datetime.now(UTC),
+            total_relation_claims=len(items),
+            linked_count=sum(item.status == "linked" for item in items),
+            repairable_count=sum(item.status == "repairable" for item in items),
+            manual_review_count=sum(
+                item.status in {"review-required", "invalid"} for item in items
+            ),
+            items=items,
+        )
+
+    @app.post(
+        "/api/v2/admin/relation-claim-repair",
+        response_model=RelationClaimRepairReport,
+    )
+    def repair_historical_relations(
+        payload: RelationClaimRepairRequest,
+        principal: AdminDependency,
+        session: SessionDependency,
+    ) -> RelationClaimRepairReport:
+        if payload.mode == "apply" and not payload.claim_ids:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Apply mode requires an explicit list of at most 50 relation claim ids.",
+            )
+
+        snapshot = get_catalog_snapshot(session)
+        rows = approved_relation_rows(session, payload.claim_ids or None)
+        items: list[RelationClaimRepairItem] = []
+        repairable_count = 0
+        repaired_count = 0
+        for row in rows:
+            assessment, proposed = assess_historical_relation_claim(session, row, snapshot)
+            if assessment.status != "repairable" or proposed is None:
+                items.append(
+                    RelationClaimRepairItem(
+                        review_job_id=row.id,
+                        claim_id=row.claim_id,
+                        relation_id=assessment.relation_id,
+                        status="skipped",
+                        reason=assessment.reason,
+                    )
+                )
+                continue
+
+            repairable_count += 1
+            item_status: Literal["repairable", "repaired"] = "repairable"
+            if payload.mode == "apply":
+                repository.upsert_relation(session, proposed)
+                audit.record(
+                    session,
+                    principal,
+                    "relation.claim.repair",
+                    "review_job",
+                    row.id,
+                    {
+                        "claimId": row.claim_id,
+                        "relationId": proposed.id,
+                        "fromId": proposed.from_id,
+                        "toId": proposed.to_id,
+                        "kind": proposed.kind,
+                        "method": "deterministic-history-repair",
+                    },
+                )
+                repaired_count += 1
+                item_status = "repaired"
+            items.append(
+                RelationClaimRepairItem(
+                    review_job_id=row.id,
+                    claim_id=row.claim_id,
+                    relation_id=proposed.id,
+                    status=item_status,
+                    reason=assessment.reason,
+                )
+            )
+
+        if payload.mode == "apply":
+            session.commit()
+        return RelationClaimRepairReport(
+            generated_at=datetime.now(UTC),
+            mode=payload.mode,
+            total=len(items),
+            repairable_count=repairable_count,
+            repaired_count=repaired_count,
+            items=items,
+        )
 
     @app.post(
         "/api/v2/admin/claim-entity-repair",

@@ -57,6 +57,41 @@ export interface ClaimEntityRepairReport {
   }>;
 }
 
+export interface RelationClaimAuditReport {
+  generatedAt: string;
+  totalRelationClaims: number;
+  linkedCount: number;
+  repairableCount: number;
+  manualReviewCount: number;
+  items: Array<{
+    reviewJobId: string;
+    claimId: string;
+    sourceEntityId?: string | null;
+    predicate?: string | null;
+    targetReference?: string | null;
+    proposedTargetEntityId?: string | null;
+    relationId?: string | null;
+    relationKind?: string | null;
+    status: "repairable" | "linked" | "review-required" | "invalid";
+    reason: string;
+  }>;
+}
+
+export interface RelationClaimRepairReport {
+  generatedAt: string;
+  mode: "dry-run" | "apply";
+  total: number;
+  repairableCount: number;
+  repairedCount: number;
+  items: Array<{
+    reviewJobId: string;
+    claimId: string;
+    relationId?: string | null;
+    status: "repairable" | "repaired" | "skipped";
+    reason: string;
+  }>;
+}
+
 export interface ReviewQueueItem {
   id: string;
   entityId?: string;
@@ -400,35 +435,52 @@ export const adminApi = {
       token,
     ),
 
+  relationClaimRepair: (token: string, mode: "dry-run" | "apply", claimIds: string[] = []) =>
+    request<RelationClaimRepairReport>(
+      "/api/v2/admin/relation-claim-repair",
+      {
+        method: "POST",
+        body: JSON.stringify({ mode, claimIds }),
+      },
+      token,
+    ),
+
   async workspace(token: string, role: AdminUser["role"]) {
-    const [openQueueResult, historyQueueResult, inventoryResult, healthResult, entityAuditResult] =
-      await Promise.all([
-        settle(
-          "开放审核队列",
-          request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
-          [],
-        ),
-        settle(
-          "最近审核历史",
-          request<ReviewQueueItem[]>(
-            "/api/v2/admin/review-queue?scope=history&limit=100",
-            {},
-            token,
-          ),
-          [],
-        ),
-        settle(
-          "审核盘点",
-          request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
-          null,
-        ),
-        settle("构建信息", request<HealthStatus>("/health", {}, token), null),
-        settle(
-          "Claim 实体审计",
-          request<ClaimEntityAuditReport>("/api/v2/admin/claim-entity-audit", {}, token),
-          null,
-        ),
-      ]);
+    const [
+      openQueueResult,
+      historyQueueResult,
+      inventoryResult,
+      healthResult,
+      entityAuditResult,
+      relationAuditResult,
+    ] = await Promise.all([
+      settle(
+        "开放审核队列",
+        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
+        [],
+      ),
+      settle(
+        "最近审核历史",
+        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=history&limit=100", {}, token),
+        [],
+      ),
+      settle(
+        "审核盘点",
+        request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
+        null,
+      ),
+      settle("构建信息", request<HealthStatus>("/health", {}, token), null),
+      settle(
+        "Claim 实体审计",
+        request<ClaimEntityAuditReport>("/api/v2/admin/claim-entity-audit", {}, token),
+        null,
+      ),
+      settle(
+        "历史关系审计",
+        request<RelationClaimAuditReport>("/api/v2/admin/relation-claim-audit", {}, token),
+        null,
+      ),
+    ]);
     const queueResult = {
       value: [...openQueueResult.value, ...historyQueueResult.value],
       warning: [openQueueResult.warning, historyQueueResult.warning].filter(Boolean).join("；"),
@@ -448,11 +500,13 @@ export const adminApi = {
         reviewInventory: inventoryResult.value,
         build: healthResult.value,
         claimEntityAudit: entityAuditResult.value,
+        relationClaimAudit: relationAuditResult.value,
         loadWarnings: [
           queueResult.warning,
           inventoryResult.warning,
           healthResult.warning,
           entityAuditResult.warning,
+          relationAuditResult.warning,
         ].filter(Boolean) as string[],
       };
     }
@@ -503,6 +557,7 @@ export const adminApi = {
       inventoryResult,
       healthResult,
       entityAuditResult,
+      relationAuditResult,
     ];
     return {
       queue: queueResult.value,
@@ -518,6 +573,7 @@ export const adminApi = {
       reviewInventory: inventoryResult.value,
       build: healthResult.value,
       claimEntityAudit: entityAuditResult.value,
+      relationClaimAudit: relationAuditResult.value,
       loadWarnings: sections.flatMap((section) => (section.warning ? [section.warning] : [])),
     };
   },
