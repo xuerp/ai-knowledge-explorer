@@ -10,13 +10,22 @@ export async function verifyStagingBuild(
   const root = resolve(outputDirectory);
   const files = await collectFiles(root);
   const textFiles = files.filter((file) => /\.(?:html|js|mjs|json)$/.test(file));
-  let combined = "";
-  for (const file of textFiles) combined += await readFile(file, "utf8");
-  if (!combined.includes(expectedApiProxy)) {
+  const contents = new Map();
+  for (const file of textFiles) contents.set(file, await readFile(file, "utf8"));
+  const publicRuntime = [...contents]
+    .filter(([file]) => file.startsWith(join(root, "public")) && /\.(?:html|js|mjs)$/.test(file))
+    .map(([, content]) => content)
+    .join("\n");
+  const serverRuntime = [...contents]
+    .filter(([file]) => file.startsWith(join(root, "server")) && /\.(?:js|mjs)$/.test(file))
+    .map(([, content]) => content)
+    .join("\n");
+  const combined = [...contents.values()].join("\n");
+  if (!publicRuntime.includes(expectedApiProxy)) {
     throw new Error(`预发构建未包含预期同域 API 代理：${expectedApiProxy}`);
   }
-  if (!combined.includes(expectedApiUpstream)) {
-    throw new Error(`预发构建未包含预期 API 上游：${expectedApiUpstream}`);
+  if (!serverRuntime.includes(expectedApiUpstream)) {
+    throw new Error(`预发服务端运行时代码未包含预期 API 上游：${expectedApiUpstream}`);
   }
   if (combined.includes("http://127.0.0.1:8001")) {
     throw new Error("预发构建错误地包含本机 API 地址，拒绝部署。");

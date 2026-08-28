@@ -21,12 +21,36 @@ test("预发构建确认 Cloudflare 同域代理与 Render 上游", async () => 
   const root = await mkdtemp(join(tmpdir(), "ai-radar-staging-build-"));
   try {
     await mkdir(join(root, "public"));
+    await mkdir(join(root, "server"));
     await writeFile(
       join(root, "public", "app.js"),
-      'const proxy = "https://ai-radar-staging.1966761779.workers.dev/backend"; const upstream = "https://ai-radar-api-staging.onrender.com";',
+      'const proxy = "https://ai-radar-staging.1966761779.workers.dev/backend";',
+    );
+    await writeFile(
+      join(root, "server", "ssr.mjs"),
+      'const upstream = "https://ai-radar-api-staging.onrender.com";',
     );
     const result = await verifyStagingBuild(root);
-    assert.equal(result.filesChecked, 1);
+    assert.equal(result.filesChecked, 2);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("预发构建拒绝只在 Wrangler 配置中声明上游", async () => {
+  const root = await mkdtemp(join(tmpdir(), "ai-radar-staging-build-"));
+  try {
+    await mkdir(join(root, "public"));
+    await mkdir(join(root, "server"));
+    await writeFile(
+      join(root, "public", "app.js"),
+      'const proxy = "https://ai-radar-staging.1966761779.workers.dev/backend";',
+    );
+    await writeFile(
+      join(root, "server", "wrangler.staging.json"),
+      '{"vars":{"AI_RADAR_API_UPSTREAM_URL":"https://ai-radar-api-staging.onrender.com"}}',
+    );
+    await assert.rejects(() => verifyStagingBuild(root), /服务端运行时代码未包含预期 API 上游/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
