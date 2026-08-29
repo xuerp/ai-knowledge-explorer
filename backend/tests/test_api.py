@@ -1341,7 +1341,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpHost": None,
         "smtpFrom": None,
         "fetchAllowedHosts": ["example.com"],
-            "registeredSources": 35,
+        "registeredSources": 35,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }
