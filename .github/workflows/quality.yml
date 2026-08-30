@@ -91,6 +91,22 @@ jobs:
           diff -u \
             ../docs/eval/results/relation_gap_diagnosis_v1.0.0_8978fef80e19.json \
             ../artifacts/relation-diagnosis/relation_gap_diagnosis_v1.0.0_8978fef80e19.json
+      - name: Verify committed SQLite alias comparison
+        run: |
+          python ../scripts/eval_alias_normalization.py \
+            --snapshot ../docs/eval/snapshots/public_snapshot_2026-08-30.json \
+            --golden-set ../docs/eval/retrieval_golden_set.jsonl \
+            --alias-catalog data/entity_aliases_v1.json \
+            --output-dir ../artifacts/alias-sqlite \
+            --top-k 8 \
+            --evaluation-commit 0ab1c69c8051f8e3b2db5467c6fb6040a7bf0cc9 \
+            --evaluated-at 2026-08-30T17:52:16.2425056Z
+          diff -u \
+            ../docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8.json \
+            ../artifacts/alias-sqlite/alias_v1.0.0_8978fef80e19_sqlite_top8.json
+          diff -u \
+            ../docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8.md \
+            ../artifacts/alias-sqlite/alias_v1.0.0_8978fef80e19_sqlite_top8.md
       - name: PostgreSQL lexical retrieval baseline
         env:
           EVALUATION_DATABASE_URL: postgresql+psycopg://ai_radar:test-only-password@127.0.0.1:5432/ai_radar_test
