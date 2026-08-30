@@ -815,7 +815,7 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         with automatic_client.app.state.database.session() as session:
             source = session.get(SourceRecord, "source-relation-backfill")
             assert source is not None
-            source.fetch_enabled = True
+            assert source.fetch_enabled is False
             source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
             session.add(
                 AuditLogRecord(
@@ -851,6 +851,14 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         assert first_summary["relationBackfillBatchId"] == "test-core-relations-01"
         assert first_summary["relationBackfillAttemptsRemaining"] == 0
         assert extraction_calls == [snapshot_id]
+        source_after = automatic_client.get(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+        ).json()
+        backfill_source = next(
+            item for item in source_after if item["id"] == "source-relation-backfill"
+        )
+        assert backfill_source["fetchEnabled"] is False
 
         public_status = automatic_client.get("/api/v2/public/relation-backfill-status")
         assert public_status.status_code == 200
