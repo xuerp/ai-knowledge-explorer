@@ -71,8 +71,8 @@
 
 | Spec 任务项               | 原假设或待核实点                                    | 实际状态                                                                                                                                                                                        | 结论                            |
 | ------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Epic 1A：Golden Set       | 需要建立 60–100 条、版本化并含 Claim 期望值的评估集 | 已有 `backend/data/golden_questions.json`，仅 20 条；没有 Golden Set 版本、`expected_claim_ids`、独立一键评估脚本或 Recall@8 / Precision@8 结果文件                                             | partially completed             |
-| Epic 1A：lexical baseline | 尚未建立检索基线                                    | `20260824_0019` 已落地 PostgreSQL lexical FTS；`golden_questions.py` 已计算检索通过率，但不是 Spec 要求的完整、版本绑定评估                                                                     | partially completed             |
+| Epic 1A：Golden Set       | 需要建立 60–100 条、版本化并含 Claim 期望值的评估集 | 已建立 80 条 Golden Set v1.0.0、固定公开快照、独立评估脚本及版本绑定结果                                                                                                                        | completed                       |
+| Epic 1A：lexical baseline | 尚未建立检索基线                                    | SQLite 便携式基线与隔离 PostgreSQL 16 lexical FTS 最终基线均已完成；总体 Recall@8 99.38%、Precision@8 14.06%、Entity Recall@8 99.38%、通过率 98.75%                                             | completed                       |
 | Epic 1B：实体别名         | 尚未接入别名归一化                                  | Entity schema 与公开数据可带 `aliases`，检索也会读取实体名称信息；没有 `entity_alias` 表、核心实体覆盖证明或前后对照实验                                                                        | partially completed             |
 | Epic 1C：Embedding        | 未接入 Embedding                                    | 已有 `EmbeddingProvider`、`VectorClaimIndex`、RRF 混合层与安全降级接口；当前没有生产 provider、版本化 embedding schema、benchmark 或 ADR，配置默认关闭                                          | partially completed             |
 | Epic 1D：Reranker         | 尚未实现                                            | 已有 `ClaimReranker` 扩展接口和单元测试；是否投入真实实现必须等待 1C 的 Precision@8 结果                                                                                                        | partially completed / deferred  |
@@ -105,19 +105,19 @@
 
 ## Epic 状态总览与剩余依赖
 
-| 顺序 | Epic                                | 当前状态                              | 下一步                                                                              |
-| ---: | ----------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------- |
-|    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                                                |
-|    1 | 1A Golden Set + baseline            | partially completed                   | Golden Set v1.0.0 与 SQLite 便携式 baseline 已完成；仍需隔离 PostgreSQL 16 FTS 重跑 |
-|    2 | 2A Ontology / gap / source worklist | pending                               | 只做零费用诊断和官方信源工作清单                                                    |
-|    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                                                      |
-|    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                                                          |
-|    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                                             |
-|    6 | 2B 定向关系抽取                     | blocked by evidence and authorization | 先准备 Evidence；付费抽取前再次获得明确授权                                         |
-|    7 | 3 质量看板                          | pending                               | 等 1A/1C 形成可展示指标                                                             |
-|    8 | 4 审核可观测性                      | pending                               | 复用现有字段，仅补标准化原因分类                                                    |
-|    9 | 5 故障场景                          | pending                               | 先盘点现有测试，再补缺口与 Runbook                                                  |
-|   10 | 6 ADR / 作品集                      | pending                               | 最后同步真实实验结果                                                                |
+| 顺序 | Epic                                | 当前状态                              | 下一步                                                 |
+| ---: | ----------------------------------- | ------------------------------------- | ------------------------------------------------------ |
+|    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                   |
+|    1 | 1A Golden Set + baseline            | completed                             | 保持版本化结果；策略变更时用同一 Golden Set 与快照重跑 |
+|    2 | 2A Ontology / gap / source worklist | pending                               | 只做零费用诊断和官方信源工作清单                       |
+|    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                         |
+|    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                             |
+|    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                |
+|    6 | 2B 定向关系抽取                     | blocked by evidence and authorization | 先准备 Evidence；付费抽取前再次获得明确授权            |
+|    7 | 3 质量看板                          | pending                               | 等 1A/1C 形成可展示指标                                |
+|    8 | 4 审核可观测性                      | pending                               | 复用现有字段，仅补标准化原因分类                       |
+|    9 | 5 故障场景                          | pending                               | 先盘点现有测试，再补缺口与 Runbook                     |
+|   10 | 6 ADR / 作品集                      | pending                               | 最后同步真实实验结果                                   |
 
 ## Epic 0 验收结论
 
@@ -130,4 +130,4 @@
 - [x] 已把统一强制前缀写入本报告和执行版 Spec。
 - [x] 所有无法从公开接口核实的私有数据均明确标为无法核实，没有用公开字段代替。
 
-Epic 0 已达到可执行节点。下一步只能进入 Epic 1A，不得跳到 Embedding、Reranker、关系抽取、质量看板或作品集包装。
+Epic 0 与 Epic 1A 已达到可执行节点。下一步进入 Epic 2A 的零费用关系本体、只读诊断与官方信源缺口清单；不得越过 2A 进入 2B。

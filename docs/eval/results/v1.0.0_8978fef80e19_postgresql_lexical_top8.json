@@ -2,7 +2,7 @@
   "metadata": {
     "goldenSetVersion": "1.0.0",
     "sampleCount": 80,
-    "snapshotPath": "docs/eval/snapshots/public_snapshot_2026-08-30.json",
+    "snapshotPath": "../docs/eval/snapshots/public_snapshot_2026-08-30.json",
     "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
     "snapshotRetrievedAt": "2026-08-30T12:53:42.447278+00:00",
     "snapshotCounts": {
@@ -13,11 +13,11 @@
       "timeline": 55
     },
     "retrievalMode": "lexical",
-    "databaseDialect": "sqlite",
+    "databaseDialect": "postgresql",
     "embeddingModel": null,
     "topK": 8,
     "evaluationCommit": "5e1e10e27ea64bfa796b3f87bb0b2d2e5a8c7987",
-    "evaluatedAt": "2026-08-30T14:17:57.665260+00:00"
+    "evaluatedAt": "2026-08-30T14:06:30.718763+00:00"
   },
   "metrics": {
     "overall": {
@@ -81,10 +81,10 @@
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
+        "candidateCount": 31,
         "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 13,
+        "filteredCount": 23,
+        "elapsedMs": 17,
         "matchedEntityIds": [
           "e-gpt-5",
           "e-swebench"
@@ -118,7 +118,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 2,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -151,7 +151,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -177,7 +177,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-gemini-25-pro"
         ],
@@ -238,7 +238,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -264,7 +264,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-gemini-cli"
         ],
@@ -281,23 +281,17 @@
       ],
       "retrievedClaimIds": [
         "c-manus-agent",
-        "c-codex-agent",
-        "claim-40c4970f43275ebe6ca6",
-        "claim-60772eb088c4d19aaa68",
-        "claim-8f1b9dca9176013f7989",
-        "claim-fe7400a84c600dfb05d1",
-        "c-autogen-framework",
-        "c-devin-agent"
+        "claim-5aaf53f59267692a608e"
       ],
       "claimRecallAtK": 1.0,
       "precisionAtK": 0.125,
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
-        "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 9,
+        "candidateCount": 2,
+        "returnedCount": 2,
+        "filteredCount": 0,
+        "elapsedMs": 11,
         "matchedEntityIds": [
           "e-manus",
           "e-manus-company"
@@ -380,7 +374,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-autogen"
         ],
@@ -410,10 +404,10 @@
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
+        "candidateCount": 22,
         "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 8,
+        "filteredCount": 14,
+        "elapsedMs": 12,
         "matchedEntityIds": [
           "e-crewai",
           "e-crewai-company"
@@ -473,7 +467,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-kimi-k26"
         ],
@@ -536,7 +530,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-anthropic"
         ],
@@ -569,7 +563,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -602,7 +596,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -701,7 +695,7 @@
         "candidateCount": 17,
         "returnedCount": 8,
         "filteredCount": 9,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-kimi"
         ],
@@ -764,7 +758,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -797,7 +791,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mmlu"
         ],
@@ -830,7 +824,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -863,7 +857,7 @@
         "candidateCount": 20,
         "returnedCount": 8,
         "filteredCount": 12,
-        "elapsedMs": 1,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-doubao",
           "e-doubao-seed18"
@@ -881,23 +875,18 @@
       ],
       "retrievedClaimIds": [
         "claim-651c65451adfbda8426e",
-        "c-autogen-framework",
-        "claim-0bb5fe18f20b9d37d620",
         "claim-50c69855c226a60323a7",
-        "claim-b4baf2feae10cc1faa7b",
-        "claim-c197b2fed5266444ac67",
-        "c-claude-align",
-        "c-claude-code-agent"
+        "claim-c197b2fed5266444ac67"
       ],
       "claimRecallAtK": 1.0,
       "precisionAtK": 0.125,
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
-        "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 8,
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 10,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -947,7 +936,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-ernie-50"
         ],
@@ -980,7 +969,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -1013,7 +1002,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-langchain",
           "e-langgraph"
@@ -1081,7 +1070,7 @@
         "candidateCount": 34,
         "returnedCount": 8,
         "filteredCount": 26,
-        "elapsedMs": 2,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-claude-code",
           "e-mcp"
@@ -1115,7 +1104,7 @@
         "candidateCount": 31,
         "returnedCount": 8,
         "filteredCount": 23,
-        "elapsedMs": 2,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-anthropic",
           "e-claude"
@@ -1149,7 +1138,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-ernie-50",
           "e-ernie-51"
@@ -1183,7 +1172,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -1249,7 +1238,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-langchain",
           "e-openai"
@@ -1283,7 +1272,7 @@
         "candidateCount": 20,
         "returnedCount": 8,
         "filteredCount": 12,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-anthropic",
           "e-langchain"
@@ -1317,7 +1306,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -1350,7 +1339,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -1383,7 +1372,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1416,7 +1405,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-codex",
           "e-gpt-5"
@@ -1450,7 +1439,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-codex",
           "e-gpt-5"
@@ -1500,24 +1489,19 @@
         "claim-c197b2fed5266444ac67"
       ],
       "retrievedClaimIds": [
-        "claim-739edf11461045ce579e",
         "claim-c197b2fed5266444ac67",
         "claim-50c69855c226a60323a7",
-        "claim-651c65451adfbda8426e",
-        "c-autogen-framework",
-        "c-claude-align",
-        "c-claude-code-agent",
-        "c-codex-agent"
+        "claim-651c65451adfbda8426e"
       ],
       "claimRecallAtK": 1.0,
       "precisionAtK": 0.125,
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
-        "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 8,
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 10,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -1532,23 +1516,18 @@
       ],
       "retrievedClaimIds": [
         "claim-50c69855c226a60323a7",
-        "claim-739edf11461045ce579e",
         "claim-651c65451adfbda8426e",
-        "claim-c197b2fed5266444ac67",
-        "c-autogen-framework",
-        "c-claude-align",
-        "c-claude-code-agent",
-        "c-codex-agent"
+        "claim-c197b2fed5266444ac67"
       ],
       "claimRecallAtK": 1.0,
       "precisionAtK": 0.125,
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
-        "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 7,
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 10,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -1579,7 +1558,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-kimi-k26"
         ],
@@ -1612,7 +1591,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1645,7 +1624,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1671,7 +1650,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-gemini-cli"
         ],
@@ -1698,7 +1677,7 @@
         "candidateCount": 2,
         "returnedCount": 2,
         "filteredCount": 0,
-        "elapsedMs": 0,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-gemini-15-pro"
         ],
@@ -1791,7 +1770,7 @@
         "candidateCount": 6,
         "returnedCount": 6,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-gemini"
         ],
@@ -1824,7 +1803,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1857,7 +1836,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1890,7 +1869,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1923,7 +1902,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1956,7 +1935,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -1989,7 +1968,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -2081,7 +2060,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -2115,7 +2094,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -2208,7 +2187,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -2241,7 +2220,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -2274,7 +2253,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -2308,7 +2287,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-kimi-k26",
           "e-kimi-k3"
@@ -2340,10 +2319,10 @@
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
+        "candidateCount": 58,
         "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 10,
+        "filteredCount": 50,
+        "elapsedMs": 15,
         "matchedEntityIds": [
           "e-claude",
           "e-gpt-5",
@@ -2398,22 +2377,17 @@
       "retrievedClaimIds": [
         "claim-50c69855c226a60323a7",
         "claim-c197b2fed5266444ac67",
-        "c-codex-agent",
-        "claim-651c65451adfbda8426e",
-        "claim-739edf11461045ce579e",
-        "claim-c9729d582aad30fb2ef1",
-        "claim-d8c42aa4195b98cd5d4f",
-        "c-autogen-framework"
+        "claim-651c65451adfbda8426e"
       ],
       "claimRecallAtK": 1.0,
       "precisionAtK": 0.25,
       "entityRecallAtK": 1.0,
       "passed": true,
       "diagnostics": {
-        "candidateCount": 195,
-        "returnedCount": 8,
-        "filteredCount": 187,
-        "elapsedMs": 9,
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 11,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -2445,7 +2419,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-mmlu"
         ],
@@ -2479,7 +2453,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -2513,7 +2487,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -2581,7 +2555,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 1,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -2615,7 +2589,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 1,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-claude-code"
         ],

@@ -98,12 +98,6 @@ jobs:
             --evaluation-commit "$GITHUB_SHA"
           printf '## PostgreSQL 16 lexical retrieval baseline\n\n' >> "$GITHUB_STEP_SUMMARY"
           sed '1d' ../artifacts/retrieval-postgresql/*.md >> "$GITHUB_STEP_SUMMARY"
-          part=0
-          gzip -c ../artifacts/retrieval-postgresql/*.json | base64 -w 3500 | while read -r chunk; do
-            printf -v part_id '%03d' "$part"
-            echo "::notice title=PostgreSQL retrieval report chunk $part_id::$chunk"
-            part=$((part + 1))
-          done
       - name: Upload PostgreSQL retrieval baseline
         uses: actions/upload-artifact@v4
         with:

@@ -9,7 +9,7 @@
 - 快照计数：Entity 49、Claim 196、Evidence 218、Relation 76、Timeline 55。
 - 检索配置：`lexical`，TopK=8，无 Embedding、无 Reranker。
 - 数据库方言：SQLite 内存数据库。
-- 评估脚本提交：`9f31903262002b30549a0d20a57e57ab4418faa6`。
+- 评估脚本提交：`5e1e10e27ea64bfa796b3f87bb0b2d2e5a8c7987`。
 
 | 范围   | 样本 | Recall@8 | Precision@8 | Entity Recall@8 |  通过率 |
 | ------ | ---: | -------: | ----------: | --------------: | ------: |
@@ -27,4 +27,20 @@ Precision@8 固定以 8 为分母；大多数题目只有一个标注相关 Clai
 
 本次是同一 `LexicalRagRetriever` 在隔离 SQLite 中运行的便携式确定性基线。它没有执行 PostgreSQL `websearch_to_tsquery` / `to_tsvector` 候选过滤，因此不能称为 PostgreSQL lexical FTS 最终基线，也不能与未来 PostgreSQL、Alias、Hybrid 结果直接混为一条曲线。
 
-下一步必须使用同一 Golden Set、同一快照和同一脚本提交，在隔离 PostgreSQL 16 上通过 `--database-url` 重跑并单独记录结果。在此之前，Epic 1A 标记为 partially completed。
+该结果保留为跨环境便携基线。隔离 PostgreSQL 16 的最终 lexical FTS 基线见下一节。
+
+## 2026-08-30：PostgreSQL 16 lexical FTS 最终基线
+
+固定版本组合与 SQLite 基线相同；数据库方言改为 `postgresql`，评估脚本提交为 `5e1e10e27ea64bfa796b3f87bb0b2d2e5a8c7987`。评估在 GitHub Actions 的隔离 PostgreSQL 16 service 中执行，运行 `33315912493` 全绿。结构化结果 SHA-256 为 `c414d3056816ecfd93aa910b3e9ca8fa3fd856d2fea1bb85ccb6ee0af266ee81`。
+
+| 范围   | 样本 | Recall@8 | Precision@8 | Entity Recall@8 |  通过率 |
+| ------ | ---: | -------: | ----------: | --------------: | ------: |
+| 总体   |   80 |   99.38% |      14.06% |          99.38% |  98.75% |
+| 实体   |   30 |  100.00% |      12.50% |         100.00% | 100.00% |
+| 关系   |   20 |  100.00% |      12.50% |         100.00% | 100.00% |
+| 时间线 |   20 |   97.50% |      12.50% |         100.00% |  95.00% |
+| 对比   |   10 |  100.00% |      25.00% |          95.00% | 100.00% |
+
+PostgreSQL 与 SQLite 的聚合指标及逐题指标完全一致；5 条样本的 Top-8 Claim 顺序或集合、8 条样本的候选数量不同，但没有造成逐题指标变化。耗时字段属于运行时噪声，不参与该差异统计。两者唯一未完全召回的样本均为 `timeline-015`，未通过删除重复 Claim 或放宽规则处理。
+
+该结果验证的是现有 PostgreSQL lexical FTS，不是 BM25，也不代表生产数据库状态。Epic 1A 至此完成；按 Spec 顺序，下一个主线节点是 Epic 2A 的零费用关系本体、只读诊断与官方信源缺口清单。
