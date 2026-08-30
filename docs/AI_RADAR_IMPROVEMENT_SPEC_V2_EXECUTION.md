@@ -57,9 +57,12 @@
 
 Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot 安全抓取失败是 Epic 2B 的显式 Evidence 前置阻塞，不把 2A 的诊断结果伪装成已采集证据。
 
-### Epic 1B：实体别名归一化 — pending after 1A
+### Epic 1B：实体别名归一化 — completed
 
-复用 Entity 已有 `aliases` 能力，先判断独立 `entity_alias` 表是否确有必要。无论 schema 选择如何，都必须覆盖核心实体，并用同一 Golden Set / snapshot 做别名前后对照。
+1. [x] 迁移 `20260831_0020` 建立 `entity_alias` 规范化索引表；payload aliases 仍是事实源，索引可重建。
+2. [x] 版本化目录 v1.0.0 的 24 条别名覆盖全部 19 个核心实体，并对 GPT-5 版本名完成消歧。
+3. [x] 查询与目录共用 Unicode NFKC、casefold、下划线及空白规范化，别名进入 lexical 检索文档。
+4. [x] 使用 Golden Set v1.0.0、同一固定 snapshot 和 TopK=8 做前后对照；实体类 Entity Recall@8 均为 100%，24 条补充别名探针从 16/24 提升到 24/24。
 
 ### Epic 1C：Embedding 与混合检索 — pending after 1A/1B
 
@@ -91,4 +94,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。按 Spec 顺序，下一个可执行主线节点是 Epic 1B：实体别名归一化；先核实是否需要独立 alias 表，再用同一 Golden Set / snapshot 做前后对照。
+Epic 0、1A、2A、1B 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。按 Spec 顺序，下一个可执行主线节点是 Epic 1C：先在不调用付费 API 的边界内盘点候选 Embedding、设计版本化 schema 和可复现 benchmark；任何真实付费调用仍需用户另行授权。

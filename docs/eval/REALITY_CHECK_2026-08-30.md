@@ -83,7 +83,7 @@
 | ------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
 | Epic 1A：Golden Set       | 需要建立 60–100 条、版本化并含 Claim 期望值的评估集 | 已建立 80 条 Golden Set v1.0.0、固定公开快照、独立评估脚本及版本绑定结果                                                                                                                        | completed                       |
 | Epic 1A：lexical baseline | 尚未建立检索基线                                    | SQLite 便携式基线与隔离 PostgreSQL 16 lexical FTS 最终基线均已完成；总体 Recall@8 99.38%、Precision@8 14.06%、Entity Recall@8 99.38%、通过率 98.75%                                             | completed                       |
-| Epic 1B：实体别名         | 尚未接入别名归一化                                  | Entity schema 与公开数据可带 `aliases`，检索也会读取实体名称信息；没有 `entity_alias` 表、核心实体覆盖证明或前后对照实验                                                                        | partially completed             |
+| Epic 1B：实体别名         | 已完成别名归一化                                    | `entity_alias` 可重建索引、v1.0.0 目录覆盖 19 个核心实体；同 Golden Set / snapshot 的实体类 Entity Recall@8 维持 100%，补充探针 16/24 → 24/24                                                        | completed                       |
 | Epic 1C：Embedding        | 未接入 Embedding                                    | 已有 `EmbeddingProvider`、`VectorClaimIndex`、RRF 混合层与安全降级接口；当前没有生产 provider、版本化 embedding schema、benchmark 或 ADR，配置默认关闭                                          | partially completed             |
 | Epic 1D：Reranker         | 尚未实现                                            | 已有 `ClaimReranker` 扩展接口和单元测试；是否投入真实实现必须等待 1C 的 Precision@8 结果                                                                                                        | partially completed / deferred  |
 | Epic 2A：关系优先能力     | 关系优先模式是否实现、是否执行过                    | 已实现且已执行固定预算批次；批次 `2026-08-core-relations-01` 为 complete，10/10 成功，4 个候选、2 个重复、0 个自动批准                                                                          | completed                       |
@@ -120,7 +120,7 @@
 |    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                   |
 |    1 | 1A Golden Set + baseline            | completed                             | 保持版本化结果；策略变更时用同一 Golden Set 与快照重跑 |
 |    2 | 2A Ontology / gap / source worklist | completed                             | 保持证据驱动；候选 Snapshot 未安全形成前不进入 2B      |
-|    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                         |
+|    3 | 1B 别名归一化                       | completed                             | 同版本前后对比及覆盖探针均已记录                       |
 |    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                             |
 |    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                |
 |    6 | 2B 定向关系抽取                     | blocked by evidence and authorization | 先准备 Evidence；付费抽取前再次获得明确授权            |
@@ -140,4 +140,4 @@
 - [x] 已把统一强制前缀写入本报告和执行版 Spec。
 - [x] 所有无法从公开接口核实的私有数据均明确标为无法核实，没有用公开字段代替。
 
-Epic 0、Epic 1A 与 Epic 2A 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked；按 Spec 顺序，下一个可执行节点是 Epic 1B 的实体别名归一化与同版本前后对照。
+Epic 0、Epic 1A、Epic 2A 与 Epic 1B 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked；按 Spec 顺序，下一个可执行节点是 Epic 1C 的零付费候选盘点、版本化 schema 与 benchmark 设计。
