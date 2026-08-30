@@ -816,6 +816,8 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             source = session.get(SourceRecord, "source-relation-backfill")
             assert source is not None
             assert source.fetch_enabled is False
+            source.fetch_url = "https://mirror.example.net/claude-code-relations"
+            source.auto_paused_at = datetime.now(UTC)
             source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
             session.add(
                 AuditLogRecord(
@@ -859,6 +861,7 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             item for item in source_after if item["id"] == "source-relation-backfill"
         )
         assert backfill_source["fetchEnabled"] is False
+        assert backfill_source["healthState"] == "paused"
 
         public_status = automatic_client.get("/api/v2/public/relation-backfill-status")
         assert public_status.status_code == 200
