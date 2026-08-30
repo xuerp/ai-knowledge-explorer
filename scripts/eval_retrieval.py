@@ -33,12 +33,16 @@ def read_bytes(path: Path) -> bytes:
 
 def load_snapshot(path: Path) -> tuple[KnowledgeSnapshot, str]:
     payload = read_bytes(path)
-    return KnowledgeSnapshot.model_validate_json(payload), hashlib.sha256(payload).hexdigest()
+    return KnowledgeSnapshot.model_validate_json(payload), hashlib.sha256(
+        payload
+    ).hexdigest()
 
 
 def load_golden_set(path: Path) -> tuple[str, list[dict[str, Any]]]:
     samples = [
-        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     ]
     if not samples:
         raise ValueError("Golden Set 不能为空。")
@@ -53,14 +57,18 @@ def load_golden_set(path: Path) -> tuple[str, list[dict[str, Any]]]:
         raise ValueError(f"Golden Set 类别分布错误：{dict(categories)}")
     for item in samples:
         if not item.get("query") or not item.get("expected_entity_ids"):
-            raise ValueError(f"样本 {item.get('id')} 缺少 query 或 expected_entity_ids。")
+            raise ValueError(
+                f"样本 {item.get('id')} 缺少 query 或 expected_entity_ids。"
+            )
         if not item.get("expected_claim_ids"):
             raise ValueError(f"样本 {item.get('id')} 缺少 expected_claim_ids。")
     return versions.pop(), samples
 
 
 def current_commit(repo_root: Path) -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo_root, text=True).strip()
+    return subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo_root, text=True
+    ).strip()
 
 
 def average(values: list[float]) -> float:
@@ -114,7 +122,9 @@ def evaluate(
             relevant = expected_claims & set(retrieved_claim_ids)
             claim_recall = len(relevant) / len(expected_claims)
             precision = len(relevant) / top_k
-            entity_recall = len(expected_entities & retrieved_entity_ids) / len(expected_entities)
+            entity_recall = len(expected_entities & retrieved_entity_ids) / len(
+                expected_entities
+            )
             row = {
                 "id": sample["id"],
                 "category": sample["category"],
@@ -125,7 +135,9 @@ def evaluate(
                 "precisionAtK": round(precision, 4),
                 "entityRecallAtK": round(entity_recall, 4),
                 "passed": claim_recall == 1.0,
-                "diagnostics": search.diagnostics.model_dump(mode="json", by_alias=True),
+                "diagnostics": search.diagnostics.model_dump(
+                    mode="json", by_alias=True
+                ),
             }
             results.append(row)
             by_category[str(sample["category"])].append(row)
@@ -142,7 +154,8 @@ def evaluate(
     metrics = {
         "overall": summarize(results),
         "categories": {
-            category: summarize(by_category[category]) for category in EXPECTED_CATEGORIES
+            category: summarize(by_category[category])
+            for category in EXPECTED_CATEGORIES
         },
     }
     return metrics, results, engine.dialect.name
@@ -191,7 +204,9 @@ def markdown_summary(report: dict[str, Any]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="运行可复现的 AI Radar lexical 检索评估。")
+    parser = argparse.ArgumentParser(
+        description="运行可复现的 AI Radar lexical 检索评估。"
+    )
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--golden-set", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -243,7 +258,9 @@ def main() -> None:
     stem = f"v{version}_{snapshot_hash[:12]}_{database_dialect}_lexical_top{args.top_k}"
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
-    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    json_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     markdown_path.write_text(markdown_summary(report), encoding="utf-8")
     print(
         json.dumps(
