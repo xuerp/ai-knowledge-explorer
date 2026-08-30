@@ -35,15 +35,15 @@
 - [x] 审核与审计字段可复用范围已核实。
 - [x] `docs/eval/REALITY_CHECK_2026-08-30.md` 已生成。
 
-### Epic 1A：Golden Set 与 lexical baseline — next
+### Epic 1A：Golden Set 与 lexical baseline — partially completed
 
-已有 20 条 `golden_questions.json` 和 lexical FTS 基线，只复用，不重做。剩余任务：
+已有 20 条 `golden_questions.json` 和 lexical FTS 基线，只复用，不重做。2026-08-30 已完成 80 条 Golden Set v1.0.0、固定公开快照、评估脚本和 SQLite 便携式 baseline。剩余任务：
 
-1. 建立 60–100 条、带 `version` 的 `docs/eval/retrieval_golden_set.jsonl`。
-2. 每条包含查询类别、`query`、`expected_entity_ids`、`expected_claim_ids`；不得为提高指标降低问题难度。
-3. 编写 `scripts/eval_retrieval.py`，固定并输出 Golden Set 版本、数据库 snapshot、检索配置、topK 和 Git commit。
-4. 只运行确定性的 lexical 基线，记录 Recall@8、Precision@8 与通过率。
-5. 将结果写入 `docs/eval/results` 和 `docs/eval/CHANGELOG.md`。
+1. [x] 建立 80 条、带 `version` 的 `docs/eval/retrieval_golden_set.jsonl`。
+2. [x] 每条包含查询类别、`query`、`expected_entity_ids`、`expected_claim_ids`。
+3. [x] 编写 `scripts/eval_retrieval.py`，固定并输出版本组合。
+4. [x] 运行 SQLite 便携式 lexical baseline 并记录真实指标。
+5. [ ] 使用完全相同的版本组合在隔离 PostgreSQL 16 上重跑，形成 PostgreSQL lexical FTS 最终基线。
 
 ### Epic 2A：关系本体与官方信源缺口映射 — pending
 

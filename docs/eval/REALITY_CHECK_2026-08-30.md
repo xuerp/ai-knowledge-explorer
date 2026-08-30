@@ -105,19 +105,19 @@
 
 ## Epic 状态总览与剩余依赖
 
-| 顺序 | Epic                                | 当前状态                              | 下一步                                                 |
-| ---: | ----------------------------------- | ------------------------------------- | ------------------------------------------------------ |
-|    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                   |
-|    1 | 1A Golden Set + baseline            | next                                  | 扩展为版本化 Golden Set，并建立确定性 lexical 评估输出 |
-|    2 | 2A Ontology / gap / source worklist | pending                               | 只做零费用诊断和官方信源工作清单                       |
-|    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                         |
-|    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                             |
-|    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                |
-|    6 | 2B 定向关系抽取                     | blocked by evidence and authorization | 先准备 Evidence；付费抽取前再次获得明确授权            |
-|    7 | 3 质量看板                          | pending                               | 等 1A/1C 形成可展示指标                                |
-|    8 | 4 审核可观测性                      | pending                               | 复用现有字段，仅补标准化原因分类                       |
-|    9 | 5 故障场景                          | pending                               | 先盘点现有测试，再补缺口与 Runbook                     |
-|   10 | 6 ADR / 作品集                      | pending                               | 最后同步真实实验结果                                   |
+| 顺序 | Epic                                | 当前状态                              | 下一步                                                                              |
+| ---: | ----------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------- |
+|    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                                                |
+|    1 | 1A Golden Set + baseline            | partially completed                   | Golden Set v1.0.0 与 SQLite 便携式 baseline 已完成；仍需隔离 PostgreSQL 16 FTS 重跑 |
+|    2 | 2A Ontology / gap / source worklist | pending                               | 只做零费用诊断和官方信源工作清单                                                    |
+|    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                                                      |
+|    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                                                          |
+|    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                                             |
+|    6 | 2B 定向关系抽取                     | blocked by evidence and authorization | 先准备 Evidence；付费抽取前再次获得明确授权                                         |
+|    7 | 3 质量看板                          | pending                               | 等 1A/1C 形成可展示指标                                                             |
+|    8 | 4 审核可观测性                      | pending                               | 复用现有字段，仅补标准化原因分类                                                    |
+|    9 | 5 故障场景                          | pending                               | 先盘点现有测试，再补缺口与 Runbook                                                  |
+|   10 | 6 ADR / 作品集                      | pending                               | 最后同步真实实验结果                                                                |
 
 ## Epic 0 验收结论
 
