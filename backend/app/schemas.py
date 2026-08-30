@@ -347,6 +347,23 @@ class HealthResponse(CamelModel):
     auth_enabled: bool
 
 
+class RelationBackfillStatus(CamelModel):
+    configured: bool
+    status: Literal["disabled", "waiting", "running", "complete"]
+    batch_id: str | None = None
+    budget: int
+    attempts: int
+    succeeded: int
+    failed: int
+    candidates_created: int
+    duplicates_skipped: int
+    relations_auto_approved: int
+    attempts_remaining: int
+    eligible_snapshots: int
+    relation_deficit: int
+    core_entities_below_requirement: int
+
+
 class IntegrationStatus(CamelModel):
     extraction_configured: bool
     extraction_pipeline_version: str
