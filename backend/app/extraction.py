@@ -378,8 +378,37 @@ class StructuredExtractionService:
             )
             for entity in mentioned_priorities
         )
+        relation_focus = bool(
+            priority_context and max(0, claims_remaining) == 0 and max(0, relation_deficit) > 0
+        )
         relation_candidate_target = (
-            min(max_candidates, max(1, max_candidates // 2)) if priority_context else 0
+            max_candidates
+            if relation_focus
+            else min(max_candidates, max(1, max_candidates // 2))
+            if priority_context
+            else 0
+        )
+        remaining_slot_policy = (
+            "When the source supports fewer priority relations than requested, return fewer "
+            "facts. Do not fill unused slots with unrelated generic facts or broad summaries."
+            if relation_focus
+            else (
+                "When the source supports fewer priority relations than requested, use every "
+                "remaining slot for distinct atomic facts such as dated releases, measured "
+                "capabilities, compatibility, availability, limits, or benchmark results."
+            )
+        )
+        candidate_allocation_policy = (
+            "- This is a relation-focused pass because the reviewed Claim threshold is already "
+            "met. Return fewer facts when the document does not explicitly support the requested "
+            "canonical relations; do not backfill unused slots with generic claims.\n"
+            if relation_focus
+            else (
+                "- Then, fill the remaining available fact slots with distinct, directly "
+                "supported atomic claims.\n"
+                "- If no listed priority entity appears in this document, use all slots for "
+                "distinct atomic claims instead.\n"
+            )
         )
         payload = {
             "model": self.model,
@@ -395,10 +424,8 @@ class StructuredExtractionService:
                         "benchmarked-on, uses, cited-by, part-of, successor-of. Use the catalog entity "
                         "name verbatim as subject and objectOrValue. Prioritize explicit canonical "
                         "relations involving the listed priority entities, but never infer a relation "
-                        "that the source does not state. When the source supports fewer priority "
-                        "relations than requested, use every remaining slot for distinct atomic "
-                        "facts such as dated releases, measured capabilities, compatibility, "
-                        "availability, limits, or benchmark results. Each fact must stand on its "
+                        "that the source does not state. "
+                        f"{remaining_slot_policy} Each fact must stand on its "
                         "own, express only one assertion, and differ semantically from the other "
                         "facts. Exclude marketing language, broad summaries, and paraphrase "
                         "duplicates. Preserve source wording for subject and objectOrValue whenever "
@@ -418,10 +445,7 @@ class StructuredExtractionService:
                         "- First, extract up to "
                         f"{relation_candidate_target} directly stated canonical relations involving "
                         "the priority entities below.\n"
-                        "- Then, fill the remaining available fact slots with distinct, directly "
-                        "supported atomic claims.\n"
-                        "- If no listed priority entity appears in this document, use all slots for "
-                        "distinct atomic claims instead.\n\n"
+                        f"{candidate_allocation_policy}\n"
                         f"Known catalog entities:\n{catalog_context or '(not provided)'}\n\n"
                         "Priority entities with incomplete relation coverage:\n"
                         f"{priority_context or '(none for this pass)'}\n\n"

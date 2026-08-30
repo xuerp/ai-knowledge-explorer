@@ -12,6 +12,20 @@ from app.extraction import (
     extraction_audit_is_current,
     locate_source_excerpt,
 )
+from app.schemas import Entity, LocalizedText
+
+
+def _catalog_entity(entity_id: str, name: str) -> Entity:
+    return Entity(
+        id=entity_id,
+        type="model",
+        slug=name.casefold().replace(" ", "-"),
+        name=LocalizedText(zh=name, en=name),
+        summary=LocalizedText(zh=f"{name} 摘要", en=f"{name} summary"),
+        status="active",
+        tags=[],
+        last_updated_at="2026-08-30",
+    )
 
 
 def test_structured_extraction_is_strict_unverified_and_evidence_linked():
@@ -84,6 +98,106 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
     assert result[0].claim.source_ids == [result[0].evidence[0].id]
     assert result[0].evidence[0].url == source.url
     assert result[0].evidence[0].source_excerpt is None
+
+
+def test_extraction_uses_all_slots_for_relations_after_claim_threshold_is_met():
+    def handler(request: httpx.Request) -> httpx.Response:
+        prompt = "\n".join(
+            message["content"] for message in json.loads(request.content)["messages"]
+        )
+        assert "Claims remaining: 0" in prompt
+        assert "First, extract up to 5 directly stated canonical relations" in prompt
+        assert "This is a relation-focused pass" in prompt
+        assert "return fewer facts" in prompt
+        assert "do not backfill unused slots with generic claims" in prompt
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"facts":[]}'}}]})
+
+    source = SourceRecord(
+        id="source-relation-focus",
+        url="https://example.com/claude",
+        title="Claude official documentation",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-relation-focus",
+        source_id=source.id,
+        content_hash="relation-focus-hash",
+        content_text="Claude is developed by Anthropic.",
+        observed_at=datetime.now(UTC),
+    )
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.extract(
+        source,
+        snapshot,
+        5,
+        catalog_entities=[
+            _catalog_entity("e-claude", "Claude"),
+            _catalog_entity("e-anthropic", "Anthropic"),
+        ],
+        priority_entity_ids=["e-claude"],
+        priority_entity_deficits={"e-claude": 3},
+        claims_remaining=0,
+        relation_deficit=46,
+    )
+
+    assert result == []
+
+
+def test_extraction_keeps_balanced_allocation_before_claim_threshold_is_met():
+    def handler(request: httpx.Request) -> httpx.Response:
+        prompt = "\n".join(
+            message["content"] for message in json.loads(request.content)["messages"]
+        )
+        assert "First, extract up to 2 directly stated canonical relations" in prompt
+        assert "fill the remaining available fact slots" in prompt
+        assert "This is a relation-focused pass" not in prompt
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"facts":[]}'}}]})
+
+    source = SourceRecord(
+        id="source-balanced-focus",
+        url="https://example.com/claude",
+        title="Claude official documentation",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-balanced-focus",
+        source_id=source.id,
+        content_hash="balanced-focus-hash",
+        content_text="Claude is developed by Anthropic.",
+        observed_at=datetime.now(UTC),
+    )
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.extract(
+        source,
+        snapshot,
+        5,
+        catalog_entities=[_catalog_entity("e-claude", "Claude")],
+        priority_entity_ids=["e-claude"],
+        claims_remaining=10,
+        relation_deficit=46,
+    )
+
+    assert result == []
 
 
 def test_extraction_audit_only_accepts_the_current_pipeline_version():
