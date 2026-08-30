@@ -54,6 +54,7 @@ from .rag import HybridRagRetriever, LexicalRagRetriever
 from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
+    RELATION_KINDS,
     AuditLogView,
     AutomationCycleResponse,
     BootstrapUser,
@@ -130,17 +131,7 @@ from .worker import run_cycle
 DATABASE_SCHEMA_REVISION = "20260824_0019"
 SERVICE_RELEASE = "2026.08.28-guided-entity-triage-v63"
 
-RELATION_CLAIM_PREDICATES = {
-    "developed-by",
-    "based-on",
-    "competes-with",
-    "benchmarked-on",
-    "uses",
-    "cited-by",
-    "part-of",
-    "successor-of",
-    "integrates-with",
-}
+RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
 RELATION_PREDICATE_ANCHORS = {
     "developed-by": ("developed-by", "developed by", "开发"),

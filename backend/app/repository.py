@@ -28,6 +28,7 @@ from .schemas import (
     KnowledgeSnapshot,
     LocalizedText,
     PublicationRecord,
+    RelationKind,
     ReviewCandidate,
     ReviewQueueItem,
     TimelineEntry,
@@ -36,20 +37,7 @@ from .schemas import (
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
 logger = logging.getLogger(__name__)
 
-RELATION_PREDICATES: dict[
-    str,
-    Literal[
-        "developed-by",
-        "based-on",
-        "competes-with",
-        "benchmarked-on",
-        "uses",
-        "cited-by",
-        "part-of",
-        "successor-of",
-        "integrates-with",
-    ],
-] = {
+RELATION_PREDICATES: dict[str, RelationKind] = {
     "developed-by": "developed-by",
     "developed by": "developed-by",
     "由其开发": "developed-by",

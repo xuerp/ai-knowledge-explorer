@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .database import DocumentSnapshotRecord, SourceRecord
 from .schemas import (
+    RELATION_KINDS,
     CandidateCreate,
     Claim,
     ClaimText,
@@ -53,7 +54,11 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-symmetric-relation-dedup-v7"
+EXTRACTION_PIPELINE_VERSION = "2026-08-relation-ontology-v8"
+COMPATIBLE_EXTRACTION_PIPELINE_VERSIONS = {
+    "2026-08-symmetric-relation-dedup-v7",
+    EXTRACTION_PIPELINE_VERSION,
+}
 
 
 def extraction_audit_is_current(detail_json: str | None) -> bool:
@@ -61,7 +66,7 @@ def extraction_audit_is_current(detail_json: str | None) -> bool:
         detail = json.loads(detail_json or "{}")
     except (TypeError, ValueError):
         return False
-    return detail.get("pipelineVersion") == EXTRACTION_PIPELINE_VERSION
+    return detail.get("pipelineVersion") in COMPATIBLE_EXTRACTION_PIPELINE_VERSIONS
 
 
 def entity_reference_appears(content: str, entity: Entity) -> bool:
@@ -420,8 +425,8 @@ class StructuredExtractionService:
                         "Extract only explicit, source-supported facts. Do not infer missing values. "
                         "Return bilingual concise claim text. Dates must be ISO-8601 when present."
                         " When an explicit fact relates two known catalog entities, use one of these "
-                        "exact canonical predicates: developed-by, based-on, competes-with, "
-                        "benchmarked-on, uses, cited-by, part-of, successor-of. Use the catalog entity "
+                        "exact canonical predicates: "
+                        f"{', '.join(RELATION_KINDS)}. Use the catalog entity "
                         "name verbatim as subject and objectOrValue. Prioritize explicit canonical "
                         "relations involving the listed priority entities, but never infer a relation "
                         "that the source does not state. "

@@ -888,4 +888,5 @@ const RELATION_LABEL: Record<string, { zh: string; en: string }> = {
   "cited-by": { zh: "引用者", en: "Cited by" },
   "part-of": { zh: "属于", en: "Part of" },
   "successor-of": { zh: "继任", en: "Successor of" },
+  "integrates-with": { zh: "集成", en: "Integrates with" },
 };

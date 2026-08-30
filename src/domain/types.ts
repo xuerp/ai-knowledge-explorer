@@ -74,7 +74,8 @@ export type RelationKind =
   | "uses"
   | "cited-by"
   | "part-of"
-  | "successor-of";
+  | "successor-of"
+  | "integrates-with";
 
 export interface GraphEdge {
   id: string;

@@ -28,7 +28,7 @@ from app.main import (
 )
 from app.release_baseline import render_markdown
 from app.repository import RELATION_PREDICATES
-from app.schemas import CandidateCreate
+from app.schemas import CandidateCreate, GraphEdge
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +57,21 @@ def test_relation_extraction_covers_every_canonical_graph_predicate():
 
     assert RELATION_CLAIM_PREDICATES == canonical_predicates
     assert set(RELATION_PREDICATE_ANCHORS) == canonical_predicates
+
+
+def test_integrates_with_is_a_publishable_graph_relation():
+    edge = GraphEdge.model_validate(
+        {
+            "id": "edge-integration",
+            "fromId": "e-codex",
+            "toId": "e-mcp",
+            "kind": "integrates-with",
+            "confidence": "verified",
+            "sourceIds": ["evidence-integration"],
+        }
+    )
+
+    assert edge.kind == "integrates-with"
 
 
 def test_readiness_schema_revision_matches_bundled_alembic_head():
@@ -609,7 +624,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+        "pipelineVersion": "2026-08-relation-ontology-v8",
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -664,7 +679,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
-        assert integrations["extractionPipelineVersion"] == ("2026-08-symmetric-relation-dedup-v7")
+        assert integrations["extractionPipelineVersion"] == "2026-08-relation-ontology-v8"
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -706,7 +721,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+            "pipelineVersion": "2026-08-relation-ontology-v8",
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -1482,7 +1497,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+        "extractionPipelineVersion": "2026-08-relation-ontology-v8",
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
