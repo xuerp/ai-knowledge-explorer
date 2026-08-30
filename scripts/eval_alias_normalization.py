@@ -10,9 +10,10 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
+from eval_retrieval import current_commit, evaluate, load_golden_set, load_snapshot
+
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
 from app.rag import LexicalRagRetriever
-from eval_retrieval import current_commit, evaluate, load_golden_set, load_snapshot
 
 
 def metric_delta(after: dict[str, Any], before: dict[str, Any]) -> dict[str, Any]:
@@ -45,10 +46,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
         "",
         f"- Golden Set：v{metadata['goldenSetVersion']}（{metadata['sampleCount']} 条）",
         f"- 固定快照：`{metadata['snapshotSha256']}`",
-        (
-            f"- 别名目录：v{metadata['aliasCatalogVersion']} "
-            f"(`{metadata['aliasCatalogSha256']}`)"
-        ),
+        (f"- 别名目录：v{metadata['aliasCatalogVersion']} (`{metadata['aliasCatalogSha256']}`)"),
         f"- 数据库方言：`{metadata['databaseDialect']}`；TopK={metadata['topK']}",
         f"- 评估脚本提交：`{metadata['evaluationCommit']}`",
         "- Embedding：未启用",
@@ -112,14 +110,10 @@ def main() -> None:
     probe_rows = []
     for definition in definitions:
         before_matches = sorted(
-            LexicalRagRetriever.resolve_mentions(
-                before_snapshot.entities, definition.alias
-            )
+            LexicalRagRetriever.resolve_mentions(before_snapshot.entities, definition.alias)
         )
         after_matches = sorted(
-            LexicalRagRetriever.resolve_mentions(
-                after_snapshot.entities, definition.alias
-            )
+            LexicalRagRetriever.resolve_mentions(after_snapshot.entities, definition.alias)
         )
         probe_rows.append(
             {
@@ -161,9 +155,7 @@ def main() -> None:
     stem = f"alias_v{version}_{snapshot_hash[:12]}_{before_dialect}_top{args.top_k}"
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
-    json_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     markdown_path.write_text(markdown_summary(report), encoding="utf-8")
     print(
         json.dumps(
