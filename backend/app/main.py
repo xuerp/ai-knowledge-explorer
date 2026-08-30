@@ -950,6 +950,95 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         return eligible[:limit]
 
+    def build_relation_backfill_plan(
+        session: Session,
+        limit: int,
+        *,
+        excluded_snapshot_ids: set[str] | None = None,
+    ) -> tuple[list[tuple[SourceRecord, DocumentSnapshotRecord]], int]:
+        batch_id = app_settings.relation_backfill_batch_id
+        budget = app_settings.relation_backfill_max_snapshots
+        if not batch_id or budget <= 0:
+            return [], 0
+
+        attempt_rows = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action.in_({"extraction.run", "extraction.failed"}),
+                AuditLogRecord.target_type == "document_snapshot",
+            )
+        ).all()
+        attempted_snapshot_ids: set[str] = set()
+        attempts = 0
+        for row in attempt_rows:
+            try:
+                detail = json.loads(row.detail_json)
+            except (TypeError, ValueError):
+                continue
+            if detail.get("relationBackfillBatchId") != batch_id:
+                continue
+            attempts += 1
+            attempted_snapshot_ids.add(row.target_id)
+        remaining = max(0, budget - attempts)
+        if remaining == 0 or limit <= 0:
+            return [], remaining
+
+        public_snapshot = get_catalog_snapshot(session)
+        quality = quality_gate.report(public_snapshot)
+        if quality.core_relation_deficit <= 0:
+            return [], remaining
+        priority_ids = set(quality.core_entities_below_five_relations)
+        priority_entities = [
+            entity for entity in public_snapshot.entities if entity.id in priority_ids
+        ]
+        priority_weights = {
+            entity_id: CORE_ENTITY_RELATION_REQUIREMENT
+            - quality.core_entity_relation_counts[entity_id]
+            for entity_id in priority_ids
+        }
+
+        snapshots = session.scalars(
+            select(DocumentSnapshotRecord).order_by(
+                DocumentSnapshotRecord.observed_at.desc(),
+                DocumentSnapshotRecord.id.desc(),
+            )
+        ).all()
+        excluded = excluded_snapshot_ids or set()
+        eligible: list[tuple[int, SourceRecord, DocumentSnapshotRecord]] = []
+        seen_sources: set[str] = set()
+        for snapshot_row in snapshots:
+            if snapshot_row.source_id in seen_sources:
+                continue
+            seen_sources.add(snapshot_row.source_id)
+            if snapshot_row.id in attempted_snapshot_ids or snapshot_row.id in excluded:
+                continue
+            source = session.get(SourceRecord, snapshot_row.source_id)
+            if (
+                not source
+                or not source.active
+                or not source.fetch_enabled
+                or source.auto_paused_at is not None
+            ):
+                continue
+            effective_url = source.fetch_url or source.url
+            host = (urlsplit(effective_url).hostname or "").lower()
+            if host not in app_settings.fetch_allowed_hosts:
+                continue
+            score = sum(
+                priority_weights[entity.id]
+                for entity in priority_entities
+                if entity_reference_appears(snapshot_row.content_text, entity)
+            )
+            if score <= 0:
+                continue
+            eligible.append((score, source, snapshot_row))
+
+        eligible.sort(
+            key=lambda item: (item[0], item[2].observed_at, item[2].id),
+            reverse=True,
+        )
+        selected = eligible[: min(limit, remaining)]
+        return [(source, snapshot) for _, source, snapshot in selected], remaining
+
     def create_extraction_candidates(
         session: Session,
         source: SourceRecord,
@@ -1177,15 +1266,33 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         }
         if not summary["enabled"]:
             return summary
-        planned = build_extraction_plan(session, limit, automatic_only=True)
+        regular_plan = build_extraction_plan(session, limit, automatic_only=True)
+        planned: list[tuple[SourceRecord, DocumentSnapshotRecord, bool]] = [
+            (source, snapshot_row, False) for source, snapshot_row in regular_plan
+        ]
+        backfill_plan, backfill_remaining = build_relation_backfill_plan(
+            session,
+            limit - len(planned),
+            excluded_snapshot_ids={snapshot_row.id for _, snapshot_row, _ in planned},
+        )
+        planned.extend((source, snapshot_row, True) for source, snapshot_row in backfill_plan)
+        if app_settings.relation_backfill_batch_id:
+            summary["relationBackfillBatchId"] = app_settings.relation_backfill_batch_id
+            summary["relationBackfillAttemptsRemaining"] = backfill_remaining
         summary["planned"] = len(planned)
         errors: list[dict[str, str]] = []
+        backfill_attempts_this_cycle = 0
         principal = Principal(
             subject="automation",
             email="automation@ai-radar.local",
             role="admin",
         )
-        for source, snapshot_row in planned:
+        for source, snapshot_row, is_relation_backfill in planned:
+            audit_context = (
+                {"relationBackfillBatchId": app_settings.relation_backfill_batch_id}
+                if is_relation_backfill
+                else {}
+            )
             try:
                 created, duplicates_skipped = create_extraction_candidates(
                     session,
@@ -1225,9 +1332,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "duplicatesSkipped": duplicates_skipped,
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                         "sourceId": source.id,
+                        **audit_context,
                     },
                 )
                 session.commit()
+                if is_relation_backfill:
+                    backfill_attempts_this_cycle += 1
                 summary["processed"] = int(summary["processed"]) + 1
                 summary["candidatesCreated"] = int(summary["candidatesCreated"]) + len(created)
                 summary["duplicatesSkipped"] = (
@@ -1248,14 +1358,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "sourceId": source.id,
                         "error": str(error)[:500],
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
+                        **audit_context,
                     },
                 )
                 session.commit()
+                if is_relation_backfill:
+                    backfill_attempts_this_cycle += 1
                 summary["failed"] = int(summary["failed"]) + 1
                 errors.append({"sourceId": source.id, "error": str(error)[:500]})
                 continue
         if errors:
             summary["errors"] = errors
+        if app_settings.relation_backfill_batch_id:
+            summary["relationBackfillAttemptsRemaining"] = max(
+                0,
+                backfill_remaining - backfill_attempts_this_cycle,
+            )
         return summary
 
     def get_golden_question_report(session: Session) -> GoldenQuestionReport:

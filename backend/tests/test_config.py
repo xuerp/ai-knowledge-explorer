@@ -1,3 +1,5 @@
+import pytest
+
 from app.config import Settings, normalize_database_url
 
 
@@ -26,3 +28,21 @@ def test_settings_use_render_commit_without_exposing_other_runtime_configuration
 
     assert settings.build_commit == "render-commit-123"
     assert settings.built_at == "2026-08-25T00:00:00Z"
+
+
+def test_relation_backfill_requires_an_explicit_batch_and_hard_caps_requests():
+    common = {
+        "database_url": "sqlite:///test.db",
+        "seed_snapshot_path": Settings.from_env().seed_snapshot_path,
+        "admin_token": None,
+        "cors_origins": (),
+    }
+
+    with pytest.raises(ValueError, match="BATCH_ID"):
+        Settings(**common, relation_backfill_max_snapshots=1)
+    with pytest.raises(ValueError, match="between 0 and 10"):
+        Settings(
+            **common,
+            relation_backfill_batch_id="too-large",
+            relation_backfill_max_snapshots=11,
+        )
