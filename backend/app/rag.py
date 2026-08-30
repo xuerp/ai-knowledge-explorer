@@ -12,6 +12,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from .database import RagClaimDocumentRecord
+from .entity_aliases import normalize_entity_alias
 from .schemas import (
     Claim,
     Entity,
@@ -292,15 +293,17 @@ class LexicalRagRetriever:
 
     @staticmethod
     def resolve_mentions(entities: list[Entity], question: str) -> set[str]:
-        key = question.casefold()
+        key = normalize_entity_alias(question)
         matches: list[tuple[str, str, int]] = []
         for entity in entities:
             canonical = {
-                value.casefold().strip()
+                normalize_entity_alias(value)
                 for value in [entity.slug, entity.name.zh, entity.name.en]
                 if value.strip()
             }
-            aliases = {value.casefold().strip() for value in entity.aliases or [] if value.strip()}
+            aliases = {
+                normalize_entity_alias(value) for value in entity.aliases or [] if value.strip()
+            }
             matching = [
                 (token, priority)
                 for token, priority in [

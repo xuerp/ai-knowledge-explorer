@@ -60,6 +60,16 @@ def test_lexical_rag_expands_family_mentions_to_concrete_versions():
     assert any(item.claim.entity_id == "e-gpt-5" for item in result.citations)
 
 
+def test_lexical_rag_resolves_normalized_catalog_aliases():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+
+    assert LexicalRagRetriever.resolve_mentions(snapshot.entities, "MCP 有哪些集成？") == {"e-mcp"}
+    assert LexicalRagRetriever.resolve_mentions(snapshot.entities, "Crew_AI 怎么用？") == {
+        "e-crewai"
+    }
+    assert LexicalRagRetriever.resolve_mentions(snapshot.entities, "ＭＣＰ 是什么？") == {"e-mcp"}
+
+
 def test_lexical_rag_keeps_each_family_in_multi_entity_questions():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)

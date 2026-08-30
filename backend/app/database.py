@@ -89,6 +89,22 @@ class KnowledgeEntityRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class EntityAliasRecord(Base):
+    __tablename__ = "entity_alias"
+    __table_args__ = (
+        Index("ix_entity_alias_alias_key", "alias_key"),
+        Index("ix_entity_alias_alias_type", "alias_type"),
+    )
+
+    entity_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        primary_key=True,
+    )
+    alias_key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    alias: Mapped[str] = mapped_column(String(255), nullable=False)
+    alias_type: Mapped[str] = mapped_column(String(32), nullable=False)
+
+
 class KnowledgeRelationRecord(Base):
     __tablename__ = "knowledge_relations"
 

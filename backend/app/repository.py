@@ -7,16 +7,23 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from .database import (
+    EntityAliasRecord,
     KnowledgeEntityRecord,
     KnowledgeRelationRecord,
     KnowledgeTimelineRecord,
     PublicationRecordRow,
     ReviewJobRecord,
     SourceRecord,
+)
+from .entity_aliases import (
+    EntityAliasDefinition,
+    apply_entity_aliases,
+    load_entity_alias_catalog,
+    normalize_entity_alias,
 )
 from .quality import resolve_claim_entity_reference
 from .schemas import (
@@ -138,8 +145,12 @@ class KnowledgeRepository:
         data_mode: Literal["demo", "live"] = "demo",
     ):
         self.seed_snapshot_path = seed_snapshot_path
+        self.alias_catalog_path = seed_snapshot_path.with_name("entity_aliases_v1.json")
         self.data_mode = data_mode
         self._seed: KnowledgeSnapshot | None = None
+        self.alias_catalog_version: str | None = None
+        self.alias_catalog_sha256: str | None = None
+        self._alias_definitions: tuple[EntityAliasDefinition, ...] = ()
 
     def load_seed(self) -> KnowledgeSnapshot:
         if self._seed is None:
@@ -179,6 +190,13 @@ class KnowledgeRepository:
                         item for item in entries if item["id"] not in known_entry_ids
                     )
             self._seed = KnowledgeSnapshot.model_validate(payload)
+            if self.alias_catalog_path.exists():
+                (
+                    self.alias_catalog_version,
+                    self._alias_definitions,
+                    self.alias_catalog_sha256,
+                ) = load_entity_alias_catalog(self.alias_catalog_path)
+                apply_entity_aliases(self._seed.entities, self._alias_definitions)
         return self._seed.model_copy(deep=True)
 
     def seed_catalog(self, session: Session) -> None:
@@ -190,6 +208,7 @@ class KnowledgeRepository:
         for entity in [*families, *versions]:
             if entity.id not in known_entity_ids:
                 session.add(self._entity_record(entity, now))
+        session.flush()
 
         known_source_ids = set(session.scalars(select(SourceRecord.id)).all())
         known_source_urls = set(session.scalars(select(SourceRecord.url)).all())
@@ -247,23 +266,38 @@ class KnowledgeRepository:
             row.last_probe_content_type = None
             row.last_probe_readable_characters = None
 
-        # This is a narrow, one-way presentation migration for locally seeded
-        # records. It changes only legacy country labels to the product-level
-        # domestic/overseas grouping requested by the UI, and never overwrites
-        # an administrator's other entity edits.
+        # These are narrow, one-way migrations for locally seeded records. They
+        # never overwrite administrator-maintained fields or aliases.
         legacy_origins = {("美国", "United States"), ("中国", "China")}
         for entity in seed.entities:
-            if entity.id not in known_entity_ids or entity.origin is None:
-                continue
             row = session.get(KnowledgeEntityRecord, entity.id)
             if row is None:
                 continue
             stored = Entity.model_validate_json(row.payload_json)
+            changed = False
             stored_origin = stored.origin
-            if stored_origin is not None and (stored_origin.zh, stored_origin.en) in legacy_origins:
+            if (
+                entity.origin is not None
+                and stored_origin is not None
+                and (stored_origin.zh, stored_origin.en) in legacy_origins
+            ):
                 stored.origin = entity.origin
+                changed = True
+            aliases = {
+                normalize_entity_alias(value): value
+                for value in stored.aliases or []
+                if value.strip()
+            }
+            for value in entity.aliases or []:
+                aliases.setdefault(normalize_entity_alias(value), value)
+            merged_aliases = list(aliases.values()) or None
+            if stored.aliases != merged_aliases:
+                stored.aliases = merged_aliases
+                changed = True
+            if changed:
                 row.payload_json = stored.model_dump_json(by_alias=True)
                 row.updated_at = now
+            self._sync_entity_aliases(session, stored)
 
         known_timeline_ids = set(
             session.execute(
@@ -309,6 +343,28 @@ class KnowledgeRepository:
             updated_at=updated_at,
         )
 
+    def _sync_entity_aliases(self, session: Session, entity: Entity) -> None:
+        session.execute(delete(EntityAliasRecord).where(EntityAliasRecord.entity_id == entity.id))
+        catalog_types = {
+            normalize_entity_alias(item.alias): item.alias_type
+            for item in self._alias_definitions
+            if item.entity_id == entity.id
+        }
+        seen: set[str] = set()
+        for alias in entity.aliases or []:
+            alias_key = normalize_entity_alias(alias)
+            if not alias_key or alias_key in seen:
+                continue
+            seen.add(alias_key)
+            session.add(
+                EntityAliasRecord(
+                    entity_id=entity.id,
+                    alias_key=alias_key,
+                    alias=alias.strip(),
+                    alias_type=catalog_types.get(alias_key, "other"),
+                )
+            )
+
     def upsert_entity(self, session: Session, entity: Entity) -> Entity:
         if entity.family_id == entity.id:
             raise ValueError("An entity cannot be its own model family.")
@@ -336,6 +392,8 @@ class KnowledgeRepository:
             row.family_id = entity.family_id
             row.payload_json = entity.model_dump_json(by_alias=True)
             row.updated_at = now
+        session.flush()
+        self._sync_entity_aliases(session, entity)
         session.flush()
         return entity
 
