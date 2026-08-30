@@ -30,6 +30,11 @@ def metric_delta(after: dict[str, Any], before: dict[str, Any]) -> dict[str, Any
     }
 
 
+def scrub_runtime_noise(results: list[dict[str, Any]]) -> None:
+    for row in results:
+        row["diagnostics"]["elapsedMs"] = 0
+
+
 def markdown_summary(report: dict[str, Any]) -> str:
     metadata = report["metadata"]
     before = report["before"]["metrics"]["overall"]
@@ -99,6 +104,8 @@ def main() -> None:
     after_metrics, after_results, after_dialect = evaluate(
         after_snapshot, samples, top_k=args.top_k, database_url=args.database_url
     )
+    scrub_runtime_noise(before_results)
+    scrub_runtime_noise(after_results)
     if before_dialect != after_dialect:
         raise RuntimeError("前后评估数据库方言不一致。")
 
