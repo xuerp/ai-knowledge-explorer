@@ -17,9 +17,9 @@ from sqlalchemy.orm import Session
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
-from app.database import Base  # noqa: E402
-from app.rag import LexicalRagRetriever  # noqa: E402
-from app.schemas import KnowledgeSnapshot  # noqa: E402
+from app.database import Base
+from app.rag import LexicalRagRetriever
+from app.schemas import KnowledgeSnapshot
 
 EXPECTED_CATEGORIES = {"entity": 30, "relation": 20, "timeline": 20, "comparison": 10}
 
