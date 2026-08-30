@@ -26,6 +26,12 @@ envVarGroups:
         value: "360"
       - key: AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS
         value: "true"
+      # 一次性关系补齐批次：总请求数由后端审计日志硬限制为最多 10 次。
+      # 相同批次 ID 在服务重启或 Cron 重复触发后不会重新消费额度。
+      - key: AI_RADAR_RELATION_BACKFILL_BATCH_ID
+        value: 2026-08-core-relations-01
+      - key: AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS
+        value: "10"
       # 首批仅允许现有演示目录中的官方站点。信源仍默认关闭自动采集，
       # 必须在审核后台通过批量安全预检后启用，并核验首次快照后才进入定时任务。
       - key: AI_RADAR_FETCH_ALLOWED_HOSTS

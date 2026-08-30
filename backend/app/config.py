@@ -40,6 +40,8 @@ class Settings:
     auto_extraction_max_candidates_per_snapshot: int = 10
     auto_extraction_retry_minutes: int = 360
     auto_approve_grounded_relations: bool = False
+    relation_backfill_batch_id: str | None = None
+    relation_backfill_max_snapshots: int = 0
     rag_hybrid_enabled: bool = False
     rag_generation_enabled: bool = False
     smtp_host: str | None = None
@@ -79,6 +81,12 @@ class Settings:
             )
         if not 1 <= self.auto_extraction_retry_minutes <= 1440:
             raise ValueError("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440.")
+        if not 0 <= self.relation_backfill_max_snapshots <= 10:
+            raise ValueError("AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS must be between 0 and 10.")
+        if self.relation_backfill_max_snapshots > 0 and not self.relation_backfill_batch_id:
+            raise ValueError(
+                "AI_RADAR_RELATION_BACKFILL_BATCH_ID is required when relation backfill is enabled."
+            )
         if not 1 <= self.email_max_attempts <= 20:
             raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
         if self.email_retry_base_seconds < 1:
@@ -159,6 +167,10 @@ class Settings:
                 "AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS", "false"
             ).lower()
             in {"1", "true", "yes"},
+            relation_backfill_batch_id=(os.getenv("AI_RADAR_RELATION_BACKFILL_BATCH_ID") or None),
+            relation_backfill_max_snapshots=int(
+                os.getenv("AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS", "0")
+            ),
             rag_hybrid_enabled=os.getenv("AI_RADAR_RAG_HYBRID_ENABLED", "false").lower()
             in {"1", "true", "yes"},
             rag_generation_enabled=os.getenv("AI_RADAR_RAG_GENERATION_ENABLED", "false").lower()

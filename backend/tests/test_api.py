@@ -6,6 +6,7 @@ import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
 from app.config import Settings
 from app.database import (
@@ -752,6 +753,122 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         )
         assert cooling_down.status_code == 200
         assert cooling_down.json()["result"]["extraction"]["planned"] == 0
+
+
+def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'relation-backfill.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=2,
+        relation_backfill_batch_id="test-core-relations-01",
+        relation_backfill_max_snapshots=1,
+    )
+    extraction_calls: list[str] = []
+
+    def record_extraction(
+        self,
+        source,
+        snapshot,
+        max_candidates,
+        catalog_entities=None,
+        **kwargs,
+    ):
+        extraction_calls.append(snapshot.id)
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", record_extraction)
+    with TestClient(create_app(settings)) as automatic_client:
+        admin_headers = {"X-Admin-Token": "test-admin-token"}
+        automation_headers = {
+            "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
+        }
+        created = automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+            json={
+                "id": "source-relation-backfill",
+                "url": "https://example.com/claude-code-relations",
+                "title": "Claude Code official relations",
+                "publisher": "Example",
+            },
+        )
+        assert created.status_code == 201
+        snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-relation-backfill/snapshots",
+            headers=admin_headers,
+            json={"content": "Claude Code uses the Model Context Protocol."},
+        )
+        assert snapshot.status_code == 200
+        snapshot_id = snapshot.json()["snapshotId"]
+        with automatic_client.app.state.database.session() as session:
+            source = session.get(SourceRecord, "source-relation-backfill")
+            assert source is not None
+            source.fetch_enabled = True
+            source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.add(
+                AuditLogRecord(
+                    actor="automation@ai-radar.local",
+                    action="extraction.run",
+                    target_type="document_snapshot",
+                    target_id=snapshot_id,
+                    detail_json=json.dumps(
+                        {
+                            "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+                            "sourceId": source.id,
+                        }
+                    ),
+                    created_at=datetime.now(UTC),
+                )
+            )
+            session.commit()
+
+        first = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert first.status_code == 200
+        first_summary = first.json()["result"]["extraction"]
+        assert first_summary["planned"] == 1
+        assert first_summary["processed"] == 1
+        assert first_summary["relationBackfillBatchId"] == "test-core-relations-01"
+        assert first_summary["relationBackfillAttemptsRemaining"] == 0
+        assert extraction_calls == [snapshot_id]
+
+        second = automatic_client.post(
+            "/api/v2/automation/run-cycle",
+            headers=automation_headers,
+        )
+        assert second.status_code == 200
+        second_summary = second.json()["result"]["extraction"]
+        assert second_summary["planned"] == 0
+        assert second_summary["relationBackfillAttemptsRemaining"] == 0
+        assert extraction_calls == [snapshot_id]
+
+        with automatic_client.app.state.database.session() as session:
+            batch_rows = [
+                row
+                for row in session.scalars(
+                    select(AuditLogRecord).where(
+                        AuditLogRecord.target_id == snapshot_id,
+                        AuditLogRecord.action == "extraction.run",
+                    )
+                ).all()
+                if json.loads(row.detail_json).get("relationBackfillBatchId")
+                == "test-core-relations-01"
+            ]
+            assert len(batch_rows) == 1
 
 
 def test_automation_extraction_failure_does_not_block_the_next_snapshot(
