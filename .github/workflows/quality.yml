@@ -96,6 +96,8 @@ jobs:
             --database-url "$EVALUATION_DATABASE_URL" \
             --top-k 8 \
             --evaluation-commit "$GITHUB_SHA"
+          printf '## PostgreSQL 16 lexical retrieval baseline\n\n' >> "$GITHUB_STEP_SUMMARY"
+          sed '1d' ../artifacts/retrieval-postgresql/*.md >> "$GITHUB_STEP_SUMMARY"
       - name: Upload PostgreSQL retrieval baseline
         uses: actions/upload-artifact@v4
         with:
