@@ -234,7 +234,7 @@ def main() -> None:
         "results": results,
     }
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"v{version}_{snapshot_hash[:12]}_lexical_top{args.top_k}"
+    stem = f"v{version}_{snapshot_hash[:12]}_{database_dialect}_lexical_top{args.top_k}"
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
