@@ -1008,12 +1008,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if snapshot_row.id in attempted_snapshot_ids or snapshot_row.id in excluded:
                 continue
             source = session.get(SourceRecord, snapshot_row.source_id)
-            if not source or not source.active or source.auto_paused_at is not None:
+            if not source or not source.active:
                 continue
             # 关系补齐只读取已经持久化的不可变快照，不发起采集请求。因此，位于
-            # 官方白名单内的人工信源也可以参与一次性批次，而无需开启长期自动采集。
-            effective_url = source.fetch_url or source.url
-            host = (urlsplit(effective_url).hostname or "").lower()
+            # 官方白名单内的人工或熔断信源也可以参与一次性批次，而无需恢复联网采集。
+            # 信任边界使用管理员登记的原始官方 URL，不使用为采集兜底准备的镜像地址。
+            host = (urlsplit(source.url).hostname or "").lower()
             if host not in app_settings.fetch_allowed_hosts:
                 continue
             score = sum(
