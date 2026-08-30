@@ -1,9 +1,13 @@
 # AI Radar Spec v2 现状核查
 
-核查日期：2026-08-30（Asia/Shanghai）  
-仓库分支：`codex/productionize`  
-核查提交：`7af7fcee9ae2f315d89a0567e121187342d9ecfb`  
-线上 API：`https://ai-radar-api-staging.onrender.com`  
+核查日期：2026-08-30（Asia/Shanghai）
+
+仓库分支：`codex/productionize`
+
+核查提交：`7af7fcee9ae2f315d89a0567e121187342d9ecfb`
+
+线上 API：`https://ai-radar-api-staging.onrender.com`
+
 公开快照时间：`2026-08-30T20:40:48.679879+08:00`
 
 > 任何代码修改前，必须检查当前仓库真实实现与线上状态；若本 Spec 中任务已经完成，则不得重新实现，应将其标记为 completed / partially completed，并只处理剩余 gap。所有指标目标是验证对象，不是必须达成的 KPI；达不到目标时如实记录原因，不得为了达标而制造数据、放宽人工审核标准，或找不存在的关系硬凑覆盖率。
