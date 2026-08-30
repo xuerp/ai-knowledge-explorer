@@ -67,6 +67,16 @@
 | `competes-with`  |    6 |
 | `based-on`       |    4 |
 
+## 2026-08-31 Epic 2A 复核与交付
+
+公开 staging API 的只读复核显示计数与前一日一致：Entity 49、Claim 196、Evidence 218、Relation 76、Timeline 55；关系 backfill 仍为 10/10 尝试完成、`eligibleSnapshots=0`、覆盖差值 44。
+
+- 关系本体 v1.0.0 已建立，明确关系缺失不是必须补齐的缺口。
+- 发布 schema、审核谓词、抽取提示与前端类型现统一支持 9 个合法谓词；此前只在审核管线存在的 `integrates-with` 已补齐发布链路。
+- 只读诊断绑定快照 SHA-256 `8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e`，确认 212 条官方 Evidence 中 181 条未被关系引用，其中 83 条关联核心实体。
+- 信源清单先安排复核既有 Evidence；只为关系数最低且无未用官方 Evidence 的 4 个实体准备新增官方 URL，URL 去重均为 0 命中。
+- 当前环境 DNS 未通过 `SafeHttpFetcher` 的公网地址校验，4 个候选均未形成 Snapshot。没有绕过安全策略或制造 Evidence，Epic 2B 继续 blocked。
+
 ## 逐 Epic 核查
 
 | Spec 任务项               | 原假设或待核实点                                    | 实际状态                                                                                                                                                                                        | 结论                            |
@@ -78,7 +88,7 @@
 | Epic 1D：Reranker         | 尚未实现                                            | 已有 `ClaimReranker` 扩展接口和单元测试；是否投入真实实现必须等待 1C 的 Precision@8 结果                                                                                                        | partially completed / deferred  |
 | Epic 2A：关系优先能力     | 关系优先模式是否实现、是否执行过                    | 已实现且已执行固定预算批次；批次 `2026-08-core-relations-01` 为 complete，10/10 成功，4 个候选、2 个重复、0 个自动批准                                                                          | completed                       |
 | Epic 2A：可用官方快照     | 是否仍有未使用 snapshot                             | 公开状态 `eligibleSnapshots=0`、`attemptsRemaining=0`；当前瓶颈已转为新的高价值官方 Evidence / Snapshot                                                                                         | completed（核查）               |
-| Epic 2A：Ontology 与诊断  | 是否已有证据驱动的本体和诊断交付物                  | 没有 `docs/RELATION_ONTOLOGY.md`、`scripts/diagnose_relation_gaps.py` 或 `docs/eval/source_gap_worklist.md`                                                                                     | not started                     |
+| Epic 2A：Ontology 与诊断  | 是否已有证据驱动的本体和诊断交付物                  | 关系本体、版本化只读诊断、16 个低覆盖实体的官方信源清单均已完成；诊断不生成主观实体对                                                                                                           | completed                       |
 | Epic 2B：定向抽取         | 是否可立即继续关系抽取                              | 当前没有剩余合格 snapshot；继续前必须完成 2A，新增付费调用还需用户授权                                                                                                                          | blocked by evidence preparation |
 | Epic 3：质量看板          | 是否已有 `/api/quality/metrics` 与 `/quality`       | 已有受保护的 `/api/v2/admin/data-quality` 和审核后台质量信息；没有 Spec 指定的分时间戳聚合 API、公开质量页或评估低频更新机制                                                                    | partially completed             |
 | Epic 4：审核数据          | 现有表能否支持统计                                  | `review_jobs` 已有状态、创建/审核时间、审核人、自由文本 `review_reason` 与乐观并发版本；`audit_log` 有动作、对象、JSON 详情和时间。可计算通过率、驳回率、审核耗时，但无法可靠聚合标准化驳回类别 | partially completed             |
@@ -109,7 +119,7 @@
 | ---: | ----------------------------------- | ------------------------------------- | ------------------------------------------------------ |
 |    0 | Reality Check                       | completed（本报告）                   | 将本报告作为后续所有 Epic 的真实输入                   |
 |    1 | 1A Golden Set + baseline            | completed                             | 保持版本化结果；策略变更时用同一 Golden Set 与快照重跑 |
-|    2 | 2A Ontology / gap / source worklist | pending                               | 只做零费用诊断和官方信源工作清单                       |
+|    2 | 2A Ontology / gap / source worklist | completed                             | 保持证据驱动；候选 Snapshot 未安全形成前不进入 2B      |
 |    3 | 1B 别名归一化                       | pending                               | 依赖 1A 基线，做同版本前后对比                         |
 |    4 | 1C Embedding / hybrid               | pending authorization and benchmark   | 不调用付费 API，不预选模型                             |
 |    5 | 1D Reranker                         | deferred                              | 仅在 1C 显示 Precision@8 确有问题时启动                |
@@ -130,4 +140,4 @@
 - [x] 已把统一强制前缀写入本报告和执行版 Spec。
 - [x] 所有无法从公开接口核实的私有数据均明确标为无法核实，没有用公开字段代替。
 
-Epic 0 与 Epic 1A 已达到可执行节点。下一步进入 Epic 2A 的零费用关系本体、只读诊断与官方信源缺口清单；不得越过 2A 进入 2B。
+Epic 0、Epic 1A 与 Epic 2A 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked；按 Spec 顺序，下一个可执行节点是 Epic 1B 的实体别名归一化与同版本前后对照。

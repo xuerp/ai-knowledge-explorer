@@ -45,14 +45,17 @@
 4. [x] 运行 SQLite 便携式 lexical baseline 并记录真实指标。
 5. [x] 使用完全相同的版本组合在隔离 PostgreSQL 16 上重跑，形成 PostgreSQL lexical FTS 最终基线。
 
-### Epic 2A：关系本体与官方信源缺口映射 — pending
+### Epic 2A：关系本体与官方信源缺口映射 — completed
 
-关系抽取能力已完成，当前不再实现 backfill。剩余任务：
+关系抽取能力和固定预算 backfill 已存在，不重复实现。2026-08-31 已完成以下证据驱动交付物：
 
-1. 新建关系本体文档，并声明本体是合法取值约束而非关系配额。
-2. 新建只读诊断脚本，输出实体覆盖、本体类型覆盖、未支撑关系的既有 Evidence；不输出主观的“应存在关系对”。
-3. 基于诊断建立官方信源缺口清单。
-4. 在轮到 2B 前只准备与去重 Snapshot；没有用户授权时不触发新模型调用。
+1. [x] 新建 `docs/RELATION_ONTOLOGY.md`，声明本体是合法取值约束而非关系配额，并将 `integrates-with` 的后端发布 schema、抽取提示和前端类型补齐到同一边界。
+2. [x] 新建 `scripts/diagnose_relation_gaps.py`，输出实体覆盖、本体类型覆盖、未支撑关系的既有官方 Evidence；不输出主观的“应存在关系对”。
+3. [x] 生成版本化真实诊断：19 个核心实体、16 个低于既有阈值、覆盖差值 44、181 条官方 Evidence 未被关系引用，其中 83 条关联核心实体。
+4. [x] 基于诊断建立 `docs/eval/source_gap_worklist.md`，逐一评估 16 个低覆盖实体。
+5. [x] 对首批 4 个新增官方 URL 完成 Evidence URL 去重，均为 0 命中；使用现有安全抓取器准备 Snapshot 时，因当前环境 DNS 未通过公网地址校验而被正确阻止。没有绕过安全策略、伪造 Snapshot、写数据库或调用模型。
+
+Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot 安全抓取失败是 Epic 2B 的显式 Evidence 前置阻塞，不把 2A 的诊断结果伪装成已采集证据。
 
 ### Epic 1B：实体别名归一化 — pending after 1A
 
@@ -68,7 +71,7 @@
 
 ### Epic 2B：定向关系抽取 — blocked
 
-当前 `eligibleSnapshots=0`。必须先完成 2A 和新 Evidence 准备；如需新增付费调用，再获得用户明确授权。新增关系全部进入人工审核，不自动批准。
+当前 `eligibleSnapshots=0`。Epic 2A 已完成，但首批 4 个去重后的官方候选 URL 在当前执行环境中未通过安全抓取器的 DNS 公网地址校验，尚无可用 Snapshot。必须先在受信任采集环境完成 Snapshot / Diff；如需新增付费调用，再获得用户明确授权。新增关系全部进入人工审核，不自动批准。
 
 ### Epic 3：数据质量看板 — pending after evaluation metrics
 
@@ -88,4 +91,4 @@
 
 ## 当前可执行节点
 
-Epic 1A 已完成。下一个主线任务是 Epic 2A：关系本体、只读缺口诊断与官方信源工作清单；不得越过 2A 进入 2B。Epic 1B 已解除 1A 前置依赖，但仍按本文顺序排在 2A 之后。
+Epic 0、1A、2A 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。按 Spec 顺序，下一个可执行主线节点是 Epic 1B：实体别名归一化；先核实是否需要独立 alias 表，再用同一 Golden Set / snapshot 做前后对照。

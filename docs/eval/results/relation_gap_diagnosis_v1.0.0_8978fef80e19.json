@@ -1,0 +1,3869 @@
+{
+  "metadata": {
+    "diagnosisVersion": "1.0.0",
+    "snapshotPath": "docs/eval/snapshots/public_snapshot_2026-08-30.json",
+    "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
+    "snapshotRetrievedAt": "2026-08-30T12:53:42.447278+00:00",
+    "relationOntologyKinds": [
+      "developed-by",
+      "based-on",
+      "competes-with",
+      "benchmarked-on",
+      "uses",
+      "cited-by",
+      "part-of",
+      "successor-of",
+      "integrates-with"
+    ],
+    "coreEntityRule": "top-level model families plus agent and framework entities",
+    "qualityThresholdReference": 5
+  },
+  "summary": {
+    "publishedRelations": 76,
+    "publishedGroundedRelations": 76,
+    "coreEntities": 19,
+    "coreEntitiesBelowExistingQualityThreshold": 16,
+    "distanceToExistingQualityThreshold": 44,
+    "officialEvidence": 212,
+    "officialEvidenceUnusedByRelations": 181,
+    "unusedOfficialEvidenceAssociatedWithCoreEntities": 83
+  },
+  "coreEntityCoverage": [
+    {
+      "entityId": "e-autogen",
+      "name": {
+        "zh": "AutoGen",
+        "en": "AutoGen"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 1,
+      "distanceToExistingQualityThreshold": 4
+    },
+    {
+      "entityId": "e-crewai",
+      "name": {
+        "zh": "CrewAI",
+        "en": "CrewAI"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 1,
+      "distanceToExistingQualityThreshold": 4
+    },
+    {
+      "entityId": "e-devin",
+      "name": {
+        "zh": "Devin",
+        "en": "Devin"
+      },
+      "entityType": "agent",
+      "publishedGroundedRelations": 1,
+      "distanceToExistingQualityThreshold": 4
+    },
+    {
+      "entityId": "e-manus",
+      "name": {
+        "zh": "Manus",
+        "en": "Manus"
+      },
+      "entityType": "agent",
+      "publishedGroundedRelations": 1,
+      "distanceToExistingQualityThreshold": 4
+    },
+    {
+      "entityId": "e-codex",
+      "name": {
+        "zh": "OpenAI Codex",
+        "en": "OpenAI Codex"
+      },
+      "entityType": "agent",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-doubao",
+      "name": {
+        "zh": "豆包 Doubao",
+        "en": "Doubao"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-gemini-cli",
+      "name": {
+        "zh": "Gemini CLI",
+        "en": "Gemini CLI"
+      },
+      "entityType": "agent",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-kimi",
+      "name": {
+        "zh": "Kimi",
+        "en": "Kimi"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-langgraph",
+      "name": {
+        "zh": "LangGraph",
+        "en": "LangGraph"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-openai-agents-sdk",
+      "name": {
+        "zh": "OpenAI Agents SDK",
+        "en": "OpenAI Agents SDK"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 2,
+      "distanceToExistingQualityThreshold": 3
+    },
+    {
+      "entityId": "e-claude-code",
+      "name": {
+        "zh": "Claude Code",
+        "en": "Claude Code"
+      },
+      "entityType": "agent",
+      "publishedGroundedRelations": 3,
+      "distanceToExistingQualityThreshold": 2
+    },
+    {
+      "entityId": "e-ernie",
+      "name": {
+        "zh": "文心一言 ERNIE Bot",
+        "en": "ERNIE Bot"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 3,
+      "distanceToExistingQualityThreshold": 2
+    },
+    {
+      "entityId": "e-mcp",
+      "name": {
+        "zh": "Model Context Protocol",
+        "en": "Model Context Protocol"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 3,
+      "distanceToExistingQualityThreshold": 2
+    },
+    {
+      "entityId": "e-qwen",
+      "name": {
+        "zh": "通义千问 Qwen",
+        "en": "Qwen"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 3,
+      "distanceToExistingQualityThreshold": 2
+    },
+    {
+      "entityId": "e-deepseek",
+      "name": {
+        "zh": "DeepSeek 系列",
+        "en": "DeepSeek family"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 4,
+      "distanceToExistingQualityThreshold": 1
+    },
+    {
+      "entityId": "e-gemini",
+      "name": {
+        "zh": "Gemini 系列",
+        "en": "Gemini family"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 4,
+      "distanceToExistingQualityThreshold": 1
+    },
+    {
+      "entityId": "e-langchain",
+      "name": {
+        "zh": "LangChain",
+        "en": "LangChain"
+      },
+      "entityType": "framework",
+      "publishedGroundedRelations": 7,
+      "distanceToExistingQualityThreshold": 0
+    },
+    {
+      "entityId": "e-claude",
+      "name": {
+        "zh": "Claude 系列",
+        "en": "Claude family"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 8,
+      "distanceToExistingQualityThreshold": 0
+    },
+    {
+      "entityId": "e-gpt",
+      "name": {
+        "zh": "GPT 系列",
+        "en": "GPT family"
+      },
+      "entityType": "model",
+      "publishedGroundedRelations": 14,
+      "distanceToExistingQualityThreshold": 0
+    }
+  ],
+  "ontologyCoverage": [
+    {
+      "relationKind": "developed-by",
+      "publishedGroundedRelations": 13
+    },
+    {
+      "relationKind": "based-on",
+      "publishedGroundedRelations": 4
+    },
+    {
+      "relationKind": "competes-with",
+      "publishedGroundedRelations": 6
+    },
+    {
+      "relationKind": "benchmarked-on",
+      "publishedGroundedRelations": 10
+    },
+    {
+      "relationKind": "uses",
+      "publishedGroundedRelations": 12
+    },
+    {
+      "relationKind": "cited-by",
+      "publishedGroundedRelations": 0
+    },
+    {
+      "relationKind": "part-of",
+      "publishedGroundedRelations": 20
+    },
+    {
+      "relationKind": "successor-of",
+      "publishedGroundedRelations": 11
+    },
+    {
+      "relationKind": "integrates-with",
+      "publishedGroundedRelations": 0
+    }
+  ],
+  "unusedOfficialEvidence": [
+    {
+      "evidenceId": "evidence-00e461b0d7a97835f264",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k3"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-00e461b0d7a97835f264"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0118c2584652c3ae00a2",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-0118c2584652c3ae00a2"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0456fcc08c1b9651e461",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-0456fcc08c1b9651e461"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0bb5fe18f20b9d37d620",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-0bb5fe18f20b9d37d620"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0ca5886d7cce38744c4e",
+      "title": {
+        "zh": "Moonshot AI 模型与研究动态",
+        "en": "Moonshot AI 模型与研究动态"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://www.moonshot.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi"
+      ],
+      "associatedCoreEntityIds": [
+        "e-kimi"
+      ],
+      "supportedClaimIds": [
+        "claim-0ca5886d7cce38744c4e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0f2b9f758b0f58398ef7",
+      "title": {
+        "zh": "Gemini API 官方更新日志",
+        "en": "Gemini API 官方更新日志"
+      },
+      "publisher": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gemini"
+      ],
+      "associatedCoreEntityIds": [
+        "e-gemini"
+      ],
+      "supportedClaimIds": [
+        "claim-0f2b9f758b0f58398ef7"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-0ffb64747e7a0626d653",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-0ffb64747e7a0626d653"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-10b5e8c77ee04336-msq25f34",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-10c240632ac093bc9152",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-10c240632ac093bc9152"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1176c1661b5a43b0362d",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1176c1661b5a43b0362d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-14f5b73d8708bbc4a360",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-25",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-14f5b73d8708bbc4a360"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1519244ae09190af0d74",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-1519244ae09190af0d74"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-15263d7ff2dfc3b95ce9",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-15263d7ff2dfc3b95ce9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1718168ed069ec20533c",
+      "title": {
+        "zh": "OpenAI 弃用与下线记录",
+        "en": "OpenAI 弃用与下线记录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1718168ed069ec20533c"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1b0f409b34194dc20bc3",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1b0f409b34194dc20bc3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1b95f8c29e8060f435e5",
+      "title": {
+        "zh": "OpenAI 弃用与下线记录",
+        "en": "OpenAI 弃用与下线记录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1b95f8c29e8060f435e5"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1c42ca631a6caa60e4fe",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-25",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-957f78f08bcffaa45776"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1cf0729c9d4759a7ab0d",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Cursor Agent 官方文档"
+      },
+      "publisher": "Cursor",
+      "url": "https://cursor.com/docs",
+      "publishedAt": "2026-08-17",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-1cf0729c9d4759a7ab0d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1d379a59788c82f7c2a0",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k3"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1d379a59788c82f7c2a0"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1df943f17b88c67f915b",
+      "title": {
+        "zh": "文心 ERNIE 5.0 技术报告",
+        "en": "文心 ERNIE 5.0 技术报告"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie5.0",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-50"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1df943f17b88c67f915b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-1fdb85142657f6812e18",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k3"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-1fdb85142657f6812e18"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-204d387cd78583653f04",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-204d387cd78583653f04"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-21ed507207e65f133a8d",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-21ed507207e65f133a8d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-22b1f161b39c7a6dc3ba",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-22b1f161b39c7a6dc3ba"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-263c6b747ae00eacada2",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-263c6b747ae00eacada2"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-26b1d5225baf5e9bf207",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-26b1d5225baf5e9bf207"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-28476f793c22ba4bc0b4",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-28476f793c22ba4bc0b4"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-2883d69731b3106d64a8",
+      "title": {
+        "zh": "ERNIE 4.5 模型系列正式开源",
+        "en": "ERNIE 4.5 模型系列正式开源"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-ernie-45"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-2883d69731b3106d64a8"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-2dd7114eca1f06d79501",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-2dd7114eca1f06d79501"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-30074cb26f8e04cba0f2",
+      "title": {
+        "zh": "Gemini API 官方更新日志",
+        "en": "Gemini API 官方更新日志"
+      },
+      "publisher": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gemini"
+      ],
+      "associatedCoreEntityIds": [
+        "e-gemini"
+      ],
+      "supportedClaimIds": [
+        "claim-30074cb26f8e04cba0f2"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-30a448880d11cfd14526",
+      "title": {
+        "zh": "ERNIE 4.5 模型系列正式开源",
+        "en": "ERNIE 4.5 模型系列正式开源"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-ernie-45"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-30a448880d11cfd14526"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-36513ae7dedc09e1fc93",
+      "title": {
+        "zh": "Anthropic Claude API 更新日志",
+        "en": "Anthropic Claude API 更新日志"
+      },
+      "publisher": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "publishedAt": "2026-08-29",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-36513ae7dedc09e1fc93"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-36b63a10cf3d42e607d0",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-36b63a10cf3d42e607d0"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-37d0d89648d2a393d0c3",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-langchain"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langchain"
+      ],
+      "supportedClaimIds": [
+        "claim-37d0d89648d2a393d0c3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-38cd91454308c906fc2e",
+      "title": {
+        "zh": "Anthropic Claude API 更新日志",
+        "en": "Anthropic Claude API 更新日志"
+      },
+      "publisher": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "publishedAt": "2026-08-29",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-38cd91454308c906fc2e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-39d21cb402f8fa3fb78f",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Cursor Agent 官方文档"
+      },
+      "publisher": "Cursor",
+      "url": "https://cursor.com/docs",
+      "publishedAt": "2026-08-17",
+      "associatedEntityIds": [
+        "e-cursor"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a3e4d4f1e21a727d98cf"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-3af2b5a5730aaf348a0d",
+      "title": {
+        "zh": "Gemini API 官方更新日志",
+        "en": "Gemini API 官方更新日志"
+      },
+      "publisher": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-gemini-15-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-3af2b5a5730aaf348a0d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-3bff854813e3b3c31dd9",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-3bff854813e3b3c31dd9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-3d5d2da944a152e3a050",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-3d5d2da944a152e3a050"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-3e7ba4de99f29534fffd",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-langchain"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langchain"
+      ],
+      "supportedClaimIds": [
+        "claim-3e7ba4de99f29534fffd"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-3ec4878162e369974a0b",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-3ec4878162e369974a0b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-40c4970f43275ebe6ca6",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-40c4970f43275ebe6ca6"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-40da0986ded48569404c",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-40da0986ded48569404c"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-443a8f47cbe2117e1aff",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-28",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-443a8f47cbe2117e1aff"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-44a75c23edcd9681adda",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-44a75c23edcd9681adda"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-46a65791b4fe4379aa31",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-46a65791b4fe4379aa31"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-4799cf4d38cec65fca19",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-4799cf4d38cec65fca19"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-48213f05b19dcaf25309",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-48213f05b19dcaf25309"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-4c4c5c82687fd61b55d5",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-4c4c5c82687fd61b55d5"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-4d44703b700a9e08516e",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-4d44703b700a9e08516e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-4f8f8d405cca177b06a3",
+      "title": {
+        "zh": "Gemini API 官方更新日志",
+        "en": "Gemini API 官方更新日志"
+      },
+      "publisher": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gemini"
+      ],
+      "associatedCoreEntityIds": [
+        "e-gemini"
+      ],
+      "supportedClaimIds": [
+        "claim-4f8f8d405cca177b06a3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-4fd46ae604567d5065bd",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-4fd46ae604567d5065bd"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-50c69855c226a60323a7",
+      "title": {
+        "zh": "Attention Is All You Need 论文",
+        "en": "Attention Is All You Need 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-transformer-paper"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-50c69855c226a60323a7"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-514a641cc94e8c2e9089",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-514a641cc94e8c2e9089"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-567e0fde453f45cc666b",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-567e0fde453f45cc666b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-56e09e8a092cf475a286",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-56e09e8a092cf475a286"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-586c43110316fad28627",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-586c43110316fad28627"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-5aaf53f59267692a608e",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-5aaf53f59267692a608e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-5ea35a7e0f8dc4e729a9",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-5ea35a7e0f8dc4e729a9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-60772eb088c4d19aaa68",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-25",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-60772eb088c4d19aaa68"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-60b87db2ddd7abbb6700",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-langgraph"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langgraph"
+      ],
+      "supportedClaimIds": [
+        "claim-60b87db2ddd7abbb6700"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-625b492fabee4c224e4f",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-625b492fabee4c224e4f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-62739809ef16538072a1",
+      "title": {
+        "zh": "ERNIE 4.5 模型系列正式开源",
+        "en": "ERNIE 4.5 模型系列正式开源"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-ernie-45"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-62739809ef16538072a1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-62e6a41540009d41ae38",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-62e6a41540009d41ae38"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-64413a939e7a8f19b690",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-64413a939e7a8f19b690"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-651c65451adfbda8426e",
+      "title": {
+        "zh": "Attention Is All You Need 论文",
+        "en": "Attention Is All You Need 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-transformer-paper"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-651c65451adfbda8426e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-67cdd43c2bbc5c3c9094",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao"
+      ],
+      "associatedCoreEntityIds": [
+        "e-doubao"
+      ],
+      "supportedClaimIds": [
+        "claim-67cdd43c2bbc5c3c9094"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-67fa626d90510874782c",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-67fa626d90510874782c"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-68c09107f4d766a73a57",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-28",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-68c09107f4d766a73a57"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-691968ccd94f1eb55eff",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k3"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-691968ccd94f1eb55eff"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-69211c3a50070e32e98d",
+      "title": {
+        "zh": "Google Gemini 2.5 Pro 更新",
+        "en": "Google Gemini 2.5 Pro 更新"
+      },
+      "publisher": "Google DeepMind",
+      "url": "https://deepmind.google",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-google"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-69211c3a50070e32e98d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-6bc3e8040e503b9761af",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-langchain"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langchain"
+      ],
+      "supportedClaimIds": [
+        "claim-6bc3e8040e503b9761af"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-6d9735b8089f5c019ba7",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-24",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-6d9735b8089f5c019ba7"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-6dc90055ed5cbd2e235f",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-6dc90055ed5cbd2e235f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-6f9aaf8ca2c9c500592f",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-6f9aaf8ca2c9c500592f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-722c98db171d7018b8b3",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-722c98db171d7018b8b3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-739edf11461045ce579e",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-739edf11461045ce579e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-73b3ff0afe9ef5d63fc9",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-73b3ff0afe9ef5d63fc9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-74fd2e6ec62f858d75cc",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-74fd2e6ec62f858d75cc"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-764a228633c0890763fc",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-25",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-764a228633c0890763fc"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-776021b93f0cc62f59d8",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-776021b93f0cc62f59d8"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-789db8e8444fba20797b",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-789db8e8444fba20797b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-7933c8f3e2e3532a7382",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-7933c8f3e2e3532a7382"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-7a980fecbd8f15bc1c83",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-7a980fecbd8f15bc1c83"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-7b675cc727012f320129",
+      "title": {
+        "zh": "OpenAI 弃用与下线记录",
+        "en": "OpenAI 弃用与下线记录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-7b675cc727012f320129"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-7e1ecc910190000a0cd3",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-7e1ecc910190000a0cd3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-7f8f68faa57b9c45c7bc",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-7f8f68faa57b9c45c7bc"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-811c19b9a402e4282b29",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-811c19b9a402e4282b29"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-826b91a6442532db10e4",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-852c17dc4b53a389f8d9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-852c17dc4b53a389f8d9",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-852c17dc4b53a389f8d9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-87feb225a273a9eac10b",
+      "title": {
+        "zh": "Gemini API 官方更新日志",
+        "en": "Gemini API 官方更新日志"
+      },
+      "publisher": "Google",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publishedAt": "2026-08-24",
+      "associatedEntityIds": [
+        "e-gemini-15-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-87feb225a273a9eac10b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-8952825de5396e9a8f32",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-8952825de5396e9a8f32"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-8a2943bc0365104acd20",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-codex"
+      ],
+      "associatedCoreEntityIds": [
+        "e-codex"
+      ],
+      "supportedClaimIds": [
+        "claim-8a2943bc0365104acd20"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-8a595db59a1aa15c3d51",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-8a595db59a1aa15c3d51"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-8ebb1d7e525930e855ad",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-8ebb1d7e525930e855ad"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-8f1b9dca9176013f7989",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-8f1b9dca9176013f7989"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-907e86c15632fdc031a7",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed20-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-907e86c15632fdc031a7"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-90b09d0c9745cbcb877b",
+      "title": {
+        "zh": "OpenAI 弃用与下线记录",
+        "en": "OpenAI 弃用与下线记录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-90b09d0c9745cbcb877b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-9198f4054e0c204fc1a9",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-9198f4054e0c204fc1a9"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-93e11b12cd81ffd645d1",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-93e11b12cd81ffd645d1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-946116b1be917420287c",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-946116b1be917420287c"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-957f78f08bcffaa45776",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-957f78f08bcffaa45776"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-964dfcfbc1b85062f986",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-964dfcfbc1b85062f986"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-9846a95a58624a071559",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-9846a95a58624a071559"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-9a17a4c22c2c11a5c5e1",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-9a17a4c22c2c11a5c5e1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-9a28d268080030afc6a8",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao"
+      ],
+      "associatedCoreEntityIds": [
+        "e-doubao"
+      ],
+      "supportedClaimIds": [
+        "claim-9a28d268080030afc6a8"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a18286f8beb841d14f78",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a18286f8beb841d14f78"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a3787c9919a5b1c28bee",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-a3787c9919a5b1c28bee"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a3e4d4f1e21a727d98cf",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Cursor Agent 官方文档"
+      },
+      "publisher": "Cursor",
+      "url": "https://cursor.com/docs",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-cursor"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a3e4d4f1e21a727d98cf"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a3fb5a9e3c7830c7f813",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a3fb5a9e3c7830c7f813"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a57816a743988f53e8b2",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a57816a743988f53e8b2"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a639efc294dac838279d",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a639efc294dac838279d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a65e9a56c5b78f050219",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed20-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a65e9a56c5b78f050219"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a6bf7bb89ea9aeb1e43b",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a6bf7bb89ea9aeb1e43b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a7628b6146867f51e14e",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a7628b6146867f51e14e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a843b7fd4e1a92e8a729",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-a843b7fd4e1a92e8a729"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-a8bb22fe32d08f888656",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-a8bb22fe32d08f888656"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-aa028d98f64ccca7df43",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-aa028d98f64ccca7df43"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-aa5ba10ed3df283961e4",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed20-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-aa5ba10ed3df283961e4"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ab7cc2db59c77666bd0b",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-ab7cc2db59c77666bd0b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ad870454da073e213a53",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-ad870454da073e213a53"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-aec3ec964cca35fb7ce0",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-aec3ec964cca35fb7ce0"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b0df5acad928b3ed9397",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-d09942e317650cc3435d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b16d6589cd7104289b88",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-b16d6589cd7104289b88"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b2e468b130a220c586ae",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-b2e468b130a220c586ae"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b2e9f9013b8927ec86bd",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed20-pro"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-b2e9f9013b8927ec86bd"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b31d73d2f91be48f6c5d",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Cursor Agent 官方文档"
+      },
+      "publisher": "Cursor",
+      "url": "https://cursor.com/docs",
+      "publishedAt": "2026-08-17",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-b31d73d2f91be48f6c5d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b4baf2feae10cc1faa7b",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-b4baf2feae10cc1faa7b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b544c4cb8c1e5187ade6",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-b544c4cb8c1e5187ade6"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b743aa575bc8317ca642",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-b743aa575bc8317ca642"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b87bc199a75ca6194a14",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-b87bc199a75ca6194a14"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-b966d05482e2862a2284",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-b966d05482e2862a2284"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-bc0878766ddba613fcef",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-bc0878766ddba613fcef"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-bcdb62855ed445165f1f",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-bcdb62855ed445165f1f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-bd0a65120b54c60efae5",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-bd0a65120b54c60efae5"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-bd61b1b266dd6e00f84e",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-29",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-bd61b1b266dd6e00f84e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-bedca8ceed0954f4bc73",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-bedca8ceed0954f4bc73"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c05a2d6e012bd55d093a",
+      "title": {
+        "zh": "OpenAI API 更新日志",
+        "en": "OpenAI API 更新日志"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-codex"
+      ],
+      "associatedCoreEntityIds": [
+        "e-codex"
+      ],
+      "supportedClaimIds": [
+        "claim-c05a2d6e012bd55d093a"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c11dc762b2d1f7bbc92a",
+      "title": {
+        "zh": "Moonshot AI 模型与研究动态",
+        "en": "Moonshot AI 模型与研究动态"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://www.moonshot.ai",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-kimi"
+      ],
+      "associatedCoreEntityIds": [
+        "e-kimi"
+      ],
+      "supportedClaimIds": [
+        "claim-c11dc762b2d1f7bbc92a"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c138e58e601447cb2f39",
+      "title": {
+        "zh": "MMLU-Pro 论文",
+        "en": "MMLU-Pro 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mmlu"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-c138e58e601447cb2f39"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c197b2fed5266444ac67",
+      "title": {
+        "zh": "Attention Is All You Need 论文",
+        "en": "Attention Is All You Need 论文"
+      },
+      "publisher": "arXiv",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-transformer-paper"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-c197b2fed5266444ac67"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c1fd4b401bb605572fed",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-c1fd4b401bb605572fed"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c39776a16ff86e810567",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-c39776a16ff86e810567"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c544c2ed2ada9fb5a54b",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-c544c2ed2ada9fb5a54b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c782db99397aad682725",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-c782db99397aad682725"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c7a1857e394448993d93",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-c7a1857e394448993d93"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-c9729d582aad30fb2ef1",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-c9729d582aad30fb2ef1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ccdb4b7fd2ff7c5ff3b3",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k3"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-ccdb4b7fd2ff7c5ff3b3"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ce8bf109d9ca8dda5e63",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-ce8bf109d9ca8dda5e63"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-cf94fdbaa29a323ff09b",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-kimi"
+      ],
+      "associatedCoreEntityIds": [
+        "e-kimi"
+      ],
+      "supportedClaimIds": [
+        "claim-cf94fdbaa29a323ff09b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d09942e317650cc3435d",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-d09942e317650cc3435d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d164b5c3859aa142e64b",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-d164b5c3859aa142e64b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d46b4538f9f9a620139e",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi-k26"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-d46b4538f9f9a620139e"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d52e477b9559be80d40d",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-d52e477b9559be80d40d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d598a28918ce07b143fa",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-d598a28918ce07b143fa"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-d8c42aa4195b98cd5d4f",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-d8c42aa4195b98cd5d4f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-dd07fb638a7530ff2309",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-dd07fb638a7530ff2309"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-dd89bd1c8f5c53c061b1",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-langchain"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langchain"
+      ],
+      "supportedClaimIds": [
+        "claim-dd89bd1c8f5c53c061b1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e021559c9e3184633bb6",
+      "title": {
+        "zh": "Cursor Agent 官方文档",
+        "en": "Cursor Agent 官方文档"
+      },
+      "publisher": "Cursor",
+      "url": "https://cursor.com/docs",
+      "publishedAt": "2026-08-17",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-e021559c9e3184633bb6"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e3c74e6b9e4d6be016cd",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-langgraph"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langgraph"
+      ],
+      "supportedClaimIds": [
+        "claim-e3c74e6b9e4d6be016cd"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e7774c003f95b0404903",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-e7774c003f95b0404903"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e88536c0e20174d180b0",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-e88536c0e20174d180b0"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e9324ee0b76670b71b21",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-langgraph"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langgraph"
+      ],
+      "supportedClaimIds": [
+        "claim-e9324ee0b76670b71b21"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-e94705444bf4a1103976",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-e94705444bf4a1103976"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ea299deb61fc0d5eaa5a",
+      "title": {
+        "zh": "OpenAI 模型目录",
+        "en": "OpenAI 模型目录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-gpt-5"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-ea299deb61fc0d5eaa5a"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-eaf61ae41460b6ee9d7d",
+      "title": {
+        "zh": "LangChain 官方框架概览",
+        "en": "LangChain 官方框架概览"
+      },
+      "publisher": "LangChain",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-langgraph"
+      ],
+      "associatedCoreEntityIds": [
+        "e-langgraph"
+      ],
+      "supportedClaimIds": [
+        "claim-eaf61ae41460b6ee9d7d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ecd9836d9329e8439569",
+      "title": {
+        "zh": "字节跳动 Seed 2.0 官方发布",
+        "en": "字节跳动 Seed 2.0 官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao"
+      ],
+      "associatedCoreEntityIds": [
+        "e-doubao"
+      ],
+      "supportedClaimIds": [
+        "claim-ecd9836d9329e8439569"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-ee0aaa3d27f27adc8c0f",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-ee0aaa3d27f27adc8c0f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-efbc349eb971644543eb",
+      "title": {
+        "zh": "Kimi API 平台与最新模型目录",
+        "en": "Kimi API 平台与最新模型目录"
+      },
+      "publisher": "Moonshot AI",
+      "url": "https://platform.kimi.ai",
+      "publishedAt": "2026-08-26",
+      "associatedEntityIds": [
+        "e-kimi"
+      ],
+      "associatedCoreEntityIds": [
+        "e-kimi"
+      ],
+      "supportedClaimIds": [
+        "claim-efbc349eb971644543eb"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f160486f6dd1f6c4205d",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-f160486f6dd1f6c4205d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f1e2af967f065102bbde",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-f1e2af967f065102bbde"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f54e84647bf091f465d2",
+      "title": {
+        "zh": "OpenAI 弃用与下线记录",
+        "en": "OpenAI 弃用与下线记录"
+      },
+      "publisher": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publishedAt": "2026-08-22",
+      "associatedEntityIds": [
+        "e-openai"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-f54e84647bf091f465d2"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f660ca6122fa1f704d0d",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-f660ca6122fa1f704d0d"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f6c45a629d85f7abeb1f",
+      "title": {
+        "zh": "文心 ERNIE 5.1 官方发布",
+        "en": "文心 ERNIE 5.1 官方发布"
+      },
+      "publisher": "Baidu ERNIE",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-ernie-51"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-f6c45a629d85f7abeb1f"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f73421ce48a5cc77b359",
+      "title": {
+        "zh": "Qwen 模型版本说明",
+        "en": "Qwen 模型版本说明"
+      },
+      "publisher": "Alibaba Qwen",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-qwen"
+      ],
+      "associatedCoreEntityIds": [
+        "e-qwen"
+      ],
+      "supportedClaimIds": [
+        "claim-f73421ce48a5cc77b359"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-f94f9f7b5033aa600b03",
+      "title": {
+        "zh": "Seed1.8 通用 Agent 模型官方发布",
+        "en": "Seed1.8 通用 Agent 模型官方发布"
+      },
+      "publisher": "ByteDance Seed",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-doubao-seed18"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-f94f9f7b5033aa600b03"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-fa38113d856b439d625a",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-14",
+      "associatedEntityIds": [
+        "e-claude"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude"
+      ],
+      "supportedClaimIds": [
+        "claim-fa38113d856b439d625a"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-fbb75f711e265a8f9f29",
+      "title": {
+        "zh": "MCP 官方架构概览",
+        "en": "MCP 官方架构概览"
+      },
+      "publisher": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "publishedAt": "2026-08-12",
+      "associatedEntityIds": [
+        "e-mcp"
+      ],
+      "associatedCoreEntityIds": [
+        "e-mcp"
+      ],
+      "supportedClaimIds": [
+        "claim-fbb75f711e265a8f9f29"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-fe1416642f52fa55ce45",
+      "title": {
+        "zh": "Anthropic Claude 4.5 系统卡",
+        "en": "Anthropic Claude 4.5 系统卡"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com",
+      "publishedAt": "2026-08-13",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-fe1416642f52fa55ce45"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-fe7400a84c600dfb05d1",
+      "title": {
+        "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+        "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "publishedAt": "2026-08-27",
+      "associatedEntityIds": [
+        "e-claude-code"
+      ],
+      "associatedCoreEntityIds": [
+        "e-claude-code"
+      ],
+      "supportedClaimIds": [
+        "claim-fe7400a84c600dfb05d1"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    },
+    {
+      "evidenceId": "evidence-fe887b41fe0b5d0518e1",
+      "title": {
+        "zh": "Anthropic：公司、使命与研究方向",
+        "en": "Anthropic：公司、使命与研究方向"
+      },
+      "publisher": "Anthropic",
+      "url": "https://www.anthropic.com/company",
+      "publishedAt": "2026-08-20",
+      "associatedEntityIds": [
+        "e-anthropic"
+      ],
+      "associatedCoreEntityIds": [],
+      "supportedClaimIds": [
+        "claim-d164b5c3859aa142e64b"
+      ],
+      "timelineEntryIds": [],
+      "entityReferenceIds": []
+    }
+  ],
+  "interpretationBoundary": "This diagnosis reports observed coverage and unused official evidence only. It does not propose entity pairs that should have relations, and the distance to the existing quality threshold is not a publication quota."
+}

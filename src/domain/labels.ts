@@ -29,4 +29,5 @@ export const RELATION_LABELS: Record<RelationKind, LocalizedText> = {
   "cited-by": { zh: "被引用", en: "Cited by" },
   "part-of": { zh: "属于", en: "Part of" },
   "successor-of": { zh: "继任", en: "Successor of" },
+  "integrates-with": { zh: "集成", en: "Integrates with" },
 };

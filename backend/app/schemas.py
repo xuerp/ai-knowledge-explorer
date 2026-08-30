@@ -21,6 +21,28 @@ class LocalizedText(CamelModel):
 
 
 Confidence = Literal["verified", "inferred", "unverified", "conflict"]
+RelationKind = Literal[
+    "developed-by",
+    "based-on",
+    "competes-with",
+    "benchmarked-on",
+    "uses",
+    "cited-by",
+    "part-of",
+    "successor-of",
+    "integrates-with",
+]
+RELATION_KINDS: tuple[RelationKind, ...] = (
+    "developed-by",
+    "based-on",
+    "competes-with",
+    "benchmarked-on",
+    "uses",
+    "cited-by",
+    "part-of",
+    "successor-of",
+    "integrates-with",
+)
 
 
 class Evidence(CamelModel):
@@ -152,16 +174,7 @@ class GraphEdge(CamelModel):
     id: str
     from_id: str
     to_id: str
-    kind: Literal[
-        "developed-by",
-        "based-on",
-        "competes-with",
-        "benchmarked-on",
-        "uses",
-        "cited-by",
-        "part-of",
-        "successor-of",
-    ]
+    kind: RelationKind
     label: LocalizedText | None = None
     confidence: Confidence
     source_ids: list[str]

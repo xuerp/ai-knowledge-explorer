@@ -200,8 +200,12 @@ def test_extraction_keeps_balanced_allocation_before_claim_threshold_is_met():
     assert result == []
 
 
-def test_extraction_audit_only_accepts_the_current_pipeline_version():
+def test_extraction_audit_accepts_current_and_compatible_pipeline_versions():
     assert extraction_audit_is_current(json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}))
+    assert extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-08-symmetric-relation-dedup-v7"})
+    )
+    assert extraction_audit_is_current(json.dumps({"pipelineVersion": "retired-pipeline"})) is False
     assert extraction_audit_is_current("{}") is False
     assert extraction_audit_is_current("not-json") is False
 
