@@ -97,6 +97,7 @@ from .schemas import (
     ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
+    RelationBackfillStatus,
     RelationClaimAuditItem,
     RelationClaimAuditReport,
     RelationClaimRepairItem,
@@ -315,6 +316,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 detail="Database readiness check failed.",
             ) from error
         return health()
+
+    @app.get(
+        "/api/v2/public/relation-backfill-status",
+        response_model=RelationBackfillStatus,
+    )
+    def public_relation_backfill_status(
+        session: SessionDependency,
+    ) -> RelationBackfillStatus:
+        return get_relation_backfill_status(session)
 
     @app.post("/api/v2/auth/bootstrap", response_model=TokenResponse)
     def bootstrap_user(
@@ -961,23 +971,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if not batch_id or budget <= 0:
             return [], 0
 
-        attempt_rows = session.scalars(
-            select(AuditLogRecord).where(
-                AuditLogRecord.action.in_({"extraction.run", "extraction.failed"}),
-                AuditLogRecord.target_type == "document_snapshot",
-            )
-        ).all()
-        attempted_snapshot_ids: set[str] = set()
-        attempts = 0
-        for row in attempt_rows:
-            try:
-                detail = json.loads(row.detail_json)
-            except (TypeError, ValueError):
-                continue
-            if detail.get("relationBackfillBatchId") != batch_id:
-                continue
-            attempts += 1
-            attempted_snapshot_ids.add(row.target_id)
+        audit_state = relation_backfill_audit_state(session, batch_id)
+        attempted_snapshot_ids = audit_state["attemptedSnapshotIds"]
+        attempts = int(audit_state["attempts"])
         remaining = max(0, budget - attempts)
         if remaining == 0 or limit <= 0:
             return [], remaining
@@ -1038,6 +1034,92 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         selected = eligible[: min(limit, remaining)]
         return [(source, snapshot) for _, source, snapshot in selected], remaining
+
+    def relation_backfill_audit_state(session: Session, batch_id: str) -> dict[str, object]:
+        attempt_rows = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action.in_({"extraction.run", "extraction.failed"}),
+                AuditLogRecord.target_type == "document_snapshot",
+            )
+        ).all()
+        attempted_snapshot_ids: set[str] = set()
+        state: dict[str, object] = {
+            "attempts": 0,
+            "succeeded": 0,
+            "failed": 0,
+            "candidatesCreated": 0,
+            "duplicatesSkipped": 0,
+            "relationsAutoApproved": 0,
+        }
+        for row in attempt_rows:
+            try:
+                detail = json.loads(row.detail_json)
+            except (TypeError, ValueError):
+                continue
+            if detail.get("relationBackfillBatchId") != batch_id:
+                continue
+            state["attempts"] = int(state["attempts"]) + 1
+            outcome = "succeeded" if row.action == "extraction.run" else "failed"
+            state[outcome] = int(state[outcome]) + 1
+            state["candidatesCreated"] = int(state["candidatesCreated"]) + int(
+                detail.get("candidatesCreated", 0)
+            )
+            state["duplicatesSkipped"] = int(state["duplicatesSkipped"]) + int(
+                detail.get("duplicatesSkipped", 0)
+            )
+            state["relationsAutoApproved"] = int(state["relationsAutoApproved"]) + int(
+                detail.get("relationsAutoApproved", 0)
+            )
+            attempted_snapshot_ids.add(row.target_id)
+        state["attemptedSnapshotIds"] = attempted_snapshot_ids
+        return state
+
+    def get_relation_backfill_status(session: Session) -> RelationBackfillStatus:
+        batch_id = app_settings.relation_backfill_batch_id
+        budget = app_settings.relation_backfill_max_snapshots
+        quality = quality_gate.report(get_catalog_snapshot(session))
+        if not batch_id or budget <= 0:
+            return RelationBackfillStatus(
+                configured=False,
+                status="disabled",
+                budget=0,
+                attempts=0,
+                succeeded=0,
+                failed=0,
+                candidates_created=0,
+                duplicates_skipped=0,
+                relations_auto_approved=0,
+                attempts_remaining=0,
+                eligible_snapshots=0,
+                relation_deficit=quality.core_relation_deficit,
+                core_entities_below_requirement=len(quality.core_entities_below_five_relations),
+            )
+        state = relation_backfill_audit_state(session, batch_id)
+        attempts = int(state["attempts"])
+        remaining = max(0, budget - attempts)
+        eligible, _ = build_relation_backfill_plan(session, remaining)
+        complete = (
+            quality.core_relation_deficit <= 0 or remaining == 0 or (attempts > 0 and not eligible)
+        )
+        phase: Literal["waiting", "running", "complete"] = (
+            "complete" if complete else "running" if attempts > 0 else "waiting"
+        )
+        return RelationBackfillStatus(
+            configured=True,
+            status=phase,
+            batch_id=batch_id,
+            budget=budget,
+            attempts=attempts,
+            succeeded=int(state["succeeded"]),
+            failed=int(state["failed"]),
+            candidates_created=int(state["candidatesCreated"]),
+            duplicates_skipped=int(state["duplicatesSkipped"]),
+            relations_auto_approved=int(state["relationsAutoApproved"]),
+            attempts_remaining=remaining,
+            eligible_snapshots=len(eligible),
+            relation_deficit=quality.core_relation_deficit,
+            core_entities_below_requirement=len(quality.core_entities_below_five_relations),
+        )
 
     def create_extraction_candidates(
         session: Session,
@@ -1330,6 +1412,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "automatic": True,
                         "candidatesCreated": len(created),
                         "duplicatesSkipped": duplicates_skipped,
+                        "relationsAutoApproved": auto_approved,
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                         "sourceId": source.id,
                         **audit_context,

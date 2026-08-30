@@ -834,6 +834,12 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             )
             session.commit()
 
+        before = automatic_client.get("/api/v2/public/relation-backfill-status")
+        assert before.status_code == 200
+        assert before.json()["status"] == "waiting"
+        assert before.json()["attempts"] == 0
+        assert before.json()["eligibleSnapshots"] == 1
+
         first = automatic_client.post(
             "/api/v2/automation/run-cycle",
             headers=automation_headers,
@@ -845,6 +851,25 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         assert first_summary["relationBackfillBatchId"] == "test-core-relations-01"
         assert first_summary["relationBackfillAttemptsRemaining"] == 0
         assert extraction_calls == [snapshot_id]
+
+        public_status = automatic_client.get("/api/v2/public/relation-backfill-status")
+        assert public_status.status_code == 200
+        assert public_status.json() == {
+            "configured": True,
+            "status": "complete",
+            "batchId": "test-core-relations-01",
+            "budget": 1,
+            "attempts": 1,
+            "succeeded": 1,
+            "failed": 0,
+            "candidatesCreated": 0,
+            "duplicatesSkipped": 0,
+            "relationsAutoApproved": 0,
+            "attemptsRemaining": 0,
+            "eligibleSnapshots": 0,
+            "relationDeficit": 49,
+            "coreEntitiesBelowRequirement": 17,
+        }
 
         second = automatic_client.post(
             "/api/v2/automation/run-cycle",
