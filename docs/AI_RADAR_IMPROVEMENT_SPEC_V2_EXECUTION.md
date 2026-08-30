@@ -35,15 +35,15 @@
 - [x] 审核与审计字段可复用范围已核实。
 - [x] `docs/eval/REALITY_CHECK_2026-08-30.md` 已生成。
 
-### Epic 1A：Golden Set 与 lexical baseline — partially completed
+### Epic 1A：Golden Set 与 lexical baseline — completed
 
-已有 20 条 `golden_questions.json` 和 lexical FTS 基线，只复用，不重做。2026-08-30 已完成 80 条 Golden Set v1.0.0、固定公开快照、评估脚本和 SQLite 便携式 baseline。剩余任务：
+已有 20 条 `golden_questions.json` 和 lexical FTS 基线，只复用，不重做。2026-08-30 已完成 80 条 Golden Set v1.0.0、固定公开快照、评估脚本、SQLite 便携式 baseline 与隔离 PostgreSQL 16 lexical FTS 最终基线：
 
 1. [x] 建立 80 条、带 `version` 的 `docs/eval/retrieval_golden_set.jsonl`。
 2. [x] 每条包含查询类别、`query`、`expected_entity_ids`、`expected_claim_ids`。
 3. [x] 编写 `scripts/eval_retrieval.py`，固定并输出版本组合。
 4. [x] 运行 SQLite 便携式 lexical baseline 并记录真实指标。
-5. [ ] 使用完全相同的版本组合在隔离 PostgreSQL 16 上重跑，形成 PostgreSQL lexical FTS 最终基线。
+5. [x] 使用完全相同的版本组合在隔离 PostgreSQL 16 上重跑，形成 PostgreSQL lexical FTS 最终基线。
 
 ### Epic 2A：关系本体与官方信源缺口映射 — pending
 
@@ -88,4 +88,4 @@
 
 ## 当前可执行节点
 
-Epic 0 完成后，唯一允许启动的主线任务是 Epic 1A：版本化 Golden Set 与 deterministic lexical baseline。Epic 2A 可以在资源允许时并行，但不得越过 1A 直接进入 1B/1C/1D，也不得越过 2A 进入 2B。
+Epic 1A 已完成。下一个主线任务是 Epic 2A：关系本体、只读缺口诊断与官方信源工作清单；不得越过 2A 进入 2B。Epic 1B 已解除 1A 前置依赖，但仍按本文顺序排在 2A 之后。

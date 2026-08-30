@@ -16,8 +16,8 @@
     "databaseDialect": "sqlite",
     "embeddingModel": null,
     "topK": 8,
-    "evaluationCommit": "9f31903262002b30549a0d20a57e57ab4418faa6",
-    "evaluatedAt": "2026-08-30T13:06:14.191450+00:00"
+    "evaluationCommit": "5e1e10e27ea64bfa796b3f87bb0b2d2e5a8c7987",
+    "evaluatedAt": "2026-08-30T14:17:57.665260+00:00"
   },
   "metrics": {
     "overall": {
@@ -84,7 +84,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 15,
+        "elapsedMs": 13,
         "matchedEntityIds": [
           "e-gpt-5",
           "e-swebench"
@@ -118,7 +118,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 3,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -151,7 +151,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -177,7 +177,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-gemini-25-pro"
         ],
@@ -238,7 +238,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -264,7 +264,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-gemini-cli"
         ],
@@ -297,7 +297,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 11,
+        "elapsedMs": 9,
         "matchedEntityIds": [
           "e-manus",
           "e-manus-company"
@@ -380,7 +380,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-autogen"
         ],
@@ -413,7 +413,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 14,
+        "elapsedMs": 8,
         "matchedEntityIds": [
           "e-crewai",
           "e-crewai-company"
@@ -440,7 +440,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-openai-agents-sdk"
         ],
@@ -473,7 +473,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-kimi-k26"
         ],
@@ -503,7 +503,7 @@
         "candidateCount": 5,
         "returnedCount": 5,
         "filteredCount": 0,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-kimi-k3"
         ],
@@ -536,7 +536,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-anthropic"
         ],
@@ -569,7 +569,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -602,7 +602,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -635,7 +635,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 3,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -668,7 +668,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-langchain"
         ],
@@ -701,7 +701,7 @@
         "candidateCount": 17,
         "returnedCount": 8,
         "filteredCount": 9,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-kimi"
         ],
@@ -764,7 +764,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -797,7 +797,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mmlu"
         ],
@@ -830,7 +830,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -863,7 +863,7 @@
         "candidateCount": 20,
         "returnedCount": 8,
         "filteredCount": 12,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-doubao",
           "e-doubao-seed18"
@@ -897,7 +897,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 11,
+        "elapsedMs": 8,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -947,7 +947,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-ernie-50"
         ],
@@ -980,7 +980,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -1013,7 +1013,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-langchain",
           "e-langgraph"
@@ -1047,7 +1047,7 @@
         "candidateCount": 34,
         "returnedCount": 8,
         "filteredCount": 26,
-        "elapsedMs": 2,
+        "elapsedMs": 3,
         "matchedEntityIds": [
           "e-claude-code",
           "e-mcp"
@@ -1081,7 +1081,7 @@
         "candidateCount": 34,
         "returnedCount": 8,
         "filteredCount": 26,
-        "elapsedMs": 3,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code",
           "e-mcp"
@@ -1115,7 +1115,7 @@
         "candidateCount": 31,
         "returnedCount": 8,
         "filteredCount": 23,
-        "elapsedMs": 3,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-anthropic",
           "e-claude"
@@ -1149,7 +1149,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-ernie-50",
           "e-ernie-51"
@@ -1183,7 +1183,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -1216,7 +1216,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-langchain"
         ],
@@ -1249,7 +1249,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-langchain",
           "e-openai"
@@ -1283,7 +1283,7 @@
         "candidateCount": 20,
         "returnedCount": 8,
         "filteredCount": 12,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-anthropic",
           "e-langchain"
@@ -1317,7 +1317,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -1350,7 +1350,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -1383,7 +1383,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1450,7 +1450,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-codex",
           "e-gpt-5"
@@ -1517,7 +1517,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 13,
+        "elapsedMs": 8,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -1548,7 +1548,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 15,
+        "elapsedMs": 7,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -1612,7 +1612,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1645,7 +1645,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1671,7 +1671,7 @@
         "candidateCount": 1,
         "returnedCount": 1,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-gemini-cli"
         ],
@@ -1698,7 +1698,7 @@
         "candidateCount": 2,
         "returnedCount": 2,
         "filteredCount": 0,
-        "elapsedMs": 1,
+        "elapsedMs": 0,
         "matchedEntityIds": [
           "e-gemini-15-pro"
         ],
@@ -1824,7 +1824,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mcp"
         ],
@@ -1857,7 +1857,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -1956,7 +1956,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 3,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -1989,7 +1989,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -2115,7 +2115,7 @@
         "candidateCount": 19,
         "returnedCount": 8,
         "filteredCount": 11,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude"
         ],
@@ -2148,7 +2148,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 3,
+        "elapsedMs": 2,
         "matchedEntityIds": [
           "e-claude-code"
         ],
@@ -2241,7 +2241,7 @@
         "candidateCount": 10,
         "returnedCount": 8,
         "filteredCount": 2,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-qwen"
         ],
@@ -2274,7 +2274,7 @@
         "candidateCount": 9,
         "returnedCount": 8,
         "filteredCount": 1,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-ernie-51"
         ],
@@ -2308,7 +2308,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-kimi-k26",
           "e-kimi-k3"
@@ -2343,7 +2343,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 11,
+        "elapsedMs": 10,
         "matchedEntityIds": [
           "e-claude",
           "e-gpt-5",
@@ -2413,7 +2413,7 @@
         "candidateCount": 195,
         "returnedCount": 8,
         "filteredCount": 187,
-        "elapsedMs": 11,
+        "elapsedMs": 9,
         "matchedEntityIds": [],
         "fallbackReason": null,
         "generationFallbackReason": null
@@ -2445,7 +2445,7 @@
         "candidateCount": 12,
         "returnedCount": 8,
         "filteredCount": 4,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-mmlu"
         ],
@@ -2479,7 +2479,7 @@
         "candidateCount": 14,
         "returnedCount": 8,
         "filteredCount": 6,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-openai"
         ],
@@ -2513,7 +2513,7 @@
         "candidateCount": 13,
         "returnedCount": 8,
         "filteredCount": 5,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-doubao-seed18"
         ],
@@ -2547,7 +2547,7 @@
         "candidateCount": 8,
         "returnedCount": 8,
         "filteredCount": 0,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-kimi-k26"
         ],
@@ -2615,7 +2615,7 @@
         "candidateCount": 22,
         "returnedCount": 8,
         "filteredCount": 14,
-        "elapsedMs": 2,
+        "elapsedMs": 1,
         "matchedEntityIds": [
           "e-claude-code"
         ],

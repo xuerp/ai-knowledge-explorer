@@ -173,12 +173,17 @@ def markdown_summary(report: dict[str, Any]) -> str:
             f"{metrics['precisionAtK']:.2%} | {metrics['entityRecallAtK']:.2%} | "
             f"{metrics['passRatio']:.2%} |"
         )
+    boundary = (
+        "SQLite 结果是便携式基线，不等同于 PostgreSQL FTS 候选过滤结果。"
+        if metadata["databaseDialect"] == "sqlite"
+        else "PostgreSQL 结果来自隔离测试数据库，不代表生产数据库状态。"
+    )
     lines.extend(
         [
             "",
             "Precision@K 固定以 K 为分母；目标 Claim 少于 K 时，其理论上限低于 100%。",
             "指标未做阈值美化，失败样本保留在 JSON 明细中。",
-            "SQLite 结果是便携式基线，不等同于 PostgreSQL FTS 候选过滤结果。",
+            boundary,
             "",
         ]
     )
