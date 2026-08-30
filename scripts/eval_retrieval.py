@@ -79,7 +79,8 @@ def evaluate(
     samples: list[dict[str, Any]],
     *,
     top_k: int,
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    database_url: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]], str]:
     claim_ids = {claim.id for claim in snapshot.claims}
     entity_ids = {entity.id for entity in snapshot.entities}
     for sample in samples:
@@ -91,7 +92,7 @@ def evaluate(
                 f" claims={sorted(missing_claims)}, entities={sorted(missing_entities)}"
             )
 
-    engine = create_engine("sqlite://")
+    engine = create_engine(database_url)
     Base.metadata.create_all(engine)
     retriever = LexicalRagRetriever()
     results: list[dict[str, Any]] = []
@@ -149,13 +150,14 @@ def evaluate(
             "passRatio": average([1.0 if row["passed"] else 0.0 for row in rows]),
         }
 
-    return {
+    metrics = {
         "overall": summarize(results),
         "categories": {
             category: summarize(by_category[category])
             for category in EXPECTED_CATEGORIES
         },
-    }, results
+    }
+    return metrics, results, engine.dialect.name
 
 
 def markdown_summary(report: dict[str, Any]) -> str:
@@ -166,6 +168,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
         f"- Golden Set：v{metadata['goldenSetVersion']}（{metadata['sampleCount']} 条）",
         f"- 数据快照：`{metadata['snapshotSha256']}`",
         f"- 检索配置：`{metadata['retrievalMode']}`，TopK={metadata['topK']}",
+        f"- 数据库方言：`{metadata['databaseDialect']}`",
         f"- 评估脚本提交：`{metadata['evaluationCommit']}`",
         "- Embedding：未启用",
         "",
@@ -187,6 +190,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
             "",
             "Precision@K 固定以 K 为分母；目标 Claim 少于 K 时，其理论上限低于 100%。",
             "指标未做阈值美化，失败样本保留在 JSON 明细中。",
+            "SQLite 结果是便携式基线，不等同于 PostgreSQL FTS 候选过滤结果。",
             "",
         ]
     )
@@ -201,6 +205,11 @@ def main() -> None:
     parser.add_argument("--golden-set", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--top-k", type=int, default=8)
+    parser.add_argument(
+        "--database-url",
+        default="sqlite://",
+        help="评估专用数据库；默认使用隔离的内存 SQLite。",
+    )
     parser.add_argument("--evaluation-commit")
     args = parser.parse_args()
     if args.top_k <= 0:
@@ -208,7 +217,12 @@ def main() -> None:
 
     snapshot, snapshot_hash = load_snapshot(args.snapshot)
     version, samples = load_golden_set(args.golden_set)
-    metrics, results = evaluate(snapshot, samples, top_k=args.top_k)
+    metrics, results, database_dialect = evaluate(
+        snapshot,
+        samples,
+        top_k=args.top_k,
+        database_url=args.database_url,
+    )
     commit = args.evaluation_commit or current_commit(REPO_ROOT)
     report = {
         "metadata": {
@@ -225,6 +239,7 @@ def main() -> None:
                 "timeline": sum(len(items) for items in snapshot.timeline.values()),
             },
             "retrievalMode": "lexical",
+            "databaseDialect": database_dialect,
             "embeddingModel": None,
             "topK": args.top_k,
             "evaluationCommit": commit,
