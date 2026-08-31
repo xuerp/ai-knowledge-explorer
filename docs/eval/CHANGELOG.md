@@ -94,3 +94,16 @@ p50/p95 约为 409/743 ms；固定工作量共 82 次 API 调用，保守估算 
 
 不进入 Epic 1D：大多数题只标注一个相关 Claim，Precision@8 的理论值即 12.5%；14.22% 不能
 被解释为明显不足。当前没有证据证明 Reranker 的新增延迟、外部依赖与潜在费用是必要的。
+
+### Staging 正常路径验收
+
+2026-08-31 在 Render staging 完成 Cloudflare 凭据配置和 API 重新部署，管理员受保护状态显示
+`hybrid · cloudflare/@cf/baai/bge-m3 · 1024 维`。随后通过 Cloudflare Worker 前端提交固定私密问题
+“GPT-5 在 SWE-bench Verified 上的通过率是多少？”，研究记录
+`54e4dcfe-ea45-45da-8c50-3bca3227fc58` 返回 8 条结论和 9 个来源；首条结论为 62.4%，同时绑定
+OpenAI 与 SWE-bench Evidence。查询级诊断为 `retrievalMode=hybrid`、`fallbackReason=null`、
+候选 37、返回 8、检索耗时 43315 ms。
+
+前端 Worker 验收版本为 `55fb2b4c-efed-403d-87b3-eb49b2517d26`，检索诊断可观测性补丁提交为
+`7d053da`。这证明 staging 正常 Hybrid 路径已实际运行，不证明 provider 故障降级已经演练；后者仍需
+临时修改 Render Secret、验证 lexical fallback、恢复 Secret 并再次验证 hybrid。
