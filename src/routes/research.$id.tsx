@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
+import { RetrievalStatus } from "@/components/research/RetrievalStatus";
 import type { ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp } from "@/lib/app-state";
@@ -102,7 +103,7 @@ function ResearchRecordPage() {
         </AppShell>
       );
     }
-    if (!liveAnswer) {
+    if (!liveAnswer || !liveResearch) {
       return (
         <AppShell>
           <DataStatePanel
@@ -115,6 +116,9 @@ function ResearchRecordPage() {
     }
     return (
       <AppShell>
+        <div className="mx-auto max-w-5xl px-4 pt-6 md:px-6">
+          <RetrievalStatus research={liveResearch} />
+        </div>
         <ResearchReport answer={liveAnswer} snapshot={snapshotQuery.data} dataMode="live" />
       </AppShell>
     );
