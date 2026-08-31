@@ -35,6 +35,59 @@ def test_openai_backend_refuses_calls_without_explicit_paid_authorization(monkey
         )
 
 
+def test_cloudflare_backend_refuses_calls_without_explicit_authorization(monkeypatch):
+    monkeypatch.setenv("TEST_CF_ACCOUNT_ID", "account-id")
+    monkeypatch.setenv("TEST_CF_API_KEY", "not-a-real-key")
+
+    with pytest.raises(ValueError, match="--allow-external-api"):
+        benchmark_embeddings.CloudflareEmbeddingBackend(
+            "@cf/baai/bge-m3",
+            "TEST_CF_ACCOUNT_ID",
+            "TEST_CF_API_KEY",
+            daily_neuron_budget=100,
+            neurons_per_million_tokens=1075,
+            max_api_calls=100,
+            max_batch_size=100,
+            allow_external_api=False,
+        )
+
+
+def test_cloudflare_backend_enforces_neuron_budget_before_network(monkeypatch):
+    monkeypatch.setenv("TEST_CF_ACCOUNT_ID", "account-id")
+    monkeypatch.setenv("TEST_CF_API_KEY", "not-a-real-key")
+    backend = benchmark_embeddings.CloudflareEmbeddingBackend(
+        "@cf/baai/bge-m3",
+        "TEST_CF_ACCOUNT_ID",
+        "TEST_CF_API_KEY",
+        daily_neuron_budget=0.001,
+        neurons_per_million_tokens=1075,
+        max_api_calls=100,
+        max_batch_size=100,
+        allow_external_api=True,
+    )
+
+    with pytest.raises(RuntimeError, match="neuron budget"):
+        backend.embed_documents(["预算保护必须发生在网络请求之前"])
+
+
+def test_cloudflare_backend_preflights_full_workload(monkeypatch):
+    monkeypatch.setenv("TEST_CF_ACCOUNT_ID", "account-id")
+    monkeypatch.setenv("TEST_CF_API_KEY", "not-a-real-key")
+    backend = benchmark_embeddings.CloudflareEmbeddingBackend(
+        "@cf/baai/bge-m3",
+        "TEST_CF_ACCOUNT_ID",
+        "TEST_CF_API_KEY",
+        daily_neuron_budget=1,
+        neurons_per_million_tokens=1075,
+        max_api_calls=2,
+        max_batch_size=100,
+        allow_external_api=True,
+    )
+
+    with pytest.raises(RuntimeError, match="API call limit"):
+        backend.preflight(["测试"], expected_api_calls=3)
+
+
 def test_committed_bge_benchmark_is_version_bound_and_zero_cost():
     report_path = (
         Path(__file__).resolve().parents[2]
