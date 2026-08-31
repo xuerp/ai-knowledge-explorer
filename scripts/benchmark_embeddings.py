@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import platform
 import statistics
@@ -48,7 +49,9 @@ class FastEmbedBackend:
         from fastembed import TextEmbedding
 
         supported = next(
-            item for item in TextEmbedding.list_supported_models() if item["model"] == model_name
+            item
+            for item in TextEmbedding.list_supported_models()
+            if item["model"] == model_name
         )
         source_id = supported["sources"].get("hf") or model_name
         source_dir = cache_dir / f"models--{source_id.replace('/', '--')}"
@@ -63,7 +66,9 @@ class FastEmbedBackend:
         self.model_name = model_name
         model_files = sorted(source_dir.rglob("*.onnx"))
         if not model_files:
-            raise RuntimeError(f"FastEmbed model artifact was not found below {source_dir}.")
+            raise RuntimeError(
+                f"FastEmbed model artifact was not found below {source_dir}."
+            )
         artifact = model_files[0]
         self.model_artifact_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
         self.model_source = source_id
@@ -99,12 +104,18 @@ class OpenAIEmbeddingBackend:
         import httpx
 
         if not allow_paid_api:
-            raise ValueError("OpenAI benchmark requires --allow-paid-api explicit authorization.")
+            raise ValueError(
+                "OpenAI benchmark requires --allow-paid-api explicit authorization."
+            )
         if monthly_budget_usd <= 0:
-            raise ValueError("OpenAI benchmark requires a positive --monthly-budget-usd cap.")
+            raise ValueError(
+                "OpenAI benchmark requires a positive --monthly-budget-usd cap."
+            )
         api_key = os.getenv(api_key_env)
         if not api_key:
-            raise ValueError(f"OpenAI benchmark requires the {api_key_env} environment variable.")
+            raise ValueError(
+                f"OpenAI benchmark requires the {api_key_env} environment variable."
+            )
         self._client = httpx.Client(
             base_url="https://api.openai.com/v1",
             headers={"Authorization": f"Bearer {api_key}"},
@@ -126,7 +137,9 @@ class OpenAIEmbeddingBackend:
     def _embed(self, texts: list[str]) -> list[list[float]]:
         conservative_tokens = sum(len(text) for text in texts)
         projected_cost = (
-            (self._input_tokens + conservative_tokens) / 1_000_000 * self.price_per_million_tokens
+            (self._input_tokens + conservative_tokens)
+            / 1_000_000
+            * self.price_per_million_tokens
         )
         if projected_cost > self.monthly_budget_usd:
             raise RuntimeError(
@@ -144,7 +157,10 @@ class OpenAIEmbeddingBackend:
         payload = response.json()
         self._api_calls += 1
         self._input_tokens += int(payload.get("usage", {}).get("prompt_tokens", 0))
-        return [item["embedding"] for item in sorted(payload["data"], key=lambda row: row["index"])]
+        return [
+            item["embedding"]
+            for item in sorted(payload["data"], key=lambda row: row["index"])
+        ]
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return self._embed(texts)
@@ -164,17 +180,162 @@ class OpenAIEmbeddingBackend:
         }
 
 
+class CloudflareEmbeddingBackend:
+    provider = "cloudflare"
+
+    def __init__(
+        self,
+        model_name: str,
+        account_id_env: str,
+        api_key_env: str,
+        daily_neuron_budget: float,
+        neurons_per_million_tokens: float,
+        max_api_calls: int,
+        max_batch_size: int,
+        allow_external_api: bool,
+    ) -> None:
+        import httpx
+
+        if not allow_external_api:
+            raise ValueError(
+                "Cloudflare benchmark requires --allow-external-api explicit authorization."
+            )
+        if daily_neuron_budget <= 0:
+            raise ValueError(
+                "Cloudflare benchmark requires a positive --daily-neuron-budget."
+            )
+        if max_api_calls <= 0 or max_batch_size <= 0:
+            raise ValueError("Cloudflare API call and batch limits must be positive.")
+        account_id = os.getenv(account_id_env)
+        api_key = os.getenv(api_key_env)
+        if not account_id:
+            raise ValueError(
+                f"Cloudflare benchmark requires the {account_id_env} environment variable."
+            )
+        if not api_key:
+            raise ValueError(
+                f"Cloudflare benchmark requires the {api_key_env} environment variable."
+            )
+        self._client = httpx.Client(
+            base_url=(
+                f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
+            ),
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=60,
+        )
+        self.model_name = model_name
+        self.model_version = f"cloudflare-managed:{model_name}"
+        self.model_source = (
+            "https://developers.cloudflare.com/workers-ai/models/bge-m3/"
+        )
+        self.model_artifact_sha256 = None
+        self.cache_warm_before_run = False
+        self.cache_bytes = 0
+        self.dimension = 0
+        self.daily_neuron_budget = daily_neuron_budget
+        self.neurons_per_million_tokens = neurons_per_million_tokens
+        self.max_api_calls = max_api_calls
+        self.max_batch_size = max_batch_size
+        self.initialization_ms = 0
+        self._api_calls = 0
+        self._input_tokens = 0
+        self._conservative_tokens = 0
+
+    def preflight(self, texts: list[str], expected_api_calls: int) -> None:
+        conservative_tokens = sum(len(text) for text in texts)
+        projected_neurons = (
+            conservative_tokens / 1_000_000 * self.neurons_per_million_tokens
+        )
+        if projected_neurons > self.daily_neuron_budget:
+            raise RuntimeError(
+                "Full benchmark would exceed the configured Cloudflare neuron budget."
+            )
+        if expected_api_calls > self.max_api_calls:
+            raise RuntimeError(
+                "Full benchmark would exceed the configured Cloudflare API call limit."
+            )
+
+    def _embed_batch(self, texts: list[str]) -> list[list[float]]:
+        conservative_tokens = sum(len(text) for text in texts)
+        projected_tokens = self._conservative_tokens + conservative_tokens
+        projected_neurons = (
+            projected_tokens / 1_000_000 * self.neurons_per_million_tokens
+        )
+        if projected_neurons > self.daily_neuron_budget:
+            raise RuntimeError(
+                "Embedding benchmark would exceed the configured Cloudflare neuron budget."
+            )
+        if self._api_calls + 1 > self.max_api_calls:
+            raise RuntimeError(
+                "Embedding benchmark would exceed the configured Cloudflare API call limit."
+            )
+        response = self._client.post(
+            "/embeddings",
+            json={"input": texts, "model": self.model_name},
+        )
+        response.raise_for_status()
+        payload = response.json()
+        vectors = [
+            item["embedding"]
+            for item in sorted(payload["data"], key=lambda row: row["index"])
+        ]
+        if len(vectors) != len(texts):
+            raise RuntimeError(
+                "Cloudflare returned an unexpected number of embeddings."
+            )
+        self._api_calls += 1
+        self._conservative_tokens = projected_tokens
+        self._input_tokens += int(payload.get("usage", {}).get("prompt_tokens", 0))
+        if vectors and self.dimension == 0:
+            self.dimension = len(vectors[0])
+        if any(len(vector) != self.dimension for vector in vectors):
+            raise RuntimeError("Cloudflare returned inconsistent embedding dimensions.")
+        return vectors
+
+    def _embed(self, texts: list[str]) -> list[list[float]]:
+        vectors: list[list[float]] = []
+        for start in range(0, len(texts), self.max_batch_size):
+            vectors.extend(
+                self._embed_batch(texts[start : start + self.max_batch_size])
+            )
+        return vectors
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self._embed(texts)
+
+    def embed_queries(self, texts: list[str]) -> list[list[float]]:
+        return self._embed(texts)
+
+    def usage(self) -> dict[str, Any]:
+        estimated_neurons = (
+            self._conservative_tokens / 1_000_000 * self.neurons_per_million_tokens
+        )
+        return {
+            "apiCalls": self._api_calls,
+            "inputTokens": self._input_tokens,
+            "conservativeTokenUpperBound": self._conservative_tokens,
+            "estimatedNeurons": round(estimated_neurons, 4),
+            "dailyNeuronBudget": self.daily_neuron_budget,
+            "estimatedCostUsd": 0.0,
+            "freeTierAssumption": True,
+        }
+
+
 def read_bytes(path: Path) -> bytes:
     return path.read_bytes()
 
 
 def current_commit() -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, text=True).strip()
+    return subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, text=True
+    ).strip()
 
 
 def load_samples(path: Path) -> tuple[str, list[dict[str, Any]]]:
     samples = [
-        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     ]
     versions = {str(item["version"]) for item in samples}
     categories = {str(item["category"]) for item in samples}
@@ -192,7 +353,9 @@ def build_documents(
     texts: list[str] = []
     claim_entity_ids: dict[str, str] = {}
     for claim in snapshot.claims:
-        evidence = [evidence_by_id[item] for item in claim.source_ids if item in evidence_by_id]
+        evidence = [
+            evidence_by_id[item] for item in claim.source_ids if item in evidence_by_id
+        ]
         entity = entity_by_id.get(claim.entity_id)
         if (
             claim.confidence != "verified"
@@ -214,11 +377,15 @@ def normalize_matrix(vectors: list[list[float]]) -> Any:
     return matrix / np.maximum(norms, 1e-12)
 
 
-def ranked_vector_ids(document_matrix: Any, query_vector: Any, claim_ids: list[str]) -> list[str]:
+def ranked_vector_ids(
+    document_matrix: Any, query_vector: Any, claim_ids: list[str]
+) -> list[str]:
     scores = document_matrix @ query_vector
     return [
         claim_ids[index]
-        for index in sorted(range(len(claim_ids)), key=lambda i: (-scores[i], claim_ids[i]))
+        for index in sorted(
+            range(len(claim_ids)), key=lambda i: (-scores[i], claim_ids[i])
+        )
     ]
 
 
@@ -259,12 +426,18 @@ def evaluate_ranking(
     def summarize(items: list[dict[str, Any]]) -> dict[str, Any]:
         return {
             "samples": len(items),
-            "recallAtK": round(statistics.fmean(item["claimRecallAtK"] for item in items), 4),
-            "precisionAtK": round(statistics.fmean(item["precisionAtK"] for item in items), 4),
+            "recallAtK": round(
+                statistics.fmean(item["claimRecallAtK"] for item in items), 4
+            ),
+            "precisionAtK": round(
+                statistics.fmean(item["precisionAtK"] for item in items), 4
+            ),
             "entityRecallAtK": round(
                 statistics.fmean(item["entityRecallAtK"] for item in items), 4
             ),
-            "passRatio": round(statistics.fmean(float(item["passed"]) for item in items), 4),
+            "passRatio": round(
+                statistics.fmean(float(item["passed"]) for item in items), 4
+            ),
         }
 
     return {
@@ -326,6 +499,17 @@ def markdown_summary(report: dict[str, Any]) -> str:
 def create_backend(args: argparse.Namespace) -> EmbeddingBackend:
     if args.provider == "fastembed":
         return FastEmbedBackend(args.model, args.cache_dir, args.threads)
+    if args.provider == "cloudflare":
+        return CloudflareEmbeddingBackend(
+            args.model,
+            args.account_id_env,
+            args.cloudflare_api_key_env,
+            args.daily_neuron_budget,
+            args.neurons_per_million_tokens,
+            args.max_api_calls,
+            args.max_batch_size,
+            args.allow_external_api,
+        )
     return OpenAIEmbeddingBackend(
         args.model,
         args.dimension,
@@ -344,7 +528,9 @@ def main() -> None:
     parser.add_argument("--golden-set", type=Path, required=True)
     parser.add_argument("--alias-catalog", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--provider", choices=("fastembed", "openai"), required=True)
+    parser.add_argument(
+        "--provider", choices=("fastembed", "cloudflare", "openai"), required=True
+    )
     parser.add_argument("--model", required=True)
     parser.add_argument("--dimension", type=int, default=512)
     parser.add_argument("--cache-dir", type=Path, default=Path(".cache/fastembed"))
@@ -353,9 +539,16 @@ def main() -> None:
     parser.add_argument("--rrf-k", type=int, default=60)
     parser.add_argument("--evaluation-commit")
     parser.add_argument("--api-key-env", default="OPENAI_API_KEY")
+    parser.add_argument("--account-id-env", default="CLOUDFLARE_ACCOUNT_ID")
+    parser.add_argument("--cloudflare-api-key-env", default="CLOUDFLARE_API_TOKEN")
     parser.add_argument("--monthly-budget-usd", type=float, default=0)
     parser.add_argument("--price-per-million-tokens", type=float, default=0.02)
     parser.add_argument("--allow-paid-api", action="store_true")
+    parser.add_argument("--daily-neuron-budget", type=float, default=0)
+    parser.add_argument("--neurons-per-million-tokens", type=float, default=1075)
+    parser.add_argument("--max-api-calls", type=int, default=100)
+    parser.add_argument("--max-batch-size", type=int, default=100)
+    parser.add_argument("--allow-external-api", action="store_true")
     args = parser.parse_args()
     if args.top_k <= 0 or args.rrf_k <= 0 or args.dimension <= 0 or args.threads <= 0:
         raise ValueError("top-k、rrf-k、dimension 和 threads 必须为正整数。")
@@ -365,12 +558,20 @@ def main() -> None:
     snapshot_bytes = read_bytes(args.snapshot)
     snapshot = KnowledgeSnapshot.model_validate_json(snapshot_bytes)
     golden_version, samples = load_samples(args.golden_set)
-    alias_version, alias_definitions, alias_hash = load_entity_alias_catalog(args.alias_catalog)
+    alias_version, alias_definitions, alias_hash = load_entity_alias_catalog(
+        args.alias_catalog
+    )
     apply_entity_aliases(snapshot.entities, alias_definitions)
     claim_ids, document_texts, claim_entity_ids = build_documents(snapshot)
     process = psutil.Process()
     initial_rss = process.memory_info().rss
     backend = create_backend(args)
+    if isinstance(backend, CloudflareEmbeddingBackend):
+        all_inputs = document_texts + [str(sample["query"]) for sample in samples]
+        expected_api_calls = math.ceil(
+            len(document_texts) / backend.max_batch_size
+        ) + len(samples)
+        backend.preflight(all_inputs, expected_api_calls)
     after_init_rss = process.memory_info().rss
 
     started = perf_counter()
@@ -456,14 +657,22 @@ def main() -> None:
         "metrics": {"vector": vector_metrics, "hybrid": hybrid_metrics},
         "results": {"vector": vector_results, "hybrid": hybrid_results},
     }
-    safe_model = "".join(character if character.isalnum() else "-" for character in args.model)
+    safe_model = "".join(
+        character if character.isalnum() else "-" for character in args.model
+    )
     stem = f"embedding_{backend.provider}_{safe_model}_{hashlib.sha256(snapshot_bytes).hexdigest()[:12]}"
     args.output_dir.mkdir(parents=True, exist_ok=True)
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
-    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    json_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     markdown_path.write_text(markdown_summary(report), encoding="utf-8")
-    print(json.dumps({"json": str(json_path), "markdown": str(markdown_path)}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"json": str(json_path), "markdown": str(markdown_path)}, ensure_ascii=False
+        )
+    )
 
 
 if __name__ == "__main__":
