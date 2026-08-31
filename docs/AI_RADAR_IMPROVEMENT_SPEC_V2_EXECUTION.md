@@ -64,14 +64,14 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 3. [x] 查询与目录共用 Unicode NFKC、casefold、下划线及空白规范化，别名进入 lexical 检索文档。
 4. [x] 使用 Golden Set v1.0.0、同一固定 snapshot 和 TopK=8 做前后对照；实体类 Entity Recall@8 均为 100%，24 条补充别名探针从 16/24 提升到 24/24。
 
-### Epic 1C：Embedding 与混合检索 — staging hybrid path verified / fault drill pending
+### Epic 1C：Embedding 与混合检索 — completed
 
 1. [x] 在固定 Golden Set 上完成本地 BGE-small-zh 与 Cloudflare Workers AI `@cf/baai/bge-m3` 真实候选对比，ADR-0005 选择 Cloudflare 作为 staging hybrid provider；OpenAI 因付款约束、DoroAI 因没有可验证模型而取消。
 2. [x] 迁移 `20260831_0021` 建立独立版本化 `rag_claim_embeddings` 表，并验证 upgrade、downgrade、re-upgrade 与单一 head。
 3. [x] 实现生产 `CloudflareEmbeddingProvider`、增量持久向量索引、lexical/vector RRF union、预算硬上限、结构化状态与安全 lexical fallback；`RETRIEVAL_MODE` 默认保持 `lexical`。
 4. [x] 使用生产 provider、版本化索引和 RRF union 重跑固定集：Recall@8 100.00%、Precision@8 14.22%、Entity Recall@8 98.75%、通过率 100.00%，80 条查询无 fallback。
 5. [x] 在 Render staging 安全配置 Cloudflare 凭据并重新部署；受保护管理员状态于 2026-08-31 显示 `hybrid · cloudflare/@cf/baai/bge-m3 · 1024 维`，固定私密查询返回 `retrievalMode=hybrid`、`fallbackReason=null`、37 个候选、8 条结果。研究记录为 `54e4dcfe-ea45-45da-8c50-3bca3227fc58`，首条结论为 62.4%，同时绑定 OpenAI 与 SWE-bench Evidence。
-6. [ ] staging provider 故障注入与恢复尚未执行。该步骤会临时修改 Render Secret，必须在操作窗口内验证安全降级为 lexical，并立即恢复正确 Secret 与再次确认 hybrid；未完成前不声称 Epic 1C 全部验收完成。
+6. [x] 2026-08-31 使用独立 Render Free 临时服务 `ai-radar-hybrid-fault-drill`（提交 `273a40b`、隔离 SQLite）完成 provider 故障与恢复演练，未修改主 staging 数据库。正常阶段研究记录 `213740e2-cfd6-46e7-8461-a9adc2ea9cc6` 返回 `hybrid`、无 fallback、12 个候选与 8 条结果；将临时服务模型精确改为不存在的测试模型并从运行实例状态确认生效后，记录 `cd2a2705-fc8f-4c75-89b6-dfaffcebf450` 安全返回 `lexical`、`hybrid-provider-error`、12 个候选与 8 条结果；恢复 `@cf/baai/bge-m3` 并确认运行实例配置后，记录 `952de46f-ac0a-4093-9f75-25338af0d9df` 再次返回 `hybrid`、无 fallback、12 个候选与 8 条结果。三段请求均为 HTTP 200、状态 `ready`、8 条 Claim 与 8 组引用。
 
 ### Epic 1D：Reranker — completed / not justified
 
@@ -99,4 +99,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C 的代码与固定集评估以及 1D 判定已完成；Epic 1C 的 staging Hybrid 正常路径也已上线并取得查询级无降级证据。当前严格的下一节点是 staging provider 故障注入：临时使 Render Cloudflare Secret 无效、重新部署、用固定查询确认安全降级到 lexical，再恢复 Secret、重新部署并确认返回 hybrid。此操作涉及生产型 Secret 变更，必须在明确操作窗口内执行。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。
+Epic 0、1A、2A、1B、1C 的代码、固定集评估和 staging 正常/故障/恢复验收以及 1D 判定均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取；按 Spec 顺序记录该阻塞后，下一可执行节点是 Epic 3 数据质量看板，先补业务数据与评估指标各自的更新时间和指标 API，再实现 `/quality` 页面。

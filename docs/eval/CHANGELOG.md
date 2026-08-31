@@ -105,5 +105,22 @@ OpenAI 与 SWE-bench Evidence。查询级诊断为 `retrievalMode=hybrid`、`fal
 候选 37、返回 8、检索耗时 43315 ms。
 
 前端 Worker 验收版本为 `55fb2b4c-efed-403d-87b3-eb49b2517d26`，检索诊断可观测性补丁提交为
-`7d053da`。这证明 staging 正常 Hybrid 路径已实际运行，不证明 provider 故障降级已经演练；后者仍需
-临时修改 Render Secret、验证 lexical fallback、恢复 Secret 并再次验证 hybrid。
+`7d053da`。该次记录只证明 staging 正常 Hybrid 路径已实际运行；provider 故障与恢复随后按下节所述，
+在隔离的临时服务上另行完成并留下查询级证据。
+
+### Staging provider 故障与恢复验收
+
+2026-08-31 使用独立 Render Free 临时服务 `ai-radar-hybrid-fault-drill` 在提交 `273a40b` 上执行三段
+演练。服务使用隔离 SQLite，不连接主 staging PostgreSQL；主 staging 数据库和运行配置未参与故障注入。
+
+- 正常：研究记录 `213740e2-cfd6-46e7-8461-a9adc2ea9cc6`，HTTP 200、`ready`、
+  `retrievalMode=hybrid`、`fallbackReason=null`、候选 12、返回 8、Claim 8、引用 8。
+- 故障：将临时服务的 embedding 模型精确改为不存在的测试模型，并通过受保护 integrations 状态确认
+  运行实例已采用该值；研究记录 `cd2a2705-fc8f-4c75-89b6-dfaffcebf450` 仍为 HTTP 200、`ready`，
+  但明确返回 `retrievalMode=lexical`、`fallbackReason=hybrid-provider-error`、候选 12、返回 8、
+  Claim 8、引用 8。
+- 恢复：模型恢复为 `@cf/baai/bge-m3`，受保护 integrations 状态确认恢复生效；研究记录
+  `952de46f-ac0a-4093-9f75-25338af0d9df` 返回 HTTP 200、`ready`、`retrievalMode=hybrid`、
+  `fallbackReason=null`、候选 12、返回 8、Claim 8、引用 8。
+
+因此 Epic 1C 的 staging 正常路径、provider 故障安全降级和恢复路径均有查询级证据，完整验收通过。
