@@ -1,9 +1,12 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from sqlalchemy import create_engine, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.database import Base, RagClaimDocumentRecord
+from app.database import Base, RagClaimDocumentRecord, RagClaimEmbeddingRecord
 from app.golden_questions import GoldenQuestionEvaluator
 from app.rag import HybridRagRetriever, LexicalRagRetriever, VectorSearchHit
 from app.repository import KnowledgeRepository
@@ -44,6 +47,67 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
         snapshot.claims.append(unresolved)
         retriever.sync_snapshot(session, snapshot)
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
+
+
+def test_claim_embedding_schema_supports_parallel_model_versions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        LexicalRagRetriever().prepare(session, snapshot)
+        row = session.scalar(select(RagClaimDocumentRecord).limit(1))
+        assert row is not None
+        claim_id = row.claim_id
+        for version in ("cloudflare-managed:v1", "cloudflare-managed:v2"):
+            session.add(
+                RagClaimEmbeddingRecord(
+                    claim_id=claim_id,
+                    embedding_provider="cloudflare",
+                    embedding_model="@cf/baai/bge-m3",
+                    embedding_version=version,
+                    embedding_dimension=3,
+                    content_hash=row.content_hash,
+                    vector_json="[0.1, 0.2, 0.3]",
+                    embedded_at=datetime.now(UTC),
+                )
+            )
+        session.commit()
+
+        embeddings = session.scalars(select(RagClaimEmbeddingRecord)).all()
+
+    assert {item.embedding_version for item in embeddings} == {
+        "cloudflare-managed:v1",
+        "cloudflare-managed:v2",
+    }
+
+
+def test_claim_embedding_schema_rejects_duplicate_claim_model_version():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        LexicalRagRetriever().prepare(session, snapshot)
+        row = session.scalar(select(RagClaimDocumentRecord).limit(1))
+        assert row is not None
+        claim_id = row.claim_id
+        values = {
+            "claim_id": claim_id,
+            "embedding_provider": "cloudflare",
+            "embedding_model": "@cf/baai/bge-m3",
+            "embedding_version": "cloudflare-managed:v1",
+            "embedding_dimension": 3,
+            "content_hash": row.content_hash,
+            "vector_json": "[0.1, 0.2, 0.3]",
+            "embedded_at": datetime.now(UTC),
+        }
+        session.add_all([RagClaimEmbeddingRecord(**values), RagClaimEmbeddingRecord(**values)])
+
+        with pytest.raises(IntegrityError):
+            session.commit()
 
 
 def test_lexical_rag_expands_family_mentions_to_concrete_versions():

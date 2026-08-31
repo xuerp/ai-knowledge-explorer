@@ -88,7 +88,7 @@ Cloudflare 官方 Free allocation 是每日 10,000 Neurons；本报告只证明�
 
 ## 选型结论
 
-- staging hybrid 选择 Cloudflare Workers AI `@cf/baai/bge-m3`，使用独立版本化 embedding 表。
+- staging hybrid 选择 Cloudflare Workers AI `@cf/baai/bge-m3`，使用与当前 Claim 检索单元一致的独立版本化 `rag_claim_embeddings` 表。
 - 生产默认仍保持 PostgreSQL lexical FTS；只有 staging 验证通过后才允许开启 `RETRIEVAL_MODE=hybrid`。
 - 任一凭证、预算、超时或 provider 错误都自动降级到 lexical，并记录结构化告警。
 - 本地 `BAAI/bge-small-zh-v1.5` 保留为离线复现候选，不作为 Render 默认 provider。
