@@ -39,6 +39,17 @@ export interface ResearchResult {
     detail?: { zh: string; en: string };
   }>;
   status: "ready" | "insufficient-evidence" | "failed" | "cancelled";
+  retrievalMode: "lexical" | "hybrid";
+  answerMode: "extractive" | "generated";
+  retrievalDiagnostics: {
+    candidateCount: number;
+    returnedCount: number;
+    filteredCount: number;
+    elapsedMs: number;
+    matchedEntityIds: string[];
+    fallbackReason?: string;
+    generationFallbackReason?: string;
+  };
   publishedSlug?: string;
   createdAt: string;
   publishedAt?: string;

@@ -20,6 +20,7 @@ import type { Evidence, LocalizedText, ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { readAuthToken } from "@/services/auth-session";
 import { userApi, type ResearchResult } from "@/services/user-api";
+import { RetrievalStatus } from "@/components/research/RetrievalStatus";
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
@@ -226,6 +227,8 @@ function AskPage() {
                 </div>
               </div>
 
+              <RetrievalStatus research={research} />
+
               <AnswerBlock
                 title={t("已核验事实", "Verified facts")}
                 icon={<ShieldCheck className="h-4 w-4 text-verified" />}
@@ -330,6 +333,17 @@ function toShowcaseResearch(answer: ResearchAnswer, lang: "zh" | "en"): Research
     claimIds: answer.claimIds,
     steps: answer.steps,
     status: answer.status,
+    retrievalMode: "lexical",
+    answerMode: "extractive",
+    retrievalDiagnostics: {
+      candidateCount: answer.claimIds.length,
+      returnedCount: answer.claimIds.length,
+      filteredCount: 0,
+      elapsedMs: 0,
+      matchedEntityIds: [],
+      fallbackReason: "demo-snapshot",
+      generationFallbackReason: "generation-disabled",
+    },
     createdAt: answer.generatedAt,
   };
 }
