@@ -67,6 +67,20 @@ class CloudflareEmbeddingProvider:
         if self._owns_client:
             self._client.close()
 
+    def usage(self) -> dict[str, float | int | str]:
+        with self._budget_lock:
+            estimated_neurons = (
+                self._conservative_tokens / 1_000_000 * self.neurons_per_million_tokens
+            )
+            return {
+                "date": self._budget_date.isoformat(),
+                "apiCalls": self._api_calls,
+                "conservativeTokenUpperBound": self._conservative_tokens,
+                "estimatedNeurons": round(estimated_neurons, 4),
+                "dailyNeuronBudget": self.daily_neuron_budget,
+                "dailyApiCallBudget": self.daily_api_call_budget,
+            }
+
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         return self._embed(texts)
 
