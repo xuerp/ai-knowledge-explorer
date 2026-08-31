@@ -106,3 +106,14 @@ Cloudflare 官方 Free allocation 是每日 10,000 Neurons；本报告只证明�
 4. 全量保守预估不超过 100 Neurons 且不超过 100 次 API 调用。
 
 保护已在第一次网络请求前通过，真实调用与结果校验均已完成。Benchmark 节点至此完成；下一节点是 ADR 与版本化 Schema。
+
+## 生产路径闭环
+
+选型后的生产实现已按同一固定输入重跑：实际使用 `CloudflareEmbeddingProvider`、版本化
+`rag_claim_embeddings` 索引与 RRF union，80 条查询全部走 hybrid，无 fallback；Recall@8
+100.00%、Precision@8 14.22%、Entity Recall@8 98.75%、通过率 100.00%。结构化结果为
+`v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json`，SHA-256
+`1e3b3f40eebc194c8d023dc4ed804be1e255638a5cab5c62b8f5e8790e2eaf21`，评估实现绑定提交
+`8a6b0b7ac37bf94e715c261bf325b9314e6d2987`。
+
+完整 Baseline → Alias → Hybrid 曲线及不投入 Reranker 的判定见 `docs/eval/CHANGELOG.md`。
