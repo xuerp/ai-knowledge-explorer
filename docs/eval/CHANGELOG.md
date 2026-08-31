@@ -55,12 +55,12 @@ PostgreSQL 与 SQLite 的聚合指标及逐题指标完全一致；5 条样本�
 
 SQLite 的前后主指标如下：
 
-| 范围 | Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |
-|---|---:|---:|---:|---:|
-| 归一化前 | 99.38% | 14.06% | 99.38% | 98.75% |
-| 归一化后 | 99.38% | 14.06% | 99.38% | 98.75% |
-| 实体类归一化前 | 100.00% | 12.50% | 100.00% | 100.00% |
-| 实体类归一化后 | 100.00% | 12.50% | 100.00% | 100.00% |
+| 范围           | Recall@8 | Precision@8 | Entity Recall@8 |  通过率 |
+| -------------- | -------: | ----------: | --------------: | ------: |
+| 归一化前       |   99.38% |      14.06% |          99.38% |  98.75% |
+| 归一化后       |   99.38% |      14.06% |          99.38% |  98.75% |
+| 实体类归一化前 |  100.00% |      12.50% |         100.00% | 100.00% |
+| 实体类归一化后 |  100.00% |      12.50% |         100.00% | 100.00% |
 
 主指标没有变化：Golden Set 的 30 条实体查询在 baseline 已达到 100% Entity Recall@8，不能通过
 修改样本或口径制造提升。作为同快照的补充覆盖证明，24 条逐别名确定性探针由 16/24 提升为
@@ -80,11 +80,11 @@ TopK=8、RRF K=60。Embedding 为 Cloudflare Workers AI `@cf/baai/bge-m3`，版�
 `docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json`，
 仓库规范化 LF 内容的 SHA-256 为 `6a789336381864a0a4188cf65eb7c139d8c358cdedb075d607ac776cb8da909e`。
 
-| 阶段 | Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |
-|---|---:|---:|---:|---:|
-| PostgreSQL lexical FTS baseline | 99.38% | 14.06% | 99.38% | 98.75% |
-| Alias v1.0.0 + lexical | 99.38% | 14.06% | 99.38% | 98.75% |
-| Cloudflare BGE-M3 + lexical RRF | 100.00% | 14.22% | 98.75% | 100.00% |
+| 阶段                            | Recall@8 | Precision@8 | Entity Recall@8 |  通过率 |
+| ------------------------------- | -------: | ----------: | --------------: | ------: |
+| PostgreSQL lexical FTS baseline |   99.38% |      14.06% |          99.38% |  98.75% |
+| Alias v1.0.0 + lexical          |   99.38% |      14.06% |          99.38% |  98.75% |
+| Cloudflare BGE-M3 + lexical RRF |  100.00% |      14.22% |          98.75% | 100.00% |
 
 Alias 主指标不变，独立的 24 条别名探针由 16/24 提升为 24/24。Hybrid 补回了
 `timeline-015` 的重复 Claim，使 Recall@8 与通过率分别提升 0.62 和 1.25 个百分点；同时
@@ -124,3 +124,14 @@ OpenAI 与 SWE-bench Evidence。查询级诊断为 `retrievalMode=hybrid`、`fal
   `fallbackReason=null`、候选 12、返回 8、Claim 8、引用 8。
 
 因此 Epic 1C 的 staging 正常路径、provider 故障安全降级和恢复路径均有查询级证据，完整验收通过。
+
+## 2026-08-31：质量看板评估快照
+
+Epic 3 没有重跑或改写固定集指标。`scripts/publish_quality_metrics.py` 从上述 Cloudflare BGE-M3
+生产 Hybrid 结构化结果提取可公开字段，生成 `backend/data/quality_evaluation.json`。该文件保留
+Golden Set 版本、样本数、检索模式、Embedding 模型、TopK、评估实现提交、原始结果路径和四项
+真实指标，并使用评估运行时间作为独立 `updatedAt`。
+
+业务质量在 `/api/quality/metrics` 请求时复用现有质量门禁轻量聚合，使用自己的更新时间；评估快照
+只在每日窗口或检索策略变更后更新。前端 `/quality` 因此不会触发 Embedding 调用，30 分钟 Cron
+也不会重跑固定集。CI 会重新生成评估清单并与提交文件比较，阻止结果源与公开看板静默漂移。

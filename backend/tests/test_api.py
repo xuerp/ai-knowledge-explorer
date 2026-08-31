@@ -86,7 +86,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.31-cloudflare-hybrid-v66",
+        "release": "2026.08.31-quality-dashboard-v67",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260831_0021",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -174,6 +174,39 @@ def test_data_quality_overview_does_not_run_full_rag_index_sync(client: TestClie
     assert response.json()["evaluationScope"] == "overview"
     with client.app.state.database.session() as session:
         assert session.query(RagClaimDocumentRecord).count() == before
+
+
+def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
+    client: TestClient,
+):
+    response = client.get("/api/quality/metrics")
+
+    assert response.status_code == 200
+    payload = response.json()
+    snapshot = client.get("/api/v2/snapshot").json()
+    assert payload["dataMode"] == "demo"
+    assert payload["business"]["entityCount"] == len(snapshot["entities"])
+    assert payload["business"]["claimCount"] == len(snapshot["claims"])
+    assert payload["business"]["evidenceCount"] == len(snapshot["evidence"])
+    assert payload["business"]["relationCount"] == len(snapshot["graph"]["edges"])
+    assert payload["business"]["timelineEntryCount"] == sum(
+        len(items) for items in snapshot["timeline"].values()
+    )
+    assert payload["business"]["updatedAt"]
+    assert payload["evaluation"]["updatedAt"] == "2026-08-31T06:00:28.810798Z"
+    assert payload["evaluation"]["cadence"] == "daily-or-on-retrieval-change"
+    assert payload["evaluation"]["goldenSetVersion"] == "1.0.0"
+    assert payload["evaluation"]["sampleCount"] == 80
+    assert payload["evaluation"]["retrievalMode"] == "hybrid"
+    assert payload["evaluation"]["recallAt8"] == 1.0
+    assert payload["evaluation"]["precisionAt8"] == 0.1422
+    assert payload["evaluation"]["entityRecallAt8"] == 0.9875
+    assert payload["evaluation"]["passRatio"] == 1.0
+    versioned = client.get("/api/v2/quality/metrics")
+    assert versioned.status_code == 200
+    assert versioned.json()["dataMode"] == payload["dataMode"]
+    assert versioned.json()["business"] == payload["business"]
+    assert versioned.json()["evaluation"] == payload["evaluation"]
 
 
 def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client: TestClient):

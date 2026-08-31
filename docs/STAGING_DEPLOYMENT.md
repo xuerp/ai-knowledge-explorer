@@ -79,6 +79,15 @@ AI_RADAR_SMOKE_FRONTEND_URL=https://你的前端地址 \
 bun run smoke:staging
 ```
 
+数据质量看板使用公开只读接口 `/api/quality/metrics`（兼容别名 `/api/v2/quality/metrics`）。业务指标在请求时从当前数据库轻量聚合，并写入自己的 `updatedAt`；固定集评估从随版本部署的 `backend/data/quality_evaluation.json` 读取，使用独立 `updatedAt`。评估文件只在每日评估窗口或检索策略变更后由 `scripts/publish_quality_metrics.py` 生成，不能放入每 30 分钟的自动化周期，也不能在页面请求时调用 Embedding provider。
+
+部署后以无登录窗口完成以下验收：
+
+1. 访问 `https://你的API地址/api/quality/metrics`，确认 HTTP 200，`business.updatedAt` 与 `evaluation.updatedAt` 均存在且彼此独立。
+2. 访问 `https://你的前端地址/quality`，确认业务质量和 Golden Set 两组指标可见，并分别显示更新时间。
+3. 确认页面明确说明评估 cadence 为每日或检索策略变更后运行，未把固定集评估伪装成实时指标。
+4. 对照公开快照确认业务计数一致；对照版本化评估结果确认 Golden Set 版本、样本数、检索模式和四项指标一致。
+
 ## 5. 核对 Cloudflare 定时任务
 
 定时任务使用独立的 `AI_RADAR_AUTOMATION_TOKEN`，只能调用单周期自动化接口，不能登录审核后台，也不能替代管理员 JWT。不要复用 `AI_RADAR_ADMIN_TOKEN`、数据库密码或其他 API Key。
@@ -134,5 +143,6 @@ Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数�
 7. 免费 API 休眠后能够被正常唤醒。
 8. 新快照出现后的下一次定时周期会生成候选；满足严格关系规则的候选会自动批准，其余进入“候选队列”。重复运行不会为同一快照生成重复候选。
 9. 管理员集成状态显示 `retrievalMode: hybrid`、`embeddingConfigured: true`、provider 为 `cloudflare`，响应中不包含 Account ID 或 API Token；研究请求返回 `retrievalMode: hybrid`。随后临时移除或替换错误 Token，确认同一请求安全降级为 lexical，再恢复正确 Secret。
+10. 公开质量指标 API 与 `/quality` 页面可访问，业务/评估更新时间分离，固定集评估没有进入高频 Cron。
 
 预发布稳定运行并完成正式数据质量、自动任务、备份、监控和邮件投递验收前，不得切换为 `live`。

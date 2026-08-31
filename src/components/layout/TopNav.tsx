@@ -9,6 +9,7 @@ import {
   BookOpen,
   UserRound,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import { pick, useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const NAV = [
   { to: "/compare", zh: "AI 对比", en: "Compare" },
   { to: "/graph", zh: "洞察", en: "Insights" },
   { to: "/ask", zh: "AI 研究", en: "Ask" },
+  { to: "/quality", zh: "质量", en: "Quality" },
   { to: "/case-study", zh: "关于项目", en: "About" },
 ] as const;
 
@@ -192,6 +194,11 @@ export function TopNav() {
             <DropdownMenuItem asChild>
               <Link to="/following">
                 <BookOpen className="h-4 w-4" /> {t("关注", "Following")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/quality">
+                <BarChart3 className="h-4 w-4" /> {t("数据质量", "Data quality")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

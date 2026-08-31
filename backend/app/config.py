@@ -22,6 +22,7 @@ class Settings:
     seed_snapshot_path: Path
     admin_token: str | None
     cors_origins: tuple[str, ...]
+    quality_evaluation_path: Path = BACKEND_ROOT / "data" / "quality_evaluation.json"
     automation_token: str | None = None
     automation_cycle_lease_seconds: int = 900
     environment: str = "development"
@@ -166,6 +167,12 @@ class Settings:
                 os.getenv(
                     "AI_RADAR_SEED_SNAPSHOT",
                     str(BACKEND_ROOT / "data" / "demo_snapshot.json"),
+                )
+            ),
+            quality_evaluation_path=Path(
+                os.getenv(
+                    "AI_RADAR_QUALITY_EVALUATION_PATH",
+                    str(BACKEND_ROOT / "data" / "quality_evaluation.json"),
                 )
             ),
             admin_token=os.getenv("AI_RADAR_ADMIN_TOKEN") or None,

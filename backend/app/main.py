@@ -10,7 +10,7 @@ import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -23,6 +23,8 @@ from .database import (
     Database,
     DocumentSnapshotRecord,
     KnowledgeEntityRecord,
+    KnowledgeRelationRecord,
+    KnowledgeTimelineRecord,
     PublicationRecordRow,
     ReviewJobRecord,
     SourceRecord,
@@ -59,6 +61,7 @@ from .schemas import (
     AuditLogView,
     AutomationCycleResponse,
     BootstrapUser,
+    BusinessQualityMetrics,
     CandidateAssessment,
     CandidateCreate,
     Claim,
@@ -78,6 +81,7 @@ from .schemas import (
     EmailOutboxView,
     Entity,
     EntityClaimPage,
+    EvaluationQualityMetrics,
     ExtractionPlanItem,
     ExtractionProbeResult,
     ExtractionRequest,
@@ -99,6 +103,7 @@ from .schemas import (
     ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
+    QualityMetrics,
     RelationBackfillStatus,
     RelationClaimAuditItem,
     RelationClaimAuditReport,
@@ -130,7 +135,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260831_0021"
-SERVICE_RELEASE = "2026.08.31-cloudflare-hybrid-v66"
+SERVICE_RELEASE = "2026.08.31-quality-dashboard-v67"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
@@ -1540,6 +1545,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             }
         )
 
+    def business_metrics_updated_at(session: Session) -> datetime:
+        candidates = [
+            session.scalar(select(func.max(KnowledgeEntityRecord.updated_at))),
+            session.scalar(select(func.max(KnowledgeRelationRecord.updated_at))),
+            session.scalar(select(func.max(KnowledgeTimelineRecord.updated_at))),
+            session.scalar(select(func.max(PublicationRecordRow.published_at))),
+        ]
+        latest = max((item for item in candidates if item is not None), default=None)
+        if latest is None:
+            return datetime.now(UTC)
+        return latest if latest.tzinfo is not None else latest.replace(tzinfo=UTC)
+
+    def evaluation_quality_metrics() -> EvaluationQualityMetrics:
+        try:
+            payload = json.loads(app_settings.quality_evaluation_path.read_text(encoding="utf-8"))
+            return EvaluationQualityMetrics.model_validate(payload)
+        except (OSError, json.JSONDecodeError, ValueError) as error:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="The committed retrieval evaluation artifact is unavailable.",
+            ) from error
+
     def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
         snapshot = get_catalog_snapshot(session)
         if app_settings.data_mode == "live":
@@ -1555,6 +1582,30 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v2/snapshot", response_model=KnowledgeSnapshot)
     def snapshot(session: SessionDependency) -> KnowledgeSnapshot:
         return get_public_snapshot(session)
+
+    @app.get("/api/quality/metrics", response_model=QualityMetrics)
+    @app.get("/api/v2/quality/metrics", response_model=QualityMetrics)
+    def quality_metrics(session: SessionDependency) -> QualityMetrics:
+        report = quality_gate.report(get_catalog_snapshot(session))
+        return QualityMetrics(
+            generated_at=datetime.now(UTC),
+            data_mode=app_settings.data_mode,
+            business=BusinessQualityMetrics(
+                updated_at=business_metrics_updated_at(session),
+                entity_count=report.entity_count,
+                claim_count=report.claim_count,
+                evidence_count=report.evidence_count,
+                relation_count=report.relation_count,
+                timeline_entry_count=report.timeline_entry_count,
+                evidence_reference_coverage=report.evidence_reference_coverage,
+                official_evidence_ratio=report.official_evidence_ratio,
+                reviewed_evidence_ratio=report.reviewed_evidence_ratio,
+                fresh_evidence_ratio=report.fresh_evidence_ratio,
+                verified_content_ratio=report.verified_content_ratio,
+                core_relation_deficit=report.core_relation_deficit,
+            ),
+            evaluation=evaluation_quality_metrics(),
+        )
 
     @app.get("/api/v2/entities", response_model=list[Entity])
     def entities(

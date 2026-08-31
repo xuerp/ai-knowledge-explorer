@@ -998,6 +998,45 @@ class DataQualityReport(CamelModel):
     issues: list[str]
 
 
+class BusinessQualityMetrics(CamelModel):
+    updated_at: datetime
+    entity_count: int
+    claim_count: int
+    evidence_count: int
+    relation_count: int
+    timeline_entry_count: int
+    evidence_reference_coverage: float
+    official_evidence_ratio: float
+    reviewed_evidence_ratio: float
+    fresh_evidence_ratio: float
+    verified_content_ratio: float
+    core_relation_deficit: int
+
+
+class EvaluationQualityMetrics(CamelModel):
+    updated_at: datetime
+    cadence: Literal["daily-or-on-retrieval-change"]
+    artifact_path: str
+    golden_set_version: str
+    sample_count: int
+    snapshot_sha256: str
+    retrieval_mode: Literal["lexical", "hybrid"]
+    embedding_model: str | None = None
+    top_k: int
+    evaluation_commit: str
+    recall_at_8: float
+    precision_at_8: float
+    entity_recall_at_8: float
+    pass_ratio: float
+
+
+class QualityMetrics(CamelModel):
+    generated_at: datetime
+    data_mode: Literal["demo", "live"]
+    business: BusinessQualityMetrics
+    evaluation: EvaluationQualityMetrics
+
+
 class ReleaseBaseline(CamelModel):
     generated_at: datetime
     build: HealthResponse
