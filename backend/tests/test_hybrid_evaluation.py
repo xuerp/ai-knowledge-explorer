@@ -45,8 +45,9 @@ def test_committed_production_hybrid_result_is_complete_and_guarded():
     raw = result_path.read_bytes()
     report = json.loads(raw)
 
-    assert hashlib.sha256(raw).hexdigest() == (
-        "1e3b3f40eebc194c8d023dc4ed804be1e255638a5cab5c62b8f5e8790e2eaf21"
+    canonical_raw = raw.replace(b"\r\n", b"\n")
+    assert hashlib.sha256(canonical_raw).hexdigest() == (
+        "6a789336381864a0a4188cf65eb7c139d8c358cdedb075d607ac776cb8da909e"
     )
     assert report["metadata"] == {
         **report["metadata"],

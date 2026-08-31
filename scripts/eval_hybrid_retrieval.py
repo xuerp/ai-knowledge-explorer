@@ -209,9 +209,11 @@ def main() -> None:
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
     json_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
-    markdown_path.write_text(markdown_summary(report), encoding="utf-8")
+    markdown_path.write_text(markdown_summary(report), encoding="utf-8", newline="\n")
     print(json.dumps({"json": str(json_path), "markdown": str(markdown_path)}))
 
 
