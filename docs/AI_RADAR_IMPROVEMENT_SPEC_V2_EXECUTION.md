@@ -64,9 +64,9 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 3. [x] 查询与目录共用 Unicode NFKC、casefold、下划线及空白规范化，别名进入 lexical 检索文档。
 4. [x] 使用 Golden Set v1.0.0、同一固定 snapshot 和 TopK=8 做前后对照；实体类 Entity Recall@8 均为 100%，24 条补充别名探针从 16/24 提升到 24/24。
 
-### Epic 1C：Embedding 与混合检索 — pending after 1A/1B
+### Epic 1C：Embedding 与混合检索 — in progress / pending authorization
 
-复用现有 provider、vector index、RRF 和安全降级接口。剩余任务是实际 benchmark、版本化 schema、ADR 与 staging 验证。未获授权不调用付费 API；不得把现有 PostgreSQL lexical FTS 称为 BM25。
+复用现有 provider、vector index、RRF 和安全降级接口。可复现 benchmark harness 与首个零费用本地候选已经完成：BGE-small-zh 纯向量 Recall@8 为 85.00%，hybrid 为 100.00%，但本地峰值 RSS 约 1.72GB。API 候选尚未获得付费调用授权，因此当前不选型、不做 Schema migration、不声称 hybrid 已上线。未获授权不调用付费 API；不得把现有 PostgreSQL lexical FTS 称为 BM25。
 
 ### Epic 1D：Reranker — deferred
 
@@ -94,4 +94,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。按 Spec 顺序，下一个可执行主线节点是 Epic 1C：先在不调用付费 API 的边界内盘点候选 Embedding、设计版本化 schema 和可复现 benchmark；任何真实付费调用仍需用户另行授权。
+Epic 0、1A、2A、1B 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。当前停在 Epic 1C 的明确执行门：benchmark harness 和本地候选已完成，下一步只能在项目所有者授权 0.01 美元硬上限且本地安全配置 API Key 后，运行 `text-embedding-3-small` 候选；完成真实对比前不得进入选型、Schema 或后续 Epic。
