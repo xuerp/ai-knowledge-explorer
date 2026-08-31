@@ -42,8 +42,18 @@ class Settings:
     auto_approve_grounded_relations: bool = False
     relation_backfill_batch_id: str | None = None
     relation_backfill_max_snapshots: int = 0
+    retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
     rag_hybrid_enabled: bool = False
     rag_generation_enabled: bool = False
+    embedding_provider: Literal["none", "cloudflare"] = "none"
+    embedding_model: str = "@cf/baai/bge-m3"
+    embedding_version: str = "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline"
+    embedding_dimension: int = 1024
+    embedding_daily_neuron_budget: float = 1000
+    embedding_neurons_per_million_tokens: float = 1075
+    embedding_daily_api_call_budget: int = 1000
+    cloudflare_account_id: str | None = None
+    cloudflare_api_token: str | None = None
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
@@ -87,6 +97,18 @@ class Settings:
             raise ValueError(
                 "AI_RADAR_RELATION_BACKFILL_BATCH_ID is required when relation backfill is enabled."
             )
+        if self.retrieval_mode not in {"lexical", "hybrid"}:
+            raise ValueError("AI_RADAR_RETRIEVAL_MODE must be 'lexical' or 'hybrid'.")
+        if self.embedding_provider not in {"none", "cloudflare"}:
+            raise ValueError("AI_RADAR_EMBEDDING_PROVIDER must be 'none' or 'cloudflare'.")
+        if self.embedding_dimension <= 0:
+            raise ValueError("AI_RADAR_EMBEDDING_DIMENSION must be positive.")
+        if self.embedding_daily_neuron_budget <= 0:
+            raise ValueError("AI_RADAR_EMBEDDING_DAILY_NEURON_BUDGET must be positive.")
+        if self.embedding_neurons_per_million_tokens <= 0:
+            raise ValueError("AI_RADAR_EMBEDDING_NEURONS_PER_MILLION_TOKENS must be positive.")
+        if self.embedding_daily_api_call_budget <= 0:
+            raise ValueError("AI_RADAR_EMBEDDING_DAILY_API_CALL_BUDGET must be positive.")
         if not 1 <= self.email_max_attempts <= 20:
             raise ValueError("AI_RADAR_EMAIL_MAX_ATTEMPTS must be between 1 and 20.")
         if self.email_retry_base_seconds < 1:
@@ -119,6 +141,20 @@ class Settings:
         data_mode = os.getenv("AI_RADAR_DATA_MODE", "demo")
         if data_mode not in {"demo", "live"}:
             raise ValueError("AI_RADAR_DATA_MODE must be either 'demo' or 'live'.")
+        legacy_hybrid_enabled = os.getenv("AI_RADAR_RAG_HYBRID_ENABLED", "false").lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        retrieval_mode = os.getenv(
+            "AI_RADAR_RETRIEVAL_MODE",
+            "hybrid" if legacy_hybrid_enabled else "lexical",
+        ).lower()
+        if retrieval_mode not in {"lexical", "hybrid"}:
+            raise ValueError("AI_RADAR_RETRIEVAL_MODE must be 'lexical' or 'hybrid'.")
+        embedding_provider = os.getenv("AI_RADAR_EMBEDDING_PROVIDER", "none").lower()
+        if embedding_provider not in {"none", "cloudflare"}:
+            raise ValueError("AI_RADAR_EMBEDDING_PROVIDER must be 'none' or 'cloudflare'.")
         return cls(
             database_url=normalize_database_url(
                 os.getenv(
@@ -171,10 +207,28 @@ class Settings:
             relation_backfill_max_snapshots=int(
                 os.getenv("AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS", "0")
             ),
-            rag_hybrid_enabled=os.getenv("AI_RADAR_RAG_HYBRID_ENABLED", "false").lower()
-            in {"1", "true", "yes"},
+            retrieval_mode=retrieval_mode,
+            rag_hybrid_enabled=legacy_hybrid_enabled,
             rag_generation_enabled=os.getenv("AI_RADAR_RAG_GENERATION_ENABLED", "false").lower()
             in {"1", "true", "yes"},
+            embedding_provider=embedding_provider,
+            embedding_model=os.getenv("AI_RADAR_EMBEDDING_MODEL", "@cf/baai/bge-m3"),
+            embedding_version=os.getenv(
+                "AI_RADAR_EMBEDDING_VERSION",
+                "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline",
+            ),
+            embedding_dimension=int(os.getenv("AI_RADAR_EMBEDDING_DIMENSION", "1024")),
+            embedding_daily_neuron_budget=float(
+                os.getenv("AI_RADAR_EMBEDDING_DAILY_NEURON_BUDGET", "1000")
+            ),
+            embedding_neurons_per_million_tokens=float(
+                os.getenv("AI_RADAR_EMBEDDING_NEURONS_PER_MILLION_TOKENS", "1075")
+            ),
+            embedding_daily_api_call_budget=int(
+                os.getenv("AI_RADAR_EMBEDDING_DAILY_API_CALL_BUDGET", "1000")
+            ),
+            cloudflare_account_id=os.getenv("CLOUDFLARE_ACCOUNT_ID") or None,
+            cloudflare_api_token=os.getenv("CLOUDFLARE_API_TOKEN") or None,
             smtp_host=os.getenv("AI_RADAR_SMTP_HOST") or None,
             smtp_port=int(os.getenv("AI_RADAR_SMTP_PORT", "587")),
             smtp_username=os.getenv("AI_RADAR_SMTP_USERNAME") or None,

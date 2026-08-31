@@ -40,6 +40,8 @@ Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤�
    - `AI_RADAR_DATABASE_URL`：Neon pooled connection string。
    - `AI_RADAR_ADMIN_TOKEN`：仅用于创建首个管理员的临时随机值。
    - `AI_RADAR_CORS_ORIGINS`：`https://ai-radar-staging.你的Cloudflare子域名.workers.dev`。
+   - `CLOUDFLARE_ACCOUNT_ID`：Workers AI 页面显示的 Account ID。
+   - `CLOUDFLARE_API_TOKEN`：使用 Cloudflare 的 “Create a Workers AI API Token” 模板创建，只保存在 Render Secret 中。
 4. 确认资源列表中只有 `ai-radar-api-staging`，计划必须显示 `Free`，不应再出现 Background Worker 或 Render Postgres。
 5. 部署完成后访问 `https://你的API地址/ready`，确认返回 `ok: true`、`dataMode: demo` 和 PostgreSQL 数据库类型。
 6. 在仓库根目录运行以下命令，按提示输入管理员邮箱、密码和 Render 中的临时令牌。令牌与密码不会回显，也不会写入命令历史：
@@ -50,7 +52,9 @@ Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤�
 
 7. 脚本确认管理员创建和登录验证成功后，从 API 服务中删除 `AI_RADAR_ADMIN_TOKEN` 并重新部署。
 
-AI 抽取、SMTP 和采集白名单暂不放入 Blueprint。Render 免费实例阻止常用 SMTP 端口，真实邮件投递应改用 HTTPS 邮件 API 或在后续付费环境中配置。任何密钥都不得提交到 `render.yaml`、`.env.production.example` 或 `VITE_` 变量。
+Embedding staging 配置由 Blueprint 固定为 `AI_RADAR_RETRIEVAL_MODE=hybrid`、Cloudflare `@cf/baai/bge-m3`、每日最多 1,000 Neurons 与 1,000 次请求。首次查询会为约 200 个 Claim 建立持久向量，后续只补齐内容哈希变化的记录；凭证缺失、预算超限、远端错误或维度异常都会返回 lexical 结果并记录降级原因。Cloudflare 账户必须保持 Free Plan，不能为本项目启用自动付费升级。
+
+AI 抽取和 SMTP 暂不放入 Blueprint。Render 免费实例阻止常用 SMTP 端口，真实邮件投递应改用 HTTPS 邮件 API 或在后续付费环境中配置。任何密钥都不得提交到 `render.yaml`、`.env.production.example` 或 `VITE_` 变量。
 
 ## 4. 部署 Cloudflare 预览前端
 
@@ -129,5 +133,6 @@ Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数�
 6. 未启用 Cron 时，“生产上线预检”准确显示 worker 未部署；启用后，审核后台可看到最近的 `scheduled` 周期和新鲜心跳。
 7. 免费 API 休眠后能够被正常唤醒。
 8. 新快照出现后的下一次定时周期会生成候选；满足严格关系规则的候选会自动批准，其余进入“候选队列”。重复运行不会为同一快照生成重复候选。
+9. 管理员集成状态显示 `retrievalMode: hybrid`、`embeddingConfigured: true`、provider 为 `cloudflare`，响应中不包含 Account ID 或 API Token；研究请求返回 `retrievalMode: hybrid`。随后临时移除或替换错误 Token，确认同一请求安全降级为 lexical，再恢复正确 Secret。
 
 预发布稳定运行并完成正式数据质量、自动任务、备份、监控和邮件投递验收前，不得切换为 `live`。

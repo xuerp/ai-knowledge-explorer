@@ -1927,7 +1927,7 @@ function AdminReviewPage() {
                 生产环境检查
               </span>
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <IntegrationCard
                 title="AI 候选抽取"
                 ready={workspace.integrations.extractionConfigured}
@@ -1950,6 +1950,17 @@ function AdminReviewPage() {
                   >
                     验证连接与结构化输出
                   </Button>
+                }
+              />
+              <IntegrationCard
+                title="混合检索"
+                ready={workspace.integrations.embeddingConfigured}
+                detail={
+                  workspace.integrations.embeddingConfigured
+                    ? `${workspace.integrations.retrievalMode} · ${workspace.integrations.embeddingProvider}/${workspace.integrations.embeddingModel} · ${workspace.integrations.embeddingDimension} 维 · 每日上限 ${workspace.integrations.embeddingDailyNeuronBudget} Neurons / ${workspace.integrations.embeddingDailyApiCallBudget} 次请求`
+                    : workspace.integrations.retrievalMode === "hybrid"
+                      ? "已请求 hybrid，但凭证或 provider 配置不完整；当前安全降级 lexical"
+                      : "生产默认 lexical；staging 完整配置后才启用 hybrid"
                 }
               />
               <IntegrationCard

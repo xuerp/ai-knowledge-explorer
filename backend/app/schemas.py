@@ -387,6 +387,14 @@ class IntegrationStatus(CamelModel):
     automatic_extraction_max_candidates_per_snapshot: int
     automatic_extraction_retry_minutes: int
     automatic_relation_approval_enabled: bool
+    retrieval_mode: Literal["lexical", "hybrid"]
+    embedding_configured: bool
+    embedding_provider: Literal["none", "cloudflare"]
+    embedding_model: str | None = None
+    embedding_version: str | None = None
+    embedding_dimension: int | None = None
+    embedding_daily_neuron_budget: float | None = None
+    embedding_daily_api_call_budget: int | None = None
     smtp_configured: bool
     smtp_host: str | None = None
     smtp_from: str | None = None
