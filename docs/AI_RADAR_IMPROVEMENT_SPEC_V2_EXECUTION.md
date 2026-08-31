@@ -64,13 +64,17 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 3. [x] 查询与目录共用 Unicode NFKC、casefold、下划线及空白规范化，别名进入 lexical 检索文档。
 4. [x] 使用 Golden Set v1.0.0、同一固定 snapshot 和 TopK=8 做前后对照；实体类 Entity Recall@8 均为 100%，24 条补充别名探针从 16/24 提升到 24/24。
 
-### Epic 1C：Embedding 与混合检索 — in progress / pending authorization
+### Epic 1C：Embedding 与混合检索 — implementation and evaluation completed / staging activation pending
 
-复用现有 provider、vector index、RRF 和安全降级接口。可复现 benchmark harness 与首个零费用本地候选已经完成：BGE-small-zh 纯向量 Recall@8 为 85.00%，hybrid 为 100.00%，但本地峰值 RSS 约 1.72GB。API 候选尚未获得付费调用授权，因此当前不选型、不做 Schema migration、不声称 hybrid 已上线。未获授权不调用付费 API；不得把现有 PostgreSQL lexical FTS 称为 BM25。
+1. [x] 在固定 Golden Set 上完成本地 BGE-small-zh 与 Cloudflare Workers AI `@cf/baai/bge-m3` 真实候选对比，ADR-0005 选择 Cloudflare 作为 staging hybrid provider；OpenAI 因付款约束、DoroAI 因没有可验证模型而取消。
+2. [x] 迁移 `20260831_0021` 建立独立版本化 `rag_claim_embeddings` 表，并验证 upgrade、downgrade、re-upgrade 与单一 head。
+3. [x] 实现生产 `CloudflareEmbeddingProvider`、增量持久向量索引、lexical/vector RRF union、预算硬上限、结构化状态与安全 lexical fallback；`RETRIEVAL_MODE` 默认保持 `lexical`。
+4. [x] 使用生产 provider、版本化索引和 RRF union 重跑固定集：Recall@8 100.00%、Precision@8 14.22%、Entity Recall@8 98.75%、通过率 100.00%，80 条查询无 fallback。
+5. [ ] 在 Render staging 安全配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN`，重新部署后完成带权限的 hybrid 状态和降级验收。仓库与 Blueprint 已就绪；本地环境变量不会自动同步到 Render，未验证前不声称 staging 已上线。
 
-### Epic 1D：Reranker — deferred
+### Epic 1D：Reranker — completed / not justified
 
-现有接口和测试不等于应启用真实 Reranker。只有 1C 结果显示 Recall@8 可接受而 Precision@8 明显不足时才投入。
+生产 Hybrid 固定集的 Precision@8 为 14.22%。大多数题只有一个标注相关 Claim，固定 TopK=8 时理论值即 12.5%，因此不存在 Spec 所说的“Precision@8 明显不足”。不引入真实 Reranker，避免没有证据支撑的延迟、外部依赖与潜在费用。
 
 ### Epic 2B：定向关系抽取 — blocked
 
@@ -94,4 +98,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B 已完成。Epic 2B 因安全 Snapshot 尚未形成而保持 blocked，不得启动抽取。当前停在 Epic 1C 的明确执行门：benchmark harness 和本地候选已完成，下一步只能在项目所有者授权 0.01 美元硬上限且本地安全配置 API Key 后，运行 `text-embedding-3-small` 候选；完成真实对比前不得进入选型、Schema 或后续 Epic。
+Epic 0、1A、2A、1B、1C 的代码与固定集评估以及 1D 判定已完成。Epic 1C 只剩外部 staging 激活：在 Render 服务安全配置 `CLOUDFLARE_ACCOUNT_ID` 与 `CLOUDFLARE_API_TOKEN`，重新部署后验证受保护状态接口显示 hybrid 已配置，并执行一次 provider 故障到 lexical 的降级验收。未完成这一步前，不声称 staging 已上线。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。

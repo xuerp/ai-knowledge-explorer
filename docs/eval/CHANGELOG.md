@@ -66,3 +66,31 @@ SQLite 的前后主指标如下：
 修改样本或口径制造提升。作为同快照的补充覆盖证明，24 条逐别名确定性探针由 16/24 提升为
 24/24；它不替代 Golden Set 指标，也不与 Recall@8 混算。完整逐题与逐别名结果保存在
 `docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8.json`。
+
+## 2026-08-31：Cloudflare BGE-M3 生产 Hybrid 路径
+
+固定版本仍为 Golden Set v1.0.0、公开快照 SHA-256
+`8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e`、别名目录 v1.0.0、
+TopK=8、RRF K=60。Embedding 为 Cloudflare Workers AI `@cf/baai/bge-m3`，版本标识
+`cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline`，维度 1024。评估实现绑定提交
+`8a6b0b7ac37bf94e715c261bf325b9314e6d2987`。
+
+本次不是 benchmark 内部的向量数组模拟，而是实际执行生产 `CloudflareEmbeddingProvider`、
+版本化 `rag_claim_embeddings` 持久索引和 RRF union。结构化结果位于
+`docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json`，
+SHA-256 为 `1e3b3f40eebc194c8d023dc4ed804be1e255638a5cab5c62b8f5e8790e2eaf21`。
+
+| 阶段 | Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |
+|---|---:|---:|---:|---:|
+| PostgreSQL lexical FTS baseline | 99.38% | 14.06% | 99.38% | 98.75% |
+| Alias v1.0.0 + lexical | 99.38% | 14.06% | 99.38% | 98.75% |
+| Cloudflare BGE-M3 + lexical RRF | 100.00% | 14.22% | 98.75% | 100.00% |
+
+Alias 主指标不变，独立的 24 条别名探针由 16/24 提升为 24/24。Hybrid 补回了
+`timeline-015` 的重复 Claim，使 Recall@8 与通过率分别提升 0.62 和 1.25 个百分点；同时
+Entity Recall@8 下降 0.63 个百分点。80 条查询全部走 hybrid 且无 fallback。端到端查询延迟
+p50/p95 约为 409/743 ms；固定工作量共 82 次 API 调用，保守估算 74.9813 Neurons，低于
+本次 100 次与 100 Neurons 双重硬上限。
+
+不进入 Epic 1D：大多数题只标注一个相关 Claim，Precision@8 的理论值即 12.5%；14.22% 不能
+被解释为明显不足。当前没有证据证明 Reranker 的新增延迟、外部依赖与潜在费用是必要的。
