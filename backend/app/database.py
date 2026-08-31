@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     ForeignKey,
     Index,
@@ -313,6 +314,43 @@ class RagClaimDocumentRecord(Base):
     source_published_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class RagClaimEmbeddingRecord(Base):
+    __tablename__ = "rag_claim_embeddings"
+    __table_args__ = (
+        UniqueConstraint(
+            "claim_id",
+            "embedding_provider",
+            "embedding_model",
+            "embedding_version",
+            name="uq_rag_claim_embedding_version",
+        ),
+        Index(
+            "ix_rag_claim_embeddings_model_version",
+            "embedding_provider",
+            "embedding_model",
+            "embedding_version",
+        ),
+        Index("ix_rag_claim_embeddings_content_hash", "content_hash"),
+        CheckConstraint(
+            "embedding_dimension > 0",
+            name="ck_rag_claim_embeddings_positive_dimension",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    claim_id: Mapped[str] = mapped_column(
+        ForeignKey("rag_claim_documents.claim_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    embedding_provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(255), nullable=False)
+    embedding_version: Mapped[str] = mapped_column(String(255), nullable=False)
+    embedding_dimension: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    vector_json: Mapped[str] = mapped_column(Text, nullable=False)
+    embedded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 Index(

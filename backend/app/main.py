@@ -128,8 +128,8 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260831_0020"
-SERVICE_RELEASE = "2026.08.31-entity-alias-normalization-v64"
+DATABASE_SCHEMA_REVISION = "20260831_0021"
+SERVICE_RELEASE = "2026.08.31-embedding-schema-v65"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
