@@ -119,9 +119,7 @@ def test_committed_cloudflare_benchmark_is_version_bound_and_within_free_cap():
     report = json.loads(report_path.read_text(encoding="utf-8"))
     metadata = report["metadata"]
 
-    assert metadata["evaluationCommit"] == (
-        "b7f0d380ef28e528ac5727544848b54450eae2e7"
-    )
+    assert metadata["evaluationCommit"] == ("b7f0d380ef28e528ac5727544848b54450eae2e7")
     assert metadata["goldenSetVersion"] == "1.0.0"
     assert metadata["snapshotSha256"].startswith("8978fef80e19")
     assert metadata["provider"] == "cloudflare"
