@@ -109,3 +109,26 @@ def test_committed_bge_benchmark_is_version_bound_and_zero_cost():
     assert report["usage"]["estimatedCostUsd"] == 0
     assert report["metrics"]["vector"]["overall"]["recallAtK"] == 0.85
     assert report["metrics"]["hybrid"]["overall"]["recallAtK"] == 1.0
+
+
+def test_committed_cloudflare_benchmark_is_version_bound_and_within_free_cap():
+    report_path = (
+        Path(__file__).resolve().parents[2]
+        / "docs/eval/results/embedding_cloudflare_-cf-baai-bge-m3_8978fef80e19.json"
+    )
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    metadata = report["metadata"]
+
+    assert metadata["evaluationCommit"] == (
+        "b7f0d380ef28e528ac5727544848b54450eae2e7"
+    )
+    assert metadata["goldenSetVersion"] == "1.0.0"
+    assert metadata["snapshotSha256"].startswith("8978fef80e19")
+    assert metadata["provider"] == "cloudflare"
+    assert metadata["modelName"] == "@cf/baai/bge-m3"
+    assert metadata["dimension"] == 1024
+    assert report["usage"]["apiCalls"] == 82
+    assert report["usage"]["estimatedNeurons"] == 74.9813
+    assert report["usage"]["estimatedNeurons"] < report["usage"]["dailyNeuronBudget"]
+    assert report["metrics"]["vector"]["overall"]["recallAtK"] == 0.9875
+    assert report["metrics"]["hybrid"]["overall"]["recallAtK"] == 1.0
