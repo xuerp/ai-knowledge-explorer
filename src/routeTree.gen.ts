@@ -18,6 +18,7 @@ import { Route as FollowingRouteImport } from './routes/following'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as QualityRouteImport } from './routes/quality'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
@@ -71,6 +72,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QualityRoute = QualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
   '/onboarding': typeof OnboardingRoute
+  '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
   '/onboarding': typeof OnboardingRoute
+  '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
   '/onboarding': typeof OnboardingRoute
+  '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/quality'
     | '/settings'
     | '/admin/review'
     | '/admin/review-demo'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/quality'
     | '/settings'
     | '/admin/review'
     | '/admin/review-demo'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/graph'
     | '/knowledge'
     | '/onboarding'
+    | '/quality'
     | '/settings'
     | '/admin/review'
     | '/admin/review-demo'
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   GraphRoute: typeof GraphRoute
   KnowledgeRoute: typeof KnowledgeRoute
   OnboardingRoute: typeof OnboardingRoute
+  QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
   AdminReviewRoute: typeof AdminReviewRoute
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quality': {
+      id: '/quality'
+      path: '/quality'
+      fullPath: '/quality'
+      preLoaderRoute: typeof QualityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -365,6 +385,7 @@ const rootRouteChildren: RootRouteChildren = {
   GraphRoute: GraphRoute,
   KnowledgeRoute: KnowledgeRoute,
   OnboardingRoute: OnboardingRoute,
+  QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
   AdminReviewRoute: AdminReviewRoute,
   AdminReviewDemoRoute: AdminReviewDemoRoute,

@@ -2,7 +2,7 @@
 
 > 持续追踪 AI 模型、Agent 与产品生态的变化，把分散的官方资料转化为有证据的事实、时间线、关系和研究结论。
 
-[在线体验](https://ai-radar-staging.1966761779.workers.dev) · [产品 Case Study](https://ai-radar-staging.1966761779.workers.dev/case-study) · [架构说明](docs/ARCHITECTURE.md)
+[在线体验](https://ai-radar-staging.1966761779.workers.dev) · [数据质量](https://ai-radar-staging.1966761779.workers.dev/quality) · [产品 Case Study](https://ai-radar-staging.1966761779.workers.dev/case-study) · [架构说明](docs/ARCHITECTURE.md)
 
 ![AI Radar 公开首页](docs/assets/portfolio/home-desktop.png)
 
@@ -10,14 +10,14 @@
 
 通用 AI Chat 适合一次性研究，但长期追踪几十个模型、Agent 和框架时，用户仍要重复搜索、核验来源、整理历史和重建比较维度。AI Radar 把这些重复工作沉淀为持续维护的知识层。
 
-| 通用 AI Chat | AI Radar |
-| --- | --- |
-| 每次重新提问 | 持续维护实体状态 |
-| 一次性生成 | Claim、Timeline、Relation 长期沉淀 |
-| 来源附属于回答 | Evidence 是一级数据 |
-| 对比依赖临时 Prompt | 固定维度下长期 Compare |
-| 模型直接组织结论 | Candidate 经过验证后才能公开 |
-| 内容不足时可能补全 | 证据不足时明确拒答 |
+| 通用 AI Chat        | AI Radar                           |
+| ------------------- | ---------------------------------- |
+| 每次重新提问        | 持续维护实体状态                   |
+| 一次性生成          | Claim、Timeline、Relation 长期沉淀 |
+| 来源附属于回答      | Evidence 是一级数据                |
+| 对比依赖临时 Prompt | 固定维度下长期 Compare             |
+| 模型直接组织结论    | Candidate 经过验证后才能公开       |
+| 内容不足时可能补全  | 证据不足时明确拒答                 |
 
 ## 三个核心体验
 
@@ -35,9 +35,9 @@
 
 ### 4. 可信 RAG：先检索可核验事实，再生成回答
 
-当前研究链路已经具备 PostgreSQL 全文检索、逐条 Claim 引用、Evidence 校验、检索诊断和黄金问题评估。Embedding、混合检索、Reranker 与带引用生成均采用默认关闭的扩展接口；未确认供应商和费用上限时，系统保持零额外模型费用的 `lexical + extractive` 模式。
+当前研究链路已经具备 PostgreSQL 全文检索、逐条 Claim 引用、Evidence 校验、检索诊断和黄金问题评估。默认配置仍保持零额外模型费用的 `lexical + extractive` 模式；staging 在明确预算上限内使用 Cloudflare Workers AI `@cf/baai/bge-m3` 做 Hybrid 检索，并在 provider 异常时安全降级到 lexical。
 
-最近一次本地基线中，引用覆盖率为 100%，但 RAG 检索通过率仅为 20%、实体 Recall@8 为 29.17%，因此 `ragReady=false`。项目不会用“能生成回答”替代真实召回质量。
+固定 Golden Set v1.0.0 的 80 条查询中，生产 Hybrid 路径真实达到 Recall@8 100.00%、Precision@8 14.22%、Entity Recall@8 98.75% 和通过率 100.00%。Precision@8 固定以 8 为分母，且多数题只标注一个相关 Claim，因此不据此无证据引入 Reranker。项目不会用“能生成回答”替代真实召回质量。
 
 ## 工作方式
 
@@ -84,21 +84,22 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 数据模式：`demo`
 - 快照新鲜度：`cached`
 
-截至 2026-08-30，匿名公开快照包含 49 个实体、193 条 Claim、215 条 Evidence、75 条 Relation 和 55 条 Timeline；Claim 数量已经超过 150 条正式门槛，证据引用覆盖率为 100%，官方来源占比约 97.2%。当前唯一未通过的数据质量门槛是核心关系覆盖：16 个核心实体仍缺 46 条带证据关系。因此系统继续保持 `demo/cached`，不会仅为去掉演示标签而提前切换为 `live`。自动抽取在 Claim 门槛达标后会转入“关系优先”模式，避免继续用普通概述堆长知识库与审核队列。
+截至 2026-08-30 的核实快照包含 49 个实体、196 条 Claim、218 条 Evidence、76 条 Relation 和 55 条 Timeline；Claim 数量已经超过 150 条正式门槛，证据引用覆盖率为 100%。当前未通过的数据质量门槛是核心关系覆盖：16 个核心实体仍缺 44 条带证据关系。因此系统继续保持 `demo/cached`，不会仅为去掉演示标签而提前切换为 `live`。自动抽取在 Claim 门槛达标后会转入“关系优先”模式，避免继续用普通概述堆长知识库与审核队列。
 
 ## 主要入口
 
-| 路径 | 用途 |
-| --- | --- |
-| `/` | 产品定位、最近变化、核心实体、Why ChatGPT 与三个核心体验 |
-| `/knowledge` | 分类浏览实体知识库 |
-| `/knowledge/model/gpt` | GPT 系列档案、版本和时间线 |
-| `/compare` | GPT、Claude、Gemini 路线与具体版本比较 |
-| `/graph` | 可解释关系查询、邻域、路径与来源 |
-| `/ask` | 未登录预置研究与登录后私密研究 |
-| `/case-study` | 正式公开产品故事、决策、风险和取舍 |
-| `/admin/review-demo` | 无需登录的只读审核闭环 |
-| `/admin/review` | 真实 reviewer/admin 工作台 |
+| 路径                   | 用途                                                     |
+| ---------------------- | -------------------------------------------------------- |
+| `/`                    | 产品定位、最近变化、核心实体、Why ChatGPT 与三个核心体验 |
+| `/knowledge`           | 分类浏览实体知识库                                       |
+| `/knowledge/model/gpt` | GPT 系列档案、版本和时间线                               |
+| `/compare`             | GPT、Claude、Gemini 路线与具体版本比较                   |
+| `/graph`               | 可解释关系查询、邻域、路径与来源                         |
+| `/ask`                 | 未登录预置研究与登录后私密研究                           |
+| `/quality`             | 业务数据质量与固定集检索评估；分别显示独立更新时间       |
+| `/case-study`          | 正式公开产品故事、决策、风险和取舍                       |
+| `/admin/review-demo`   | 无需登录的只读审核闭环                                   |
+| `/admin/review`        | 真实 reviewer/admin 工作台                               |
 
 ## 技术架构
 
@@ -108,7 +109,7 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 部署：Cloudflare Workers 同域代理 → Render API → Neon PostgreSQL。
 - 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 Cloudflare Cron。
 - RAG：PostgreSQL 全文检索、GIN 投影索引、逐 Claim 引用、严格生成 Schema、失败降级与黄金问题评估。
-- 质量：ESLint、TypeScript、83 项前端测试、130 项后端测试、Ruff、生产构建、SQLite/PostgreSQL 迁移验证和数据质量门槛。
+- 质量：ESLint、TypeScript、前后端自动测试、Ruff、生产构建、SQLite/PostgreSQL 迁移验证、固定集检索评估和数据质量门槛。
 
 详细结构见[架构说明](docs/ARCHITECTURE.md)。
 
@@ -176,7 +177,7 @@ python -m alembic check
 
 ### v1.5 Live Ready
 
-- 补齐 16 个核心实体的 46 条带证据关系；150+ Claim 门槛已经达成。
+- 只基于新增官方 Evidence 处理 16 个低覆盖核心实体的 44 条关系覆盖差值；150+ Claim 门槛已经达成。
 - 运行黄金问题、数据质量和生产就绪检查。
 - 完成 SMTP、正式域名、外部监控和备份恢复演练。
 - 只有 `liveReady=true` 后才把 `AI_RADAR_DATA_MODE` 改为 `live`。
