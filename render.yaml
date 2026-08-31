@@ -32,6 +32,23 @@ envVarGroups:
         value: 2026-08-core-relations-01
       - key: AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS
         value: "10"
+      # Hybrid 只在 staging 开启；凭证缺失、预算超限或 provider 异常时自动降级 lexical。
+      - key: AI_RADAR_RETRIEVAL_MODE
+        value: hybrid
+      - key: AI_RADAR_EMBEDDING_PROVIDER
+        value: cloudflare
+      - key: AI_RADAR_EMBEDDING_MODEL
+        value: "@cf/baai/bge-m3"
+      - key: AI_RADAR_EMBEDDING_VERSION
+        value: "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline"
+      - key: AI_RADAR_EMBEDDING_DIMENSION
+        value: "1024"
+      - key: AI_RADAR_EMBEDDING_DAILY_NEURON_BUDGET
+        value: "1000"
+      - key: AI_RADAR_EMBEDDING_NEURONS_PER_MILLION_TOKENS
+        value: "1075"
+      - key: AI_RADAR_EMBEDDING_DAILY_API_CALL_BUDGET
+        value: "1000"
       # 首批仅允许现有演示目录中的官方站点。信源仍默认关闭自动采集，
       # 必须在审核后台通过批量安全预检后启用，并核验首次快照后才进入定时任务。
       - key: AI_RADAR_FETCH_ALLOWED_HOSTS
@@ -76,6 +93,10 @@ services:
       - key: AI_RADAR_ADMIN_TOKEN
         sync: false
       - key: AI_RADAR_AUTOMATION_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      - key: CLOUDFLARE_API_TOKEN
         sync: false
       - key: AI_RADAR_CORS_ORIGINS
         sync: false

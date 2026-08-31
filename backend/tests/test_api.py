@@ -86,7 +86,7 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.31-embedding-schema-v65",
+        "release": "2026.08.31-cloudflare-hybrid-v66",
         "buildCommit": "test-build-commit",
         "schemaRevision": "20260831_0021",
         "builtAt": "2026-08-25T00:00:00Z",
@@ -1505,6 +1505,14 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "automaticExtractionMaxCandidatesPerSnapshot": 10,
         "automaticExtractionRetryMinutes": 360,
         "automaticRelationApprovalEnabled": False,
+        "retrievalMode": "lexical",
+        "embeddingConfigured": False,
+        "embeddingProvider": "none",
+        "embeddingModel": None,
+        "embeddingVersion": None,
+        "embeddingDimension": None,
+        "embeddingDailyNeuronBudget": None,
+        "embeddingDailyApiCallBudget": None,
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,
@@ -1517,6 +1525,36 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     assert "secret" not in serialized
     assert "password" not in serialized
     assert "api_key" not in serialized
+
+
+def test_admin_integration_status_reports_guarded_hybrid_without_credentials(
+    tmp_path: Path,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'hybrid-status.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        retrieval_mode="hybrid",
+        embedding_provider="cloudflare",
+        cloudflare_account_id="account-id",
+        cloudflare_api_token="secret-token",
+    )
+    with TestClient(create_app(settings)) as test_client:
+        response = test_client.get(
+            "/api/v2/admin/integrations",
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["retrievalMode"] == "hybrid"
+    assert payload["embeddingConfigured"] is True
+    assert payload["embeddingProvider"] == "cloudflare"
+    assert payload["embeddingModel"] == "@cf/baai/bge-m3"
+    assert payload["embeddingDimension"] == 1024
+    assert "account-id" not in response.text
+    assert "secret-token" not in response.text
 
 
 def test_admin_extraction_probe_is_protected_audited_and_safe_when_unconfigured(

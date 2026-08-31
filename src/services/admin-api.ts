@@ -350,6 +350,14 @@ export interface IntegrationStatus {
   automaticExtractionMaxCandidatesPerSnapshot: number;
   automaticExtractionRetryMinutes: number;
   automaticRelationApprovalEnabled: boolean;
+  retrievalMode: "lexical" | "hybrid";
+  embeddingConfigured: boolean;
+  embeddingProvider: "none" | "cloudflare";
+  embeddingModel?: string;
+  embeddingVersion?: string;
+  embeddingDimension?: number;
+  embeddingDailyNeuronBudget?: number;
+  embeddingDailyApiCallBudget?: number;
   smtpConfigured: boolean;
   smtpHost?: string;
   smtpFrom?: string;

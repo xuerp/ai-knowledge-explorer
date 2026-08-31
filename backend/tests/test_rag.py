@@ -8,7 +8,13 @@ from sqlalchemy.orm import Session
 
 from app.database import Base, RagClaimDocumentRecord, RagClaimEmbeddingRecord
 from app.golden_questions import GoldenQuestionEvaluator
-from app.rag import HybridRagRetriever, LexicalRagRetriever, VectorSearchHit
+from app.rag import (
+    HybridRagRetriever,
+    LexicalRagRetriever,
+    SqlAlchemyVectorClaimIndex,
+    VectorDocument,
+    VectorSearchHit,
+)
 from app.repository import KnowledgeRepository
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -182,14 +188,19 @@ def test_lexical_rag_can_find_related_claim_when_entity_has_no_direct_claim():
 
 
 class FakeEmbeddingProvider:
+    provider_name = "test"
     model_name = "test-embedding"
+    model_version = "v1"
+    dimension = 1
 
     def __init__(self, *, fail: bool = False):
         self.fail = fail
+        self.document_calls = 0
         self.query_calls = 0
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        return [[float(index)] for index, _ in enumerate(texts)]
+        self.document_calls += 1
+        return [[float(index + 1)] for index, _ in enumerate(texts)]
 
     def embed_query(self, text: str) -> list[float]:
         self.query_calls += 1
@@ -203,15 +214,93 @@ class FakeVectorIndex:
         self.claim_ids = claim_ids
         self.search_calls = 0
 
-    def upsert(self, documents):
+    def stale_documents(self, session):
+        return []
+
+    def upsert(self, session, documents):
         return None
 
-    def search(self, vector: list[float], *, limit: int) -> list[VectorSearchHit]:
+    def search(self, session, vector: list[float], *, limit: int) -> list[VectorSearchHit]:
         self.search_calls += 1
         return [
             VectorSearchHit(claim_id=claim_id, score=1 / rank)
             for rank, claim_id in enumerate(self.claim_ids[:limit], start=1)
         ]
+
+
+def test_sqlalchemy_vector_index_persists_versions_and_uses_cosine_similarity():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    index = SqlAlchemyVectorClaimIndex(
+        embedding_provider="test",
+        embedding_model="test-embedding",
+        embedding_version="v1",
+        embedding_dimension=3,
+    )
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        LexicalRagRetriever().prepare(session, snapshot)
+        rows = list(session.scalars(select(RagClaimDocumentRecord).limit(2)).all())
+        assert len(rows) == 2
+        assert len(index.stale_documents(session)) > 0
+        index.upsert(
+            session,
+            [
+                VectorDocument(
+                    claim_id=rows[0].claim_id,
+                    content_hash=rows[0].content_hash,
+                    embedding_provider="test",
+                    embedding_model="test-embedding",
+                    embedding_version="v1",
+                    embedding_dimension=3,
+                    vector=[1.0, 0.0, 0.0],
+                ),
+                VectorDocument(
+                    claim_id=rows[1].claim_id,
+                    content_hash=rows[1].content_hash,
+                    embedding_provider="test",
+                    embedding_model="test-embedding",
+                    embedding_version="v1",
+                    embedding_dimension=3,
+                    vector=[0.0, 1.0, 0.0],
+                ),
+            ],
+        )
+        stale_ids = {item.claim_id for item in index.stale_documents(session)}
+        assert rows[0].claim_id not in stale_ids
+        assert rows[1].claim_id not in stale_ids
+
+        hits = index.search(session, [0.9, 0.1, 0.0], limit=2)
+        rows[0].content_hash = "changed-content-hash"
+        session.flush()
+        changed_ids = {item.claim_id for item in index.stale_documents(session)}
+
+    assert [item.claim_id for item in hits] == [rows[0].claim_id, rows[1].claim_id]
+    assert rows[0].claim_id in changed_ids
+
+
+def test_rrf_fusion_includes_vector_only_claims():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    lexical = LexicalRagRetriever()
+    retriever = HybridRagRetriever(lexical, enabled=True)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        lexical.prepare(session, snapshot)
+        rows = list(session.scalars(select(RagClaimDocumentRecord).limit(2)).all())
+        lexical_citation = lexical.citations_for_claim_ids(session, [rows[0].claim_id])
+        vector_citation = lexical.citations_for_claim_ids(session, [rows[1].claim_id])
+        fused = retriever._fuse(
+            lexical_citation,
+            [VectorSearchHit(claim_id=rows[1].claim_id, score=1.0)],
+            vector_citation,
+        )
+
+    assert {item.claim.id for item in fused} == {rows[0].claim_id, rows[1].claim_id}
 
 
 class PreferredReranker:
@@ -272,6 +361,37 @@ def test_hybrid_rag_fuses_results_and_applies_reranker():
     assert embedding.query_calls == 1
     assert vector_index.search_calls == 1
     assert result.citations[0].claim.id == claim_ids[-1]
+
+
+def test_hybrid_rag_incrementally_persists_document_embeddings():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    embedding = FakeEmbeddingProvider()
+    vector_index = SqlAlchemyVectorClaimIndex(
+        embedding_provider=embedding.provider_name,
+        embedding_model=embedding.model_name,
+        embedding_version=embedding.model_version,
+        embedding_dimension=embedding.dimension,
+    )
+    retriever = HybridRagRetriever(
+        embedding_provider=embedding,
+        vector_index=vector_index,
+        enabled=True,
+    )
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        first = retriever.search(session, snapshot, "GPT-5 的能力如何？")
+        embedding_count = len(session.scalars(select(RagClaimEmbeddingRecord)).all())
+        document_count = len(session.scalars(select(RagClaimDocumentRecord)).all())
+        second = retriever.search(session, snapshot, "Claude 的能力如何？")
+
+    assert first.retrieval_mode == "hybrid"
+    assert second.retrieval_mode == "hybrid"
+    assert embedding_count == document_count
+    assert embedding.document_calls == 1
+    assert embedding.query_calls == 2
 
 
 def test_hybrid_rag_provider_error_falls_back_to_lexical():

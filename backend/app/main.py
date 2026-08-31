@@ -29,6 +29,7 @@ from .database import (
     UserRecord,
 )
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
+from .embeddings import CloudflareEmbeddingProvider
 from .engagement import EngagementService
 from .entity_linkage import audit_claim_entity_links, classify_unlinked_claim
 from .extraction import (
@@ -50,7 +51,7 @@ from .quality import (
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
-from .rag import HybridRagRetriever, LexicalRagRetriever
+from .rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
 from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
@@ -129,7 +130,7 @@ from .security import require_admin, require_automation, require_reviewer, requi
 from .worker import run_cycle
 
 DATABASE_SCHEMA_REVISION = "20260831_0021"
-SERVICE_RELEASE = "2026.08.31-embedding-schema-v65"
+SERVICE_RELEASE = "2026.08.31-cloudflare-hybrid-v66"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
@@ -187,9 +188,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     audit = AuditService()
     quality_gate = KnowledgeQualityGate()
     golden_questions = GoldenQuestionEvaluator()
+    embedding_provider = None
+    vector_index = None
+    if (
+        app_settings.retrieval_mode == "hybrid"
+        and app_settings.embedding_provider == "cloudflare"
+        and app_settings.cloudflare_account_id
+        and app_settings.cloudflare_api_token
+    ):
+        embedding_provider = CloudflareEmbeddingProvider(
+            account_id=app_settings.cloudflare_account_id,
+            api_token=app_settings.cloudflare_api_token,
+            model_name=app_settings.embedding_model,
+            model_version=app_settings.embedding_version,
+            dimension=app_settings.embedding_dimension,
+            daily_neuron_budget=app_settings.embedding_daily_neuron_budget,
+            neurons_per_million_tokens=app_settings.embedding_neurons_per_million_tokens,
+            daily_api_call_budget=app_settings.embedding_daily_api_call_budget,
+        )
+        vector_index = SqlAlchemyVectorClaimIndex(
+            embedding_provider=embedding_provider.provider_name,
+            embedding_model=embedding_provider.model_name,
+            embedding_version=embedding_provider.model_version,
+            embedding_dimension=embedding_provider.dimension,
+        )
     rag_retriever = (
-        HybridRagRetriever(enabled=True)
-        if app_settings.rag_hybrid_enabled
+        HybridRagRetriever(
+            embedding_provider=embedding_provider,
+            vector_index=vector_index,
+            enabled=True,
+        )
+        if app_settings.retrieval_mode == "hybrid"
         else LexicalRagRetriever()
     )
     engagement = EngagementService(
@@ -227,6 +256,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ingestion.reconcile_historical_permanent_failures(session)
             ingestion.reconcile_source_portfolio(session)
         yield
+        if embedding_provider is not None:
+            embedding_provider.close()
         database.dispose()
 
     app = FastAPI(
@@ -683,6 +714,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ),
             automatic_extraction_retry_minutes=app_settings.auto_extraction_retry_minutes,
             automatic_relation_approval_enabled=app_settings.auto_approve_grounded_relations,
+            retrieval_mode=app_settings.retrieval_mode,
+            embedding_configured=embedding_provider is not None and vector_index is not None,
+            embedding_provider=app_settings.embedding_provider,
+            embedding_model=(
+                app_settings.embedding_model if app_settings.embedding_provider != "none" else None
+            ),
+            embedding_version=(
+                app_settings.embedding_version
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_dimension=(
+                app_settings.embedding_dimension
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_daily_neuron_budget=(
+                app_settings.embedding_daily_neuron_budget
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_daily_api_call_budget=(
+                app_settings.embedding_daily_api_call_budget
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
             smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,
