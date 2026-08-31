@@ -113,7 +113,7 @@ Cloudflare 官方 Free allocation 是每日 10,000 Neurons；本报告只证明�
 `rag_claim_embeddings` 索引与 RRF union，80 条查询全部走 hybrid，无 fallback；Recall@8
 100.00%、Precision@8 14.22%、Entity Recall@8 98.75%、通过率 100.00%。结构化结果为
 `v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json`，SHA-256
-`1e3b3f40eebc194c8d023dc4ed804be1e255638a5cab5c62b8f5e8790e2eaf21`，评估实现绑定提交
+`6a789336381864a0a4188cf65eb7c139d8c358cdedb075d607ac776cb8da909e`，评估实现绑定提交
 `8a6b0b7ac37bf94e715c261bf325b9314e6d2987`。
 
 完整 Baseline → Alias → Hybrid 曲线及不投入 Reranker 的判定见 `docs/eval/CHANGELOG.md`。

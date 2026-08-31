@@ -29,6 +29,7 @@ dist-ssr
 backend/.venv/
 backend/.pytest_cache/
 backend/**/__pycache__/
+scripts/__pycache__/
 backend/data/*.db
 backend/data/*.db-*
 backups/

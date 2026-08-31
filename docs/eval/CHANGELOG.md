@@ -78,7 +78,7 @@ TopK=8、RRF K=60。Embedding 为 Cloudflare Workers AI `@cf/baai/bge-m3`，版�
 本次不是 benchmark 内部的向量数组模拟，而是实际执行生产 `CloudflareEmbeddingProvider`、
 版本化 `rag_claim_embeddings` 持久索引和 RRF union。结构化结果位于
 `docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json`，
-SHA-256 为 `1e3b3f40eebc194c8d023dc4ed804be1e255638a5cab5c62b8f5e8790e2eaf21`。
+仓库规范化 LF 内容的 SHA-256 为 `6a789336381864a0a4188cf65eb7c139d8c358cdedb075d607ac776cb8da909e`。
 
 | 阶段 | Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |
 |---|---:|---:|---:|---:|
