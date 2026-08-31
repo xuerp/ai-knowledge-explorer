@@ -618,6 +618,7 @@ class HybridRagRetriever:
         limit: int = 8,
         prepared: bool = False,
     ) -> RagSearchResult:
+        started = perf_counter()
         if not self.enabled:
             lexical_result = self.lexical.search(
                 session,
@@ -626,7 +627,12 @@ class HybridRagRetriever:
                 limit=max(32, limit * 4),
                 prepared=prepared,
             )
-            return self._lexical_fallback(lexical_result, limit, "hybrid-disabled")
+            return self._lexical_fallback(
+                lexical_result,
+                limit,
+                "hybrid-disabled",
+                started=started,
+            )
         if self.embedding_provider is None or self.vector_index is None:
             lexical_result = self.lexical.search(
                 session,
@@ -635,7 +641,12 @@ class HybridRagRetriever:
                 limit=max(32, limit * 4),
                 prepared=prepared,
             )
-            return self._lexical_fallback(lexical_result, limit, "hybrid-unavailable")
+            return self._lexical_fallback(
+                lexical_result,
+                limit,
+                "hybrid-unavailable",
+                started=started,
+            )
 
         try:
             if not prepared:
@@ -675,13 +686,20 @@ class HybridRagRetriever:
                 limit=max(32, limit * 4),
                 prepared=True,
             )
-            return self._lexical_fallback(lexical_result, limit, "hybrid-provider-error")
+            return self._lexical_fallback(
+                lexical_result,
+                limit,
+                "hybrid-provider-error",
+                started=started,
+            )
 
         selected = citations[:limit]
         diagnostics = lexical_result.diagnostics.model_copy(
             update={
+                "candidate_count": len(citations),
                 "returned_count": len(selected),
                 "filtered_count": max(0, len(citations) - len(selected)),
+                "elapsed_ms": max(0, round((perf_counter() - started) * 1000)),
                 "fallback_reason": None,
             }
         )
@@ -726,12 +744,15 @@ class HybridRagRetriever:
         result: RagSearchResult,
         limit: int,
         reason: str,
+        *,
+        started: float,
     ) -> RagSearchResult:
         citations = result.citations[:limit]
         diagnostics = result.diagnostics.model_copy(
             update={
                 "returned_count": len(citations),
                 "filtered_count": max(0, result.diagnostics.candidate_count - len(citations)),
+                "elapsed_ms": max(0, round((perf_counter() - started) * 1000)),
                 "fallback_reason": reason,
             }
         )
