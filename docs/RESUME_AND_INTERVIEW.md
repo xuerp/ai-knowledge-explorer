@@ -10,8 +10,9 @@
 
 - 独立设计并落地 AI 技术情报平台，将官方博客、文档、Release Notes 与技术资料转化为 Entity、Claim、Evidence、Timeline 和 Relation，形成持续采集—LLM 抽取—审核—发布—研究闭环。
 - 针对 LLM 幻觉、结构化输出兼容、重复事实、冲突来源和过期信息，设计 Candidate/Verified Claim 分层、证据锚点、严格字段校验、语义去重、风险分级审核与黄金问题质量门槛。
-- 设计 Timeline、GPT/Claude/Gemini Compare 与 Evidence-backed Research 三个核心体验；公开快照包含 49 个实体、23 条 Claim、40 条证据、71 条关系和 55 条时间线，并明确保持 `demo/cached` 直到正式质量门槛通过。
-- 将 React/TanStack、FastAPI、PostgreSQL、Cloudflare Workers、Render 与 Neon 组合为可公开访问产品，并通过前后端测试、Ruff、TypeScript、生产构建和双数据库迁移验证保护发布质量。
+- 设计 Timeline、GPT/Claude/Gemini Compare 与 Evidence-backed Research 三个核心体验；预发布快照包含 49 个实体、197 条 Claim、219 条 Evidence、76 条 Relation 和 55 条 Timeline，并明确保持 `demo/cached`。
+- 建立 80 条 Golden Set 与 PostgreSQL lexical 基线；Alias 探针由 16/24 提升到 24/24，Cloudflare BGE-M3 + lexical RRF 将 Recall@8 从 99.38% 提升到 100%，同时保留 provider 故障时 lexical 降级。
+- 将 React/TanStack、FastAPI、PostgreSQL、Cloudflare Workers、Render 与 Neon 组合为可公开访问产品；通过原子乐观锁修复相反审核决定并发双成功，并以 8 个新增高风险故障注入覆盖 Embedding 异常、统计坏历史和审核冲突。
 
 ## 招聘网站短版
 

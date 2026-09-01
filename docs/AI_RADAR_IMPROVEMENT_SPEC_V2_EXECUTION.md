@@ -98,19 +98,23 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 5. [x] `/admin/review-demo` 新增真实统计面板；接口不可用时明确报错，不用演示数字替代。
 6. [x] 提交 `3c30224` 的 GitHub Quality 运行 `33475763045` 前后端全绿；Render staging 运行 `2026.09.01-review-observability-v68`、同一提交与 schema `20260901_0022`，`/ready` 和公开统计 API 均为 HTTP 200。Cloudflare staging Worker 版本 `5124c94a-7a4b-4ad0-8211-dee9a74ab129` 已部署；同域统计返回 591 条已审核、194 条批准、397 条拒绝，397 条历史拒绝全部明确为 `uncategorized`。`/admin/review-demo` 浏览器验收显示 32.8% 批准率、67.2% 拒绝率和原因分布，控制台无错误。
 
-### Epic 5：故障场景测试 — implemented / staging acceptance pending
+### Epic 5：故障场景测试 — completed
 
 1. [x] 新建 `docs/FAILURE_SCENARIOS.md`，按故障风险、期望边界、具体测试和覆盖状态盘点 LLM、Embedding、审核并发/幂等、批量事务、采集、邮件与前端失败。
 2. [x] 新增 8 个真实故障注入案例：Embedding 缺字段、数量错误、维度错误、非数字、NaN/Infinity，非法拒绝分类，不完整/倒置审核时间，以及相反审核决定并发提交。
 3. [x] 并发测试真实暴露 SQLite 忽略 `FOR UPDATE` 时两个相反决定都返回 200 的缺口；审核决定已改为 `status + version` 原子抢占，并连续 5 次并发回归保持单赢家。
 4. [x] Embedding 非数字或非有限值在索引写入前转为不含 payload 的安全 provider 错误；既有 Hybrid lexical fallback 保持可用。
 5. [x] `PRODUCTION_RUNBOOK.md` 已新增 LLM、Embedding、审核并发、统计异常和前后端分阶段发布的排障/恢复映射。
-6. [ ] GitHub CI 与 Render staging 验收通过后关闭 Epic。
+6. [x] 提交 `b9fd066` 的 GitHub Quality 运行 `33476714670` 前后端全绿；Render staging 已运行同一提交，`/ready` 为 HTTP 200，schema 保持 `20260901_0022`。本批无前端变更，Cloudflare 无需重复部署。
 
-### Epic 6：ADR 与作品集 — pending last
+### Epic 6：ADR 与作品集 — implemented / CI acceptance pending
 
-最后基于前述真实产出补 0001–0006 ADR、Case Study 优化曲线和简历量化描述。没有实验结果前不得预写“指标改善”。
+1. [x] `docs/adr/0001`–`0006` 六份决策记录齐全，覆盖 lexical-first、关系抽取门槛、Candidate/Verified 隔离、风险分层审核、Embedding 选型与“关系缺口不是 KPI”。
+2. [x] Case Study 新增固定 Golden Set、同一 snapshot、TopK=8 的 Baseline → Alias → Hybrid 真实曲线，并解释 Precision@8 分母与 Relation 保持 76 的边界。
+3. [x] 简历材料更新为 staging 真实快照 49 Entity / 197 Claim / 219 Evidence / 76 Relation / 55 Timeline，以及 Alias、Hybrid 和并发修复结果。
+4. [x] 新增作品集证据契约测试，验证六份 ADR、固定评估数值与公开材料不回退到旧演示计数。
+5. [ ] GitHub CI 验收通过后关闭 Epic。
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D、Epic 3 与 Epic 4 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。Epic 5 的场景盘点、8 个新增故障注入、并发修复与 Runbook 映射已完成；当前可执行节点是提交并完成 CI 与 Render staging 验收。
+Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4 与 Epic 5 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。Epic 6 的 ADR、优化曲线、履历量化与证据契约均已落盘；当前可执行节点是运行完整前端门禁、提交并完成 GitHub CI 验收。

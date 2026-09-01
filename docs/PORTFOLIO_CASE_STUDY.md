@@ -4,7 +4,7 @@
 
 AI Radar 把 AI 模型、Agent、框架、论文和 Benchmark 组织成带时间与证据的知识图谱。项目重点不是抓取更多新闻，而是证明一条知识如何被发现、消歧、审核、发布、解释和追溯。
 
-在线预发布由 Cloudflare Workers 前端、Render FastAPI、Neon PostgreSQL 和 Cloudflare Cron 组成。当前公共快照明确标记为 `demo/cached`，包含 49 个实体、23 条 Claim、40 条证据、71 条关系和 55 条时间线。
+在线预发布由 Cloudflare Workers 前端、Render FastAPI、Neon PostgreSQL 和 Cloudflare Cron 组成。当前公共快照明确标记为 `demo/cached`，包含 49 个实体、197 条 Claim、219 条 Evidence、76 条 Relation 和 55 条 Timeline。
 
 ## 案例一：阻止模型输出直接成为事实
 
@@ -50,8 +50,26 @@ AI Radar 把 AI 模型、Agent、框架、论文和 Benchmark 组织成带时间
 
 ## 工程结果
 
+### 检索优化曲线
+
+固定输入为 Golden Set v1.0.0（80 条）、同一 snapshot SHA-256、TopK=8；没有为后续方案修改问题或标注。
+
+| 阶段                            | Recall@8 | Precision@8 | Entity Recall@8 |  通过率 | 结论                                         |
+| ------------------------------- | -------: | ----------: | --------------: | ------: | -------------------------------------------- |
+| PostgreSQL lexical FTS baseline |   99.38% |      14.06% |          99.38% |  98.75% | 建立低成本、可复现基线                       |
+| Alias v1.0.0 + lexical          |   99.38% |      14.06% |          99.38% |  98.75% | 主指标已在天花板；独立别名探针 16/24 → 24/24 |
+| Cloudflare BGE-M3 + lexical RRF |  100.00% |      14.22% |          98.75% | 100.00% | 补回 1 个失败样本，但保留 lexical 降级       |
+
+Precision@8 没有被描述成低质量：大多数题只标注 1 个相关 Claim，固定返回 8 条时理论值就是 12.5%。因此没有引入真实 Reranker，也没有为了数字好看改分母。关系覆盖同样没有形成虚假上升曲线：安全 Snapshot 未形成时 Relation 保持 76。
+
+### 可靠性结果
+
+- Epic 1C 在隔离 Render 服务完成 Hybrid 正常 → provider 故障 lexical fallback → 恢复的三段演练，三段请求均为 HTTP 200 且返回 8 组引用。
+- Epic 4 将 591 条真实审核历史聚合为 32.8% 批准率、67.2% 拒绝率；397 条旧拒绝明确显示为未分类，而不是猜测回填。
+- Epic 5 的真实并发测试暴露 SQLite 忽略行锁导致相反决定都成功的问题；改为 `status + version` 原子抢占后连续 5 次保持单赢家。
+
 - GitHub Quality 工作流同时通过前端、后端、SQLite 与 PostgreSQL 迁移验证。
-- 前端覆盖 Lint、类型检查、63 项测试和生产构建。
-- 后端覆盖 Ruff、编译检查、Alembic 一致性和 100 余项测试。
+- 前端覆盖 Lint、类型检查、98 项测试和 production/staging 构建。
+- 后端覆盖 Ruff、Alembic 一致性、完整回归以及高风险故障注入。
 - API `/health`、`/ready` 与前端公开地址均可访问。
 - 系统保留 Demo 标签，直到 150 条已审核 Claim 和核心关系覆盖真实达标。
