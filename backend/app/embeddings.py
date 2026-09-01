@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import UTC, date, datetime
+from math import isfinite
 from threading import Lock
 
 import httpx
@@ -128,7 +129,15 @@ class CloudflareEmbeddingProvider:
             raise EmbeddingProviderError("Cloudflare returned an unexpected result count.")
         if any(len(vector) != self.dimension for vector in vectors):
             raise EmbeddingProviderError("Cloudflare returned an unexpected embedding dimension.")
-        return [[float(value) for value in vector] for vector in vectors]
+        try:
+            normalized = [[float(value) for value in vector] for vector in vectors]
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise EmbeddingProviderError(
+                "Cloudflare returned non-numeric embedding values."
+            ) from exc
+        if any(not isfinite(value) for vector in normalized for value in vector):
+            raise EmbeddingProviderError("Cloudflare returned non-finite embedding values.")
+        return normalized
 
     def _reserve_budget(self, texts: list[str], *, api_calls: int) -> None:
         conservative_tokens = sum(len(text) for text in texts)

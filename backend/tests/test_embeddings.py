@@ -91,3 +91,35 @@ def test_cloudflare_provider_error_is_safe_to_log():
     assert "401" in message
     assert "secret-token" not in message
     assert "upstream body" not in message
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        ({"notData": []}, "invalid embedding payload"),
+        ({"data": []}, "unexpected result count"),
+        ({"data": [{"index": 0, "embedding": [1.0, 2.0]}]}, "unexpected embedding dimension"),
+        ({"data": [{"index": 0, "embedding": ["secret-value", 0, 0]}]}, "non-numeric"),
+        ({"data": [{"index": 0, "embedding": ["NaN", 0, 0]}]}, "non-finite"),
+    ],
+    ids=[
+        "missing-data",
+        "unexpected-count",
+        "unexpected-dimension",
+        "non-numeric",
+        "non-finite",
+    ],
+)
+def test_cloudflare_provider_rejects_malformed_vectors_without_leaking_payload(
+    payload,
+    message,
+):
+    def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=payload)
+
+    provider = build_provider(handler)
+
+    with pytest.raises(EmbeddingProviderError, match=message) as captured:
+        provider.embed_query("测试")
+
+    assert "secret-value" not in str(captured.value)

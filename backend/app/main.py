@@ -10,7 +10,7 @@ import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -3164,13 +3164,40 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="A rejection reason category is required.",
             )
-        row.status = action
-        row.reason_category = decision.reason_category if action == "rejected" else None
         note = review_decision_note(decision)
-        row.review_reason = note
-        row.reviewed_at = datetime.now(UTC)
-        row.reviewed_by = actor.email
-        row.version += 1
+        reviewed_at = datetime.now(UTC)
+        claimed = session.execute(
+            update(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.id == review_id,
+                ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES),
+                ReviewJobRecord.version == decision.expected_version,
+            )
+            .values(
+                status=action,
+                reason_category=(decision.reason_category if action == "rejected" else None),
+                review_reason=note,
+                reviewed_at=reviewed_at,
+                reviewed_by=actor.email,
+                version=ReviewJobRecord.version + 1,
+            )
+        )
+        if claimed.rowcount != 1:
+            session.expire(row)
+            session.refresh(row)
+            if row.status == action:
+                return repository.to_queue_item(row)
+            if row.status not in OPEN_REVIEW_STATUSES:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Review job is already {row.status}.",
+                )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Review job version is {row.version}; refresh before deciding.",
+            )
+        session.expire(row)
+        session.refresh(row)
         published_relation = None
         if action == "approved":
             repository.persist_approved_verification(row)

@@ -1,4 +1,5 @@
 import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -2305,6 +2306,30 @@ def test_public_review_stats_are_aggregate_and_rejection_category_is_required(
     assert "test-admin-token" not in stats.text
 
 
+def test_invalid_rejection_category_does_not_change_review_state(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+
+    response = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "other",
+            "reasonNote": "This category is outside the controlled vocabulary.",
+        },
+    )
+
+    assert response.status_code == 422
+    refreshed = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()
+        if item["id"] == review["id"]
+    )
+    assert refreshed["status"] == review["status"]
+    assert refreshed["version"] == review["version"]
+
+
 def test_historical_rejection_without_category_is_reported_as_uncategorized(
     client: TestClient,
 ):
@@ -2331,6 +2356,78 @@ def test_historical_rejection_without_category_is_reported_as_uncategorized(
         for item in client.get("/api/review/stats").json()["rejectionReasons"]
     }
     assert breakdown["uncategorized"]["count"] >= 1
+
+
+def test_review_stats_exclude_missing_durations_and_clamp_negative_history(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={"expectedVersion": review["version"], "reasonCategory": "low_confidence"},
+    )
+    assert rejected.status_code == 200
+    second = create_batch_review_candidate(client, headers, "duration-missing")
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{second['id']}/approve",
+        headers=headers,
+        json={"expectedVersion": second["version"], "reason": "Verified for duration test."},
+    )
+    assert approved.status_code == 200
+
+    with client.app.state.database.session() as session:
+        terminal_rows = list(
+            session.scalars(
+                select(ReviewJobRecord).where(ReviewJobRecord.status.in_(("approved", "rejected")))
+            ).all()
+        )
+        assert terminal_rows
+        for row in terminal_rows:
+            row.reviewed_at = None
+        terminal_rows[0].reviewed_at = terminal_rows[0].created_at - timedelta(minutes=5)
+        session.commit()
+
+    stats = client.get("/api/review/stats")
+    assert stats.status_code == 200
+    payload = stats.json()
+    assert payload["reviewedCount"] == len(terminal_rows)
+    assert payload["reviewedWithDurationCount"] == 1
+    assert payload["averageReviewSeconds"] == 0.0
+
+
+def test_concurrent_conflicting_review_decisions_have_one_terminal_winner(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()
+        if item["id"] == "review-gpt-context"
+    )
+
+    def decide(action: str):
+        payload = {
+            "expectedVersion": review["version"],
+            "reasonNote": f"Concurrent {action} decision for optimistic-lock verification.",
+        }
+        if action == "reject":
+            payload["reasonCategory"] = "conflict"
+        return client.post(
+            f"/api/v2/admin/review-queue/{review['id']}/{action}",
+            headers=headers,
+            json=payload,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        responses = list(executor.map(decide, ("approve", "reject")))
+
+    assert sorted(response.status_code for response in responses) == [200, 409]
+    history = client.get("/api/v2/admin/review-queue?scope=history", headers=headers).json()
+    terminal = [item for item in history if item["id"] == review["id"]]
+    assert len(terminal) == 1
+    assert terminal[0]["status"] in {"approved", "rejected"}
 
 
 def test_approved_canonical_relation_claim_updates_graph(client: TestClient):
