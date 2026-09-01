@@ -15,6 +15,10 @@ test("Render 只将首批官方证据域名加入自动采集白名单", () => {
     "docs.langchain.com",
     "arxiv.org",
     "raw.githubusercontent.com",
+    "microsoft.github.io",
+    "docs.crewai.com",
+    "docs.devin.ai",
+    "help.manus.im",
   ]) {
     assert.match(blueprint, new RegExp(`(?:value: |,)${host.replaceAll(".", "\\.")}(?:,|$)`, "m"));
   }
@@ -24,6 +28,7 @@ test("Render 只将首批官方证据域名加入自动采集白名单", () => {
 test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /信源仍默认关闭自动采集/);
   assert.match(blueprint, /通过批量安全预检后启用，并核验首次快照/);
+  assert.match(blueprint, /AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS\s+value: "false"/);
 });
 
 test("Render 自动抽取吞吐与失败退避保持保守上限", () => {
