@@ -943,6 +943,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit: int,
         *,
         automatic_only: bool = False,
+        excluded_snapshot_ids: set[str] | None = None,
     ) -> list[tuple[SourceRecord, DocumentSnapshotRecord]]:
         extraction_runs = session.scalars(
             select(AuditLogRecord).where(
@@ -953,6 +954,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         extracted_snapshot_ids = {
             row.target_id for row in extraction_runs if extraction_audit_is_current(row.detail_json)
         }
+        extracted_snapshot_ids.update(excluded_snapshot_ids or set())
         cooling_down_snapshot_ids: set[str] = set()
         if automatic_only:
             retry_after = datetime.now(UTC) - timedelta(
@@ -1406,16 +1408,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         }
         if not summary["enabled"]:
             return summary
-        regular_plan = build_extraction_plan(session, limit, automatic_only=True)
+        backfill_plan, backfill_remaining = build_relation_backfill_plan(session, limit)
         planned: list[tuple[SourceRecord, DocumentSnapshotRecord, bool]] = [
-            (source, snapshot_row, False) for source, snapshot_row in regular_plan
+            (source, snapshot_row, True) for source, snapshot_row in backfill_plan
         ]
-        backfill_plan, backfill_remaining = build_relation_backfill_plan(
+        regular_plan = build_extraction_plan(
             session,
             limit - len(planned),
+            automatic_only=True,
             excluded_snapshot_ids={snapshot_row.id for _, snapshot_row, _ in planned},
         )
-        planned.extend((source, snapshot_row, True) for source, snapshot_row in backfill_plan)
+        planned.extend((source, snapshot_row, False) for source, snapshot_row in regular_plan)
         if app_settings.relation_backfill_batch_id:
             summary["relationBackfillBatchId"] = app_settings.relation_backfill_batch_id
             summary["relationBackfillAttemptsRemaining"] = backfill_remaining

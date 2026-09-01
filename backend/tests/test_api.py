@@ -820,7 +820,7 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         extraction_api_url="https://provider.example/v1/chat/completions",
         extraction_api_key="test-provider-key",
         extraction_model="test-structured-model",
-        auto_extraction_max_snapshots_per_cycle=2,
+        auto_extraction_max_snapshots_per_cycle=1,
         relation_backfill_batch_id="test-core-relations-01",
         relation_backfill_max_snapshots=1,
     )
@@ -843,6 +843,29 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         automation_headers = {
             "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
         }
+        regular = automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+            json={
+                "id": "source-regular-automatic",
+                "url": "https://example.com/regular-automatic",
+                "title": "Regular automatic extraction source",
+                "publisher": "Example",
+            },
+        )
+        assert regular.status_code == 201
+        regular_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-regular-automatic/snapshots",
+            headers=admin_headers,
+            json={"content": "A regular automatic extraction document."},
+        )
+        assert regular_snapshot.status_code == 200
+        with automatic_client.app.state.database.session() as session:
+            regular_source = session.get(SourceRecord, "source-regular-automatic")
+            assert regular_source is not None
+            regular_source.fetch_enabled = True
+            regular_source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -937,9 +960,10 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         )
         assert second.status_code == 200
         second_summary = second.json()["result"]["extraction"]
-        assert second_summary["planned"] == 0
+        assert second_summary["planned"] == 1
+        assert second_summary["processed"] == 1
         assert second_summary["relationBackfillAttemptsRemaining"] == 0
-        assert extraction_calls == [snapshot_id]
+        assert extraction_calls == [snapshot_id, regular_snapshot.json()["snapshotId"]]
 
         with automatic_client.app.state.database.session() as session:
             batch_rows = [
