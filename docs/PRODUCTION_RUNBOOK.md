@@ -155,6 +155,44 @@ AI 抽取供应商完成配置后，可在审核后台“外部集成状态”�
 
 `AI_RADAR_DATA_MODE=live` 不是绕过验收门槛的开关。服务在 live 模式启动时会重新计算正式数据质量；若门槛未通过，`/ready` 与公开目录接口返回 `503`，但管理员仍可访问数据质量报告并继续审核、补充 Claim 与关系。只有报告 `liveReady=true` 后，公开正式数据才会恢复服务。
 
+### 6.1 高风险故障场景处置
+
+完整覆盖矩阵见 [FAILURE_SCENARIOS.md](./FAILURE_SCENARIOS.md)。以下步骤按“先确认边界、再恢复服务、最后决定是否重放”执行。
+
+#### LLM 结构化抽取非法或供应商不可用
+
+1. 在管理员“外部集成状态”运行只读结构化输出探针，记录 `errorCode`，不要复制响应正文或 Secret。
+2. `structured_output_unsupported` 表示 JSON Schema 不兼容；只有 JSON Object 兼容模式也通过严格 schema 校验时才能继续。
+3. `authentication`、`rate_limited`、`connection_timeout`、`dns_resolution_failed` 分别检查凭据权限、供应商额度、Render 出站连接和 API 域名。
+4. 失败快照保持待抽取或进入冷却，不会生成审核候选。修复后只重跑明确的 snapshot，不扩大批次。
+
+#### Embedding 服务不可用或响应非法
+
+1. 查看研究记录的 `retrievalMode` 与 `fallbackReason`。`hybrid-provider-error` 表示请求已安全回退 lexical；HTTP 200 不等于 Hybrid 正常。
+2. 在受保护集成状态核对 provider、model、dimension 和预算；不要在日志或工单粘贴 Token、响应正文或向量。
+3. `unexpected result count`、`unexpected embedding dimension`、`non-numeric` 或 `non-finite` 均视为上游协议故障，不写入向量索引。保持 lexical 服务，修正配置或等待供应商恢复。
+4. 恢复后用一条私密查询确认 `retrievalMode=hybrid` 且 `fallbackReason=null`；再运行固定 Golden Set。不得因恢复而自动扩大每日调用预算。
+
+#### 审核并发、版本冲突与批量回滚
+
+1. 409 表示另一审核决定或版本更新已经抢占；刷新候选，核对当前 `status`、`version` 和审计记录，不直接重放反向决定。
+2. 同向重复决定可作为幂等成功读取；相反决定必须由新业务流程创建，不能覆盖既有终态。
+3. 批量接口任一项失败时整批回滚。刷新队列后缩小到明确安全的候选集合，不逐条猜测补发。
+4. 若发现同一候选出现多个终态副作用，立即停止审核写入，核对 `publication_history`、`audit_log` 和数据库迁移版本；不要手工删除记录掩盖问题。
+
+#### 审核统计异常
+
+1. 先比较 Render `/api/review/stats` 与 Cloudflare 同域 `/backend/api/review/stats`；前者正常而后者失败时检查 Worker 上游绑定和 staging 构建模式。
+2. 历史 `reason_category` 为空必须显示 `uncategorized`，不得从自由文本猜测回填。
+3. 终态缺少 `reviewed_at` 时仍计入通过/驳回率，但不计入平均时长；倒置时间按 0 秒处理并作为历史数据质量问题另行审计。
+4. 页面接口失败时应显示“不可用”，不能用演示数字或上次数字冒充实时统计。
+
+#### 前端与 API 分阶段发布
+
+1. 先确认 GitHub Quality 全绿，再等待 Render `/health` 返回目标 commit/release/schema，最后使用 `vite build --mode staging` 部署 Cloudflare。
+2. 部署后同时验证 `/backend/health`、`/backend/api/review/stats` 和浏览器水合后的统计面板；只检查 SSR HTML 不足以证明客户端查询成功。
+3. 若构建模式错误，立即用正确 staging build 覆盖，不把上传成功当作验收成功。
+
 ## 7. 备份与恢复
 
 推荐使用仓库内的恢复演练工具。它会创建 PostgreSQL custom-format 逻辑备份，在同一 PostgreSQL 实例中新建名称随机且受限的临时数据库，恢复后核对 Alembic head 以及用户、知识实体、发布记录和信源数量，最后自动删除临时数据库。它不会覆盖源数据库，默认也不会覆盖已有备份文件：
