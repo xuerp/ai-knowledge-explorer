@@ -19,8 +19,8 @@ envVarGroups:
       - key: AI_RADAR_FETCH_LEASE_MINUTES
         value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE
-        # 四个定向关系 Snapshot 已安全保存；取得新批次模型调用授权前保持暂停。
-        value: "0"
+        # 仅为已授权批次 2026-09-core-relations-02 分两轮处理四个 Snapshot。
+        value: "2"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT
         value: "10"
       - key: AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES
