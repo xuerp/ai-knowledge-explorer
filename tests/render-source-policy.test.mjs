@@ -31,8 +31,8 @@ test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS\s+value: "false"/);
 });
 
-test("Render 自动抽取吞吐与失败退避保持保守上限", () => {
-  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE\s+value: "2"/);
+test("Render 在定向关系批次授权前暂停自动抽取", () => {
+  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE[\s\S]*?value: "0"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT\s+value: "10"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES\s+value: "360"/);
 });
