@@ -77,9 +77,9 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 生产 Hybrid 固定集的 Precision@8 为 14.22%。大多数题只有一个标注相关 Claim，固定 TopK=8 时理论值即 12.5%，因此不存在 Spec 所说的“Precision@8 明显不足”。不引入真实 Reranker，避免没有证据支撑的延迟、外部依赖与潜在费用。
 
-### Epic 2B：定向关系抽取 — blocked
+### Epic 2B：定向关系抽取 — ready / model-call authorization pending
 
-当前 `eligibleSnapshots=0`。Epic 2A 已完成，但首批 4 个去重后的官方候选 URL 在当前执行环境中未通过安全抓取器的 DNS 公网地址校验，尚无可用 Snapshot。必须先在受信任采集环境完成 Snapshot / Diff；如需新增付费调用，再获得用户明确授权。新增关系全部进入人工审核，不自动批准。
+2026-09-01 已在 Render 受信任采集环境逐个完成首批 4 个官方 URL 的登记、安全预检、启用与首次采集，四次采集均为成功 1 / 失败 0。后台当前显示待抽取 Snapshot 4、采集重试 0、抽取冷却 0；AutoGen、CrewAI、Devin、Manus Snapshot 分别为 30,599、7,030、4,403、5,155 个可读字符，正文均包含目标关系锚点。`AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS=false` 已部署并由后台确认。下一步必须先完成 Snapshot 层 URL、内容哈希和语义指纹三层去重，再获得用户对新一批 DoroAI 模型调用的明确授权；新增关系全部进入人工审核，不自动批准。
 
 ### Epic 3：数据质量看板 — completed
 
@@ -117,4 +117,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。当前收束点是等待形成通过安全预检的官方 Snapshot；形成前不启动关系抽取、不调用模型补数，也不把覆盖差值当成交付 KPI。
+Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 的四个安全 Snapshot 已形成，Snapshot 前置阻塞解除。当前收束点是完成三层去重与关系锚点人工复核；只有在用户明确授权新一批 DoroAI 模型调用后，才能启用新的有限批次并把候选送入人工审核。

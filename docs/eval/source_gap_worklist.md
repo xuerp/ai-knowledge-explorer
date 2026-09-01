@@ -43,12 +43,12 @@
 
 只为关系数最低且没有任何未用官方 Evidence 的 4 个实体准备首批候选。2026-08-31 已按去除尾斜杠后的完整 URL 与 218 条 Evidence 交叉检查，4 个 URL 的既有 Evidence 命中数均为 0。
 
-| 实体    | 官方候选渠道                                                                                                | 页面中已观察到的关系锚点                                                | URL 去重 | Snapshot 状态 |
-| ------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------- | ------------- |
-| AutoGen | [官方 MCP 扩展参考](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html) | 页面明确说明 `McpWorkbench` 封装 MCP server；仍需人工确认目录端点和谓词 | 0 命中   | 安全抓取阻塞  |
-| CrewAI  | [官方 annotations 文档](https://docs.crewai.com/learn/using-annotations)                                    | 页面明确说明 MCP server adapter；仍需人工确认主语与集成方向             | 0 命中   | 安全抓取阻塞  |
-| Devin   | [官方集成概览](https://docs.devin.ai/integrations/overview)                                                 | 页面明确列出 MCP 与多类原生集成；只保留能唯一解析到目录实体的内容       | 0 命中   | 安全抓取阻塞  |
-| Manus   | [官方 Connectors 帮助页](https://help.manus.im/en/articles/12231777-how-can-i-use-manus-connectors)         | 页面明确提到 MCP servers；仍需区分 Connector 能力与已发布产品关系       | 0 命中   | 安全抓取阻塞  |
+| 实体    | 官方候选渠道                                                                                                | 页面中已观察到的关系锚点                                                | URL 去重 | Snapshot 状态       |
+| ------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------- | ------------------- |
+| AutoGen | [官方 MCP 扩展参考](https://microsoft.github.io/autogen/stable/reference/python/autogen_ext.tools.mcp.html) | 页面明确说明 `McpWorkbench` 封装 MCP server；仍需人工确认目录端点和谓词 | 0 命中   | 已保存；30,599 字符 |
+| CrewAI  | [官方 annotations 文档](https://docs.crewai.com/learn/using-annotations)                                    | 页面明确说明 MCP server adapter；仍需人工确认主语与集成方向             | 0 命中   | 已保存；7,030 字符  |
+| Devin   | [官方集成概览](https://docs.devin.ai/integrations/overview)                                                 | 页面明确列出 MCP 与多类原生集成；只保留能唯一解析到目录实体的内容       | 0 命中   | 已保存；4,403 字符  |
+| Manus   | [官方 Connectors 帮助页](https://help.manus.im/en/articles/12231777-how-can-i-use-manus-connectors)         | 页面明确提到 MCP servers；仍需区分 Connector 能力与已发布产品关系       | 0 命中   | 已保存；5,155 字符  |
 
 ### Snapshot 安全边界
 
@@ -60,11 +60,11 @@
 - 没有触发任何模型调用；
 - 4 个候选保持 `安全抓取阻塞`，只能在受信任且 DNS 可验证为公网的采集环境中重试。
 
-公开网页的只读人工核查只用于确认候选渠道值得进入安全采集，不替代产品的 Snapshot / Diff 流程。由于当前 `eligibleSnapshots=0`，Epic 2B 仍被 Evidence/Snapshot 准备阻塞；不得用网页摘要直接发布关系。
+2026-09-01 的后续重试没有放宽上述边界：仓库只增加四个精确官方主机名，Render 部署提交 `7f5bd8f` 后使用相同 `SafeHttpFetcher` 逐个预检和采集。四个入口全部通过并形成不可变 Snapshot；CrewAI 自动采纳其官方版本化 Markdown canonical URL。后台审计逐项记录 `source.probe`、`source.update` 与 `source.collect`，当前为待抽取 4、采集重试 0、抽取冷却 0，且没有触发模型调用。
 
 ## 进入 2B 前的执行门
 
-1. 在受信任采集环境中用 `SafeHttpFetcher` 重试 A 组 4 个 URL，并保存不可变 Snapshot / Diff。
+1. [x] 在受信任采集环境中用 `SafeHttpFetcher` 重试 A 组 4 个 URL，并保存不可变 Snapshot / Diff。
 2. 对新 Snapshot 再做 URL、内容哈希和语义指纹三层去重。
 3. 人工确认正文同时锚定两个唯一目录实体和本体谓词语义。
 4. 需要模型抽取时先获得用户对新增付费调用的明确授权。
