@@ -35,6 +35,8 @@ test("Render 在定向关系批次授权前暂停自动抽取", () => {
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE[\s\S]*?value: "0"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT\s+value: "10"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES\s+value: "360"/);
+  assert.match(blueprint, /AI_RADAR_RELATION_BACKFILL_BATCH_ID\s+value: 2026-09-core-relations-02/);
+  assert.match(blueprint, /AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS\s+value: "4"/);
 });
 
 test("Render 在生产化分支提交后自动部署 API", () => {

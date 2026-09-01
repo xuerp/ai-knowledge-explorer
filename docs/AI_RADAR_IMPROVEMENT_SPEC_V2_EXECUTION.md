@@ -79,7 +79,7 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ### Epic 2B：定向关系抽取 — ready / model-call authorization pending
 
-2026-09-01 已在 Render 受信任采集环境逐个完成首批 4 个官方 URL 的登记、安全预检、启用与首次采集，四次采集均为成功 1 / 失败 0。后台当前显示待抽取 Snapshot 4、采集重试 0、抽取冷却 0；AutoGen、CrewAI、Devin、Manus Snapshot 分别为 30,599、7,030、4,403、5,155 个可读字符，正文均包含目标关系锚点。`AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS=false` 已部署并由后台确认。下一步必须先完成 Snapshot 层 URL、内容哈希和语义指纹三层去重，再获得用户对新一批 DoroAI 模型调用的明确授权；新增关系全部进入人工审核，不自动批准。
+2026-09-01 已在 Render 受信任采集环境逐个完成首批 4 个官方 URL 的登记、安全预检、启用与首次采集，四次采集均为成功 1 / 失败 0。后台当前显示待抽取 Snapshot 4、采集重试 0、抽取冷却 0；AutoGen、CrewAI、Devin、Manus Snapshot 分别为 30,599、7,030、4,403、5,155 个可读字符，正文均包含目标关系锚点。四个信源在保存 Snapshot 后已暂停自动采集，避免恢复抽取时进入普通批次。`AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS=false` 与自动抽取上限 0 已部署并由后台确认；新批次 `2026-09-core-relations-02` 预算最多 4 个 Snapshot，只做待授权准备。下一步必须获得用户对新一批 DoroAI 模型调用的明确授权；候选生成时执行内容哈希与语义指纹去重，新增关系全部进入人工审核，不自动批准。
 
 ### Epic 3：数据质量看板 — completed
 
@@ -117,4 +117,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 的四个安全 Snapshot 已形成，Snapshot 前置阻塞解除。当前收束点是完成三层去重与关系锚点人工复核；只有在用户明确授权新一批 DoroAI 模型调用后，才能启用新的有限批次并把候选送入人工审核。
+Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 的四个安全 Snapshot 已形成并从普通抽取路径隔离。当前收束点是验证新关系批次恰好识别这 4 个 Snapshot；只有在用户明确授权 DoroAI 模型调用后，才把自动抽取上限从 0 临时恢复为 2，分两轮生成候选并全部送入人工审核。

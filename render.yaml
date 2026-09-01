@@ -30,9 +30,9 @@ envVarGroups:
       # 一次性关系补齐批次：总请求数由后端审计日志硬限制为最多 10 次。
       # 相同批次 ID 在服务重启或 Cron 重复触发后不会重新消费额度。
       - key: AI_RADAR_RELATION_BACKFILL_BATCH_ID
-        value: 2026-08-core-relations-01
+        value: 2026-09-core-relations-02
       - key: AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS
-        value: "10"
+        value: "4"
       # Hybrid 只在 staging 开启；凭证缺失、预算超限或 provider 异常时自动降级 lexical。
       - key: AI_RADAR_RETRIEVAL_MODE
         value: hybrid

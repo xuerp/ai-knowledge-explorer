@@ -60,7 +60,7 @@
 - 没有触发任何模型调用；
 - 4 个候选保持 `安全抓取阻塞`，只能在受信任且 DNS 可验证为公网的采集环境中重试。
 
-2026-09-01 的后续重试没有放宽上述边界：仓库只增加四个精确官方主机名，Render 部署提交 `7f5bd8f` 后使用相同 `SafeHttpFetcher` 逐个预检和采集。四个入口全部通过并形成不可变 Snapshot；CrewAI 自动采纳其官方版本化 Markdown canonical URL。后台审计逐项记录 `source.probe`、`source.update` 与 `source.collect`，当前为待抽取 4、采集重试 0、抽取冷却 0，且没有触发模型调用。
+2026-09-01 的后续重试没有放宽上述边界：仓库只增加四个精确官方主机名，Render 部署提交 `7f5bd8f` 后使用相同 `SafeHttpFetcher` 逐个预检和采集。四个入口全部通过并形成不可变 Snapshot；CrewAI 自动采纳其官方版本化 Markdown canonical URL。后台审计逐项记录 `source.probe`、`source.update` 与 `source.collect`，当前为待抽取 4、采集重试 0、抽取冷却 0。保存后四个信源均暂停自动采集，自动抽取上限也降为 0；因此 Snapshot 保留但不会在授权前调用模型。
 
 ## 进入 2B 前的执行门
 
