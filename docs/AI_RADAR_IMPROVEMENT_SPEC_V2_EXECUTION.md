@@ -81,13 +81,13 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 当前 `eligibleSnapshots=0`。Epic 2A 已完成，但首批 4 个去重后的官方候选 URL 在当前执行环境中未通过安全抓取器的 DNS 公网地址校验，尚无可用 Snapshot。必须先在受信任采集环境完成 Snapshot / Diff；如需新增付费调用，再获得用户明确授权。新增关系全部进入人工审核，不自动批准。
 
-### Epic 3：数据质量看板 — implementation completed / staging acceptance pending
+### Epic 3：数据质量看板 — completed
 
 1. [x] 公开 `/api/quality/metrics` 与 `/api/v2/quality/metrics` 复用现有质量门禁，返回实时业务计数、覆盖率和独立的 `updatedAt`。
 2. [x] 固定集评估从版本化真实结果生成 `backend/data/quality_evaluation.json`；指标、版本、提交与检索配置均可追溯，使用独立 `updatedAt` 和 `daily-or-on-retrieval-change` cadence。
 3. [x] 新增公开 `/quality` 页面，分别显示业务指标与 Golden Set 指标、两类更新时间、演示模式边界和非 KPI 说明。
 4. [x] 新增纯本地 `scripts/publish_quality_metrics.py` 与 CI 漂移检查；API 请求和 30 分钟 Cron 都不会调用 Embedding provider 或重跑固定集。
-5. [ ] 推送后完成 GitHub Quality、Render API 和 Cloudflare `/quality` 的 staging 验收。
+5. [x] 提交 `d2477ec` 的 GitHub Quality 运行 `33405448149` 全绿；Render staging 运行 `2026.08.31-quality-dashboard-v67` 与同一提交，公开质量 API 返回 HTTP 200；Cloudflare Worker 版本 `35ed92a5-6ff0-41c9-b3bf-6aeda0a16b79` 已部署，`/quality` 与同域指标 API 均返回 HTTP 200，并完成 1440×1200 浏览器视觉验收。
 
 ### Epic 4：审核流程可观测性 — pending
 
@@ -103,4 +103,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C 的代码、固定集评估和 staging 正常/故障/恢复验收以及 1D 判定均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。Epic 3 的本地实现与回归已完成，当前可执行节点是推送后完成 GitHub Quality、Render 指标 API 与 Cloudflare `/quality` 的 staging 验收；三项全部通过后才能进入 Epic 4。
+Epic 0、1A、2A、1B、1C、1D 与 Epic 3 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。下一可执行节点是 Epic 4：先盘点现有审核状态、时间戳、审核人、自由文本原因、版本与幂等字段，再只为缺失的标准化 `reason_category` 做按需迁移和统计接口。

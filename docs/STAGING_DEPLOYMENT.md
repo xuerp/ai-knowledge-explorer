@@ -64,10 +64,16 @@ AI 抽取和 SMTP 暂不放入 Blueprint。Render 免费实例阻止常用 SMTP 
 bun run build:staging
 bun run prepare:cloudflare:staging
 bun run verify:cloudflare:staging
-bunx wrangler@4 deploy --config .output/server/wrangler.staging.json
+$previousCloudflareToken = $env:CLOUDFLARE_API_TOKEN
+try {
+  $env:CLOUDFLARE_API_TOKEN = $env:CLOUDFLARE_DEPLOY_API_TOKEN
+  pnpm dlx wrangler@4 deploy --config .output/server/wrangler.staging.json
+} finally {
+  $env:CLOUDFLARE_API_TOKEN = $previousCloudflareToken
+}
 ```
 
-不得使用默认 `bun run build` 的产物部署预发 Worker。Nitro 的 Cloudflare 适配层不会把 Worker 运行时变量继续传入 SSR 服务；预发构建必须通过 `--mode staging` 将 Render 上游写入服务端运行时代码。`verify:cloudflare:staging` 会分别检查浏览器代理地址和 SSR 上游地址，只有 Wrangler 配置中存在变量也不能通过。
+不得使用默认 `bun run build` 的产物部署预发 Worker。Nitro 的 Cloudflare 适配层不会把 Worker 运行时变量继续传入 SSR 服务；预发构建必须通过 `--mode staging` 将 Render 上游写入服务端运行时代码。`verify:cloudflare:staging` 会分别检查浏览器代理地址和 SSR 上游地址，只有 Wrangler 配置中存在变量也不能通过。`CLOUDFLARE_API_TOKEN` 保留给 Workers AI；Wrangler 部署必须临时映射专用的 `CLOUDFLARE_DEPLOY_API_TOKEN`，并在命令结束后恢复原变量，避免两个有效 Token 因名称冲突而被误用。
 
 未指定自定义域名时，部署使用 Cloudflare 的 `workers.dev` 地址。脚本只修改被 Git 忽略的 `.output` 目录，不读取 Cloudflare Token；凭据由 Wrangler 浏览器登录提供。
 
