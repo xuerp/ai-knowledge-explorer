@@ -116,10 +116,13 @@ from .schemas import (
     ResearchCreate,
     ResearchView,
     ReviewBatchApproval,
+    ReviewBatchDecision,
     ReviewDecision,
     ReviewInventoryReport,
     ReviewLifecycleDecision,
     ReviewQueueItem,
+    ReviewReasonBreakdown,
+    ReviewStats,
     SchedulerRunSummary,
     SourceCreate,
     SourceProbeResult,
@@ -134,8 +137,8 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260831_0021"
-SERVICE_RELEASE = "2026.08.31-quality-dashboard-v67"
+DATABASE_SCHEMA_REVISION = "20260901_0022"
+SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
@@ -174,6 +177,11 @@ def review_item_is_deterministically_invalid(item: ReviewQueueItem) -> bool:
     return (
         not item.entity_id or not item.evidence_items or not review_item_has_anchored_excerpt(item)
     )
+
+
+def review_decision_note(decision: ReviewDecision | ReviewBatchDecision) -> str | None:
+    """Prefer the Epic 4 field while accepting the pre-Epic 4 request contract."""
+    return decision.reason_note or decision.reason
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -1605,6 +1613,54 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 core_relation_deficit=report.core_relation_deficit,
             ),
             evaluation=evaluation_quality_metrics(),
+        )
+
+    @app.get("/api/review/stats", response_model=ReviewStats)
+    @app.get("/api/v2/review/stats", response_model=ReviewStats)
+    def review_stats(session: SessionDependency) -> ReviewStats:
+        rows = session.execute(
+            select(
+                ReviewJobRecord.status,
+                ReviewJobRecord.created_at,
+                ReviewJobRecord.reviewed_at,
+                ReviewJobRecord.reason_category,
+            )
+        ).all()
+        terminal = [row for row in rows if row.status in {"approved", "rejected"}]
+        approved_count = sum(row.status == "approved" for row in terminal)
+        rejected_rows = [row for row in terminal if row.status == "rejected"]
+        rejected_count = len(rejected_rows)
+        reviewed_count = len(terminal)
+        durations = [
+            max(0.0, (row.reviewed_at - row.created_at).total_seconds())
+            for row in terminal
+            if row.reviewed_at is not None
+        ]
+        category_counts: dict[str, int] = {}
+        for row in rejected_rows:
+            category = row.reason_category or "uncategorized"
+            category_counts[category] = category_counts.get(category, 0) + 1
+        rejection_reasons = [
+            ReviewReasonBreakdown(
+                category=category,
+                count=count,
+                ratio=count / rejected_count if rejected_count else 0.0,
+            )
+            for category, count in sorted(category_counts.items())
+        ]
+        reviewed_times = [row.reviewed_at for row in terminal if row.reviewed_at is not None]
+        return ReviewStats(
+            generated_at=datetime.now(UTC),
+            open_count=sum(row.status in OPEN_REVIEW_STATUSES for row in rows),
+            reviewed_count=reviewed_count,
+            approved_count=approved_count,
+            rejected_count=rejected_count,
+            approval_rate=approved_count / reviewed_count if reviewed_count else 0.0,
+            rejection_rate=rejected_count / reviewed_count if reviewed_count else 0.0,
+            average_review_seconds=sum(durations) / len(durations) if durations else None,
+            reviewed_with_duration_count=len(durations),
+            last_reviewed_at=max(reviewed_times, default=None),
+            rejection_reasons=rejection_reasons,
         )
 
     @app.get("/api/v2/entities", response_model=list[Entity])
@@ -3103,8 +3159,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         if action == "approved":
             require_publishable_entity(row, session)
+        if action == "rejected" and decision.reason_category is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="A rejection reason category is required.",
+            )
         row.status = action
-        row.review_reason = decision.reason
+        row.reason_category = decision.reason_category if action == "rejected" else None
+        note = review_decision_note(decision)
+        row.review_reason = note
         row.reviewed_at = datetime.now(UTC)
         row.reviewed_by = actor.email
         row.version += 1
@@ -3139,7 +3202,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             row.id,
             {
                 "claimId": row.claim_id,
-                "reason": decision.reason,
+                "reason": note,
+                "reasonCategory": row.reason_category,
+                "reasonNote": note,
                 "notificationsCreated": notifications_created,
                 "relationId": published_relation.id if published_relation else None,
             },
@@ -3260,7 +3325,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         now = datetime.now(UTC)
         row.status = "approved"
-        row.review_reason = decision.reason
+        row.reason_category = None
+        row.review_reason = review_decision_note(decision)
         row.reviewed_at = now
         row.reviewed_by = actor.email
         row.version += 1
@@ -3353,7 +3419,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             {
                 "claimId": row.claim_id,
                 "targetClaimId": target.claim_id,
-                "reason": decision.reason,
+                "reason": row.review_reason,
+                "reasonNote": row.review_reason,
                 "notificationsCreated": notifications_created,
                 "relationId": published_relation.id if published_relation else None,
             },
@@ -3499,6 +3566,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         row.id,
                         ReviewDecision(
                             expected_version=row.version,
+                            reason_category=(
+                                "schema_error" if not item.entity_id else "unsupported_evidence"
+                            ),
                             reason=(
                                 "确定性队列治理：候选缺少可发布实体、直接证据或可定位原文锚点。"
                             ),
@@ -3569,7 +3639,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     )
                 row.reviewed_at = datetime.now(UTC)
                 row.reviewed_by = actor.email
-                row.review_reason = item.reason
+                row.reason_category = None
+                note = review_decision_note(item)
+                row.review_reason = note
                 row.version += 1
                 repository.persist_approved_verification(row)
                 audit.record(
@@ -3578,7 +3650,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "review.human_verified",
                     "review_job",
                     row.id,
-                    {"claimId": row.claim_id, "reason": item.reason},
+                    {"claimId": row.claim_id, "reason": note, "reasonNote": note},
                 )
                 verified.append(repository.to_queue_item(row))
             session.commit()

@@ -43,6 +43,7 @@ class ReviewJobRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     reviewed_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    reason_category: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     review_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     lifecycle_status: Mapped[str] = mapped_column(
