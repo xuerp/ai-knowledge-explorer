@@ -107,14 +107,14 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 5. [x] `PRODUCTION_RUNBOOK.md` 已新增 LLM、Embedding、审核并发、统计异常和前后端分阶段发布的排障/恢复映射。
 6. [x] 提交 `b9fd066` 的 GitHub Quality 运行 `33476714670` 前后端全绿；Render staging 已运行同一提交，`/ready` 为 HTTP 200，schema 保持 `20260901_0022`。本批无前端变更，Cloudflare 无需重复部署。
 
-### Epic 6：ADR 与作品集 — implemented / CI acceptance pending
+### Epic 6：ADR 与作品集 — completed
 
 1. [x] `docs/adr/0001`–`0006` 六份决策记录齐全，覆盖 lexical-first、关系抽取门槛、Candidate/Verified 隔离、风险分层审核、Embedding 选型与“关系缺口不是 KPI”。
 2. [x] Case Study 新增固定 Golden Set、同一 snapshot、TopK=8 的 Baseline → Alias → Hybrid 真实曲线，并解释 Precision@8 分母与 Relation 保持 76 的边界。
 3. [x] 简历材料更新为 staging 真实快照 49 Entity / 197 Claim / 219 Evidence / 76 Relation / 55 Timeline，以及 Alias、Hybrid 和并发修复结果。
 4. [x] 新增作品集证据契约测试，验证六份 ADR、固定评估数值与公开材料不回退到旧演示计数。
-5. [ ] GitHub CI 验收通过后关闭 Epic。
+5. [x] 提交 `31ef5eb` 的 GitHub Quality 运行 `33477411649` 前后端全绿；Render staging 已运行同一提交，`/ready` 为 HTTP 200，schema 保持 `20260901_0022`。本批无运行时代码变更，Cloudflare 无需重复部署。
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4 与 Epic 5 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。Epic 6 的 ADR、优化曲线、履历量化与证据契约均已落盘；当前可执行节点是运行完整前端门禁、提交并完成 GitHub CI 验收。
+Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。当前收束点是等待形成通过安全预检的官方 Snapshot；形成前不启动关系抽取、不调用模型补数，也不把覆盖差值当成交付 KPI。
