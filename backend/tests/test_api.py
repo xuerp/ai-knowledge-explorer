@@ -86,9 +86,9 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.31-quality-dashboard-v67",
+        "release": "2026.09.01-review-observability-v68",
         "buildCommit": "test-build-commit",
-        "schemaRevision": "20260831_0021",
+        "schemaRevision": "20260901_0022",
         "builtAt": "2026-08-25T00:00:00Z",
         "environment": "test",
         "dataMode": "demo",
@@ -2240,16 +2240,97 @@ def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
         headers=headers,
         json={
             "expectedVersion": review["version"],
+            "reasonCategory": "unsupported_evidence",
             "reason": "The source does not meet the publication threshold.",
         },
     )
     assert rejected.status_code == 200
     assert rejected.json()["status"] == "rejected"
+    assert rejected.json()["reasonCategory"] == "unsupported_evidence"
+    assert rejected.json()["reasonNote"] == rejected.json()["reviewReason"]
 
     snapshot = client.get("/api/snapshot").json()
     assert review["claim"]["id"] not in {claim["id"] for claim in snapshot["claims"]}
     history = client.get("/api/v2/admin/publication-history", headers=headers)
     assert history.json() == []
+
+
+def test_public_review_stats_are_aggregate_and_rejection_category_is_required(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    baseline = client.get("/api/review/stats")
+    assert baseline.status_code == 200
+    versioned = client.get("/api/v2/review/stats")
+    assert versioned.status_code == 200
+    assert {key: value for key, value in versioned.json().items() if key != "generatedAt"} == {
+        key: value for key, value in baseline.json().items() if key != "generatedAt"
+    }
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+
+    missing_category = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonNote": "The evidence is not sufficient for publication.",
+        },
+    )
+    assert missing_category.status_code == 422
+
+    note = "The evidence is not sufficient for publication."
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "low_confidence",
+            "reasonNote": note,
+        },
+    )
+    assert rejected.status_code == 200
+
+    stats = client.get("/api/review/stats")
+    assert stats.status_code == 200
+    payload = stats.json()
+    previous = baseline.json()
+    assert payload["reviewedCount"] == previous["reviewedCount"] + 1
+    assert payload["rejectedCount"] == previous["rejectedCount"] + 1
+    assert payload["openCount"] == previous["openCount"] - 1
+    assert payload["reviewedWithDurationCount"] <= payload["reviewedCount"]
+    assert payload["averageReviewSeconds"] is not None
+    breakdown = {item["category"]: item for item in payload["rejectionReasons"]}
+    assert breakdown["low_confidence"]["count"] >= 1
+    assert note not in stats.text
+    assert "test-admin-token" not in stats.text
+
+
+def test_historical_rejection_without_category_is_reported_as_uncategorized(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "conflict",
+        },
+    )
+    assert rejected.status_code == 200
+    assert rejected.json()["reasonNote"] is None
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, review["id"])
+        assert row is not None
+        row.reason_category = None
+        session.commit()
+
+    breakdown = {
+        item["category"]: item
+        for item in client.get("/api/review/stats").json()["rejectionReasons"]
+    }
+    assert breakdown["uncategorized"]["count"] >= 1
 
 
 def test_approved_canonical_relation_claim_updates_graph(client: TestClient):

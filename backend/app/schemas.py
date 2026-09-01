@@ -284,9 +284,20 @@ class KnowledgeSnapshot(CamelModel):
     sync_runs: list[SyncRun]
 
 
+ReviewReasonCategory = Literal[
+    "unsupported_evidence",
+    "duplicate",
+    "conflict",
+    "schema_error",
+    "low_confidence",
+]
+
+
 class ReviewDecision(CamelModel):
     expected_version: int = Field(ge=1)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_note: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_category: ReviewReasonCategory | None = None
 
 
 class ReviewLifecycleDecision(ReviewDecision):
@@ -298,7 +309,9 @@ class ReviewLifecycleDecision(ReviewDecision):
 class ReviewBatchDecision(CamelModel):
     id: str = Field(min_length=1, max_length=128)
     expected_version: int = Field(ge=1)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_note: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_category: ReviewReasonCategory | None = None
 
 
 class ReviewBatchApproval(CamelModel):
@@ -307,6 +320,9 @@ class ReviewBatchApproval(CamelModel):
 
 class ReviewQueueItem(ReviewCandidate):
     version: int
+    reason_category: ReviewReasonCategory | None = None
+    reason_note: str | None = None
+    # Compatibility alias for clients deployed before structured rejection reasons.
     review_reason: str | None = None
     review_method: Literal["human", "automation"] | None = None
     evidence_items: list[Evidence] = Field(default_factory=list)
@@ -331,6 +347,26 @@ class ReviewInventoryReport(CamelModel):
     invalid_anchor_items: int
     stale_items: int
     duplicate_with_published_items: int
+
+
+class ReviewReasonBreakdown(CamelModel):
+    category: ReviewReasonCategory | Literal["uncategorized"]
+    count: int
+    ratio: float
+
+
+class ReviewStats(CamelModel):
+    generated_at: datetime
+    open_count: int
+    reviewed_count: int
+    approved_count: int
+    rejected_count: int
+    approval_rate: float
+    rejection_rate: float
+    average_review_seconds: float | None = None
+    reviewed_with_duration_count: int
+    last_reviewed_at: datetime | None = None
+    rejection_reasons: list[ReviewReasonBreakdown]
 
 
 class EntityClaimPage(CamelModel):

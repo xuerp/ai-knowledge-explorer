@@ -89,9 +89,14 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 4. [x] 新增纯本地 `scripts/publish_quality_metrics.py` 与 CI 漂移检查；API 请求和 30 分钟 Cron 都不会调用 Embedding provider 或重跑固定集。
 5. [x] 提交 `d2477ec` 的 GitHub Quality 运行 `33405448149` 全绿；Render staging 运行 `2026.08.31-quality-dashboard-v67` 与同一提交，公开质量 API 返回 HTTP 200；Cloudflare Worker 版本 `35ed92a5-6ff0-41c9-b3bf-6aeda0a16b79` 已部署，`/quality` 与同域指标 API 均返回 HTTP 200，并完成 1440×1200 浏览器视觉验收。
 
-### Epic 4：审核流程可观测性 — pending
+### Epic 4：审核流程可观测性 — implemented / staging acceptance pending
 
-复用现有状态、时间戳、审核人、自由文本原因、版本与幂等字段。只为缺失的标准化 `reason_category` 做按需 migration，并保留自由文本 `reason_note`；再实现统计 API 与管理面板。
+1. [x] 完成 review/audit 现状核查并记录到 `docs/eval/REVIEW_OBSERVABILITY_AUDIT_2026-09-01.md`：通过率、驳回率、审核耗时可直接复用现有字段，只有拒绝原因分布缺少结构化字段。
+2. [x] 迁移 `20260901_0022` 只新增 nullable `reason_category` 与索引；既有 `review_reason` 继续作为 `reasonNote` 存储，历史数据不猜测回填并归入 `uncategorized`。
+3. [x] 拒绝决策强制标准化 category，并支持可选 note；旧 `reason` 输入和既有客户端保持兼容，自动批量拒绝也写入确定性分类。
+4. [x] 新增公开 `/api/review/stats` 与 `/api/v2/review/stats`，仅返回聚合指标，不公开审核人和个别备注。
+5. [x] `/admin/review-demo` 新增真实统计面板；接口不可用时明确报错，不用演示数字替代。
+6. [ ] 完成 CI、Render staging 与 Cloudflare `/admin/review-demo` 线上验收后关闭 Epic。
 
 ### Epic 5：故障场景测试 — pending
 
@@ -103,4 +108,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D 与 Epic 3 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。下一可执行节点是 Epic 4：先盘点现有审核状态、时间戳、审核人、自由文本原因、版本与幂等字段，再只为缺失的标准化 `reason_category` 做按需迁移和统计接口。
+Epic 0、1A、2A、1B、1C、1D 与 Epic 3 均已完成。Epic 2B 仍因安全 Snapshot 尚未形成而 blocked，不得启动抽取。Epic 4 的现状核查、最小迁移、统计 API 与面板已经实现；当前可执行节点是完成全量本地回归并提交，随后经明确授权推送并执行 staging 验收。

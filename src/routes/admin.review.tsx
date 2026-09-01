@@ -26,9 +26,12 @@ import {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   partitionReviewBatchItems,
+  resolveReviewReasonCategory,
   resolveReviewReason,
+  reviewReasonCategoryLabels,
   selectBatchApprovableReviewItems,
   type ReviewAction,
+  type ReviewReasonCategory,
 } from "@/domain/review-decision";
 import { assessReviewItem, orderReviewItems } from "@/domain/review-priority";
 import { classifyReviewLane, reviewLaneCounts, type ReviewLane } from "@/domain/review-lanes";
@@ -201,6 +204,7 @@ function AdminReviewPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [reasonCategories, setReasonCategories] = useState<Record<string, string>>({});
   const [reviewingIds, setReviewingIds] = useState<Set<string>>(() => new Set());
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
   const [entityRepairReport, setEntityRepairReport] = useState<ClaimEntityRepairReport | null>(
@@ -334,9 +338,11 @@ function AdminReviewPage() {
   };
 
   const decide = async (item: ReviewQueueItem, action: ReviewAction) => {
-    let reason: string;
+    let reason: string | undefined;
+    let reasonCategory: ReviewReasonCategory | undefined;
     try {
       reason = resolveReviewReason(action, reasons[item.id]);
+      reasonCategory = resolveReviewReasonCategory(action, reasonCategories[item.id]);
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : "请填写审核理由。";
       setReviewErrors((current) => ({
@@ -350,7 +356,14 @@ function AdminReviewPage() {
     setReviewErrors((current) => ({ ...current, [item.id]: "" }));
     setError("");
     try {
-      const decided = await adminApi.decide(token, item.id, action, item.version, reason);
+      const decided = await adminApi.decide(
+        token,
+        item.id,
+        action,
+        item.version,
+        reason,
+        reasonCategory,
+      );
       setWorkspace((current) =>
         current
           ? {
@@ -362,6 +375,11 @@ function AdminReviewPage() {
           : current,
       );
       setReasons((current) => {
+        const next = { ...current };
+        delete next[item.id];
+        return next;
+      });
+      setReasonCategories((current) => {
         const next = { ...current };
         delete next[item.id];
         return next;
@@ -2159,9 +2177,9 @@ function AdminReviewPage() {
                     )}
                   </div>
                 </div>
-                {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
+                {(item.conflictClaimIds.length > 0 || item.reasonNote || item.reviewReason) && (
                   <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
-                    {item.reviewReason}
+                    {item.reasonNote ?? item.reviewReason}
                     {item.conflictClaimIds.length > 0 && (
                       <div className="mt-1 font-mono text-xs">
                         {item.conflictClaimIds.join(", ")}
@@ -2237,10 +2255,29 @@ function AdminReviewPage() {
                     </div>
                   </div>
                 )}
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(10rem,0.7fr)_minmax(16rem,1.5fr)_auto_auto]">
+                  <select
+                    aria-label="拒绝原因分类"
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                    value={reasonCategories[item.id] ?? ""}
+                    disabled={reviewing}
+                    onChange={(event) =>
+                      setReasonCategories((current) => ({
+                        ...current,
+                        [item.id]: event.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">拒绝原因分类</option>
+                    {Object.entries(reviewReasonCategoryLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
                   <Input
-                    aria-label="审核理由"
-                    placeholder="批准可直接点击；拒绝请填写理由"
+                    aria-label="审核备注"
+                    placeholder="审核备注（可选）"
                     value={reasons[item.id] ?? ""}
                     disabled={reviewing}
                     onChange={(event) =>
@@ -2332,8 +2369,15 @@ function AdminReviewPage() {
                     <div>
                       <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
                       <p className="mt-2 text-sm font-medium">{item.claim.text.zh}</p>
-                      {item.reviewReason && (
-                        <p className="mt-1 text-xs text-muted-foreground">{item.reviewReason}</p>
+                      {(item.reasonNote || item.reviewReason) && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {item.reasonCategory
+                            ? `${reviewReasonCategoryLabels[item.reasonCategory]} · `
+                            : item.status === "rejected"
+                              ? "历史未分类 · "
+                              : ""}
+                          {item.reasonNote ?? item.reviewReason}
+                        </p>
                       )}
                     </div>
                     <span className="rounded-full border border-border px-2.5 py-1 text-xs">

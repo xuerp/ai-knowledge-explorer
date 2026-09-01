@@ -754,6 +754,8 @@ class KnowledgeRepository:
         return ReviewQueueItem(
             **candidate.model_dump(),
             version=row.version,
+            reason_category=row.reason_category,
+            reason_note=row.review_reason,
             review_reason=row.review_reason,
             review_method=(
                 "automation"

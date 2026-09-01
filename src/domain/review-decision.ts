@@ -1,4 +1,14 @@
 export type ReviewAction = "approve" | "reject";
+export type ReviewReasonCategory =
+  "unsupported_evidence" | "duplicate" | "conflict" | "schema_error" | "low_confidence";
+
+export const reviewReasonCategoryLabels: Record<ReviewReasonCategory, string> = {
+  unsupported_evidence: "证据不足",
+  duplicate: "重复内容",
+  conflict: "事实冲突",
+  schema_error: "结构错误",
+  low_confidence: "置信度过低",
+};
 
 type ReviewQueueState = {
   id: string;
@@ -19,11 +29,33 @@ const terminalReviewStatuses = new Set<ReviewQueueState["status"]>(["approved", 
 
 export const defaultApprovalReason = "已人工核对事实、来源和证据。";
 
-export function resolveReviewReason(action: ReviewAction, input: string | undefined): string {
+export function resolveReviewReason(action: "approve", input: string | undefined): string;
+export function resolveReviewReason(
+  action: "reject",
+  input: string | undefined,
+): string | undefined;
+export function resolveReviewReason(
+  action: ReviewAction,
+  input: string | undefined,
+): string | undefined;
+export function resolveReviewReason(
+  action: ReviewAction,
+  input: string | undefined,
+): string | undefined {
   const reason = input?.trim() ?? "";
   if (reason.length >= 3) return reason;
   if (action === "approve") return defaultApprovalReason;
-  throw new Error("拒绝前请填写至少 3 个字符的具体理由。");
+  if (!reason) return undefined;
+  throw new Error("审核备注填写后需至少 3 个字符。");
+}
+
+export function resolveReviewReasonCategory(
+  action: ReviewAction,
+  input: string | undefined,
+): ReviewReasonCategory | undefined {
+  if (action === "approve") return undefined;
+  if (input && input in reviewReasonCategoryLabels) return input as ReviewReasonCategory;
+  throw new Error("拒绝前请选择标准化原因分类。");
 }
 
 export function isAlreadyAppliedReviewDecision(action: ReviewAction, message: string): boolean {
