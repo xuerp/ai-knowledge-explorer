@@ -42,3 +42,5 @@
 - Alembic `20260901_0022` 已通过全新数据库 upgrade、downgrade 至 `20260831_0021`、再次 upgrade 和单一 head 检查。
 - API 回归覆盖缺失分类返回 422、分类与备注持久化、统计增量、版本化别名、历史 `uncategorized` 和敏感文本不出现在公开响应。
 - 前端契约覆盖拒绝分类校验、统计 API 路径、真实统计面板和失败不伪造数据。
+- GitHub Quality 运行 `33475763045` 在提交 `3c30224` 上前后端全绿；Render staging 已运行同一提交、release `v68` 与 schema `0022`。
+- Cloudflare staging Worker 版本 `5124c94a-7a4b-4ad0-8211-dee9a74ab129` 的同域 health、统计 API 和页面均为 HTTP 200；浏览器显示 591 条已审核、32.8% 批准率、67.2% 拒绝率及 397 条历史未分类拒绝，控制台无错误。
