@@ -91,7 +91,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                   <div className="timeline-event-card animate-in fade-in slide-in-from-top-2 duration-200 mt-4 rounded-lg border border-border bg-card p-4 shadow-lg">
                     <div className="mb-2 flex items-start justify-between gap-2">
                       <h3 className="font-semibold text-sm text-foreground">{event.title[lang]}</h3>
-                      <ConfidenceChip confidence={event.confidence} size="sm" />
+                      <ConfidenceChip level={event.confidence} />
                     </div>
 
                     <time className="mb-2 block font-mono text-xs tabular-nums text-temporal-slate">
@@ -140,7 +140,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                   <time className="font-mono text-xs font-semibold tabular-nums text-temporal-slate">
                     {event.date}
                   </time>
-                  <ConfidenceChip confidence={event.confidence} size="sm" />
+                  <ConfidenceChip level={event.confidence} />
                 </div>
 
                 <h3 className="mb-2 text-sm font-semibold text-foreground">{event.title[lang]}</h3>
