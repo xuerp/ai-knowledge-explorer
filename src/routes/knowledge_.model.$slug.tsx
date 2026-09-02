@@ -14,6 +14,8 @@ import {
 import { AppShell } from "@/components/layout/AppShell";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
+import { TimelineHero } from "@/components/knowledge/TimelineHero";
+import { ReadingModeSelector } from "@/components/knowledge/ReadingModeSelector";
 import {
   DemoBadge,
   ConfidenceChip,
@@ -63,7 +65,7 @@ function EntityDetail() {
     entity: Entity;
     snapshot: KnowledgeSnapshot;
   };
-  const { t, lang, mode } = useApp();
+  const { t, lang, mode, setMode } = useApp();
   const { entities, evidence: allEvidence, timeline: allTimeline, graph } = snapshot;
   const relations = graph.edges;
   const findEntity = (id: string) => entities.find((entity) => entity.id === id);
@@ -203,6 +205,14 @@ function EntityDetail() {
       </div>
 
       <div className="page-container flex flex-col gap-12 pb-12 pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <ReadingModeSelector value={mode} onChange={setMode} />
+        </div>
+
+        {timeline.length > 0 && (
+          <TimelineHero events={timeline} sources={evidence} entityName={pick(e.name, lang)} />
+        )}
+
         <div
           className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
           data-reading-focus={mode}

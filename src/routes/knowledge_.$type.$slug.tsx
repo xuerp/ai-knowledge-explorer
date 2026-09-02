@@ -70,7 +70,7 @@ function GenericEntityDetail() {
     entity: Entity;
     snapshot: KnowledgeSnapshot;
   };
-  const { t, lang, mode } = useApp();
+  const { t, lang, mode, setMode } = useApp();
   const entityById = new Map(snapshot.entities.map((item) => [item.id, item]));
   const relations = snapshot.graph.edges.filter(
     (edge) => edge.fromId === entity.id || edge.toId === entity.id,
@@ -171,14 +171,7 @@ function GenericEntityDetail() {
 
         {/* Reading Mode Selector */}
         <div className="mt-8">
-          <ReadingModeSelector
-            value={mode}
-            onChange={(newMode) => {
-              // TODO: Implement mode change via router navigation
-              // For now, just log
-              console.log("Mode change requested:", newMode);
-            }}
-          />
+          <ReadingModeSelector value={mode} onChange={setMode} />
         </div>
 
         {/* Timeline Hero Section */}
