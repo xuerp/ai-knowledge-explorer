@@ -346,39 +346,6 @@ function GenericEntityDetail() {
             </div>
           </ReadingModeSection>
 
-          {timeline.length > 0 && sectionVisible("timeline") && (
-            <section
-              data-reading-section="timeline"
-              style={{ order: sectionPresentation.timeline.order }}
-            >
-              <SectionHeading
-                eyebrow={sectionPresentation.timeline.eyebrow}
-                title={t("时间线", "Timeline")}
-                description={t(
-                  "按时间记录发布、更新、评测与重要事件。",
-                  "Releases, updates, benchmarks and important events in chronological context.",
-                )}
-              />
-              <div className="space-y-3">
-                {timeline.map((event) => (
-                  <article key={event.id} className="paper-card flex gap-4 p-4">
-                    <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <time className="font-mono text-xs text-signal">{event.date}</time>
-                        <h3 className="font-semibold">{pick(event.title, lang)}</h3>
-                        <ConfidenceChip level={event.confidence} />
-                      </div>
-                      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                        {pick(event.summary, lang)}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
-
           <ReadingModeSection
             section="evidence"
             visible={sectionVisible("evidence")}
