@@ -14,6 +14,9 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ConfidenceChip, DemoBadge, SectionHeading, SourceRow } from "@/components/common";
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
+import { TimelineHero } from "@/components/knowledge/TimelineHero";
+import { ReadingModeSelector } from "@/components/knowledge/ReadingModeSelector";
+import { DensityAwareSection } from "@/components/knowledge/DensityAwareSection";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import {
   getEntitySectionPresentation,
@@ -165,44 +168,48 @@ function GenericEntityDetail() {
           </div>
         </header>
 
-        <div className="flex flex-col gap-12 pt-10">
-          <div
-            className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
-            data-reading-focus={mode}
-          >
-            <div className="text-sm font-semibold text-signal">{pick(readingMode.label, lang)}</div>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              {pick(readingMode.description, lang)}{" "}
-              {t(
-                "页面只展开本模式的重点信息。",
-                "Only this mode's priority information is expanded on the page.",
-              )}
-            </p>
-          </div>
+        {/* Reading Mode Selector */}
+        <div className="mt-8">
+          <ReadingModeSelector
+            value={mode}
+            onChange={(newMode) => {
+              // TODO: Implement mode change via router navigation
+              // For now, just log
+              console.log("Mode change requested:", newMode);
+            }}
+          />
+        </div>
 
+        {/* Timeline Hero Section */}
+        {timeline.length > 0 && (
+          <div className="mt-8">
+            <TimelineHero
+              events={timeline}
+              sources={sources}
+              entityName={pick(entity.name, lang)}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col gap-8 pt-8">
           {entity.knowledge && (
-            <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
+            <DensityAwareSection
+              density={sectionPresentation.guide.density}
+              title={t("产品指南", "Product Guide")}
+            >
               <KnowledgeArticle
                 knowledge={entity.knowledge}
                 entityName={entity.name}
                 sectionEyebrow={sectionPresentation.guide.eyebrow}
               />
-            </div>
+            </DensityAwareSection>
           )}
 
-          <ReadingModeSection
-            section="profile"
-            visible={sectionVisible("profile")}
-            order={sectionPresentation.profile.order}
-          >
-            <SectionHeading
-              eyebrow={sectionPresentation.profile.eyebrow}
-              title={t("基础档案", "Reference profile")}
-              description={t(
-                "用于检索、筛选和数据核验的结构化信息。",
-                "Structured information for search, filtering and verification.",
-              )}
-            />
+          {sectionVisible("profile") && (
+            <DensityAwareSection
+              density={sectionPresentation.profile.density}
+              title={t("基础档案", "Reference Profile")}
+            >
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
               <article className="paper-card p-5 md:p-6">
                 <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
@@ -263,9 +270,10 @@ function GenericEntityDetail() {
                 )}
               </article>
             </div>
-          </ReadingModeSection>
+          </DensityAwareSection>
+        )}
 
-          {claims.length > 0 && sectionVisible("claims") && (
+        {claims.length > 0 && sectionVisible("claims") && (
             <section
               data-reading-section="claims"
               style={{ order: sectionPresentation.claims.order }}
