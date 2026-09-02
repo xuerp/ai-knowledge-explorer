@@ -18,5 +18,5 @@ test("公开质量页区分业务与评估更新时间并标注低频评估", as
   assert.match(route, /Recall@8/);
   assert.match(route, /Precision@8/);
   assert.match(api, /\/api\/quality\/metrics/);
-  assert.match(topNav, /to: "\/quality"/);
+  assert.match(topNav, /to="\/quality"/);
 });
