@@ -35,7 +35,9 @@ export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProp
               }`}
               title={option.description[lang]}
             >
-              <Icon className={`h-4 w-4 transition-transform ${isActive ? "scale-110" : "group-hover:scale-105"}`} />
+              <Icon
+                className={`h-4 w-4 transition-transform ${isActive ? "scale-110" : "group-hover:scale-105"}`}
+              />
               <span>{option.shortLabel[lang]}</span>
 
               {/* Active indicator line */}

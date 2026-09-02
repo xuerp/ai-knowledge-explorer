@@ -210,70 +210,70 @@ function GenericEntityDetail() {
               density={sectionPresentation.profile.density}
               title={t("基础档案", "Reference Profile")}
             >
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
-              <article className="paper-card p-5 md:p-6">
-                <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
-                <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
-                  <ProfileField
-                    label={t("实体类型", "Entity type")}
-                    value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                  />
-                  <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
-                  <ProfileField
-                    label={t("所属组织", "Organization")}
-                    value={entity.vendor ?? "—"}
-                  />
-                  <ProfileField label={t("来源区域", "Region")} value={origin} />
-                  <ProfileField
-                    label={t("首次收录 / 发布", "First recorded / released")}
-                    value={entity.firstReleasedAt ?? "—"}
-                  />
-                  <ProfileField
-                    label={t("别名", "Aliases")}
-                    value={entity.aliases?.join(" · ") || "—"}
-                    wide
-                  />
-                  <ProfileField
-                    label={t("标签", "Tags")}
-                    value={entity.tags.join(" · ") || "—"}
-                    wide
-                  />
-                </dl>
-              </article>
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
+                <article className="paper-card p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
+                  <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+                    <ProfileField
+                      label={t("实体类型", "Entity type")}
+                      value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                    />
+                    <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
+                    <ProfileField
+                      label={t("所属组织", "Organization")}
+                      value={entity.vendor ?? "—"}
+                    />
+                    <ProfileField label={t("来源区域", "Region")} value={origin} />
+                    <ProfileField
+                      label={t("首次收录 / 发布", "First recorded / released")}
+                      value={entity.firstReleasedAt ?? "—"}
+                    />
+                    <ProfileField
+                      label={t("别名", "Aliases")}
+                      value={entity.aliases?.join(" · ") || "—"}
+                      wide
+                    />
+                    <ProfileField
+                      label={t("标签", "Tags")}
+                      value={entity.tags.join(" · ") || "—"}
+                      wide
+                    />
+                  </dl>
+                </article>
 
-              <article className="paper-card p-5 md:p-6">
-                <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
-                <div className="mt-5 grid grid-cols-2 gap-3">
-                  <Stat value={relations.length} label={t("已收录关系", "Relations")} />
-                  <Stat value={sources.length} label={t("直接来源", "Sources")} />
-                  <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
-                  <Stat
-                    value={new Set(relations.map((edge) => edge.kind)).size}
-                    label={t("关系类型", "Relation types")}
-                  />
-                </div>
-                {entity.capabilities && entity.capabilities.length > 0 && (
-                  <div className="mt-5 border-t border-border pt-5">
-                    <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      {t("能力 / 特征", "Capabilities / traits")}
-                    </div>
-                    <ul className="space-y-3">
-                      {entity.capabilities.map((capability, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                          <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
-                          <ConfidenceChip level={capability.confidence} />
-                        </li>
-                      ))}
-                    </ul>
+                <article className="paper-card p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <Stat value={relations.length} label={t("已收录关系", "Relations")} />
+                    <Stat value={sources.length} label={t("直接来源", "Sources")} />
+                    <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
+                    <Stat
+                      value={new Set(relations.map((edge) => edge.kind)).size}
+                      label={t("关系类型", "Relation types")}
+                    />
                   </div>
-                )}
-              </article>
-            </div>
-          </DensityAwareSection>
-        )}
+                  {entity.capabilities && entity.capabilities.length > 0 && (
+                    <div className="mt-5 border-t border-border pt-5">
+                      <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        {t("能力 / 特征", "Capabilities / traits")}
+                      </div>
+                      <ul className="space-y-3">
+                        {entity.capabilities.map((capability, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm">
+                            <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                            <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
+                            <ConfidenceChip level={capability.confidence} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </article>
+              </div>
+            </DensityAwareSection>
+          )}
 
-        {claims.length > 0 && sectionVisible("claims") && (
+          {claims.length > 0 && sectionVisible("claims") && (
             <section
               data-reading-section="claims"
               style={{ order: sectionPresentation.claims.order }}

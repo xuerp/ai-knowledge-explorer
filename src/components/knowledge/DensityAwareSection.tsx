@@ -43,15 +43,9 @@ export function DensityAwareSection({
       }`}
     >
       <div className="mb-4 flex items-center gap-2">
-        <Icon
-          className={`h-5 w-5 ${
-            isFocus ? "text-timeline-accent" : "text-muted-foreground"
-          }`}
-        />
+        <Icon className={`h-5 w-5 ${isFocus ? "text-timeline-accent" : "text-muted-foreground"}`} />
         <h2
-          className={`${
-            isFocus ? "font-bold text-xl" : "font-semibold text-base"
-          } text-foreground`}
+          className={`${isFocus ? "font-bold text-xl" : "font-semibold text-base"} text-foreground`}
         >
           {title}
         </h2>
