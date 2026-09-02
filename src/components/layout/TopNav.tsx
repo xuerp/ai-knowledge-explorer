@@ -29,11 +29,7 @@ import {
 const NAV = [
   { to: "/", zh: "首页", en: "Home" },
   { to: "/knowledge", zh: "知识库", en: "Knowledge" },
-  { to: "/compare", zh: "AI 对比", en: "Compare" },
-  { to: "/graph", zh: "洞察", en: "Insights" },
-  { to: "/ask", zh: "AI 研究", en: "Ask" },
-  { to: "/quality", zh: "质量", en: "Quality" },
-  { to: "/case-study", zh: "关于项目", en: "About" },
+  { to: "/compare", zh: "对比", en: "Compare" },
 ] as const;
 
 export function TopNav() {
