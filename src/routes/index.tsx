@@ -1,10 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Clock3,
-  GitCompareArrows,
-  Radar,
-} from "lucide-react";
+import { ArrowRight, Clock3, GitCompareArrows, Radar } from "lucide-react";
 import { DataFreshnessBadge } from "@/components/data-state";
 import { AppShell } from "@/components/layout/AppShell";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";

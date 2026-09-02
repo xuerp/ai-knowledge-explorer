@@ -50,7 +50,11 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
               .filter((s): s is Source => s !== undefined);
 
             return (
-              <div key={event.id} className="timeline-node-wrapper flex-1" style={{ zIndex: sortedEvents.length - index }}>
+              <div
+                key={event.id}
+                className="timeline-node-wrapper flex-1"
+                style={{ zIndex: sortedEvents.length - index }}
+              >
                 {/* Node marker */}
                 <button
                   onClick={() => toggle(event.id)}
@@ -69,7 +73,9 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                     {/* Inner dot */}
                     <div
                       className={`absolute inset-3 rounded-full transition-colors ${
-                        isExpanded ? "bg-white" : "bg-timeline-accent group-hover:bg-timeline-accent/80"
+                        isExpanded
+                          ? "bg-white"
+                          : "bg-timeline-accent group-hover:bg-timeline-accent/80"
                       }`}
                     />
                   </div>
@@ -84,9 +90,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                 {isExpanded && (
                   <div className="timeline-event-card animate-in fade-in slide-in-from-top-2 duration-200 mt-4 rounded-lg border border-border bg-card p-4 shadow-lg">
                     <div className="mb-2 flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm text-foreground">
-                        {event.title[lang]}
-                      </h3>
+                      <h3 className="font-semibold text-sm text-foreground">{event.title[lang]}</h3>
                       <ConfidenceChip confidence={event.confidence} size="sm" />
                     </div>
 
@@ -126,10 +130,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
             .filter((s): s is Source => s !== undefined);
 
           return (
-            <div
-              key={event.id}
-              className="relative rounded-lg border border-border bg-card p-4"
-            >
+            <div key={event.id} className="relative rounded-lg border border-border bg-card p-4">
               <div className="absolute -left-3 top-4 h-6 w-6 rounded-full border-2 border-timeline-accent bg-background">
                 <div className="absolute inset-1 rounded-full bg-timeline-accent" />
               </div>
@@ -142,9 +143,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                   <ConfidenceChip confidence={event.confidence} size="sm" />
                 </div>
 
-                <h3 className="mb-2 font-semibold text-sm text-foreground">
-                  {event.title[lang]}
-                </h3>
+                <h3 className="mb-2 text-sm font-semibold text-foreground">{event.title[lang]}</h3>
 
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {event.summary[lang]}
