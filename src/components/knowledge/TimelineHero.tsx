@@ -24,6 +24,13 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
 
   const toggle = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
 
+  const expandedEvent = sortedEvents.find((event) => event.id === expandedId) ?? null;
+  const expandedSources = expandedEvent
+    ? expandedEvent.sourceIds
+        .map((id) => sourceById.get(id))
+        .filter((s): s is Source => s !== undefined)
+    : [];
+
   return (
     <section className="timeline-hero-section mb-8 rounded-xl border border-timeline-track bg-gradient-to-b from-timeline-track/30 to-transparent p-6">
       <div className="mb-6 flex items-center gap-2">
@@ -45,9 +52,6 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
         <div className="relative flex justify-between">
           {sortedEvents.map((event, index) => {
             const isExpanded = expandedId === event.id;
-            const eventSources = event.sourceIds
-              .map((id) => sourceById.get(id))
-              .filter((s): s is Source => s !== undefined);
 
             return (
               <div
@@ -85,41 +89,43 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
                     {new Date(event.date).getFullYear()}
                   </div>
                 </button>
-
-                {/* Expanded card */}
-                {isExpanded && (
-                  <div className="timeline-event-card animate-in fade-in slide-in-from-top-2 duration-200 mt-4 rounded-lg border border-border bg-card p-4 shadow-lg">
-                    <div className="mb-2 flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm text-foreground">{event.title[lang]}</h3>
-                      <ConfidenceChip level={event.confidence} />
-                    </div>
-
-                    <time className="mb-2 block font-mono text-xs tabular-nums text-temporal-slate">
-                      {event.date}
-                    </time>
-
-                    <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                      {event.summary[lang]}
-                    </p>
-
-                    {eventSources.length > 0 && (
-                      <div className="space-y-1 border-t border-border pt-2">
-                        {eventSources.slice(0, 2).map((source) => (
-                          <SourceRow key={source.id} source={source} />
-                        ))}
-                        {eventSources.length > 2 && (
-                          <p className="text-xs text-muted-foreground">
-                            +{eventSources.length - 2} {t("个来源", "more sources")}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
+
+        {/* Expanded card (full width, below the track) */}
+        {expandedEvent && (
+          <div className="timeline-event-card animate-in fade-in slide-in-from-top-2 duration-200 mt-6 rounded-lg border border-border bg-card p-4 shadow-lg">
+            <div className="mb-2 flex items-start justify-between gap-2">
+              <h3 className="font-semibold text-sm text-foreground">
+                {expandedEvent.title[lang]}
+              </h3>
+              <ConfidenceChip level={expandedEvent.confidence} />
+            </div>
+
+            <time className="mb-2 block font-mono text-xs tabular-nums text-temporal-slate">
+              {expandedEvent.date}
+            </time>
+
+            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+              {expandedEvent.summary[lang]}
+            </p>
+
+            {expandedSources.length > 0 && (
+              <div className="space-y-1 border-t border-border pt-2">
+                {expandedSources.slice(0, 2).map((source) => (
+                  <SourceRow key={source.id} source={source} />
+                ))}
+                {expandedSources.length > 2 && (
+                  <p className="text-xs text-muted-foreground">
+                    +{expandedSources.length - 2} {t("个来源", "more sources")}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Mobile timeline (vertical layout) */}

@@ -27,7 +27,6 @@ import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import {
   getEntitySectionPresentation,
-  getReadingModeOption,
   getVisibleEntitySections,
   type EntitySection,
 } from "@/domain/reading-mode";
@@ -118,7 +117,6 @@ function EntityDetail() {
   const visibleSections = getVisibleEntitySections(mode, "model", availableSections);
   const sectionVisible = (section: EntitySection) => visibleSections.includes(section);
   const sectionPresentation = getEntitySectionPresentation(mode, "model", visibleSections);
-  const readingMode = getReadingModeOption(mode);
   const competitors = relatedRelations
     .filter((r) => r.kind === "competes-with")
     .map((r) => findEntity(r.fromId === e.id ? r.toId : r.fromId))
@@ -212,20 +210,6 @@ function EntityDetail() {
         {timeline.length > 0 && (
           <TimelineHero events={timeline} sources={evidence} entityName={pick(e.name, lang)} />
         )}
-
-        <div
-          className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
-          data-reading-focus={mode}
-        >
-          <div className="text-sm font-semibold text-signal">{pick(readingMode.label, lang)}</div>
-          <p className="mt-1 text-sm leading-6 text-ink-soft">
-            {pick(readingMode.description, lang)}{" "}
-            {t(
-              "页面只展开本模式的重点信息。",
-              "Only this mode's priority information is expanded on the page.",
-            )}
-          </p>
-        </div>
 
         <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
           <KnowledgeArticle
