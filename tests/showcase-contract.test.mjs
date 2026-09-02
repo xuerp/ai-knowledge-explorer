@@ -7,10 +7,10 @@ const read = (path) => readFile(path, "utf8");
 test("公开首页先呈现产品价值，不被知识快照加载阻断", async () => {
   const source = await read("src/routes/index.tsx");
 
-  assert.match(source, /持续追踪 AI 世界正在发生什么/);
-  assert.match(source, /为什么不直接问 ChatGPT/);
-  assert.match(source, /三个核心体验/);
-  assert.match(source, /to="\/case-study"/);
+  assert.match(source, /追踪主流 AI 模型的演进与对比/);
+  assert.match(source, /GPT、Claude、Gemini/);
+  assert.match(source, /最新动态|Latest updates/);
+  assert.match(source, /核心模型|Core models/);
   assert.match(source, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
   assert.doesNotMatch(source, /if \(!snapshotQuery\.data\)\s*\{\s*return/);
 });
