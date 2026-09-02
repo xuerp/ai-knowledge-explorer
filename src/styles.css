@@ -66,6 +66,11 @@
   --color-graph-node-benchmark: var(--graph-node-benchmark);
   --color-graph-node-company: var(--graph-node-company);
   --color-graph-node-framework: var(--graph-node-framework);
+  --color-timeline-accent: var(--timeline-accent);
+  --color-timeline-track: var(--timeline-track);
+  --color-insight-amber: var(--insight-amber);
+  --color-evidence-emerald: var(--evidence-emerald);
+  --color-temporal-slate: var(--temporal-slate);
   --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --font-serif:
     "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
@@ -77,6 +82,13 @@
 
   /* AI Radar V2: warm editorial canvas + restrained indigo signal */
   --paper: #f6f5f0;
+
+  /* Timeline-specific colors for chronological visualization */
+  --timeline-accent: #4f46e5;
+  --timeline-track: #e0e7ff;
+  --insight-amber: #f59e0b;
+  --evidence-emerald: #10b981;
+  --temporal-slate: #475569;
   --background: #f6f5f0;
   --foreground: #111827;
   --ink: #111827;
@@ -291,3 +303,71 @@
 .graph-light-page .bg-signal.text-white {
   color: #ffffff !important;
 }
+
+/* Timeline Hero Styling */
+.timeline-hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-node-wrapper {
+  position: relative;
+  min-width: 80px;
+}
+
+.timeline-event-card {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  max-width: calc(100vw - 2rem);
+  z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .timeline-node-wrapper {
+    min-width: 60px;
+  }
+
+  .timeline-event-card {
+    width: 240px;
+  }
+}
+
+/* Reading Mode Selector Styling */
+.reading-mode-selector {
+  position: sticky;
+  top: 4rem;
+  z-index: 40;
+  background: var(--background);
+  padding: 1rem 0;
+  margin: 0 -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.reading-mode-button {
+  white-space: nowrap;
+}
+
+/* Density Section Animation */
+.density-section {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.focus-section {
+  transform: scale(1);
+}
+
+.supporting-section {
+  opacity: 0.95;
+}
+
+/* Tabular nums for dates */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
