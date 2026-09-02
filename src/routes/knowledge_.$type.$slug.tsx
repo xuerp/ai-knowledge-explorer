@@ -20,6 +20,7 @@ import { DensityAwareSection } from "@/components/knowledge/DensityAwareSection"
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import {
   getEntitySectionPresentation,
+  getEntitySectionDensity,
   getReadingModeOption,
   getVisibleEntitySections,
   type EntitySection,
@@ -194,7 +195,7 @@ function GenericEntityDetail() {
         <div className="flex flex-col gap-8 pt-8">
           {entity.knowledge && (
             <DensityAwareSection
-              density={sectionPresentation.guide.density}
+              density={getEntitySectionDensity(mode, "generic", "guide")}
               title={t("产品指南", "Product Guide")}
             >
               <KnowledgeArticle
@@ -207,7 +208,7 @@ function GenericEntityDetail() {
 
           {sectionVisible("profile") && (
             <DensityAwareSection
-              density={sectionPresentation.profile.density}
+              density={getEntitySectionDensity(mode, "generic", "profile")}
               title={t("基础档案", "Reference Profile")}
             >
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
