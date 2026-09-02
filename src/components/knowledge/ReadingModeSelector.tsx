@@ -1,4 +1,3 @@
-import { BookOpen, Briefcase, Code2 } from "lucide-react";
 import { READING_MODE_OPTIONS } from "@/domain/reading-mode";
 import type { ReadingMode } from "@/domain/types";
 import { useApp } from "@/lib/app-state";
@@ -8,12 +7,6 @@ interface ReadingModeSelectorProps {
   onChange: (mode: ReadingMode) => void;
 }
 
-const MODE_ICONS = {
-  general: BookOpen,
-  product: Briefcase,
-  technical: Code2,
-} as const;
-
 export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProps) {
   const { lang } = useApp();
 
@@ -21,7 +14,6 @@ export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProp
     <div className="reading-mode-selector">
       <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
         {READING_MODE_OPTIONS.map((option) => {
-          const Icon = MODE_ICONS[option.id];
           const isActive = value === option.id;
 
           return (
@@ -35,9 +27,6 @@ export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProp
               }`}
               title={option.description[lang]}
             >
-              <Icon
-                className={`h-4 w-4 transition-transform ${isActive ? "scale-110" : "group-hover:scale-105"}`}
-              />
               <span>{option.shortLabel[lang]}</span>
 
               {/* Active indicator line */}
