@@ -14,11 +14,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+from eval_retrieval import current_commit, evaluate, load_golden_set, read_bytes
+
 from app.embeddings import CloudflareEmbeddingProvider
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
 from app.rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
 from app.schemas import KnowledgeSnapshot
-from eval_retrieval import current_commit, evaluate, load_golden_set, read_bytes
 
 
 def build_document_texts(snapshot: KnowledgeSnapshot) -> list[str]:
@@ -80,9 +81,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="评估生产 Cloudflare hybrid 检索路径。"
-    )
+    parser = argparse.ArgumentParser(description="评估生产 Cloudflare hybrid 检索路径。")
     parser.add_argument("--snapshot", type=Path, required=True)
     parser.add_argument("--golden-set", type=Path, required=True)
     parser.add_argument("--alias-catalog", type=Path, required=True)
@@ -105,9 +104,7 @@ def main() -> None:
     parser.add_argument("--allow-external-api", action="store_true")
     args = parser.parse_args()
     if not args.allow_external_api:
-        raise ValueError(
-            "Hybrid evaluation requires --allow-external-api authorization."
-        )
+        raise ValueError("Hybrid evaluation requires --allow-external-api authorization.")
     if args.daily_neuron_budget <= 0 or args.daily_api_call_budget <= 0:
         raise ValueError("Hybrid evaluation requires positive daily hard budgets.")
     account_id = os.getenv(args.account_id_env)
@@ -118,16 +115,12 @@ def main() -> None:
     snapshot_bytes = read_bytes(args.snapshot)
     snapshot = KnowledgeSnapshot.model_validate_json(snapshot_bytes)
     golden_version, samples = load_golden_set(args.golden_set)
-    alias_version, alias_definitions, alias_hash = load_entity_alias_catalog(
-        args.alias_catalog
-    )
+    alias_version, alias_definitions, alias_hash = load_entity_alias_catalog(args.alias_catalog)
     apply_entity_aliases(snapshot.entities, alias_definitions)
     document_texts = build_document_texts(snapshot)
     all_inputs = document_texts + [str(item["query"]) for item in samples]
     conservative_tokens = sum(len(text) for text in all_inputs)
-    estimated_neurons = (
-        conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
-    )
+    estimated_neurons = conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
     expected_calls = math.ceil(len(document_texts) / args.max_batch_size) + len(samples)
     if estimated_neurons > args.daily_neuron_budget:
         raise ValueError("Full evaluation would exceed the Neuron hard budget.")
@@ -198,9 +191,7 @@ def main() -> None:
         "metrics": metrics,
         "results": results,
     }
-    safe_model = "".join(
-        character if character.isalnum() else "-" for character in args.model
-    )
+    safe_model = "".join(character if character.isalnum() else "-" for character in args.model)
     stem = (
         f"v{golden_version}_{report['metadata']['snapshotSha256'][:12]}_"
         f"{dialect}_hybrid_cloudflare_{safe_model}_top{args.top_k}"

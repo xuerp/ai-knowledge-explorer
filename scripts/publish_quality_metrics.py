@@ -32,9 +32,7 @@ def build_quality_evaluation(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="从已提交检索评估产物生成质量看板的低频指标快照。"
-    )
+    parser = argparse.ArgumentParser(description="从已提交检索评估产物生成质量看板的低频指标快照。")
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--artifact-path", required=True)
