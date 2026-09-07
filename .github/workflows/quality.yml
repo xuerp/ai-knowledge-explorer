@@ -33,6 +33,7 @@ jobs:
       - name: Verify Cloudflare staging build and config
         run: |
           bun run build:staging
+          node scripts/stamp-build-version.mjs "$GITHUB_SHA"
           bun run verify:cloudflare:staging
           bun run prepare:cloudflare:staging
       - name: Upload verified Cloudflare staging build
