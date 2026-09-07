@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  buildReleaseMarkerUrl,
   normalizeExpectedCommit,
   waitForStagingRelease,
 } from "../scripts/wait-staging-release.mjs";
@@ -23,20 +24,36 @@ test("quality uploads the hidden staging build and pins its Python formatter", a
 });
 
 test("staging build stamp writes the exact full commit", async (context) => {
-  const outputPath = path.resolve(
+  const outputDirectory = path.resolve(
     process.cwd(),
     ".test-output",
-    `version-${process.pid}-${Date.now()}.txt`,
+    `stamp-${process.pid}-${Date.now()}`,
   );
+  const outputPath = path.join(outputDirectory, "version.txt");
   context.after(async () => {
     const { rm } = await import("node:fs/promises");
-    await rm(outputPath, { force: true });
+    await rm(outputDirectory, { force: true, recursive: true });
   });
 
   assert.equal(normalizeBuildCommit(expectedCommit.toUpperCase()), expectedCommit);
   assert.throws(() => normalizeBuildCommit("0123456"), /完整的 40 位 Git commit/);
   await stampBuildVersion(expectedCommit.toUpperCase(), outputPath);
   assert.equal(await readFile(outputPath, "utf8"), `${expectedCommit}\n`);
+  assert.equal(
+    await readFile(
+      path.join(path.dirname(outputPath), "releases", `${expectedCommit}.txt`),
+      "utf8",
+    ),
+    `${expectedCommit}\n`,
+  );
+});
+
+test("staging release gate uses a commit-addressed frontend marker", () => {
+  assert.equal(
+    buildReleaseMarkerUrl(new URL("https://app.example/version.txt?stale=true"), expectedCommit)
+      .href,
+    `https://app.example/releases/${expectedCommit}.txt`,
+  );
 });
 
 test("staging release gate requires a full commit", () => {
