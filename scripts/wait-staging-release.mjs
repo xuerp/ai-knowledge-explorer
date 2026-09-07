@@ -23,10 +23,27 @@ async function fetchWithTimeout(fetchImpl, url) {
   return response;
 }
 
-export async function readStagingCommits({ apiReadyUrl, frontendVersionUrl, fetchImpl = fetch }) {
+export function buildReleaseMarkerUrl(frontendVersionUrl, expectedCommit) {
+  const markerUrl = new URL(frontendVersionUrl);
+  markerUrl.pathname = markerUrl.pathname.replace(
+    /[^/]*$/,
+    `releases/${normalizeExpectedCommit(expectedCommit)}.txt`,
+  );
+  markerUrl.search = "";
+  markerUrl.hash = "";
+  return markerUrl;
+}
+
+export async function readStagingCommits({
+  expectedCommit,
+  apiReadyUrl,
+  frontendVersionUrl,
+  fetchImpl = fetch,
+}) {
+  const releaseMarkerUrl = buildReleaseMarkerUrl(frontendVersionUrl, expectedCommit);
   const [readyResponse, versionResponse] = await Promise.all([
     fetchWithTimeout(fetchImpl, apiReadyUrl),
-    fetchWithTimeout(fetchImpl, frontendVersionUrl),
+    fetchWithTimeout(fetchImpl, releaseMarkerUrl),
   ]);
   const ready = await readyResponse.json();
   return {
@@ -52,7 +69,12 @@ export async function waitForStagingRelease({
   let latestError = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      latest = await readStagingCommits({ apiReadyUrl, frontendVersionUrl, fetchImpl });
+      latest = await readStagingCommits({
+        expectedCommit,
+        apiReadyUrl,
+        frontendVersionUrl,
+        fetchImpl,
+      });
       latestError = null;
       onAttempt({ attempt, ...latest });
       if (
