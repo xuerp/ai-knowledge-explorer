@@ -7,6 +7,7 @@ import {
   normalizeExpectedCommit,
   waitForStagingRelease,
 } from "../scripts/wait-staging-release.mjs";
+import { normalizeBuildCommit, stampBuildVersion } from "../scripts/stamp-build-version.mjs";
 
 const expectedCommit = "0123456789abcdef0123456789abcdef01234567";
 
@@ -17,7 +18,25 @@ test("quality uploads the hidden staging build and pins its Python formatter", a
   ]);
 
   assert.match(workflow, /path: \.output\s+include-hidden-files: true/);
+  assert.match(workflow, /stamp-build-version\.mjs \"\$GITHUB_SHA\"/);
   assert.match(requirements, /^ruff==0\.16\.0$/m);
+});
+
+test("staging build stamp writes the exact full commit", async (context) => {
+  const outputPath = path.resolve(
+    process.cwd(),
+    ".test-output",
+    `version-${process.pid}-${Date.now()}.txt`,
+  );
+  context.after(async () => {
+    const { rm } = await import("node:fs/promises");
+    await rm(outputPath, { force: true });
+  });
+
+  assert.equal(normalizeBuildCommit(expectedCommit.toUpperCase()), expectedCommit);
+  assert.throws(() => normalizeBuildCommit("0123456"), /完整的 40 位 Git commit/);
+  await stampBuildVersion(expectedCommit.toUpperCase(), outputPath);
+  assert.equal(await readFile(outputPath, "utf8"), `${expectedCommit}\n`);
 });
 
 test("staging release gate requires a full commit", () => {
