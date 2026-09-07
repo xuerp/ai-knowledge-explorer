@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 
 import {
@@ -7,6 +9,16 @@ import {
 } from "../scripts/wait-staging-release.mjs";
 
 const expectedCommit = "0123456789abcdef0123456789abcdef01234567";
+
+test("quality uploads the hidden staging build and pins its Python formatter", async () => {
+  const [workflow, requirements] = await Promise.all([
+    readFile(path.resolve(process.cwd(), ".github/workflows/quality.yml"), "utf8"),
+    readFile(path.resolve(process.cwd(), "backend/requirements.txt"), "utf8"),
+  ]);
+
+  assert.match(workflow, /path: \.output\s+include-hidden-files: true/);
+  assert.match(requirements, /^ruff==0\.16\.0$/m);
+});
 
 test("staging release gate requires a full commit", () => {
   assert.equal(normalizeExpectedCommit(expectedCommit.toUpperCase()), expectedCommit);
