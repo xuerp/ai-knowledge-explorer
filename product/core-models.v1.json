@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "2026-09-05",
+  "dataMode": "demo",
+  "selectionPolicy": {
+    "core": "Model families with published snapshot evidence that represent distinct product, deployment, or ecosystem choices. Inclusion is not a ranking.",
+    "anchor": "Core families prioritized for deeper timelines and default family comparison because they provide three distinct global product directions."
+  },
+  "models": [
+    { "entityId": "e-gpt", "slug": "gpt", "tier": "anchor" },
+    { "entityId": "e-claude", "slug": "claude", "tier": "anchor" },
+    { "entityId": "e-gemini", "slug": "gemini", "tier": "anchor" },
+    { "entityId": "e-deepseek", "slug": "deepseek", "tier": "core" },
+    { "entityId": "e-qwen", "slug": "qwen", "tier": "core" },
+    { "entityId": "e-kimi", "slug": "kimi", "tier": "core" },
+    { "entityId": "e-doubao", "slug": "doubao", "tier": "core" },
+    { "entityId": "e-ernie", "slug": "ernie", "tier": "core" }
+  ]
+}

@@ -1,9 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   Building2,
   Calendar,
-  GitBranch,
   Send,
   MessagesSquare,
   Sparkles,
@@ -23,7 +22,6 @@ import {
   SourceRow,
   EntityChip,
 } from "@/components/common";
-import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import {
   getEntitySectionPresentation,
@@ -69,16 +67,6 @@ function EntityDetail() {
   const relations = graph.edges;
   const findEntity = (id: string) => entities.find((entity) => entity.id === id);
 
-  // Local graph: this entity + neighbors
-  const neighborIds = useMemo(() => {
-    const ids = new Set<string>([e.id]);
-    relations.forEach((r) => {
-      if (r.fromId === e.id) ids.add(r.toId);
-      if (r.toId === e.id) ids.add(r.fromId);
-    });
-    return Array.from(ids);
-  }, [e.id, relations]);
-
   const timeline = allTimeline[e.id] ?? [];
   const reviewedClaims = snapshot.claims.filter((claim) => claim.entityId === e.id);
   const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
@@ -109,7 +97,6 @@ function EntityDetail() {
     ...(reviewedClaims.length > 0 ? (["claims"] as const) : []),
     ...(childVersions.length > 0 ? (["lineage"] as const) : []),
     "relationships",
-    "timeline",
     "comparison",
     "questions",
     "evidence",
@@ -166,21 +153,18 @@ function EntityDetail() {
                   {t("官方资料", "Official source")}
                 </a>
               )}
-              <Link
-                to="/graph"
-                search={{ entity: e.id, mode: "ecosystem" }}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border bg-card text-sm hover:bg-accent"
-              >
-                <GitBranch className="h-4 w-4" />
-                {t("分析关联", "Analyze relationships")}
-              </Link>
-              <Link
-                to="/ask"
+              <a
+                href={`/ask?candidates=${encodeURIComponent(e.id)}&task=${encodeURIComponent(
+                  t(
+                    `评估 ${pick(e.name, lang)} 是否适合我的任务`,
+                    `Evaluate ${pick(e.name, lang)} for my task`,
+                  ),
+                )}`}
                 className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-signal text-signal-foreground text-sm font-medium hover:opacity-90"
               >
                 <Sparkles className="h-4 w-4" />
-                {t("向 AI 提问", "Ask AI")}
-              </Link>
+                {t("让决策助手比较", "Compare with the assistant")}
+              </a>
             </div>
           </div>
           {recentChange && (
@@ -190,13 +174,9 @@ function EntityDetail() {
                 {pick(recentChange.summary, lang)}
               </span>
               <time className="font-mono text-[11px] text-[#b45309]">{recentChange.date}</time>
-              <Link
-                to="/graph"
-                search={{ entity: e.id, mode: "impact" }}
-                className="text-xs font-medium text-signal hover:underline"
-              >
-                {t("查看关联范围", "View relationship reach")} →
-              </Link>
+              <a href="#relationships" className="text-xs font-medium text-signal hover:underline">
+                {t("查看相关影响", "View related impact")} →
+              </a>
             </div>
           )}
         </div>
@@ -424,6 +404,7 @@ function EntityDetail() {
               action={
                 <Link
                   to="/compare"
+                  search={{ models: undefined }}
                   className="inline-flex items-center gap-1 text-sm text-signal hover:underline"
                 >
                   {t("进入具体版本对比", "Compare concrete versions")}{" "}
@@ -485,12 +466,13 @@ function EntityDetail() {
         {/* 局部关系概览 */}
         <ReadingModeSection
           section="relationships"
+          id="relationships"
           visible={sectionVisible("relationships")}
           order={sectionPresentation.relationships.order}
         >
           <SectionHeading
             eyebrow={sectionPresentation.relationships.eyebrow}
-            title={t("关系概览", "Relationship overview")}
+            title={t("生态关系", "Ecosystem relationships")}
             description={t(
               `用来回答“${pick(e.name, "zh")} 属于哪个系列、继任谁、由谁研发、使用什么协议、在哪些评测中出现”。`,
               `Use it to inspect lineage, vendor, protocols, benchmarks and competitors around ${pick(e.name, "en")}.`,
@@ -501,72 +483,36 @@ function EntityDetail() {
                 search={{ entity: e.id, mode: "ecosystem" }}
                 className="text-sm text-signal hover:underline inline-flex items-center gap-1"
               >
-                {t("打开关系洞察", "Open insights")} <ExternalLink className="h-3 w-3" />
+                {t("查看完整关系网络", "View full relationship network")}{" "}
+                <ExternalLink className="h-3 w-3" />
               </Link>
             }
           />
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <KnowledgeGraph
-              entities={entities}
-              relations={relations}
-              entityIds={neighborIds}
-              centerId={e.id}
-              height={420}
-            />
-          </div>
-          <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="paper-card divide-y divide-border">
             {relatedRelations.slice(0, 6).map((r) => {
               const other = findEntity(r.fromId === e.id ? r.toId : r.fromId);
               if (!other) return null;
               return (
-                <div key={r.id} className="paper-card p-3 flex items-center gap-3">
-                  <span className="chip">{RELATION_LABEL[r.kind][lang]}</span>
-                  <span className="text-sm text-foreground truncate">{pick(other.name, lang)}</span>
-                  <div className="ml-auto">
+                <div key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-4">
+                  <span className="min-w-28 text-xs font-medium text-muted-foreground">
+                    {RELATION_LABEL[r.kind][lang]}
+                  </span>
+                  <RelatedEntityLink entity={other} />
+                  <span className="text-xs text-muted-foreground">
+                    {r.sourceIds.length} {t("个来源", "sources")}
+                  </span>
+                  <div>
                     <ConfidenceChip level={r.confidence} />
                   </div>
                 </div>
               );
             })}
+            {relatedRelations.length === 0 && (
+              <p className="p-5 text-sm text-muted-foreground">
+                {t("当前还没有已审核关系。", "No reviewed relationships are available yet.")}
+              </p>
+            )}
           </div>
-        </ReadingModeSection>
-
-        {/* Timeline */}
-        <ReadingModeSection
-          section="timeline"
-          visible={sectionVisible("timeline")}
-          order={sectionPresentation.timeline.order}
-        >
-          <SectionHeading
-            eyebrow={sectionPresentation.timeline.eyebrow}
-            title={t("版本演进时间线", "Version evolution timeline")}
-            description={t(
-              "每次迭代明确记录功能、上下文和价格变化；不会用最新值覆盖历史状态。",
-              "Each iteration records capability, context and price changes without overwriting history.",
-            )}
-          />
-          <ol className="relative border-l-2 border-border ml-3 space-y-6">
-            {timeline.map((ev) => (
-              <li key={ev.id} className="pl-6 relative">
-                <span className="absolute -left-[9px] top-1.5 h-4 w-4 rounded-full bg-signal ring-4 ring-background" />
-                <div className="paper-card flex flex-wrap items-baseline gap-3 p-4">
-                  <time className="font-mono text-sm text-signal">{ev.date}</time>
-                  <h4 className="font-serif font-semibold text-foreground">
-                    {pick(ev.title, lang)}
-                  </h4>
-                  <ConfidenceChip level={ev.confidence} />
-                  <p className="w-full text-sm leading-relaxed text-ink-soft">
-                    {pick(ev.summary, lang)}
-                  </p>
-                </div>
-              </li>
-            ))}
-            {timeline.length === 0 && (
-              <li className="pl-6 text-sm text-muted-foreground">
-                {t("尚无时间线数据。", "No timeline data yet.")}
-              </li>
-            )}
-          </ol>
         </ReadingModeSection>
 
         {/* Compare */}
@@ -581,6 +527,7 @@ function EntityDetail() {
             action={
               <Link
                 to="/compare"
+                search={{ models: undefined }}
                 className="text-sm text-signal hover:underline inline-flex items-center gap-1"
               >
                 {t("详细对比", "Detailed compare")} <ArrowLeftRight className="h-3 w-3" />
@@ -744,20 +691,45 @@ function EntityDetail() {
 
 function ReadingModeSection({
   section,
+  id,
   visible,
   order,
   children,
 }: {
   section: EntitySection;
+  id?: string;
   visible: boolean;
   order: number;
   children: ReactNode;
 }) {
   if (!visible) return null;
   return (
-    <section data-reading-section={section} style={{ order }}>
+    <section id={id} className="scroll-mt-24" data-reading-section={section} style={{ order }}>
       {children}
     </section>
+  );
+}
+
+function RelatedEntityLink({ entity }: { entity: Entity }) {
+  const { lang } = useApp();
+  const className = "min-w-0 flex-1 text-sm font-semibold text-foreground hover:text-signal";
+
+  if (entity.type === "model") {
+    return (
+      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }} className={className}>
+        {pick(entity.name, lang)}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      to="/knowledge/$type/$slug"
+      params={{ type: entity.type, slug: entity.slug }}
+      className={className}
+    >
+      {pick(entity.name, lang)}
+    </Link>
   );
 }
 

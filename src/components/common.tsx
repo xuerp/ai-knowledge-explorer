@@ -133,7 +133,7 @@ export function PageHeader({
       <div className="page-container pt-8 pb-4 md:pt-10 md:pb-5">
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="min-w-0">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
               {title}
             </h1>
             {subtitle && (

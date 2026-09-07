@@ -115,6 +115,7 @@ from .schemas import (
     ResearchCitation,
     ResearchCreate,
     ResearchView,
+    RetrievalDiagnostics,
     ReviewBatchApproval,
     ReviewBatchDecision,
     ReviewDecision,
@@ -137,7 +138,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260901_0022"
+DATABASE_SCHEMA_REVISION = "20260905_0023"
 SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
@@ -565,12 +566,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         principal: UserDependency,
         session: SessionDependency,
     ) -> ResearchView:
-        return engagement.research(
+        result = engagement.research(
             session,
             principal.subject,
             payload,
             get_public_snapshot(session),
         )
+        return visible_research(result, principal.role)
+
+    def visible_research(result: ResearchView, role: str | None = None) -> ResearchView:
+        if role == "admin":
+            return result
+        return result.model_copy(update={"retrieval_diagnostics": RetrievalDiagnostics()})
 
     @app.get("/api/v2/research/{research_id}", response_model=ResearchView)
     def research_detail(
@@ -585,7 +592,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return result
+        return visible_research(result, principal.role)
 
     @app.post("/api/v2/research/{research_id}/publish", response_model=ResearchView)
     def publish_research(
@@ -596,7 +603,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         result = engagement.publish_research(session, research_id, principal.subject)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return result
+        return visible_research(result, principal.role)
 
     def published_research_view(
         result: ResearchView,
@@ -635,7 +642,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Published research not found.",
             )
-        return published_research_view(result, session)
+        return published_research_view(visible_research(result), session)
 
     @app.get("/api/v2/share/{slug}/markdown", response_class=PlainTextResponse)
     def public_research_markdown(slug: str, session: SessionDependency) -> str:
@@ -2379,7 +2386,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         evidence_ids = {item.id for item in payload.evidence}
         if not set(payload.claim.source_ids).issubset(evidence_ids):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Every claim source id must be included in the submitted evidence.",
             )
         assessment = quality_gate.assess(payload, get_catalog_snapshot(session))
@@ -3157,14 +3164,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         if action == "approved" and not queue_item.evidence_ids:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A claim cannot be published without evidence.",
             )
         if action == "approved":
             require_publishable_entity(row, session)
         if action == "rejected" and decision.reason_category is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A rejection reason category is required.",
             )
         note = review_decision_note(decision)
@@ -3285,7 +3292,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         require_publishable_entity(row, session)
         if not queue_item.evidence_items:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A claim cannot be published without evidence.",
             )
 
@@ -3480,7 +3487,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         item_ids = [item.id for item in approval.items]
         if len(item_ids) != len(set(item_ids)):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A review job can appear only once in a batch.",
             )
         decisions: list[ReviewQueueItem] = []
@@ -3629,7 +3636,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         item_ids = [item.id for item in verification.items]
         if len(item_ids) != len(set(item_ids)):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A review job can appear only once in a batch.",
             )
         verified: list[ReviewQueueItem] = []
@@ -3664,7 +3671,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     )
                 if not repository.to_queue_item(row).evidence_ids:
                     raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                         detail="An approved claim cannot be verified without evidence.",
                     )
                 row.reviewed_at = datetime.now(UTC)

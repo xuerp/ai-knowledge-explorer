@@ -89,7 +89,7 @@ def test_health_exposes_write_boundary(client: TestClient):
         "ok": True,
         "release": "2026.09.01-review-observability-v68",
         "buildCommit": "test-build-commit",
-        "schemaRevision": "20260901_0022",
+        "schemaRevision": "20260905_0023",
         "builtAt": "2026-08-25T00:00:00Z",
         "environment": "test",
         "dataMode": "demo",
@@ -3123,6 +3123,67 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
         if item["claim"]["id"] == "claim-gpt-notification"
     )
     assert notification_citation["evidence"][0]["publisher"] == "Example"
+
+    decision_research = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={
+            "question": "为长文档分析选择模型；优先级：cost；部署：private",
+            "language": "zh",
+            "decisionContext": {
+                "task": "为长文档分析选择合适的模型",
+                "priority": "cost",
+                "budget": {"mode": "cost-first"},
+                "deployment": "private",
+                "exclusions": ["不接受无来源结论"],
+                "candidateEntityIds": [],
+            },
+        },
+    )
+    assert decision_research.status_code == 200
+    decision_payload = decision_research.json()
+    assert decision_payload["decisionContext"]["priority"] == "cost"
+    assert decision_payload["decision"]["status"] in {"ready", "insufficient-evidence"}
+    assert decision_payload["decision"]["claimIds"] == decision_payload["claimIds"]
+    assert all(
+        set(item["claimIds"]).issubset(set(decision_payload["claimIds"]))
+        for item in decision_payload["decision"]["tradeoffs"]
+    )
+    assert decision_payload["decision"]["nextChecks"]
+
+    viewer = client.post(
+        "/api/v2/admin/users",
+        headers=headers,
+        json={
+            "email": "research-viewer@example.com",
+            "password": "correct horse battery staple",
+            "role": "viewer",
+        },
+    )
+    assert viewer.status_code == 201
+    viewer_login = client.post(
+        "/api/v2/auth/login",
+        json={
+            "email": "research-viewer@example.com",
+            "password": "correct horse battery staple",
+        },
+    )
+    viewer_headers = {"Authorization": f"Bearer {viewer_login.json()['accessToken']}"}
+    viewer_research = client.post(
+        "/api/v2/research",
+        headers=viewer_headers,
+        json={"question": "GPT 最近有什么已经核验的变化？", "language": "zh"},
+    )
+    assert viewer_research.status_code == 200
+    assert viewer_research.json()["retrievalDiagnostics"] == {
+        "candidateCount": 0,
+        "returnedCount": 0,
+        "filteredCount": 0,
+        "elapsedMs": 0,
+        "matchedEntityIds": [],
+        "fallbackReason": None,
+        "generationFallbackReason": None,
+    }
 
     agent_research = client.post(
         "/api/v2/research",

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Lang, ReadingMode, Theme } from "@/domain/types";
 import { AppContext, type AppState } from "@/lib/app-state";
 
@@ -28,7 +28,7 @@ function parsePreferences(value: string | null): StoredPreferences | null {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("zh");
-  const [mode, setMode] = useState<ReadingMode>("general");
+  const [mode, setModeState] = useState<ReadingMode>("general");
   const [theme, setTheme] = useState<Theme>("light");
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
@@ -36,9 +36,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const stored = parsePreferences(window.localStorage.getItem(PREFERENCES_STORAGE_KEY));
     if (stored) {
       setLang(stored.lang);
-      setMode(stored.mode);
+      setModeState(stored.mode);
       setTheme(stored.theme);
     }
+    const sharedMode = new URLSearchParams(window.location.search).get("reading");
+    if (isMode(sharedMode)) setModeState(sharedMode);
     setPreferencesLoaded(true);
 
     const syncPreferences = (event: StorageEvent) => {
@@ -46,11 +48,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const next = parsePreferences(event.newValue);
       if (!next) return;
       setLang(next.lang);
-      setMode(next.mode);
+      setModeState(next.mode);
       setTheme(next.theme);
     };
     window.addEventListener("storage", syncPreferences);
     return () => window.removeEventListener("storage", syncPreferences);
+  }, []);
+
+  const setMode = useCallback((nextMode: ReadingMode) => {
+    setModeState(nextMode);
+    const url = new URL(window.location.href);
+    url.searchParams.set("reading", nextMode);
+    window.history.replaceState(window.history.state, "", url);
   }, []);
 
   useEffect(() => {
@@ -78,7 +87,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setTheme,
       t: (zh, en) => (lang === "zh" ? zh : en),
     }),
-    [lang, mode, theme],
+    [lang, mode, setMode, theme],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

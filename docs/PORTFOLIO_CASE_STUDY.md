@@ -4,7 +4,7 @@
 
 AI Radar 把 AI 模型、Agent、框架、论文和 Benchmark 组织成带时间与证据的知识图谱。项目重点不是抓取更多新闻，而是证明一条知识如何被发现、消歧、审核、发布、解释和追溯。
 
-在线预发布由 Cloudflare Workers 前端、Render FastAPI、Neon PostgreSQL 和 Cloudflare Cron 组成。当前公共快照明确标记为 `demo/cached`，包含 49 个实体、197 条 Claim、219 条 Evidence、76 条 Relation 和 55 条 Timeline。
+在线预发布由 Cloudflare Workers 前端、Render FastAPI、Neon PostgreSQL 和 Cloudflare Cron 组成。截至 2026-09-04 的最新核实快照明确标记为 `demo/cached`，包含 49 个实体、198 条 Claim、220 条 Evidence、77 条 Relation 和 55 条 Timeline。
 
 ## 案例一：阻止模型输出直接成为事实
 
@@ -60,7 +60,7 @@ AI Radar 把 AI 模型、Agent、框架、论文和 Benchmark 组织成带时间
 | Alias v1.0.0 + lexical          |   99.38% |      14.06% |          99.38% |  98.75% | 主指标已在天花板；独立别名探针 16/24 → 24/24 |
 | Cloudflare BGE-M3 + lexical RRF |  100.00% |      14.22% |          98.75% | 100.00% | 补回 1 个失败样本，但保留 lexical 降级       |
 
-Precision@8 没有被描述成低质量：大多数题只标注 1 个相关 Claim，固定返回 8 条时理论值就是 12.5%。因此没有引入真实 Reranker，也没有为了数字好看改分母。关系覆盖同样没有形成虚假上升曲线：安全 Snapshot 未形成时 Relation 保持 76。
+Precision@8 没有被描述成低质量：大多数题只标注 1 个相关 Claim，固定返回 8 条时理论值就是 12.5%。因此没有引入真实 Reranker，也没有为了数字好看改分母。关系覆盖同样没有形成虚假上升曲线：2026-08-30 安全 Snapshot 尚未形成时 Relation 保持 76；后续授权批次只在真实 Evidence 支持并经人审后增加到 77。
 
 ### 可靠性结果
 

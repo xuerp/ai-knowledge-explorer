@@ -21,9 +21,11 @@
 
 ## 已核实基线
 
-快照日期为 2026-08-30：Entity 49、Claim 196、Evidence 218、Relation 76、Timeline 55。19 个核心实体中 16 个低于 5 条可解释关系，总覆盖差值为 44。
+历史快照日期为 2026-08-30：Entity 49、Claim 196、Evidence 218、Relation 76、Timeline 55。19 个核心实体中 16 个低于 5 条可解释关系，总覆盖差值为 44。
 
-关系补齐批次已经完成：预算 10、尝试 10、成功 10、失败 0、产生候选 4、跳过重复 2、自动批准 0、剩余尝试 0、剩余合格 snapshot 0。不得重新实现或自行重跑这一批次。
+历史关系补齐批次已经完成：预算 10、尝试 10、成功 10、失败 0、产生候选 4、跳过重复 2、自动批准 0、剩余尝试 0、剩余合格 Snapshot 0。不得重新实现或自行重跑这一批次。
+
+2026-09-04 最新核实基线为 Entity 49、Claim 198、Evidence 220、Relation 77、Timeline 55；19 个核心实体中仍有 16 个低于 5 条可解释关系，总覆盖差值为 42。该数字是数据质量诊断，不是要求继续调用模型补齐的 KPI。
 
 ## 顺序与任务状态
 
@@ -77,9 +79,9 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 生产 Hybrid 固定集的 Precision@8 为 14.22%。大多数题只有一个标注相关 Claim，固定 TopK=8 时理论值即 12.5%，因此不存在 Spec 所说的“Precision@8 明显不足”。不引入真实 Reranker，避免没有证据支撑的延迟、外部依赖与潜在费用。
 
-### Epic 2B：定向关系抽取 — ready / model-call authorization pending
+### Epic 2B：定向关系抽取 — completed
 
-2026-09-01 已在 Render 受信任采集环境逐个完成首批 4 个官方 URL 的登记、安全预检、启用与首次采集，四次采集均为成功 1 / 失败 0。后台当前显示待抽取 Snapshot 4、采集重试 0、抽取冷却 0；AutoGen、CrewAI、Devin、Manus Snapshot 分别为 30,599、7,030、4,403、5,155 个可读字符，正文均包含目标关系锚点。四个信源在保存 Snapshot 后已暂停自动采集，避免恢复抽取时进入普通批次。`AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS=false` 与自动抽取上限 0 已部署并由后台确认；新批次 `2026-09-core-relations-02` 预算最多 4 个 Snapshot，只做待授权准备。下一步必须获得用户对新一批 DoroAI 模型调用的明确授权；候选生成时执行内容哈希与语义指纹去重，新增关系全部进入人工审核，不自动批准。
+2026-09-01 已在 Render 受信任采集环境逐个完成首批 4 个官方 URL 的登记、安全预检、启用与首次采集。2026-09-04 在用户明确授权后执行批次 `2026-09-core-relations-02`：最多 4 个 Snapshot，4 次尝试全部成功，产生候选 1、识别重复 1、自动批准 0、剩余尝试 0、剩余合格 Snapshot 0。候选经过人工审核后，公开数据更新为 77 条 Relation，总覆盖差值从 44 降为 42。批次已闭合，不得自行重跑；`AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS` 必须保持 `false`，普通自动抽取上限应恢复为 0。
 
 ### Epic 3：数据质量看板 — completed
 
@@ -117,4 +119,4 @@ Epic 2A 的本体、诊断、清单与剩余 gap 记录均已完成。Snapshot �
 
 ## 当前可执行节点
 
-Epic 0、1A、2A、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。Epic 2B 的四个安全 Snapshot 已形成并从普通抽取路径隔离。当前收束点是验证新关系批次恰好识别这 4 个 Snapshot；只有在用户明确授权 DoroAI 模型调用后，才把自动抽取上限从 0 临时恢复为 2，分两轮生成候选并全部送入人工审核。
+Epic 0、1A、2A、2B、1B、1C、1D、Epic 3、Epic 4、Epic 5 与 Epic 6 均已完成。当前不再执行关系补齐批次；后续按 `docs/PROJECT_COMPLETION_SPEC.md` 从 Node 0 开始，先完成疑似凭证轮换、把普通自动抽取上限恢复为 0，再验证当前 UI 修复和完整质量门禁。任何新的模型调用或付费批次都需要新的明确授权、批次 ID 和硬预算。

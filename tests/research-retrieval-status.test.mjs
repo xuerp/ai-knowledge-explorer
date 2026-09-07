@@ -22,10 +22,10 @@ test("live research preserves retrieval diagnostics from the API", () => {
   assert.match(userApiSource, /fallbackReason\?: string/);
 });
 
-test("private research surfaces hybrid and safe fallback state", () => {
+test("retrieval diagnostics remain available to admin tooling but are hidden from user pages", () => {
   assert.match(statusSource, /data-testid="research-retrieval-status"/);
   assert.match(statusSource, /research\.retrievalMode === "hybrid"/);
   assert.match(statusSource, /diagnostics\.fallbackReason/);
-  assert.match(askSource, /<RetrievalStatus research=\{research\} \/>/);
-  assert.match(recordSource, /<RetrievalStatus research=\{liveResearch\} \/>/);
+  assert.doesNotMatch(askSource, /RetrievalStatus/);
+  assert.doesNotMatch(recordSource, /RetrievalStatus/);
 });

@@ -3,7 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
 
 
@@ -884,9 +892,49 @@ class DigestPreference(CamelModel):
     hour: str = Field(pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 
 
+class DecisionBudget(CamelModel):
+    mode: Literal["cost-first", "range", "unknown"] = "unknown"
+    min: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
+    max: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
+    currency: str | None = Field(default=None, pattern=r"^[A-Z]{3,8}$")
+
+    @model_validator(mode="after")
+    def validate_range(self) -> DecisionBudget:
+        if self.min is not None and self.max is not None and self.min > self.max:
+            raise ValueError("budget min must not exceed max")
+        return self
+
+
+class DecisionContext(CamelModel):
+    task: str = Field(min_length=5, max_length=1000)
+    priority: Literal["quality", "cost", "speed", "privacy", "control", "balanced"]
+    budget: DecisionBudget = Field(default_factory=DecisionBudget)
+    deployment: Literal["cloud-api", "private", "on-device", "hybrid", "undecided"]
+    exclusions: list[str] = Field(default_factory=list, max_length=20)
+    candidate_entity_ids: list[str] = Field(default_factory=list, max_length=20)
+    notes: str | None = Field(default=None, max_length=1000)
+
+    @field_validator("exclusions")
+    @classmethod
+    def validate_exclusions(cls, values: list[str]) -> list[str]:
+        normalized = [value.strip() for value in values]
+        if any(not value or len(value) > 200 for value in normalized):
+            raise ValueError("each exclusion must contain 1 to 200 characters")
+        return normalized
+
+    @field_validator("candidate_entity_ids")
+    @classmethod
+    def validate_candidate_entity_ids(cls, values: list[str]) -> list[str]:
+        normalized = list(dict.fromkeys(value.strip() for value in values))
+        if any(not value or len(value) > 128 for value in normalized):
+            raise ValueError("each candidate entity id must contain 1 to 128 characters")
+        return normalized
+
+
 class ResearchCreate(CamelModel):
     question: str = Field(min_length=5, max_length=2000)
     language: Literal["zh", "en"] = "zh"
+    decision_context: DecisionContext | None = None
 
 
 class ResearchCitation(CamelModel):
@@ -919,6 +967,35 @@ class RetrievalDiagnostics(CamelModel):
     generation_fallback_reason: str | None = None
 
 
+class DecisionTradeoff(CamelModel):
+    dimension: str
+    finding: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionRisk(CamelModel):
+    state: Literal["verified", "inferred", "unknown", "conflict"]
+    detail: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionRecommendation(CamelModel):
+    primary_entity_id: str | None = None
+    alternative_entity_ids: list[str] = Field(default_factory=list)
+    summary: str
+
+
+class DecisionResult(CamelModel):
+    status: Literal["ready", "insufficient-evidence", "conflict", "failed"]
+    as_of: datetime
+    recommendation: DecisionRecommendation
+    conditions: list[str] = Field(default_factory=list)
+    tradeoffs: list[DecisionTradeoff] = Field(default_factory=list)
+    risks: list[DecisionRisk] = Field(default_factory=list)
+    next_checks: list[str] = Field(default_factory=list)
+    claim_ids: list[str] = Field(default_factory=list)
+
+
 class ResearchView(CamelModel):
     id: str
     question: str
@@ -930,6 +1007,8 @@ class ResearchView(CamelModel):
     retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
     answer_mode: Literal["extractive", "generated"] = "extractive"
     retrieval_diagnostics: RetrievalDiagnostics = Field(default_factory=RetrievalDiagnostics)
+    decision_context: DecisionContext | None = None
+    decision: DecisionResult | None = None
     published_slug: str | None = None
     created_at: datetime
     published_at: datetime | None = None

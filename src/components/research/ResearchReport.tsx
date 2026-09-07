@@ -28,11 +28,13 @@ export function ResearchReport({
   snapshot,
   publicView = false,
   dataMode = "demo",
+  publishedSlug,
 }: {
   answer: ResearchAnswer;
   snapshot: KnowledgeSnapshot;
   publicView?: boolean;
   dataMode?: "demo" | "live";
+  publishedSlug?: string;
 }) {
   const { t, lang } = useApp();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
@@ -56,6 +58,7 @@ export function ResearchReport({
         .map((source) => [source.id, source]),
     ).values(),
   ];
+  const shareId = dataMode === "demo" ? answer.id : publishedSlug;
 
   const downloadMarkdown = () => {
     const markdown = createMarkdown(answer, claims, sources, lang);
@@ -71,7 +74,8 @@ export function ResearchReport({
   };
 
   const copyShareLink = async () => {
-    const shareUrl = `${window.location.origin}/share/${answer.id}`;
+    if (!shareId) return;
+    const shareUrl = `${window.location.origin}/share/${shareId}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopyState("copied");
@@ -128,32 +132,34 @@ export function ResearchReport({
             </span>
           </div>
           <div className="print-hidden mt-6 flex flex-wrap gap-2">
-            {!publicView && (
+            {!publicView && shareId && (
               <Link
                 to="/share/$id"
-                params={{ id: answer.id }}
+                params={{ id: shareId }}
                 className="inline-flex h-9 items-center gap-2 rounded-md bg-signal px-3 text-sm font-medium text-signal-foreground hover:opacity-90"
               >
                 <Globe2 className="h-4 w-4" />
                 {t("打开公开分享页", "Open public share")}
               </Link>
             )}
-            <button
-              type="button"
-              onClick={copyShareLink}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-accent"
-            >
-              {copyState === "copied" ? (
-                <Check className="h-4 w-4 text-verified" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copyState === "copied"
-                ? t("链接已复制", "Link copied")
-                : copyState === "failed"
-                  ? t("复制失败", "Copy failed")
-                  : t("复制分享链接", "Copy share link")}
-            </button>
+            {shareId && (
+              <button
+                type="button"
+                onClick={copyShareLink}
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-border bg-background px-3 text-sm text-foreground hover:bg-accent"
+              >
+                {copyState === "copied" ? (
+                  <Check className="h-4 w-4 text-verified" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+                {copyState === "copied"
+                  ? t("链接已复制", "Link copied")
+                  : copyState === "failed"
+                    ? t("复制失败", "Copy failed")
+                    : t("复制分享链接", "Copy share link")}
+              </button>
+            )}
             <button
               type="button"
               onClick={downloadMarkdown}
@@ -280,7 +286,7 @@ export function ResearchReport({
                     {step.status === "complete" ? (
                       <Check className="h-3.5 w-3.5" />
                     ) : (
-                      <span className="font-mono text-[10px]">{index + 1}</span>
+                      <span className="font-mono text-[11px]">{index + 1}</span>
                     )}
                   </span>
                   <span>
@@ -350,13 +356,16 @@ function ClaimCard({
     .map((id) => evidenceById.get(id))
     .filter((source): source is Evidence => Boolean(source));
   const border: Record<Confidence, string> = {
-    verified: "border-l-verified",
-    inferred: "border-l-inferred",
-    unverified: "border-l-border-strong",
-    conflict: "border-l-conflict",
+    verified: "border-verified/40",
+    inferred: "border-inferred/40",
+    unverified: "border-border-strong",
+    conflict: "border-conflict/40",
   };
   return (
-    <article className={`paper-card border-l-4 p-5 ${border[claim.confidence]}`}>
+    <article
+      id={`claim-${claim.id}`}
+      className={`paper-card scroll-mt-24 border p-5 ${border[claim.confidence]}`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-xs text-muted-foreground">
           {t(`结论 ${number}`, `Claim ${number}`)}

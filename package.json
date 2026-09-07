@@ -15,12 +15,16 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-    "check": "eslint . && tsc --noEmit && node --test --test-concurrency=1 tests/*.test.mjs && vite build",
+    "check": "npm run format:check && eslint . && tsc --noEmit && node --test --test-concurrency=1 tests/*.test.mjs && npm run check:core-models && vite build",
     "format": "prettier --write .",
+    "format:check": "node scripts/check-format.mjs",
     "prepare:cloudflare:staging": "node scripts/prepare-cloudflare-deploy.mjs",
     "verify:cloudflare:staging": "node scripts/verify-staging-build.mjs",
+    "verify:staging-release": "node scripts/wait-staging-release.mjs",
     "smoke:staging": "node scripts/smoke-staging.mjs",
-    "export:demo-snapshot": "node scripts/export-demo-snapshot.mjs"
+    "export:demo-snapshot": "node scripts/export-demo-snapshot.mjs",
+    "report:core-models": "node scripts/report-core-model-coverage.mjs --write",
+    "check:core-models": "node scripts/report-core-model-coverage.mjs --check"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -93,6 +97,7 @@
     "prettier": "^3.9.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "wrangler": "4.120.0"
   }
 }

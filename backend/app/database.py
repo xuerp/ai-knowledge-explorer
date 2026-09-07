@@ -291,6 +291,8 @@ class ResearchRecord(Base):
     retrieval_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="lexical")
     answer_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="extractive")
     retrieval_diagnostics_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    decision_context_json: Mapped[str] = mapped_column(Text, nullable=False, default="null")
+    decision_json: Mapped[str] = mapped_column(Text, nullable=False, default="null")
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
