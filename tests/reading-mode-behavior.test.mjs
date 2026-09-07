@@ -31,7 +31,14 @@ test("三种阅读模式拥有不同的模型页信息集合", () => {
   const product = getVisibleEntitySections("product", "model", modelSections);
   const technical = getVisibleEntitySections("technical", "model", modelSections);
 
-  assert.deepEqual(general, ["guide", "claims", "lineage", "timeline", "questions"]);
+  assert.deepEqual(general, [
+    "guide",
+    "claims",
+    "lineage",
+    "relationships",
+    "timeline",
+    "questions",
+  ]);
   assert.deepEqual(product, [
     "guide",
     "claims",

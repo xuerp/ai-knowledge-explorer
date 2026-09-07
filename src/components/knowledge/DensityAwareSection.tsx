@@ -38,14 +38,14 @@ export function DensityAwareSection({
     <section
       className={`density-section animate-in fade-in slide-in-from-bottom-2 duration-300 ${
         isFocus
-          ? "focus-section mb-8 rounded-xl border-2 border-timeline-accent/20 bg-gradient-to-br from-background to-timeline-track/10 p-6 shadow-md"
+          ? "focus-section mb-8 rounded-md border border-timeline-accent/40 bg-card p-6"
           : "supporting-section mb-6 rounded-lg border border-border bg-card p-4"
       }`}
     >
       <div className="mb-4 flex items-center gap-2">
         <Icon className={`h-5 w-5 ${isFocus ? "text-timeline-accent" : "text-muted-foreground"}`} />
         <h2
-          className={`${isFocus ? "font-bold text-xl" : "font-semibold text-base"} text-foreground`}
+          className={`${isFocus ? "font-semibold text-xl" : "font-semibold text-base"} text-foreground`}
         >
           {title}
         </h2>

@@ -211,7 +211,12 @@ function AccountPage() {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
             void execute(async () => {
-              setResearch(await userApi.research(token, String(form.get("question")), "zh"));
+              setResearch(
+                await userApi.research(token, {
+                  question: String(form.get("question")),
+                  language: "zh",
+                }),
+              );
             });
           }}
         >

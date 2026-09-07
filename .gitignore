@@ -34,6 +34,10 @@ backend/data/*.db
 backend/data/*.db-*
 backups/
 
+# Local credential artifacts
+admin_token.txt
+snapshot_test.*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

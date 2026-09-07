@@ -1,0 +1,38 @@
+name: Staging acceptance
+
+on:
+  workflow_run:
+    workflows: [Quality]
+    types: [completed]
+    branches: [codex/productionize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-acceptance
+  cancel-in-progress: true
+
+jobs:
+  verify-staging:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Wait for Render and Cloudflare to run the verified commit
+        run: npm run verify:staging-release
+        env:
+          AI_RADAR_EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          AI_RADAR_STAGING_READY_URL: https://ai-radar-api-staging.onrender.com/ready
+          AI_RADAR_STAGING_VERSION_URL: https://ai-radar-staging.1966761779.workers.dev/version.txt
+      - name: Run staging smoke test
+        run: npm run smoke:staging
+        env:
+          AI_RADAR_SMOKE_API_URL: https://ai-radar-api-staging.onrender.com
+          AI_RADAR_SMOKE_FRONTEND_URL: https://ai-radar-staging.1966761779.workers.dev

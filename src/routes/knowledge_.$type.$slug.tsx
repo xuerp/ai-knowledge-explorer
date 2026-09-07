@@ -5,7 +5,6 @@ import {
   Building2,
   CalendarDays,
   ExternalLink,
-  GitBranch,
   Layers3,
   MapPin,
   Sparkles,
@@ -151,21 +150,18 @@ function GenericEntityDetail() {
                 {t("官方网站", "Official site")}
               </a>
             )}
-            <Link
-              to="/graph"
-              search={{ entity: entity.id, mode: "ecosystem" }}
-              className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
-            >
-              <GitBranch className="h-4 w-4" />
-              {t("分析关联", "Analyze relationships")}
-            </Link>
-            <Link
-              to="/ask"
+            <a
+              href={`/ask?candidates=${encodeURIComponent(entity.id)}&task=${encodeURIComponent(
+                t(
+                  `评估 ${pick(entity.name, lang)} 是否适合我的任务`,
+                  `Evaluate ${pick(entity.name, lang)} for my task`,
+                ),
+              )}`}
               className="inline-flex h-10 items-center gap-2 rounded-md bg-signal px-4 text-sm font-medium text-signal-foreground hover:opacity-90"
             >
               <Sparkles className="h-4 w-4" />
-              {t("基于证据提问", "Ask with evidence")}
-            </Link>
+              {t("让决策助手分析", "Analyze with the assistant")}
+            </a>
           </div>
         </header>
 
@@ -307,7 +303,7 @@ function GenericEntityDetail() {
                   search={{ entity: entity.id, mode: "ecosystem" }}
                   className="text-sm text-signal hover:underline"
                 >
-                  {t("打开关系洞察", "Open relationship insights")} →
+                  {t("查看完整关系网络", "View full relationship network")} →
                 </Link>
               }
             />
@@ -395,16 +391,32 @@ function ReadingModeSection({
 
 function EntityLink({ entity }: { entity: Entity }) {
   const { lang } = useApp();
-  return (
-    <Link
-      to="/knowledge/$type/$slug"
-      params={{ type: entity.type, slug: entity.slug }}
-      className="min-w-0 rounded-md border border-border bg-background px-3 py-2 hover:border-signal/50 hover:bg-accent/40"
-    >
+  const content = (
+    <>
       <span className="block truncate font-medium text-foreground">{pick(entity.name, lang)}</span>
       <span className="mt-0.5 block text-[11px] text-muted-foreground">
         {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
       </span>
+    </>
+  );
+  const className =
+    "min-w-0 rounded-md border border-border bg-background px-3 py-2 hover:border-signal/50 hover:bg-accent/40";
+
+  if (entity.type === "model") {
+    return (
+      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      to="/knowledge/$type/$slug"
+      params={{ type: entity.type, slug: entity.slug }}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CalendarDays, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { useId, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import { ConfidenceChip, SourceRow } from "@/components/common";
 import type { TimelineEvent, Source } from "@/domain/types";
 import { useApp } from "@/lib/app-state";
@@ -13,6 +13,7 @@ interface TimelineHeroProps {
 export function TimelineHero({ events, sources, entityName }: TimelineHeroProps) {
   const { t, lang } = useApp();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const detailsId = useId();
   const sourceById = new Map(sources.map((s) => [s.id, s]));
 
   if (events.length === 0) return null;
@@ -32,10 +33,10 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
     : [];
 
   return (
-    <section className="timeline-hero-section mb-8 rounded-xl border border-timeline-track bg-gradient-to-b from-timeline-track/30 to-transparent p-6">
+    <section className="timeline-hero-section mb-8 rounded-md border border-timeline-track bg-card p-4 md:p-6">
       <div className="mb-6 flex items-center gap-2">
         <CalendarDays className="h-5 w-5 text-timeline-accent" />
-        <h2 className="font-bold text-lg text-foreground">
+        <h2 className="text-lg font-semibold text-foreground">
           {t(`${entityName} 演进时间线`, `${entityName} Evolution Timeline`)}
         </h2>
         <span className="ml-auto font-mono text-xs tabular-nums text-temporal-slate">
@@ -44,7 +45,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
       </div>
 
       {/* Timeline track */}
-      <div className="relative">
+      <div className="relative hidden md:block">
         {/* Horizontal line */}
         <div className="absolute left-0 right-0 top-6 h-0.5 bg-timeline-track" />
 
@@ -61,9 +62,16 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
               >
                 {/* Node marker */}
                 <button
+                  type="button"
                   onClick={() => toggle(event.id)}
                   className="group relative mx-auto block"
-                  aria-label={t("展开事件", "Expand event")}
+                  aria-controls={detailsId}
+                  aria-expanded={isExpanded}
+                  aria-label={
+                    isExpanded
+                      ? t(`收起事件：${event.title.zh}`, `Collapse event: ${event.title.en}`)
+                      : t(`查看事件：${event.title.zh}`, `View event: ${event.title.en}`)
+                  }
                 >
                   <div className="relative mx-auto h-12 w-12">
                     {/* Outer ring */}
@@ -96,11 +104,17 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
 
         {/* Expanded card (full width, below the track) */}
         {expandedEvent && (
-          <div className="timeline-event-card animate-in fade-in slide-in-from-top-2 duration-200 mt-6 rounded-lg border border-border bg-card p-4 shadow-lg">
+          <div
+            id={detailsId}
+            role="region"
+            aria-label={t(
+              `${expandedEvent.title.zh} 事件详情`,
+              `${expandedEvent.title.en} event details`,
+            )}
+            className="timeline-event-card mt-6 w-full animate-in rounded-lg border border-border bg-card p-4 shadow-lg fade-in slide-in-from-top-2 duration-200"
+          >
             <div className="mb-2 flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-sm text-foreground">
-                {expandedEvent.title[lang]}
-              </h3>
+              <h3 className="font-semibold text-sm text-foreground">{expandedEvent.title[lang]}</h3>
               <ConfidenceChip level={expandedEvent.confidence} />
             </div>
 
@@ -129,7 +143,7 @@ export function TimelineHero({ events, sources, entityName }: TimelineHeroProps)
       </div>
 
       {/* Mobile timeline (vertical layout) */}
-      <div className="mt-8 space-y-4 md:hidden">
+      <div className="mt-6 space-y-4 md:hidden">
         {sortedEvents.map((event) => {
           const eventSources = event.sourceIds
             .map((id) => sourceById.get(id))

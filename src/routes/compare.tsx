@@ -7,6 +7,9 @@ import { useApp, pick } from "@/lib/app-state";
 import { useModelCatalog, useModelVersionComparison } from "@/hooks/use-knowledge";
 
 export const Route = createFileRoute("/compare")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    models: typeof search.models === "string" ? search.models : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "AI 路线对比 · AI Radar" },
@@ -22,9 +25,18 @@ type Scope = "versions" | "families";
 
 function ComparePage() {
   const { t, lang } = useApp();
+  const { models: modelSearch } = Route.useSearch();
   const catalogQuery = useModelCatalog();
   const [scope, setScope] = useState<Scope>("families");
-  const [selected, setSelected] = useState<string[]>(["e-gpt", "e-claude", "e-gemini"]);
+  const [selected, setSelected] = useState<string[]>(() =>
+    modelSearch
+      ? modelSearch
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .slice(0, 4)
+      : ["e-gpt", "e-claude", "e-gemini"],
+  );
   const allModels =
     catalogQuery.data ??
     DEMO_KNOWLEDGE_SNAPSHOT.entities.filter((entity) => entity.type === "model");

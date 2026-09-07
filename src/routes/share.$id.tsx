@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
+import { DecisionBrief } from "@/components/research/DecisionBrief";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp } from "@/lib/app-state";
 import { userApi, type PublishedResearch } from "@/services/user-api";
@@ -76,6 +77,18 @@ function PublicResearchPage() {
             </h1>
             <div className="mt-3 text-sm text-muted-foreground">{liveResearch.status}</div>
           </header>
+          <DecisionBrief
+            research={liveResearch}
+            entityName={(entityId) => {
+              const entity = snapshotQuery.data?.entities.find((item) => item.id === entityId);
+              return entity ? t(entity.name.zh, entity.name.en) : entityId;
+            }}
+            isComparable={(entityId) =>
+              snapshotQuery.data?.entities.some(
+                (item) => item.id === entityId && item.type === "model",
+              ) ?? false
+            }
+          />
           <section className="paper-card p-6">
             <h2 className="font-serif text-xl font-semibold">{t("结论", "Answer")}</h2>
             <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">
@@ -85,7 +98,11 @@ function PublicResearchPage() {
           <section className="space-y-3">
             <h2 className="font-serif text-2xl font-semibold">{t("引用与来源", "Citations")}</h2>
             {liveResearch.citations.map((citation) => (
-              <div key={citation.claim.id} className="paper-card p-5">
+              <div
+                key={citation.claim.id}
+                id={`claim-${citation.claim.id}`}
+                className="paper-card scroll-mt-24 p-5"
+              >
                 <div className="font-mono text-xs text-muted-foreground">
                   {citation.claim.id} · {citation.claim.confidence}
                 </div>

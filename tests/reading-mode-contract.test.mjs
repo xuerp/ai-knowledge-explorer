@@ -21,7 +21,16 @@ test("阅读模式由一份共享配置驱动正文入口与设置页", async ()
   assert.match(selector, /READING_MODE_OPTIONS\.map/);
   assert.match(selector, /option\.shortLabel\[lang\]/);
   assert.match(selector, /onChange\(option\.id\)/);
+  assert.match(selector, /activeOption\.focusAreas\.map/);
+  assert.match(selector, /aria-pressed=\{isActive\}/);
   assert.match(settings, /READING_MODE_OPTIONS\.map/);
+});
+
+test("阅读模式写入可分享 URL，并在加载时优先恢复", async () => {
+  const context = await read("src/lib/app-context.tsx");
+  assert.match(context, /URLSearchParams\(window\.location\.search\)\.get\("reading"\)/);
+  assert.match(context, /searchParams\.set\("reading", nextMode\)/);
+  assert.match(context, /history\.replaceState/);
 });
 
 test("模型与通用实体页按阅读模式展示不同重点信息", async () => {

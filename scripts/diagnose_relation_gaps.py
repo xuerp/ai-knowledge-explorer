@@ -19,7 +19,9 @@ CORE_ENTITY_TYPES = {"agent", "framework"}
 
 
 def is_core_entity(entity: Entity) -> bool:
-    return (entity.type == "model" and entity.family_id is None) or entity.type in CORE_ENTITY_TYPES
+    return (
+        entity.type == "model" and entity.family_id is None
+    ) or entity.type in CORE_ENTITY_TYPES
 
 
 def nested_source_ids(value: Any) -> set[str]:
@@ -36,7 +38,9 @@ def nested_source_ids(value: Any) -> set[str]:
     return set()
 
 
-def diagnose(snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str) -> dict[str, Any]:
+def diagnose(
+    snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str
+) -> dict[str, Any]:
     evidence_by_id = {item.id: item for item in snapshot.evidence}
     evidence_ids = set(evidence_by_id)
     core_entities = [item for item in snapshot.entities if is_core_entity(item)]
@@ -76,7 +80,9 @@ def diagnose(snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str
             evidence_entity_reference_ids[source_id].add(entity.id)
 
     core_coverage = []
-    for entity in sorted(core_entities, key=lambda item: (entity_degrees[item.id], item.id)):
+    for entity in sorted(
+        core_entities, key=lambda item: (entity_degrees[item.id], item.id)
+    ):
         relation_count = entity_degrees[entity.id]
         core_coverage.append(
             {
@@ -103,10 +109,14 @@ def diagnose(snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str
                 "url": evidence.url,
                 "publishedAt": evidence.published_at,
                 "associatedEntityIds": associated_entity_ids,
-                "associatedCoreEntityIds": sorted(core_entity_ids & set(associated_entity_ids)),
+                "associatedCoreEntityIds": sorted(
+                    core_entity_ids & set(associated_entity_ids)
+                ),
                 "supportedClaimIds": sorted(evidence_claim_ids[evidence.id]),
                 "timelineEntryIds": sorted(evidence_timeline_ids[evidence.id]),
-                "entityReferenceIds": sorted(evidence_entity_reference_ids[evidence.id]),
+                "entityReferenceIds": sorted(
+                    evidence_entity_reference_ids[evidence.id]
+                ),
             }
         )
 
@@ -124,7 +134,9 @@ def diagnose(snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str
             "snapshotSha256": snapshot_hash,
             "snapshotRetrievedAt": snapshot.meta.retrieved_at,
             "relationOntologyKinds": list(RELATION_KINDS),
-            "coreEntityRule": ("top-level model families plus agent and framework entities"),
+            "coreEntityRule": (
+                "top-level model families plus agent and framework entities"
+            ),
             "qualityThresholdReference": CORE_ENTITY_RELATION_REQUIREMENT,
         },
         "summary": {
@@ -135,10 +147,13 @@ def diagnose(snapshot: KnowledgeSnapshot, snapshot_hash: str, snapshot_path: str
             "distanceToExistingQualityThreshold": sum(
                 item["distanceToExistingQualityThreshold"] for item in below_threshold
             ),
-            "officialEvidence": sum(item.type == "official" for item in snapshot.evidence),
+            "officialEvidence": sum(
+                item.type == "official" for item in snapshot.evidence
+            ),
             "officialEvidenceUnusedByRelations": len(unused_official_evidence),
             "unusedOfficialEvidenceAssociatedWithCoreEntities": sum(
-                bool(item["associatedCoreEntityIds"]) for item in unused_official_evidence
+                bool(item["associatedCoreEntityIds"])
+                for item in unused_official_evidence
             ),
         },
         "coreEntityCoverage": core_coverage,
@@ -192,7 +207,9 @@ def markdown_summary(report: dict[str, Any]) -> str:
         ]
     )
     for item in report["ontologyCoverage"]:
-        lines.append(f"| `{item['relationKind']}` | {item['publishedGroundedRelations']} |")
+        lines.append(
+            f"| `{item['relationKind']}` | {item['publishedGroundedRelations']} |"
+        )
     lines.extend(
         [
             "",
@@ -206,7 +223,9 @@ def markdown_summary(report: dict[str, Any]) -> str:
     )
     for item in report["unusedOfficialEvidence"]:
         content_count = len(item["supportedClaimIds"]) + len(item["timelineEntryIds"])
-        core_ids = ", ".join(f"`{value}`" for value in item["associatedCoreEntityIds"]) or "—"
+        core_ids = (
+            ", ".join(f"`{value}`" for value in item["associatedCoreEntityIds"]) or "—"
+        )
         lines.append(
             f"| [{_cell(item['title']['zh'])}]({item['url']}) (`{item['evidenceId']}`) | "
             f"{_cell(item['publisher'])} | {core_ids} | {content_count} |"
@@ -216,7 +235,9 @@ def markdown_summary(report: dict[str, Any]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="运行关系覆盖与官方 Evidence 的只读诊断。")
+    parser = argparse.ArgumentParser(
+        description="运行关系覆盖与官方 Evidence 的只读诊断。"
+    )
     parser.add_argument(
         "--snapshot",
         type=Path,
@@ -241,7 +262,9 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     json_path = args.output_dir / f"{stem}.json"
     markdown_path = args.output_dir / f"{stem}.md"
-    json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    json_path.write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     markdown_path.write_text(markdown_summary(report), encoding="utf-8")
     print(
         json.dumps(

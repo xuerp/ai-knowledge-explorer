@@ -21,7 +21,7 @@ export const Route = createFileRoute("/case-study")({
       { title: "产品 Case Study · AI Radar" },
       {
         name: "description",
-        content: "AI Radar 如何从一次性 AI 问答转向持续、可验证的 AI 情报基础设施。",
+        content: "AI Radar 如何用持续追踪、可信知识和关系证据支撑可执行的 AI 决策。",
       },
     ],
   }),
@@ -45,28 +45,28 @@ function CaseStudyPage() {
           </div>
           <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-tight md:text-6xl">
             {t(
-              "把概率性的 AI 输出，变成可以长期依赖的知识产品",
-              "Turning probabilistic AI output into a knowledge product people can rely on",
+              "把持续更新的可信知识，变成可执行的 AI 选择",
+              "Turn continuously verified knowledge into actionable AI choices",
             )}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-ink-soft md:text-lg">
             {t(
-              "AI Radar 的关键不是再做一个聊天框，而是持续维护 AI 模型、Agent 与产品生态的可验证状态：变化有时间线，结论有证据，模型输出先成为候选，再经过验证进入知识库。",
-              "AI Radar is not another chat box. It maintains a verifiable state of the AI ecosystem: changes have timelines, conclusions have evidence, and model output becomes a candidate before it can enter the knowledge base.",
+              "AI Radar 用追踪器带用户发现变化，用知识、关系与 Evidence 解释变化，最终由决策助手结合任务和约束回答“我该怎么选”。模型输出先成为候选，经过验证后才能支撑公开结论。",
+              "AI Radar uses tracking to surface changes, knowledge, relationships, and evidence to explain them, and a decision assistant to answer what to choose for a specific task and set of constraints. Model output remains a candidate until it is verified.",
             )}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/"
+              to="/ask"
               className="inline-flex h-10 items-center gap-2 rounded-md bg-signal px-4 text-sm font-medium text-signal-foreground"
             >
-              {t("体验公开产品", "Explore the product")} <ArrowRight className="h-4 w-4" />
+              {t("体验决策助手", "Try the decision assistant")} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              to="/admin/review-demo"
+              to="/"
               className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm font-medium"
             >
-              {t("查看审核闭环", "View the review workflow")}
+              {t("查看最新变化", "View latest changes")}
             </Link>
           </div>
         </header>
@@ -112,8 +112,8 @@ function CaseStudyPage() {
               icon={<ShieldCheck className="h-5 w-5" />}
               title={t("事实权限不清", "Unclear authority")}
               body={t(
-                "模型可能漏掉限定词、混合上下文或补充记忆；直接写库会把一次错误扩散到 Timeline、Compare 和 Research。",
-                "A model may drop qualifiers, merge context, or add memory. Direct writes turn one error into contamination across timelines, comparisons, and research.",
+                "模型可能漏掉限定词、混合上下文或补充记忆；直接写库会把一次错误扩散到追踪、比较和决策助手。",
+                "A model may drop qualifiers, merge context, or add memory. Direct writes turn one error into contamination across tracking, comparison, and decision support.",
               )}
             />
           </div>
@@ -123,8 +123,8 @@ function CaseStudyPage() {
           number="03"
           eyebrow={t("产品转向", "Product pivot")}
           title={t(
-            "从 AI Q&A 转向 Persistent AI Intelligence Layer",
-            "From AI Q&A to a persistent intelligence layer",
+            "从 AI 知识库转向 AI 决策基础设施",
+            "From an AI knowledge base to decision infrastructure",
           )}
         >
           <div className="paper-card grid gap-px overflow-hidden bg-border md:grid-cols-5">
@@ -133,7 +133,7 @@ function CaseStudyPage() {
               t("快照与差异", "Snapshots & diff"),
               t("候选事实", "Candidates"),
               t("证据与审核", "Evidence & review"),
-              t("知识消费", "Knowledge use"),
+              t("有依据的决策", "Evidence-backed decisions"),
             ].map((label, index) => (
               <div key={label} className="relative bg-card p-5 text-sm font-medium">
                 <span className="mb-3 block font-mono text-xs text-signal">0{index + 1}</span>
@@ -186,16 +186,16 @@ function CaseStudyPage() {
               icon={<GitCompareArrows className="h-5 w-5" />}
               title={t("深度优先于广度", "Depth over breadth")}
               body={t(
-                "先让核心实体拥有可用的 Timeline、关系和来源，再扩大全库数量。",
-                "Build usable timelines, relationships, and sources for core entities before expanding the directory.",
+                "建立 8–10 个核心模型；GPT、Claude、Gemini 优先做深，其余核心模型达到可比较密度，长尾不设数量配额。",
+                "Maintain 8–10 core models, deepen GPT, Claude, and Gemini first, give the remaining core enough density for comparison, and never impose quotas on the long tail.",
               )}
             />
             <Decision
               icon={<Sparkles className="h-5 w-5" />}
               title={t("证据不足时拒答", "Decline when evidence is insufficient")}
               body={t(
-                "Research 展示覆盖范围；没有足够 Claim 时返回可信的不确定性，而不是补齐答案。",
-                "Research exposes coverage and returns trustworthy uncertainty instead of filling gaps.",
+                "决策助手展示覆盖范围；没有足够 Claim 时缩小结论或明确拒答，而不是补齐一个看似完整的推荐。",
+                "The decision assistant exposes coverage and narrows or declines conclusions when claims are insufficient instead of fabricating a complete recommendation.",
               )}
             />
             <Decision
@@ -211,38 +211,38 @@ function CaseStudyPage() {
 
         <StorySection
           number="05"
-          eyebrow={t("三个核心体验", "Core experiences")}
+          eyebrow={t("产品闭环", "Product loop")}
           title={t(
-            "让同一套证据服务追踪、比较与研究",
-            "One evidence layer powers tracking, comparison, and research",
+            "追踪负责入口，决策负责价值，知识关系负责可信",
+            "Tracking drives discovery, decisions create value, knowledge makes both trustworthy",
           )}
         >
           <div className="grid gap-4 md:grid-cols-3">
             <JourneyLink
-              to="/knowledge/model/$slug"
+              to="/"
               icon={<History className="h-5 w-5" />}
-              title={t("Timeline", "Timeline")}
+              title={t("追踪器 · 高频入口", "Tracker · frequent entry")}
               body={t(
-                "理解一个实体如何随时间演进。",
-                "Understand how an entity evolves over time.",
+                "持续发现主流模型真正值得关注的版本、能力和产品变化。",
+                "Continuously surface the model, capability, and product changes that matter.",
               )}
             />
             <JourneyLink
-              to="/compare"
+              to="/knowledge/model/$slug"
               icon={<GitCompareArrows className="h-5 w-5" />}
-              title={t("Compare", "Compare")}
+              title={t("知识关系 · 可信基础", "Knowledge relations · trust layer")}
               body={t(
-                "在一致维度下比较产品路线。",
-                "Compare product direction on consistent dimensions.",
+                "用已审核事实、时间线、生态关系和直接 Evidence 解释判断依据。",
+                "Explain judgments with reviewed facts, timelines, ecosystem relationships, and direct evidence.",
               )}
             />
             <JourneyLink
               to="/ask"
               icon={<Sparkles className="h-5 w-5" />}
-              title={t("Research", "Research")}
+              title={t("决策助手 · 核心价值", "Decision assistant · core value")}
               body={t(
-                "基于已审核证据形成跨实体结论。",
-                "Form cross-entity conclusions from reviewed evidence.",
+                "结合任务、预算与部署约束，给出带条件、时点和来源的选择建议。",
+                "Turn task, budget, and deployment constraints into conditional, dated, and sourced recommendations.",
               )}
             />
           </div>
@@ -264,8 +264,8 @@ function CaseStudyPage() {
               <ul className="mt-4 space-y-3 text-sm leading-6 text-ink-soft">
                 {[
                   t(
-                    "无需登录即可理解产品定位和三个核心体验",
-                    "The product and three core experiences are understandable without login",
+                    "无需登录即可理解“发现变化 → 理解依据 → 做出决策”的产品闭环",
+                    "The discover → understand → decide product loop is clear without login",
                   ),
                   t(
                     "Claim、Evidence、Timeline、Relation 使用同一领域模型",
@@ -358,7 +358,7 @@ function JourneyLink({
   title,
   body,
 }: {
-  to: "/knowledge/model/$slug" | "/compare" | "/ask";
+  to: "/" | "/knowledge/model/$slug" | "/ask";
   icon: React.ReactNode;
   title: string;
   body: string;

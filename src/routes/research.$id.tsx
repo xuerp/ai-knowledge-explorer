@@ -4,10 +4,10 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
-import { RetrievalStatus } from "@/components/research/RetrievalStatus";
+import { DecisionBrief } from "@/components/research/DecisionBrief";
 import type { ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { useApp } from "@/lib/app-state";
+import { pick, useApp } from "@/lib/app-state";
 import { readAuthToken } from "@/services/auth-session";
 import { userApi, type ResearchResult } from "@/services/user-api";
 
@@ -31,6 +31,8 @@ function ResearchRecordPage() {
   const snapshotQuery = useKnowledgeSnapshot();
   const [liveResearch, setLiveResearch] = useState<ResearchResult | null>(null);
   const [liveError, setLiveError] = useState("");
+  const [publishBusy, setPublishBusy] = useState(false);
+  const [publishError, setPublishError] = useState("");
   const token = readAuthToken();
 
   useEffect(() => {
@@ -117,9 +119,63 @@ function ResearchRecordPage() {
     return (
       <AppShell>
         <div className="mx-auto max-w-5xl px-4 pt-6 md:px-6">
-          <RetrievalStatus research={liveResearch} />
+          {!liveResearch.publishedSlug && (
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <Button
+                disabled={publishBusy}
+                onClick={() => {
+                  setPublishBusy(true);
+                  setPublishError("");
+                  userApi
+                    .publishResearch(token, liveResearch.id)
+                    .then(setLiveResearch)
+                    .catch((reason: unknown) =>
+                      setPublishError(
+                        reason instanceof Error
+                          ? reason.message
+                          : t("发布失败，请重试。", "Publishing failed. Try again."),
+                      ),
+                    )
+                    .finally(() => setPublishBusy(false));
+                }}
+              >
+                {publishBusy ? t("发布中…", "Publishing…") : t("创建公开分享", "Publish link")}
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                {t(
+                  "仅在你主动发布后生成公开链接。",
+                  "A public link is created only after you publish explicitly.",
+                )}
+              </span>
+            </div>
+          )}
+          {publishError && (
+            <div
+              role="alert"
+              className="mb-4 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+            >
+              {publishError}
+            </div>
+          )}
+          <DecisionBrief
+            research={liveResearch}
+            entityName={(entityId) => {
+              const entity = snapshotQuery.data.entities.find((item) => item.id === entityId);
+              return entity ? pick(entity.name, "zh") : entityId;
+            }}
+            isComparable={(entityId) =>
+              snapshotQuery.data.entities.some(
+                (item) => item.id === entityId && item.type === "model",
+              )
+            }
+          />
         </div>
-        <ResearchReport answer={liveAnswer} snapshot={snapshotQuery.data} dataMode="live" />
+        <ResearchReport
+          answer={liveAnswer}
+          snapshot={snapshotQuery.data}
+          dataMode="live"
+          publishedSlug={liveResearch.publishedSlug}
+        />
       </AppShell>
     );
   }
