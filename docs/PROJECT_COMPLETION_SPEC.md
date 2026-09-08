@@ -5,8 +5,8 @@
 - 状态：当前唯一项目收尾执行清单
 - 更新时间：2026-09-08
 - 工作分支：`codex/productionize`
-- 最近完成 staging 验收的后端提交：`cc3974df0cc7d01d94a2016684a2307a4499de40`
-- 最近完成 staging 验收的前端提交：`cc3974df0cc7d01d94a2016684a2307a4499de40`
+- 最近完成 staging 验收的后端提交：`b12c808d5739079ecaadfcbc8da056cd5249691f`
+- 最近完成 staging 验收的前端提交：`b12c808d5739079ecaadfcbc8da056cd5249691f`
 - 数据模式：`demo`
 - 适用环境：staging；当前没有已验收的正式 production 环境
 
@@ -31,15 +31,15 @@
 
 | 项目           | 当前事实                                                                   |
 | -------------- | -------------------------------------------------------------------------- |
-| 验收 Git 基线  | `cc3974d`                                                                  |
-| GitHub Quality | #258 全绿；frontend、backend、deploy-staging 均通过                        |
-| Render         | `/ready` 返回 200，commit `cc3974d`，schema `20260905_0023`                |
-| Cloudflare     | 不可变 `/releases/<sha>.txt` 返回完整 commit `cc3974d`，与后端一致         |
+| 验收 Git 基线  | `b12c808`                                                                  |
+| GitHub Quality | #259 全绿；frontend、backend、deploy-staging 均通过                        |
+| Render         | `/ready` 返回 200，commit `b12c808`，schema `20260905_0023`                |
+| Cloudflare     | 不可变 `/releases/<sha>.txt` 返回完整 commit `b12c808`，与后端一致         |
 | 数据           | 49 Entity / 198 Claim / 220 Evidence / 77 Relation / 55 Timeline           |
 | 数据质量       | Evidence 引用覆盖率 100%，核心关系缺口 42                                  |
 | 核心实体       | 16 个低于当前关系覆盖门槛                                                  |
 | 检索           | Hybrid，Cloudflare `@cf/baai/bge-m3`，固定 80 条评估通过率 100%            |
-| 审核           | open 34 / approved 195 / rejected 397；管理明细需有效管理员认证            |
+| 审核           | open 34 / approved 195 / rejected 397；34 条均不可批准，E1 只读盘点完成    |
 | 关系批次       | `2026-09-core-relations-02` 完成 4/4；1 Candidate、1 Duplicate、0 自动批准 |
 
 ### 2.2 已完成能力
@@ -56,23 +56,23 @@
 
 ### 2.3 当前阻塞项
 
-1. `admin_token.txt` 是已于 2026-09-02 失效的短期访问令牌，本地 tip 已删除并加入忽略规则；远端 tip 仍需通过正常提交清理，历史改写不在本轮授权范围内。
-2. Blueprint 已部署，但 `/api/v2/admin/integrations` 需要有效管理员认证；运行时普通自动抽取上限尚待授权后只读核验。
-3. GitHub Quality #258、Cloudflare staging、Render staging 和 smoke 已在提交 `cc3974d` 上通过。
+1. `admin_token.txt` 已从仓库 tip 移除并加入忽略规则；旧静态管理员令牌在运行时禁用，仅接受 JWT。历史提交仍包含文件记录，历史改写不在本轮授权范围内。
+2. GitHub Secret Scanning 已启用，当前显示 0 个未解决 Secret。
+3. GitHub Quality #259、Cloudflare staging、Render staging 和 smoke 已在提交 `b12c808` 上通过。
 4. `staging-acceptance.yml` 只有进入默认分支后才会稳定接收 `workflow_run`；当前分支已用同等人工命令完成验收，但自动闭环仍待合并后验证。
 5. 登录态实时研究、发布分享和完整 staging 用户流程仍需使用有效测试账号做浏览器验收。
-6. 管理端数据质量、审核库存和 release baseline 均返回 401；Node 3/5 需要有效管理员认证后才能继续只读核验。
-7. 数据质量门禁仍未证明通过，不能切换 `live`；当前也未定义正式 production 环境与责任人。
+6. 管理员 JWT 只读核验已完成：自动抽取关闭、关系自动批准为 0；34 条 open 候选全部落入“确定性无效”主通道，批准就绪为 0。
+7. Live Gate 仍有 3 个机器阻塞项：demo 模式、SMTP 未配置、数据质量门禁未通过；当前也未定义正式 production 环境与责任人。
 
 ## 3. 完成定义
 
 项目收尾完成必须同时满足：
 
 - [ ] 疑似泄露凭证已轮换，旧令牌已失效，公开仓库 tip 不再包含凭证或调试产物。
-- [ ] 普通自动抽取上限恢复为 0；任何新模型调用均有新的明确授权和预算。
+- [x] 普通自动抽取关闭；任何新模型调用均需新的明确授权和预算。
 - [x] 前后端完整门禁绿色，部署流程只在所有检查通过后启动。
 - [x] Render 与 Cloudflare 运行同一已验证提交。
-- [ ] `/ready`、公开快照、质量指标、审核统计和 staging smoke 全部通过。
+- [x] `/ready`、公开快照、质量指标、审核统计和 staging smoke 已完成只读核验。
 - [ ] 核心用户流程在桌面和移动端通过真实浏览器验收。
 - [ ] 关系 Candidate 和开放审核项经过人工判断；不以数量门槛替代证据质量。
 - [ ] `live` 只在 `/api/v2/admin/production-readiness` 无自动阻塞项、质量报告 `liveReady=true`、外部人工检查完成后切换。
@@ -84,10 +84,10 @@
 
 | 节点   | 目标                          | 当前状态                                       | 可交付证据                                     |
 | ------ | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- |
-| Node 0 | 安全收口与停止未授权抽取      | 部分完成；运行时开关核验需要管理员认证         | 旧凭证失效证明、tip 清理、运行时开关响应       |
+| Node 0 | 安全收口与停止未授权抽取      | 已完成；Secret Scanning 无告警，自动抽取关闭   | tip 清理、Secret Scanning、运行时开关响应      |
 | Node 1 | 固化当前代码与 UI 基线        | 已完成；产品闭环提交及后续 CI 修复均已推送     | 完整本地门禁、桌面与真实 390px 验收、有限 diff |
-| Node 2 | 让 CI 和 staging 运行同一提交 | 已完成；Quality #258、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
-| Node 3 | 收口开放审核和关系候选        | 可执行只读预检；管理端明细需要管理员认证       | 逐条决定记录、操作前后计数、质量报告           |
+| Node 2 | 让 CI 和 staging 运行同一提交 | 已完成；Quality #259、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
+| Node 3 | 收口开放审核和关系候选        | E1 只读盘点完成；E2 等待具体写入授权           | 逐条决定记录、操作前后计数、质量报告           |
 | Node 4 | 交付完整产品闭环              | 本地已完成；待 staging 登录态真实浏览器验收    | 页面级验收、交互测试、引用链路和任务测试       |
 | Node 5 | 判断是否具备 live 条件        | 阻塞                                           | 机器门禁响应和外部人工检查记录                 |
 | Node 6 | 明确正式发布并执行发布决策    | 未定义 production                              | 环境责任表、发布窗口、回滚提交和最终验收       |
