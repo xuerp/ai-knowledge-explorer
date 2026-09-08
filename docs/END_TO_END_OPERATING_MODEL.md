@@ -280,31 +280,33 @@ flowchart TD
 - 前后端 CI 分离、固定 Wrangler、检查通过后部署和双端 commit 等待逻辑。
 - 本地前端完整门禁、后端 199 项测试和 SQLite 空库迁移验证。
 - 桌面与 390px 决策助手浏览器验收、Evidence 锚点和无控制台错误记录。
-- GitHub Quality #258 全绿，frontend、backend 与 deploy-staging 均通过。
-- Render `/ready` 与 Cloudflare 不可变 `/releases/<sha>.txt` 均运行完整提交 `cc3974df0cc7d01d94a2016684a2307a4499de40`。
+- GitHub Quality #259 全绿，frontend、backend 与 deploy-staging 均通过。
+- Render `/ready` 与 Cloudflare 不可变 `/releases/<sha>.txt` 均运行完整提交 `b12c808d5739079ecaadfcbc8da056cd5249691f`。
 - staging smoke 已验证 API 健康、公开快照、前端 HTTP 200 与同域 CORS；当前数据模式仍为 `demo`。
+- GitHub Secret Scanning 已启用且无未解决 Secret；旧静态管理员令牌已禁用，staging 仅接受 JWT。
+- 管理端只读核验确认自动抽取关闭、关系自动批准为 0；E1 审核库存报告见 `eval/STAGING_REVIEW_INVENTORY_2026-09-08.md`。
 
 尚未完成的是运营、用户与 live 闭环：
 
-1. 管理端状态接口需要有效管理员认证，普通自动抽取上限、审核库存、数据质量和 release baseline 尚未完成只读核验。
-2. 公开审核统计当前为 open 34 / approved 195 / rejected 397；1 个关系 Candidate 与真实内容缺口仍需人工证据判断。
+1. E0 运行时安全核验和 E1 审核库存分级已完成；34 条 open 候选全部不可批准，E2 写入批次等待用户明确授权。
+2. 34 条中 33 条原文锚点无效、1 条缺实体绑定；可能更新、冲突和高风险是可重叠标记，不改变其“确定性无效”主通道。
 3. staging 登录态实时研究、分享发布和移动端完整用户任务仍需真实测试账号验收。
 4. `staging-acceptance.yml` 的 `workflow_run` 自动闭环需在该工作流进入默认分支后验证。
-5. 数据质量仍未证明达到 Live Gate，production 环境与责任体系尚未定义。
+5. Live Gate 当前有 3 个机器阻塞项：demo 模式、SMTP 未配置、数据质量门禁未通过；production 环境与责任体系尚未定义。
 
 ## 9. 下一阶段执行顺序
 
 下面只保留可直接派发的执行节点。Node 1、Node 2 已完成，不再重复执行。
 
-| 节点                | 前置条件                                   | 立即动作                                                                | 验收输出                                     | 停止条件                                            |
-| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------- |
-| E0 运行时安全核验   | 有效 staging 管理员认证                    | 只读调用 integrations、review inventory、data quality、release baseline | 保存脱敏后的开关、库存与门禁摘要             | 任一写操作或需要新模型调用时停止并重新授权          |
-| E1 审核库存分级     | E0 完成；仍不授权写入                      | 将 34 个 open 项及关系 Candidate 按证据充分、重复、冲突、缺证分组       | 每项 ID、版本、Evidence anchor、建议终态     | 无可靠 Evidence 时保持 open，不凑数量               |
-| E2 有限审核批次     | 用户明确授权具体 ID 与动作                 | 使用 expectedVersion 和幂等键逐条批准、合并、替代或拒绝                 | 操作前后计数、审计记录、重新生成质量报告     | 版本冲突、证据变化或超出授权 ID 立即停止            |
-| E3 staging 用户验收 | 有效测试账号；E0 可并行                    | 完成桌面与 390px 的实时研究、Evidence 定位、Compare、分享恢复           | 5–10 条任务记录、截图、控制台与失败恢复结果  | 登录/权限或事实链路失败则回到代码修复               |
-| E4 默认分支自动闭环 | 变更获准进入默认分支                       | 验证 Staging acceptance 自动触发并匹配双端完整 SHA                      | 一次自动 release gate + smoke 绿色运行       | workflow_run 未触发时先修流程，不手工宣称自动化完成 |
-| E5 Live Gate        | E0–E4 完成且 data quality `liveReady=true` | 执行 production-readiness 与外部人工检查                                | 机器门禁响应、人工签字、回滚提交             | 任一阻塞项存在则保持 demo/staging                   |
-| E6 正式发布决策     | E5 通过；production 责任表完成             | 用户明确选择保持 Demo、接受 staging 或进入 live                         | 发布窗口、负责人、监控、备份、回滚和最终验收 | 未明确授权不得切换 live 或生产写入                  |
+| 节点                | 前置条件                                   | 立即动作                                                      | 验收输出                                     | 停止条件                                            |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------- |
+| E0 运行时安全核验   | 已完成                                     | 保持自动抽取关闭并持续只读核验                                | Secret Scanning、开关、库存与门禁摘要        | 任一写操作或需要新模型调用时停止并重新授权          |
+| E1 审核库存分级     | 已完成                                     | 维持 34 条 open，使用已固化盘点报告                           | 34 个 ID、Evidence 缺口、建议终态            | 无可靠 Evidence 时保持 open，不凑数量               |
+| E2 有限审核批次     | 用户明确授权具体 ID 与动作                 | 使用 expectedVersion 和幂等键逐条批准、合并、替代或拒绝       | 操作前后计数、审计记录、重新生成质量报告     | 版本冲突、证据变化或超出授权 ID 立即停止            |
+| E3 staging 用户验收 | 有效测试账号；E0 可并行                    | 完成桌面与 390px 的实时研究、Evidence 定位、Compare、分享恢复 | 5–10 条任务记录、截图、控制台与失败恢复结果  | 登录/权限或事实链路失败则回到代码修复               |
+| E4 默认分支自动闭环 | 变更获准进入默认分支                       | 验证 Staging acceptance 自动触发并匹配双端完整 SHA            | 一次自动 release gate + smoke 绿色运行       | workflow_run 未触发时先修流程，不手工宣称自动化完成 |
+| E5 Live Gate        | E0–E4 完成且 data quality `liveReady=true` | 执行 production-readiness 与外部人工检查                      | 机器门禁响应、人工签字、回滚提交             | 任一阻塞项存在则保持 demo/staging                   |
+| E6 正式发布决策     | E5 通过；production 责任表完成             | 用户明确选择保持 Demo、接受 staging 或进入 live               | 发布窗口、负责人、监控、备份、回滚和最终验收 | 未明确授权不得切换 live 或生产写入                  |
 
 ## 10. 局部 Comp-first 设计范围
 
