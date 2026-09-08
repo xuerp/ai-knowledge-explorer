@@ -40,6 +40,13 @@ test("审核认证成功不会被后续工作区请求伪装成持续登录", ()
   assert.match(apiSource, /timeoutMs = 30_000/);
 });
 
+test("AI 候选抽取的前端超时覆盖后端模型调用窗口", () => {
+  assert.match(
+    apiSource,
+    /\/sources\/\$\{encodeURIComponent\(id\)\}\/extract[\s\S]*?token,\s*90_000,/,
+  );
+});
+
 test("生产预检在基础工作区显示后再加载，避免重复质量评估争抢连接", () => {
   const workspaceStart = apiSource.indexOf("async workspace(token:");
   const workspaceEnd = apiSource.indexOf("\n  decide:", workspaceStart);

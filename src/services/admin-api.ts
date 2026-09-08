@@ -798,6 +798,7 @@ export const adminApi = {
       `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
       { method: "POST", body: JSON.stringify({ maxCandidates, snapshotId }) },
       token,
+      90_000,
     ),
 
   submitCandidate: (token: string, candidate: CandidateCreateRequest) =>
