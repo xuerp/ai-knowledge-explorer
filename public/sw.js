@@ -1,4 +1,4 @@
-const CACHE_NAME = "ai-radar-shell-v3";
+const CACHE_NAME = "ai-radar-shell-v4";
 const APP_SHELL = [
   "/",
   "/knowledge",
@@ -48,6 +48,13 @@ self.addEventListener("fetch", (event) => {
 
   // 管理页依赖当前标签页中的短期 JWT，不应进入离线缓存或回退到旧页面。
   if (url.pathname.startsWith("/admin/")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
+
+  // 构建资源由文件名指纹和浏览器 HTTP 缓存管理。不要把它们长期保存在
+  // Service Worker shell cache 中，否则新部署可能继续执行旧入口或旧路由 chunk。
+  if (url.pathname.startsWith("/assets/")) {
     event.respondWith(fetch(request, { cache: "no-store" }));
     return;
   }
