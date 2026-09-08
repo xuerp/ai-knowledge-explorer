@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-- 更新时间：2026-09-07
+- 更新时间：2026-09-08
 - 性质：项目运行地图，不授予数据写入、模型调用、审核、部署或发布权限
 - 产品方向：以 [`../PRODUCT_ROADMAP.md`](../PRODUCT_ROADMAP.md) 为准
 - 执行顺序与门禁：以 [`PROJECT_COMPLETION_SPEC.md`](PROJECT_COMPLETION_SPEC.md) 为准
@@ -227,7 +227,7 @@ flowchart TD
   Checks -->|否| Stop["停止部署，修复后新提交"]
   Checks -->|是| Render["Render 部署同一 commit"]
   Checks -->|是| Worker["Cloudflare 使用已验证 artifact"]
-  Render --> Match{"/ready 与 /version.txt 均等于完整 SHA"}
+  Render --> Match{"/ready 与 /releases/<sha>.txt 均等于完整 SHA"}
   Worker --> Match
   Match --> Smoke["health、snapshot、frontend、CORS、质量页"]
   Smoke --> UX["桌面、390px、登录/未登录主流程"]
@@ -239,14 +239,14 @@ flowchart TD
 
 ### 6.1 门禁证据
 
-| 阶段       | 必须生成的证据                                                                    | 失败处理                   |
-| ---------- | --------------------------------------------------------------------------------- | -------------------------- |
-| 本地       | `npm run check`、Ruff、pytest、Alembic head/check、`git diff --check`、浏览器记录 | 不提交失败状态             |
-| GitHub     | Frontend/Backend jobs 绿色、固定依赖、种子与评估结果无漂移                        | 不启动 staging deploy      |
-| 部署一致性 | Render `/ready.buildCommit` 与 Cloudflare `/version.txt` 等于预期 40 位 SHA       | 等待或回滚，不接受部分更新 |
-| Smoke      | API ready、公开快照、前端、CORS、质量指标可读                                     | 保持旧版本或回滚           |
-| 用户流程   | 发现 → 实体 → 决策 → Evidence；登录研究 → 发布 → 分享                             | 修复后重新走同一提交验收   |
-| Live Gate  | 自动阻塞项为 0、`liveReady=true`、外部检查完成、责任人明确                        | 保持 `demo`                |
+| 阶段       | 必须生成的证据                                                                     | 失败处理                   |
+| ---------- | ---------------------------------------------------------------------------------- | -------------------------- |
+| 本地       | `npm run check`、Ruff、pytest、Alembic head/check、`git diff --check`、浏览器记录  | 不提交失败状态             |
+| GitHub     | Frontend/Backend jobs 绿色、固定依赖、种子与评估结果无漂移                         | 不启动 staging deploy      |
+| 部署一致性 | Render `/ready.buildCommit` 与 Cloudflare `/releases/<sha>.txt` 等于预期 40 位 SHA | 等待或回滚，不接受部分更新 |
+| Smoke      | API ready、公开快照、前端、CORS、质量指标可读                                      | 保持旧版本或回滚           |
+| 用户流程   | 发现 → 实体 → 决策 → Evidence；登录研究 → 发布 → 分享                              | 修复后重新走同一提交验收   |
+| Live Gate  | 自动阻塞项为 0、`liveReady=true`、外部检查完成、责任人明确                         | 保持 `demo`                |
 
 ### 6.2 环境边界
 
@@ -272,7 +272,7 @@ flowchart TD
 
 ## 8. 当前落地状态
 
-截至 2026-09-07，工程与 staging 主链已经具备：
+截至 2026-09-08，工程与 staging 主链已经具备：
 
 - 三入口信息架构、单一模型时间线、三种阅读模式和上下文决策入口。
 - 结构化决策输入、证据绑定输出、冲突/证据不足拒答、研究恢复与分享脱敏。
@@ -280,8 +280,8 @@ flowchart TD
 - 前后端 CI 分离、固定 Wrangler、检查通过后部署和双端 commit 等待逻辑。
 - 本地前端完整门禁、后端 199 项测试和 SQLite 空库迁移验证。
 - 桌面与 390px 决策助手浏览器验收、Evidence 锚点和无控制台错误记录。
-- GitHub Quality #256 全绿，frontend、backend 与 deploy-staging 均通过。
-- Render `/ready` 与 Cloudflare `/version.txt` 均运行完整提交 `dcd4329ac9b8e55aa6cbee1662152b1f04c063f3`。
+- GitHub Quality #258 全绿，frontend、backend 与 deploy-staging 均通过。
+- Render `/ready` 与 Cloudflare 不可变 `/releases/<sha>.txt` 均运行完整提交 `cc3974df0cc7d01d94a2016684a2307a4499de40`。
 - staging smoke 已验证 API 健康、公开快照、前端 HTTP 200 与同域 CORS；当前数据模式仍为 `demo`。
 
 尚未完成的是运营、用户与 live 闭环：

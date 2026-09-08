@@ -22,6 +22,7 @@
     "verify:cloudflare:staging": "node scripts/verify-staging-build.mjs",
     "verify:staging-release": "node scripts/wait-staging-release.mjs",
     "smoke:staging": "node scripts/smoke-staging.mjs",
+    "audit:staging:readonly": "node scripts/audit-staging-readonly.mjs",
     "export:demo-snapshot": "node scripts/export-demo-snapshot.mjs",
     "report:core-models": "node scripts/report-core-model-coverage.mjs --write",
     "check:core-models": "node scripts/report-core-model-coverage.mjs --check"

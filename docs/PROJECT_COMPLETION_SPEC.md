@@ -3,10 +3,10 @@
 ## 文档状态
 
 - 状态：当前唯一项目收尾执行清单
-- 更新时间：2026-09-07
+- 更新时间：2026-09-08
 - 工作分支：`codex/productionize`
-- 最近完成 staging 验收的后端提交：`dcd4329ac9b8e55aa6cbee1662152b1f04c063f3`
-- 最近完成 staging 验收的前端提交：`dcd4329ac9b8e55aa6cbee1662152b1f04c063f3`
+- 最近完成 staging 验收的后端提交：`cc3974df0cc7d01d94a2016684a2307a4499de40`
+- 最近完成 staging 验收的前端提交：`cc3974df0cc7d01d94a2016684a2307a4499de40`
 - 数据模式：`demo`
 - 适用环境：staging；当前没有已验收的正式 production 环境
 
@@ -31,10 +31,10 @@
 
 | 项目           | 当前事实                                                                   |
 | -------------- | -------------------------------------------------------------------------- |
-| 验收 Git 基线  | `dcd4329`                                                                  |
-| GitHub Quality | #256 全绿；frontend、backend、deploy-staging 均通过                        |
-| Render         | `/ready` 返回 200，commit `dcd4329`，schema `20260905_0023`                |
-| Cloudflare     | `/version.txt` 返回完整 commit `dcd4329`，与后端一致                       |
+| 验收 Git 基线  | `cc3974d`                                                                  |
+| GitHub Quality | #258 全绿；frontend、backend、deploy-staging 均通过                        |
+| Render         | `/ready` 返回 200，commit `cc3974d`，schema `20260905_0023`                |
+| Cloudflare     | 不可变 `/releases/<sha>.txt` 返回完整 commit `cc3974d`，与后端一致         |
 | 数据           | 49 Entity / 198 Claim / 220 Evidence / 77 Relation / 55 Timeline           |
 | 数据质量       | Evidence 引用覆盖率 100%，核心关系缺口 42                                  |
 | 核心实体       | 16 个低于当前关系覆盖门槛                                                  |
@@ -58,7 +58,7 @@
 
 1. `admin_token.txt` 是已于 2026-09-02 失效的短期访问令牌，本地 tip 已删除并加入忽略规则；远端 tip 仍需通过正常提交清理，历史改写不在本轮授权范围内。
 2. Blueprint 已部署，但 `/api/v2/admin/integrations` 需要有效管理员认证；运行时普通自动抽取上限尚待授权后只读核验。
-3. GitHub Quality #256、Cloudflare staging、Render staging 和 smoke 已在提交 `dcd4329` 上通过。
+3. GitHub Quality #258、Cloudflare staging、Render staging 和 smoke 已在提交 `cc3974d` 上通过。
 4. `staging-acceptance.yml` 只有进入默认分支后才会稳定接收 `workflow_run`；当前分支已用同等人工命令完成验收，但自动闭环仍待合并后验证。
 5. 登录态实时研究、发布分享和完整 staging 用户流程仍需使用有效测试账号做浏览器验收。
 6. 管理端数据质量、审核库存和 release baseline 均返回 401；Node 3/5 需要有效管理员认证后才能继续只读核验。
@@ -86,7 +86,7 @@
 | ------ | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- |
 | Node 0 | 安全收口与停止未授权抽取      | 部分完成；运行时开关核验需要管理员认证         | 旧凭证失效证明、tip 清理、运行时开关响应       |
 | Node 1 | 固化当前代码与 UI 基线        | 已完成；产品闭环提交及后续 CI 修复均已推送     | 完整本地门禁、桌面与真实 390px 验收、有限 diff |
-| Node 2 | 让 CI 和 staging 运行同一提交 | 已完成；Quality #256、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
+| Node 2 | 让 CI 和 staging 运行同一提交 | 已完成；Quality #258、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
 | Node 3 | 收口开放审核和关系候选        | 可执行只读预检；管理端明细需要管理员认证       | 逐条决定记录、操作前后计数、质量报告           |
 | Node 4 | 交付完整产品闭环              | 本地已完成；待 staging 登录态真实浏览器验收    | 页面级验收、交互测试、引用链路和任务测试       |
 | Node 5 | 判断是否具备 live 条件        | 阻塞                                           | 机器门禁响应和外部人工检查记录                 |
@@ -120,6 +120,16 @@ git ls-files admin_token.txt
 将 `render.yaml` 的 `AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE` 恢复为 `0`，保留 `AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS=false`。
 
 验收：部署后的 `/api/v2/admin/integrations` 显示 `automaticExtractionEnabled=false`，关系批次状态仍保持 complete，未产生新模型调用。
+
+推荐使用统一的只读审计命令。凭据只通过进程环境传入，输出不会回显令牌；命令内部只允许 HTTPS，并且只发送 allowlist 内的 `GET` 请求：
+
+```powershell
+$env:AI_RADAR_STAGING_BEARER_TOKEN='<short-lived-admin-jwt>'
+npm run audit:staging:readonly
+Remove-Item Env:AI_RADAR_STAGING_BEARER_TOKEN
+```
+
+也可通过 `AI_RADAR_STAGING_ADMIN_TOKEN` 使用已轮换的 legacy token。不要把任一凭据写入 `.env`、命令输出、文档或提交；缺少凭据时命令默认拒绝执行。
 
 ### Node 1：代码与 UI 稳定化
 
@@ -163,13 +173,13 @@ git diff --check
 2. 独立 staging deploy job 必须 `needs` 两个检查 job。
 3. Wrangler 固定在项目依赖中，不使用会漂移的远程最新版本。
 4. Render 不得在 Quality 失败时自动部署失败提交。
-5. 部署后运行 `smoke:staging`，并比较 GitHub、Render `/ready`、Cloudflare `/version.txt` 的完整 commit。
+5. 部署后运行 `smoke:staging`，并比较 GitHub、Render `/ready`、Cloudflare `/releases/<sha>.txt` 的完整 commit。
 
 验收命令：
 
 ```powershell
 Invoke-RestMethod https://ai-radar-api-staging.onrender.com/ready
-Invoke-WebRequest https://ai-radar-staging.1966761779.workers.dev/version.txt
+Invoke-WebRequest https://ai-radar-staging.1966761779.workers.dev/releases/<full-sha>.txt
 npm run smoke:staging
 ```
 
@@ -178,6 +188,8 @@ npm run smoke:staging
 ### Node 3：审核与关系批次收口
 
 本节点默认只读，不调用模型，不自动批准。
+
+执行入口：`npm run audit:staging:readonly`。该命令一次性读取构建、抽取开关、关系批次、审核统计、审核库存、数据质量与 release baseline，并输出脱敏聚合报告；它不会读取审核正文，也不会调用任何写接口。
 
 只读接口：
 
@@ -194,7 +206,7 @@ GET /api/v2/admin/release-baseline
 
 - 对本批产生的 1 个 Candidate 逐条核验原文锚点、实体、predicate、重复和冲突。
 - 关系不足不是批准理由；没有真实 Evidence 就保留缺口。
-- 32 个开放项按风险和确定性分类处理，不设置“必须低于 20”之类的真实性无关指标。
+- 34 个开放项按风险和确定性分类处理，不设置“必须低于 20”之类的真实性无关指标。
 - 每次批准、合并、替代或拒绝都使用当前 `expectedVersion`；生命周期操作同时使用目标 Claim 版本与幂等键。
 
 任何写操作都必须获得当次明确授权。正确接口为：
