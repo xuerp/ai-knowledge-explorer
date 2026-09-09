@@ -164,6 +164,9 @@ class KnowledgeQualityGate:
         ]
         if len(matches) == 1:
             return matches[0], "resolved"
+        referenced_entity_id = resolve_claim_entity_reference(candidate.claim, entities)
+        if referenced_entity_id:
+            return referenced_entity_id, "resolved"
         return None, "ambiguous" if matches else "unresolved"
 
     def assess(
