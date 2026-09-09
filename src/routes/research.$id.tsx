@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,11 @@ function ResearchRecordPage() {
           />
           <div className="mx-auto max-w-3xl px-4 pb-10 text-center">
             <Button asChild>
-              <Link to="/account">{t("前往登录", "Go to sign in")}</Link>
+              <a
+                href={`/account?returnTo=${encodeURIComponent(`/research/${encodeURIComponent(id)}`)}`}
+              >
+                {t("重新登录并返回此记录", "Sign in and return to this record")}
+              </a>
             </Button>
           </div>
         </AppShell>

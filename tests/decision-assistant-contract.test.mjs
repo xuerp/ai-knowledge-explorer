@@ -53,7 +53,8 @@ test("expired sessions clear auth and resume the complete decision form after lo
   assert.match(userApi, /throw new AuthSessionExpiredError\(\)/);
   assert.match(askRoute, /authSessionExpiredEvent/);
   assert.match(askRoute, /重新登录并继续/);
-  assert.match(accountRoute, /destination\.pathname !== "\/ask"/);
+  assert.match(accountRoute, /destination\.pathname === "\/ask"/);
+  assert.match(accountRoute, /research/);
   assert.match(accountRoute, /window\.location\.assign\(returnTo\)/);
   for (const field of [
     "task",
@@ -68,4 +69,10 @@ test("expired sessions clear auth and resume the complete decision form after lo
   ]) {
     assert.match(askRoute, new RegExp(field));
   }
+});
+
+test("private research login returns to the same record after session expiry", () => {
+  assert.match(privateRecord, /returnTo/);
+  assert.match(privateRecord, /重新登录并返回此记录/);
+  assert.match(privateRecord, /encodeURIComponent\(id\)/);
 });
