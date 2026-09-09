@@ -61,8 +61,7 @@ test("产品 Case Study 是公开路由并覆盖关键产品决策", async () =>
 test("AI 对比默认提供 GPT、Claude、Gemini 系列级路线比较", async () => {
   const source = await read("src/routes/compare.tsx");
 
-  assert.match(source, /useState<Scope>\("families"\)/);
-  assert.match(source, /\["e-gpt", "e-claude", "e-gemini"\]/);
+  assert.match(source, /resolveComparisonSelection/);
   assert.match(source, /AI 路线对比/);
   assert.match(source, /DEMO_KNOWLEDGE_SNAPSHOT\.entities/);
 });

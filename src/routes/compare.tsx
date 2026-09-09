@@ -5,6 +5,7 @@ import { PageHeader, DemoBadge, ConfidenceChip } from "@/components/common";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import { useApp, pick } from "@/lib/app-state";
 import { useModelCatalog, useModelVersionComparison } from "@/hooks/use-knowledge";
+import { resolveComparisonSelection, type ComparisonScope } from "@/lib/comparison-selection";
 
 export const Route = createFileRoute("/compare")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -21,22 +22,16 @@ export const Route = createFileRoute("/compare")({
   component: ComparePage,
 });
 
-type Scope = "versions" | "families";
-
 function ComparePage() {
   const { t, lang } = useApp();
   const { models: modelSearch } = Route.useSearch();
   const catalogQuery = useModelCatalog();
-  const [scope, setScope] = useState<Scope>("families");
-  const [selected, setSelected] = useState<string[]>(() =>
-    modelSearch
-      ? modelSearch
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean)
-          .slice(0, 4)
-      : ["e-gpt", "e-claude", "e-gemini"],
+  const initialSelection = resolveComparisonSelection(
+    modelSearch,
+    DEMO_KNOWLEDGE_SNAPSHOT.entities.filter((entity) => entity.type === "model"),
   );
+  const [scope, setScope] = useState<ComparisonScope>(initialSelection.scope);
+  const [selected, setSelected] = useState<string[]>(initialSelection.selected);
   const allModels =
     catalogQuery.data ??
     DEMO_KNOWLEDGE_SNAPSHOT.entities.filter((entity) => entity.type === "model");
@@ -49,7 +44,7 @@ function ComparePage() {
       ? (comparisonQuery.data ?? models.filter((model) => selected.includes(model.id)))
       : models.filter((model) => selected.includes(model.id));
 
-  const changeScope = (next: Scope) => {
+  const changeScope = (next: ComparisonScope) => {
     setScope(next);
     setSelected(
       next === "versions" ? ["e-gpt-5", "e-claude-45"] : ["e-gpt", "e-claude", "e-gemini"],
