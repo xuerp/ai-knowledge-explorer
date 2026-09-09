@@ -62,3 +62,10 @@ test("知识库 SSR 直连上游且浏览器保留同域代理", async () => {
   assert.match(source, /VITE_API_UPSTREAM_URL/);
   assert.match(source, /VITE_API_BASE_URL/);
 });
+
+test("账户与私密研究 SSR 识别上游且浏览器保留同域代理", async () => {
+  const source = await readFile("src/services/user-api.ts", "utf8");
+  assert.match(source, /import\.meta\.env\.SSR/);
+  assert.match(source, /VITE_API_UPSTREAM_URL/);
+  assert.match(source, /VITE_API_BASE_URL/);
+});

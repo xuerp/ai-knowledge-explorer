@@ -1,7 +1,10 @@
 import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
+const apiBaseUrl =
+  (import.meta.env.SSR ? import.meta.env.VITE_API_UPSTREAM_URL : import.meta.env.VITE_API_BASE_URL)
+    ?.trim()
+    ?.replace(/\/$/, "") ?? "";
 
 export interface SessionUser {
   id: string;
