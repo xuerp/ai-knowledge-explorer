@@ -122,6 +122,25 @@ def test_safe_fetcher_follows_allowlisted_canonical_redirect():
     assert "canonical official architecture" in document.content
 
 
+def test_safe_fetcher_treats_304_as_not_modified_instead_of_redirect():
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["if-none-match"] == '"v1"'
+        return httpx.Response(304, headers={"etag": '"v1"'})
+
+    fetcher = SafeHttpFetcher(
+        ("example.com",),
+        10_000,
+        resolver=lambda _: ("8.8.8.8",),
+        transport=httpx.MockTransport(handler),
+    )
+
+    document = fetcher.fetch("https://docs.example.com/release", etag='"v1"')
+
+    assert document.not_modified is True
+    assert document.etag == '"v1"'
+    assert document.final_url == "https://docs.example.com/release"
+
+
 def test_safe_fetcher_rejects_redirect_outside_allowlist():
     fetcher = SafeHttpFetcher(
         ("example.com",),
