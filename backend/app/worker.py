@@ -201,6 +201,9 @@ def main() -> None:
         max_attempts=settings.email_max_attempts,
         retry_base_seconds=settings.email_retry_base_seconds,
         lease_seconds=settings.email_lease_seconds,
+        provider=settings.email_provider,
+        api_key=settings.email_api_key,
+        api_url=settings.email_api_url,
     )
     operations = OperationsService(
         settings.worker_stale_seconds,

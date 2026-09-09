@@ -1578,6 +1578,8 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,
+        "emailDeliveryProvider": "smtp",
+        "emailDeliveryEndpointHost": None,
         "fetchAllowedHosts": ["example.com"],
         "registeredSources": 35,
         "automaticSources": 0,

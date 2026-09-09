@@ -105,13 +105,22 @@ worker 会按照 `AI_RADAR_DIGEST_TIMEZONE`（默认 `Asia/Shanghai`）和每个
 POST /api/v2/admin/digests/run
 ```
 
-该操作会在 `email_outbox` 中生成可审计记录。配置 `backend/.env.example` 中的 SMTP 变量后，worker 会自动投递；也可以通过以下接口手动投递：
+该操作会在 `email_outbox` 中生成可审计记录。托管环境优先使用 HTTPS 邮件 API：
+
+```dotenv
+AI_RADAR_EMAIL_PROVIDER=resend
+AI_RADAR_EMAIL_API_KEY=在部署平台 Secret 中配置
+AI_RADAR_EMAIL_API_URL=https://api.resend.com/emails
+AI_RADAR_SMTP_FROM=AI Radar <radar@your-domain.example>
+```
+
+`AI_RADAR_SMTP_FROM` 是两种投递渠道共用的发件人字段。传统 SMTP 仍可作为回退；不要同时在仓库、前端变量或日志中保存邮件密钥。配置完成后 worker 会自动投递，也可以通过以下接口手动投递：
 
 ```text
 POST /api/v2/admin/email-outbox/send
 ```
 
-SMTP 未配置时，投递接口返回 `503`，邮件仍会安全保留在 Outbox 中。
+所选邮件渠道未完整配置时，投递接口返回 `503`，邮件仍会安全保留在 Outbox 中。
 
 采集和邮件投递都使用有上限的指数退避。采集默认从 15 分钟开始重试，成功后清零连续失败；HTTP 401/403、不安全跳转、白名单错误或不支持内容等永久性错误连续 3 次后会自动熔断，不再无限重试。管理员更换抓取入口或明确重新排队后会解除熔断。邮件默认最多自动尝试 5 次，达到上限后进入终态失败。管理员可以只重新排队明确的失败目标：
 
@@ -122,7 +131,7 @@ POST /api/v2/admin/email-outbox/{outbox_id}/retry
 
 审核后台会自动提交当前看到的失败次数作为并发版本。若目标已经变化、正在处理或被其他管理员先操作，接口返回 `409`，刷新状态后再决定是否重试。采集和邮件投递均通过短时持久租约领取目标，异常退出后会在租约过期时自动恢复。
 
-SMTP 协议只能保证“至少一次”投递。若远端已经接受邮件，但进程在本地提交 `sent` 状态前异常退出，仍可能出现重复邮件；因此摘要内容不应承担支付、授权等不可重复副作用。
+邮件投递只能保证“至少一次”语义。HTTPS 渠道会使用基于 Outbox ID 的幂等键降低重复风险，但若供应商已接受邮件、进程却未能提交本地 `sent` 状态，仍需按供应商保留期核验；因此摘要内容不应承担支付、授权等不可重复副作用。
 
 ## 6. 运行诊断与故障恢复
 
@@ -149,7 +158,7 @@ docker compose --env-file .env.production exec -T api python -m alembic current 
 GET /api/v2/admin/production-readiness
 ```
 
-自动预检覆盖运行环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、SMTP、采集白名单、自动信源、数据质量和 worker 心跳。接口会给出明确阻塞项与下一步，但不会读取或返回任何密钥。公网域名与 HTTPS、备份恢复、外部监控、供应商额度属于外部事实，始终保留为人工确认项，不能仅凭服务自身状态自动宣称完成。
+自动预检覆盖运行环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、邮件投递、采集白名单、自动信源、数据质量和 worker 心跳。接口会给出明确阻塞项与下一步，但不会读取或返回任何密钥。公网域名与 HTTPS、备份恢复、外部监控、供应商额度属于外部事实，始终保留为人工确认项，不能仅凭服务自身状态自动宣称完成。
 
 AI 抽取供应商完成配置后，可在审核后台“外部集成状态”点击“验证连接与结构化输出”。预检只发送一个要求返回空事实数组的小请求，用于验证 API 地址、鉴权、额度以及 JSON Schema 支持；它不会读取或返回密钥，不会生成审核候选，也不会修改公开数据。失败结果会区分鉴权、地址、限流、结构化输出不兼容、网络连接和响应格式问题。
 

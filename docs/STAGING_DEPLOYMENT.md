@@ -54,7 +54,7 @@ Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤�
 
 Embedding staging 配置由 Blueprint 固定为 `AI_RADAR_RETRIEVAL_MODE=hybrid`、Cloudflare `@cf/baai/bge-m3`、每日最多 1,000 Neurons 与 1,000 次请求。首次查询会为约 200 个 Claim 建立持久向量，后续只补齐内容哈希变化的记录；凭证缺失、预算超限、远端错误或维度异常都会返回 lexical 结果并记录降级原因。Cloudflare 账户必须保持 Free Plan，不能为本项目启用自动付费升级。
 
-AI 抽取和 SMTP 暂不放入 Blueprint。Render 免费实例阻止常用 SMTP 端口，真实邮件投递应改用 HTTPS 邮件 API 或在后续付费环境中配置。任何密钥都不得提交到 `render.yaml`、`.env.production.example` 或 `VITE_` 变量。
+AI 抽取仍由部署平台 Secret 管理。邮件投递使用 Blueprint 中固定的 Resend HTTPS 端点，并要求在 Render 中单独填写 `AI_RADAR_EMAIL_API_KEY` 与已验证发件人 `AI_RADAR_SMTP_FROM`；这避免托管环境的 SMTP 端口限制。任何密钥都不得提交到 `render.yaml`、`.env.production.example` 或 `VITE_` 变量。
 
 ## 4. 部署 Cloudflare 预览前端
 
