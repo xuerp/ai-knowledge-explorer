@@ -56,6 +56,10 @@ envVarGroups:
         value: openai.com,developers.openai.com,anthropic.com,platform.claude.com,deepmind.google,ai.google.dev,cursor.com,docs.cursor.com,docs.langchain.com,ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org,raw.githubusercontent.com,microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im
       - key: AI_RADAR_EMAIL_MAX_ATTEMPTS
         value: "5"
+      - key: AI_RADAR_EMAIL_PROVIDER
+        value: resend
+      - key: AI_RADAR_EMAIL_API_URL
+        value: https://api.resend.com/emails
       - key: AI_RADAR_EMAIL_RETRY_BASE_SECONDS
         value: "300"
       - key: AI_RADAR_EMAIL_LEASE_SECONDS
@@ -95,6 +99,10 @@ services:
       - key: AI_RADAR_ADMIN_TOKEN
         sync: false
       - key: AI_RADAR_AUTOMATION_TOKEN
+        sync: false
+      - key: AI_RADAR_EMAIL_API_KEY
+        sync: false
+      - key: AI_RADAR_SMTP_FROM
         sync: false
       - key: CLOUDFLARE_ACCOUNT_ID
         sync: false

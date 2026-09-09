@@ -364,6 +364,8 @@ export interface IntegrationStatus {
   smtpConfigured: boolean;
   smtpHost?: string;
   smtpFrom?: string;
+  emailDeliveryProvider: "smtp" | "resend";
+  emailDeliveryEndpointHost?: string;
   fetchAllowedHosts: string[];
   registeredSources: number;
   automaticSources: number;

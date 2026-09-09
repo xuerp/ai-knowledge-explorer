@@ -1,3 +1,4 @@
+import json
 import smtplib
 from datetime import UTC, datetime, timedelta
 from email.message import EmailMessage
@@ -85,6 +86,60 @@ def test_email_outbox_delivery_marks_rows_sent(tmp_path: Path):
         assert fake_instances[0].messages[0]["Message-ID"] == (
             "<ai-radar-outbox-email@example.com>"
         )
+    database.dispose()
+
+
+def test_https_email_delivery_uses_idempotency_key_and_marks_row_sent(tmp_path: Path):
+    database = Database(f"sqlite:///{(tmp_path / 'email-api.db').as_posix()}")
+    database.create_all()
+    requests: list[tuple[str, dict[str, object], dict[str, str], float]] = []
+
+    def sender(url: str, payload: bytes, headers: dict[str, str], timeout: float) -> None:
+        requests.append((url, json.loads(payload), headers, timeout))
+
+    with database.session() as session:
+        session.add(
+            UserRecord(
+                id="api-user",
+                email="reader@example.com",
+                password_hash="unused",
+                role="viewer",
+                active=True,
+                created_at=datetime.now(UTC),
+            )
+        )
+        session.add(
+            EmailOutboxRecord(
+                id="api-outbox",
+                user_id="api-user",
+                to_email="reader@example.com",
+                subject="AI Radar digest",
+                body_text="- One verified update",
+                status="queued",
+                created_at=datetime.now(UTC),
+            )
+        )
+        session.commit()
+        service = EmailDeliveryService(
+            None,
+            587,
+            None,
+            None,
+            "AI Radar <radar@example.com>",
+            True,
+            provider="resend",
+            api_key="test-key",
+            https_sender=sender,
+        )
+
+        result = service.send_queued(session)
+
+        assert result.model_dump() == {"attempted": 1, "sent": 1, "failed": 0}
+        assert session.get(EmailOutboxRecord, "api-outbox").status == "sent"
+        assert requests[0][0] == "https://api.resend.com/emails"
+        assert requests[0][1]["to"] == ["reader@example.com"]
+        assert requests[0][2]["Authorization"] == "Bearer test-key"
+        assert requests[0][2]["Idempotency-Key"] == "ai-radar-api-outbox"
     database.dispose()
 
 
