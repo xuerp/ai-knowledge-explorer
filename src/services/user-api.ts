@@ -1,3 +1,4 @@
+import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
@@ -115,6 +116,13 @@ export interface PublishedResearch extends ResearchResult {
   citations: NonNullable<ResearchResult["citations"]>;
 }
 
+export class AuthSessionExpiredError extends Error {
+  constructor() {
+    super("Your session has expired. Sign in and try again.");
+    this.name = "AuthSessionExpiredError";
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   if (!apiBaseUrl) throw new Error("VITE_API_BASE_URL is not configured.");
   const response = await fetchWithNetworkRetry(`${apiBaseUrl}${path}`, {
@@ -127,6 +135,9 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     },
   });
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      expireAuthSession();
+    }
     const body = (await response.json().catch(() => null)) as {
       detail?: string | Array<{ loc?: Array<string | number>; msg?: string }>;
     } | null;
@@ -135,14 +146,15 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
           .map((item) => `${item.loc?.slice(1).join(".") || "input"}: ${item.msg || "invalid"}`)
           .join("; ")
       : body?.detail;
+    if (response.status === 401) {
+      throw new AuthSessionExpiredError();
+    }
     const fallback =
-      response.status === 401
-        ? "Your session has expired. Sign in and try again."
-        : response.status === 429
-          ? "Too many requests. Wait briefly and try again."
-          : response.status >= 500
-            ? "The research service is temporarily unavailable. Your inputs were preserved; try again."
-            : `Request failed (${response.status}).`;
+      response.status === 429
+        ? "Too many requests. Wait briefly and try again."
+        : response.status >= 500
+          ? "The research service is temporarily unavailable. Your inputs were preserved; try again."
+          : `Request failed (${response.status}).`;
     throw new Error(detail || fallback);
   }
   if (response.status === 204) return undefined as T;

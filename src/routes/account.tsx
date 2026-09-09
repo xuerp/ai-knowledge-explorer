@@ -69,6 +69,11 @@ function AccountPage() {
       writeAuthToken(response.accessToken);
       setToken(response.accessToken);
       await refresh(response.accessToken);
+      const returnTo = safeReturnTo(
+        new URLSearchParams(window.location.search).get("returnTo"),
+        window.location.origin,
+      );
+      if (returnTo) window.location.assign(returnTo);
     });
   };
 
@@ -289,6 +294,17 @@ function AccountPage() {
       </main>
     </AppShell>
   );
+}
+
+function safeReturnTo(value: string | null, origin: string) {
+  if (!value) return "";
+  try {
+    const destination = new URL(value, origin);
+    if (destination.origin !== origin || destination.pathname !== "/ask") return "";
+    return `${destination.pathname}${destination.search}${destination.hash}`;
+  } catch {
+    return "";
+  }
 }
 
 function Notice({ text, destructive = false }: { text: string; destructive?: boolean }) {

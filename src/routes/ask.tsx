@@ -19,8 +19,13 @@ import { Button } from "@/components/ui/button";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { Evidence, LocalizedText, ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { readAuthToken } from "@/services/auth-session";
-import { userApi, type DecisionContext, type ResearchResult } from "@/services/user-api";
+import { authSessionExpiredEvent, readAuthToken } from "@/services/auth-session";
+import {
+  AuthSessionExpiredError,
+  userApi,
+  type DecisionContext,
+  type ResearchResult,
+} from "@/services/user-api";
 import { DecisionBrief } from "@/components/research/DecisionBrief";
 
 export const Route = createFileRoute("/ask")({
@@ -54,7 +59,7 @@ function AskPage() {
   const researchQuestions = snapshot.researchQuestions;
   const showcaseAnswers = snapshot.researchAnswers;
   const initialQuestion = researchQuestions[0] ? pick(researchQuestions[0], lang) : "";
-  const token = readAuthToken();
+  const [token, setToken] = useState(() => readAuthToken());
   const [task, setTask] = useState(initialQuestion);
   const [priority, setPriority] = useState<DecisionContext["priority"]>("balanced");
   const [budgetMode, setBudgetMode] = useState<DecisionContext["budget"]["mode"]>("unknown");
@@ -68,6 +73,7 @@ function AskPage() {
     !token && showcaseAnswers[0] ? toShowcaseResearch(showcaseAnswers[0], lang) : null,
   );
   const [error, setError] = useState("");
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [busy, setBusy] = useState(false);
   const questionHydrated = useRef(Boolean(initialQuestion));
   const submissionInFlight = useRef(false);
@@ -79,9 +85,25 @@ function AskPage() {
   }, [lang, researchQuestions]);
 
   useEffect(() => {
+    const handleSessionExpired = () => setToken("");
+    window.addEventListener(authSessionExpiredEvent, handleSessionExpired);
+    return () => window.removeEventListener(authSessionExpiredEvent, handleSessionExpired);
+  }, []);
+
+  useEffect(() => {
     const sharedSearch = new URLSearchParams(window.location.search);
     const sharedTask = sharedSearch.get("task")?.trim();
     if (sharedTask) setTask(sharedTask);
+    const sharedPriority = sharedSearch.get("priority");
+    if (isDecisionPriority(sharedPriority)) setPriority(sharedPriority);
+    const sharedBudgetMode = sharedSearch.get("budget");
+    if (isBudgetMode(sharedBudgetMode)) setBudgetMode(sharedBudgetMode);
+    setBudgetMinimum(sharedSearch.get("budgetMin") ?? "");
+    setBudgetMaximum(sharedSearch.get("budgetMax") ?? "");
+    const sharedDeployment = sharedSearch.get("deployment");
+    if (isDeployment(sharedDeployment)) setDeployment(sharedDeployment);
+    setExclusions(sharedSearch.get("exclusions") ?? "");
+    setNotes(sharedSearch.get("notes") ?? "");
     setCandidateEntityIds(
       (sharedSearch.get("candidates") ?? "")
         .split(",")
@@ -188,11 +210,21 @@ function AskPage() {
     submissionInFlight.current = true;
     setBusy(true);
     setError("");
+    setSessionExpired(false);
     try {
       setResearch(await userApi.research(token, { question, language: lang, decisionContext }));
     } catch (reason) {
+      const expired = reason instanceof AuthSessionExpiredError;
+      setSessionExpired(expired);
       setError(
-        reason instanceof Error ? reason.message : t("研究请求失败。", "Research request failed."),
+        expired
+          ? t(
+              "登录已过期，请重新登录后继续。当前输入会保留。",
+              "Your session expired. Sign in to continue; your inputs will be preserved.",
+            )
+          : reason instanceof Error
+            ? reason.message
+            : t("研究请求失败。", "Research request failed."),
       );
     } finally {
       submissionInFlight.current = false;
@@ -374,6 +406,26 @@ function AskPage() {
                 className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
               >
                 {error}
+                {sessionExpired && (
+                  <a
+                    href={`/account?returnTo=${encodeURIComponent(
+                      buildAskResumePath({
+                        task,
+                        priority,
+                        budgetMode,
+                        budgetMinimum,
+                        budgetMaximum,
+                        deployment,
+                        exclusions,
+                        notes,
+                        candidateEntityIds,
+                      }),
+                    )}`}
+                    className="ml-2 font-medium underline"
+                  >
+                    {t("重新登录并继续", "Sign in and continue")}
+                  </a>
+                )}
                 {token && !userApi.configured && (
                   <Link to="/account" className="ml-2 font-medium underline">
                     {t("查看账户状态", "View account status")}
@@ -523,6 +575,43 @@ function AskPage() {
       </div>
     </AppShell>
   );
+}
+
+function buildAskResumePath(input: {
+  task: string;
+  priority: DecisionContext["priority"];
+  budgetMode: DecisionContext["budget"]["mode"];
+  budgetMinimum: string;
+  budgetMaximum: string;
+  deployment: DecisionContext["deployment"];
+  exclusions: string;
+  notes: string;
+  candidateEntityIds: string[];
+}) {
+  const search = new URLSearchParams({
+    task: input.task,
+    priority: input.priority,
+    budget: input.budgetMode,
+    deployment: input.deployment,
+  });
+  if (input.budgetMinimum) search.set("budgetMin", input.budgetMinimum);
+  if (input.budgetMaximum) search.set("budgetMax", input.budgetMaximum);
+  if (input.exclusions) search.set("exclusions", input.exclusions);
+  if (input.notes) search.set("notes", input.notes);
+  if (input.candidateEntityIds.length) search.set("candidates", input.candidateEntityIds.join(","));
+  return `/ask?${search.toString()}`;
+}
+
+function isDecisionPriority(value: string | null): value is DecisionContext["priority"] {
+  return ["quality", "cost", "speed", "privacy", "control", "balanced"].includes(value ?? "");
+}
+
+function isBudgetMode(value: string | null): value is DecisionContext["budget"]["mode"] {
+  return ["cost-first", "range", "unknown"].includes(value ?? "");
+}
+
+function isDeployment(value: string | null): value is DecisionContext["deployment"] {
+  return ["cloud-api", "private", "on-device", "hybrid", "undecided"].includes(value ?? "");
 }
 
 function composeDecisionQuestion(context: DecisionContext, lang: "zh" | "en") {
