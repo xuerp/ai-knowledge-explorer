@@ -19,7 +19,11 @@ from app.database import (
     ReviewJobRecord,
     SourceRecord,
 )
-from app.extraction import ExtractionUnavailableError, StructuredExtractionService
+from app.extraction import (
+    EXTRACTION_PIPELINE_VERSION,
+    ExtractionUnavailableError,
+    StructuredExtractionService,
+)
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
     DATABASE_SCHEMA_REVISION,
@@ -658,7 +662,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-relation-ontology-v8",
+        "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -713,7 +717,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
-        assert integrations["extractionPipelineVersion"] == "2026-08-relation-ontology-v8"
+        assert integrations["extractionPipelineVersion"] == EXTRACTION_PIPELINE_VERSION
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -755,7 +759,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-relation-ontology-v8",
+            "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -1555,7 +1559,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-relation-ontology-v8",
+        "extractionPipelineVersion": EXTRACTION_PIPELINE_VERSION,
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
@@ -2817,6 +2821,87 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
 
     refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
+
+
+def test_repeated_extraction_repairs_missing_entity_link_without_duplicate(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-entity-repair",
+            "url": "https://example.com/entity-repair",
+            "title": "Entity repair source",
+            "publisher": "Example",
+        },
+    )
+    assert created.status_code == 201
+    snapshot = client.post(
+        "/api/v2/admin/sources/source-entity-repair/snapshots",
+        headers=headers,
+        json={"content": "3.5 Transcribe handles live language switches."},
+    )
+    assert snapshot.status_code == 200
+
+    calls = 0
+
+    def extracted_candidate(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        text_en = (
+            "A transcription model handles live language switches."
+            if calls == 1
+            else "Gemini 3.5 Transcribe handles live language switches."
+        )
+        return [
+            CandidateCreate.model_validate(
+                {
+                    "id": "review-entity-repair",
+                    "claim": {
+                        "id": "claim-entity-repair",
+                        "text": {"zh": "转写模型能处理实时语言切换。", "en": text_en},
+                        "confidence": "unverified",
+                        "sourceIds": ["evidence-entity-repair"],
+                        "updatedAt": "2026-09-08",
+                        "subject": "3.5 Transcribe",
+                        "predicate": "capability",
+                        "objectOrValue": "live language switches",
+                    },
+                    "evidence": [
+                        {
+                            "id": "evidence-entity-repair",
+                            "title": {"zh": "官方模型页", "en": "Official model page"},
+                            "url": "https://example.com/entity-repair",
+                            "publisher": "Example",
+                            "publishedAt": "2026-09-08",
+                            "collectedAt": "2026-09-08",
+                            "sourceExcerpt": ("3.5 Transcribe handles live language switches."),
+                            "type": "official",
+                        }
+                    ],
+                }
+            )
+        ]
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", extracted_candidate)
+    endpoint = "/api/v2/admin/sources/source-entity-repair/extract"
+    first = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
+    assert first.status_code == 200
+    assert first.json()[0]["entityId"] is None
+
+    second = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
+    assert second.status_code == 200
+    assert second.json() == []
+    queue = client.get(
+        "/api/v2/admin/review-queue?scope=open&limit=500",
+        headers=headers,
+    ).json()
+    repaired = next(item for item in queue if item["id"] == "review-entity-repair")
+    assert repaired["entityId"] == "e-gemini"
+    assert repaired["version"] == 2
 
 
 def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(

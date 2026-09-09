@@ -54,9 +54,10 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-08-relation-ontology-v8"
+EXTRACTION_PIPELINE_VERSION = "2026-09-grounded-entity-linkage-v9"
 COMPATIBLE_EXTRACTION_PIPELINE_VERSIONS = {
     "2026-08-symmetric-relation-dedup-v7",
+    "2026-08-relation-ontology-v8",
     EXTRACTION_PIPELINE_VERSION,
 }
 
@@ -434,7 +435,9 @@ class StructuredExtractionService:
                         "own, express only one assertion, and differ semantically from the other "
                         "facts. Exclude marketing language, broad summaries, and paraphrase "
                         "duplicates. Preserve source wording for subject and objectOrValue whenever "
-                        "possible so the evidence can be located verbatim."
+                        "possible so the evidence can be located verbatim. Every returned fact must "
+                        "use a subject and objectOrValue that both appear verbatim in one source "
+                        "segment; omit facts that cannot satisfy this evidence-anchor requirement."
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
@@ -476,6 +479,13 @@ class StructuredExtractionService:
         published = (snapshot.published_at or snapshot.observed_at).date().isoformat()
         results: list[CandidateCreate] = []
         for fact in extracted.facts[:max_candidates]:
+            source_excerpt = locate_source_excerpt(
+                snapshot.content_text,
+                fact.subject,
+                fact.object_or_value,
+            )
+            if source_excerpt is None:
+                continue
             digest = hashlib.sha256(
                 f"{snapshot.id}|{fact.subject}|{fact.predicate}|{fact.object_or_value}".encode()
             ).hexdigest()[:20]
@@ -505,11 +515,7 @@ class StructuredExtractionService:
                             publisher=source.publisher,
                             published_at=published,
                             collected_at=observed,
-                            source_excerpt=locate_source_excerpt(
-                                snapshot.content_text,
-                                fact.subject,
-                                fact.object_or_value,
-                            ),
+                            source_excerpt=source_excerpt,
                             type="official",
                             supports_claim_ids=[claim_id],
                         )

@@ -94,6 +94,20 @@ def test_non_overlapping_fact_does_not_conflict():
     assert assessment.queue_status == "pending"
 
 
+def test_quality_gate_resolves_known_entity_mentioned_in_candidate_text():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    incoming = _candidate("live-switches")
+    incoming.claim.subject = "3.5 Transcribe"
+    incoming.claim.object_or_value = "live language switches"
+    incoming.claim.text.zh = "Gemini 3.5 Transcribe 能处理实时语言切换。"
+    incoming.claim.text.en = "Gemini 3.5 Transcribe handles live language switches."
+
+    assessment = KnowledgeQualityGate().assess(incoming, snapshot)
+
+    assert assessment.resolution == "resolved"
+    assert assessment.resolved_entity_id == "e-gemini"
+
+
 def test_semantic_fingerprint_ignores_snapshot_ids_and_text_wording():
     first = _candidate("1M").claim
     repeated = _candidate("1m").claim

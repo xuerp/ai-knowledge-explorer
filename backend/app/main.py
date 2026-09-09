@@ -1242,6 +1242,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         open_review_rows = session.scalars(
             select(ReviewJobRecord).where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
         ).all()
+        open_rows_by_id = {row.id: row for row in open_review_rows}
         open_fingerprints = {
             semantic_fingerprint(
                 Claim.model_validate_json(existing_row.claim_json),
@@ -1298,6 +1299,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 candidate = candidate.model_copy(
                     update={"entity_id": assessment.resolved_entity_id}
                 )
+            if existing_row := open_rows_by_id.get(candidate.id):
+                previous_version = existing_row.version
+                merge_duplicate_evidence(existing_row, candidate)
+                if not existing_row.entity_id and candidate.entity_id:
+                    existing_row.entity_id = candidate.entity_id
+                    existing_row.version += 1
+                if existing_row.version != previous_version:
+                    session.commit()
+                duplicates_skipped += 1
+                continue
             fingerprint = semantic_fingerprint(
                 candidate.claim,
                 candidate.entity_id,
