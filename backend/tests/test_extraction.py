@@ -418,6 +418,42 @@ def test_extraction_json_object_fallback_remains_schema_strict():
         service.extract(source, snapshot, 5)
 
 
+def test_extraction_classifies_provider_failure_without_leaking_response_body():
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "secret-that-must-not-leak",
+        "structured-model",
+        transport=httpx.MockTransport(
+            lambda _request: httpx.Response(500, text="sensitive provider response")
+        ),
+    )
+    source = SourceRecord(
+        id="source-test",
+        url="https://example.com/spec",
+        title="Official specification",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-test",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="Official source text.",
+        observed_at=datetime.now(UTC),
+    )
+
+    with pytest.raises(ExtractionUnavailableError) as caught:
+        service.extract(source, snapshot, 5)
+
+    assert "HTTP 500" in str(caught.value)
+    assert "retry later" in str(caught.value)
+    assert "sensitive" not in str(caught.value)
+    assert "secret" not in str(caught.value)
+
+
 def test_extraction_compatibility_normalizes_fenced_top_level_array():
     def handler(request: httpx.Request) -> httpx.Response:
         request_json = json.loads(request.content)
