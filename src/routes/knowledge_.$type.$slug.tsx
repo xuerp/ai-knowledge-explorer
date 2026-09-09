@@ -5,7 +5,6 @@ import {
   Building2,
   CalendarDays,
   ExternalLink,
-  GitBranch,
   Layers3,
   MapPin,
   Sparkles,
@@ -14,9 +13,13 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ConfidenceChip, DemoBadge, SectionHeading, SourceRow } from "@/components/common";
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
+import { TimelineHero } from "@/components/knowledge/TimelineHero";
+import { ReadingModeSelector } from "@/components/knowledge/ReadingModeSelector";
+import { DensityAwareSection } from "@/components/knowledge/DensityAwareSection";
 import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
 import {
   getEntitySectionPresentation,
+  getEntitySectionDensity,
   getReadingModeOption,
   getVisibleEntitySections,
   type EntitySection,
@@ -66,7 +69,7 @@ function GenericEntityDetail() {
     entity: Entity;
     snapshot: KnowledgeSnapshot;
   };
-  const { t, lang, mode } = useApp();
+  const { t, lang, mode, setMode } = useApp();
   const entityById = new Map(snapshot.entities.map((item) => [item.id, item]));
   const relations = snapshot.graph.edges.filter(
     (edge) => edge.fromId === entity.id || edge.toId === entity.id,
@@ -147,123 +150,118 @@ function GenericEntityDetail() {
                 {t("官方网站", "Official site")}
               </a>
             )}
-            <Link
-              to="/graph"
-              search={{ entity: entity.id, mode: "ecosystem" }}
-              className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm hover:bg-accent"
-            >
-              <GitBranch className="h-4 w-4" />
-              {t("分析关联", "Analyze relationships")}
-            </Link>
-            <Link
-              to="/ask"
+            <a
+              href={`/ask?candidates=${encodeURIComponent(entity.id)}&task=${encodeURIComponent(
+                t(
+                  `评估 ${pick(entity.name, lang)} 是否适合我的任务`,
+                  `Evaluate ${pick(entity.name, lang)} for my task`,
+                ),
+              )}`}
               className="inline-flex h-10 items-center gap-2 rounded-md bg-signal px-4 text-sm font-medium text-signal-foreground hover:opacity-90"
             >
               <Sparkles className="h-4 w-4" />
-              {t("基于证据提问", "Ask with evidence")}
-            </Link>
+              {t("让决策助手分析", "Analyze with the assistant")}
+            </a>
           </div>
         </header>
 
-        <div className="flex flex-col gap-12 pt-10">
-          <div
-            className="rounded-xl border border-signal/20 bg-signal/5 px-5 py-4"
-            data-reading-focus={mode}
-          >
-            <div className="text-sm font-semibold text-signal">{pick(readingMode.label, lang)}</div>
-            <p className="mt-1 text-sm leading-6 text-ink-soft">
-              {pick(readingMode.description, lang)}{" "}
-              {t(
-                "页面只展开本模式的重点信息。",
-                "Only this mode's priority information is expanded on the page.",
-              )}
-            </p>
-          </div>
+        {/* Reading Mode Selector */}
+        <div className="mt-8">
+          <ReadingModeSelector value={mode} onChange={setMode} />
+        </div>
 
+        {/* Timeline Hero Section */}
+        {timeline.length > 0 && (
+          <div className="mt-8">
+            <TimelineHero
+              events={timeline}
+              sources={sources}
+              entityName={pick(entity.name, lang)}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col gap-8 pt-8">
           {entity.knowledge && (
-            <div data-reading-section="guide" style={{ order: sectionPresentation.guide.order }}>
+            <DensityAwareSection
+              density={getEntitySectionDensity(mode, "generic", "guide")}
+              title={t("产品指南", "Product Guide")}
+            >
               <KnowledgeArticle
                 knowledge={entity.knowledge}
                 entityName={entity.name}
                 sectionEyebrow={sectionPresentation.guide.eyebrow}
               />
-            </div>
+            </DensityAwareSection>
           )}
 
-          <ReadingModeSection
-            section="profile"
-            visible={sectionVisible("profile")}
-            order={sectionPresentation.profile.order}
-          >
-            <SectionHeading
-              eyebrow={sectionPresentation.profile.eyebrow}
-              title={t("基础档案", "Reference profile")}
-              description={t(
-                "用于检索、筛选和数据核验的结构化信息。",
-                "Structured information for search, filtering and verification.",
-              )}
-            />
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
-              <article className="paper-card p-5 md:p-6">
-                <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
-                <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
-                  <ProfileField
-                    label={t("实体类型", "Entity type")}
-                    value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                  />
-                  <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
-                  <ProfileField
-                    label={t("所属组织", "Organization")}
-                    value={entity.vendor ?? "—"}
-                  />
-                  <ProfileField label={t("来源区域", "Region")} value={origin} />
-                  <ProfileField
-                    label={t("首次收录 / 发布", "First recorded / released")}
-                    value={entity.firstReleasedAt ?? "—"}
-                  />
-                  <ProfileField
-                    label={t("别名", "Aliases")}
-                    value={entity.aliases?.join(" · ") || "—"}
-                    wide
-                  />
-                  <ProfileField
-                    label={t("标签", "Tags")}
-                    value={entity.tags.join(" · ") || "—"}
-                    wide
-                  />
-                </dl>
-              </article>
+          {sectionVisible("profile") && (
+            <DensityAwareSection
+              density={getEntitySectionDensity(mode, "generic", "profile")}
+              title={t("基础档案", "Reference Profile")}
+            >
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)]">
+                <article className="paper-card p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">{t("结构化档案", "Structured profile")}</h3>
+                  <dl className="mt-5 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+                    <ProfileField
+                      label={t("实体类型", "Entity type")}
+                      value={pick(ENTITY_TYPE_LABELS[entity.type], lang)}
+                    />
+                    <ProfileField label={t("当前状态", "Status")} value={statusLabel(entity, t)} />
+                    <ProfileField
+                      label={t("所属组织", "Organization")}
+                      value={entity.vendor ?? "—"}
+                    />
+                    <ProfileField label={t("来源区域", "Region")} value={origin} />
+                    <ProfileField
+                      label={t("首次收录 / 发布", "First recorded / released")}
+                      value={entity.firstReleasedAt ?? "—"}
+                    />
+                    <ProfileField
+                      label={t("别名", "Aliases")}
+                      value={entity.aliases?.join(" · ") || "—"}
+                      wide
+                    />
+                    <ProfileField
+                      label={t("标签", "Tags")}
+                      value={entity.tags.join(" · ") || "—"}
+                      wide
+                    />
+                  </dl>
+                </article>
 
-              <article className="paper-card p-5 md:p-6">
-                <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
-                <div className="mt-5 grid grid-cols-2 gap-3">
-                  <Stat value={relations.length} label={t("已收录关系", "Relations")} />
-                  <Stat value={sources.length} label={t("直接来源", "Sources")} />
-                  <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
-                  <Stat
-                    value={new Set(relations.map((edge) => edge.kind)).size}
-                    label={t("关系类型", "Relation types")}
-                  />
-                </div>
-                {entity.capabilities && entity.capabilities.length > 0 && (
-                  <div className="mt-5 border-t border-border pt-5">
-                    <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      {t("能力 / 特征", "Capabilities / traits")}
-                    </div>
-                    <ul className="space-y-3">
-                      {entity.capabilities.map((capability, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                          <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
-                          <ConfidenceChip level={capability.confidence} />
-                        </li>
-                      ))}
-                    </ul>
+                <article className="paper-card p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">{t("关系概览", "Relationship summary")}</h3>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <Stat value={relations.length} label={t("已收录关系", "Relations")} />
+                    <Stat value={sources.length} label={t("直接来源", "Sources")} />
+                    <Stat value={timeline.length} label={t("时间事件", "Timeline events")} />
+                    <Stat
+                      value={new Set(relations.map((edge) => edge.kind)).size}
+                      label={t("关系类型", "Relation types")}
+                    />
                   </div>
-                )}
-              </article>
-            </div>
-          </ReadingModeSection>
+                  {entity.capabilities && entity.capabilities.length > 0 && (
+                    <div className="mt-5 border-t border-border pt-5">
+                      <div className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        {t("能力 / 特征", "Capabilities / traits")}
+                      </div>
+                      <ul className="space-y-3">
+                        {entity.capabilities.map((capability, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm">
+                            <Layers3 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                            <span className="min-w-0 flex-1">{pick(capability, lang)}</span>
+                            <ConfidenceChip level={capability.confidence} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </article>
+              </div>
+            </DensityAwareSection>
+          )}
 
           {claims.length > 0 && sectionVisible("claims") && (
             <section
@@ -305,7 +303,7 @@ function GenericEntityDetail() {
                   search={{ entity: entity.id, mode: "ecosystem" }}
                   className="text-sm text-signal hover:underline"
                 >
-                  {t("打开关系洞察", "Open relationship insights")} →
+                  {t("查看完整关系网络", "View full relationship network")} →
                 </Link>
               }
             />
@@ -337,39 +335,6 @@ function GenericEntityDetail() {
               )}
             </div>
           </ReadingModeSection>
-
-          {timeline.length > 0 && sectionVisible("timeline") && (
-            <section
-              data-reading-section="timeline"
-              style={{ order: sectionPresentation.timeline.order }}
-            >
-              <SectionHeading
-                eyebrow={sectionPresentation.timeline.eyebrow}
-                title={t("时间线", "Timeline")}
-                description={t(
-                  "按时间记录发布、更新、评测与重要事件。",
-                  "Releases, updates, benchmarks and important events in chronological context.",
-                )}
-              />
-              <div className="space-y-3">
-                {timeline.map((event) => (
-                  <article key={event.id} className="paper-card flex gap-4 p-4">
-                    <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <time className="font-mono text-xs text-signal">{event.date}</time>
-                        <h3 className="font-semibold">{pick(event.title, lang)}</h3>
-                        <ConfidenceChip level={event.confidence} />
-                      </div>
-                      <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                        {pick(event.summary, lang)}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
 
           <ReadingModeSection
             section="evidence"
@@ -426,16 +391,32 @@ function ReadingModeSection({
 
 function EntityLink({ entity }: { entity: Entity }) {
   const { lang } = useApp();
-  return (
-    <Link
-      to="/knowledge/$type/$slug"
-      params={{ type: entity.type, slug: entity.slug }}
-      className="min-w-0 rounded-md border border-border bg-background px-3 py-2 hover:border-signal/50 hover:bg-accent/40"
-    >
+  const content = (
+    <>
       <span className="block truncate font-medium text-foreground">{pick(entity.name, lang)}</span>
       <span className="mt-0.5 block text-[11px] text-muted-foreground">
         {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
       </span>
+    </>
+  );
+  const className =
+    "min-w-0 rounded-md border border-border bg-background px-3 py-2 hover:border-signal/50 hover:bg-accent/40";
+
+  if (entity.type === "model") {
+    return (
+      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      to="/knowledge/$type/$slug"
+      params={{ type: entity.type, slug: entity.slug }}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }

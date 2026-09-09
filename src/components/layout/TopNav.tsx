@@ -1,7 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  Diamond,
   Search,
   Moon,
   Sun,
@@ -9,11 +8,11 @@ import {
   BookOpen,
   UserRound,
   Settings,
+  BarChart3,
 } from "lucide-react";
-import { pick, useApp } from "@/lib/app-state";
+import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import { backNavigationFor } from "@/domain/back-navigation";
-import { getReadingModeOption, READING_MODE_OPTIONS } from "@/domain/reading-mode";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,25 +20,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 
 const NAV = [
-  { to: "/", zh: "首页", en: "Home" },
+  { to: "/", zh: "动态", en: "Updates" },
+  { to: "/ask", zh: "决策助手", en: "Decide" },
   { to: "/knowledge", zh: "知识库", en: "Knowledge" },
-  { to: "/compare", zh: "AI 对比", en: "Compare" },
-  { to: "/graph", zh: "洞察", en: "Insights" },
-  { to: "/ask", zh: "AI 研究", en: "Ask" },
-  { to: "/case-study", zh: "关于项目", en: "About" },
 ] as const;
 
 export function TopNav() {
-  const { lang, setLang, theme, setTheme, mode, setMode, t } = useApp();
+  const { lang, setLang, theme, setTheme, t } = useApp();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const backNavigation = backNavigationFor(pathname, 0);
-  const currentReadingMode = getReadingModeOption(mode);
 
   const navigateBack = () => {
     const action = backNavigationFor(pathname, window.history.length).action;
@@ -51,8 +44,8 @@ export function TopNav() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-card/95 text-foreground backdrop-blur">
-      <div className="page-container h-14 flex items-center gap-3">
+    <header className="app-topnav sticky top-0 z-30 border-b border-border bg-card/95 text-foreground backdrop-blur">
+      <div className="page-container flex h-[60px] items-center gap-3">
         {backNavigation.visible && (
           <Button
             type="button"
@@ -68,12 +61,14 @@ export function TopNav() {
           </Button>
         )}
 
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <Diamond className="h-4 w-4 fill-signal text-signal" />
-          <span className="text-base font-semibold tracking-tight text-signal">AI Radar</span>
+        <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AI Radar">
+          <span className="radar-mark text-signal" aria-hidden="true" />
+          <span className="text-[15px] font-semibold tracking-[-0.025em] text-foreground">
+            AI Radar
+          </span>
         </Link>
 
-        <nav className="hidden md:flex h-full items-center gap-1 ml-6">
+        <nav className="ml-5 hidden h-full items-center gap-0 md:flex">
           {NAV.map((item) => {
             const active =
               item.to === "/"
@@ -84,9 +79,9 @@ export function TopNav() {
                 key={item.to}
                 to={item.to}
                 className={
-                  "relative px-3 h-full inline-flex items-center whitespace-nowrap text-sm transition-colors " +
+                  "relative inline-flex h-full items-center whitespace-nowrap px-3 text-[13px] transition-colors " +
                   (active
-                    ? "text-signal font-medium after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-signal"
+                    ? "font-medium text-foreground after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-signal"
                     : "text-ink-soft hover:text-foreground")
                 }
               >
@@ -100,7 +95,7 @@ export function TopNav() {
 
         <Link
           to="/knowledge"
-          className="hidden lg:flex items-center gap-2 h-9 px-3 rounded-md border border-border bg-background text-sm text-muted-foreground hover:text-foreground w-52 xl:w-64"
+          className="hidden h-8 w-52 items-center gap-2 rounded-md border border-border bg-background px-3 text-xs text-muted-foreground hover:border-border-strong hover:text-foreground lg:flex xl:w-64"
         >
           <Search className="h-4 w-4" />
           <span>{t("搜索 模型 · Agent · 论文…", "Search models, agents, papers…")}</span>
@@ -108,43 +103,6 @@ export function TopNav() {
             /
           </kbd>
         </Link>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden gap-2 px-2.5 lg:inline-flex"
-              aria-label={t(
-                `阅读模式：${currentReadingMode.shortLabel.zh}`,
-                `Reading mode: ${currentReadingMode.shortLabel.en}`,
-              )}
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>{pick(currentReadingMode.shortLabel, lang)}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuLabel>{t("阅读模式", "Reading mode")}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-              {READING_MODE_OPTIONS.map((option) => (
-                <DropdownMenuRadioItem
-                  key={option.id}
-                  value={option.id}
-                  className="items-start py-2.5"
-                >
-                  <span>
-                    <span className="block text-sm font-medium">{pick(option.label, lang)}</span>
-                    <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
-                      {pick(option.description, lang)}
-                    </span>
-                  </span>
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         <Button
           variant="ghost"
@@ -192,6 +150,11 @@ export function TopNav() {
             <DropdownMenuItem asChild>
               <Link to="/following">
                 <BookOpen className="h-4 w-4" /> {t("关注", "Following")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/quality">
+                <BarChart3 className="h-4 w-4" /> {t("数据质量", "Data quality")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

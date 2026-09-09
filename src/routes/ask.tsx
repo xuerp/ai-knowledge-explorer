@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   Send,
   Sparkles,
@@ -10,6 +10,7 @@ import {
   History,
   Bookmark,
   ExternalLink,
+  GitCompareArrows,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, DemoBadge } from "@/components/common";
@@ -18,45 +19,99 @@ import { Button } from "@/components/ui/button";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { Evidence, LocalizedText, ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { readAuthToken } from "@/services/auth-session";
-import { userApi, type ResearchResult } from "@/services/user-api";
+import { authSessionExpiredEvent, readAuthToken } from "@/services/auth-session";
+import {
+  AuthSessionExpiredError,
+  userApi,
+  type DecisionContext,
+  type ResearchResult,
+} from "@/services/user-api";
+import { DecisionBrief } from "@/components/research/DecisionBrief";
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
     meta: [
-      { title: "AI 研究 · AI Radar" },
+      { title: "AI 决策助手 · AI Radar" },
       {
         name: "description",
-        content: "基于已审核证据的 AI 问答：事实、推断、未核验与冲突分开呈现。",
+        content: "结合任务、预算、部署约束与已审核证据，辅助 AI 模型和产品选型。",
       },
-      { property: "og:title", content: "AI Radar · AI 研究" },
-      { property: "og:description", content: "有依据的 AI 回答。" },
+      { property: "og:title", content: "AI Radar · 决策助手" },
+      { property: "og:description", content: "基于当前证据做 AI 选择。" },
     ],
   }),
   component: AskPage,
 });
 
+const subscribeToHydration = () => () => {};
+
 function AskPage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const snapshot = snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT;
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const snapshot = hydrated
+    ? (snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT)
+    : DEMO_KNOWLEDGE_SNAPSHOT;
   const researchQuestions = snapshot.researchQuestions;
   const showcaseAnswers = snapshot.researchAnswers;
   const initialQuestion = researchQuestions[0] ? pick(researchQuestions[0], lang) : "";
-  const token = readAuthToken();
-  const [q, setQ] = useState(initialQuestion);
+  const [token, setToken] = useState(() => readAuthToken());
+  const [task, setTask] = useState(initialQuestion);
+  const [priority, setPriority] = useState<DecisionContext["priority"]>("balanced");
+  const [budgetMode, setBudgetMode] = useState<DecisionContext["budget"]["mode"]>("unknown");
+  const [budgetMinimum, setBudgetMinimum] = useState("");
+  const [budgetMaximum, setBudgetMaximum] = useState("");
+  const [deployment, setDeployment] = useState<DecisionContext["deployment"]>("undecided");
+  const [exclusions, setExclusions] = useState("");
+  const [notes, setNotes] = useState("");
+  const [candidateEntityIds, setCandidateEntityIds] = useState<string[]>([]);
   const [research, setResearch] = useState<ResearchResult | null>(() =>
     !token && showcaseAnswers[0] ? toShowcaseResearch(showcaseAnswers[0], lang) : null,
   );
   const [error, setError] = useState("");
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [busy, setBusy] = useState(false);
   const questionHydrated = useRef(Boolean(initialQuestion));
+  const submissionInFlight = useRef(false);
 
   useEffect(() => {
     if (questionHydrated.current || !researchQuestions[0]) return;
-    setQ(pick(researchQuestions[0], lang));
+    setTask(pick(researchQuestions[0], lang));
     questionHydrated.current = true;
   }, [lang, researchQuestions]);
+
+  useEffect(() => {
+    const handleSessionExpired = () => setToken("");
+    window.addEventListener(authSessionExpiredEvent, handleSessionExpired);
+    return () => window.removeEventListener(authSessionExpiredEvent, handleSessionExpired);
+  }, []);
+
+  useEffect(() => {
+    const sharedSearch = new URLSearchParams(window.location.search);
+    const sharedTask = sharedSearch.get("task")?.trim();
+    if (sharedTask) setTask(sharedTask);
+    const sharedPriority = sharedSearch.get("priority");
+    if (isDecisionPriority(sharedPriority)) setPriority(sharedPriority);
+    const sharedBudgetMode = sharedSearch.get("budget");
+    if (isBudgetMode(sharedBudgetMode)) setBudgetMode(sharedBudgetMode);
+    setBudgetMinimum(sharedSearch.get("budgetMin") ?? "");
+    setBudgetMaximum(sharedSearch.get("budgetMax") ?? "");
+    const sharedDeployment = sharedSearch.get("deployment");
+    if (isDeployment(sharedDeployment)) setDeployment(sharedDeployment);
+    setExclusions(sharedSearch.get("exclusions") ?? "");
+    setNotes(sharedSearch.get("notes") ?? "");
+    setCandidateEntityIds(
+      (sharedSearch.get("candidates") ?? "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, 20),
+    );
+  }, []);
 
   const claims = snapshot.claims;
   const evidence = snapshot.evidence;
@@ -70,16 +125,64 @@ function AskPage() {
   const unverifiedClaims = matchedClaims.filter((c) => c.confidence === "unverified");
 
   const submitResearch = async () => {
-    const question = q.trim();
-    if (question.length < 5) {
+    if (submissionInFlight.current) return;
+    const normalizedTask = task.trim();
+    if (normalizedTask.length < 5) {
       setError(
-        t("请输入至少 5 个字符的问题。", "Please enter a question with at least 5 characters."),
+        t("请用至少 5 个字符描述任务。", "Please describe the task with at least 5 characters."),
+      );
+      return;
+    }
+    const budget = {
+      mode: budgetMode,
+      ...(budgetMode === "range" && budgetMinimum ? { min: Number(budgetMinimum) } : {}),
+      ...(budgetMode === "range" && budgetMaximum ? { max: Number(budgetMaximum) } : {}),
+      ...(budgetMode === "range" ? { currency: "CNY" } : {}),
+    };
+    if (
+      budgetMode === "range" &&
+      budgetMinimum &&
+      budgetMaximum &&
+      Number(budgetMinimum) > Number(budgetMaximum)
+    ) {
+      setError(t("预算下限不能高于上限。", "The budget minimum cannot exceed the maximum."));
+      return;
+    }
+    const parsedExclusions = exclusions
+      .split(/[，,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (parsedExclusions.length > 20 || parsedExclusions.some((item) => item.length > 200)) {
+      setError(
+        t(
+          "排除条件最多 20 项，每项不超过 200 字符。",
+          "Use at most 20 exclusions and keep each under 200 characters.",
+        ),
+      );
+      return;
+    }
+    const decisionContext: DecisionContext = {
+      task: normalizedTask,
+      priority,
+      budget,
+      deployment,
+      exclusions: parsedExclusions,
+      candidateEntityIds,
+      ...(notes.trim() ? { notes: notes.trim() } : {}),
+    };
+    const question = composeDecisionQuestion(decisionContext, lang);
+    if (question.length > 2000) {
+      setError(
+        t(
+          "任务、排除条件和补充说明合计过长，请精简到 2000 字符以内。",
+          "The task, exclusions, and notes are too long. Keep the combined request under 2,000 characters.",
+        ),
       );
       return;
     }
     if (!token) {
       const showcaseAnswer = showcaseAnswers.find(
-        (answer) => pick(answer.question, lang) === question,
+        (answer) => pick(answer.question, lang) === normalizedTask,
       );
       if (!showcaseAnswer) {
         setResearch(null);
@@ -92,7 +195,7 @@ function AskPage() {
         return;
       }
       setError("");
-      setResearch(toShowcaseResearch(showcaseAnswer, lang));
+      setResearch(toShowcaseResearch(showcaseAnswer, lang, decisionContext));
       return;
     }
     if (!userApi.configured) {
@@ -104,15 +207,27 @@ function AskPage() {
       );
       return;
     }
+    submissionInFlight.current = true;
     setBusy(true);
     setError("");
+    setSessionExpired(false);
     try {
-      setResearch(await userApi.research(token, question, lang));
+      setResearch(await userApi.research(token, { question, language: lang, decisionContext }));
     } catch (reason) {
+      const expired = reason instanceof AuthSessionExpiredError;
+      setSessionExpired(expired);
       setError(
-        reason instanceof Error ? reason.message : t("研究请求失败。", "Research request failed."),
+        expired
+          ? t(
+              "登录已过期，请重新登录后继续。当前输入会保留。",
+              "Your session expired. Sign in to continue; your inputs will be preserved.",
+            )
+          : reason instanceof Error
+            ? reason.message
+            : t("研究请求失败。", "Research request failed."),
       );
     } finally {
+      submissionInFlight.current = false;
       setBusy(false);
     }
   };
@@ -120,14 +235,31 @@ function AskPage() {
   return (
     <AppShell>
       <PageHeader
-        title={t("AI 研究", "Ask AI")}
+        title={t("AI 决策助手", "AI decision assistant")}
         subtitle={t(
-          "基于 AI Radar 已审核数据与来源证据回答。事实、推断、未核验与冲突分开呈现，每条结论都能追到原始来源。",
-          "Answers use AI Radar's reviewed data and source evidence. Facts, inferences, unverified claims, and conflicts stay distinct; every conclusion links to sources.",
+          "告诉我你的任务、优先级、预算和部署限制。AI Radar 会基于当前版本、历史变化与官方 Evidence 给出有条件的选择建议，并明确哪些信息仍不足。",
+          "Describe your task, priorities, budget, and deployment limits. AI Radar uses current releases, historical changes, and official evidence to make conditional recommendations and expose what remains unknown.",
         )}
       />
 
-      {!snapshotQuery.data && (
+      <div className="page-container flex flex-wrap items-center justify-between gap-3 pt-2 text-sm text-muted-foreground">
+        <span>
+          {t(
+            "建议问题包含：要完成什么任务、最重视什么、不能接受什么。",
+            "A useful question names the job, the top priority, and the deal-breakers.",
+          )}
+        </span>
+        <Link
+          to="/compare"
+          search={{ models: undefined }}
+          className="inline-flex items-center gap-1.5 font-medium text-signal hover:underline"
+        >
+          <GitCompareArrows className="h-4 w-4" />
+          {t("先看结构化对比", "Open structured comparison")}
+        </Link>
+      </div>
+
+      {hydrated && !snapshotQuery.data && (
         <div className="page-container pt-2">
           <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
             {t(
@@ -143,7 +275,7 @@ function AskPage() {
       )}
 
       <div className="page-container grid gap-6 py-6 lg:grid-cols-[210px_minmax(0,1fr)_260px]">
-        <ResearchSidebar questions={researchQuestions} onSelect={setQ} />
+        <ResearchSidebar questions={researchQuestions} onSelect={setTask} />
         <div className="min-w-0">
           <form
             onSubmit={(e) => {
@@ -154,22 +286,106 @@ function AskPage() {
           >
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-signal" />
-              {t("提问 AI Radar", "Ask AI Radar")}
+              {t("描述你的选择问题", "Describe your decision")}
               {snapshot.meta.mode === "demo" && <DemoBadge className="ml-auto" />}
             </div>
-            <textarea
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              rows={3}
-              className="w-full resize-none bg-transparent text-base text-foreground focus:outline-none"
-              placeholder={t("输入你的研究问题…", "Type your research question…")}
-            />
+            <label className="space-y-1.5">
+              <span className="text-xs font-medium text-foreground">
+                {t("要完成的任务", "Task to complete")}
+              </span>
+              <textarea
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                rows={3}
+                maxLength={1000}
+                className="w-full resize-none rounded-md border border-border bg-background/60 px-3 py-2 text-base text-foreground focus:border-signal focus:outline-none"
+                placeholder={t(
+                  "例如：我要做长文档分析，预算优先、需要私有部署，应该先评估哪些模型？",
+                  "Example: I am building long-document analysis, cost matters, and private deployment is required. Which models should I evaluate?",
+                )}
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <DecisionSelect
+                label={t("首要优先级", "Top priority")}
+                value={priority}
+                onChange={(value) => setPriority(value as DecisionContext["priority"])}
+                options={[
+                  ["balanced", t("综合平衡", "Balanced")],
+                  ["quality", t("效果质量", "Quality")],
+                  ["cost", t("成本", "Cost")],
+                  ["speed", t("速度", "Speed")],
+                  ["privacy", t("隐私", "Privacy")],
+                  ["control", t("可控性", "Control")],
+                ]}
+              />
+              <DecisionSelect
+                label={t("预算", "Budget")}
+                value={budgetMode}
+                onChange={(value) => setBudgetMode(value as DecisionContext["budget"]["mode"])}
+                options={[
+                  ["unknown", t("暂不确定", "Unknown")],
+                  ["cost-first", t("成本优先", "Cost first")],
+                  ["range", t("指定区间", "Set a range")],
+                ]}
+              />
+              <DecisionSelect
+                label={t("部署方式", "Deployment")}
+                value={deployment}
+                onChange={(value) => setDeployment(value as DecisionContext["deployment"])}
+                options={[
+                  ["undecided", t("暂不确定", "Undecided")],
+                  ["cloud-api", t("云 API", "Cloud API")],
+                  ["private", t("私有部署", "Private")],
+                  ["on-device", t("端侧", "On-device")],
+                  ["hybrid", t("混合", "Hybrid")],
+                ]}
+              />
+            </div>
+            {budgetMode === "range" && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <DecisionInput
+                  label={t("月预算下限（CNY）", "Monthly minimum (CNY)")}
+                  value={budgetMinimum}
+                  onChange={setBudgetMinimum}
+                  type="number"
+                />
+                <DecisionInput
+                  label={t("月预算上限（CNY）", "Monthly maximum (CNY)")}
+                  value={budgetMaximum}
+                  onChange={setBudgetMaximum}
+                  type="number"
+                />
+              </div>
+            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <DecisionInput
+                label={t("排除条件（逗号分隔）", "Exclusions (comma-separated)")}
+                value={exclusions}
+                onChange={setExclusions}
+                maxLength={1000}
+                placeholder={t(
+                  "例如：不接受闭源、必须境内部署",
+                  "Example: no closed source, regional hosting required",
+                )}
+              />
+              <DecisionInput
+                label={t("补充说明（可选）", "Notes (optional)")}
+                value={notes}
+                onChange={setNotes}
+                maxLength={1000}
+                placeholder={t(
+                  "数据规模、团队能力、上线时间",
+                  "Data scale, team skills, launch date",
+                )}
+              />
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               {researchQuestions.map((question, index) => (
                 <button
                   key={`${question.en}-${index}`}
                   type="button"
-                  onClick={() => setQ(pick(question, lang))}
+                  onClick={() => setTask(pick(question, lang))}
                   className="chip hover:border-signal/50 hover:text-foreground"
                 >
                   {pick(question, lang)}
@@ -180,13 +396,36 @@ function AskPage() {
                 {busy
                   ? t("检索中…", "Researching…")
                   : token
-                    ? t("开始私密研究", "Start private research")
+                    ? t("生成决策建议", "Generate recommendation")
                     : t("体验预置研究", "Run preset research")}
               </Button>
             </div>
             {error && (
-              <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+              <div
+                role="alert"
+                className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              >
                 {error}
+                {sessionExpired && (
+                  <a
+                    href={`/account?returnTo=${encodeURIComponent(
+                      buildAskResumePath({
+                        task,
+                        priority,
+                        budgetMode,
+                        budgetMinimum,
+                        budgetMaximum,
+                        deployment,
+                        exclusions,
+                        notes,
+                        candidateEntityIds,
+                      }),
+                    )}`}
+                    className="ml-2 font-medium underline"
+                  >
+                    {t("重新登录并继续", "Sign in and continue")}
+                  </a>
+                )}
                 {token && !userApi.configured && (
                   <Link to="/account" className="ml-2 font-medium underline">
                     {t("查看账户状态", "View account status")}
@@ -199,7 +438,7 @@ function AskPage() {
           {research ? (
             <div className="mt-8 space-y-6">
               <div className="text-xs uppercase tracking-widest text-signal font-medium">
-                {t("回答", "Answer")}
+                {t("决策建议", "Recommendation")}
               </div>
               <p className="text-xl font-semibold leading-relaxed text-foreground">
                 {research.summary}
@@ -226,6 +465,19 @@ function AskPage() {
                 </div>
               </div>
 
+              {research.decision && (
+                <DecisionBrief
+                  research={research}
+                  entityName={(id) => {
+                    const entity = snapshot.entities.find((item) => item.id === id);
+                    return entity ? pick(entity.name, lang) : id;
+                  }}
+                  isComparable={(id) =>
+                    snapshot.entities.some((item) => item.id === id && item.type === "model")
+                  }
+                />
+              )}
+
               <AnswerBlock
                 title={t("已核验事实", "Verified facts")}
                 icon={<ShieldCheck className="h-4 w-4 text-verified" />}
@@ -234,6 +486,7 @@ function AskPage() {
                 {factClaims.map((c) => (
                   <ClaimRow
                     key={c.id}
+                    id={c.id}
                     zh={c.text.zh}
                     en={c.text.en}
                     sourceIds={c.sourceIds}
@@ -250,6 +503,7 @@ function AskPage() {
                 {inferredClaims.map((c) => (
                   <ClaimRow
                     key={c.id}
+                    id={c.id}
                     zh={c.text.zh}
                     en={c.text.en}
                     sourceIds={c.sourceIds}
@@ -266,6 +520,7 @@ function AskPage() {
                 {unverifiedClaims.map((c) => (
                   <ClaimRow
                     key={c.id}
+                    id={c.id}
                     zh={c.text.zh}
                     en={c.text.en}
                     sourceIds={c.sourceIds}
@@ -322,7 +577,55 @@ function AskPage() {
   );
 }
 
-function toShowcaseResearch(answer: ResearchAnswer, lang: "zh" | "en"): ResearchResult {
+function buildAskResumePath(input: {
+  task: string;
+  priority: DecisionContext["priority"];
+  budgetMode: DecisionContext["budget"]["mode"];
+  budgetMinimum: string;
+  budgetMaximum: string;
+  deployment: DecisionContext["deployment"];
+  exclusions: string;
+  notes: string;
+  candidateEntityIds: string[];
+}) {
+  const search = new URLSearchParams({
+    task: input.task,
+    priority: input.priority,
+    budget: input.budgetMode,
+    deployment: input.deployment,
+  });
+  if (input.budgetMinimum) search.set("budgetMin", input.budgetMinimum);
+  if (input.budgetMaximum) search.set("budgetMax", input.budgetMaximum);
+  if (input.exclusions) search.set("exclusions", input.exclusions);
+  if (input.notes) search.set("notes", input.notes);
+  if (input.candidateEntityIds.length) search.set("candidates", input.candidateEntityIds.join(","));
+  return `/ask?${search.toString()}`;
+}
+
+function isDecisionPriority(value: string | null): value is DecisionContext["priority"] {
+  return ["quality", "cost", "speed", "privacy", "control", "balanced"].includes(value ?? "");
+}
+
+function isBudgetMode(value: string | null): value is DecisionContext["budget"]["mode"] {
+  return ["cost-first", "range", "unknown"].includes(value ?? "");
+}
+
+function isDeployment(value: string | null): value is DecisionContext["deployment"] {
+  return ["cloud-api", "private", "on-device", "hybrid", "undecided"].includes(value ?? "");
+}
+
+function composeDecisionQuestion(context: DecisionContext, lang: "zh" | "en") {
+  const exclusions = context.exclusions.length ? context.exclusions.join(", ") : "none";
+  return lang === "zh"
+    ? `${context.task}\n优先级：${context.priority}；预算：${context.budget.mode}；部署：${context.deployment}；排除：${exclusions}${context.notes ? `；补充：${context.notes}` : ""}`
+    : `${context.task}\nPriority: ${context.priority}; budget: ${context.budget.mode}; deployment: ${context.deployment}; exclusions: ${exclusions}${context.notes ? `; notes: ${context.notes}` : ""}`;
+}
+
+function toShowcaseResearch(
+  answer: ResearchAnswer,
+  lang: "zh" | "en",
+  context?: DecisionContext,
+): ResearchResult {
   return {
     id: answer.id,
     question: pick(answer.question, lang),
@@ -330,8 +633,115 @@ function toShowcaseResearch(answer: ResearchAnswer, lang: "zh" | "en"): Research
     claimIds: answer.claimIds,
     steps: answer.steps,
     status: answer.status,
+    retrievalMode: "lexical",
+    answerMode: "extractive",
+    retrievalDiagnostics: {
+      candidateCount: answer.claimIds.length,
+      returnedCount: answer.claimIds.length,
+      filteredCount: 0,
+      elapsedMs: 0,
+      matchedEntityIds: [],
+      fallbackReason: "demo-snapshot",
+      generationFallbackReason: "generation-disabled",
+    },
+    ...(context
+      ? {
+          decisionContext: context,
+          decision: {
+            status: answer.status === "ready" ? "ready" : "insufficient-evidence",
+            asOf: answer.generatedAt,
+            recommendation: {
+              alternativeEntityIds: [],
+              summary: pick(answer.summary, lang),
+            },
+            conditions: [
+              `${lang === "zh" ? "任务" : "Task"}: ${context.task}`,
+              `${lang === "zh" ? "优先级" : "Priority"}: ${context.priority}`,
+              `${lang === "zh" ? "部署" : "Deployment"}: ${context.deployment}`,
+            ],
+            tradeoffs: [],
+            risks: [
+              {
+                state: "inferred" as const,
+                detail:
+                  lang === "zh"
+                    ? "公开演示仅覆盖预置问题与快照证据。"
+                    : "The public demo covers only preset questions and snapshot evidence.",
+                claimIds: answer.claimIds,
+              },
+            ],
+            nextChecks: [
+              lang === "zh"
+                ? "登录后使用实时研究服务，并用真实样本进行 PoC。"
+                : "Sign in for live research and run a proof of concept on representative samples.",
+            ],
+            claimIds: answer.claimIds,
+          },
+        }
+      : {}),
     createdAt: answer.generatedAt,
   };
+}
+
+function DecisionSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<[string, string]>;
+}) {
+  return (
+    <label className="space-y-1.5">
+      <span className="text-xs font-medium text-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-10 w-full rounded-md border border-border bg-background px-3 text-base text-foreground focus:border-signal focus:outline-none sm:text-sm"
+      >
+        {options.map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>
+            {optionLabel}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function DecisionInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  maxLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: "text" | "number";
+  maxLength?: number;
+}) {
+  return (
+    <label className="space-y-1.5">
+      <span className="text-xs font-medium text-foreground">{label}</span>
+      <input
+        type={type}
+        min={type === "number" ? 0 : undefined}
+        max={type === "number" ? 1_000_000_000_000 : undefined}
+        maxLength={maxLength}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="h-10 w-full rounded-md border border-border bg-background px-3 text-base text-foreground placeholder:text-muted-foreground focus:border-signal focus:outline-none sm:text-sm"
+      />
+    </label>
+  );
 }
 
 function AnswerBlock({
@@ -345,20 +755,20 @@ function AnswerBlock({
   tint: "verified" | "inferred" | "unverified" | "conflict";
   children: React.ReactNode;
 }) {
-  const border = {
-    verified: "border-l-verified",
-    inferred: "border-l-inferred",
-    unverified: "border-l-border-strong",
-    conflict: "border-l-conflict",
+  const surface = {
+    verified: "border-verified/40 bg-verified/5",
+    inferred: "border-inferred/40 bg-inferred/5",
+    unverified: "border-border-strong bg-muted/20",
+    conflict: "border-conflict/40 bg-conflict/5",
   }[tint];
   return (
-    <div className={`paper-card border-l-4 ${border} pl-5 pr-5 py-4`}>
+    <section className={`rounded-md border px-5 py-4 ${surface}`}>
       <div className="flex items-center gap-2 mb-3">
         {icon}
         <h3 className="font-semibold text-foreground">{title}</h3>
       </div>
       <div className="space-y-3">{children}</div>
-    </div>
+    </section>
   );
 }
 
@@ -373,7 +783,7 @@ function ResearchSidebar({
   return (
     <aside className="hidden self-start lg:sticky lg:top-20 lg:block">
       <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        <History className="h-3.5 w-3.5" /> {t("研究历史", "Research history")}
+        <History className="h-3.5 w-3.5" /> {t("决策问题", "Decision questions")}
       </div>
       <div className="space-y-1">
         {questions.map((question, index) => (
@@ -430,11 +840,13 @@ function EvidenceSidebar({ evidence }: { evidence: Evidence[] }) {
 }
 
 function ClaimRow({
+  id,
   zh,
   en,
   sourceIds,
   evidence,
 }: {
+  id: string;
   zh: string;
   en: string;
   sourceIds: string[];
@@ -442,7 +854,7 @@ function ClaimRow({
 }) {
   const { lang } = useApp();
   return (
-    <div>
+    <div id={`claim-${id}`} className="scroll-mt-24">
       <p className="text-sm text-foreground leading-relaxed">{lang === "zh" ? zh : en}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {sourceIds.map((id) => {

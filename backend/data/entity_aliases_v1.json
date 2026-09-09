@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "aliases": [
+    { "entityId": "e-autogen", "alias": "Microsoft AutoGen", "aliasType": "qualified-name" },
+    { "entityId": "e-claude", "alias": "Anthropic Claude", "aliasType": "qualified-name" },
+    { "entityId": "e-claude-code", "alias": "Anthropic Claude Code", "aliasType": "qualified-name" },
+    { "entityId": "e-codex", "alias": "Codex", "aliasType": "product-name" },
+    { "entityId": "e-codex", "alias": "Codex CLI", "aliasType": "product-name" },
+    { "entityId": "e-crewai", "alias": "Crew AI", "aliasType": "spelling-variant" },
+    { "entityId": "e-deepseek", "alias": "深度求索", "aliasType": "translation" },
+    { "entityId": "e-devin", "alias": "Devin AI", "aliasType": "qualified-name" },
+    { "entityId": "e-doubao", "alias": "豆包", "aliasType": "translation" },
+    { "entityId": "e-ernie", "alias": "ERNIE", "aliasType": "abbreviation" },
+    { "entityId": "e-ernie", "alias": "文心一言", "aliasType": "translation" },
+    { "entityId": "e-gemini", "alias": "Google Gemini", "aliasType": "qualified-name" },
+    { "entityId": "e-gemini-cli", "alias": "Google Gemini CLI", "aliasType": "qualified-name" },
+    { "entityId": "e-gpt", "alias": "ChatGPT", "aliasType": "product-name" },
+    { "entityId": "e-gpt", "alias": "GPT-4", "aliasType": "version-name" },
+    { "entityId": "e-gpt-5", "alias": "GPT-5", "aliasType": "version-name" },
+    { "entityId": "e-kimi", "alias": "Kimi 智能助手", "aliasType": "qualified-name" },
+    { "entityId": "e-langchain", "alias": "Lang Chain", "aliasType": "spelling-variant" },
+    { "entityId": "e-langgraph", "alias": "Lang Graph", "aliasType": "spelling-variant" },
+    { "entityId": "e-manus", "alias": "Manus AI", "aliasType": "qualified-name" },
+    { "entityId": "e-mcp", "alias": "MCP", "aliasType": "abbreviation" },
+    { "entityId": "e-openai-agents-sdk", "alias": "Agents SDK", "aliasType": "abbreviation" },
+    { "entityId": "e-qwen", "alias": "Qwen", "aliasType": "abbreviation" },
+    { "entityId": "e-qwen", "alias": "通义千问", "aliasType": "translation" }
+  ]
+}

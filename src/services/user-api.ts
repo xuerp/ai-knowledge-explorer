@@ -1,6 +1,10 @@
+import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
+const apiBaseUrl =
+  (import.meta.env.SSR ? import.meta.env.VITE_API_UPSTREAM_URL : import.meta.env.VITE_API_BASE_URL)
+    ?.trim()
+    ?.replace(/\/$/, "") ?? "";
 
 export interface SessionUser {
   id: string;
@@ -27,6 +31,46 @@ export interface UserNotification {
   readAt?: string;
 }
 
+export interface DecisionContext {
+  task: string;
+  priority: "quality" | "cost" | "speed" | "privacy" | "control" | "balanced";
+  budget: {
+    mode: "cost-first" | "range" | "unknown";
+    min?: number;
+    max?: number;
+    currency?: string;
+  };
+  deployment: "cloud-api" | "private" | "on-device" | "hybrid" | "undecided";
+  exclusions: string[];
+  candidateEntityIds: string[];
+  notes?: string;
+}
+
+export interface DecisionResult {
+  status: "ready" | "insufficient-evidence" | "conflict" | "failed";
+  asOf: string;
+  recommendation: {
+    primaryEntityId?: string;
+    alternativeEntityIds: string[];
+    summary: string;
+  };
+  conditions: string[];
+  tradeoffs: Array<{ dimension: string; finding: string; claimIds: string[] }>;
+  risks: Array<{
+    state: "verified" | "inferred" | "unknown" | "conflict";
+    detail: string;
+    claimIds: string[];
+  }>;
+  nextChecks: string[];
+  claimIds: string[];
+}
+
+export interface ResearchRequest {
+  question: string;
+  language: "zh" | "en";
+  decisionContext?: DecisionContext;
+}
+
 export interface ResearchResult {
   id: string;
   question: string;
@@ -39,13 +83,7 @@ export interface ResearchResult {
     detail?: { zh: string; en: string };
   }>;
   status: "ready" | "insufficient-evidence" | "failed" | "cancelled";
-  publishedSlug?: string;
-  createdAt: string;
-  publishedAt?: string;
-}
-
-export interface PublishedResearch extends ResearchResult {
-  citations: Array<{
+  citations?: Array<{
     claim: {
       id: string;
       text: { zh: string; en: string };
@@ -59,6 +97,33 @@ export interface PublishedResearch extends ResearchResult {
       publishedAt: string;
     }>;
   }>;
+  retrievalMode: "lexical" | "hybrid";
+  answerMode: "extractive" | "generated";
+  retrievalDiagnostics: {
+    candidateCount: number;
+    returnedCount: number;
+    filteredCount: number;
+    elapsedMs: number;
+    matchedEntityIds: string[];
+    fallbackReason?: string;
+    generationFallbackReason?: string;
+  };
+  decisionContext?: DecisionContext;
+  decision?: DecisionResult;
+  publishedSlug?: string;
+  createdAt: string;
+  publishedAt?: string;
+}
+
+export interface PublishedResearch extends ResearchResult {
+  citations: NonNullable<ResearchResult["citations"]>;
+}
+
+export class AuthSessionExpiredError extends Error {
+  constructor() {
+    super("Your session has expired. Sign in and try again.");
+    this.name = "AuthSessionExpiredError";
+  }
 }
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
@@ -73,8 +138,27 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     },
   });
   if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { detail?: string } | null;
-    throw new Error(body?.detail || `Request failed (${response.status}).`);
+    if (response.status === 401 && token) {
+      expireAuthSession();
+    }
+    const body = (await response.json().catch(() => null)) as {
+      detail?: string | Array<{ loc?: Array<string | number>; msg?: string }>;
+    } | null;
+    const detail = Array.isArray(body?.detail)
+      ? body.detail
+          .map((item) => `${item.loc?.slice(1).join(".") || "input"}: ${item.msg || "invalid"}`)
+          .join("; ")
+      : body?.detail;
+    if (response.status === 401) {
+      throw new AuthSessionExpiredError();
+    }
+    const fallback =
+      response.status === 429
+        ? "Too many requests. Wait briefly and try again."
+        : response.status >= 500
+          ? "The research service is temporarily unavailable. Your inputs were preserved; try again."
+          : `Request failed (${response.status}).`;
+    throw new Error(detail || fallback);
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
@@ -110,10 +194,10 @@ export const userApi = {
       { method: "POST", body: JSON.stringify({ enabled, hour }) },
       token,
     ),
-  research: (token: string, question: string, language: "zh" | "en") =>
+  research: (token: string, payload: ResearchRequest) =>
     request<ResearchResult>(
       "/api/v2/research",
-      { method: "POST", body: JSON.stringify({ question, language }) },
+      { method: "POST", body: JSON.stringify(payload) },
       token,
     ),
   researchDetail: (token: string, id: string) =>

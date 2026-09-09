@@ -1,411 +1,532 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  BookOpenCheck,
-  Clock3,
-  GitCompareArrows,
-  History,
-  Library,
-  Radar,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-import { DemoBadge } from "@/components/common";
-import { DataFreshnessBadge } from "@/components/data-state";
+import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { ArrowRight, Check, ExternalLink, Search, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
-import type { ChangeEvent, Entity, KnowledgeSnapshot } from "@/domain/types";
+import type { ChangeEvent, Entity, Evidence } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { pick, useApp } from "@/lib/app-state";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AI Radar · 持续追踪 AI 世界正在发生什么" },
+      { title: "AI Radar · 基于可信变化做出 AI 选择" },
       {
         name: "description",
-        content: "把分散的 AI 官方更新整理成可验证事实、时间线、关系和研究结论。",
+        content: "追踪主流 AI 模型变化，并基于可验证证据辅助模型与产品选型。",
       },
     ],
   }),
   component: HomePage,
 });
 
-const CORE_ENTITY_SLUGS = [
-  "gpt",
-  "claude",
-  "gemini",
+const ANCHOR_MODEL_SLUGS = ["gpt", "claude", "gemini"] as const;
+const CORE_MODEL_SLUGS = [
+  ...ANCHOR_MODEL_SLUGS,
   "deepseek",
   "qwen",
-  "mcp",
-  "langgraph",
-  "autogen",
-  "crewai",
-  "manus",
-  "devin",
-];
+  "kimi",
+  "doubao",
+  "ernie",
+] as const;
+const PARTICLES = ["模", "型", "据", "码", "研", "证", "长", "工", "知", "更", "新", "源"];
+const subscribeToHydration = () => () => {};
 
 function HomePage() {
   const { t, lang } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const snapshot = snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT;
-  const showingBundledSnapshot = !snapshotQuery.data;
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const snapshot = hydrated
+    ? (snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT)
+    : DEMO_KNOWLEDGE_SNAPSHOT;
+  const showingBundledSnapshot = !hydrated || !snapshotQuery.data;
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [domainFilter, setDomainFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("model");
+  const [evidenceFilter, setEvidenceFilter] = useState("all");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
-  const latestChanges = snapshot.changes.slice(0, 6);
-  const coreEntities = CORE_ENTITY_SLUGS.map((slug) =>
+  const cutoff = new Date(snapshot.meta.retrievedAt);
+  cutoff.setUTCDate(cutoff.getUTCDate() - 90);
+  const latestChanges = snapshot.changes
+    .filter((change) => {
+      const entity = entityById.get(change.entityId);
+      if (!entity) return false;
+      if (timeFilter === "90" && new Date(change.date) < cutoff) return false;
+      if (domainFilter !== "all" && (!entity.origin || pick(entity.origin, "zh") !== domainFilter))
+        return false;
+      if (typeFilter !== "all" && entity.type !== typeFilter) return false;
+      if (evidenceFilter !== "all" && change.confidence !== evidenceFilter) return false;
+      if (verifiedOnly && change.confidence !== "verified") return false;
+      return true;
+    })
+    .slice(0, 6);
+  const [selectedId, setSelectedId] = useState(snapshot.changes[0]?.id ?? "");
+  const selectedChange =
+    latestChanges.find((change) => change.id === selectedId) ??
+    latestChanges[0] ??
+    snapshot.changes[0];
+  const hasFilteredChanges = latestChanges.length > 0;
+  const selectedEntity = selectedChange ? entityById.get(selectedChange.entityId) : undefined;
+  const selectedSources = selectedChange
+    ? (selectedChange.sourceIds
+        ?.map((id) => snapshot.evidence.find((source) => source.id === id))
+        .filter((source): source is Evidence => Boolean(source)) ?? [])
+    : [];
+  const coreEntities = CORE_MODEL_SLUGS.map((slug) =>
     snapshot.entities.find((entity) => entity.slug === slug),
-  )
-    .filter((entity): entity is Entity => Boolean(entity))
-    .slice(0, 8);
+  ).filter((entity): entity is Entity => Boolean(entity));
+  const resetFilters = () => {
+    setTimeFilter("all");
+    setDomainFilter("all");
+    setTypeFilter("model");
+    setEvidenceFilter("all");
+    setVerifiedOnly(false);
+  };
+
+  if (!selectedChange || !selectedEntity) return null;
 
   return (
     <AppShell>
-      <main className="page-container min-w-0 overflow-hidden pb-16 pt-9 md:pt-14">
-        <section className="grid min-w-0 items-end gap-8 border-b border-border pb-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
-          <div className="min-w-0">
-            <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5 font-medium text-signal">
-                <Radar className="h-4 w-4" /> AI INTELLIGENCE
+      <div className="radar-home">
+        <section className="radar-filterbar" aria-label={t("雷达筛选", "Radar filters")}>
+          <div className="page-container radar-filterbar__inner">
+            <div className="radar-filterset">
+              <FilterSelect
+                label={t("时间", "Time")}
+                value={timeFilter}
+                onChange={setTimeFilter}
+                options={[
+                  { value: "all", label: t("全部时间", "All time") },
+                  { value: "90", label: t("最近 90 天", "Last 90 days") },
+                ]}
+              />
+              <FilterSelect
+                label={t("领域", "Domain")}
+                value={domainFilter}
+                onChange={setDomainFilter}
+                options={[
+                  { value: "all", label: t("全部领域", "All domains") },
+                  { value: "国内", label: t("国内", "Domestic") },
+                  { value: "海外", label: t("海外", "Overseas") },
+                ]}
+              />
+              <FilterSelect
+                label={t("类型", "Type")}
+                value={typeFilter}
+                onChange={setTypeFilter}
+                options={[
+                  { value: "model", label: t("基础模型", "Foundation models") },
+                  { value: "all", label: t("全部类型", "All types") },
+                ]}
+              />
+              <FilterSelect
+                label={t("证据", "Evidence")}
+                value={evidenceFilter}
+                onChange={(value) => {
+                  setEvidenceFilter(value);
+                  if (value !== "verified") setVerifiedOnly(false);
+                }}
+                options={[
+                  { value: "all", label: t("全部等级", "All levels") },
+                  { value: "verified", label: t("已核验", "Verified") },
+                  { value: "inferred", label: t("含推断", "Inferred") },
+                ]}
+              />
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={verifiedOnly}
+              className={`radar-verified-toggle${verifiedOnly ? " is-active" : ""}`}
+              onClick={() => {
+                setVerifiedOnly((current) => !current);
+                setEvidenceFilter("all");
+              }}
+            >
+              <span className="radar-toggle-dot">
+                {verifiedOnly && <Check aria-hidden="true" />}
               </span>
-              <DataFreshnessBadge meta={snapshot.meta} />
-            </div>
-            <h1 className="max-w-full break-words text-3xl font-bold leading-[1.12] tracking-tight text-foreground sm:text-4xl md:text-6xl">
-              {t("持续追踪 AI 世界正在发生什么", "Track what is changing across the AI world")}
-            </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-ink-soft md:text-lg">
-              {t(
-                "AI Radar 自动追踪模型、Agent 与产品生态的官方更新，并将分散信息整理成可验证事实、时间线和关系。不是每次重新问 AI，而是持续维护一个有证据、可追踪、可比较的知识层。",
-                "AI Radar continuously turns official model, agent, and product updates into verifiable facts, timelines, and relationships—an evidence-backed knowledge layer instead of another one-off answer.",
-              )}
-            </p>
-            <div className="mt-7 flex min-w-0 flex-wrap gap-3">
-              <a
-                href="#latest"
-                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md bg-signal px-5 text-sm font-medium text-signal-foreground hover:opacity-90"
-              >
-                {t("查看最近变化", "Explore latest changes")} <ArrowRight className="h-4 w-4" />
-              </a>
-              <Link
-                to="/compare"
-                className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md border border-border bg-card px-5 text-sm font-medium hover:border-signal/40"
-              >
-                {t("比较主流 AI", "Compare leading AI")} <GitCompareArrows className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/ask"
-                className="inline-flex h-11 w-full items-center px-1 text-sm text-signal sm:w-auto"
-              >
-                {t("体验证据化研究", "Try evidence-backed research")} →
-              </Link>
-            </div>
-          </div>
-
-          <aside className="paper-card min-w-0 p-5 md:p-6">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-medium uppercase tracking-widest text-signal">
-                {t("可信知识层", "Trust layer")}
-              </span>
-              <DemoBadge />
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Metric value={String(snapshot.claims.length)} label={t("事实", "Claims")} />
-              <Metric value={String(snapshot.evidence.length)} label={t("证据", "Evidence")} />
-              <Metric value={String(snapshot.graph.edges.length)} label={t("关系", "Relations")} />
-              <Metric value={String(countTimeline(snapshot))} label={t("时间线", "Timeline")} />
-            </div>
-            <p className="mt-4 text-xs leading-6 text-muted-foreground">
-              {t(
-                "当前公开快照明确标记为演示/缓存；达到正式质量门槛前不会冒充实时知识库。",
-                "The public snapshot remains explicitly demo/cached until the formal live-quality gate passes.",
-              )}
-            </p>
-          </aside>
-        </section>
-
-        {showingBundledSnapshot && (
-          <div className="mt-5 rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
-            {t(
-              snapshotQuery.error
-                ? "实时接口暂时不可用，当前明确显示仓库内置的演示快照。"
-                : "实时接口正在连接，当前先显示仓库内置的演示快照。",
-              snapshotQuery.error
-                ? "The live API is temporarily unavailable; the bundled demo snapshot is shown explicitly."
-                : "The live API is connecting; the bundled demo snapshot is shown in the meantime.",
-            )}
-          </div>
-        )}
-
-        <section id="latest" className="scroll-mt-20 pt-12">
-          <SectionTitle
-            eyebrow={t("最新变化", "Latest changes")}
-            title={t("最近 AI 世界发生了什么？", "What changed across AI recently?")}
-            description={t(
-              "每条更新都保留实体、时间、核验状态与来源入口。",
-              "Every update keeps its entity, date, verification state, and source trail.",
-            )}
-          />
-          <div className="grid gap-3 md:grid-cols-2">
-            {latestChanges.map((change) => {
-              const entity = entityById.get(change.entityId);
-              if (!entity) return null;
-              return (
-                <ChangeCard key={change.id} change={change} entity={entity} snapshot={snapshot} />
-              );
-            })}
+              {t("仅显示已核验", "Verified only")}
+            </button>
           </div>
         </section>
 
-        <section className="pt-14">
-          <SectionTitle
-            eyebrow={t("核心对象", "Core entities")}
-            title={t("沿着实体理解长期演进", "Follow long-term evolution by entity")}
-            description={t(
-              "优先展示模型、Agent、协议和框架的完整档案，而不是只堆积名称。",
-              "Start with complete profiles across models, agents, protocols, and frameworks—not a directory of names.",
-            )}
-            action={
-              <Link to="/knowledge" className="text-sm text-signal hover:underline">
-                {t("浏览知识库", "Browse knowledge")} →
-              </Link>
-            }
-          />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {coreEntities.map((entity) => {
-              const latest = snapshot.changes.find((change) => change.entityId === entity.id);
-              return (
-                <Link
-                  key={entity.id}
-                  to="/knowledge/$type/$slug"
-                  params={{ type: entity.type, slug: entity.slug }}
-                  className="paper-card group min-h-40 p-5 transition-colors hover:border-signal/40"
-                >
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <span>{entity.type}</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:text-signal" />
-                  </div>
-                  <h3 className="mt-5 text-lg font-semibold">{pick(entity.name, lang)}</h3>
-                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-ink-soft">
-                    {latest ? pick(latest.summary, lang) : pick(entity.summary, lang)}
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground">
-                    <Clock3 className="h-3 w-3" /> {entity.lastUpdatedAt}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="pt-14">
-          <SectionTitle
-            eyebrow={t("产品差异", "Product difference")}
-            title={t("为什么不直接问 ChatGPT？", "Why not just ask ChatGPT?")}
-            description={t(
-              "通用问答擅长一次性生成；AI Radar 解决的是长期追踪、反复核验与跨时间比较。",
-              "General chat excels at one-off generation. AI Radar is built for persistent tracking, verification, and comparison over time.",
-            )}
-          />
-          <div className="paper-card grid gap-px overflow-hidden bg-border md:grid-cols-3 lg:grid-cols-6">
-            {[
-              [t("官方来源", "Official sources"), Library],
-              [t("持续采集", "Continuous collection"), Radar],
-              [t("AI 抽取", "AI extraction"), Sparkles],
-              [t("证据核验", "Evidence verification"), ShieldCheck],
-              [t("结构化知识", "Structured knowledge"), BookOpenCheck],
-              [t("追踪与研究", "Track and research"), History],
-            ].map(([label, Icon], index) => (
-              <div key={String(label)} className="relative bg-card p-5">
-                <Icon className="h-5 w-5 text-signal" />
-                <div className="mt-4 text-sm font-medium">{label as string}</div>
-                {index < 5 && (
-                  <ArrowRight className="absolute right-2 top-1/2 hidden h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground lg:block" />
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="pt-14">
-          <SectionTitle
-            eyebrow={t("三个核心体验", "Three core experiences")}
-            title={t(
-              "从变化到判断，不止得到一个答案",
-              "Move from change to judgment—not just an answer",
-            )}
-          />
-          <div className="grid gap-4 md:grid-cols-3">
-            <ExperienceCard
-              number="01"
-              icon={<History className="h-5 w-5" />}
-              title={t("追踪演进", "Track")}
-              body={t(
-                "用时间线看一个 AI 产品如何持续变化，并回到原始证据。",
-                "See how an AI product evolves over time and inspect the source evidence.",
-              )}
-              link={
-                <Link
-                  to="/knowledge/model/$slug"
-                  params={{ slug: "gpt" }}
-                  className="text-sm text-signal hover:underline"
-                >
-                  {t("打开 GPT 时间线", "Open the GPT timeline")} →
-                </Link>
-              }
-            />
-            <ExperienceCard
-              number="02"
-              icon={<GitCompareArrows className="h-5 w-5" />}
-              title={t("比较路线", "Compare")}
-              body={t(
-                "把 GPT、Claude、Gemini 放到一致维度中比较，不依赖临时 Prompt。",
-                "Compare GPT, Claude, and Gemini on consistent dimensions without rebuilding a prompt.",
-              )}
-              link={
-                <Link to="/compare" className="text-sm text-signal hover:underline">
-                  {t("比较主流 AI", "Compare leading AI")} →
-                </Link>
-              }
-            />
-            <ExperienceCard
-              number="03"
-              icon={<Sparkles className="h-5 w-5" />}
-              title={t("证据化研究", "Research")}
-              body={t(
-                "只用已收录 Claim 和 Evidence 形成结论，证据不足时明确拒答。",
-                "Build conclusions only from recorded claims and evidence, and decline when coverage is insufficient.",
-              )}
-              link={
-                <Link to="/ask" className="text-sm text-signal hover:underline">
-                  {t("体验 AI 研究", "Try AI research")} →
-                </Link>
-              }
-            />
-          </div>
-        </section>
-
-        <section className="mt-14 flex flex-col items-start justify-between gap-5 border-y border-border py-8 md:flex-row md:items-center">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-widest text-signal">
-              {t("产品故事", "Product story")}
-            </div>
-            <h2 className="mt-2 text-2xl font-semibold">
-              {t("从一次性问答到持续情报基础设施", "From one-off Q&A to persistent intelligence")}
-            </h2>
-          </div>
-          <Link
-            to="/case-study"
-            className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm font-medium hover:border-signal/40"
+        <div className="page-container">
+          <section
+            id="latest"
+            className={`radar-workspace${hasFilteredChanges ? "" : " is-empty"}`}
+            aria-label={t("变化追踪", "Change tracking")}
           >
-            {t("阅读产品 Case Study", "Read the product case study")}{" "}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </section>
-      </main>
+            <header className="radar-heading">
+              <div>
+                <h1>{t("动态雷达", "Live radar")}</h1>
+                <p>
+                  {t(
+                    "基于可验证的最新变化，做出更可靠的 AI 选择；事实汇聚成结论，未证信息沉淀消散。持续追踪 GPT、Claude、Gemini 与核心模型宇宙。",
+                    "Make better AI choices from verified changes; facts converge into conclusions while unsupported signals fall away across GPT, Claude, Gemini and the core model universe.",
+                  )}
+                </p>
+              </div>
+              <div className="radar-heading__status">
+                <span className={showingBundledSnapshot ? "is-demo" : "is-live"} />
+                {showingBundledSnapshot
+                  ? t("演示快照 · 可追溯", "Demo snapshot · traceable")
+                  : t("实时数据 · 已同步", "Live data · synced")}
+              </div>
+            </header>
+            {hasFilteredChanges ? (
+              <>
+                <aside className="change-index">
+                  <div className="workspace-panel-title">
+                    <span>{t("变化追踪", "Change tracking")}</span>
+                    <span className="workspace-count">
+                      {String(latestChanges.length).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="change-index__list" role="list">
+                    {latestChanges.map((change, index) => {
+                      const entity = entityById.get(change.entityId);
+                      if (!entity) return null;
+                      const active = change.id === selectedChange.id;
+                      return (
+                        <button
+                          key={change.id}
+                          type="button"
+                          className={`change-index__item${active ? " is-active" : ""}`}
+                          onClick={() => setSelectedId(change.id)}
+                          aria-pressed={active}
+                        >
+                          <span className="change-index__number">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span className="change-index__name">
+                            {entity.latestVersion || pick(entity.name, lang)}
+                            <small>{entity.vendor || pick(entity.name, lang)}</small>
+                          </span>
+                          <time dateTime={change.date}>
+                            {change.date.slice(5).replace("-", ".")}
+                          </time>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Link to="/knowledge" className="change-index__all">
+                    {t("查看全部变化", "View all changes")} <ArrowRight aria-hidden="true" />
+                  </Link>
+                </aside>
+
+                <section className="convergence-stage" aria-live="polite">
+                  <div className="workspace-panel-title convergence-stage__title">
+                    <span>{t("事实汇聚", "Fact convergence")}</span>
+                    <span>{t("从来源到结论", "Source to conclusion")}</span>
+                  </div>
+                  <div className="convergence-canvas">
+                    <svg
+                      className="convergence-lines"
+                      viewBox="0 0 720 430"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path d="M26 54 C198 54 258 185 430 215" />
+                      <path d="M26 132 C202 132 275 201 430 215" />
+                      <path d="M26 215 C214 215 282 215 430 215" />
+                      <path d="M26 298 C202 298 275 229 430 215" />
+                      <path d="M26 376 C198 376 258 245 430 215" />
+                      <path className="is-evidence" d="M580 196 C638 174 665 126 714 112" />
+                      <path className="is-evidence" d="M580 234 C642 248 673 300 714 316" />
+                    </svg>
+                    <div className="fact-stack">
+                      {factFragments(selectedChange, selectedEntity, lang).map((fact, index) => (
+                        <div
+                          className="fact-chip"
+                          key={`${selectedChange.id}-${fact}`}
+                          style={{ "--fact-index": index } as CSSProperties}
+                        >
+                          <span>{fact}</span>
+                          <i />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="semantic-particles" aria-hidden="true">
+                      {PARTICLES.map((particle, index) => (
+                        <span key={`${particle}-${index}`}>{particle}</span>
+                      ))}
+                    </div>
+                    <article className="conclusion-card">
+                      <div className="conclusion-card__state">
+                        <span className="sr-only">{t("当前结论", "Current conclusion")}</span>
+                        <span className={`confidence-dot is-${selectedChange.confidence}`} />
+                        {confidenceLabel(selectedChange.confidence, lang)}
+                      </div>
+                      <p className="conclusion-card__entity">
+                        {entityDisplayName(selectedEntity, lang)}
+                      </p>
+                      <h2>{pick(selectedChange.summary, lang)}</h2>
+                      <div className="conclusion-card__meta">
+                        <span>
+                          {selectedSources.length} {t("个来源", "sources")}
+                        </span>
+                        <span>{selectedChange.date}</span>
+                      </div>
+                    </article>
+                  </div>
+                </section>
+
+                <EvidenceInspector
+                  entity={selectedEntity}
+                  change={selectedChange}
+                  sources={selectedSources}
+                />
+              </>
+            ) : (
+              <div className="radar-empty" role="status" aria-live="polite">
+                <span className="radar-empty__mark" aria-hidden="true" />
+                <h2>{t("没有符合条件的变化", "No changes match these filters")}</h2>
+                <p>
+                  {t(
+                    "当前组合过于严格。清除筛选后可重新查看全部可追溯变化。",
+                    "This combination is too narrow. Reset the filters to see all traceable changes.",
+                  )}
+                </p>
+                <button type="button" onClick={resetFilters}>
+                  {t("清除筛选", "Reset filters")}
+                </button>
+              </div>
+            )}
+          </section>
+
+          <section
+            id="models"
+            className="model-index"
+            aria-label={t("核心模型宇宙", "Core model universe")}
+          >
+            <div className="model-index__heading">
+              <div>
+                <h2>{t("模型索引", "Model index")}</h2>
+                <span className="model-index__count">
+                  {String(coreEntities.length).padStart(2, "0")}
+                </span>
+              </div>
+              <Link to="/knowledge">
+                {t("打开知识库", "Open knowledge base")} <ArrowRight aria-hidden="true" />
+              </Link>
+            </div>
+            <div className="model-table-scroll">
+              <div
+                className="model-table"
+                role="table"
+                aria-label={t("核心模型索引", "Core model index")}
+              >
+                <div className="model-table__row model-table__head" role="row">
+                  <span role="columnheader">{t("模型", "Model")}</span>
+                  <span role="columnheader">{t("厂商", "Vendor")}</span>
+                  <span role="columnheader">{t("最新变化", "Latest change")}</span>
+                  <span role="columnheader">{t("更新时间", "Updated")}</span>
+                  <span role="columnheader">{t("来源", "Sources")}</span>
+                  <span role="columnheader">{t("主要能力", "Focus")}</span>
+                  <span role="columnheader">
+                    <span className="sr-only">{t("操作", "Action")}</span>
+                  </span>
+                </div>
+                {coreEntities.map((entity) => {
+                  const latest = snapshot.changes.find((change) => change.entityId === entity.id);
+                  const sourceCount = latest?.sourceIds?.length ?? 0;
+                  return (
+                    <EntityDetailLink
+                      key={entity.id}
+                      entity={entity}
+                      className="model-table__row"
+                      role="row"
+                    >
+                      <span className="model-table__model" role="cell">
+                        {entityDisplayName(entity, lang)}
+                      </span>
+                      <span role="cell">{entity.vendor || "—"}</span>
+                      <span className="model-table__change" role="cell">
+                        {latest ? pick(latest.summary, lang) : pick(entity.summary, lang)}
+                      </span>
+                      <time role="cell" dateTime={latest?.date || entity.lastUpdatedAt}>
+                        {latest?.date || entity.lastUpdatedAt}
+                      </time>
+                      <span role="cell">{sourceCount || "—"}</span>
+                      <span className="model-table__tags" role="cell">
+                        {entity.tags.slice(0, 2).join(" · ")}
+                      </span>
+                      <span className="model-table__arrow" role="cell">
+                        <ArrowRight aria-hidden="true" />
+                      </span>
+                    </EntityDetailLink>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
     </AppShell>
   );
 }
 
-function countTimeline(snapshot: KnowledgeSnapshot) {
-  return Object.values(snapshot.timeline).reduce((total, entries) => total + entries.length, 0);
-}
-
-function Metric({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-md border border-border bg-background p-3">
-      <div className="font-mono text-2xl font-semibold text-foreground">{value}</div>
-      <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
-function SectionTitle({
-  eyebrow,
-  title,
-  description,
-  action,
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
 }: {
-  eyebrow: string;
-  title: string;
-  description?: string;
-  action?: React.ReactNode;
+  label: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
 }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-widest text-signal">{eyebrow}</div>
-        <h2 className="mt-2 text-2xl font-semibold md:text-3xl">{title}</h2>
-        {description && (
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-soft">{description}</p>
-        )}
-      </div>
-      {action}
-    </div>
+    <label className="radar-filter">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)} aria-label={label}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
-function ChangeCard({
-  change,
+function EvidenceInspector({
   entity,
-  snapshot,
+  change,
+  sources,
 }: {
-  change: ChangeEvent;
   entity: Entity;
-  snapshot: KnowledgeSnapshot;
+  change: ChangeEvent;
+  sources: Evidence[];
 }) {
   const { t, lang } = useApp();
-  const sources = snapshot.evidence.filter((source) => change.sourceIds?.includes(source.id));
   return (
-    <article className="paper-card p-5">
-      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1 text-verified">
-          <ShieldCheck className="h-3.5 w-3.5" /> {t("已核验", "Verified")}
-        </span>
-        <span>·</span>
-        <span>{sources[0]?.publisher ?? t("来源已绑定", "Source attached")}</span>
-        <span className="ml-auto font-mono">{change.date}</span>
+    <aside className="evidence-inspector">
+      <div className="workspace-panel-title">
+        <span>{t("证据检查器", "Evidence inspector")}</span>
+        <Search aria-hidden="true" />
       </div>
-      <Link
-        to="/knowledge/$type/$slug"
-        params={{ type: entity.type, slug: entity.slug }}
-        className="group mt-4 block"
-      >
-        <div className="text-xs font-medium uppercase tracking-wider text-signal">
-          {pick(entity.name, lang)}
+      <div className="evidence-inspector__entity">
+        <p>{entity.vendor || t("模型实体", "Model entity")}</p>
+        <h2>{entityDisplayName(entity, lang)}</h2>
+        <div className="evidence-state">
+          <span className={`confidence-dot is-${change.confidence}`} />
+          {confidenceLabel(change.confidence, lang)}
+          <time dateTime={change.date}>{change.date}</time>
         </div>
-        <h3 className="mt-2 text-base font-semibold leading-6 group-hover:text-signal">
-          {pick(change.summary, lang)}
-        </h3>
-        <span className="mt-4 inline-flex items-center gap-1 text-xs text-muted-foreground">
-          {t("查看时间线与证据", "Open timeline and evidence")}{" "}
-          <ArrowRight className="h-3.5 w-3.5" />
+      </div>
+      <div className="evidence-conclusion">
+        <p className="section-label">{t("关键结论", "Key conclusion")}</p>
+        <p>{pick(change.summary, lang)}</p>
+      </div>
+      <div className="evidence-list">
+        <div className="section-label">{t("支持证据", "Supporting evidence")}</div>
+        {sources.length > 0 ? (
+          sources.slice(0, 3).map((source, index) => (
+            <a
+              key={source.id}
+              href={source.url}
+              target="_blank"
+              rel="noreferrer"
+              className="evidence-row"
+            >
+              <span className="evidence-row__number">{String(index + 1).padStart(2, "0")}</span>
+              <span>
+                <strong>{pick(source.title, lang)}</strong>
+                <small>
+                  {source.publisher} · {source.publishedAt}
+                </small>
+              </span>
+              <ExternalLink aria-hidden="true" />
+            </a>
+          ))
+        ) : (
+          <p className="evidence-empty">
+            {t(
+              "当前变化未绑定可直接打开的来源。",
+              "No directly linked source is available for this change.",
+            )}
+          </p>
+        )}
+      </div>
+      <Link to="/ask" className="decision-action">
+        <span>
+          <Sparkles aria-hidden="true" /> {t("开始做选择", "Start a decision")}
         </span>
+        <ArrowRight aria-hidden="true" />
       </Link>
-    </article>
+    </aside>
   );
 }
 
-function ExperienceCard({
-  number,
-  icon,
-  title,
-  body,
-  link,
+function factFragments(change: ChangeEvent, entity: Entity, lang: "zh" | "en") {
+  const summary = pick(change.summary, lang);
+  const parts = summary
+    .split(lang === "zh" ? /[，。；]/ : /[,.;]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const identity = entity.vendor
+    ? lang === "zh"
+      ? `${entity.vendor} 发布`
+      : `Published by ${entity.vendor}`
+    : lang === "zh"
+      ? "实体已识别"
+      : "Entity identified";
+  return Array.from(new Set([identity, ...parts, ...entity.tags.slice(0, 2)])).slice(0, 5);
+}
+
+function entityDisplayName(entity: Entity, lang: "zh" | "en") {
+  return entity.latestVersion || pick(entity.name, lang);
+}
+
+function confidenceLabel(confidence: ChangeEvent["confidence"], lang: "zh" | "en") {
+  const labels = {
+    verified: { zh: "已核验", en: "Verified" },
+    inferred: { zh: "推断", en: "Inferred" },
+    unverified: { zh: "待核验", en: "Unverified" },
+    conflict: { zh: "有冲突", en: "Conflicting" },
+  } as const;
+  return labels[confidence][lang];
+}
+
+function EntityDetailLink({
+  entity,
+  className,
+  children,
+  role,
 }: {
-  number: string;
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-  link: React.ReactNode;
+  entity: Entity;
+  className: string;
+  children: ReactNode;
+  role?: string;
 }) {
+  if (entity.type === "model") {
+    return (
+      <Link
+        to="/knowledge/model/$slug"
+        params={{ slug: entity.slug }}
+        className={className}
+        role={role}
+      >
+        {children}
+      </Link>
+    );
+  }
   return (
-    <article className="paper-card p-6">
-      <div className="flex items-center justify-between text-signal">
-        {icon}
-        <span className="font-mono text-xs">{number}</span>
-      </div>
-      <h3 className="mt-6 text-xl font-semibold">{title}</h3>
-      <p className="mt-3 min-h-20 text-sm leading-7 text-ink-soft">{body}</p>
-      <div className="mt-5 border-t border-border pt-4">{link}</div>
-    </article>
+    <Link
+      to="/knowledge/$type/$slug"
+      params={{ type: entity.type, slug: entity.slug }}
+      className={className}
+      role={role}
+    >
+      {children}
+    </Link>
   );
 }

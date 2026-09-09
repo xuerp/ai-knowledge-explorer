@@ -119,6 +119,22 @@ test("审核队列按六条互斥工作通道分类", () => {
     ],
   });
   const invalid = item({ id: "invalid", entityId: undefined });
+  const invalidHighRisk = item({
+    id: "invalid-high-risk",
+    entityId: undefined,
+    claim: {
+      ...item().claim,
+      predicate: "benchmark",
+      objectOrValue: "90",
+    },
+    evidenceItems: [
+      {
+        ...item().evidenceItems[0],
+        type: "community",
+        sourceExcerpt: "GPT benchmark 90.",
+      },
+    ],
+  });
   const safe = item({
     id: "safe",
     claim: {
@@ -138,6 +154,7 @@ test("审核队列按六条互斥工作通道分类", () => {
   assert.equal(classifyReviewLane(update, [approved], now), "possible-update");
   assert.equal(classifyReviewLane(highRisk, [], now), "high-risk");
   assert.equal(classifyReviewLane(invalid, [], now), "invalid");
+  assert.equal(classifyReviewLane(invalidHighRisk, [], now), "invalid");
   assert.equal(classifyReviewLane(safe, [], now), "fresh-safe");
   assert.deepEqual(
     reviewLaneCounts([duplicate, update, highRisk, invalid, safe], [approved], now),

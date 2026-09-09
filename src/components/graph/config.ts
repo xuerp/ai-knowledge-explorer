@@ -85,6 +85,7 @@ export const RELATION_TYPES: RelationKind[] = [
   "cited-by",
   "part-of",
   "successor-of",
+  "integrates-with",
 ];
 
 export const CONFIDENCE_TYPES: Confidence[] = ["verified", "inferred", "unverified", "conflict"];
