@@ -271,6 +271,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             repository.seed_catalog(session)
             repository.seed_review_jobs(session)
             ingestion.reconcile_historical_permanent_failures(session)
+            ingestion.reconcile_misclassified_not_modified_failures(session)
             ingestion.reconcile_source_portfolio(session)
         yield
         if embedding_provider is not None:
