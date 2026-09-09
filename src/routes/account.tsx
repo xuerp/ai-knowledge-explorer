@@ -300,7 +300,9 @@ function safeReturnTo(value: string | null, origin: string) {
   if (!value) return "";
   try {
     const destination = new URL(value, origin);
-    if (destination.origin !== origin || destination.pathname !== "/ask") return "";
+    const allowedPath =
+      destination.pathname === "/ask" || /^\/research\/[^/]+$/.test(destination.pathname);
+    if (destination.origin !== origin || !allowedPath) return "";
     return `${destination.pathname}${destination.search}${destination.hash}`;
   } catch {
     return "";
