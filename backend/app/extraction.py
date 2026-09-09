@@ -481,9 +481,7 @@ class StructuredExtractionService:
             elif status_code in {400, 422}:
                 detail = "The extraction provider rejected the structured request."
             elif status_code >= 500:
-                detail = (
-                    f"The extraction provider returned HTTP {status_code}; retry later."
-                )
+                detail = f"The extraction provider returned HTTP {status_code}; retry later."
             else:
                 detail = f"The extraction provider returned HTTP {status_code}."
             raise ExtractionUnavailableError(detail) from error
