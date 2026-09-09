@@ -46,3 +46,26 @@ def test_relation_backfill_requires_an_explicit_batch_and_hard_caps_requests():
             relation_backfill_batch_id="too-large",
             relation_backfill_max_snapshots=11,
         )
+
+
+def test_retrieval_mode_and_cloudflare_embedding_settings_are_explicit(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_RETRIEVAL_MODE", "hybrid")
+    monkeypatch.setenv("AI_RADAR_EMBEDDING_PROVIDER", "cloudflare")
+    monkeypatch.setenv("CLOUDFLARE_ACCOUNT_ID", "account-id")
+    monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "secret-token")
+
+    settings = Settings.from_env()
+
+    assert settings.retrieval_mode == "hybrid"
+    assert settings.embedding_provider == "cloudflare"
+    assert settings.embedding_model == "@cf/baai/bge-m3"
+    assert settings.embedding_dimension == 1024
+    assert settings.cloudflare_account_id == "account-id"
+    assert settings.cloudflare_api_token == "secret-token"
+
+
+def test_invalid_retrieval_mode_is_rejected(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_RETRIEVAL_MODE", "bm25")
+
+    with pytest.raises(ValueError, match="RETRIEVAL_MODE"):
+        Settings.from_env()

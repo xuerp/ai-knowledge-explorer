@@ -2,6 +2,7 @@ import type { Entity, Evidence, GraphEdge, TimelineEntry } from "@/domain/types"
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
 import { expireAuthSession } from "@/services/auth-session";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
+import type { ReviewReasonCategory } from "@/domain/review-decision";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
 
@@ -128,6 +129,8 @@ export interface ReviewQueueItem {
   createdAt: string;
   reviewedAt?: string;
   version: number;
+  reasonCategory?: ReviewReasonCategory;
+  reasonNote?: string;
   reviewReason?: string;
   reviewMethod?: "human" | "automation";
   lifecycleStatus?: "current" | "superseded" | "historical" | "retracted";
@@ -350,6 +353,14 @@ export interface IntegrationStatus {
   automaticExtractionMaxCandidatesPerSnapshot: number;
   automaticExtractionRetryMinutes: number;
   automaticRelationApprovalEnabled: boolean;
+  retrievalMode: "lexical" | "hybrid";
+  embeddingConfigured: boolean;
+  embeddingProvider: "none" | "cloudflare";
+  embeddingModel?: string;
+  embeddingVersion?: string;
+  embeddingDimension?: number;
+  embeddingDailyNeuronBudget?: number;
+  embeddingDailyApiCallBudget?: number;
   smtpConfigured: boolean;
   smtpHost?: string;
   smtpFrom?: string;
@@ -631,13 +642,19 @@ export const adminApi = {
     id: string,
     action: "approve" | "reject",
     expectedVersion: number,
-    reason: string,
+    reason: string | undefined,
+    reasonCategory?: ReviewReasonCategory,
   ) =>
     request<ReviewQueueItem>(
       `/api/v2/admin/review-queue/${encodeURIComponent(id)}/${action}`,
       {
         method: "POST",
-        body: JSON.stringify({ expectedVersion, reason }),
+        body: JSON.stringify({
+          expectedVersion,
+          reason,
+          reasonNote: reason,
+          reasonCategory,
+        }),
       },
       token,
     ),
@@ -781,6 +798,7 @@ export const adminApi = {
       `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
       { method: "POST", body: JSON.stringify({ maxCandidates, snapshotId }) },
       token,
+      90_000,
     ),
 
   submitCandidate: (token: string, candidate: CandidateCreateRequest) =>

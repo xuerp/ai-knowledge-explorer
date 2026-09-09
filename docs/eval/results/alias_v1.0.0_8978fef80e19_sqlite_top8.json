@@ -1,0 +1,5576 @@
+{
+  "metadata": {
+    "goldenSetVersion": "1.0.0",
+    "sampleCount": 80,
+    "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
+    "aliasCatalogVersion": "1.0.0",
+    "aliasCatalogSha256": "d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60",
+    "retrievalMode": "lexical",
+    "databaseDialect": "sqlite",
+    "topK": 8,
+    "evaluationCommit": "0ab1c69c8051f8e3b2db5467c6fb6040a7bf0cc9",
+    "evaluatedAt": "2026-08-30T17:52:16.2425056Z"
+  },
+  "before": {
+    "metrics": {
+      "overall": {
+        "samples": 80,
+        "recallAtK": 0.9938,
+        "precisionAtK": 0.1406,
+        "entityRecallAtK": 0.9938,
+        "passRatio": 0.9875
+      },
+      "categories": {
+        "entity": {
+          "samples": 30,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "relation": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "timeline": {
+          "samples": 20,
+          "recallAtK": 0.975,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 0.95
+        },
+        "comparison": {
+          "samples": 10,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.25,
+          "entityRecallAtK": 0.95,
+          "passRatio": 1.0
+        }
+      }
+    },
+    "results": [
+      {
+        "id": "entity-001",
+        "category": "entity",
+        "query": "GPT-5 在 SWE-bench Verified 上的通过率是多少？",
+        "expectedClaimIds": [
+          "c-gpt5-swe"
+        ],
+        "retrievedClaimIds": [
+          "c-gpt5-swe",
+          "claim-40da0986ded48569404c",
+          "claim-4fd46ae604567d5065bd",
+          "claim-62e6a41540009d41ae38",
+          "claim-67fa626d90510874782c",
+          "claim-722c98db171d7018b8b3",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-b544c4cb8c1e5187ade6"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gpt-5",
+            "e-swebench"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-002",
+        "category": "entity",
+        "query": "Claude 4.5 的官方安全评估提到了什么变化？",
+        "expectedClaimIds": [
+          "c-claude-align"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-align",
+          "claim-1519244ae09190af0d74",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-2dd7114eca1f06d79501",
+          "claim-44a75c23edcd9681adda",
+          "claim-4799cf4d38cec65fca19",
+          "claim-567e0fde453f45cc666b",
+          "claim-8ebb1d7e525930e855ad"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-003",
+        "category": "entity",
+        "query": "OpenAI 最新模型是否支持视觉能力？",
+        "expectedClaimIds": [
+          "claim-d52e477b9559be80d40d"
+        ],
+        "retrievedClaimIds": [
+          "claim-d52e477b9559be80d40d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-1718168ed069ec20533c",
+          "claim-7b675cc727012f320129",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-004",
+        "category": "entity",
+        "query": "Gemini 2.5 Pro 能原生处理多长的视频？",
+        "expectedClaimIds": [
+          "c-gemini-video"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-video"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-25-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-005",
+        "category": "entity",
+        "query": "OpenAI Codex 属于什么类型的产品？",
+        "expectedClaimIds": [
+          "c-codex-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-8a2943bc0365104acd20",
+          "claim-c05a2d6e012bd55d093a"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 3,
+          "returnedCount": 3,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-006",
+        "category": "entity",
+        "query": "Claude Code 能完成哪些代码操作？",
+        "expectedClaimIds": [
+          "c-claude-code-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-8f1b9dca9176013f7989",
+          "claim-957f78f08bcffaa45776",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-007",
+        "category": "entity",
+        "query": "Gemini CLI 是什么终端工具？",
+        "expectedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-cli"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-008",
+        "category": "entity",
+        "query": "Manus 如何描述自己的任务执行能力？",
+        "expectedClaimIds": [
+          "c-manus-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-manus-agent",
+          "c-codex-agent",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68",
+          "claim-8f1b9dca9176013f7989",
+          "claim-fe7400a84c600dfb05d1",
+          "c-autogen-framework",
+          "c-devin-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-manus",
+            "e-manus-company"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-009",
+        "category": "entity",
+        "query": "Devin 的官方文档如何定义它？",
+        "expectedClaimIds": [
+          "c-devin-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-devin-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-devin"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-010",
+        "category": "entity",
+        "query": "LangGraph 是哪一类 Agent 框架？",
+        "expectedClaimIds": [
+          "c-langgraph-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-011",
+        "category": "entity",
+        "query": "AutoGen 安装文档包含哪些核心能力？",
+        "expectedClaimIds": [
+          "c-autogen-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-autogen-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-autogen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-012",
+        "category": "entity",
+        "query": "CrewAI 用哪些概念组织协作式 Agent？",
+        "expectedClaimIds": [
+          "c-crewai-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-crewai-framework",
+          "c-codex-agent",
+          "c-gemini-cli-agent",
+          "c-langgraph-framework",
+          "c-manus-agent",
+          "c-openai-agents-sdk-framework",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-37d0d89648d2a393d0c3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-crewai",
+            "e-crewai-company"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-013",
+        "category": "entity",
+        "query": "OpenAI Agents SDK 提供哪些构建块？",
+        "expectedClaimIds": [
+          "c-openai-agents-sdk-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-openai-agents-sdk-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai-agents-sdk"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-014",
+        "category": "entity",
+        "query": "Kimi K2.6 的上下文窗口有多大？",
+        "expectedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9"
+        ],
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-015",
+        "category": "entity",
+        "query": "Kimi K3 支持多长的上下文？",
+        "expectedClaimIds": [
+          "claim-1d379a59788c82f7c2a0"
+        ],
+        "retrievedClaimIds": [
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-1fdb85142657f6812e18",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-016",
+        "category": "entity",
+        "query": "Anthropic 的公司宗旨是什么？",
+        "expectedClaimIds": [
+          "claim-d164b5c3859aa142e64b"
+        ],
+        "retrievedClaimIds": [
+          "claim-d164b5c3859aa142e64b",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-68c09107f4d766a73a57",
+          "claim-9198f4054e0c204fc1a9",
+          "claim-93e11b12cd81ffd645d1",
+          "claim-b743aa575bc8317ca642",
+          "claim-fe1416642f52fa55ce45",
+          "claim-3d5d2da944a152e3a050"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-017",
+        "category": "entity",
+        "query": "MCP 服务器可以公开哪三种核心原语？",
+        "expectedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620"
+        ],
+        "retrievedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-739edf11461045ce579e",
+          "claim-c39776a16ff86e810567",
+          "claim-d598a28918ce07b143fa",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-018",
+        "category": "entity",
+        "query": "MCP 支持哪些传输机制？",
+        "expectedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "retrievedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-019",
+        "category": "entity",
+        "query": "Claude Code 是否可以搜索和读取代码？",
+        "expectedClaimIds": [
+          "claim-964dfcfbc1b85062f986"
+        ],
+        "retrievedClaimIds": [
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "c-claude-code-agent",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-957f78f08bcffaa45776",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-020",
+        "category": "entity",
+        "query": "LangChain 的 create_agent 是什么？",
+        "expectedClaimIds": [
+          "claim-dd89bd1c8f5c53c061b1"
+        ],
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-6bc3e8040e503b9761af",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-021",
+        "category": "entity",
+        "query": "Kimi 最多支持多少步工具调用？",
+        "expectedClaimIds": [
+          "claim-cf94fdbaa29a323ff09b"
+        ],
+        "retrievedClaimIds": [
+          "claim-efbc349eb971644543eb",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 17,
+          "returnedCount": 8,
+          "filteredCount": 9,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-022",
+        "category": "entity",
+        "query": "LangGraph 是否支持 human-in-the-loop？",
+        "expectedClaimIds": [
+          "claim-60b87db2ddd7abbb6700"
+        ],
+        "retrievedClaimIds": [
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-023",
+        "category": "entity",
+        "query": "Claude 3.7 Sonnet 的思考预算上限是多少？",
+        "expectedClaimIds": [
+          "claim-aec3ec964cca35fb7ce0"
+        ],
+        "retrievedClaimIds": [
+          "claim-dd07fb638a7530ff2309",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-ee0aaa3d27f27adc8c0f",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-b16d6589cd7104289b88",
+          "claim-d09942e317650cc3435d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-024",
+        "category": "entity",
+        "query": "MMLU-Pro 将答案选项扩展到了多少个？",
+        "expectedClaimIds": [
+          "claim-64413a939e7a8f19b690"
+        ],
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-204d387cd78583653f04",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-8a595db59a1aa15c3d51"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-025",
+        "category": "entity",
+        "query": "Qwen3-2507 可以处理多长的输入？",
+        "expectedClaimIds": [
+          "claim-d8c42aa4195b98cd5d4f"
+        ],
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-789db8e8444fba20797b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-026",
+        "category": "entity",
+        "query": "Doubao Seed1.8 提供几种思考模式？",
+        "expectedClaimIds": [
+          "claim-6f9aaf8ca2c9c500592f"
+        ],
+        "retrievedClaimIds": [
+          "claim-6f9aaf8ca2c9c500592f",
+          "claim-e88536c0e20174d180b0",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-9a28d268080030afc6a8",
+          "claim-1176c1661b5a43b0362d",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 20,
+          "returnedCount": 8,
+          "filteredCount": 12,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao",
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-027",
+        "category": "entity",
+        "query": "Transformer 的核心机制是什么？",
+        "expectedClaimIds": [
+          "claim-651c65451adfbda8426e"
+        ],
+        "retrievedClaimIds": [
+          "claim-651c65451adfbda8426e",
+          "c-autogen-framework",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-50c69855c226a60323a7",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-c197b2fed5266444ac67",
+          "c-claude-align",
+          "c-claude-code-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-028",
+        "category": "entity",
+        "query": "Cursor 在知识库中被归类为什么？",
+        "expectedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf"
+        ],
+        "retrievedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-cursor"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-029",
+        "category": "entity",
+        "query": "ERNIE 5.0 的参数规模是多少？",
+        "expectedClaimIds": [
+          "claim-1df943f17b88c67f915b"
+        ],
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-50"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-030",
+        "category": "entity",
+        "query": "Claude Code 是哪种命令行工具？",
+        "expectedClaimIds": [
+          "claim-6d9735b8089f5c019ba7"
+        ],
+        "retrievedClaimIds": [
+          "claim-14f5b73d8708bbc4a360",
+          "claim-6d9735b8089f5c019ba7",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-38cd91454308c906fc2e",
+          "claim-3ec4878162e369974a0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-001",
+        "category": "relation",
+        "query": "LangChain 的 agents 与 LangGraph 有什么技术关系？",
+        "expectedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00"
+        ],
+        "retrievedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00",
+          "c-langgraph-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-0b39443caf585df6a887"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain",
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-002",
+        "category": "relation",
+        "query": "Claude Code 与 MCP 主机是什么关系？",
+        "expectedClaimIds": [
+          "claim-3ec4878162e369974a0b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3ec4878162e369974a0b",
+          "claim-739edf11461045ce579e",
+          "claim-708f41b052b365989d5f",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 34,
+          "returnedCount": 8,
+          "filteredCount": 26,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code",
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-003",
+        "category": "relation",
+        "query": "Claude Code 如何使用 Model Context Protocol？",
+        "expectedClaimIds": [
+          "claim-708f41b052b365989d5f"
+        ],
+        "retrievedClaimIds": [
+          "claim-708f41b052b365989d5f",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-3ec4878162e369974a0b",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-21ed507207e65f133a8d",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-46a65791b4fe4379aa31"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 34,
+          "returnedCount": 8,
+          "filteredCount": 26,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code",
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-004",
+        "category": "relation",
+        "query": "Anthropic 开发了哪个 Claude 3.7 模型？",
+        "expectedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b"
+        ],
+        "retrievedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-b16d6589cd7104289b88",
+          "claim-d09942e317650cc3435d",
+          "claim-dd07fb638a7530ff2309"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 31,
+          "returnedCount": 8,
+          "filteredCount": 23,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic",
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-005",
+        "category": "relation",
+        "query": "ERNIE 5.1 与 ERNIE 5.0 的继承关系是什么？",
+        "expectedClaimIds": [
+          "claim-84efe21fd9bb4e00cae3"
+        ],
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b",
+          "claim-514a641cc94e8c2e9089",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-586c43110316fad28627",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-50",
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-006",
+        "category": "relation",
+        "query": "ERNIE 5.1 的训练基础设施使用了什么框架？",
+        "expectedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc"
+        ],
+        "retrievedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-514a641cc94e8c2e9089",
+          "claim-586c43110316fad28627",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa",
+          "claim-f1e2af967f065102bbde"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-007",
+        "category": "relation",
+        "query": "LangChain 用什么平台跟踪和评估 Agent？",
+        "expectedClaimIds": [
+          "claim-37d0d89648d2a393d0c3"
+        ],
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-85baa52e65c945a6dbd1",
+          "claim-bf9d94a7b2d875c0bf00"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-008",
+        "category": "relation",
+        "query": "LangChain 支持哪家 OpenAI 模型供应商？",
+        "expectedClaimIds": [
+          "claim-0b39443caf585df6a887"
+        ],
+        "retrievedClaimIds": [
+          "claim-0b39443caf585df6a887",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-1718168ed069ec20533c",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-7b675cc727012f320129"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain",
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-009",
+        "category": "relation",
+        "query": "LangChain 是否支持 Anthropic？",
+        "expectedClaimIds": [
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "retrievedClaimIds": [
+          "claim-3d5d2da944a152e3a050",
+          "claim-85baa52e65c945a6dbd1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-68c09107f4d766a73a57"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 20,
+          "returnedCount": 8,
+          "filteredCount": 12,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic",
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-010",
+        "category": "relation",
+        "query": "Seed1.8 集成了哪些 Agent 能力？",
+        "expectedClaimIds": [
+          "claim-5aaf53f59267692a608e"
+        ],
+        "retrievedClaimIds": [
+          "claim-5aaf53f59267692a608e",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-1176c1661b5a43b0362d",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-48213f05b19dcaf25309",
+          "claim-56e09e8a092cf475a286"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-011",
+        "category": "relation",
+        "query": "Seed1.8 与 VideoCut 的集成关系是什么？",
+        "expectedClaimIds": [
+          "claim-f94f9f7b5033aa600b03"
+        ],
+        "retrievedClaimIds": [
+          "claim-f94f9f7b5033aa600b03",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-5aaf53f59267692a608e",
+          "claim-1176c1661b5a43b0362d",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-48213f05b19dcaf25309",
+          "claim-56e09e8a092cf475a286"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-012",
+        "category": "relation",
+        "query": "OpenAI 的最新模型支持哪些输入模态？",
+        "expectedClaimIds": [
+          "claim-946116b1be917420287c"
+        ],
+        "retrievedClaimIds": [
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-90b09d0c9745cbcb877b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-013",
+        "category": "relation",
+        "query": "GPT-5.2-Codex 针对哪类任务优化？",
+        "expectedClaimIds": [
+          "claim-ce8bf109d9ca8dda5e63"
+        ],
+        "retrievedClaimIds": [
+          "claim-8a2943bc0365104acd20",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-62e6a41540009d41ae38",
+          "claim-722c98db171d7018b8b3",
+          "claim-c05a2d6e012bd55d093a",
+          "claim-ea299deb61fc0d5eaa5a",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex",
+            "e-gpt-5"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-014",
+        "category": "relation",
+        "query": "GPT-5-Codex 与 Codex 编码任务是什么关系？",
+        "expectedClaimIds": [
+          "claim-62e6a41540009d41ae38"
+        ],
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-62e6a41540009d41ae38",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-4fd46ae604567d5065bd",
+          "claim-722c98db171d7018b8b3",
+          "claim-40da0986ded48569404c",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-8a2943bc0365104acd20"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex",
+            "e-gpt-5"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-015",
+        "category": "relation",
+        "query": "MMLU-Pro 如何扩展原始 MMLU？",
+        "expectedClaimIds": [
+          "claim-a18286f8beb841d14f78"
+        ],
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-9a17a4c22c2c11a5c5e1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-016",
+        "category": "relation",
+        "query": "Transformer 与递归结构的关系是什么？",
+        "expectedClaimIds": [
+          "claim-c197b2fed5266444ac67"
+        ],
+        "retrievedClaimIds": [
+          "claim-739edf11461045ce579e",
+          "claim-c197b2fed5266444ac67",
+          "claim-50c69855c226a60323a7",
+          "claim-651c65451adfbda8426e",
+          "c-autogen-framework",
+          "c-claude-align",
+          "c-claude-code-agent",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-017",
+        "category": "relation",
+        "query": "Transformer 与卷积结构的关系是什么？",
+        "expectedClaimIds": [
+          "claim-50c69855c226a60323a7"
+        ],
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-739edf11461045ce579e",
+          "claim-651c65451adfbda8426e",
+          "claim-c197b2fed5266444ac67",
+          "c-autogen-framework",
+          "c-claude-align",
+          "c-claude-code-agent",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-018",
+        "category": "relation",
+        "query": "Kimi K2.6 支持哪些输入模态？",
+        "expectedClaimIds": [
+          "claim-26b1d5225baf5e9bf207"
+        ],
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-4d44703b700a9e08516e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-019",
+        "category": "relation",
+        "query": "MCP 数据层使用什么消息协议？",
+        "expectedClaimIds": [
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "retrievedClaimIds": [
+          "claim-bedca8ceed0954f4bc73",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-21ed507207e65f133a8d",
+          "claim-c7a1857e394448993d93",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-46a65791b4fe4379aa31"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-020",
+        "category": "relation",
+        "query": "MCP 主机会为服务器创建什么对象？",
+        "expectedClaimIds": [
+          "claim-c39776a16ff86e810567"
+        ],
+        "retrievedClaimIds": [
+          "claim-c39776a16ff86e810567",
+          "claim-739edf11461045ce579e",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-d598a28918ce07b143fa",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-001",
+        "category": "timeline",
+        "query": "Gemini CLI 在哪一年作为开源终端 Agent 发布？",
+        "expectedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-cli"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-002",
+        "category": "timeline",
+        "query": "Gemini 1.5 Pro 的 2M 上下文何时正式可用？",
+        "expectedClaimIds": [
+          "claim-87feb225a273a9eac10b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 2,
+          "returnedCount": 2,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-15-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-003",
+        "category": "timeline",
+        "query": "Managed Agents in Gemini API 何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7"
+        ],
+        "retrievedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-004",
+        "category": "timeline",
+        "query": "Gemini Computer Use 工具何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-4f8f8d405cca177b06a3"
+        ],
+        "retrievedClaimIds": [
+          "claim-4f8f8d405cca177b06a3",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-005",
+        "category": "timeline",
+        "query": "Gemini File Search API 何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-30074cb26f8e04cba0f2"
+        ],
+        "retrievedClaimIds": [
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-006",
+        "category": "timeline",
+        "query": "MCP Sampling 从哪个协议版本起弃用？",
+        "expectedClaimIds": [
+          "claim-c7a1857e394448993d93"
+        ],
+        "retrievedClaimIds": [
+          "claim-21ed507207e65f133a8d",
+          "claim-c7a1857e394448993d93",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-007",
+        "category": "timeline",
+        "query": "Videos API 计划在哪一天从 OpenAI API 移除？",
+        "expectedClaimIds": [
+          "claim-1b95f8c29e8060f435e5"
+        ],
+        "retrievedClaimIds": [
+          "claim-1b95f8c29e8060f435e5",
+          "claim-0456fcc08c1b9651e461",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-776021b93f0cc62f59d8",
+          "claim-8952825de5396e9a8f32",
+          "claim-b2e468b130a220c586ae",
+          "claim-1718168ed069ec20533c",
+          "claim-7b675cc727012f320129"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-008",
+        "category": "timeline",
+        "query": "OpenAI 一般可用模型最低退役通知期多久？",
+        "expectedClaimIds": [
+          "claim-f54e84647bf091f465d2"
+        ],
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-009",
+        "category": "timeline",
+        "query": "OpenAI 预览模型可能只有多短的退役通知？",
+        "expectedClaimIds": [
+          "claim-90b09d0c9745cbcb877b"
+        ],
+        "retrievedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-010",
+        "category": "timeline",
+        "query": "Qwen3-2507 从何时起支持百万 token 输入？",
+        "expectedClaimIds": [
+          "claim-c9729d582aad30fb2ef1"
+        ],
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-bd0a65120b54c60efae5",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-011",
+        "category": "timeline",
+        "query": "Claude Code 当前以什么发布状态提供？",
+        "expectedClaimIds": [
+          "claim-f160486f6dd1f6c4205d"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-38cd91454308c906fc2e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-012",
+        "category": "timeline",
+        "query": "Kimi K3 当前是否已经发布？",
+        "expectedClaimIds": [
+          "claim-1fdb85142657f6812e18"
+        ],
+        "retrievedClaimIds": [
+          "claim-1fdb85142657f6812e18",
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-013",
+        "category": "timeline",
+        "query": "Seed2.0 Pro 和 Code 模型在哪些产品上线？",
+        "expectedClaimIds": [
+          "claim-907e86c15632fdc031a7"
+        ],
+        "retrievedClaimIds": [
+          "claim-907e86c15632fdc031a7",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-a65e9a56c5b78f050219",
+          "claim-b2e9f9013b8927ec86bd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 4,
+          "returnedCount": 4,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed20-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-014",
+        "category": "timeline",
+        "query": "ERNIE 5.1 在 2026 年 5 月的 Arena Search 排名如何？",
+        "expectedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b"
+        ],
+        "retrievedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa",
+          "claim-514a641cc94e8c2e9089",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f1e2af967f065102bbde"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-015",
+        "category": "timeline",
+        "query": "Claude 3.7 Sonnet 已在哪些平台提供？",
+        "expectedClaimIds": [
+          "claim-b16d6589cd7104289b88",
+          "claim-fa38113d856b439d625a"
+        ],
+        "retrievedClaimIds": [
+          "claim-b16d6589cd7104289b88",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-d09942e317650cc3435d",
+          "claim-dd07fb638a7530ff2309",
+          "claim-ee0aaa3d27f27adc8c0f"
+        ],
+        "claimRecallAtK": 0.5,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": false,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-016",
+        "category": "timeline",
+        "query": "Claude Code 的有限研究预览状态是什么？",
+        "expectedClaimIds": [
+          "claim-852c17dc4b53a389f8d9"
+        ],
+        "retrievedClaimIds": [
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-f660ca6122fa1f704d0d",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-017",
+        "category": "timeline",
+        "query": "Gemini 1.5 Pro 的长上下文正式可用日期是什么？",
+        "expectedClaimIds": [
+          "claim-87feb225a273a9eac10b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 2,
+          "returnedCount": 2,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-15-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-018",
+        "category": "timeline",
+        "query": "Qwen3 推荐的 Ollama 最低版本是什么？",
+        "expectedClaimIds": [
+          "claim-789db8e8444fba20797b"
+        ],
+        "retrievedClaimIds": [
+          "claim-789db8e8444fba20797b",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-a8bb22fe32d08f888656"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-019",
+        "category": "timeline",
+        "query": "Qwen3 完整支持要求的 Transformers 版本是什么？",
+        "expectedClaimIds": [
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "retrievedClaimIds": [
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-789db8e8444fba20797b",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-bd0a65120b54c60efae5",
+          "claim-a8bb22fe32d08f888656"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-020",
+        "category": "timeline",
+        "query": "ERNIE 5.1 目前可以在哪里聊天使用？",
+        "expectedClaimIds": [
+          "claim-f1e2af967f065102bbde"
+        ],
+        "retrievedClaimIds": [
+          "claim-586c43110316fad28627",
+          "claim-f1e2af967f065102bbde",
+          "claim-514a641cc94e8c2e9089",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-001",
+        "category": "comparison",
+        "query": "比较 Kimi K2.6 与 Kimi K3 的上下文窗口。",
+        "expectedClaimIds": [
+          "claim-1d379a59788c82f7c2a0",
+          "claim-73b3ff0afe9ef5d63fc9"
+        ],
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-1fdb85142657f6812e18",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-691968ccd94f1eb55eff",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26",
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-002",
+        "category": "comparison",
+        "query": "比较 GPT-5 与 Claude 3.7 Sonnet 的 SWE-bench Verified 表现。",
+        "expectedClaimIds": [
+          "c-gpt5-swe",
+          "claim-aa028d98f64ccca7df43"
+        ],
+        "retrievedClaimIds": [
+          "claim-aa028d98f64ccca7df43",
+          "c-gpt5-swe",
+          "claim-d09942e317650cc3435d",
+          "claim-b16d6589cd7104289b88",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-dd07fb638a7530ff2309"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude",
+            "e-gpt-5",
+            "e-swebench"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-003",
+        "category": "comparison",
+        "query": "比较 Qwen3-Thinking 与 Instruct 变体支持的思考模式。",
+        "expectedClaimIds": [
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5"
+        ],
+        "retrievedClaimIds": [
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-0118c2584652c3ae00a2",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-789db8e8444fba20797b",
+          "claim-a8bb22fe32d08f888656",
+          "claim-bd0a65120b54c60efae5"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-004",
+        "category": "comparison",
+        "query": "比较 Transformer 对递归和卷积结构的处理方式。",
+        "expectedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67"
+        ],
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "c-codex-agent",
+          "claim-651c65451adfbda8426e",
+          "claim-739edf11461045ce579e",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "c-autogen-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-005",
+        "category": "comparison",
+        "query": "比较 MMLU-Pro 与 MMLU 的选项数量和准确率变化。",
+        "expectedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-7f8f68faa57b9c45c7bc"
+        ],
+        "retrievedClaimIds": [
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-64413a939e7a8f19b690",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-9a17a4c22c2c11a5c5e1",
+          "claim-a18286f8beb841d14f78"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-006",
+        "category": "comparison",
+        "query": "比较 OpenAI 一般可用模型与预览模型的退役通知期。",
+        "expectedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2"
+        ],
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-007",
+        "category": "comparison",
+        "query": "比较 Seed1.8 在 VideoMME 和 VLMsAreBiased 的得分。",
+        "expectedClaimIds": [
+          "claim-48213f05b19dcaf25309",
+          "claim-bc0878766ddba613fcef"
+        ],
+        "retrievedClaimIds": [
+          "claim-48213f05b19dcaf25309",
+          "claim-bc0878766ddba613fcef",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-56e09e8a092cf475a286",
+          "claim-a7628b6146867f51e14e",
+          "claim-5ea35a7e0f8dc4e729a9",
+          "claim-1176c1661b5a43b0362d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-008",
+        "category": "comparison",
+        "query": "比较 Kimi K2.6 的输入模态与运行模式。",
+        "expectedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-009",
+        "category": "comparison",
+        "query": "比较 ERNIE 5.1 与 5.0 的参数和计算成本变化。",
+        "expectedClaimIds": [
+          "claim-514a641cc94e8c2e9089",
+          "claim-f6c45a629d85f7abeb1f"
+        ],
+        "retrievedClaimIds": [
+          "claim-514a641cc94e8c2e9089",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-586c43110316fad28627",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 0.5,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-010",
+        "category": "comparison",
+        "query": "比较 Claude Code 搜索代码与编写测试的能力。",
+        "expectedClaimIds": [
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-60772eb088c4d19aaa68",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-957f78f08bcffaa45776",
+          "claim-fe7400a84c600dfb05d1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      }
+    ]
+  },
+  "after": {
+    "metrics": {
+      "overall": {
+        "samples": 80,
+        "recallAtK": 0.9938,
+        "precisionAtK": 0.1406,
+        "entityRecallAtK": 0.9938,
+        "passRatio": 0.9875
+      },
+      "categories": {
+        "entity": {
+          "samples": 30,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "relation": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "timeline": {
+          "samples": 20,
+          "recallAtK": 0.975,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 0.95
+        },
+        "comparison": {
+          "samples": 10,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.25,
+          "entityRecallAtK": 0.95,
+          "passRatio": 1.0
+        }
+      }
+    },
+    "results": [
+      {
+        "id": "entity-001",
+        "category": "entity",
+        "query": "GPT-5 在 SWE-bench Verified 上的通过率是多少？",
+        "expectedClaimIds": [
+          "c-gpt5-swe"
+        ],
+        "retrievedClaimIds": [
+          "c-gpt5-swe",
+          "claim-40da0986ded48569404c",
+          "claim-4fd46ae604567d5065bd",
+          "claim-62e6a41540009d41ae38",
+          "claim-67fa626d90510874782c",
+          "claim-722c98db171d7018b8b3",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-b544c4cb8c1e5187ade6"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gpt-5",
+            "e-swebench"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-002",
+        "category": "entity",
+        "query": "Claude 4.5 的官方安全评估提到了什么变化？",
+        "expectedClaimIds": [
+          "c-claude-align"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-align",
+          "claim-1519244ae09190af0d74",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-2dd7114eca1f06d79501",
+          "claim-44a75c23edcd9681adda",
+          "claim-4799cf4d38cec65fca19",
+          "claim-567e0fde453f45cc666b",
+          "claim-8ebb1d7e525930e855ad"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-003",
+        "category": "entity",
+        "query": "OpenAI 最新模型是否支持视觉能力？",
+        "expectedClaimIds": [
+          "claim-d52e477b9559be80d40d"
+        ],
+        "retrievedClaimIds": [
+          "claim-d52e477b9559be80d40d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-1718168ed069ec20533c",
+          "claim-7b675cc727012f320129",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-004",
+        "category": "entity",
+        "query": "Gemini 2.5 Pro 能原生处理多长的视频？",
+        "expectedClaimIds": [
+          "c-gemini-video"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-video"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-25-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-005",
+        "category": "entity",
+        "query": "OpenAI Codex 属于什么类型的产品？",
+        "expectedClaimIds": [
+          "c-codex-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-8a2943bc0365104acd20",
+          "claim-c05a2d6e012bd55d093a"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 3,
+          "returnedCount": 3,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-006",
+        "category": "entity",
+        "query": "Claude Code 能完成哪些代码操作？",
+        "expectedClaimIds": [
+          "c-claude-code-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-8f1b9dca9176013f7989",
+          "claim-957f78f08bcffaa45776",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-007",
+        "category": "entity",
+        "query": "Gemini CLI 是什么终端工具？",
+        "expectedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-cli"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-008",
+        "category": "entity",
+        "query": "Manus 如何描述自己的任务执行能力？",
+        "expectedClaimIds": [
+          "c-manus-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-manus-agent",
+          "c-codex-agent",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68",
+          "claim-8f1b9dca9176013f7989",
+          "claim-fe7400a84c600dfb05d1",
+          "c-autogen-framework",
+          "c-devin-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-manus",
+            "e-manus-company"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-009",
+        "category": "entity",
+        "query": "Devin 的官方文档如何定义它？",
+        "expectedClaimIds": [
+          "c-devin-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-devin-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-devin"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-010",
+        "category": "entity",
+        "query": "LangGraph 是哪一类 Agent 框架？",
+        "expectedClaimIds": [
+          "c-langgraph-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-011",
+        "category": "entity",
+        "query": "AutoGen 安装文档包含哪些核心能力？",
+        "expectedClaimIds": [
+          "c-autogen-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-autogen-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-autogen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-012",
+        "category": "entity",
+        "query": "CrewAI 用哪些概念组织协作式 Agent？",
+        "expectedClaimIds": [
+          "c-crewai-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-crewai-framework",
+          "c-codex-agent",
+          "c-gemini-cli-agent",
+          "c-langgraph-framework",
+          "c-manus-agent",
+          "c-openai-agents-sdk-framework",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-37d0d89648d2a393d0c3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-crewai",
+            "e-crewai-company"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-013",
+        "category": "entity",
+        "query": "OpenAI Agents SDK 提供哪些构建块？",
+        "expectedClaimIds": [
+          "c-openai-agents-sdk-framework"
+        ],
+        "retrievedClaimIds": [
+          "c-openai-agents-sdk-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai-agents-sdk"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-014",
+        "category": "entity",
+        "query": "Kimi K2.6 的上下文窗口有多大？",
+        "expectedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9"
+        ],
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-015",
+        "category": "entity",
+        "query": "Kimi K3 支持多长的上下文？",
+        "expectedClaimIds": [
+          "claim-1d379a59788c82f7c2a0"
+        ],
+        "retrievedClaimIds": [
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-1fdb85142657f6812e18",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-016",
+        "category": "entity",
+        "query": "Anthropic 的公司宗旨是什么？",
+        "expectedClaimIds": [
+          "claim-d164b5c3859aa142e64b"
+        ],
+        "retrievedClaimIds": [
+          "claim-d164b5c3859aa142e64b",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-68c09107f4d766a73a57",
+          "claim-9198f4054e0c204fc1a9",
+          "claim-93e11b12cd81ffd645d1",
+          "claim-b743aa575bc8317ca642",
+          "claim-fe1416642f52fa55ce45",
+          "claim-3d5d2da944a152e3a050"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-017",
+        "category": "entity",
+        "query": "MCP 服务器可以公开哪三种核心原语？",
+        "expectedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620"
+        ],
+        "retrievedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-739edf11461045ce579e",
+          "claim-c39776a16ff86e810567",
+          "claim-d598a28918ce07b143fa",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-018",
+        "category": "entity",
+        "query": "MCP 支持哪些传输机制？",
+        "expectedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "retrievedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-019",
+        "category": "entity",
+        "query": "Claude Code 是否可以搜索和读取代码？",
+        "expectedClaimIds": [
+          "claim-964dfcfbc1b85062f986"
+        ],
+        "retrievedClaimIds": [
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "c-claude-code-agent",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-957f78f08bcffaa45776",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-020",
+        "category": "entity",
+        "query": "LangChain 的 create_agent 是什么？",
+        "expectedClaimIds": [
+          "claim-dd89bd1c8f5c53c061b1"
+        ],
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-6bc3e8040e503b9761af",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-021",
+        "category": "entity",
+        "query": "Kimi 最多支持多少步工具调用？",
+        "expectedClaimIds": [
+          "claim-cf94fdbaa29a323ff09b"
+        ],
+        "retrievedClaimIds": [
+          "claim-efbc349eb971644543eb",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 17,
+          "returnedCount": 8,
+          "filteredCount": 9,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-022",
+        "category": "entity",
+        "query": "LangGraph 是否支持 human-in-the-loop？",
+        "expectedClaimIds": [
+          "claim-60b87db2ddd7abbb6700"
+        ],
+        "retrievedClaimIds": [
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-023",
+        "category": "entity",
+        "query": "Claude 3.7 Sonnet 的思考预算上限是多少？",
+        "expectedClaimIds": [
+          "claim-aec3ec964cca35fb7ce0"
+        ],
+        "retrievedClaimIds": [
+          "claim-dd07fb638a7530ff2309",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-ee0aaa3d27f27adc8c0f",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-b16d6589cd7104289b88",
+          "claim-d09942e317650cc3435d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-024",
+        "category": "entity",
+        "query": "MMLU-Pro 将答案选项扩展到了多少个？",
+        "expectedClaimIds": [
+          "claim-64413a939e7a8f19b690"
+        ],
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-204d387cd78583653f04",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-8a595db59a1aa15c3d51"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-025",
+        "category": "entity",
+        "query": "Qwen3-2507 可以处理多长的输入？",
+        "expectedClaimIds": [
+          "claim-d8c42aa4195b98cd5d4f"
+        ],
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-789db8e8444fba20797b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-026",
+        "category": "entity",
+        "query": "Doubao Seed1.8 提供几种思考模式？",
+        "expectedClaimIds": [
+          "claim-6f9aaf8ca2c9c500592f"
+        ],
+        "retrievedClaimIds": [
+          "claim-6f9aaf8ca2c9c500592f",
+          "claim-e88536c0e20174d180b0",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-9a28d268080030afc6a8",
+          "claim-1176c1661b5a43b0362d",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 20,
+          "returnedCount": 8,
+          "filteredCount": 12,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao",
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-027",
+        "category": "entity",
+        "query": "Transformer 的核心机制是什么？",
+        "expectedClaimIds": [
+          "claim-651c65451adfbda8426e"
+        ],
+        "retrievedClaimIds": [
+          "claim-651c65451adfbda8426e",
+          "c-autogen-framework",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-50c69855c226a60323a7",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-c197b2fed5266444ac67",
+          "c-claude-align",
+          "c-claude-code-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-028",
+        "category": "entity",
+        "query": "Cursor 在知识库中被归类为什么？",
+        "expectedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf"
+        ],
+        "retrievedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-cursor"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-029",
+        "category": "entity",
+        "query": "ERNIE 5.0 的参数规模是多少？",
+        "expectedClaimIds": [
+          "claim-1df943f17b88c67f915b"
+        ],
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-50"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "entity-030",
+        "category": "entity",
+        "query": "Claude Code 是哪种命令行工具？",
+        "expectedClaimIds": [
+          "claim-6d9735b8089f5c019ba7"
+        ],
+        "retrievedClaimIds": [
+          "claim-14f5b73d8708bbc4a360",
+          "claim-6d9735b8089f5c019ba7",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-38cd91454308c906fc2e",
+          "claim-3ec4878162e369974a0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-001",
+        "category": "relation",
+        "query": "LangChain 的 agents 与 LangGraph 有什么技术关系？",
+        "expectedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00"
+        ],
+        "retrievedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00",
+          "c-langgraph-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-0b39443caf585df6a887"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain",
+            "e-langgraph"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-002",
+        "category": "relation",
+        "query": "Claude Code 与 MCP 主机是什么关系？",
+        "expectedClaimIds": [
+          "claim-3ec4878162e369974a0b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3ec4878162e369974a0b",
+          "claim-739edf11461045ce579e",
+          "claim-708f41b052b365989d5f",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 34,
+          "returnedCount": 8,
+          "filteredCount": 26,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code",
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-003",
+        "category": "relation",
+        "query": "Claude Code 如何使用 Model Context Protocol？",
+        "expectedClaimIds": [
+          "claim-708f41b052b365989d5f"
+        ],
+        "retrievedClaimIds": [
+          "claim-708f41b052b365989d5f",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-3ec4878162e369974a0b",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-21ed507207e65f133a8d",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-46a65791b4fe4379aa31"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 34,
+          "returnedCount": 8,
+          "filteredCount": 26,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code",
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-004",
+        "category": "relation",
+        "query": "Anthropic 开发了哪个 Claude 3.7 模型？",
+        "expectedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b"
+        ],
+        "retrievedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-b16d6589cd7104289b88",
+          "claim-d09942e317650cc3435d",
+          "claim-dd07fb638a7530ff2309"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 31,
+          "returnedCount": 8,
+          "filteredCount": 23,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic",
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-005",
+        "category": "relation",
+        "query": "ERNIE 5.1 与 ERNIE 5.0 的继承关系是什么？",
+        "expectedClaimIds": [
+          "claim-84efe21fd9bb4e00cae3"
+        ],
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b",
+          "claim-514a641cc94e8c2e9089",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-586c43110316fad28627",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-50",
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-006",
+        "category": "relation",
+        "query": "ERNIE 5.1 的训练基础设施使用了什么框架？",
+        "expectedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc"
+        ],
+        "retrievedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-514a641cc94e8c2e9089",
+          "claim-586c43110316fad28627",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa",
+          "claim-f1e2af967f065102bbde"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-007",
+        "category": "relation",
+        "query": "LangChain 用什么平台跟踪和评估 Agent？",
+        "expectedClaimIds": [
+          "claim-37d0d89648d2a393d0c3"
+        ],
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-85baa52e65c945a6dbd1",
+          "claim-bf9d94a7b2d875c0bf00"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-008",
+        "category": "relation",
+        "query": "LangChain 支持哪家 OpenAI 模型供应商？",
+        "expectedClaimIds": [
+          "claim-0b39443caf585df6a887"
+        ],
+        "retrievedClaimIds": [
+          "claim-0b39443caf585df6a887",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-1718168ed069ec20533c",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-7b675cc727012f320129"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-langchain",
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-009",
+        "category": "relation",
+        "query": "LangChain 是否支持 Anthropic？",
+        "expectedClaimIds": [
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "retrievedClaimIds": [
+          "claim-3d5d2da944a152e3a050",
+          "claim-85baa52e65c945a6dbd1",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-68c09107f4d766a73a57"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 20,
+          "returnedCount": 8,
+          "filteredCount": 12,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-anthropic",
+            "e-langchain"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-010",
+        "category": "relation",
+        "query": "Seed1.8 集成了哪些 Agent 能力？",
+        "expectedClaimIds": [
+          "claim-5aaf53f59267692a608e"
+        ],
+        "retrievedClaimIds": [
+          "claim-5aaf53f59267692a608e",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-1176c1661b5a43b0362d",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-48213f05b19dcaf25309",
+          "claim-56e09e8a092cf475a286"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-011",
+        "category": "relation",
+        "query": "Seed1.8 与 VideoCut 的集成关系是什么？",
+        "expectedClaimIds": [
+          "claim-f94f9f7b5033aa600b03"
+        ],
+        "retrievedClaimIds": [
+          "claim-f94f9f7b5033aa600b03",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-5aaf53f59267692a608e",
+          "claim-1176c1661b5a43b0362d",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-48213f05b19dcaf25309",
+          "claim-56e09e8a092cf475a286"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-012",
+        "category": "relation",
+        "query": "OpenAI 的最新模型支持哪些输入模态？",
+        "expectedClaimIds": [
+          "claim-946116b1be917420287c"
+        ],
+        "retrievedClaimIds": [
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-90b09d0c9745cbcb877b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-013",
+        "category": "relation",
+        "query": "GPT-5.2-Codex 针对哪类任务优化？",
+        "expectedClaimIds": [
+          "claim-ce8bf109d9ca8dda5e63"
+        ],
+        "retrievedClaimIds": [
+          "claim-8a2943bc0365104acd20",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-62e6a41540009d41ae38",
+          "claim-722c98db171d7018b8b3",
+          "claim-c05a2d6e012bd55d093a",
+          "claim-ea299deb61fc0d5eaa5a",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex",
+            "e-gpt-5"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-014",
+        "category": "relation",
+        "query": "GPT-5-Codex 与 Codex 编码任务是什么关系？",
+        "expectedClaimIds": [
+          "claim-62e6a41540009d41ae38"
+        ],
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-62e6a41540009d41ae38",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-4fd46ae604567d5065bd",
+          "claim-722c98db171d7018b8b3",
+          "claim-40da0986ded48569404c",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-8a2943bc0365104acd20"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-codex",
+            "e-gpt-5"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-015",
+        "category": "relation",
+        "query": "MMLU-Pro 如何扩展原始 MMLU？",
+        "expectedClaimIds": [
+          "claim-a18286f8beb841d14f78"
+        ],
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-9a17a4c22c2c11a5c5e1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-016",
+        "category": "relation",
+        "query": "Transformer 与递归结构的关系是什么？",
+        "expectedClaimIds": [
+          "claim-c197b2fed5266444ac67"
+        ],
+        "retrievedClaimIds": [
+          "claim-739edf11461045ce579e",
+          "claim-c197b2fed5266444ac67",
+          "claim-50c69855c226a60323a7",
+          "claim-651c65451adfbda8426e",
+          "c-autogen-framework",
+          "c-claude-align",
+          "c-claude-code-agent",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-017",
+        "category": "relation",
+        "query": "Transformer 与卷积结构的关系是什么？",
+        "expectedClaimIds": [
+          "claim-50c69855c226a60323a7"
+        ],
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-739edf11461045ce579e",
+          "claim-651c65451adfbda8426e",
+          "claim-c197b2fed5266444ac67",
+          "c-autogen-framework",
+          "c-claude-align",
+          "c-claude-code-agent",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-018",
+        "category": "relation",
+        "query": "Kimi K2.6 支持哪些输入模态？",
+        "expectedClaimIds": [
+          "claim-26b1d5225baf5e9bf207"
+        ],
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-4d44703b700a9e08516e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-019",
+        "category": "relation",
+        "query": "MCP 数据层使用什么消息协议？",
+        "expectedClaimIds": [
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "retrievedClaimIds": [
+          "claim-bedca8ceed0954f4bc73",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-21ed507207e65f133a8d",
+          "claim-c7a1857e394448993d93",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-46a65791b4fe4379aa31"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "relation-020",
+        "category": "relation",
+        "query": "MCP 主机会为服务器创建什么对象？",
+        "expectedClaimIds": [
+          "claim-c39776a16ff86e810567"
+        ],
+        "retrievedClaimIds": [
+          "claim-c39776a16ff86e810567",
+          "claim-739edf11461045ce579e",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-d598a28918ce07b143fa",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-001",
+        "category": "timeline",
+        "query": "Gemini CLI 在哪一年作为开源终端 Agent 发布？",
+        "expectedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 1,
+          "returnedCount": 1,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-cli"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-002",
+        "category": "timeline",
+        "query": "Gemini 1.5 Pro 的 2M 上下文何时正式可用？",
+        "expectedClaimIds": [
+          "claim-87feb225a273a9eac10b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 2,
+          "returnedCount": 2,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-15-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-003",
+        "category": "timeline",
+        "query": "Managed Agents in Gemini API 何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7"
+        ],
+        "retrievedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-004",
+        "category": "timeline",
+        "query": "Gemini Computer Use 工具何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-4f8f8d405cca177b06a3"
+        ],
+        "retrievedClaimIds": [
+          "claim-4f8f8d405cca177b06a3",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-005",
+        "category": "timeline",
+        "query": "Gemini File Search API 何时进入公开预览？",
+        "expectedClaimIds": [
+          "claim-30074cb26f8e04cba0f2"
+        ],
+        "retrievedClaimIds": [
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 6,
+          "returnedCount": 6,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-006",
+        "category": "timeline",
+        "query": "MCP Sampling 从哪个协议版本起弃用？",
+        "expectedClaimIds": [
+          "claim-c7a1857e394448993d93"
+        ],
+        "retrievedClaimIds": [
+          "claim-21ed507207e65f133a8d",
+          "claim-c7a1857e394448993d93",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mcp"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-007",
+        "category": "timeline",
+        "query": "Videos API 计划在哪一天从 OpenAI API 移除？",
+        "expectedClaimIds": [
+          "claim-1b95f8c29e8060f435e5"
+        ],
+        "retrievedClaimIds": [
+          "claim-1b95f8c29e8060f435e5",
+          "claim-0456fcc08c1b9651e461",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-776021b93f0cc62f59d8",
+          "claim-8952825de5396e9a8f32",
+          "claim-b2e468b130a220c586ae",
+          "claim-1718168ed069ec20533c",
+          "claim-7b675cc727012f320129"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-008",
+        "category": "timeline",
+        "query": "OpenAI 一般可用模型最低退役通知期多久？",
+        "expectedClaimIds": [
+          "claim-f54e84647bf091f465d2"
+        ],
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-009",
+        "category": "timeline",
+        "query": "OpenAI 预览模型可能只有多短的退役通知？",
+        "expectedClaimIds": [
+          "claim-90b09d0c9745cbcb877b"
+        ],
+        "retrievedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-010",
+        "category": "timeline",
+        "query": "Qwen3-2507 从何时起支持百万 token 输入？",
+        "expectedClaimIds": [
+          "claim-c9729d582aad30fb2ef1"
+        ],
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-bd0a65120b54c60efae5",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-011",
+        "category": "timeline",
+        "query": "Claude Code 当前以什么发布状态提供？",
+        "expectedClaimIds": [
+          "claim-f160486f6dd1f6c4205d"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-38cd91454308c906fc2e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-012",
+        "category": "timeline",
+        "query": "Kimi K3 当前是否已经发布？",
+        "expectedClaimIds": [
+          "claim-1fdb85142657f6812e18"
+        ],
+        "retrievedClaimIds": [
+          "claim-1fdb85142657f6812e18",
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 5,
+          "returnedCount": 5,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-013",
+        "category": "timeline",
+        "query": "Seed2.0 Pro 和 Code 模型在哪些产品上线？",
+        "expectedClaimIds": [
+          "claim-907e86c15632fdc031a7"
+        ],
+        "retrievedClaimIds": [
+          "claim-907e86c15632fdc031a7",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-a65e9a56c5b78f050219",
+          "claim-b2e9f9013b8927ec86bd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 4,
+          "returnedCount": 4,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed20-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-014",
+        "category": "timeline",
+        "query": "ERNIE 5.1 在 2026 年 5 月的 Arena Search 排名如何？",
+        "expectedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b"
+        ],
+        "retrievedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa",
+          "claim-514a641cc94e8c2e9089",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f1e2af967f065102bbde"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-015",
+        "category": "timeline",
+        "query": "Claude 3.7 Sonnet 已在哪些平台提供？",
+        "expectedClaimIds": [
+          "claim-b16d6589cd7104289b88",
+          "claim-fa38113d856b439d625a"
+        ],
+        "retrievedClaimIds": [
+          "claim-b16d6589cd7104289b88",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-d09942e317650cc3435d",
+          "claim-dd07fb638a7530ff2309",
+          "claim-ee0aaa3d27f27adc8c0f"
+        ],
+        "claimRecallAtK": 0.5,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": false,
+        "diagnostics": {
+          "candidateCount": 19,
+          "returnedCount": 8,
+          "filteredCount": 11,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-016",
+        "category": "timeline",
+        "query": "Claude Code 的有限研究预览状态是什么？",
+        "expectedClaimIds": [
+          "claim-852c17dc4b53a389f8d9"
+        ],
+        "retrievedClaimIds": [
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-f660ca6122fa1f704d0d",
+          "c-claude-code-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-36513ae7dedc09e1fc93"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-017",
+        "category": "timeline",
+        "query": "Gemini 1.5 Pro 的长上下文正式可用日期是什么？",
+        "expectedClaimIds": [
+          "claim-87feb225a273a9eac10b"
+        ],
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 2,
+          "returnedCount": 2,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-gemini-15-pro"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-018",
+        "category": "timeline",
+        "query": "Qwen3 推荐的 Ollama 最低版本是什么？",
+        "expectedClaimIds": [
+          "claim-789db8e8444fba20797b"
+        ],
+        "retrievedClaimIds": [
+          "claim-789db8e8444fba20797b",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-a8bb22fe32d08f888656"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-019",
+        "category": "timeline",
+        "query": "Qwen3 完整支持要求的 Transformers 版本是什么？",
+        "expectedClaimIds": [
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "retrievedClaimIds": [
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-789db8e8444fba20797b",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-bd0a65120b54c60efae5",
+          "claim-a8bb22fe32d08f888656"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "timeline-020",
+        "category": "timeline",
+        "query": "ERNIE 5.1 目前可以在哪里聊天使用？",
+        "expectedClaimIds": [
+          "claim-f1e2af967f065102bbde"
+        ],
+        "retrievedClaimIds": [
+          "claim-586c43110316fad28627",
+          "claim-f1e2af967f065102bbde",
+          "claim-514a641cc94e8c2e9089",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-001",
+        "category": "comparison",
+        "query": "比较 Kimi K2.6 与 Kimi K3 的上下文窗口。",
+        "expectedClaimIds": [
+          "claim-1d379a59788c82f7c2a0",
+          "claim-73b3ff0afe9ef5d63fc9"
+        ],
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-1fdb85142657f6812e18",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-691968ccd94f1eb55eff",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26",
+            "e-kimi-k3"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-002",
+        "category": "comparison",
+        "query": "比较 GPT-5 与 Claude 3.7 Sonnet 的 SWE-bench Verified 表现。",
+        "expectedClaimIds": [
+          "c-gpt5-swe",
+          "claim-aa028d98f64ccca7df43"
+        ],
+        "retrievedClaimIds": [
+          "claim-aa028d98f64ccca7df43",
+          "c-gpt5-swe",
+          "claim-d09942e317650cc3435d",
+          "claim-b16d6589cd7104289b88",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-dd07fb638a7530ff2309"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude",
+            "e-gpt-5",
+            "e-swebench"
+          ],
+          "fallbackReason": "entity-scope-incomplete",
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-003",
+        "category": "comparison",
+        "query": "比较 Qwen3-Thinking 与 Instruct 变体支持的思考模式。",
+        "expectedClaimIds": [
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5"
+        ],
+        "retrievedClaimIds": [
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-0118c2584652c3ae00a2",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-789db8e8444fba20797b",
+          "claim-a8bb22fe32d08f888656",
+          "claim-bd0a65120b54c60efae5"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 10,
+          "returnedCount": 8,
+          "filteredCount": 2,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-qwen"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-004",
+        "category": "comparison",
+        "query": "比较 Transformer 对递归和卷积结构的处理方式。",
+        "expectedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67"
+        ],
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "c-codex-agent",
+          "claim-651c65451adfbda8426e",
+          "claim-739edf11461045ce579e",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "c-autogen-framework"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 195,
+          "returnedCount": 8,
+          "filteredCount": 187,
+          "elapsedMs": 0,
+          "matchedEntityIds": [],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-005",
+        "category": "comparison",
+        "query": "比较 MMLU-Pro 与 MMLU 的选项数量和准确率变化。",
+        "expectedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-7f8f68faa57b9c45c7bc"
+        ],
+        "retrievedClaimIds": [
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-64413a939e7a8f19b690",
+          "claim-625b492fabee4c224e4f",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-9a17a4c22c2c11a5c5e1",
+          "claim-a18286f8beb841d14f78"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 12,
+          "returnedCount": 8,
+          "filteredCount": 4,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-mmlu"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-006",
+        "category": "comparison",
+        "query": "比较 OpenAI 一般可用模型与预览模型的退役通知期。",
+        "expectedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2"
+        ],
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 14,
+          "returnedCount": 8,
+          "filteredCount": 6,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-openai"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-007",
+        "category": "comparison",
+        "query": "比较 Seed1.8 在 VideoMME 和 VLMsAreBiased 的得分。",
+        "expectedClaimIds": [
+          "claim-48213f05b19dcaf25309",
+          "claim-bc0878766ddba613fcef"
+        ],
+        "retrievedClaimIds": [
+          "claim-48213f05b19dcaf25309",
+          "claim-bc0878766ddba613fcef",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-56e09e8a092cf475a286",
+          "claim-a7628b6146867f51e14e",
+          "claim-5ea35a7e0f8dc4e729a9",
+          "claim-1176c1661b5a43b0362d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 13,
+          "returnedCount": 8,
+          "filteredCount": 5,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-doubao-seed18"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-008",
+        "category": "comparison",
+        "query": "比较 Kimi K2.6 的输入模态与运行模式。",
+        "expectedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 8,
+          "returnedCount": 8,
+          "filteredCount": 0,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-kimi-k26"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-009",
+        "category": "comparison",
+        "query": "比较 ERNIE 5.1 与 5.0 的参数和计算成本变化。",
+        "expectedClaimIds": [
+          "claim-514a641cc94e8c2e9089",
+          "claim-f6c45a629d85f7abeb1f"
+        ],
+        "retrievedClaimIds": [
+          "claim-514a641cc94e8c2e9089",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-586c43110316fad28627",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 0.5,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 9,
+          "returnedCount": 8,
+          "filteredCount": 1,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-ernie-51"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      },
+      {
+        "id": "comparison-010",
+        "category": "comparison",
+        "query": "比较 Claude Code 搜索代码与编写测试的能力。",
+        "expectedClaimIds": [
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986"
+        ],
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-60772eb088c4d19aaa68",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-957f78f08bcffaa45776",
+          "claim-fe7400a84c600dfb05d1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true,
+        "diagnostics": {
+          "candidateCount": 22,
+          "returnedCount": 8,
+          "filteredCount": 14,
+          "elapsedMs": 0,
+          "matchedEntityIds": [
+            "e-claude-code"
+          ],
+          "fallbackReason": null,
+          "generationFallbackReason": null
+        }
+      }
+    ]
+  },
+  "delta": {
+    "overall": {
+      "samples": 0,
+      "recallAtK": 0.0,
+      "precisionAtK": 0.0,
+      "entityRecallAtK": 0.0,
+      "passRatio": 0.0
+    },
+    "categories": {
+      "entity": {
+        "samples": 0,
+        "recallAtK": 0.0,
+        "precisionAtK": 0.0,
+        "entityRecallAtK": 0.0,
+        "passRatio": 0.0
+      },
+      "relation": {
+        "samples": 0,
+        "recallAtK": 0.0,
+        "precisionAtK": 0.0,
+        "entityRecallAtK": 0.0,
+        "passRatio": 0.0
+      },
+      "timeline": {
+        "samples": 0,
+        "recallAtK": 0.0,
+        "precisionAtK": 0.0,
+        "entityRecallAtK": 0.0,
+        "passRatio": 0.0
+      },
+      "comparison": {
+        "samples": 0,
+        "recallAtK": 0.0,
+        "precisionAtK": 0.0,
+        "entityRecallAtK": 0.0,
+        "passRatio": 0.0
+      }
+    }
+  },
+  "aliasProbes": {
+    "samples": 24,
+    "beforePassed": 16,
+    "afterPassed": 24,
+    "results": [
+      {
+        "entityId": "e-autogen",
+        "alias": "Microsoft AutoGen",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-autogen",
+          "e-microsoft"
+        ],
+        "afterMatchedEntityIds": [
+          "e-autogen"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-claude",
+        "alias": "Anthropic Claude",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-anthropic",
+          "e-claude"
+        ],
+        "afterMatchedEntityIds": [
+          "e-claude"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-claude-code",
+        "alias": "Anthropic Claude Code",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-anthropic",
+          "e-claude-code"
+        ],
+        "afterMatchedEntityIds": [
+          "e-claude-code"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-codex",
+        "alias": "Codex",
+        "aliasType": "product-name",
+        "beforeMatchedEntityIds": [
+          "e-codex"
+        ],
+        "afterMatchedEntityIds": [
+          "e-codex"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-codex",
+        "alias": "Codex CLI",
+        "aliasType": "product-name",
+        "beforeMatchedEntityIds": [
+          "e-codex"
+        ],
+        "afterMatchedEntityIds": [
+          "e-codex"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-crewai",
+        "alias": "Crew AI",
+        "aliasType": "spelling-variant",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-crewai"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-deepseek",
+        "alias": "深度求索",
+        "aliasType": "translation",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-deepseek"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-devin",
+        "alias": "Devin AI",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-devin"
+        ],
+        "afterMatchedEntityIds": [
+          "e-devin"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-doubao",
+        "alias": "豆包",
+        "aliasType": "translation",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-doubao"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-ernie",
+        "alias": "ERNIE",
+        "aliasType": "abbreviation",
+        "beforeMatchedEntityIds": [
+          "e-ernie"
+        ],
+        "afterMatchedEntityIds": [
+          "e-ernie"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-ernie",
+        "alias": "文心一言",
+        "aliasType": "translation",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-ernie"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-gemini",
+        "alias": "Google Gemini",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-gemini",
+          "e-google"
+        ],
+        "afterMatchedEntityIds": [
+          "e-gemini"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-gemini-cli",
+        "alias": "Google Gemini CLI",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-gemini-cli",
+          "e-google"
+        ],
+        "afterMatchedEntityIds": [
+          "e-gemini-cli"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-gpt",
+        "alias": "ChatGPT",
+        "aliasType": "product-name",
+        "beforeMatchedEntityIds": [
+          "e-gpt"
+        ],
+        "afterMatchedEntityIds": [
+          "e-gpt"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-gpt",
+        "alias": "GPT-4",
+        "aliasType": "version-name",
+        "beforeMatchedEntityIds": [
+          "e-gpt"
+        ],
+        "afterMatchedEntityIds": [
+          "e-gpt"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-gpt-5",
+        "alias": "GPT-5",
+        "aliasType": "version-name",
+        "beforeMatchedEntityIds": [
+          "e-gpt-5"
+        ],
+        "afterMatchedEntityIds": [
+          "e-gpt-5"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-kimi",
+        "alias": "Kimi 智能助手",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-kimi"
+        ],
+        "afterMatchedEntityIds": [
+          "e-kimi"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-langchain",
+        "alias": "Lang Chain",
+        "aliasType": "spelling-variant",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-langchain"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-langgraph",
+        "alias": "Lang Graph",
+        "aliasType": "spelling-variant",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-langgraph"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-manus",
+        "alias": "Manus AI",
+        "aliasType": "qualified-name",
+        "beforeMatchedEntityIds": [
+          "e-manus",
+          "e-manus-company"
+        ],
+        "afterMatchedEntityIds": [
+          "e-manus"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-mcp",
+        "alias": "MCP",
+        "aliasType": "abbreviation",
+        "beforeMatchedEntityIds": [
+          "e-mcp"
+        ],
+        "afterMatchedEntityIds": [
+          "e-mcp"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-openai-agents-sdk",
+        "alias": "Agents SDK",
+        "aliasType": "abbreviation",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-openai-agents-sdk"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-qwen",
+        "alias": "Qwen",
+        "aliasType": "abbreviation",
+        "beforeMatchedEntityIds": [
+          "e-qwen"
+        ],
+        "afterMatchedEntityIds": [
+          "e-qwen"
+        ],
+        "beforePassed": true,
+        "afterPassed": true
+      },
+      {
+        "entityId": "e-qwen",
+        "alias": "通义千问",
+        "aliasType": "translation",
+        "beforeMatchedEntityIds": [],
+        "afterMatchedEntityIds": [
+          "e-qwen"
+        ],
+        "beforePassed": false,
+        "afterPassed": true
+      }
+    ]
+  }
+}

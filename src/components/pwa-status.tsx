@@ -107,7 +107,7 @@ export function PwaStatus({ dark = false }: { dark?: boolean }) {
 
   if ((!installPrompt && !installed) || dismissed) return null;
   return (
-    <div className="print-hidden fixed bottom-20 right-4 z-30 max-w-xs rounded-xl border border-border bg-card p-3 shadow-xl md:bottom-5">
+    <div className="print-hidden fixed bottom-20 right-4 z-30 max-w-xs rounded-md border border-border bg-card p-3 shadow-md md:bottom-5">
       <button
         type="button"
         onClick={() => setDismissed(true)}

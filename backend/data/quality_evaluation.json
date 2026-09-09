@@ -1,0 +1,16 @@
+{
+  "updatedAt": "2026-08-31T06:00:28.810798+00:00",
+  "cadence": "daily-or-on-retrieval-change",
+  "artifactPath": "docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json",
+  "goldenSetVersion": "1.0.0",
+  "sampleCount": 80,
+  "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
+  "retrievalMode": "hybrid",
+  "embeddingModel": "@cf/baai/bge-m3",
+  "topK": 8,
+  "evaluationCommit": "8a6b0b7ac37bf94e715c261bf325b9314e6d2987",
+  "recallAt8": 1.0,
+  "precisionAt8": 0.1422,
+  "entityRecallAt8": 0.9875,
+  "passRatio": 1.0
+}

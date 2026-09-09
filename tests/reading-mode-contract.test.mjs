@@ -5,10 +5,10 @@ import test from "node:test";
 
 const read = (file) => readFile(path.resolve(process.cwd(), file), "utf8");
 
-test("阅读模式由一份共享配置驱动顶部入口与设置页", async () => {
-  const [config, topNav, settings] = await Promise.all([
+test("阅读模式由一份共享配置驱动正文入口与设置页", async () => {
+  const [config, selector, settings] = await Promise.all([
     read("src/domain/reading-mode.ts"),
-    read("src/components/layout/TopNav.tsx"),
+    read("src/components/knowledge/ReadingModeSelector.tsx"),
     read("src/routes/settings.tsx"),
   ]);
 
@@ -18,10 +18,19 @@ test("阅读模式由一份共享配置驱动顶部入口与设置页", async ()
   assert.match(config, /READING_MODE_OPTIONS/);
   assert.match(config, /knowledgeBlockOrder: \["guide", "use-cases", "limitations"\]/);
   assert.match(config, /knowledgeBlockOrder: \["use-cases", "limitations", "guide"\]/);
-  assert.match(topNav, /currentReadingMode/);
-  assert.match(topNav, /currentReadingMode\.shortLabel/);
-  assert.match(topNav, /hidden gap-2 px-2\.5 lg:inline-flex/);
+  assert.match(selector, /READING_MODE_OPTIONS\.map/);
+  assert.match(selector, /option\.shortLabel\[lang\]/);
+  assert.match(selector, /onChange\(option\.id\)/);
+  assert.match(selector, /activeOption\.focusAreas\.map/);
+  assert.match(selector, /aria-pressed=\{isActive\}/);
   assert.match(settings, /READING_MODE_OPTIONS\.map/);
+});
+
+test("阅读模式写入可分享 URL，并在加载时优先恢复", async () => {
+  const context = await read("src/lib/app-context.tsx");
+  assert.match(context, /URLSearchParams\(window\.location\.search\)\.get\("reading"\)/);
+  assert.match(context, /searchParams\.set\("reading", nextMode\)/);
+  assert.match(context, /history\.replaceState/);
 });
 
 test("模型与通用实体页按阅读模式展示不同重点信息", async () => {
@@ -53,7 +62,7 @@ test("模型与通用实体页按阅读模式展示不同重点信息", async ()
   assert.match(modelPage, /section="profile"/);
   assert.match(modelPage, /data-reading-section="lineage"/);
   assert.match(modelPage, /visible=\{sectionVisible\("comparison"\)\}/);
-  assert.match(modelPage, /data-reading-focus=\{mode\}/);
+  assert.match(modelPage, /<ReadingModeSelector value=\{mode\} onChange=\{setMode\} \/>/);
   assert.doesNotMatch(entityPage, /label=\{t\("最近核验", "Last verified"\)\}/);
   assert.doesNotMatch(entityPage, /保留直接证据与最近核验时间/);
   assert.match(entityPage, /section="relationships"/);

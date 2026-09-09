@@ -69,6 +69,11 @@ function AccountPage() {
       writeAuthToken(response.accessToken);
       setToken(response.accessToken);
       await refresh(response.accessToken);
+      const returnTo = safeReturnTo(
+        new URLSearchParams(window.location.search).get("returnTo"),
+        window.location.origin,
+      );
+      if (returnTo) window.location.assign(returnTo);
     });
   };
 
@@ -211,7 +216,12 @@ function AccountPage() {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
             void execute(async () => {
-              setResearch(await userApi.research(token, String(form.get("question")), "zh"));
+              setResearch(
+                await userApi.research(token, {
+                  question: String(form.get("question")),
+                  language: "zh",
+                }),
+              );
             });
           }}
         >
@@ -284,6 +294,19 @@ function AccountPage() {
       </main>
     </AppShell>
   );
+}
+
+function safeReturnTo(value: string | null, origin: string) {
+  if (!value) return "";
+  try {
+    const destination = new URL(value, origin);
+    const allowedPath =
+      destination.pathname === "/ask" || /^\/research\/[^/]+$/.test(destination.pathname);
+    if (destination.origin !== origin || !allowedPath) return "";
+    return `${destination.pathname}${destination.search}${destination.hash}`;
+  } catch {
+    return "";
+  }
 }
 
 function Notice({ text, destructive = false }: { text: string; destructive?: boolean }) {

@@ -1,0 +1,3012 @@
+{
+  "metadata": {
+    "provider": "cloudflare",
+    "modelName": "@cf/baai/bge-m3",
+    "modelVersion": "cloudflare-managed:@cf/baai/bge-m3",
+    "dimension": 1024,
+    "modelSource": "https://developers.cloudflare.com/workers-ai/models/bge-m3/",
+    "modelArtifactSha256": null,
+    "goldenSetVersion": "1.0.0",
+    "sampleCount": 80,
+    "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
+    "aliasCatalogVersion": "1.0.0",
+    "aliasCatalogSha256": "d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60",
+    "documentCount": 195,
+    "topK": 8,
+    "rrfK": 60,
+    "evaluationCommit": "b7f0d380ef28e528ac5727544848b54450eae2e7",
+    "evaluatedAt": "2026-08-31T05:25:33.774611+00:00"
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13",
+    "logicalCpuCount": 16,
+    "threads": 2
+  },
+  "resources": {
+    "initializationMs": 0,
+    "documentEmbeddingMs": 4501,
+    "queryLatencyP50Ms": 358.27,
+    "queryLatencyP95Ms": 783.809,
+    "initialRssMb": 67.4,
+    "peakRssMb": 105.14,
+    "rssDeltaMb": 37.74,
+    "cacheWarmBeforeRun": false,
+    "cacheMb": 0.0
+  },
+  "usage": {
+    "apiCalls": 82,
+    "inputTokens": 0,
+    "conservativeTokenUpperBound": 69750,
+    "estimatedNeurons": 74.9813,
+    "dailyNeuronBudget": 100.0,
+    "estimatedCostUsd": 0.0,
+    "freeTierAssumption": true
+  },
+  "metrics": {
+    "vector": {
+      "overall": {
+        "samples": 80,
+        "recallAtK": 0.9875,
+        "precisionAtK": 0.1406,
+        "entityRecallAtK": 0.9812,
+        "passRatio": 0.9875
+      },
+      "categories": {
+        "comparison": {
+          "samples": 10,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.25,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "entity": {
+          "samples": 30,
+          "recallAtK": 0.9667,
+          "precisionAtK": 0.1208,
+          "entityRecallAtK": 1.0,
+          "passRatio": 0.9667
+        },
+        "relation": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 0.925,
+          "passRatio": 1.0
+        },
+        "timeline": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.1313,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        }
+      }
+    },
+    "hybrid": {
+      "overall": {
+        "samples": 80,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.1422,
+        "entityRecallAtK": 0.9875,
+        "passRatio": 1.0
+      },
+      "categories": {
+        "comparison": {
+          "samples": 10,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.25,
+          "entityRecallAtK": 0.95,
+          "passRatio": 1.0
+        },
+        "entity": {
+          "samples": 30,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        },
+        "relation": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.125,
+          "entityRecallAtK": 0.975,
+          "passRatio": 1.0
+        },
+        "timeline": {
+          "samples": 20,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.1313,
+          "entityRecallAtK": 1.0,
+          "passRatio": 1.0
+        }
+      }
+    }
+  },
+  "results": {
+    "vector": [
+      {
+        "id": "entity-001",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gpt5-swe",
+          "claim-67fa626d90510874782c",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-62e6a41540009d41ae38",
+          "claim-b2e9f9013b8927ec86bd",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-e7774c003f95b0404903",
+          "claim-722c98db171d7018b8b3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-002",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-claude-align",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-d09942e317650cc3435d",
+          "claim-b16d6589cd7104289b88",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-8f1b9dca9176013f7989",
+          "claim-aa028d98f64ccca7df43",
+          "claim-fa38113d856b439d625a"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-003",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-d52e477b9559be80d40d",
+          "claim-946116b1be917420287c",
+          "claim-bcdb62855ed445165f1f",
+          "claim-a639efc294dac838279d",
+          "claim-8a2943bc0365104acd20",
+          "claim-c05a2d6e012bd55d093a",
+          "claim-ad870454da073e213a53",
+          "claim-26b1d5225baf5e9bf207"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-004",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-1df943f17b88c67f915b",
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-005",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-8a2943bc0365104acd20",
+          "claim-c05a2d6e012bd55d093a",
+          "claim-4fd46ae604567d5065bd",
+          "claim-0456fcc08c1b9651e461",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-8952825de5396e9a8f32",
+          "claim-776021b93f0cc62f59d8"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-006",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-b966d05482e2862a2284",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-957f78f08bcffaa45776",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-0ffb64747e7a0626d653",
+          "claim-764a228633c0890763fc"
+        ],
+        "claimRecallAtK": 0.0,
+        "precisionAtK": 0.0,
+        "entityRecallAtK": 1.0,
+        "passed": false
+      },
+      {
+        "id": "entity-007",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-0f2b9f758b0f58398ef7",
+          "c-gemini-video",
+          "claim-cf94fdbaa29a323ff09b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-008",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-manus-agent",
+          "claim-fe7400a84c600dfb05d1",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68",
+          "claim-8f1b9dca9176013f7989",
+          "c-devin-agent",
+          "claim-625b492fabee4c224e4f",
+          "claim-c138e58e601447cb2f39"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-009",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-devin-agent",
+          "claim-37d0d89648d2a393d0c3",
+          "c-manus-agent",
+          "claim-6bc3e8040e503b9761af",
+          "claim-a8bb22fe32d08f888656",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-010",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-6bc3e8040e503b9761af",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-011",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-autogen-framework",
+          "c-devin-agent",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-67fa626d90510874782c",
+          "c-manus-agent",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-946116b1be917420287c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-012",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-crewai-framework",
+          "c-openai-agents-sdk-framework",
+          "c-codex-agent",
+          "claim-bd61b1b266dd6e00f84e",
+          "claim-3d5d2da944a152e3a050",
+          "claim-67cdd43c2bbc5c3c9094",
+          "c-manus-agent",
+          "claim-dd89bd1c8f5c53c061b1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-013",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-openai-agents-sdk-framework",
+          "c-codex-agent",
+          "claim-bcdb62855ed445165f1f",
+          "claim-0456fcc08c1b9651e461",
+          "claim-b2e468b130a220c586ae",
+          "claim-d52e477b9559be80d40d",
+          "claim-946116b1be917420287c",
+          "claim-67cdd43c2bbc5c3c9094"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-014",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-811c19b9a402e4282b29",
+          "claim-c782db99397aad682725",
+          "claim-4d44703b700a9e08516e",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-015",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-26b1d5225baf5e9bf207"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-016",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-93e11b12cd81ffd645d1",
+          "claim-68c09107f4d766a73a57",
+          "claim-d164b5c3859aa142e64b",
+          "claim-9198f4054e0c204fc1a9",
+          "claim-b743aa575bc8317ca642",
+          "claim-fe1416642f52fa55ce45",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-a843b7fd4e1a92e8a729"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-017",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-739edf11461045ce579e",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-21ed507207e65f133a8d",
+          "claim-46a65791b4fe4379aa31",
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-018",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-d598a28918ce07b143fa",
+          "claim-46a65791b4fe4379aa31",
+          "claim-c39776a16ff86e810567"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-019",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "c-claude-code-agent",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-0ffb64747e7a0626d653",
+          "claim-764a228633c0890763fc",
+          "claim-957f78f08bcffaa45776"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-020",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-3e7ba4de99f29534fffd",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-6bc3e8040e503b9761af",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-bf9d94a7b2d875c0bf00",
+          "c-langgraph-framework",
+          "claim-0b39443caf585df6a887",
+          "claim-e3c74e6b9e4d6be016cd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-021",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-efbc349eb971644543eb",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-0ca5886d7cce38744c4e",
+          "claim-c11dc762b2d1f7bbc92a",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-022",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-e3c74e6b9e4d6be016cd",
+          "c-langgraph-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-023",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-dd07fb638a7530ff2309",
+          "claim-ee0aaa3d27f27adc8c0f",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-fa38113d856b439d625a",
+          "claim-aa028d98f64ccca7df43",
+          "claim-b16d6589cd7104289b88"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-024",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a57816a743988f53e8b2",
+          "claim-a18286f8beb841d14f78",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-9a17a4c22c2c11a5c5e1",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-3bff854813e3b3c31dd9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-025",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-bd0a65120b54c60efae5",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-026",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-e88536c0e20174d180b0",
+          "claim-6f9aaf8ca2c9c500592f",
+          "claim-263c6b747ae00eacada2",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-5aaf53f59267692a608e",
+          "claim-1176c1661b5a43b0362d",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-bc0878766ddba613fcef"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-027",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-651c65451adfbda8426e",
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-028",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf",
+          "claim-b31d73d2f91be48f6c5d",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-2dd7114eca1f06d79501",
+          "claim-567e0fde453f45cc666b",
+          "c-codex-agent",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-e021559c9e3184633bb6"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-029",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-f1e2af967f065102bbde",
+          "claim-514a641cc94e8c2e9089",
+          "claim-30a448880d11cfd14526"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-030",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-6d9735b8089f5c019ba7",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-0ffb64747e7a0626d653",
+          "claim-764a228633c0890763fc",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-b966d05482e2862a2284"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-001",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-37d0d89648d2a393d0c3",
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-eaf61ae41460b6ee9d7d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-002",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-3ec4878162e369974a0b",
+          "claim-708f41b052b365989d5f",
+          "claim-b966d05482e2862a2284",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-957f78f08bcffaa45776",
+          "claim-14f5b73d8708bbc4a360"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 0.5,
+        "passed": true
+      },
+      {
+        "id": "relation-003",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-708f41b052b365989d5f",
+          "claim-3ec4878162e369974a0b",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-b31d73d2f91be48f6c5d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-004",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b",
+          "claim-fa38113d856b439d625a",
+          "claim-b16d6589cd7104289b88",
+          "claim-d09942e317650cc3435d",
+          "c-claude-align",
+          "claim-aa028d98f64ccca7df43",
+          "claim-44a75c23edcd9681adda",
+          "claim-36513ae7dedc09e1fc93"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-005",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f1e2af967f065102bbde",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-1df943f17b88c67f915b",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-b01b1274ae7db71158aa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-006",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-b01b1274ae7db71158aa",
+          "claim-586c43110316fad28627",
+          "claim-514a641cc94e8c2e9089",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-1df943f17b88c67f915b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-007",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-3e7ba4de99f29534fffd",
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-0b39443caf585df6a887"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-008",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-946116b1be917420287c",
+          "claim-a639efc294dac838279d",
+          "claim-a8bb22fe32d08f888656"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-009",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-85baa52e65c945a6dbd1",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-0b39443caf585df6a887",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-e9324ee0b76670b71b21",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-9198f4054e0c204fc1a9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-010",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-5aaf53f59267692a608e",
+          "claim-1176c1661b5a43b0362d",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-5ea35a7e0f8dc4e729a9",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-a7628b6146867f51e14e",
+          "claim-e88536c0e20174d180b0",
+          "claim-6f9aaf8ca2c9c500592f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-011",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-1b0f409b34194dc20bc3",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-56e09e8a092cf475a286",
+          "claim-48213f05b19dcaf25309",
+          "claim-5aaf53f59267692a608e",
+          "claim-a7628b6146867f51e14e",
+          "claim-263c6b747ae00eacada2",
+          "claim-1176c1661b5a43b0362d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-012",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-946116b1be917420287c",
+          "claim-bcdb62855ed445165f1f",
+          "claim-d52e477b9559be80d40d",
+          "claim-a639efc294dac838279d",
+          "claim-8a2943bc0365104acd20",
+          "claim-40da0986ded48569404c",
+          "claim-67fa626d90510874782c",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-013",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-722c98db171d7018b8b3",
+          "claim-62e6a41540009d41ae38",
+          "claim-4fd46ae604567d5065bd",
+          "claim-ea299deb61fc0d5eaa5a",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-40da0986ded48569404c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 0.5,
+        "passed": true
+      },
+      {
+        "id": "relation-014",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-62e6a41540009d41ae38",
+          "claim-4fd46ae604567d5065bd",
+          "claim-722c98db171d7018b8b3",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-67fa626d90510874782c",
+          "claim-40da0986ded48569404c",
+          "c-gpt5-swe"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 0.5,
+        "passed": true
+      },
+      {
+        "id": "relation-015",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-a57816a743988f53e8b2",
+          "claim-9a17a4c22c2c11a5c5e1",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-204d387cd78583653f04",
+          "claim-a3fb5a9e3c7830c7f813",
+          "claim-8a595db59a1aa15c3d51"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-016",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c197b2fed5266444ac67",
+          "claim-50c69855c226a60323a7",
+          "claim-651c65451adfbda8426e",
+          "claim-6bc3e8040e503b9761af",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-dd89bd1c8f5c53c061b1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-017",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-651c65451adfbda8426e",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-6bc3e8040e503b9761af",
+          "claim-c138e58e601447cb2f39",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-7a980fecbd8f15bc1c83"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-018",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-b87bc199a75ca6194a14",
+          "claim-ad870454da073e213a53",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-c782db99397aad682725",
+          "claim-4d44703b700a9e08516e",
+          "claim-d46b4538f9f9a620139e",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-019",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-d598a28918ce07b143fa",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-46a65791b4fe4379aa31",
+          "claim-0bb5fe18f20b9d37d620"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-020",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c39776a16ff86e810567",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-d598a28918ce07b143fa",
+          "claim-46a65791b4fe4379aa31",
+          "claim-3ec4878162e369974a0b",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-001",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-30074cb26f8e04cba0f2",
+          "c-gemini-video",
+          "claim-40da0986ded48569404c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-002",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "c-gemini-video",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-cli-agent",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-003",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "c-gemini-cli-agent",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-b2e468b130a220c586ae",
+          "claim-0456fcc08c1b9651e461"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-004",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-4f8f8d405cca177b06a3",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-cli-agent",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-0f2b9f758b0f58398ef7",
+          "c-gemini-video",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-005",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-cli-agent",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-b2e468b130a220c586ae",
+          "claim-0456fcc08c1b9651e461"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-006",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-c7a1857e394448993d93",
+          "claim-21ed507207e65f133a8d",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-46a65791b4fe4379aa31",
+          "claim-c39776a16ff86e810567"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-007",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-1b95f8c29e8060f435e5",
+          "claim-b2e468b130a220c586ae",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-8952825de5396e9a8f32",
+          "claim-0456fcc08c1b9651e461",
+          "claim-776021b93f0cc62f59d8",
+          "claim-90b09d0c9745cbcb877b",
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-008",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f54e84647bf091f465d2",
+          "claim-7b675cc727012f320129",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-b2e468b130a220c586ae",
+          "claim-776021b93f0cc62f59d8",
+          "claim-1b95f8c29e8060f435e5",
+          "claim-8952825de5396e9a8f32"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-009",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2",
+          "claim-7b675cc727012f320129",
+          "claim-1718168ed069ec20533c",
+          "claim-b2e468b130a220c586ae",
+          "claim-1b95f8c29e8060f435e5",
+          "claim-a639efc294dac838279d",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-010",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-011",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f660ca6122fa1f704d0d",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-852c17dc4b53a389f8d9",
+          "claim-957f78f08bcffaa45776",
+          "c-claude-code-agent",
+          "claim-6dc90055ed5cbd2e235f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-012",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-1fdb85142657f6812e18",
+          "claim-691968ccd94f1eb55eff",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-00e461b0d7a97835f264",
+          "claim-ccdb4b7fd2ff7c5ff3b3",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-efbc349eb971644543eb",
+          "claim-c782db99397aad682725"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-013",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-907e86c15632fdc031a7",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-9a28d268080030afc6a8",
+          "claim-a65e9a56c5b78f050219",
+          "claim-b2e9f9013b8927ec86bd",
+          "claim-ecd9836d9329e8439569",
+          "claim-b16d6589cd7104289b88"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-014",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-f1e2af967f065102bbde",
+          "claim-b01b1274ae7db71158aa",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-f6c45a629d85f7abeb1f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-015",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-fa38113d856b439d625a",
+          "claim-b16d6589cd7104289b88",
+          "claim-c544c2ed2ada9fb5a54b",
+          "claim-d09942e317650cc3435d",
+          "claim-aa028d98f64ccca7df43",
+          "claim-ee0aaa3d27f27adc8c0f",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-44a75c23edcd9681adda"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-016",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f660ca6122fa1f704d0d",
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f160486f6dd1f6c4205d",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-fe7400a84c600dfb05d1",
+          "claim-60772eb088c4d19aaa68",
+          "claim-40c4970f43275ebe6ca6",
+          "c-claude-code-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-017",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "c-gemini-video",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-cli-agent",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-018",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-789db8e8444fba20797b",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-10c240632ac093bc9152",
+          "claim-0118c2584652c3ae00a2",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-c9729d582aad30fb2ef1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-019",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359",
+          "claim-789db8e8444fba20797b",
+          "claim-bd0a65120b54c60efae5",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-020",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f1e2af967f065102bbde",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-b01b1274ae7db71158aa",
+          "claim-2883d69731b3106d64a8",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-001",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-1d379a59788c82f7c2a0",
+          "claim-00e461b0d7a97835f264",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-002",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-d09942e317650cc3435d",
+          "claim-aa028d98f64ccca7df43",
+          "c-gpt5-swe",
+          "claim-fa38113d856b439d625a",
+          "claim-b16d6589cd7104289b88",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-44a75c23edcd9681adda",
+          "claim-ee0aaa3d27f27adc8c0f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-003",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-10c240632ac093bc9152",
+          "claim-0118c2584652c3ae00a2",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-bd0a65120b54c60efae5",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-004",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-651c65451adfbda8426e",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-6bc3e8040e503b9761af",
+          "claim-c138e58e601447cb2f39"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-005",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-64413a939e7a8f19b690",
+          "claim-625b492fabee4c224e4f",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-a18286f8beb841d14f78",
+          "claim-a57816a743988f53e8b2",
+          "claim-204d387cd78583653f04",
+          "claim-9a17a4c22c2c11a5c5e1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-006",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2",
+          "claim-7b675cc727012f320129",
+          "claim-1718168ed069ec20533c",
+          "claim-d52e477b9559be80d40d",
+          "claim-a639efc294dac838279d",
+          "claim-bcdb62855ed445165f1f",
+          "claim-946116b1be917420287c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-007",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-a7628b6146867f51e14e",
+          "claim-bc0878766ddba613fcef",
+          "claim-48213f05b19dcaf25309",
+          "claim-56e09e8a092cf475a286",
+          "claim-263c6b747ae00eacada2",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-28476f793c22ba4bc0b4"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-008",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-b87bc199a75ca6194a14",
+          "claim-d46b4538f9f9a620139e",
+          "claim-ad870454da073e213a53",
+          "claim-c782db99397aad682725",
+          "claim-4d44703b700a9e08516e",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-009",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-514a641cc94e8c2e9089",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-1df943f17b88c67f915b",
+          "claim-586c43110316fad28627",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-f1e2af967f065102bbde",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-010",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-22b1f161b39c7a6dc3ba",
+          "c-claude-code-agent",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-fe7400a84c600dfb05d1",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-60772eb088c4d19aaa68"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      }
+    ],
+    "hybrid": [
+      {
+        "id": "entity-001",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gpt5-swe",
+          "claim-67fa626d90510874782c",
+          "claim-62e6a41540009d41ae38",
+          "claim-7933c8f3e2e3532a7382",
+          "claim-722c98db171d7018b8b3",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-40da0986ded48569404c",
+          "claim-4fd46ae604567d5065bd"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-002",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-claude-align",
+          "claim-b16d6589cd7104289b88",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-aa028d98f64ccca7df43",
+          "claim-d09942e317650cc3435d",
+          "claim-b31d73d2f91be48f6c5d",
+          "claim-44a75c23edcd9681adda",
+          "claim-fa38113d856b439d625a"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-003",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-d52e477b9559be80d40d",
+          "claim-946116b1be917420287c",
+          "claim-bcdb62855ed445165f1f",
+          "claim-a639efc294dac838279d",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-0456fcc08c1b9651e461",
+          "claim-776021b93f0cc62f59d8"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-004",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gemini-video",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-1df943f17b88c67f915b",
+          "c-gemini-cli-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-005",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-codex-agent",
+          "claim-8a2943bc0365104acd20",
+          "claim-c05a2d6e012bd55d093a",
+          "claim-4fd46ae604567d5065bd",
+          "claim-0456fcc08c1b9651e461",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-8952825de5396e9a8f32",
+          "claim-776021b93f0cc62f59d8"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-006",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-964dfcfbc1b85062f986",
+          "c-claude-code-agent",
+          "claim-957f78f08bcffaa45776",
+          "claim-9846a95a58624a071559",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-6dc90055ed5cbd2e235f",
+          "claim-0ffb64747e7a0626d653"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-007",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-0f2b9f758b0f58398ef7",
+          "c-gemini-video",
+          "claim-cf94fdbaa29a323ff09b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-008",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-manus-agent",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-fe7400a84c600dfb05d1",
+          "claim-60772eb088c4d19aaa68",
+          "claim-8f1b9dca9176013f7989",
+          "c-devin-agent",
+          "claim-46a65791b4fe4379aa31",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-009",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-devin-agent",
+          "claim-37d0d89648d2a393d0c3",
+          "c-manus-agent",
+          "claim-6bc3e8040e503b9761af",
+          "claim-a8bb22fe32d08f888656",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-010",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-e9324ee0b76670b71b21",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-011",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-autogen-framework",
+          "c-devin-agent",
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-67fa626d90510874782c",
+          "c-manus-agent",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-946116b1be917420287c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-012",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-crewai-framework",
+          "c-codex-agent",
+          "c-openai-agents-sdk-framework",
+          "c-manus-agent",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-6bc3e8040e503b9761af",
+          "claim-bd61b1b266dd6e00f84e",
+          "claim-5aaf53f59267692a608e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-013",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "c-openai-agents-sdk-framework",
+          "c-codex-agent",
+          "claim-bcdb62855ed445165f1f",
+          "claim-0456fcc08c1b9651e461",
+          "claim-b2e468b130a220c586ae",
+          "claim-d52e477b9559be80d40d",
+          "claim-946116b1be917420287c",
+          "claim-67cdd43c2bbc5c3c9094"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-014",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-811c19b9a402e4282b29",
+          "claim-4d44703b700a9e08516e",
+          "claim-c782db99397aad682725",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-015",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-00e461b0d7a97835f264",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-691968ccd94f1eb55eff",
+          "claim-ccdb4b7fd2ff7c5ff3b3",
+          "claim-1fdb85142657f6812e18",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-016",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-d164b5c3859aa142e64b",
+          "claim-68c09107f4d766a73a57",
+          "claim-93e11b12cd81ffd645d1",
+          "claim-9198f4054e0c204fc1a9",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-b743aa575bc8317ca642",
+          "claim-fe1416642f52fa55ce45",
+          "claim-a843b7fd4e1a92e8a729"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-017",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-21ed507207e65f133a8d",
+          "claim-c39776a16ff86e810567",
+          "claim-46a65791b4fe4379aa31",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-d598a28918ce07b143fa"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-018",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-21ed507207e65f133a8d",
+          "claim-fbb75f711e265a8f9f29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-019",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "c-claude-code-agent",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-0ffb64747e7a0626d653",
+          "claim-957f78f08bcffaa45776",
+          "claim-6dc90055ed5cbd2e235f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-020",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-3e7ba4de99f29534fffd",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-021",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-efbc349eb971644543eb",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-811c19b9a402e4282b29",
+          "claim-ad870454da073e213a53",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-4d44703b700a9e08516e",
+          "claim-0ca5886d7cce38744c4e",
+          "claim-b87bc199a75ca6194a14"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-022",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-60b87db2ddd7abbb6700",
+          "claim-e9324ee0b76670b71b21",
+          "claim-eaf61ae41460b6ee9d7d",
+          "c-langgraph-framework",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-023",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-dd07fb638a7530ff2309",
+          "claim-ee0aaa3d27f27adc8c0f",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-aa028d98f64ccca7df43",
+          "claim-fa38113d856b439d625a",
+          "claim-b16d6589cd7104289b88"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-024",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-a57816a743988f53e8b2",
+          "claim-625b492fabee4c224e4f",
+          "claim-7f8f68faa57b9c45c7bc"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-025",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-bd0a65120b54c60efae5",
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-026",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-6f9aaf8ca2c9c500592f",
+          "claim-e88536c0e20174d180b0",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-263c6b747ae00eacada2",
+          "claim-1176c1661b5a43b0362d",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-5aaf53f59267692a608e",
+          "claim-1b0f409b34194dc20bc3"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-027",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-651c65451adfbda8426e",
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-15263d7ff2dfc3b95ce9",
+          "c-langgraph-framework",
+          "c-openai-agents-sdk-framework",
+          "c-manus-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-028",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-a3e4d4f1e21a727d98cf",
+          "claim-b31d73d2f91be48f6c5d",
+          "claim-1cf0729c9d4759a7ab0d",
+          "claim-2dd7114eca1f06d79501",
+          "claim-567e0fde453f45cc666b",
+          "c-codex-agent",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-e021559c9e3184633bb6"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-029",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-1df943f17b88c67f915b",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-f1e2af967f065102bbde",
+          "claim-514a641cc94e8c2e9089",
+          "claim-30a448880d11cfd14526"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "entity-030",
+        "category": "entity",
+        "retrievedClaimIds": [
+          "claim-14f5b73d8708bbc4a360",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-0ffb64747e7a0626d653",
+          "c-claude-code-agent",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-764a228633c0890763fc",
+          "claim-38cd91454308c906fc2e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-001",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-bf9d94a7b2d875c0bf00",
+          "c-langgraph-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-e3c74e6b9e4d6be016cd",
+          "claim-60b87db2ddd7abbb6700",
+          "claim-eaf61ae41460b6ee9d7d",
+          "claim-6bc3e8040e503b9761af",
+          "claim-e9324ee0b76670b71b21"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-002",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-3ec4878162e369974a0b",
+          "claim-708f41b052b365989d5f",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-0ffb64747e7a0626d653",
+          "claim-6d9735b8089f5c019ba7",
+          "c-claude-code-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 0.5,
+        "passed": true
+      },
+      {
+        "id": "relation-003",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-708f41b052b365989d5f",
+          "claim-3ec4878162e369974a0b",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-46a65791b4fe4379aa31",
+          "claim-bedca8ceed0954f4bc73"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-004",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c544c2ed2ada9fb5a54b",
+          "claim-44a75c23edcd9681adda",
+          "claim-b16d6589cd7104289b88",
+          "claim-aa028d98f64ccca7df43",
+          "claim-d09942e317650cc3435d",
+          "claim-fa38113d856b439d625a",
+          "claim-a3787c9919a5b1c28bee",
+          "c-claude-align"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-005",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-1df943f17b88c67f915b",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-586c43110316fad28627",
+          "claim-f1e2af967f065102bbde",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-514a641cc94e8c2e9089"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-006",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-514a641cc94e8c2e9089",
+          "claim-586c43110316fad28627",
+          "claim-b01b1274ae7db71158aa",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-ab7cc2db59c77666bd0b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-007",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-37d0d89648d2a393d0c3",
+          "claim-6bc3e8040e503b9761af",
+          "claim-dd89bd1c8f5c53c061b1",
+          "claim-bf9d94a7b2d875c0bf00",
+          "claim-3e7ba4de99f29534fffd",
+          "claim-0b39443caf585df6a887",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-008",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-0b39443caf585df6a887",
+          "claim-946116b1be917420287c",
+          "claim-bcdb62855ed445165f1f",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-a639efc294dac838279d",
+          "claim-d52e477b9559be80d40d",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-85baa52e65c945a6dbd1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-009",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-85baa52e65c945a6dbd1",
+          "claim-0b39443caf585df6a887",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-291e57a0e68dc6c2ef8c",
+          "claim-9198f4054e0c204fc1a9",
+          "claim-443a8f47cbe2117e1aff",
+          "claim-3d5d2da944a152e3a050",
+          "claim-b743aa575bc8317ca642"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-010",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-5aaf53f59267692a608e",
+          "claim-1176c1661b5a43b0362d",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-5ea35a7e0f8dc4e729a9",
+          "claim-263c6b747ae00eacada2",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-a7628b6146867f51e14e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-011",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-1b0f409b34194dc20bc3",
+          "claim-f94f9f7b5033aa600b03",
+          "claim-5aaf53f59267692a608e",
+          "claim-56e09e8a092cf475a286",
+          "claim-48213f05b19dcaf25309",
+          "claim-1176c1661b5a43b0362d",
+          "claim-263c6b747ae00eacada2",
+          "claim-28476f793c22ba4bc0b4"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-012",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-946116b1be917420287c",
+          "claim-bcdb62855ed445165f1f",
+          "claim-a639efc294dac838279d",
+          "claim-d52e477b9559be80d40d",
+          "claim-776021b93f0cc62f59d8",
+          "claim-b2e468b130a220c586ae",
+          "claim-0456fcc08c1b9651e461",
+          "claim-8952825de5396e9a8f32"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-013",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-722c98db171d7018b8b3",
+          "claim-62e6a41540009d41ae38",
+          "claim-ea299deb61fc0d5eaa5a",
+          "claim-4fd46ae604567d5065bd",
+          "claim-8a2943bc0365104acd20",
+          "claim-40da0986ded48569404c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-014",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-62e6a41540009d41ae38",
+          "claim-4fd46ae604567d5065bd",
+          "claim-ce8bf109d9ca8dda5e63",
+          "claim-722c98db171d7018b8b3",
+          "claim-40da0986ded48569404c",
+          "claim-b544c4cb8c1e5187ade6",
+          "claim-7933c8f3e2e3532a7382",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-015",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-64413a939e7a8f19b690",
+          "claim-a18286f8beb841d14f78",
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-9a17a4c22c2c11a5c5e1",
+          "claim-a57816a743988f53e8b2",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-625b492fabee4c224e4f",
+          "claim-8a595db59a1aa15c3d51"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-016",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c197b2fed5266444ac67",
+          "claim-50c69855c226a60323a7",
+          "claim-651c65451adfbda8426e",
+          "claim-739edf11461045ce579e",
+          "c-langgraph-framework",
+          "claim-15263d7ff2dfc3b95ce9",
+          "c-openai-agents-sdk-framework",
+          "claim-1176c1661b5a43b0362d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-017",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-651c65451adfbda8426e",
+          "claim-739edf11461045ce579e",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-0118c2584652c3ae00a2",
+          "c-langgraph-framework",
+          "claim-1718168ed069ec20533c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-018",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-4d44703b700a9e08516e",
+          "claim-c782db99397aad682725",
+          "claim-811c19b9a402e4282b29",
+          "claim-d46b4538f9f9a620139e"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-019",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-bedca8ceed0954f4bc73",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-21ed507207e65f133a8d",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-46a65791b4fe4379aa31"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "relation-020",
+        "category": "relation",
+        "retrievedClaimIds": [
+          "claim-c39776a16ff86e810567",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-d598a28918ce07b143fa",
+          "claim-739edf11461045ce579e",
+          "claim-46a65791b4fe4379aa31",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-21ed507207e65f133a8d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-001",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "c-gemini-cli-agent",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-30074cb26f8e04cba0f2",
+          "c-gemini-video",
+          "claim-40da0986ded48569404c"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-002",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-cli-agent",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-003",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video",
+          "c-gemini-cli-agent",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-004",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-4f8f8d405cca177b06a3",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-87feb225a273a9eac10b",
+          "claim-3af2b5a5730aaf348a0d",
+          "c-gemini-video",
+          "c-gemini-cli-agent",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-005",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-4f8f8d405cca177b06a3",
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video",
+          "c-gemini-cli-agent",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-006",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-21ed507207e65f133a8d",
+          "claim-c7a1857e394448993d93",
+          "claim-7a980fecbd8f15bc1c83",
+          "claim-bedca8ceed0954f4bc73",
+          "claim-46a65791b4fe4379aa31",
+          "claim-fbb75f711e265a8f9f29",
+          "claim-0bb5fe18f20b9d37d620",
+          "claim-s-mcp-architecture-10b5e8c77ee04336-msq25f34"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-007",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-1b95f8c29e8060f435e5",
+          "claim-36b63a10cf3d42e607d0",
+          "claim-0456fcc08c1b9651e461",
+          "claim-b2e468b130a220c586ae",
+          "claim-8952825de5396e9a8f32",
+          "claim-776021b93f0cc62f59d8",
+          "claim-1718168ed069ec20533c",
+          "claim-90b09d0c9745cbcb877b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-008",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-1718168ed069ec20533c",
+          "claim-a639efc294dac838279d",
+          "claim-1b95f8c29e8060f435e5",
+          "claim-946116b1be917420287c",
+          "claim-776021b93f0cc62f59d8"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-009",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-90b09d0c9745cbcb877b",
+          "claim-7b675cc727012f320129",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-a639efc294dac838279d",
+          "claim-946116b1be917420287c",
+          "claim-1b95f8c29e8060f435e5",
+          "claim-d52e477b9559be80d40d"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-010",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-c9729d582aad30fb2ef1",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-0118c2584652c3ae00a2",
+          "claim-10c240632ac093bc9152",
+          "claim-bd0a65120b54c60efae5",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-011",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f160486f6dd1f6c4205d",
+          "claim-852c17dc4b53a389f8d9",
+          "c-claude-code-agent",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-6d9735b8089f5c019ba7",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-0ffb64747e7a0626d653"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-012",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-1fdb85142657f6812e18",
+          "claim-00e461b0d7a97835f264",
+          "claim-691968ccd94f1eb55eff",
+          "claim-1d379a59788c82f7c2a0",
+          "claim-ccdb4b7fd2ff7c5ff3b3",
+          "claim-cf94fdbaa29a323ff09b",
+          "claim-efbc349eb971644543eb",
+          "claim-c782db99397aad682725"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-013",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-907e86c15632fdc031a7",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-a65e9a56c5b78f050219",
+          "claim-b2e9f9013b8927ec86bd",
+          "claim-67cdd43c2bbc5c3c9094",
+          "claim-9a28d268080030afc6a8",
+          "claim-ecd9836d9329e8439569",
+          "claim-b16d6589cd7104289b88"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-014",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-586c43110316fad28627",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-b01b1274ae7db71158aa",
+          "claim-f1e2af967f065102bbde",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-514a641cc94e8c2e9089"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-015",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-b16d6589cd7104289b88",
+          "claim-aa028d98f64ccca7df43",
+          "claim-fa38113d856b439d625a",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-d09942e317650cc3435d",
+          "claim-aec3ec964cca35fb7ce0",
+          "claim-ee0aaa3d27f27adc8c0f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-016",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-852c17dc4b53a389f8d9",
+          "claim-f660ca6122fa1f704d0d",
+          "claim-f160486f6dd1f6c4205d",
+          "c-claude-code-agent",
+          "claim-36513ae7dedc09e1fc93",
+          "claim-60772eb088c4d19aaa68",
+          "claim-40c4970f43275ebe6ca6",
+          "claim-6d9735b8089f5c019ba7"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-017",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-3af2b5a5730aaf348a0d",
+          "claim-87feb225a273a9eac10b",
+          "c-gemini-video",
+          "claim-4f8f8d405cca177b06a3",
+          "c-gemini-cli-agent",
+          "claim-30074cb26f8e04cba0f2",
+          "claim-0f2b9f758b0f58398ef7",
+          "claim-b2e468b130a220c586ae"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-018",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-789db8e8444fba20797b",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359",
+          "claim-0118c2584652c3ae00a2",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-10c240632ac093bc9152",
+          "claim-bd0a65120b54c60efae5",
+          "claim-d8c42aa4195b98cd5d4f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-019",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-f73421ce48a5cc77b359",
+          "claim-789db8e8444fba20797b",
+          "claim-bd0a65120b54c60efae5",
+          "claim-0118c2584652c3ae00a2",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-10c240632ac093bc9152",
+          "claim-c9729d582aad30fb2ef1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "timeline-020",
+        "category": "timeline",
+        "retrievedClaimIds": [
+          "claim-f1e2af967f065102bbde",
+          "claim-586c43110316fad28627",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-b01b1274ae7db71158aa",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-514a641cc94e8c2e9089"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-001",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-1d379a59788c82f7c2a0",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-00e461b0d7a97835f264",
+          "claim-26b1d5225baf5e9bf207",
+          "claim-ad870454da073e213a53",
+          "claim-b87bc199a75ca6194a14",
+          "claim-4d44703b700a9e08516e",
+          "claim-1fdb85142657f6812e18"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-002",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-aa028d98f64ccca7df43",
+          "claim-d09942e317650cc3435d",
+          "c-gpt5-swe",
+          "claim-b16d6589cd7104289b88",
+          "claim-44a75c23edcd9681adda",
+          "claim-a3787c9919a5b1c28bee",
+          "claim-fa38113d856b439d625a",
+          "claim-aec3ec964cca35fb7ce0"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-003",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-10c240632ac093bc9152",
+          "claim-4c4c5c82687fd61b55d5",
+          "claim-0118c2584652c3ae00a2",
+          "claim-f73421ce48a5cc77b359",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-bd0a65120b54c60efae5",
+          "claim-d8c42aa4195b98cd5d4f",
+          "claim-789db8e8444fba20797b"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-004",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-50c69855c226a60323a7",
+          "claim-c197b2fed5266444ac67",
+          "claim-651c65451adfbda8426e",
+          "c-langgraph-framework",
+          "claim-15263d7ff2dfc3b95ce9",
+          "claim-1176c1661b5a43b0362d",
+          "claim-1718168ed069ec20533c",
+          "c-codex-agent"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-005",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-7f8f68faa57b9c45c7bc",
+          "claim-64413a939e7a8f19b690",
+          "claim-625b492fabee4c224e4f",
+          "claim-8a595db59a1aa15c3d51",
+          "claim-3bff854813e3b3c31dd9",
+          "claim-a18286f8beb841d14f78",
+          "claim-7e1ecc910190000a0cd3",
+          "claim-9a17a4c22c2c11a5c5e1"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-006",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-7b675cc727012f320129",
+          "claim-90b09d0c9745cbcb877b",
+          "claim-f54e84647bf091f465d2",
+          "claim-1718168ed069ec20533c",
+          "claim-a639efc294dac838279d",
+          "claim-946116b1be917420287c",
+          "claim-d52e477b9559be80d40d",
+          "claim-bcdb62855ed445165f1f"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-007",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-48213f05b19dcaf25309",
+          "claim-bc0878766ddba613fcef",
+          "claim-a7628b6146867f51e14e",
+          "claim-263c6b747ae00eacada2",
+          "claim-56e09e8a092cf475a286",
+          "claim-28476f793c22ba4bc0b4",
+          "claim-1b0f409b34194dc20bc3",
+          "claim-5ea35a7e0f8dc4e729a9"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-008",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-26b1d5225baf5e9bf207",
+          "claim-b87bc199a75ca6194a14",
+          "claim-ad870454da073e213a53",
+          "claim-4d44703b700a9e08516e",
+          "claim-d46b4538f9f9a620139e",
+          "claim-c782db99397aad682725",
+          "claim-73b3ff0afe9ef5d63fc9",
+          "claim-811c19b9a402e4282b29"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      },
+      {
+        "id": "comparison-009",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "claim-514a641cc94e8c2e9089",
+          "claim-84efe21fd9bb4e00cae3",
+          "claim-f6c45a629d85f7abeb1f",
+          "claim-586c43110316fad28627",
+          "claim-a6bf7bb89ea9aeb1e43b",
+          "claim-74fd2e6ec62f858d75cc",
+          "claim-ab7cc2db59c77666bd0b",
+          "claim-f1e2af967f065102bbde"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 0.5,
+        "passed": true
+      },
+      {
+        "id": "comparison-010",
+        "category": "comparison",
+        "retrievedClaimIds": [
+          "c-claude-code-agent",
+          "claim-22b1f161b39c7a6dc3ba",
+          "claim-964dfcfbc1b85062f986",
+          "claim-9846a95a58624a071559",
+          "claim-60772eb088c4d19aaa68",
+          "claim-fe7400a84c600dfb05d1",
+          "claim-14f5b73d8708bbc4a360",
+          "claim-957f78f08bcffaa45776"
+        ],
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
+        "entityRecallAtK": 1.0,
+        "passed": true
+      }
+    ]
+  }
+}

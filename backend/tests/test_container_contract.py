@@ -8,6 +8,7 @@ def test_runtime_data_files_are_copied_into_container_image():
     required_files = (
         "demo_snapshot.json",
         "catalog_extension.json",
+        "entity_aliases_v1.json",
         "golden_questions.json",
     )
 

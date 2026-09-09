@@ -1,0 +1,80 @@
+{"version":"1.0.0","id":"entity-001","category":"entity","query":"GPT-5 在 SWE-bench Verified 上的通过率是多少？","expected_entity_ids":["e-gpt-5"],"expected_claim_ids":["c-gpt5-swe"]}
+{"version":"1.0.0","id":"entity-002","category":"entity","query":"Claude 4.5 的官方安全评估提到了什么变化？","expected_entity_ids":["e-claude"],"expected_claim_ids":["c-claude-align"]}
+{"version":"1.0.0","id":"entity-003","category":"entity","query":"OpenAI 最新模型是否支持视觉能力？","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-d52e477b9559be80d40d"]}
+{"version":"1.0.0","id":"entity-004","category":"entity","query":"Gemini 2.5 Pro 能原生处理多长的视频？","expected_entity_ids":["e-gemini-25-pro"],"expected_claim_ids":["c-gemini-video"]}
+{"version":"1.0.0","id":"entity-005","category":"entity","query":"OpenAI Codex 属于什么类型的产品？","expected_entity_ids":["e-codex"],"expected_claim_ids":["c-codex-agent"]}
+{"version":"1.0.0","id":"entity-006","category":"entity","query":"Claude Code 能完成哪些代码操作？","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["c-claude-code-agent"]}
+{"version":"1.0.0","id":"entity-007","category":"entity","query":"Gemini CLI 是什么终端工具？","expected_entity_ids":["e-gemini-cli"],"expected_claim_ids":["c-gemini-cli-agent"]}
+{"version":"1.0.0","id":"entity-008","category":"entity","query":"Manus 如何描述自己的任务执行能力？","expected_entity_ids":["e-manus"],"expected_claim_ids":["c-manus-agent"]}
+{"version":"1.0.0","id":"entity-009","category":"entity","query":"Devin 的官方文档如何定义它？","expected_entity_ids":["e-devin"],"expected_claim_ids":["c-devin-agent"]}
+{"version":"1.0.0","id":"entity-010","category":"entity","query":"LangGraph 是哪一类 Agent 框架？","expected_entity_ids":["e-langgraph"],"expected_claim_ids":["c-langgraph-framework"]}
+{"version":"1.0.0","id":"entity-011","category":"entity","query":"AutoGen 安装文档包含哪些核心能力？","expected_entity_ids":["e-autogen"],"expected_claim_ids":["c-autogen-framework"]}
+{"version":"1.0.0","id":"entity-012","category":"entity","query":"CrewAI 用哪些概念组织协作式 Agent？","expected_entity_ids":["e-crewai"],"expected_claim_ids":["c-crewai-framework"]}
+{"version":"1.0.0","id":"entity-013","category":"entity","query":"OpenAI Agents SDK 提供哪些构建块？","expected_entity_ids":["e-openai-agents-sdk"],"expected_claim_ids":["c-openai-agents-sdk-framework"]}
+{"version":"1.0.0","id":"entity-014","category":"entity","query":"Kimi K2.6 的上下文窗口有多大？","expected_entity_ids":["e-kimi-k26"],"expected_claim_ids":["claim-73b3ff0afe9ef5d63fc9"]}
+{"version":"1.0.0","id":"entity-015","category":"entity","query":"Kimi K3 支持多长的上下文？","expected_entity_ids":["e-kimi-k3"],"expected_claim_ids":["claim-1d379a59788c82f7c2a0"]}
+{"version":"1.0.0","id":"entity-016","category":"entity","query":"Anthropic 的公司宗旨是什么？","expected_entity_ids":["e-anthropic"],"expected_claim_ids":["claim-d164b5c3859aa142e64b"]}
+{"version":"1.0.0","id":"entity-017","category":"entity","query":"MCP 服务器可以公开哪三种核心原语？","expected_entity_ids":["e-mcp"],"expected_claim_ids":["claim-0bb5fe18f20b9d37d620"]}
+{"version":"1.0.0","id":"entity-018","category":"entity","query":"MCP 支持哪些传输机制？","expected_entity_ids":["e-mcp"],"expected_claim_ids":["claim-b4baf2feae10cc1faa7b"]}
+{"version":"1.0.0","id":"entity-019","category":"entity","query":"Claude Code 是否可以搜索和读取代码？","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["claim-964dfcfbc1b85062f986"]}
+{"version":"1.0.0","id":"entity-020","category":"entity","query":"LangChain 的 create_agent 是什么？","expected_entity_ids":["e-langchain"],"expected_claim_ids":["claim-dd89bd1c8f5c53c061b1"]}
+{"version":"1.0.0","id":"entity-021","category":"entity","query":"Kimi 最多支持多少步工具调用？","expected_entity_ids":["e-kimi"],"expected_claim_ids":["claim-cf94fdbaa29a323ff09b"]}
+{"version":"1.0.0","id":"entity-022","category":"entity","query":"LangGraph 是否支持 human-in-the-loop？","expected_entity_ids":["e-langgraph"],"expected_claim_ids":["claim-60b87db2ddd7abbb6700"]}
+{"version":"1.0.0","id":"entity-023","category":"entity","query":"Claude 3.7 Sonnet 的思考预算上限是多少？","expected_entity_ids":["e-claude"],"expected_claim_ids":["claim-aec3ec964cca35fb7ce0"]}
+{"version":"1.0.0","id":"entity-024","category":"entity","query":"MMLU-Pro 将答案选项扩展到了多少个？","expected_entity_ids":["e-mmlu"],"expected_claim_ids":["claim-64413a939e7a8f19b690"]}
+{"version":"1.0.0","id":"entity-025","category":"entity","query":"Qwen3-2507 可以处理多长的输入？","expected_entity_ids":["e-qwen"],"expected_claim_ids":["claim-d8c42aa4195b98cd5d4f"]}
+{"version":"1.0.0","id":"entity-026","category":"entity","query":"Doubao Seed1.8 提供几种思考模式？","expected_entity_ids":["e-doubao-seed18"],"expected_claim_ids":["claim-6f9aaf8ca2c9c500592f"]}
+{"version":"1.0.0","id":"entity-027","category":"entity","query":"Transformer 的核心机制是什么？","expected_entity_ids":["e-transformer-paper"],"expected_claim_ids":["claim-651c65451adfbda8426e"]}
+{"version":"1.0.0","id":"entity-028","category":"entity","query":"Cursor 在知识库中被归类为什么？","expected_entity_ids":["e-cursor"],"expected_claim_ids":["claim-a3e4d4f1e21a727d98cf"]}
+{"version":"1.0.0","id":"entity-029","category":"entity","query":"ERNIE 5.0 的参数规模是多少？","expected_entity_ids":["e-ernie-50"],"expected_claim_ids":["claim-1df943f17b88c67f915b"]}
+{"version":"1.0.0","id":"entity-030","category":"entity","query":"Claude Code 是哪种命令行工具？","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["claim-6d9735b8089f5c019ba7"]}
+{"version":"1.0.0","id":"relation-001","category":"relation","query":"LangChain 的 agents 与 LangGraph 有什么技术关系？","expected_entity_ids":["e-langchain","e-langgraph"],"expected_claim_ids":["claim-bf9d94a7b2d875c0bf00"]}
+{"version":"1.0.0","id":"relation-002","category":"relation","query":"Claude Code 与 MCP 主机是什么关系？","expected_entity_ids":["e-claude-code","e-mcp"],"expected_claim_ids":["claim-3ec4878162e369974a0b"]}
+{"version":"1.0.0","id":"relation-003","category":"relation","query":"Claude Code 如何使用 Model Context Protocol？","expected_entity_ids":["e-claude-code","e-mcp"],"expected_claim_ids":["claim-708f41b052b365989d5f"]}
+{"version":"1.0.0","id":"relation-004","category":"relation","query":"Anthropic 开发了哪个 Claude 3.7 模型？","expected_entity_ids":["e-anthropic","e-claude"],"expected_claim_ids":["claim-c544c2ed2ada9fb5a54b"]}
+{"version":"1.0.0","id":"relation-005","category":"relation","query":"ERNIE 5.1 与 ERNIE 5.0 的继承关系是什么？","expected_entity_ids":["e-ernie-51","e-ernie-50"],"expected_claim_ids":["claim-84efe21fd9bb4e00cae3"]}
+{"version":"1.0.0","id":"relation-006","category":"relation","query":"ERNIE 5.1 的训练基础设施使用了什么框架？","expected_entity_ids":["e-ernie-51"],"expected_claim_ids":["claim-74fd2e6ec62f858d75cc"]}
+{"version":"1.0.0","id":"relation-007","category":"relation","query":"LangChain 用什么平台跟踪和评估 Agent？","expected_entity_ids":["e-langchain"],"expected_claim_ids":["claim-37d0d89648d2a393d0c3"]}
+{"version":"1.0.0","id":"relation-008","category":"relation","query":"LangChain 支持哪家 OpenAI 模型供应商？","expected_entity_ids":["e-langchain","e-openai"],"expected_claim_ids":["claim-0b39443caf585df6a887"]}
+{"version":"1.0.0","id":"relation-009","category":"relation","query":"LangChain 是否支持 Anthropic？","expected_entity_ids":["e-langchain","e-anthropic"],"expected_claim_ids":["claim-85baa52e65c945a6dbd1"]}
+{"version":"1.0.0","id":"relation-010","category":"relation","query":"Seed1.8 集成了哪些 Agent 能力？","expected_entity_ids":["e-doubao-seed18"],"expected_claim_ids":["claim-5aaf53f59267692a608e"]}
+{"version":"1.0.0","id":"relation-011","category":"relation","query":"Seed1.8 与 VideoCut 的集成关系是什么？","expected_entity_ids":["e-doubao-seed18"],"expected_claim_ids":["claim-f94f9f7b5033aa600b03"]}
+{"version":"1.0.0","id":"relation-012","category":"relation","query":"OpenAI 的最新模型支持哪些输入模态？","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-946116b1be917420287c"]}
+{"version":"1.0.0","id":"relation-013","category":"relation","query":"GPT-5.2-Codex 针对哪类任务优化？","expected_entity_ids":["e-gpt-5","e-codex"],"expected_claim_ids":["claim-ce8bf109d9ca8dda5e63"]}
+{"version":"1.0.0","id":"relation-014","category":"relation","query":"GPT-5-Codex 与 Codex 编码任务是什么关系？","expected_entity_ids":["e-gpt-5","e-codex"],"expected_claim_ids":["claim-62e6a41540009d41ae38"]}
+{"version":"1.0.0","id":"relation-015","category":"relation","query":"MMLU-Pro 如何扩展原始 MMLU？","expected_entity_ids":["e-mmlu"],"expected_claim_ids":["claim-a18286f8beb841d14f78"]}
+{"version":"1.0.0","id":"relation-016","category":"relation","query":"Transformer 与递归结构的关系是什么？","expected_entity_ids":["e-transformer-paper"],"expected_claim_ids":["claim-c197b2fed5266444ac67"]}
+{"version":"1.0.0","id":"relation-017","category":"relation","query":"Transformer 与卷积结构的关系是什么？","expected_entity_ids":["e-transformer-paper"],"expected_claim_ids":["claim-50c69855c226a60323a7"]}
+{"version":"1.0.0","id":"relation-018","category":"relation","query":"Kimi K2.6 支持哪些输入模态？","expected_entity_ids":["e-kimi-k26"],"expected_claim_ids":["claim-26b1d5225baf5e9bf207"]}
+{"version":"1.0.0","id":"relation-019","category":"relation","query":"MCP 数据层使用什么消息协议？","expected_entity_ids":["e-mcp"],"expected_claim_ids":["claim-bedca8ceed0954f4bc73"]}
+{"version":"1.0.0","id":"relation-020","category":"relation","query":"MCP 主机会为服务器创建什么对象？","expected_entity_ids":["e-mcp"],"expected_claim_ids":["claim-c39776a16ff86e810567"]}
+{"version":"1.0.0","id":"timeline-001","category":"timeline","query":"Gemini CLI 在哪一年作为开源终端 Agent 发布？","expected_entity_ids":["e-gemini-cli"],"expected_claim_ids":["c-gemini-cli-agent"]}
+{"version":"1.0.0","id":"timeline-002","category":"timeline","query":"Gemini 1.5 Pro 的 2M 上下文何时正式可用？","expected_entity_ids":["e-gemini-15-pro"],"expected_claim_ids":["claim-87feb225a273a9eac10b"]}
+{"version":"1.0.0","id":"timeline-003","category":"timeline","query":"Managed Agents in Gemini API 何时进入公开预览？","expected_entity_ids":["e-gemini"],"expected_claim_ids":["claim-0f2b9f758b0f58398ef7"]}
+{"version":"1.0.0","id":"timeline-004","category":"timeline","query":"Gemini Computer Use 工具何时进入公开预览？","expected_entity_ids":["e-gemini"],"expected_claim_ids":["claim-4f8f8d405cca177b06a3"]}
+{"version":"1.0.0","id":"timeline-005","category":"timeline","query":"Gemini File Search API 何时进入公开预览？","expected_entity_ids":["e-gemini"],"expected_claim_ids":["claim-30074cb26f8e04cba0f2"]}
+{"version":"1.0.0","id":"timeline-006","category":"timeline","query":"MCP Sampling 从哪个协议版本起弃用？","expected_entity_ids":["e-mcp"],"expected_claim_ids":["claim-c7a1857e394448993d93"]}
+{"version":"1.0.0","id":"timeline-007","category":"timeline","query":"Videos API 计划在哪一天从 OpenAI API 移除？","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-1b95f8c29e8060f435e5"]}
+{"version":"1.0.0","id":"timeline-008","category":"timeline","query":"OpenAI 一般可用模型最低退役通知期多久？","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-f54e84647bf091f465d2"]}
+{"version":"1.0.0","id":"timeline-009","category":"timeline","query":"OpenAI 预览模型可能只有多短的退役通知？","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-90b09d0c9745cbcb877b"]}
+{"version":"1.0.0","id":"timeline-010","category":"timeline","query":"Qwen3-2507 从何时起支持百万 token 输入？","expected_entity_ids":["e-qwen"],"expected_claim_ids":["claim-c9729d582aad30fb2ef1"]}
+{"version":"1.0.0","id":"timeline-011","category":"timeline","query":"Claude Code 当前以什么发布状态提供？","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["claim-f160486f6dd1f6c4205d"]}
+{"version":"1.0.0","id":"timeline-012","category":"timeline","query":"Kimi K3 当前是否已经发布？","expected_entity_ids":["e-kimi-k3"],"expected_claim_ids":["claim-1fdb85142657f6812e18"]}
+{"version":"1.0.0","id":"timeline-013","category":"timeline","query":"Seed2.0 Pro 和 Code 模型在哪些产品上线？","expected_entity_ids":["e-doubao-seed20-pro"],"expected_claim_ids":["claim-907e86c15632fdc031a7"]}
+{"version":"1.0.0","id":"timeline-014","category":"timeline","query":"ERNIE 5.1 在 2026 年 5 月的 Arena Search 排名如何？","expected_entity_ids":["e-ernie-51"],"expected_claim_ids":["claim-a6bf7bb89ea9aeb1e43b"]}
+{"version":"1.0.0","id":"timeline-015","category":"timeline","query":"Claude 3.7 Sonnet 已在哪些平台提供？","expected_entity_ids":["e-claude"],"expected_claim_ids":["claim-b16d6589cd7104289b88","claim-fa38113d856b439d625a"]}
+{"version":"1.0.0","id":"timeline-016","category":"timeline","query":"Claude Code 的有限研究预览状态是什么？","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["claim-852c17dc4b53a389f8d9"]}
+{"version":"1.0.0","id":"timeline-017","category":"timeline","query":"Gemini 1.5 Pro 的长上下文正式可用日期是什么？","expected_entity_ids":["e-gemini-15-pro"],"expected_claim_ids":["claim-87feb225a273a9eac10b"]}
+{"version":"1.0.0","id":"timeline-018","category":"timeline","query":"Qwen3 推荐的 Ollama 最低版本是什么？","expected_entity_ids":["e-qwen"],"expected_claim_ids":["claim-789db8e8444fba20797b"]}
+{"version":"1.0.0","id":"timeline-019","category":"timeline","query":"Qwen3 完整支持要求的 Transformers 版本是什么？","expected_entity_ids":["e-qwen"],"expected_claim_ids":["claim-15263d7ff2dfc3b95ce9"]}
+{"version":"1.0.0","id":"timeline-020","category":"timeline","query":"ERNIE 5.1 目前可以在哪里聊天使用？","expected_entity_ids":["e-ernie-51"],"expected_claim_ids":["claim-f1e2af967f065102bbde"]}
+{"version":"1.0.0","id":"comparison-001","category":"comparison","query":"比较 Kimi K2.6 与 Kimi K3 的上下文窗口。","expected_entity_ids":["e-kimi-k26","e-kimi-k3"],"expected_claim_ids":["claim-73b3ff0afe9ef5d63fc9","claim-1d379a59788c82f7c2a0"]}
+{"version":"1.0.0","id":"comparison-002","category":"comparison","query":"比较 GPT-5 与 Claude 3.7 Sonnet 的 SWE-bench Verified 表现。","expected_entity_ids":["e-gpt-5","e-claude"],"expected_claim_ids":["c-gpt5-swe","claim-aa028d98f64ccca7df43"]}
+{"version":"1.0.0","id":"comparison-003","category":"comparison","query":"比较 Qwen3-Thinking 与 Instruct 变体支持的思考模式。","expected_entity_ids":["e-qwen"],"expected_claim_ids":["claim-10c240632ac093bc9152","claim-4c4c5c82687fd61b55d5"]}
+{"version":"1.0.0","id":"comparison-004","category":"comparison","query":"比较 Transformer 对递归和卷积结构的处理方式。","expected_entity_ids":["e-transformer-paper"],"expected_claim_ids":["claim-c197b2fed5266444ac67","claim-50c69855c226a60323a7"]}
+{"version":"1.0.0","id":"comparison-005","category":"comparison","query":"比较 MMLU-Pro 与 MMLU 的选项数量和准确率变化。","expected_entity_ids":["e-mmlu"],"expected_claim_ids":["claim-64413a939e7a8f19b690","claim-7f8f68faa57b9c45c7bc"]}
+{"version":"1.0.0","id":"comparison-006","category":"comparison","query":"比较 OpenAI 一般可用模型与预览模型的退役通知期。","expected_entity_ids":["e-openai"],"expected_claim_ids":["claim-f54e84647bf091f465d2","claim-90b09d0c9745cbcb877b"]}
+{"version":"1.0.0","id":"comparison-007","category":"comparison","query":"比较 Seed1.8 在 VideoMME 和 VLMsAreBiased 的得分。","expected_entity_ids":["e-doubao-seed18"],"expected_claim_ids":["claim-48213f05b19dcaf25309","claim-bc0878766ddba613fcef"]}
+{"version":"1.0.0","id":"comparison-008","category":"comparison","query":"比较 Kimi K2.6 的输入模态与运行模式。","expected_entity_ids":["e-kimi-k26"],"expected_claim_ids":["claim-26b1d5225baf5e9bf207","claim-d46b4538f9f9a620139e"]}
+{"version":"1.0.0","id":"comparison-009","category":"comparison","query":"比较 ERNIE 5.1 与 5.0 的参数和计算成本变化。","expected_entity_ids":["e-ernie-51","e-ernie-50"],"expected_claim_ids":["claim-f6c45a629d85f7abeb1f","claim-514a641cc94e8c2e9089"]}
+{"version":"1.0.0","id":"comparison-010","category":"comparison","query":"比较 Claude Code 搜索代码与编写测试的能力。","expected_entity_ids":["e-claude-code"],"expected_claim_ids":["claim-964dfcfbc1b85062f986","claim-22b1f161b39c7a6dc3ba"]}

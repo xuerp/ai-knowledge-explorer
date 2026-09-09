@@ -40,6 +40,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         assert "Claims remaining: 128" in prompt
         assert "Core relation links remaining: 49" in prompt
         assert "distinct, directly supported atomic claims" in prompt
+        assert "both appear verbatim in one source segment" in prompt
         return httpx.Response(
             200,
             json={
@@ -72,7 +73,7 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
         id="snapshot-test",
         source_id=source.id,
         content_hash="hash",
-        content_text="The official specification says the context window is 2M tokens.",
+        content_text="GPT has a 2M context window.",
         observed_at=datetime.now(UTC),
     )
     service = StructuredExtractionService(
@@ -97,7 +98,54 @@ def test_structured_extraction_is_strict_unverified_and_evidence_linked():
     assert result[0].claim.object_or_value == "2M"
     assert result[0].claim.source_ids == [result[0].evidence[0].id]
     assert result[0].evidence[0].url == source.url
-    assert result[0].evidence[0].source_excerpt is None
+    assert result[0].evidence[0].source_excerpt == "GPT has a 2M context window."
+
+
+def test_structured_extraction_drops_fact_without_verbatim_evidence_anchor():
+    def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                '{"facts":[{"subject":"GPT","predicate":"context-window",'
+                                '"objectOrValue":"2M","textZh":"GPT 上下文为 2M。",'
+                                '"textEn":"GPT has a 2M context window.",'
+                                '"validFrom":null,"validTo":null}]}'
+                            )
+                        }
+                    }
+                ]
+            },
+        )
+
+    source = SourceRecord(
+        id="source-unanchored",
+        url="https://example.com/spec",
+        title="Official specification",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-unanchored",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="The official specification describes a large context window.",
+        observed_at=datetime.now(UTC),
+    )
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    assert service.extract(source, snapshot, 5) == []
 
 
 def test_extraction_uses_all_slots_for_relations_after_claim_threshold_is_met():
@@ -200,8 +248,15 @@ def test_extraction_keeps_balanced_allocation_before_claim_threshold_is_met():
     assert result == []
 
 
-def test_extraction_audit_only_accepts_the_current_pipeline_version():
+def test_extraction_audit_accepts_current_and_compatible_pipeline_versions():
     assert extraction_audit_is_current(json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}))
+    assert extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-08-symmetric-relation-dedup-v7"})
+    )
+    assert extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-08-relation-ontology-v8"})
+    )
+    assert extraction_audit_is_current(json.dumps({"pipelineVersion": "retired-pipeline"})) is False
     assert extraction_audit_is_current("{}") is False
     assert extraction_audit_is_current("not-json") is False
 

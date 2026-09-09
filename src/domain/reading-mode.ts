@@ -19,6 +19,7 @@ export interface ReadingModeOption {
   shortLabel: LocalizedText;
   label: LocalizedText;
   description: LocalizedText;
+  focusAreas: readonly LocalizedText[];
   knowledgeBlockOrder: readonly KnowledgeBlock[];
 }
 
@@ -28,9 +29,14 @@ export const READING_MODE_OPTIONS: readonly ReadingModeOption[] = [
     shortLabel: { zh: "通俗", en: "General" },
     label: { zh: "通俗模式", en: "General" },
     description: {
-      zh: "解释术语，优先说明发生了什么、为什么重要。",
-      en: "Explain terms and prioritize what happened and why it matters.",
+      zh: "先回答发生了什么，以及这件事对你有什么影响。",
+      en: "Start with what happened and what it means for you.",
     },
+    focusAreas: [
+      { zh: "发生了什么", en: "What changed" },
+      { zh: "为什么重要", en: "Why it matters" },
+      { zh: "对你的影响", en: "User impact" },
+    ],
     knowledgeBlockOrder: ["guide", "use-cases", "limitations"],
   },
   {
@@ -38,9 +44,14 @@ export const READING_MODE_OPTIONS: readonly ReadingModeOption[] = [
     shortLabel: { zh: "产品", en: "Product" },
     label: { zh: "产品模式", en: "Product" },
     description: {
-      zh: "优先展示使用场景、产品机会、限制与版本选择。",
-      en: "Prioritize use cases, opportunities, limits, and release choices.",
+      zh: "围绕用户场景、竞争变化、成本限制与产品选择组织信息。",
+      en: "Organize information around users, competition, cost, limits, and product choice.",
     },
+    focusAreas: [
+      { zh: "用户影响", en: "User impact" },
+      { zh: "适用场景", en: "Use cases" },
+      { zh: "竞品与商业变化", en: "Competition & business" },
+    ],
     knowledgeBlockOrder: ["use-cases", "limitations", "guide"],
   },
   {
@@ -48,9 +59,14 @@ export const READING_MODE_OPTIONS: readonly ReadingModeOption[] = [
     shortLabel: { zh: "技术", en: "Technical" },
     label: { zh: "技术模式", en: "Technical" },
     description: {
-      zh: "优先展示规格、指标、关系、时间线与原始证据。",
-      en: "Prioritize specifications, metrics, relations, timeline, and evidence.",
+      zh: "优先核对规格参数、API、Benchmark、技术限制与原始 Evidence。",
+      en: "Prioritize specifications, APIs, benchmarks, technical limits, and original evidence.",
     },
+    focusAreas: [
+      { zh: "规格参数", en: "Specifications" },
+      { zh: "API 与 Benchmark", en: "APIs & benchmarks" },
+      { zh: "Evidence", en: "Evidence" },
+    ],
     knowledgeBlockOrder: ["guide", "limitations", "use-cases"],
   },
 ] as const;
@@ -110,10 +126,10 @@ const ENTITY_SECTION_DENSITY: Record<
       guide: "focus",
       claims: "focus",
       lineage: "supporting",
+      relationships: "supporting",
       timeline: "supporting",
       questions: "supporting",
       profile: "hidden",
-      relationships: "hidden",
       comparison: "hidden",
       evidence: "hidden",
     },
@@ -144,9 +160,9 @@ const ENTITY_SECTION_DENSITY: Record<
     general: {
       guide: "focus",
       claims: "focus",
+      relationships: "supporting",
       timeline: "supporting",
       profile: "hidden",
-      relationships: "hidden",
       evidence: "hidden",
     },
     product: {

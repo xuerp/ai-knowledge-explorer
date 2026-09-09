@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     ForeignKey,
     Index,
@@ -42,6 +43,7 @@ class ReviewJobRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     reviewed_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    reason_category: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     review_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     lifecycle_status: Mapped[str] = mapped_column(
@@ -87,6 +89,22 @@ class KnowledgeEntityRecord(Base):
     )
     payload_json: Mapped[str] = mapped_column(Text, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class EntityAliasRecord(Base):
+    __tablename__ = "entity_alias"
+    __table_args__ = (
+        Index("ix_entity_alias_alias_key", "alias_key"),
+        Index("ix_entity_alias_alias_type", "alias_type"),
+    )
+
+    entity_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_entities.id"),
+        primary_key=True,
+    )
+    alias_key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    alias: Mapped[str] = mapped_column(String(255), nullable=False)
+    alias_type: Mapped[str] = mapped_column(String(32), nullable=False)
 
 
 class KnowledgeRelationRecord(Base):
@@ -273,6 +291,8 @@ class ResearchRecord(Base):
     retrieval_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="lexical")
     answer_mode: Mapped[str] = mapped_column(String(32), nullable=False, default="extractive")
     retrieval_diagnostics_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    decision_context_json: Mapped[str] = mapped_column(Text, nullable=False, default="null")
+    decision_json: Mapped[str] = mapped_column(Text, nullable=False, default="null")
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -297,6 +317,43 @@ class RagClaimDocumentRecord(Base):
     source_published_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class RagClaimEmbeddingRecord(Base):
+    __tablename__ = "rag_claim_embeddings"
+    __table_args__ = (
+        UniqueConstraint(
+            "claim_id",
+            "embedding_provider",
+            "embedding_model",
+            "embedding_version",
+            name="uq_rag_claim_embedding_version",
+        ),
+        Index(
+            "ix_rag_claim_embeddings_model_version",
+            "embedding_provider",
+            "embedding_model",
+            "embedding_version",
+        ),
+        Index("ix_rag_claim_embeddings_content_hash", "content_hash"),
+        CheckConstraint(
+            "embedding_dimension > 0",
+            name="ck_rag_claim_embeddings_positive_dimension",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    claim_id: Mapped[str] = mapped_column(
+        ForeignKey("rag_claim_documents.claim_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    embedding_provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(255), nullable=False)
+    embedding_version: Mapped[str] = mapped_column(String(255), nullable=False)
+    embedding_dimension: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    vector_json: Mapped[str] = mapped_column(Text, nullable=False)
+    embedded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 Index(

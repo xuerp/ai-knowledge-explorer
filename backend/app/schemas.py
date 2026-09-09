@@ -3,7 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
 
 
@@ -21,6 +29,28 @@ class LocalizedText(CamelModel):
 
 
 Confidence = Literal["verified", "inferred", "unverified", "conflict"]
+RelationKind = Literal[
+    "developed-by",
+    "based-on",
+    "competes-with",
+    "benchmarked-on",
+    "uses",
+    "cited-by",
+    "part-of",
+    "successor-of",
+    "integrates-with",
+]
+RELATION_KINDS: tuple[RelationKind, ...] = (
+    "developed-by",
+    "based-on",
+    "competes-with",
+    "benchmarked-on",
+    "uses",
+    "cited-by",
+    "part-of",
+    "successor-of",
+    "integrates-with",
+)
 
 
 class Evidence(CamelModel):
@@ -152,16 +182,7 @@ class GraphEdge(CamelModel):
     id: str
     from_id: str
     to_id: str
-    kind: Literal[
-        "developed-by",
-        "based-on",
-        "competes-with",
-        "benchmarked-on",
-        "uses",
-        "cited-by",
-        "part-of",
-        "successor-of",
-    ]
+    kind: RelationKind
     label: LocalizedText | None = None
     confidence: Confidence
     source_ids: list[str]
@@ -271,9 +292,20 @@ class KnowledgeSnapshot(CamelModel):
     sync_runs: list[SyncRun]
 
 
+ReviewReasonCategory = Literal[
+    "unsupported_evidence",
+    "duplicate",
+    "conflict",
+    "schema_error",
+    "low_confidence",
+]
+
+
 class ReviewDecision(CamelModel):
     expected_version: int = Field(ge=1)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_note: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_category: ReviewReasonCategory | None = None
 
 
 class ReviewLifecycleDecision(ReviewDecision):
@@ -285,7 +317,9 @@ class ReviewLifecycleDecision(ReviewDecision):
 class ReviewBatchDecision(CamelModel):
     id: str = Field(min_length=1, max_length=128)
     expected_version: int = Field(ge=1)
-    reason: str = Field(min_length=3, max_length=500)
+    reason: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_note: str | None = Field(default=None, min_length=3, max_length=500)
+    reason_category: ReviewReasonCategory | None = None
 
 
 class ReviewBatchApproval(CamelModel):
@@ -294,6 +328,9 @@ class ReviewBatchApproval(CamelModel):
 
 class ReviewQueueItem(ReviewCandidate):
     version: int
+    reason_category: ReviewReasonCategory | None = None
+    reason_note: str | None = None
+    # Compatibility alias for clients deployed before structured rejection reasons.
     review_reason: str | None = None
     review_method: Literal["human", "automation"] | None = None
     evidence_items: list[Evidence] = Field(default_factory=list)
@@ -318,6 +355,26 @@ class ReviewInventoryReport(CamelModel):
     invalid_anchor_items: int
     stale_items: int
     duplicate_with_published_items: int
+
+
+class ReviewReasonBreakdown(CamelModel):
+    category: ReviewReasonCategory | Literal["uncategorized"]
+    count: int
+    ratio: float
+
+
+class ReviewStats(CamelModel):
+    generated_at: datetime
+    open_count: int
+    reviewed_count: int
+    approved_count: int
+    rejected_count: int
+    approval_rate: float
+    rejection_rate: float
+    average_review_seconds: float | None = None
+    reviewed_with_duration_count: int
+    last_reviewed_at: datetime | None = None
+    rejection_reasons: list[ReviewReasonBreakdown]
 
 
 class EntityClaimPage(CamelModel):
@@ -374,6 +431,14 @@ class IntegrationStatus(CamelModel):
     automatic_extraction_max_candidates_per_snapshot: int
     automatic_extraction_retry_minutes: int
     automatic_relation_approval_enabled: bool
+    retrieval_mode: Literal["lexical", "hybrid"]
+    embedding_configured: bool
+    embedding_provider: Literal["none", "cloudflare"]
+    embedding_model: str | None = None
+    embedding_version: str | None = None
+    embedding_dimension: int | None = None
+    embedding_daily_neuron_budget: float | None = None
+    embedding_daily_api_call_budget: int | None = None
     smtp_configured: bool
     smtp_host: str | None = None
     smtp_from: str | None = None
@@ -827,9 +892,49 @@ class DigestPreference(CamelModel):
     hour: str = Field(pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 
 
+class DecisionBudget(CamelModel):
+    mode: Literal["cost-first", "range", "unknown"] = "unknown"
+    min: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
+    max: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
+    currency: str | None = Field(default=None, pattern=r"^[A-Z]{3,8}$")
+
+    @model_validator(mode="after")
+    def validate_range(self) -> DecisionBudget:
+        if self.min is not None and self.max is not None and self.min > self.max:
+            raise ValueError("budget min must not exceed max")
+        return self
+
+
+class DecisionContext(CamelModel):
+    task: str = Field(min_length=5, max_length=1000)
+    priority: Literal["quality", "cost", "speed", "privacy", "control", "balanced"]
+    budget: DecisionBudget = Field(default_factory=DecisionBudget)
+    deployment: Literal["cloud-api", "private", "on-device", "hybrid", "undecided"]
+    exclusions: list[str] = Field(default_factory=list, max_length=20)
+    candidate_entity_ids: list[str] = Field(default_factory=list, max_length=20)
+    notes: str | None = Field(default=None, max_length=1000)
+
+    @field_validator("exclusions")
+    @classmethod
+    def validate_exclusions(cls, values: list[str]) -> list[str]:
+        normalized = [value.strip() for value in values]
+        if any(not value or len(value) > 200 for value in normalized):
+            raise ValueError("each exclusion must contain 1 to 200 characters")
+        return normalized
+
+    @field_validator("candidate_entity_ids")
+    @classmethod
+    def validate_candidate_entity_ids(cls, values: list[str]) -> list[str]:
+        normalized = list(dict.fromkeys(value.strip() for value in values))
+        if any(not value or len(value) > 128 for value in normalized):
+            raise ValueError("each candidate entity id must contain 1 to 128 characters")
+        return normalized
+
+
 class ResearchCreate(CamelModel):
     question: str = Field(min_length=5, max_length=2000)
     language: Literal["zh", "en"] = "zh"
+    decision_context: DecisionContext | None = None
 
 
 class ResearchCitation(CamelModel):
@@ -862,6 +967,35 @@ class RetrievalDiagnostics(CamelModel):
     generation_fallback_reason: str | None = None
 
 
+class DecisionTradeoff(CamelModel):
+    dimension: str
+    finding: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionRisk(CamelModel):
+    state: Literal["verified", "inferred", "unknown", "conflict"]
+    detail: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionRecommendation(CamelModel):
+    primary_entity_id: str | None = None
+    alternative_entity_ids: list[str] = Field(default_factory=list)
+    summary: str
+
+
+class DecisionResult(CamelModel):
+    status: Literal["ready", "insufficient-evidence", "conflict", "failed"]
+    as_of: datetime
+    recommendation: DecisionRecommendation
+    conditions: list[str] = Field(default_factory=list)
+    tradeoffs: list[DecisionTradeoff] = Field(default_factory=list)
+    risks: list[DecisionRisk] = Field(default_factory=list)
+    next_checks: list[str] = Field(default_factory=list)
+    claim_ids: list[str] = Field(default_factory=list)
+
+
 class ResearchView(CamelModel):
     id: str
     question: str
@@ -873,6 +1007,8 @@ class ResearchView(CamelModel):
     retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
     answer_mode: Literal["extractive", "generated"] = "extractive"
     retrieval_diagnostics: RetrievalDiagnostics = Field(default_factory=RetrievalDiagnostics)
+    decision_context: DecisionContext | None = None
+    decision: DecisionResult | None = None
     published_slug: str | None = None
     created_at: datetime
     published_at: datetime | None = None
@@ -975,6 +1111,45 @@ class DataQualityReport(CamelModel):
     timeline_entries_with_missing_evidence: list[str]
     live_ready: bool
     issues: list[str]
+
+
+class BusinessQualityMetrics(CamelModel):
+    updated_at: datetime
+    entity_count: int
+    claim_count: int
+    evidence_count: int
+    relation_count: int
+    timeline_entry_count: int
+    evidence_reference_coverage: float
+    official_evidence_ratio: float
+    reviewed_evidence_ratio: float
+    fresh_evidence_ratio: float
+    verified_content_ratio: float
+    core_relation_deficit: int
+
+
+class EvaluationQualityMetrics(CamelModel):
+    updated_at: datetime
+    cadence: Literal["daily-or-on-retrieval-change"]
+    artifact_path: str
+    golden_set_version: str
+    sample_count: int
+    snapshot_sha256: str
+    retrieval_mode: Literal["lexical", "hybrid"]
+    embedding_model: str | None = None
+    top_k: int
+    evaluation_commit: str
+    recall_at_8: float
+    precision_at_8: float
+    entity_recall_at_8: float
+    pass_ratio: float
+
+
+class QualityMetrics(CamelModel):
+    generated_at: datetime
+    data_mode: Literal["demo", "live"]
+    business: BusinessQualityMetrics
+    evaluation: EvaluationQualityMetrics
 
 
 class ReleaseBaseline(CamelModel):

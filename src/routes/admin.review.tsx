@@ -26,9 +26,12 @@ import {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   partitionReviewBatchItems,
+  resolveReviewReasonCategory,
   resolveReviewReason,
+  reviewReasonCategoryLabels,
   selectBatchApprovableReviewItems,
   type ReviewAction,
+  type ReviewReasonCategory,
 } from "@/domain/review-decision";
 import { assessReviewItem, orderReviewItems } from "@/domain/review-priority";
 import { classifyReviewLane, reviewLaneCounts, type ReviewLane } from "@/domain/review-lanes";
@@ -201,6 +204,7 @@ function AdminReviewPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [reasonCategories, setReasonCategories] = useState<Record<string, string>>({});
   const [reviewingIds, setReviewingIds] = useState<Set<string>>(() => new Set());
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
   const [entityRepairReport, setEntityRepairReport] = useState<ClaimEntityRepairReport | null>(
@@ -334,9 +338,11 @@ function AdminReviewPage() {
   };
 
   const decide = async (item: ReviewQueueItem, action: ReviewAction) => {
-    let reason: string;
+    let reason: string | undefined;
+    let reasonCategory: ReviewReasonCategory | undefined;
     try {
       reason = resolveReviewReason(action, reasons[item.id]);
+      reasonCategory = resolveReviewReasonCategory(action, reasonCategories[item.id]);
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : "请填写审核理由。";
       setReviewErrors((current) => ({
@@ -350,7 +356,14 @@ function AdminReviewPage() {
     setReviewErrors((current) => ({ ...current, [item.id]: "" }));
     setError("");
     try {
-      const decided = await adminApi.decide(token, item.id, action, item.version, reason);
+      const decided = await adminApi.decide(
+        token,
+        item.id,
+        action,
+        item.version,
+        reason,
+        reasonCategory,
+      );
       setWorkspace((current) =>
         current
           ? {
@@ -362,6 +375,11 @@ function AdminReviewPage() {
           : current,
       );
       setReasons((current) => {
+        const next = { ...current };
+        delete next[item.id];
+        return next;
+      });
+      setReasonCategories((current) => {
         const next = { ...current };
         delete next[item.id];
         return next;
@@ -1927,7 +1945,7 @@ function AdminReviewPage() {
                 生产环境检查
               </span>
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <IntegrationCard
                 title="AI 候选抽取"
                 ready={workspace.integrations.extractionConfigured}
@@ -1950,6 +1968,17 @@ function AdminReviewPage() {
                   >
                     验证连接与结构化输出
                   </Button>
+                }
+              />
+              <IntegrationCard
+                title="混合检索"
+                ready={workspace.integrations.embeddingConfigured}
+                detail={
+                  workspace.integrations.embeddingConfigured
+                    ? `${workspace.integrations.retrievalMode} · ${workspace.integrations.embeddingProvider}/${workspace.integrations.embeddingModel} · ${workspace.integrations.embeddingDimension} 维 · 每日上限 ${workspace.integrations.embeddingDailyNeuronBudget} Neurons / ${workspace.integrations.embeddingDailyApiCallBudget} 次请求`
+                    : workspace.integrations.retrievalMode === "hybrid"
+                      ? "已请求 hybrid，但凭证或 provider 配置不完整；当前安全降级 lexical"
+                      : "生产默认 lexical；staging 完整配置后才启用 hybrid"
                 }
               />
               <IntegrationCard
@@ -1988,9 +2017,9 @@ function AdminReviewPage() {
           <section className="paper-card p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="font-serif text-xl font-semibold">存量队列只读盘点</h2>
+                <h2 className="font-serif text-xl font-semibold">跨通道风险标记</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  本报告只做确定性分类，不修改候选，也不调用外部模型。先合并明确重复，再人工判断更新与冲突。
+                  以下指标可彼此重叠，也可能与下方主通道同时命中；它们只提示复核重点，不代表候选可批准。
                 </p>
               </div>
               <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
@@ -2006,12 +2035,12 @@ function AdminReviewPage() {
                 label="队列内重复组"
                 value={workspace.reviewInventory.deterministicDuplicateGroups}
               />
-              <Metric label="可能更新组" value={workspace.reviewInventory.possibleUpdateGroups} />
-              <Metric label="冲突候选" value={workspace.reviewInventory.conflictItems} />
-              <Metric label="超过 90 天" value={workspace.reviewInventory.staleItems} />
-              <Metric label="原文锚点无效" value={workspace.reviewInventory.invalidAnchorItems} />
-              <Metric label="缺少证据" value={workspace.reviewInventory.missingEvidenceItems} />
-              <Metric label="高风险" value={workspace.reviewInventory.riskCounts.high ?? 0} />
+              <Metric label="可能更新标记" value={workspace.reviewInventory.possibleUpdateGroups} />
+              <Metric label="冲突标记" value={workspace.reviewInventory.conflictItems} />
+              <Metric label="陈旧标记（>90 天）" value={workspace.reviewInventory.staleItems} />
+              <Metric label="无效原文锚点" value={workspace.reviewInventory.invalidAnchorItems} />
+              <Metric label="缺少证据标记" value={workspace.reviewInventory.missingEvidenceItems} />
+              <Metric label="高风险标记" value={workspace.reviewInventory.riskCounts.high ?? 0} />
             </div>
           </section>
         )}
@@ -2021,8 +2050,9 @@ function AdminReviewPage() {
             <div>
               <h2 className="font-serif text-2xl font-semibold">待审核队列</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                当前待处理 {pendingQueue.length} 条。五条工作通道互斥分类，重复事实优先合并
-                Evidence，可能更新与高风险事实逐条判断，无效陈旧项先补证据或拒绝。
+                当前待处理 {pendingQueue.length}{" "}
+                条。以下主通道互斥且每条候选只归入一个；安全校验优先，
+                因此无效候选即使带有更新、冲突或高风险标记，仍归入“确定性无效”。
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -2148,9 +2178,9 @@ function AdminReviewPage() {
                     )}
                   </div>
                 </div>
-                {(item.conflictClaimIds.length > 0 || item.reviewReason) && (
+                {(item.conflictClaimIds.length > 0 || item.reasonNote || item.reviewReason) && (
                   <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
-                    {item.reviewReason}
+                    {item.reasonNote ?? item.reviewReason}
                     {item.conflictClaimIds.length > 0 && (
                       <div className="mt-1 font-mono text-xs">
                         {item.conflictClaimIds.join(", ")}
@@ -2226,10 +2256,29 @@ function AdminReviewPage() {
                     </div>
                   </div>
                 )}
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(10rem,0.7fr)_minmax(16rem,1.5fr)_auto_auto]">
+                  <select
+                    aria-label="拒绝原因分类"
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                    value={reasonCategories[item.id] ?? ""}
+                    disabled={reviewing}
+                    onChange={(event) =>
+                      setReasonCategories((current) => ({
+                        ...current,
+                        [item.id]: event.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">拒绝原因分类</option>
+                    {Object.entries(reviewReasonCategoryLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
                   <Input
-                    aria-label="审核理由"
-                    placeholder="批准可直接点击；拒绝请填写理由"
+                    aria-label="审核备注"
+                    placeholder="审核备注（可选）"
                     value={reasons[item.id] ?? ""}
                     disabled={reviewing}
                     onChange={(event) =>
@@ -2321,8 +2370,15 @@ function AdminReviewPage() {
                     <div>
                       <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
                       <p className="mt-2 text-sm font-medium">{item.claim.text.zh}</p>
-                      {item.reviewReason && (
-                        <p className="mt-1 text-xs text-muted-foreground">{item.reviewReason}</p>
+                      {(item.reasonNote || item.reviewReason) && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {item.reasonCategory
+                            ? `${reviewReasonCategoryLabels[item.reasonCategory]} · `
+                            : item.status === "rejected"
+                              ? "历史未分类 · "
+                              : ""}
+                          {item.reasonNote ?? item.reviewReason}
+                        </p>
                       )}
                     </div>
                     <span className="rounded-full border border-border px-2.5 py-1 text-xs">

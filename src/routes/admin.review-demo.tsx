@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, type ReactNode } from "react";
 import {
@@ -21,6 +22,8 @@ import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp, pick } from "@/lib/app-state";
 import type { Evidence, KnowledgeSnapshot, ReviewCandidate, SyncRun } from "@/domain/types";
+import { reviewReasonCategoryLabels } from "@/domain/review-decision";
+import { getReviewStats, type ReviewStats } from "@/services/review-stats-api";
 
 export const Route = createFileRoute("/admin/review-demo")({
   head: () => ({
@@ -41,6 +44,11 @@ type AdminView = "queue" | "sources" | "runs";
 function ReviewDemoPage() {
   const { t } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
+  const statsQuery = useQuery({
+    queryKey: ["review", "stats"],
+    queryFn: ({ signal }) => getReviewStats(signal),
+    staleTime: 60_000,
+  });
   const [view, setView] = useState<AdminView>("queue");
 
   if (!snapshotQuery.data) {
@@ -143,6 +151,13 @@ function ReviewDemoPage() {
             </div>
           </section>
 
+          <ReviewStatistics
+            stats={statsQuery.data}
+            loading={statsQuery.isLoading}
+            error={statsQuery.isError}
+            onRetry={() => void statsQuery.refetch()}
+          />
+
           <Pipeline />
 
           <section>
@@ -187,6 +202,132 @@ function ReviewDemoPage() {
         </div>
       </main>
     </AppShell>
+  );
+}
+
+function ReviewStatistics({
+  stats,
+  loading,
+  error,
+  onRetry,
+}: {
+  stats?: ReviewStats;
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
+}) {
+  const { t, lang } = useApp();
+  const number = new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en-US");
+  const percent = new Intl.NumberFormat(lang === "zh" ? "zh-CN" : "en-US", {
+    style: "percent",
+    maximumFractionDigits: 1,
+  });
+
+  if (!stats) {
+    return (
+      <section className="paper-card p-5" aria-label={t("审核统计", "Review statistics")}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-xs font-medium uppercase tracking-widest text-signal">
+              {t("真实审核审计", "Live review audit")}
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {loading
+                ? t("正在读取审核统计…", "Loading review statistics…")
+                : t(
+                    "审核统计当前不可用；页面不会用演示数字替代。",
+                    "Review statistics are unavailable; no demo values are substituted.",
+                  )}
+            </p>
+          </div>
+          {error && (
+            <button className="text-sm text-signal underline underline-offset-4" onClick={onRetry}>
+              {t("重试", "Retry")}
+            </button>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  const duration =
+    stats.averageReviewSeconds == null
+      ? t("暂无", "N/A")
+      : stats.averageReviewSeconds < 60
+        ? t(
+            `${Math.round(stats.averageReviewSeconds)} 秒`,
+            `${Math.round(stats.averageReviewSeconds)} sec`,
+          )
+        : t(
+            `${(stats.averageReviewSeconds / 60).toFixed(1)} 分钟`,
+            `${(stats.averageReviewSeconds / 60).toFixed(1)} min`,
+          );
+
+  return (
+    <section className="paper-card p-5" aria-labelledby="review-stats-heading">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-xs font-medium uppercase tracking-widest text-signal">
+            {t("真实审核审计", "Live review audit")}
+          </div>
+          <h2 id="review-stats-heading" className="mt-1 font-serif text-xl font-semibold">
+            {t("审核效率与拒绝原因", "Review outcomes and rejection reasons")}
+          </h2>
+        </div>
+        <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+          {t(
+            "仅公开聚合指标，不包含审核员身份或个别备注。历史拒绝不会被猜测分类。",
+            "Only aggregate metrics are public; reviewer identity and individual notes are excluded. Historical rejections are never guessed into categories.",
+          )}
+        </p>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatValue label={t("已审核", "Reviewed")} value={number.format(stats.reviewedCount)} />
+        <StatValue
+          label={t("批准率", "Approval rate")}
+          value={percent.format(stats.approvalRate)}
+        />
+        <StatValue
+          label={t("拒绝率", "Rejection rate")}
+          value={percent.format(stats.rejectionRate)}
+        />
+        <StatValue label={t("平均审核时长", "Average review time")} value={duration} />
+      </div>
+      <div className="mt-5 border-t border-border pt-4">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {t("拒绝原因分布", "Rejection reason distribution")}
+        </div>
+        {stats.rejectionReasons.length ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {stats.rejectionReasons.map((reason) => (
+              <span
+                key={reason.category}
+                className="rounded-full border border-border px-3 py-1.5 text-xs"
+              >
+                {reason.category === "uncategorized"
+                  ? t("历史未分类", "Historical uncategorized")
+                  : reviewReasonCategoryLabels[reason.category]}
+                {" · "}
+                {number.format(reason.count)} ({percent.format(reason.ratio)})
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("暂无拒绝记录。", "No rejected reviews yet.")}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function StatValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-background p-4">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-2 font-serif text-2xl font-semibold tabular-nums">{value}</div>
+    </div>
   );
 }
 

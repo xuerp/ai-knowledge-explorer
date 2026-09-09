@@ -13,6 +13,7 @@ const {
   isAlreadyAppliedReviewDecision,
   mergeReviewQueue,
   partitionReviewBatchItems,
+  resolveReviewReasonCategory,
   resolveReviewReason,
   selectBatchApprovableReviewItems,
 } = await vite.ssrLoadModule("/src/domain/review-decision.ts");
@@ -27,8 +28,16 @@ test("人工填写的审核理由会被保留", () => {
   assert.equal(resolveReviewReason("approve", "  已核对官方原文  "), "已核对官方原文");
 });
 
-test("拒绝仍要求填写具体理由", () => {
-  assert.throws(() => resolveReviewReason("reject", ""), /至少 3 个字符/);
+test("拒绝备注可选，填写后仍要求具体内容", () => {
+  assert.equal(resolveReviewReason("reject", ""), undefined);
+  assert.throws(() => resolveReviewReason("reject", "短"), /至少 3 个字符/);
+});
+
+test("拒绝必须选择标准化原因分类，批准不写分类", () => {
+  assert.equal(resolveReviewReasonCategory("reject", "conflict"), "conflict");
+  assert.equal(resolveReviewReasonCategory("approve", "conflict"), undefined);
+  assert.throws(() => resolveReviewReasonCategory("reject", ""), /请选择标准化原因分类/);
+  assert.throws(() => resolveReviewReasonCategory("reject", "other"), /请选择标准化原因分类/);
 });
 
 test("重复的同向审核决定按成功处理", () => {

@@ -10,7 +10,7 @@ import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -23,12 +23,15 @@ from .database import (
     Database,
     DocumentSnapshotRecord,
     KnowledgeEntityRecord,
+    KnowledgeRelationRecord,
+    KnowledgeTimelineRecord,
     PublicationRecordRow,
     ReviewJobRecord,
     SourceRecord,
     UserRecord,
 )
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
+from .embeddings import CloudflareEmbeddingProvider
 from .engagement import EngagementService
 from .entity_linkage import audit_claim_entity_links, classify_unlinked_claim
 from .extraction import (
@@ -50,13 +53,15 @@ from .quality import (
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
-from .rag import HybridRagRetriever, LexicalRagRetriever
+from .rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
 from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
+    RELATION_KINDS,
     AuditLogView,
     AutomationCycleResponse,
     BootstrapUser,
+    BusinessQualityMetrics,
     CandidateAssessment,
     CandidateCreate,
     Claim,
@@ -76,6 +81,7 @@ from .schemas import (
     EmailOutboxView,
     Entity,
     EntityClaimPage,
+    EvaluationQualityMetrics,
     ExtractionPlanItem,
     ExtractionProbeResult,
     ExtractionRequest,
@@ -97,6 +103,7 @@ from .schemas import (
     ProductionReadiness,
     PublicationRecord,
     PublishedResearchView,
+    QualityMetrics,
     RelationBackfillStatus,
     RelationClaimAuditItem,
     RelationClaimAuditReport,
@@ -108,11 +115,15 @@ from .schemas import (
     ResearchCitation,
     ResearchCreate,
     ResearchView,
+    RetrievalDiagnostics,
     ReviewBatchApproval,
+    ReviewBatchDecision,
     ReviewDecision,
     ReviewInventoryReport,
     ReviewLifecycleDecision,
     ReviewQueueItem,
+    ReviewReasonBreakdown,
+    ReviewStats,
     SchedulerRunSummary,
     SourceCreate,
     SourceProbeResult,
@@ -127,20 +138,10 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260824_0019"
-SERVICE_RELEASE = "2026.08.28-guided-entity-triage-v63"
+DATABASE_SCHEMA_REVISION = "20260905_0023"
+SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
-RELATION_CLAIM_PREDICATES = {
-    "developed-by",
-    "based-on",
-    "competes-with",
-    "benchmarked-on",
-    "uses",
-    "cited-by",
-    "part-of",
-    "successor-of",
-    "integrates-with",
-}
+RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
 
 RELATION_PREDICATE_ANCHORS = {
     "developed-by": ("developed-by", "developed by", "开发"),
@@ -179,6 +180,11 @@ def review_item_is_deterministically_invalid(item: ReviewQueueItem) -> bool:
     )
 
 
+def review_decision_note(decision: ReviewDecision | ReviewBatchDecision) -> str | None:
+    """Prefer the Epic 4 field while accepting the pre-Epic 4 request contract."""
+    return decision.reason_note or decision.reason
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or Settings.from_env()
     database = Database(app_settings.database_url)
@@ -196,9 +202,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     audit = AuditService()
     quality_gate = KnowledgeQualityGate()
     golden_questions = GoldenQuestionEvaluator()
+    embedding_provider = None
+    vector_index = None
+    if (
+        app_settings.retrieval_mode == "hybrid"
+        and app_settings.embedding_provider == "cloudflare"
+        and app_settings.cloudflare_account_id
+        and app_settings.cloudflare_api_token
+    ):
+        embedding_provider = CloudflareEmbeddingProvider(
+            account_id=app_settings.cloudflare_account_id,
+            api_token=app_settings.cloudflare_api_token,
+            model_name=app_settings.embedding_model,
+            model_version=app_settings.embedding_version,
+            dimension=app_settings.embedding_dimension,
+            daily_neuron_budget=app_settings.embedding_daily_neuron_budget,
+            neurons_per_million_tokens=app_settings.embedding_neurons_per_million_tokens,
+            daily_api_call_budget=app_settings.embedding_daily_api_call_budget,
+        )
+        vector_index = SqlAlchemyVectorClaimIndex(
+            embedding_provider=embedding_provider.provider_name,
+            embedding_model=embedding_provider.model_name,
+            embedding_version=embedding_provider.model_version,
+            embedding_dimension=embedding_provider.dimension,
+        )
     rag_retriever = (
-        HybridRagRetriever(enabled=True)
-        if app_settings.rag_hybrid_enabled
+        HybridRagRetriever(
+            embedding_provider=embedding_provider,
+            vector_index=vector_index,
+            enabled=True,
+        )
+        if app_settings.retrieval_mode == "hybrid"
         else LexicalRagRetriever()
     )
     engagement = EngagementService(
@@ -236,6 +270,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ingestion.reconcile_historical_permanent_failures(session)
             ingestion.reconcile_source_portfolio(session)
         yield
+        if embedding_provider is not None:
+            embedding_provider.close()
         database.dispose()
 
     app = FastAPI(
@@ -530,12 +566,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         principal: UserDependency,
         session: SessionDependency,
     ) -> ResearchView:
-        return engagement.research(
+        result = engagement.research(
             session,
             principal.subject,
             payload,
             get_public_snapshot(session),
         )
+        return visible_research(result, principal.role)
+
+    def visible_research(result: ResearchView, role: str | None = None) -> ResearchView:
+        if role == "admin":
+            return result
+        return result.model_copy(update={"retrieval_diagnostics": RetrievalDiagnostics()})
 
     @app.get("/api/v2/research/{research_id}", response_model=ResearchView)
     def research_detail(
@@ -550,7 +592,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return result
+        return visible_research(result, principal.role)
 
     @app.post("/api/v2/research/{research_id}/publish", response_model=ResearchView)
     def publish_research(
@@ -561,7 +603,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         result = engagement.publish_research(session, research_id, principal.subject)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return result
+        return visible_research(result, principal.role)
 
     def published_research_view(
         result: ResearchView,
@@ -600,7 +642,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Published research not found.",
             )
-        return published_research_view(result, session)
+        return published_research_view(visible_research(result), session)
 
     @app.get("/api/v2/share/{slug}/markdown", response_class=PlainTextResponse)
     def public_research_markdown(slug: str, session: SessionDependency) -> str:
@@ -692,6 +734,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ),
             automatic_extraction_retry_minutes=app_settings.auto_extraction_retry_minutes,
             automatic_relation_approval_enabled=app_settings.auto_approve_grounded_relations,
+            retrieval_mode=app_settings.retrieval_mode,
+            embedding_configured=embedding_provider is not None and vector_index is not None,
+            embedding_provider=app_settings.embedding_provider,
+            embedding_model=(
+                app_settings.embedding_model if app_settings.embedding_provider != "none" else None
+            ),
+            embedding_version=(
+                app_settings.embedding_version
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_dimension=(
+                app_settings.embedding_dimension
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_daily_neuron_budget=(
+                app_settings.embedding_daily_neuron_budget
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
+            embedding_daily_api_call_budget=(
+                app_settings.embedding_daily_api_call_budget
+                if app_settings.embedding_provider != "none"
+                else None
+            ),
             smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,
@@ -882,6 +950,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit: int,
         *,
         automatic_only: bool = False,
+        excluded_snapshot_ids: set[str] | None = None,
     ) -> list[tuple[SourceRecord, DocumentSnapshotRecord]]:
         extraction_runs = session.scalars(
             select(AuditLogRecord).where(
@@ -892,6 +961,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         extracted_snapshot_ids = {
             row.target_id for row in extraction_runs if extraction_audit_is_current(row.detail_json)
         }
+        extracted_snapshot_ids.update(excluded_snapshot_ids or set())
         cooling_down_snapshot_ids: set[str] = set()
         if automatic_only:
             retry_after = datetime.now(UTC) - timedelta(
@@ -1172,6 +1242,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         open_review_rows = session.scalars(
             select(ReviewJobRecord).where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
         ).all()
+        open_rows_by_id = {row.id: row for row in open_review_rows}
         open_fingerprints = {
             semantic_fingerprint(
                 Claim.model_validate_json(existing_row.claim_json),
@@ -1228,6 +1299,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 candidate = candidate.model_copy(
                     update={"entity_id": assessment.resolved_entity_id}
                 )
+            if existing_row := open_rows_by_id.get(candidate.id):
+                previous_version = existing_row.version
+                merge_duplicate_evidence(existing_row, candidate)
+                if not existing_row.entity_id and candidate.entity_id:
+                    existing_row.entity_id = candidate.entity_id
+                    existing_row.version += 1
+                if existing_row.version != previous_version:
+                    session.commit()
+                duplicates_skipped += 1
+                continue
             fingerprint = semantic_fingerprint(
                 candidate.claim,
                 candidate.entity_id,
@@ -1345,16 +1426,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         }
         if not summary["enabled"]:
             return summary
-        regular_plan = build_extraction_plan(session, limit, automatic_only=True)
+        backfill_plan, backfill_remaining = build_relation_backfill_plan(session, limit)
         planned: list[tuple[SourceRecord, DocumentSnapshotRecord, bool]] = [
-            (source, snapshot_row, False) for source, snapshot_row in regular_plan
+            (source, snapshot_row, True) for source, snapshot_row in backfill_plan
         ]
-        backfill_plan, backfill_remaining = build_relation_backfill_plan(
+        regular_plan = build_extraction_plan(
             session,
             limit - len(planned),
+            automatic_only=True,
             excluded_snapshot_ids={snapshot_row.id for _, snapshot_row, _ in planned},
         )
-        planned.extend((source, snapshot_row, True) for source, snapshot_row in backfill_plan)
+        planned.extend((source, snapshot_row, False) for source, snapshot_row in regular_plan)
         if app_settings.relation_backfill_batch_id:
             summary["relationBackfillBatchId"] = app_settings.relation_backfill_batch_id
             summary["relationBackfillAttemptsRemaining"] = backfill_remaining
@@ -1492,6 +1574,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             }
         )
 
+    def business_metrics_updated_at(session: Session) -> datetime:
+        candidates = [
+            session.scalar(select(func.max(KnowledgeEntityRecord.updated_at))),
+            session.scalar(select(func.max(KnowledgeRelationRecord.updated_at))),
+            session.scalar(select(func.max(KnowledgeTimelineRecord.updated_at))),
+            session.scalar(select(func.max(PublicationRecordRow.published_at))),
+        ]
+        latest = max((item for item in candidates if item is not None), default=None)
+        if latest is None:
+            return datetime.now(UTC)
+        return latest if latest.tzinfo is not None else latest.replace(tzinfo=UTC)
+
+    def evaluation_quality_metrics() -> EvaluationQualityMetrics:
+        try:
+            payload = json.loads(app_settings.quality_evaluation_path.read_text(encoding="utf-8"))
+            return EvaluationQualityMetrics.model_validate(payload)
+        except (OSError, json.JSONDecodeError, ValueError) as error:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="The committed retrieval evaluation artifact is unavailable.",
+            ) from error
+
     def get_public_snapshot(session: Session) -> KnowledgeSnapshot:
         snapshot = get_catalog_snapshot(session)
         if app_settings.data_mode == "live":
@@ -1507,6 +1611,78 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v2/snapshot", response_model=KnowledgeSnapshot)
     def snapshot(session: SessionDependency) -> KnowledgeSnapshot:
         return get_public_snapshot(session)
+
+    @app.get("/api/quality/metrics", response_model=QualityMetrics)
+    @app.get("/api/v2/quality/metrics", response_model=QualityMetrics)
+    def quality_metrics(session: SessionDependency) -> QualityMetrics:
+        report = quality_gate.report(get_catalog_snapshot(session))
+        return QualityMetrics(
+            generated_at=datetime.now(UTC),
+            data_mode=app_settings.data_mode,
+            business=BusinessQualityMetrics(
+                updated_at=business_metrics_updated_at(session),
+                entity_count=report.entity_count,
+                claim_count=report.claim_count,
+                evidence_count=report.evidence_count,
+                relation_count=report.relation_count,
+                timeline_entry_count=report.timeline_entry_count,
+                evidence_reference_coverage=report.evidence_reference_coverage,
+                official_evidence_ratio=report.official_evidence_ratio,
+                reviewed_evidence_ratio=report.reviewed_evidence_ratio,
+                fresh_evidence_ratio=report.fresh_evidence_ratio,
+                verified_content_ratio=report.verified_content_ratio,
+                core_relation_deficit=report.core_relation_deficit,
+            ),
+            evaluation=evaluation_quality_metrics(),
+        )
+
+    @app.get("/api/review/stats", response_model=ReviewStats)
+    @app.get("/api/v2/review/stats", response_model=ReviewStats)
+    def review_stats(session: SessionDependency) -> ReviewStats:
+        rows = session.execute(
+            select(
+                ReviewJobRecord.status,
+                ReviewJobRecord.created_at,
+                ReviewJobRecord.reviewed_at,
+                ReviewJobRecord.reason_category,
+            )
+        ).all()
+        terminal = [row for row in rows if row.status in {"approved", "rejected"}]
+        approved_count = sum(row.status == "approved" for row in terminal)
+        rejected_rows = [row for row in terminal if row.status == "rejected"]
+        rejected_count = len(rejected_rows)
+        reviewed_count = len(terminal)
+        durations = [
+            max(0.0, (row.reviewed_at - row.created_at).total_seconds())
+            for row in terminal
+            if row.reviewed_at is not None
+        ]
+        category_counts: dict[str, int] = {}
+        for row in rejected_rows:
+            category = row.reason_category or "uncategorized"
+            category_counts[category] = category_counts.get(category, 0) + 1
+        rejection_reasons = [
+            ReviewReasonBreakdown(
+                category=category,
+                count=count,
+                ratio=count / rejected_count if rejected_count else 0.0,
+            )
+            for category, count in sorted(category_counts.items())
+        ]
+        reviewed_times = [row.reviewed_at for row in terminal if row.reviewed_at is not None]
+        return ReviewStats(
+            generated_at=datetime.now(UTC),
+            open_count=sum(row.status in OPEN_REVIEW_STATUSES for row in rows),
+            reviewed_count=reviewed_count,
+            approved_count=approved_count,
+            rejected_count=rejected_count,
+            approval_rate=approved_count / reviewed_count if reviewed_count else 0.0,
+            rejection_rate=rejected_count / reviewed_count if reviewed_count else 0.0,
+            average_review_seconds=sum(durations) / len(durations) if durations else None,
+            reviewed_with_duration_count=len(durations),
+            last_reviewed_at=max(reviewed_times, default=None),
+            rejection_reasons=rejection_reasons,
+        )
 
     @app.get("/api/v2/entities", response_model=list[Entity])
     def entities(
@@ -2221,7 +2397,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         evidence_ids = {item.id for item in payload.evidence}
         if not set(payload.claim.source_ids).issubset(evidence_ids):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Every claim source id must be included in the submitted evidence.",
             )
         assessment = quality_gate.assess(payload, get_catalog_snapshot(session))
@@ -2999,16 +3175,50 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         if action == "approved" and not queue_item.evidence_ids:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A claim cannot be published without evidence.",
             )
         if action == "approved":
             require_publishable_entity(row, session)
-        row.status = action
-        row.review_reason = decision.reason
-        row.reviewed_at = datetime.now(UTC)
-        row.reviewed_by = actor.email
-        row.version += 1
+        if action == "rejected" and decision.reason_category is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="A rejection reason category is required.",
+            )
+        note = review_decision_note(decision)
+        reviewed_at = datetime.now(UTC)
+        claimed = session.execute(
+            update(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.id == review_id,
+                ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES),
+                ReviewJobRecord.version == decision.expected_version,
+            )
+            .values(
+                status=action,
+                reason_category=(decision.reason_category if action == "rejected" else None),
+                review_reason=note,
+                reviewed_at=reviewed_at,
+                reviewed_by=actor.email,
+                version=ReviewJobRecord.version + 1,
+            )
+        )
+        if claimed.rowcount != 1:
+            session.expire(row)
+            session.refresh(row)
+            if row.status == action:
+                return repository.to_queue_item(row)
+            if row.status not in OPEN_REVIEW_STATUSES:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Review job is already {row.status}.",
+                )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Review job version is {row.version}; refresh before deciding.",
+            )
+        session.expire(row)
+        session.refresh(row)
         published_relation = None
         if action == "approved":
             repository.persist_approved_verification(row)
@@ -3040,7 +3250,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             row.id,
             {
                 "claimId": row.claim_id,
-                "reason": decision.reason,
+                "reason": note,
+                "reasonCategory": row.reason_category,
+                "reasonNote": note,
                 "notificationsCreated": notifications_created,
                 "relationId": published_relation.id if published_relation else None,
             },
@@ -3091,7 +3303,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         require_publishable_entity(row, session)
         if not queue_item.evidence_items:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A claim cannot be published without evidence.",
             )
 
@@ -3161,7 +3373,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         now = datetime.now(UTC)
         row.status = "approved"
-        row.review_reason = decision.reason
+        row.reason_category = None
+        row.review_reason = review_decision_note(decision)
         row.reviewed_at = now
         row.reviewed_by = actor.email
         row.version += 1
@@ -3254,7 +3467,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             {
                 "claimId": row.claim_id,
                 "targetClaimId": target.claim_id,
-                "reason": decision.reason,
+                "reason": row.review_reason,
+                "reasonNote": row.review_reason,
                 "notificationsCreated": notifications_created,
                 "relationId": published_relation.id if published_relation else None,
             },
@@ -3284,7 +3498,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         item_ids = [item.id for item in approval.items]
         if len(item_ids) != len(set(item_ids)):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A review job can appear only once in a batch.",
             )
         decisions: list[ReviewQueueItem] = []
@@ -3400,6 +3614,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         row.id,
                         ReviewDecision(
                             expected_version=row.version,
+                            reason_category=(
+                                "schema_error" if not item.entity_id else "unsupported_evidence"
+                            ),
                             reason=(
                                 "确定性队列治理：候选缺少可发布实体、直接证据或可定位原文锚点。"
                             ),
@@ -3430,7 +3647,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         item_ids = [item.id for item in verification.items]
         if len(item_ids) != len(set(item_ids)):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A review job can appear only once in a batch.",
             )
         verified: list[ReviewQueueItem] = []
@@ -3465,12 +3682,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     )
                 if not repository.to_queue_item(row).evidence_ids:
                     raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                         detail="An approved claim cannot be verified without evidence.",
                     )
                 row.reviewed_at = datetime.now(UTC)
                 row.reviewed_by = actor.email
-                row.review_reason = item.reason
+                row.reason_category = None
+                note = review_decision_note(item)
+                row.review_reason = note
                 row.version += 1
                 repository.persist_approved_verification(row)
                 audit.record(
@@ -3479,7 +3698,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "review.human_verified",
                     "review_job",
                     row.id,
-                    {"claimId": row.claim_id, "reason": item.reason},
+                    {"claimId": row.claim_id, "reason": note, "reasonNote": note},
                 )
                 verified.append(repository.to_queue_item(row))
             session.commit()

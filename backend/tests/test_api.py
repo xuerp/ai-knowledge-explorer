@@ -1,4 +1,5 @@
 import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -18,7 +19,11 @@ from app.database import (
     ReviewJobRecord,
     SourceRecord,
 )
-from app.extraction import ExtractionUnavailableError, StructuredExtractionService
+from app.extraction import (
+    EXTRACTION_PIPELINE_VERSION,
+    ExtractionUnavailableError,
+    StructuredExtractionService,
+)
 from app.fetching import FetchedDocument, SafeHttpFetcher
 from app.main import (
     DATABASE_SCHEMA_REVISION,
@@ -28,7 +33,7 @@ from app.main import (
 )
 from app.release_baseline import render_markdown
 from app.repository import RELATION_PREDICATES
-from app.schemas import CandidateCreate
+from app.schemas import CandidateCreate, GraphEdge
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +64,21 @@ def test_relation_extraction_covers_every_canonical_graph_predicate():
     assert set(RELATION_PREDICATE_ANCHORS) == canonical_predicates
 
 
+def test_integrates_with_is_a_publishable_graph_relation():
+    edge = GraphEdge.model_validate(
+        {
+            "id": "edge-integration",
+            "fromId": "e-codex",
+            "toId": "e-mcp",
+            "kind": "integrates-with",
+            "confidence": "verified",
+            "sourceIds": ["evidence-integration"],
+        }
+    )
+
+    assert edge.kind == "integrates-with"
+
+
 def test_readiness_schema_revision_matches_bundled_alembic_head():
     config = Config(str(BACKEND_ROOT / "alembic.ini"))
     config.set_main_option("script_location", str(BACKEND_ROOT / "migrations"))
@@ -71,9 +91,9 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "ok": True,
-        "release": "2026.08.28-guided-entity-triage-v63",
+        "release": "2026.09.01-review-observability-v68",
         "buildCommit": "test-build-commit",
-        "schemaRevision": "20260824_0019",
+        "schemaRevision": "20260905_0023",
         "builtAt": "2026-08-25T00:00:00Z",
         "environment": "test",
         "dataMode": "demo",
@@ -159,6 +179,39 @@ def test_data_quality_overview_does_not_run_full_rag_index_sync(client: TestClie
     assert response.json()["evaluationScope"] == "overview"
     with client.app.state.database.session() as session:
         assert session.query(RagClaimDocumentRecord).count() == before
+
+
+def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
+    client: TestClient,
+):
+    response = client.get("/api/quality/metrics")
+
+    assert response.status_code == 200
+    payload = response.json()
+    snapshot = client.get("/api/v2/snapshot").json()
+    assert payload["dataMode"] == "demo"
+    assert payload["business"]["entityCount"] == len(snapshot["entities"])
+    assert payload["business"]["claimCount"] == len(snapshot["claims"])
+    assert payload["business"]["evidenceCount"] == len(snapshot["evidence"])
+    assert payload["business"]["relationCount"] == len(snapshot["graph"]["edges"])
+    assert payload["business"]["timelineEntryCount"] == sum(
+        len(items) for items in snapshot["timeline"].values()
+    )
+    assert payload["business"]["updatedAt"]
+    assert payload["evaluation"]["updatedAt"] == "2026-08-31T06:00:28.810798Z"
+    assert payload["evaluation"]["cadence"] == "daily-or-on-retrieval-change"
+    assert payload["evaluation"]["goldenSetVersion"] == "1.0.0"
+    assert payload["evaluation"]["sampleCount"] == 80
+    assert payload["evaluation"]["retrievalMode"] == "hybrid"
+    assert payload["evaluation"]["recallAt8"] == 1.0
+    assert payload["evaluation"]["precisionAt8"] == 0.1422
+    assert payload["evaluation"]["entityRecallAt8"] == 0.9875
+    assert payload["evaluation"]["passRatio"] == 1.0
+    versioned = client.get("/api/v2/quality/metrics")
+    assert versioned.status_code == 200
+    assert versioned.json()["dataMode"] == payload["dataMode"]
+    assert versioned.json()["business"] == payload["business"]
+    assert versioned.json()["evaluation"] == payload["evaluation"]
 
 
 def test_claim_entity_repair_requires_dry_run_and_explicit_bounded_apply(client: TestClient):
@@ -609,7 +662,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert payload["result"]["extraction"] == {
         "configured": False,
         "enabled": False,
-        "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+        "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
         "planned": 0,
         "processed": 0,
         "candidatesCreated": 0,
@@ -664,7 +717,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
-        assert integrations["extractionPipelineVersion"] == ("2026-08-symmetric-relation-dedup-v7")
+        assert integrations["extractionPipelineVersion"] == EXTRACTION_PIPELINE_VERSION
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -706,7 +759,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert first.json()["result"]["extraction"] == {
             "configured": True,
             "enabled": True,
-            "pipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+            "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
             "planned": 1,
             "processed": 1,
             "candidatesCreated": 0,
@@ -771,7 +824,7 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         extraction_api_url="https://provider.example/v1/chat/completions",
         extraction_api_key="test-provider-key",
         extraction_model="test-structured-model",
-        auto_extraction_max_snapshots_per_cycle=2,
+        auto_extraction_max_snapshots_per_cycle=1,
         relation_backfill_batch_id="test-core-relations-01",
         relation_backfill_max_snapshots=1,
     )
@@ -794,6 +847,29 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         automation_headers = {
             "X-Automation-Token": "test-automation-token-with-at-least-32-characters"
         }
+        regular = automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin_headers,
+            json={
+                "id": "source-regular-automatic",
+                "url": "https://example.com/regular-automatic",
+                "title": "Regular automatic extraction source",
+                "publisher": "Example",
+            },
+        )
+        assert regular.status_code == 201
+        regular_snapshot = automatic_client.post(
+            "/api/v2/admin/sources/source-regular-automatic/snapshots",
+            headers=admin_headers,
+            json={"content": "A regular automatic extraction document."},
+        )
+        assert regular_snapshot.status_code == 200
+        with automatic_client.app.state.database.session() as session:
+            regular_source = session.get(SourceRecord, "source-regular-automatic")
+            assert regular_source is not None
+            regular_source.fetch_enabled = True
+            regular_source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
         created = automatic_client.post(
             "/api/v2/admin/sources",
             headers=admin_headers,
@@ -888,9 +964,10 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
         )
         assert second.status_code == 200
         second_summary = second.json()["result"]["extraction"]
-        assert second_summary["planned"] == 0
+        assert second_summary["planned"] == 1
+        assert second_summary["processed"] == 1
         assert second_summary["relationBackfillAttemptsRemaining"] == 0
-        assert extraction_calls == [snapshot_id]
+        assert extraction_calls == [snapshot_id, regular_snapshot.json()["snapshotId"]]
 
         with automatic_client.app.state.database.session() as session:
             batch_rows = [
@@ -1482,7 +1559,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     payload = response.json()
     assert payload == {
         "extractionConfigured": False,
-        "extractionPipelineVersion": "2026-08-symmetric-relation-dedup-v7",
+        "extractionPipelineVersion": EXTRACTION_PIPELINE_VERSION,
         "extractionEndpointHost": None,
         "extractionModel": None,
         "automaticExtractionEnabled": False,
@@ -1490,6 +1567,14 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "automaticExtractionMaxCandidatesPerSnapshot": 10,
         "automaticExtractionRetryMinutes": 360,
         "automaticRelationApprovalEnabled": False,
+        "retrievalMode": "lexical",
+        "embeddingConfigured": False,
+        "embeddingProvider": "none",
+        "embeddingModel": None,
+        "embeddingVersion": None,
+        "embeddingDimension": None,
+        "embeddingDailyNeuronBudget": None,
+        "embeddingDailyApiCallBudget": None,
         "smtpConfigured": False,
         "smtpHost": None,
         "smtpFrom": None,
@@ -1502,6 +1587,36 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     assert "secret" not in serialized
     assert "password" not in serialized
     assert "api_key" not in serialized
+
+
+def test_admin_integration_status_reports_guarded_hybrid_without_credentials(
+    tmp_path: Path,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'hybrid-status.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        retrieval_mode="hybrid",
+        embedding_provider="cloudflare",
+        cloudflare_account_id="account-id",
+        cloudflare_api_token="secret-token",
+    )
+    with TestClient(create_app(settings)) as test_client:
+        response = test_client.get(
+            "/api/v2/admin/integrations",
+            headers={"X-Admin-Token": "test-admin-token"},
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["retrievalMode"] == "hybrid"
+    assert payload["embeddingConfigured"] is True
+    assert payload["embeddingProvider"] == "cloudflare"
+    assert payload["embeddingModel"] == "@cf/baai/bge-m3"
+    assert payload["embeddingDimension"] == 1024
+    assert "account-id" not in response.text
+    assert "secret-token" not in response.text
 
 
 def test_admin_extraction_probe_is_protected_audited_and_safe_when_unconfigured(
@@ -2154,16 +2269,193 @@ def test_reject_keeps_claim_out_of_public_snapshot(client: TestClient):
         headers=headers,
         json={
             "expectedVersion": review["version"],
+            "reasonCategory": "unsupported_evidence",
             "reason": "The source does not meet the publication threshold.",
         },
     )
     assert rejected.status_code == 200
     assert rejected.json()["status"] == "rejected"
+    assert rejected.json()["reasonCategory"] == "unsupported_evidence"
+    assert rejected.json()["reasonNote"] == rejected.json()["reviewReason"]
 
     snapshot = client.get("/api/snapshot").json()
     assert review["claim"]["id"] not in {claim["id"] for claim in snapshot["claims"]}
     history = client.get("/api/v2/admin/publication-history", headers=headers)
     assert history.json() == []
+
+
+def test_public_review_stats_are_aggregate_and_rejection_category_is_required(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    baseline = client.get("/api/review/stats")
+    assert baseline.status_code == 200
+    versioned = client.get("/api/v2/review/stats")
+    assert versioned.status_code == 200
+    assert {key: value for key, value in versioned.json().items() if key != "generatedAt"} == {
+        key: value for key, value in baseline.json().items() if key != "generatedAt"
+    }
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+
+    missing_category = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonNote": "The evidence is not sufficient for publication.",
+        },
+    )
+    assert missing_category.status_code == 422
+
+    note = "The evidence is not sufficient for publication."
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "low_confidence",
+            "reasonNote": note,
+        },
+    )
+    assert rejected.status_code == 200
+
+    stats = client.get("/api/review/stats")
+    assert stats.status_code == 200
+    payload = stats.json()
+    previous = baseline.json()
+    assert payload["reviewedCount"] == previous["reviewedCount"] + 1
+    assert payload["rejectedCount"] == previous["rejectedCount"] + 1
+    assert payload["openCount"] == previous["openCount"] - 1
+    assert payload["reviewedWithDurationCount"] <= payload["reviewedCount"]
+    assert payload["averageReviewSeconds"] is not None
+    breakdown = {item["category"]: item for item in payload["rejectionReasons"]}
+    assert breakdown["low_confidence"]["count"] >= 1
+    assert note not in stats.text
+    assert "test-admin-token" not in stats.text
+
+
+def test_invalid_rejection_category_does_not_change_review_state(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+
+    response = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "other",
+            "reasonNote": "This category is outside the controlled vocabulary.",
+        },
+    )
+
+    assert response.status_code == 422
+    refreshed = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()
+        if item["id"] == review["id"]
+    )
+    assert refreshed["status"] == review["status"]
+    assert refreshed["version"] == review["version"]
+
+
+def test_historical_rejection_without_category_is_reported_as_uncategorized(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={
+            "expectedVersion": review["version"],
+            "reasonCategory": "conflict",
+        },
+    )
+    assert rejected.status_code == 200
+    assert rejected.json()["reasonNote"] is None
+    with client.app.state.database.session() as session:
+        row = session.get(ReviewJobRecord, review["id"])
+        assert row is not None
+        row.reason_category = None
+        session.commit()
+
+    breakdown = {
+        item["category"]: item
+        for item in client.get("/api/review/stats").json()["rejectionReasons"]
+    }
+    assert breakdown["uncategorized"]["count"] >= 1
+
+
+def test_review_stats_exclude_missing_durations_and_clamp_negative_history(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()[0]
+    rejected = client.post(
+        f"/api/v2/admin/review-queue/{review['id']}/reject",
+        headers=headers,
+        json={"expectedVersion": review["version"], "reasonCategory": "low_confidence"},
+    )
+    assert rejected.status_code == 200
+    second = create_batch_review_candidate(client, headers, "duration-missing")
+    approved = client.post(
+        f"/api/v2/admin/review-queue/{second['id']}/approve",
+        headers=headers,
+        json={"expectedVersion": second["version"], "reason": "Verified for duration test."},
+    )
+    assert approved.status_code == 200
+
+    with client.app.state.database.session() as session:
+        terminal_rows = list(
+            session.scalars(
+                select(ReviewJobRecord).where(ReviewJobRecord.status.in_(("approved", "rejected")))
+            ).all()
+        )
+        assert terminal_rows
+        for row in terminal_rows:
+            row.reviewed_at = None
+        terminal_rows[0].reviewed_at = terminal_rows[0].created_at - timedelta(minutes=5)
+        session.commit()
+
+    stats = client.get("/api/review/stats")
+    assert stats.status_code == 200
+    payload = stats.json()
+    assert payload["reviewedCount"] == len(terminal_rows)
+    assert payload["reviewedWithDurationCount"] == 1
+    assert payload["averageReviewSeconds"] == 0.0
+
+
+def test_concurrent_conflicting_review_decisions_have_one_terminal_winner(
+    client: TestClient,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    review = next(
+        item
+        for item in client.get("/api/v2/admin/review-queue?scope=open", headers=headers).json()
+        if item["id"] == "review-gpt-context"
+    )
+
+    def decide(action: str):
+        payload = {
+            "expectedVersion": review["version"],
+            "reasonNote": f"Concurrent {action} decision for optimistic-lock verification.",
+        }
+        if action == "reject":
+            payload["reasonCategory"] = "conflict"
+        return client.post(
+            f"/api/v2/admin/review-queue/{review['id']}/{action}",
+            headers=headers,
+            json=payload,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        responses = list(executor.map(decide, ("approve", "reject")))
+
+    assert sorted(response.status_code for response in responses) == [200, 409]
+    history = client.get("/api/v2/admin/review-queue?scope=history", headers=headers).json()
+    terminal = [item for item in history if item["id"] == review["id"]]
+    assert len(terminal) == 1
+    assert terminal[0]["status"] in {"approved", "rejected"}
 
 
 def test_approved_canonical_relation_claim_updates_graph(client: TestClient):
@@ -2531,6 +2823,87 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
 
 
+def test_repeated_extraction_repairs_missing_entity_link_without_duplicate(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    created = client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-entity-repair",
+            "url": "https://example.com/entity-repair",
+            "title": "Entity repair source",
+            "publisher": "Example",
+        },
+    )
+    assert created.status_code == 201
+    snapshot = client.post(
+        "/api/v2/admin/sources/source-entity-repair/snapshots",
+        headers=headers,
+        json={"content": "3.5 Transcribe handles live language switches."},
+    )
+    assert snapshot.status_code == 200
+
+    calls = 0
+
+    def extracted_candidate(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        text_en = (
+            "A transcription model handles live language switches."
+            if calls == 1
+            else "Gemini 3.5 Transcribe handles live language switches."
+        )
+        return [
+            CandidateCreate.model_validate(
+                {
+                    "id": "review-entity-repair",
+                    "claim": {
+                        "id": "claim-entity-repair",
+                        "text": {"zh": "转写模型能处理实时语言切换。", "en": text_en},
+                        "confidence": "unverified",
+                        "sourceIds": ["evidence-entity-repair"],
+                        "updatedAt": "2026-09-08",
+                        "subject": "3.5 Transcribe",
+                        "predicate": "capability",
+                        "objectOrValue": "live language switches",
+                    },
+                    "evidence": [
+                        {
+                            "id": "evidence-entity-repair",
+                            "title": {"zh": "官方模型页", "en": "Official model page"},
+                            "url": "https://example.com/entity-repair",
+                            "publisher": "Example",
+                            "publishedAt": "2026-09-08",
+                            "collectedAt": "2026-09-08",
+                            "sourceExcerpt": ("3.5 Transcribe handles live language switches."),
+                            "type": "official",
+                        }
+                    ],
+                }
+            )
+        ]
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", extracted_candidate)
+    endpoint = "/api/v2/admin/sources/source-entity-repair/extract"
+    first = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
+    assert first.status_code == 200
+    assert first.json()[0]["entityId"] is None
+
+    second = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
+    assert second.status_code == 200
+    assert second.json() == []
+    queue = client.get(
+        "/api/v2/admin/review-queue?scope=open&limit=500",
+        headers=headers,
+    ).json()
+    repaired = next(item for item in queue if item["id"] == "review-entity-repair")
+    assert repaired["entityId"] == "e-gemini"
+    assert repaired["version"] == 2
+
+
 def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
     client: TestClient,
 ):
@@ -2835,6 +3208,67 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
         if item["claim"]["id"] == "claim-gpt-notification"
     )
     assert notification_citation["evidence"][0]["publisher"] == "Example"
+
+    decision_research = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={
+            "question": "为长文档分析选择模型；优先级：cost；部署：private",
+            "language": "zh",
+            "decisionContext": {
+                "task": "为长文档分析选择合适的模型",
+                "priority": "cost",
+                "budget": {"mode": "cost-first"},
+                "deployment": "private",
+                "exclusions": ["不接受无来源结论"],
+                "candidateEntityIds": [],
+            },
+        },
+    )
+    assert decision_research.status_code == 200
+    decision_payload = decision_research.json()
+    assert decision_payload["decisionContext"]["priority"] == "cost"
+    assert decision_payload["decision"]["status"] in {"ready", "insufficient-evidence"}
+    assert decision_payload["decision"]["claimIds"] == decision_payload["claimIds"]
+    assert all(
+        set(item["claimIds"]).issubset(set(decision_payload["claimIds"]))
+        for item in decision_payload["decision"]["tradeoffs"]
+    )
+    assert decision_payload["decision"]["nextChecks"]
+
+    viewer = client.post(
+        "/api/v2/admin/users",
+        headers=headers,
+        json={
+            "email": "research-viewer@example.com",
+            "password": "correct horse battery staple",
+            "role": "viewer",
+        },
+    )
+    assert viewer.status_code == 201
+    viewer_login = client.post(
+        "/api/v2/auth/login",
+        json={
+            "email": "research-viewer@example.com",
+            "password": "correct horse battery staple",
+        },
+    )
+    viewer_headers = {"Authorization": f"Bearer {viewer_login.json()['accessToken']}"}
+    viewer_research = client.post(
+        "/api/v2/research",
+        headers=viewer_headers,
+        json={"question": "GPT 最近有什么已经核验的变化？", "language": "zh"},
+    )
+    assert viewer_research.status_code == 200
+    assert viewer_research.json()["retrievalDiagnostics"] == {
+        "candidateCount": 0,
+        "returnedCount": 0,
+        "filteredCount": 0,
+        "elapsedMs": 0,
+        "matchedEntityIds": [],
+        "fallbackReason": None,
+        "generationFallbackReason": None,
+    }
 
     agent_research = client.post(
         "/api/v2/research",
