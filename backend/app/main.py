@@ -254,6 +254,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         max_attempts=app_settings.email_max_attempts,
         retry_base_seconds=app_settings.email_retry_base_seconds,
         lease_seconds=app_settings.email_lease_seconds,
+        provider=app_settings.email_provider,
+        api_key=app_settings.email_api_key,
+        api_url=app_settings.email_api_url,
     )
     operations = OperationsService(
         app_settings.worker_stale_seconds,
@@ -268,6 +271,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             repository.seed_catalog(session)
             repository.seed_review_jobs(session)
             ingestion.reconcile_historical_permanent_failures(session)
+            ingestion.reconcile_misclassified_not_modified_failures(session)
             ingestion.reconcile_source_portfolio(session)
         yield
         if embedding_provider is not None:
@@ -760,9 +764,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 if app_settings.embedding_provider != "none"
                 else None
             ),
-            smtp_configured=bool(app_settings.smtp_host and app_settings.smtp_from),
+            smtp_configured=email_delivery.enabled,
             smtp_host=app_settings.smtp_host,
             smtp_from=app_settings.smtp_from,
+            email_delivery_provider=app_settings.email_provider,
+            email_delivery_endpoint_host=(
+                urlsplit(app_settings.email_api_url).hostname
+                if app_settings.email_provider == "resend"
+                else app_settings.smtp_host
+            ),
             fetch_allowed_hosts=list(app_settings.fetch_allowed_hosts),
             registered_sources=len(sources),
             automatic_sources=sum(source.fetch_enabled for source in sources),

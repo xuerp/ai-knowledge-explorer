@@ -217,6 +217,29 @@ class IngestionService:
             session.commit()
         return paused
 
+    def reconcile_misclassified_not_modified_failures(self, session: Session) -> int:
+        """恢复旧版把带缓存验证器的 HTTP 304 误判成重定向的信源。"""
+        rows = session.scalars(
+            select(SourceRecord).where(
+                SourceRecord.active.is_(True),
+                SourceRecord.fetch_enabled.is_(True),
+                SourceRecord.auto_paused_at.is_not(None),
+                SourceRecord.last_fetch_error == "Redirect was returned without a canonical URL.",
+                or_(SourceRecord.etag.is_not(None), SourceRecord.last_modified.is_not(None)),
+            )
+        ).all()
+        for row in rows:
+            row.next_fetch_at = None
+            row.fetch_lease_token = None
+            row.fetch_lease_expires_at = None
+            row.auto_paused_at = None
+            row.failure_kind = None
+            row.consecutive_failures = 0
+            row.last_fetch_error = None
+        if rows:
+            session.commit()
+        return len(rows)
+
     def reconcile_source_portfolio(self, session: Session) -> dict[str, int]:
         """收敛已知低价值与人工信源，避免部署后继续产生无效任务。"""
         archived = 0

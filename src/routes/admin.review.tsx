@@ -1986,8 +1986,8 @@ function AdminReviewPage() {
                 ready={workspace.integrations.smtpConfigured}
                 detail={
                   workspace.integrations.smtpConfigured
-                    ? `按 ${workspace.integrations.digestTimezone} 调度 · ${workspace.integrations.smtpFrom} · ${workspace.integrations.smtpHost}`
-                    : `按 ${workspace.integrations.digestTimezone} 自动进入 Outbox · 配置 SMTP 后自动投递`
+                    ? `按 ${workspace.integrations.digestTimezone} 调度 · ${workspace.integrations.smtpFrom} · ${workspace.integrations.emailDeliveryProvider.toUpperCase()} / ${workspace.integrations.emailDeliveryEndpointHost}`
+                    : `按 ${workspace.integrations.digestTimezone} 自动进入 Outbox · 配置 HTTPS 邮件 API 或 SMTP 后自动投递`
                 }
               />
               <IntegrationCard

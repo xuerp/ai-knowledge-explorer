@@ -470,6 +470,36 @@ class StructuredExtractionService:
                 timeout_seconds=60.0,
             )
             extracted = _parse_extraction_envelope(body)
+        except httpx.HTTPStatusError as error:
+            status_code = error.response.status_code
+            if status_code in {401, 403}:
+                detail = "The extraction provider rejected the configured credentials."
+            elif status_code == 404:
+                detail = "The extraction endpoint or configured model was not found."
+            elif status_code == 429:
+                detail = "The extraction provider rate-limited the request; retry later."
+            elif status_code in {400, 422}:
+                detail = "The extraction provider rejected the structured request."
+            elif status_code >= 500:
+                detail = f"The extraction provider returned HTTP {status_code}; retry later."
+            else:
+                detail = f"The extraction provider returned HTTP {status_code}."
+            raise ExtractionUnavailableError(detail) from error
+        except httpx.ConnectTimeout as error:
+            raise ExtractionUnavailableError(
+                "The extraction provider connection timed out; retry later."
+            ) from error
+        except httpx.ReadTimeout as error:
+            raise ExtractionUnavailableError(
+                "The extraction provider response timed out; retry later."
+            ) from error
+        except httpx.ConnectError as error:
+            _, detail = _classify_connect_error(error)
+            raise ExtractionUnavailableError(detail) from error
+        except httpx.RequestError as error:
+            raise ExtractionUnavailableError(
+                "The extraction provider could not be reached; retry later."
+            ) from error
         except (KeyError, IndexError, TypeError, ValueError) as error:
             raise ExtractionUnavailableError(
                 "The extraction provider returned an invalid structured response."

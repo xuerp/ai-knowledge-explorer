@@ -69,3 +69,11 @@ def test_invalid_retrieval_mode_is_rejected(monkeypatch):
 
     with pytest.raises(ValueError, match="RETRIEVAL_MODE"):
         Settings.from_env()
+
+
+def test_resend_email_provider_requires_https_endpoint(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_EMAIL_PROVIDER", "resend")
+    monkeypatch.setenv("AI_RADAR_EMAIL_API_URL", "http://email.example.test")
+
+    with pytest.raises(ValueError, match="must use HTTPS"):
+        Settings.from_env()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import smtplib
 import ssl
 from collections.abc import Callable
@@ -7,6 +8,8 @@ from datetime import UTC, datetime, timedelta
 from email.message import EmailMessage
 from email.utils import parseaddr
 from typing import Protocol
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from uuid import uuid4
 
 from sqlalchemy import and_, or_, select, update
@@ -24,6 +27,19 @@ class _SmtpFactory(Protocol):
     def __call__(self, host: str, port: int, timeout: float) -> smtplib.SMTP: ...
 
 
+class _HttpsSender(Protocol):
+    def __call__(
+        self, url: str, payload: bytes, headers: dict[str, str], timeout: float
+    ) -> None: ...
+
+
+def _send_https(url: str, payload: bytes, headers: dict[str, str], timeout: float) -> None:
+    request = Request(url, data=payload, headers=headers, method="POST")
+    with urlopen(request, timeout=timeout) as response:
+        if not 200 <= response.status < 300:
+            raise OSError(f"Email API returned HTTP {response.status}.")
+
+
 class EmailDeliveryService:
     def __init__(
         self,
@@ -38,6 +54,10 @@ class EmailDeliveryService:
         retry_base_seconds: int = 300,
         lease_seconds: int = 120,
         smtp_factory: _SmtpFactory = smtplib.SMTP,
+        provider: str = "smtp",
+        api_key: str | None = None,
+        api_url: str = "https://api.resend.com/emails",
+        https_sender: _HttpsSender = _send_https,
     ):
         self.host = host
         self.port = port
@@ -49,9 +69,15 @@ class EmailDeliveryService:
         self.retry_base_seconds = max(1, retry_base_seconds)
         self.lease_seconds = max(30, lease_seconds)
         self.smtp_factory = smtp_factory
+        self.provider = provider
+        self.api_key = api_key
+        self.api_url = api_url
+        self.https_sender = https_sender
 
     @property
     def enabled(self) -> bool:
+        if self.provider == "resend":
+            return bool(self.api_key and self.from_address and self.api_url.startswith("https://"))
         return bool(self.host and self.from_address)
 
     def send_queued(
@@ -64,7 +90,7 @@ class EmailDeliveryService:
     ) -> EmailDeliverySummary:
         if not self.enabled:
             raise EmailDeliveryUnavailableError(
-                "Configure AI_RADAR_SMTP_HOST and AI_RADAR_SMTP_FROM before delivery."
+                "Configure the selected email provider and sender before delivery."
             )
         if limit <= 0:
             return EmailDeliverySummary(attempted=0, sent=0, failed=0)
@@ -75,14 +101,15 @@ class EmailDeliveryService:
         sent = failed = attempted = 0
         smtp: smtplib.SMTP | None = None
         connection_error: BaseException | None = None
-        try:
-            smtp = self.smtp_factory(self.host or "", self.port, timeout=20.0)
-            if self.starttls:
-                smtp.starttls(context=ssl.create_default_context())
-            if self.username:
-                smtp.login(self.username, self.password or "")
-        except (OSError, smtplib.SMTPException) as error:
-            connection_error = error
+        if self.provider == "smtp":
+            try:
+                smtp = self.smtp_factory(self.host or "", self.port, timeout=20.0)
+                if self.starttls:
+                    smtp.starttls(context=ssl.create_default_context())
+                if self.username:
+                    smtp.login(self.username, self.password or "")
+            except (OSError, smtplib.SMTPException) as error:
+                connection_error = error
 
         try:
             while row is not None and lease_token is not None and attempted < limit:
@@ -108,9 +135,14 @@ class EmailDeliveryService:
                     message["Message-ID"] = f"<ai-radar-{row.id}@{sender_domain}>"
                     message.set_content(row.body_text)
                     try:
-                        if smtp is None:
-                            raise smtplib.SMTPServerDisconnected("SMTP connection is unavailable.")
-                        smtp.send_message(message)
+                        if self.provider == "resend":
+                            self._send_resend(row.id, row.to_email, row.subject, row.body_text)
+                        else:
+                            if smtp is None:
+                                raise smtplib.SMTPServerDisconnected(
+                                    "SMTP connection is unavailable."
+                                )
+                            smtp.send_message(message)
                         self._finish_attempt(session, row.id, lease_token, current)
                         sent += 1
                     except (
@@ -118,6 +150,8 @@ class EmailDeliveryService:
                         smtplib.SMTPException,
                         UnicodeError,
                         ValueError,
+                        HTTPError,
+                        URLError,
                     ) as error:
                         self._finish_attempt(
                             session,
@@ -138,6 +172,27 @@ class EmailDeliveryService:
                 except (OSError, smtplib.SMTPException):
                     pass
         return EmailDeliverySummary(attempted=attempted, sent=sent, failed=failed)
+
+    def _send_resend(self, outbox_id: str, to_email: str, subject: str, body_text: str) -> None:
+        payload = json.dumps(
+            {
+                "from": self.from_address,
+                "to": [to_email],
+                "subject": subject,
+                "text": body_text,
+            }
+        ).encode("utf-8")
+        self.https_sender(
+            self.api_url,
+            payload,
+            {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "Idempotency-Key": f"ai-radar-{outbox_id}",
+                "User-Agent": "AI-Radar/1.0",
+            },
+            20.0,
+        )
 
     def requeue_failed(
         self,

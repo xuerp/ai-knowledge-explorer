@@ -81,7 +81,7 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 前端：Cloudflare Workers
 - API：Render FastAPI
 - 数据库：Neon PostgreSQL
-- 定时任务：Cloudflare Cron，每 30 分钟一次
+- 定时任务：GitHub Actions 每 30 分钟直接连接 Neon 执行；Cloudflare Cron 仅保留为切换前回退方案
 - 环境：`production`
 - 数据模式：`demo`
 - 快照新鲜度：`cached`
@@ -109,7 +109,7 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 后端：FastAPI、Pydantic、SQLAlchemy、Alembic、JWT/RBAC。
 - 数据：PostgreSQL；本地和 CI 同时保护 SQLite/PostgreSQL 迁移兼容。
 - 部署：Cloudflare Workers 同域代理 → Render API → Neon PostgreSQL。
-- 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 Cloudflare Cron。
+- 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 GitHub Actions 周期 worker。
 - RAG：PostgreSQL 全文检索、GIN 投影索引、逐 Claim 引用、严格生成 Schema、失败降级与黄金问题评估。
 - 质量：ESLint、TypeScript、前后端自动测试、Ruff、生产构建、SQLite/PostgreSQL 迁移验证、固定集检索评估和数据质量门槛。
 

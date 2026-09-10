@@ -154,10 +154,15 @@ def worker_health(settings: Settings) -> bool:
         database.dispose()
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run due AI Radar source ingestion jobs.")
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--once", action="store_true", help="Run one due cycle and exit.")
+    mode.add_argument("--once", action="store_true", help="Run one manual cycle and exit.")
+    mode.add_argument(
+        "--scheduled-once",
+        action="store_true",
+        help="Run one scheduled cycle, persist its next expected run, and exit.",
+    )
     mode.add_argument(
         "--interval-seconds",
         type=int,
@@ -168,9 +173,22 @@ def main() -> None:
         action="store_true",
         help="Exit successfully when the configured worker heartbeat is fresh.",
     )
+    parser.add_argument(
+        "--next-cycle-seconds",
+        type=int,
+        default=1800,
+        help="Expected delay before the next external scheduled run (minimum 60).",
+    )
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
     if args.interval_seconds is not None and args.interval_seconds < 60:
         parser.error("--interval-seconds must be at least 60.")
+    if args.scheduled_once and args.next_cycle_seconds < 60:
+        parser.error("--next-cycle-seconds must be at least 60.")
 
     settings = Settings.from_env()
     if args.healthcheck:
@@ -201,14 +219,19 @@ def main() -> None:
         max_attempts=settings.email_max_attempts,
         retry_base_seconds=settings.email_retry_base_seconds,
         lease_seconds=settings.email_lease_seconds,
+        provider=settings.email_provider,
+        api_key=settings.email_api_key,
+        api_url=settings.email_api_url,
     )
     operations = OperationsService(
         settings.worker_stale_seconds,
         settings.auto_extraction_retry_minutes,
     )
+    scheduled = args.interval_seconds is not None or args.scheduled_once
+    run_once = args.once or args.scheduled_once
     worker_id = (
         resolve_worker_id(settings)
-        if args.interval_seconds is not None
+        if scheduled
         else f"{settings.worker_id}-manual-{str(uuid4())[:8]}"
     )
     with database.session() as session:
@@ -226,7 +249,7 @@ def main() -> None:
                 run_id = operations.start_cycle(
                     session,
                     worker_id,
-                    "scheduled" if args.interval_seconds is not None else "manual",
+                    "scheduled" if scheduled else "manual",
                     now=cycle_started,
                 )
             result: dict[str, object] | None = None
@@ -246,11 +269,12 @@ def main() -> None:
                 cycle_error = error
 
             finished = datetime.now(UTC)
-            next_cycle_at = (
-                finished + timedelta(seconds=args.interval_seconds)
+            cycle_delay = (
+                args.interval_seconds
                 if args.interval_seconds is not None
-                else None
+                else args.next_cycle_seconds
             )
+            next_cycle_at = finished + timedelta(seconds=cycle_delay) if scheduled else None
             with database.session() as session:
                 if cycle_error is not None:
                     operations.fail_cycle(
@@ -284,7 +308,7 @@ def main() -> None:
                 ),
                 flush=True,
             )
-            if args.once:
+            if run_once:
                 break
             wait_with_heartbeats(
                 database,
@@ -298,15 +322,16 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     finally:
-        try:
-            with database.session() as session:
-                operations.heartbeat(session, worker_id, state="stopped")
-        except Exception as error:  # noqa: BLE001 - shutdown must still dispose the pool
-            print(
-                json.dumps({"workerId": worker_id, "shutdownHeartbeatError": str(error)[:200]}),
-                file=sys.stderr,
-                flush=True,
-            )
+        if not args.scheduled_once:
+            try:
+                with database.session() as session:
+                    operations.heartbeat(session, worker_id, state="stopped")
+            except Exception as error:  # noqa: BLE001 - shutdown must still dispose the pool
+                print(
+                    json.dumps({"workerId": worker_id, "shutdownHeartbeatError": str(error)[:200]}),
+                    file=sys.stderr,
+                    flush=True,
+                )
         database.dispose()
 
 
