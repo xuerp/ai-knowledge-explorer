@@ -19,7 +19,7 @@
 - PostgreSQL 由 Neon Free 提供，连接串仅填写在 Render Secret 中。
 - 前端部署到 `ai-radar-staging.你的子域名.workers.dev`。
 
-预发布环境保持 `AI_RADAR_DATA_MODE=demo`，但 API 与自动任务使用付费常驻实例。`ai-radar-worker-staging` 每 5 分钟检查一次到期任务，并在等待期间每 30 秒写入心跳；Cloudflare Cron 仅作为迁移前回退方案。常驻 worker 首次健康后必须移除 Cloudflare 定时触发器，避免双调度。在此之前，管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
+预发布环境保持 `AI_RADAR_DATA_MODE=demo`。API 使用 Render Free，自动任务由公开仓库的 GitHub Actions 每 30 分钟直接连接 Neon 执行，不经过可能冷启动的 Render HTTP 链路；Cloudflare Cron 仅作为切换回退方案。Actions 首次成功后必须移除 Cloudflare 定时触发器，避免双调度。在此之前，管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
 
 Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤醒；免费实例也不能通过 `25`、`465`、`587` 端口发送 SMTP。Neon 免费数据库通过公网 TLS 连接，不能把连接串写入仓库、前端变量或聊天。
 
@@ -28,7 +28,7 @@ Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤�
 1. 在 Neon 注册免费账户并创建项目，区域优先选择与 Render 新加坡较近的可用区域。
 2. 数据库名称可使用 `ai_radar`，PostgreSQL 版本使用 Neon 当前默认版本。
 3. 在项目控制台点击 `Connect`，启用连接池并复制 pooled connection string。
-4. 连接串应以 `postgresql://` 开头，主机名通常包含 `-pooler`，并带有 `sslmode=require`。只把它填写到 Render 的 `AI_RADAR_DATABASE_URL`，不要发送到聊天或保存到仓库文件。
+4. 连接串应以 `postgresql://` 开头，主机名通常包含 `-pooler`，并带有 `sslmode=require`。把它分别保存为 Render 与 GitHub Actions 的 `AI_RADAR_DATABASE_URL` Secret，不要发送到聊天或保存到仓库文件。
 
 应用会把 `postgresql://` 自动转换为已安装的 psycopg 3 驱动格式。Docker 启动命令在 API 启动前执行 `alembic upgrade head`，因此免费 Render 不依赖仅付费实例支持的 pre-deploy command。
 
@@ -94,13 +94,16 @@ bun run smoke:staging
 3. 确认页面明确说明评估 cadence 为每日或检索策略变更后运行，未把固定集评估伪装成实时指标。
 4. 对照公开快照确认业务计数一致；对照版本化评估结果确认 Golden Set 版本、样本数、检索模式和四项指标一致。
 
-## 5. 启用 Render 常驻 worker 并退出 Cloudflare Cron
+## 5. 启用 GitHub Actions 并退出 Cloudflare Cron
 
-1. 在 Render Blueprint 页面同步当前 `render.yaml`，确认将创建 `ai-radar-worker-staging`，并把 API 与 worker 都升级到 `0.5c-512mb` 常驻计算规格。
-2. Blueprint 通过 `fromService` 复用 API 的数据库、抽取、邮件与 Cloudflare 凭据，不得把秘密复制到仓库或聊天中。
-3. 等待 worker 首次部署完成；在审核后台确认心跳状态为 `healthy`，并观察至少一个完整周期。
-4. 在 Cloudflare `ai-radar-cron-staging` 的触发器设置中移除 `*/30 * * * *`。该步骤必须在 Render worker 健康后执行。
-5. 再观察至少 10 分钟，确认只有 Render worker 持续写入周期，且没有并发或重复处理。
+1. 将包含 `.github/workflows/automation.yml` 的变更合并到默认分支 `main`；GitHub 只会从默认分支运行定时工作流。
+2. 在仓库 `Settings → Secrets and variables → Actions` 新建 Repository Secret `AI_RADAR_DATABASE_URL`，值使用 Neon 的 pooled connection string。不要把连接串提交到仓库或聊天。
+3. 若需要自动投递邮件，再添加可选 Secrets `AI_RADAR_EMAIL_API_KEY` 与 `AI_RADAR_SMTP_FROM`；未配置时摘要仍会安全进入 Outbox。
+4. 在 Actions 的 `Automation` 工作流中执行一次 `Run workflow`。确认迁移与周期均成功，并在审核后台看到 `scheduler-github-actions` 的新鲜心跳及 `scheduled` 周期。
+5. 首次成功后，在 Cloudflare `ai-radar-cron-staging` 的触发器设置中移除 `*/30 * * * *`，避免双调度。
+6. 再观察至少 35 分钟，确认下一次 GitHub 定时周期成功，且没有并发或重复处理。
+
+工作流使用 `concurrency` 串行执行，并由数据库周期租约继续阻止重复处理；单次任务限制为 20 分钟。GitHub 定时任务可能因平台排队而延迟，因此心跳健康窗口为 90 分钟。工作流安排在每小时第 17、47 分钟，避开整点高峰。
 
 ### Cloudflare Cron 回退方案
 
@@ -126,7 +129,7 @@ bun run smoke:staging
    pnpm dlx wrangler@4 deploy --config ops/cloudflare-cron/wrangler.json
    ```
 
-回退配置每 30 分钟运行一次。PostgreSQL advisory lock、15 分钟周期租约以及信源和邮件自身的持久租约共同阻止并发重复执行。常驻 worker 启用后，心跳健康窗口为 3 分钟；周期崩溃后由 Render 重启进程并接管。
+回退配置每 30 分钟运行一次。PostgreSQL advisory lock、15 分钟周期租约以及信源和邮件自身的持久租约共同阻止并发重复执行。GitHub Actions 启用后，心跳健康窗口为 90 分钟；失败任务可在 Actions 页面重试，下一次定时周期也会重新接管。
 
 自动抽取随同一周期检查，但普通运行的 Snapshot 上限默认为 0。只有用户明确授权的有限批次，才允许临时提高上限，并必须同时设置唯一批次 ID、Snapshot 硬预算和完成后的恢复动作：
 

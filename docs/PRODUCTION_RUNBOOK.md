@@ -1,6 +1,6 @@
 # AI Radar 生产运行手册
 
-本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render 常驻 API 与后台 worker、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 仅保留为迁移回退。自定义域名、邮件投递、外部监控和备份恢复演练仍需单独验收。
+本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render Free API、GitHub Actions 周期任务、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 仅保留为切换回退。自定义域名、邮件投递、外部监控和备份恢复演练仍需单独验收。
 
 ## 1. 准备环境变量与密钥
 
