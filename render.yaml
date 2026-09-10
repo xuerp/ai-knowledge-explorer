@@ -69,13 +69,14 @@ envVarGroups:
       - key: AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS
         value: "900"
       - key: AI_RADAR_WORKER_STALE_SECONDS
-        value: "3900"
+        # 常驻 worker 每 30 秒写入心跳；3 分钟无心跳即视为异常。
+        value: "180"
 
 services:
   - type: web
     name: ai-radar-api-staging
     runtime: docker
-    plan: free
+    plan: 0.5c-512mb
     region: singapore
     branch: codex/productionize
     dockerContext: ./backend
@@ -110,3 +111,60 @@ services:
         sync: false
       - key: AI_RADAR_CORS_ORIGINS
         sync: false
+
+  - type: worker
+    name: ai-radar-worker-staging
+    runtime: docker
+    plan: 0.5c-512mb
+    region: singapore
+    branch: codex/productionize
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: >-
+      sh -c "python -m alembic upgrade head && exec python -m app.worker --interval-seconds 300"
+    maxShutdownDelaySeconds: 300
+    autoDeployTrigger: checksPass
+    envVars:
+      - fromGroup: ai-radar-staging-runtime
+      - key: AI_RADAR_SERVICE_ROLE
+        value: worker
+      - key: AI_RADAR_DATABASE_URL
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_DATABASE_URL
+      - key: AI_RADAR_EXTRACTION_API_URL
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_EXTRACTION_API_URL
+      - key: AI_RADAR_EXTRACTION_API_KEY
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_EXTRACTION_API_KEY
+      - key: AI_RADAR_EXTRACTION_MODEL
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_EXTRACTION_MODEL
+      - key: AI_RADAR_EMAIL_API_KEY
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_EMAIL_API_KEY
+      - key: AI_RADAR_SMTP_FROM
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: AI_RADAR_SMTP_FROM
+      - key: CLOUDFLARE_ACCOUNT_ID
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: CLOUDFLARE_ACCOUNT_ID
+      - key: CLOUDFLARE_API_TOKEN
+        fromService:
+          name: ai-radar-api-staging
+          type: web
+          envVarKey: CLOUDFLARE_API_TOKEN
