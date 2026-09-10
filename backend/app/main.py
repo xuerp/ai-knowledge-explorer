@@ -325,6 +325,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             auth_enabled=auth.enabled,
         )
 
+    @app.head("/ready", include_in_schema=False)
     @app.get("/ready", response_model=HealthResponse)
     def ready(session: SessionDependency) -> HealthResponse:
         try:
