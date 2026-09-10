@@ -3,19 +3,31 @@ from pathlib import Path
 import yaml
 
 
-def test_staging_blueprint_uses_only_a_free_render_web_service() -> None:
+def test_staging_blueprint_uses_paid_api_and_dedicated_worker() -> None:
     repository_root = Path(__file__).resolve().parents[2]
     blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
 
     assert "databases" not in blueprint
-    assert len(blueprint["services"]) == 1
-    service = blueprint["services"][0]
-    assert service["type"] == "web"
-    assert service["plan"] == "free"
-    assert service["branch"] == "codex/productionize"
-    assert service["healthCheckPath"] == "/health"
-    assert "preDeployCommand" not in service
-    assert "maxShutdownDelaySeconds" not in service
+    assert len(blueprint["services"]) == 2
+    api, worker = blueprint["services"]
+    assert api["type"] == "web"
+    assert api["plan"] == "0.5c-512mb"
+    assert api["branch"] == "codex/productionize"
+    assert api["healthCheckPath"] == "/health"
+    assert "preDeployCommand" not in api
+
+    assert worker["type"] == "worker"
+    assert worker["plan"] == "0.5c-512mb"
+    assert worker["branch"] == "codex/productionize"
+    assert worker["maxShutdownDelaySeconds"] == 300
+    assert "app.worker --interval-seconds 300" in worker["dockerCommand"]
+    worker_env = {item["key"]: item for item in worker["envVars"] if "key" in item}
+    assert worker_env["AI_RADAR_SERVICE_ROLE"]["value"] == "worker"
+    assert worker_env["AI_RADAR_DATABASE_URL"]["fromService"] == {
+        "name": "ai-radar-api-staging",
+        "type": "web",
+        "envVarKey": "AI_RADAR_DATABASE_URL",
+    }
 
 
 def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
@@ -37,6 +49,28 @@ def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
         "sync": False,
     }
     assert env_vars["PORT"]["value"] == "8000"
+
+
+def test_staging_worker_reuses_api_provider_configuration() -> None:
+    repository_root = Path(__file__).resolve().parents[2]
+    blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
+    worker = blueprint["services"][1]
+    env_vars = {item["key"]: item for item in worker["envVars"] if "key" in item}
+
+    for key in (
+        "AI_RADAR_EXTRACTION_API_URL",
+        "AI_RADAR_EXTRACTION_API_KEY",
+        "AI_RADAR_EXTRACTION_MODEL",
+        "AI_RADAR_EMAIL_API_KEY",
+        "AI_RADAR_SMTP_FROM",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_API_TOKEN",
+    ):
+        assert env_vars[key]["fromService"] == {
+            "name": "ai-radar-api-staging",
+            "type": "web",
+            "envVarKey": key,
+        }
 
 
 def test_staging_blueprint_enables_guarded_cloudflare_hybrid() -> None:

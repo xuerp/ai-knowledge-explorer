@@ -121,7 +121,7 @@ flowchart LR
 ## 部署结构
 
 - 本地开发：SQLite + Vite + Uvicorn。
-- 在线预发布：Cloudflare Workers 前端 + Render FastAPI 容器 + Neon PostgreSQL + Cloudflare Cron Worker。
+- 在线预发布：Cloudflare Workers 前端 + Render FastAPI 常驻容器 + Render 常驻后台 worker + Neon PostgreSQL；Cloudflare Cron 仅作为迁移回退。
 - Docker 容器启动前执行 `alembic upgrade head`。
 - CI 同时验证 SQLite 与 PostgreSQL 迁移、前端构建、后端测试和种子同步。
 - 线上保持 `AI_RADAR_DATA_MODE=demo`，只有正式数据质量门槛通过后才允许切换 `live`。
