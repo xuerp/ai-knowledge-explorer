@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import pytest
+
 from app.config import Settings
-from app.worker import resolve_worker_id
+from app.worker import build_parser, resolve_worker_id
 
 
 def build_settings() -> Settings:
@@ -44,3 +46,16 @@ def test_resolve_worker_id_uses_container_hostname_as_fallback(monkeypatch) -> N
     monkeypatch.setenv("HOSTNAME", "container-7f3a")
 
     assert resolve_worker_id(build_settings()) == "scheduler-staging-container-7f3a"
+
+
+def test_worker_parser_supports_external_scheduled_cycle() -> None:
+    args = build_parser().parse_args(["--scheduled-once", "--next-cycle-seconds", "1800"])
+
+    assert args.scheduled_once is True
+    assert args.once is False
+    assert args.next_cycle_seconds == 1800
+
+
+def test_worker_modes_remain_mutually_exclusive() -> None:
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["--once", "--scheduled-once"])

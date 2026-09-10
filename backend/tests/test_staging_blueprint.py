@@ -3,31 +3,18 @@ from pathlib import Path
 import yaml
 
 
-def test_staging_blueprint_uses_paid_api_and_dedicated_worker() -> None:
+def test_staging_blueprint_uses_one_free_api_service() -> None:
     repository_root = Path(__file__).resolve().parents[2]
     blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
 
     assert "databases" not in blueprint
-    assert len(blueprint["services"]) == 2
-    api, worker = blueprint["services"]
+    assert len(blueprint["services"]) == 1
+    (api,) = blueprint["services"]
     assert api["type"] == "web"
-    assert api["plan"] == "0.5c-512mb"
+    assert api["plan"] == "free"
     assert api["branch"] == "codex/productionize"
     assert api["healthCheckPath"] == "/health"
     assert "preDeployCommand" not in api
-
-    assert worker["type"] == "worker"
-    assert worker["plan"] == "0.5c-512mb"
-    assert worker["branch"] == "codex/productionize"
-    assert worker["maxShutdownDelaySeconds"] == 300
-    assert "app.worker --interval-seconds 300" in worker["dockerCommand"]
-    worker_env = {item["key"]: item for item in worker["envVars"] if "key" in item}
-    assert worker_env["AI_RADAR_SERVICE_ROLE"]["value"] == "worker"
-    assert worker_env["AI_RADAR_DATABASE_URL"]["fromService"] == {
-        "name": "ai-radar-api-staging",
-        "type": "web",
-        "envVarKey": "AI_RADAR_DATABASE_URL",
-    }
 
 
 def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
@@ -51,26 +38,17 @@ def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
     assert env_vars["PORT"]["value"] == "8000"
 
 
-def test_staging_worker_reuses_api_provider_configuration() -> None:
+def test_github_automation_runs_directly_against_database() -> None:
     repository_root = Path(__file__).resolve().parents[2]
-    blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
-    worker = blueprint["services"][1]
-    env_vars = {item["key"]: item for item in worker["envVars"] if "key" in item}
+    workflow = (repository_root / ".github" / "workflows" / "automation.yml").read_text(
+        encoding="utf-8"
+    )
 
-    for key in (
-        "AI_RADAR_EXTRACTION_API_URL",
-        "AI_RADAR_EXTRACTION_API_KEY",
-        "AI_RADAR_EXTRACTION_MODEL",
-        "AI_RADAR_EMAIL_API_KEY",
-        "AI_RADAR_SMTP_FROM",
-        "CLOUDFLARE_ACCOUNT_ID",
-        "CLOUDFLARE_API_TOKEN",
-    ):
-        assert env_vars[key]["fromService"] == {
-            "name": "ai-radar-api-staging",
-            "type": "web",
-            "envVarKey": key,
-        }
+    assert 'cron: "17,47 * * * *"' in workflow
+    assert "AI_RADAR_DATABASE_URL: ${{ secrets.AI_RADAR_DATABASE_URL }}" in workflow
+    assert "app.worker --scheduled-once --next-cycle-seconds 1800" in workflow
+    assert "/api/v2/automation/run-cycle" not in workflow
+    assert "curl " not in workflow
 
 
 def test_staging_blueprint_enables_guarded_cloudflare_hybrid() -> None:
