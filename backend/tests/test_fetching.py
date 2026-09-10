@@ -122,6 +122,25 @@ def test_safe_fetcher_follows_allowlisted_canonical_redirect():
     assert "canonical official architecture" in document.content
 
 
+def test_safe_fetcher_treats_304_as_not_modified_instead_of_redirect():
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["if-none-match"] == '"v1"'
+        return httpx.Response(304, headers={"etag": '"v1"'})
+
+    fetcher = SafeHttpFetcher(
+        ("example.com",),
+        10_000,
+        resolver=lambda _: ("8.8.8.8",),
+        transport=httpx.MockTransport(handler),
+    )
+
+    document = fetcher.fetch("https://docs.example.com/release", etag='"v1"')
+
+    assert document.not_modified is True
+    assert document.etag == '"v1"'
+    assert document.final_url == "https://docs.example.com/release"
+
+
 def test_safe_fetcher_rejects_redirect_outside_allowlist():
     fetcher = SafeHttpFetcher(
         ("example.com",),
@@ -482,6 +501,49 @@ def test_historical_permanent_failures_are_reconciled_without_another_retry(tmp_
         assert source.failure_kind == "redirect"
         assert source.auto_paused_at is not None
         assert source.next_fetch_at is None
+
+    database.dispose()
+
+
+def test_misclassified_304_failures_are_recovered_without_unpausing_real_redirects(
+    tmp_path: Path,
+):
+    database = Database(f"sqlite:///{(tmp_path / 'misclassified-304.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+
+    with database.session() as session:
+        for source_id in ("cached-source", "real-redirect"):
+            ingestion.create_source(
+                session,
+                SourceCreate(
+                    id=source_id,
+                    url=f"https://example.com/{source_id}",
+                    title=source_id,
+                    publisher="Example",
+                ),
+            )
+            source = session.get(SourceRecord, source_id)
+            assert source is not None
+            source.fetch_enabled = True
+            source.consecutive_failures = 3
+            source.last_fetch_error = "Redirect was returned without a canonical URL."
+            source.failure_kind = "redirect"
+            source.auto_paused_at = datetime.now(UTC)
+        cached = session.get(SourceRecord, "cached-source")
+        assert cached is not None
+        cached.etag = '"v1"'
+        session.commit()
+
+        assert ingestion.reconcile_misclassified_not_modified_failures(session) == 1
+        session.refresh(cached)
+        real_redirect = session.get(SourceRecord, "real-redirect")
+        assert real_redirect is not None
+        assert cached.auto_paused_at is None
+        assert cached.consecutive_failures == 0
+        assert cached.last_fetch_error is None
+        assert real_redirect.auto_paused_at is not None
+        assert real_redirect.consecutive_failures == 3
 
     database.dispose()
 

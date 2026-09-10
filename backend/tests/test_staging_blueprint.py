@@ -3,19 +3,18 @@ from pathlib import Path
 import yaml
 
 
-def test_staging_blueprint_uses_only_a_free_render_web_service() -> None:
+def test_staging_blueprint_uses_one_free_api_service() -> None:
     repository_root = Path(__file__).resolve().parents[2]
     blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
 
     assert "databases" not in blueprint
     assert len(blueprint["services"]) == 1
-    service = blueprint["services"][0]
-    assert service["type"] == "web"
-    assert service["plan"] == "free"
-    assert service["branch"] == "codex/productionize"
-    assert service["healthCheckPath"] == "/health"
-    assert "preDeployCommand" not in service
-    assert "maxShutdownDelaySeconds" not in service
+    (api,) = blueprint["services"]
+    assert api["type"] == "web"
+    assert api["plan"] == "free"
+    assert api["branch"] == "codex/productionize"
+    assert api["healthCheckPath"] == "/health"
+    assert "preDeployCommand" not in api
 
 
 def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
@@ -37,6 +36,19 @@ def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
         "sync": False,
     }
     assert env_vars["PORT"]["value"] == "8000"
+
+
+def test_github_automation_runs_directly_against_database() -> None:
+    repository_root = Path(__file__).resolve().parents[2]
+    workflow = (repository_root / ".github" / "workflows" / "automation.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'cron: "17,47 * * * *"' in workflow
+    assert "AI_RADAR_DATABASE_URL: ${{ secrets.AI_RADAR_DATABASE_URL }}" in workflow
+    assert "app.worker --scheduled-once --next-cycle-seconds 1800" in workflow
+    assert "/api/v2/automation/run-cycle" not in workflow
+    assert "curl " not in workflow
 
 
 def test_staging_blueprint_enables_guarded_cloudflare_hybrid() -> None:

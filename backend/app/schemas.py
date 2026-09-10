@@ -442,6 +442,8 @@ class IntegrationStatus(CamelModel):
     smtp_configured: bool
     smtp_host: str | None = None
     smtp_from: str | None = None
+    email_delivery_provider: Literal["smtp", "resend"]
+    email_delivery_endpoint_host: str | None = None
     fetch_allowed_hosts: list[str]
     registered_sources: int
     automatic_sources: int

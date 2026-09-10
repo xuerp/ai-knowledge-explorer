@@ -113,9 +113,9 @@ def build_production_readiness(
             "smtp_delivery",
             "摘要邮件投递",
             inputs.smtp_configured,
-            "SMTP 主机和发件地址已配置。",
-            "SMTP 尚未配置，摘要只会保留在 Outbox。",
-            "配置 SMTP，并完成 SPF、DKIM、DMARC 验证。",
+            "邮件投递渠道和发件地址已配置。",
+            "邮件投递渠道尚未配置，摘要只会保留在 Outbox。",
+            "配置 HTTPS 邮件 API 或 SMTP，并完成 SPF、DKIM、DMARC 验证。",
         ),
         _check(
             "fetch_allowlist",

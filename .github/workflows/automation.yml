@@ -1,0 +1,66 @@
+name: Automation
+
+on:
+  schedule:
+    - cron: "17,47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-radar-automation
+  cancel-in-progress: false
+
+jobs:
+  run-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      AI_RADAR_DATABASE_URL: ${{ secrets.AI_RADAR_DATABASE_URL }}
+      AI_RADAR_ENVIRONMENT: production
+      AI_RADAR_DATA_MODE: demo
+      AI_RADAR_WORKER_ID: scheduler
+      AI_RADAR_WORKER_INSTANCE_ID: github-actions
+      AI_RADAR_WORKER_STALE_SECONDS: "5400"
+      AI_RADAR_FETCH_RETRY_BASE_MINUTES: "15"
+      AI_RADAR_FETCH_RETRY_MAX_MINUTES: "360"
+      AI_RADAR_FETCH_LEASE_MINUTES: "5"
+      AI_RADAR_FETCH_ALLOWED_HOSTS: >-
+        openai.com,developers.openai.com,anthropic.com,platform.claude.com,
+        deepmind.google,ai.google.dev,cursor.com,docs.cursor.com,docs.langchain.com,
+        ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,
+        seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org,raw.githubusercontent.com,
+        microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im
+      AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE: "0"
+      AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT: "10"
+      AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES: "360"
+      AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS: "false"
+      AI_RADAR_EMAIL_PROVIDER: resend
+      AI_RADAR_EMAIL_API_URL: https://api.resend.com/emails
+      AI_RADAR_EMAIL_API_KEY: ${{ secrets.AI_RADAR_EMAIL_API_KEY }}
+      AI_RADAR_SMTP_FROM: ${{ secrets.AI_RADAR_SMTP_FROM }}
+      AI_RADAR_DIGEST_TIMEZONE: Asia/Shanghai
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Validate required database secret
+        run: |
+          if [ -z "$AI_RADAR_DATABASE_URL" ]; then
+            echo "Missing repository secret: AI_RADAR_DATABASE_URL" >&2
+            exit 1
+          fi
+      - name: Migrate and run one scheduled cycle
+        run: |
+          python -m alembic upgrade head
+          python -m app.worker --scheduled-once --next-cycle-seconds 1800

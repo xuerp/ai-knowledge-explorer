@@ -171,6 +171,17 @@ class SafeHttpFetcher:
         ) as client:
             for _ in range(4):
                 with client.stream("GET", current_url, headers=headers) as response:
+                    # 304 is part of the 3xx range but is not a redirect and does not
+                    # carry a Location header. Handle conditional-fetch success first.
+                    if response.status_code == 304:
+                        return FetchedDocument(
+                            content="",
+                            content_type="",
+                            etag=response.headers.get("etag") or etag,
+                            last_modified=response.headers.get("last-modified") or last_modified,
+                            not_modified=True,
+                            final_url=current_url,
+                        )
                     if 300 <= response.status_code < 400:
                         location = response.headers.get("location")
                         canonical_url = urljoin(current_url, location) if location else None
@@ -183,15 +194,6 @@ class SafeHttpFetcher:
                         current_url = canonical_url
                         continue
 
-                    if response.status_code == 304:
-                        return FetchedDocument(
-                            content="",
-                            content_type="",
-                            etag=response.headers.get("etag") or etag,
-                            last_modified=response.headers.get("last-modified") or last_modified,
-                            not_modified=True,
-                            final_url=current_url,
-                        )
                     response.raise_for_status()
                     content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
                     if content_type not in {

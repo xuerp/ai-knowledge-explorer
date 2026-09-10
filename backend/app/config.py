@@ -61,6 +61,9 @@ class Settings:
     smtp_password: str | None = None
     smtp_from: str | None = None
     smtp_starttls: bool = True
+    email_provider: Literal["smtp", "resend"] = "smtp"
+    email_api_key: str | None = None
+    email_api_url: str = "https://api.resend.com/emails"
     email_max_attempts: int = 5
     email_retry_base_seconds: int = 300
     email_lease_seconds: int = 120
@@ -116,6 +119,10 @@ class Settings:
             raise ValueError("AI_RADAR_EMAIL_RETRY_BASE_SECONDS must be at least 1.")
         if not 30 <= self.email_lease_seconds <= 900:
             raise ValueError("AI_RADAR_EMAIL_LEASE_SECONDS must be between 30 and 900.")
+        if self.email_provider not in {"smtp", "resend"}:
+            raise ValueError("AI_RADAR_EMAIL_PROVIDER must be 'smtp' or 'resend'.")
+        if self.email_provider == "resend" and not self.email_api_url.startswith("https://"):
+            raise ValueError("AI_RADAR_EMAIL_API_URL must use HTTPS for the resend provider.")
         if self.worker_heartbeat_seconds < 5:
             raise ValueError("AI_RADAR_WORKER_HEARTBEAT_SECONDS must be at least 5.")
         if self.worker_stale_seconds < self.worker_heartbeat_seconds * 2:
@@ -243,6 +250,9 @@ class Settings:
             smtp_from=os.getenv("AI_RADAR_SMTP_FROM") or None,
             smtp_starttls=os.getenv("AI_RADAR_SMTP_STARTTLS", "true").lower()
             in {"1", "true", "yes"},
+            email_provider=os.getenv("AI_RADAR_EMAIL_PROVIDER", "smtp").lower(),
+            email_api_key=os.getenv("AI_RADAR_EMAIL_API_KEY") or None,
+            email_api_url=os.getenv("AI_RADAR_EMAIL_API_URL", "https://api.resend.com/emails"),
             email_max_attempts=int(os.getenv("AI_RADAR_EMAIL_MAX_ATTEMPTS", "5")),
             email_retry_base_seconds=int(os.getenv("AI_RADAR_EMAIL_RETRY_BASE_SECONDS", "300")),
             email_lease_seconds=int(os.getenv("AI_RADAR_EMAIL_LEASE_SECONDS", "120")),
