@@ -44,7 +44,8 @@ def test_github_automation_runs_directly_against_database() -> None:
         encoding="utf-8"
     )
 
-    assert 'cron: "17,47 * * * *"' in workflow
+    assert 'cron: "11,41 * * * *"' in workflow
+    assert 'timezone: "Asia/Shanghai"' in workflow
     assert "AI_RADAR_DATABASE_URL: ${{ secrets.AI_RADAR_DATABASE_URL }}" in workflow
     assert "app.worker --scheduled-once --next-cycle-seconds 1800" in workflow
     assert "/api/v2/automation/run-cycle" not in workflow
