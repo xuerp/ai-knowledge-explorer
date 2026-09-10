@@ -106,6 +106,10 @@ def test_health_exposes_write_boundary(client: TestClient):
     assert ready.status_code == 200
     assert ready.json() == response.json()
 
+    ready_probe = client.head("/ready")
+    assert ready_probe.status_code == 200
+    assert ready_probe.content == b""
+
 
 def test_release_baseline_is_protected_read_only_and_uses_precise_claim_metrics(
     client: TestClient,
@@ -1325,6 +1329,7 @@ def test_live_mode_fails_closed_until_data_quality_is_ready(tmp_path: Path):
         ready = live_client.get("/ready")
         assert ready.status_code == 503
         assert ready.json()["detail"] == "Live data quality gate is not satisfied."
+        assert live_client.head("/ready").status_code == 503
         snapshot = live_client.get("/api/v2/snapshot")
         assert snapshot.status_code == 503
         assert snapshot.json()["detail"] == "Live data quality gate is not satisfied."
