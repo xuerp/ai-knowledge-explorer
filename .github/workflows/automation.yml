@@ -2,7 +2,11 @@ name: Automation
 
 on:
   schedule:
-    - cron: "17,47 * * * *"
+    # Keep the job away from the start of the hour, where GitHub documents
+    # higher schedule latency and dropped events. Changing the schedule also
+    # forces GitHub to register a fresh timer after the original one stalled.
+    - cron: "11,41 * * * *"
+      timezone: "Asia/Shanghai"
   workflow_dispatch:
 
 permissions:
