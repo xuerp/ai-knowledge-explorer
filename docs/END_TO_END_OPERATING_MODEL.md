@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-- 更新时间：2026-09-09
+- 更新时间：2026-09-11
 - 性质：项目运行地图，不授予数据写入、模型调用、审核、部署或发布权限
 - 产品方向：以 [`../PRODUCT_ROADMAP.md`](../PRODUCT_ROADMAP.md) 为准
 - 执行顺序与门禁：以 [`PROJECT_COMPLETION_SPEC.md`](PROJECT_COMPLETION_SPEC.md) 为准
@@ -211,7 +211,7 @@ flowchart LR
 
 当前 staging 使用免费 Render，SMTP 端口受到限制。因此 Outbox 可验证，但真实邮件送达不是当前完成事实；后续应选择 HTTPS 邮件 API 或明确的付费运行环境。
 
-staging 自动化由默认分支的 GitHub Actions 定时任务直连 Neon，每次只运行一个有限周期；不依赖 Render 常驻 Worker，也不依赖 Cloudflare Cron 或管理员登录令牌。数据库 advisory lock、周期租约、信源租约和幂等键共同防止重复运行。自动抽取保持为 0，关系不能自动批准。
+staging 自动化由 Cloudflare Cron 每 30 分钟调用 Render 的专用单周期端点；GitHub Actions 只保留 `workflow_dispatch`，用于人工应急直连 Neon。两条路径都不依赖 Render 常驻 Worker 或管理员登录令牌。数据库 advisory lock、周期租约、信源租约和幂等键共同防止重复运行。自动抽取保持为 0，关系不能自动批准。
 
 ## 6. 代码到 staging 的交付闭环
 
@@ -288,15 +288,16 @@ flowchart TD
 - staging smoke 已验证 API 健康、公开快照、前端 HTTP 200 与同域 CORS；当前数据模式仍为 `demo`。
 - GitHub Secret Scanning 已启用且无未解决 Secret；旧静态管理员令牌已禁用，staging 仅接受 JWT。
 - 管理端核验确认自动抽取关闭、关系自动批准为 0；完整审核库存与写入验收见 `eval/STAGING_REVIEW_INVENTORY_2026-09-08.md`。
-- 付费 Render Worker 已从 Blueprint 移除；自动化迁至 GitHub Actions，手动单周期 #1 已成功完成，Cloudflare 旧 Cron 已删除。
+- 付费 Render Worker 已从 Blueprint 移除；GitHub Actions 手动单周期 #1 已成功完成，但其 `schedule` 多窗口未投递，因此只保留手动应急入口。
+- Cloudflare Cron 已恢复为主调度器；2026-09-11 07:31:04（UTC+8）真实 Cron 成功，后端周期 `07a11297-bb55-48d5-ad9d-9d6034cd22d9` 返回 `automation-cycle-succeeded`。
 - 提交 `dfba28183d48dac34e93cca1ea0e4f147e0f7384` 增加 `HEAD /ready`，修复 Render 唤醒探测 405；GitHub Quality #285 与 Staging acceptance #10 均全绿，Render 日志确认 HEAD/GET 均为 200。
 
-尚未完成的是计划调度观察与 live 闭环：
+尚未完成的是 live 与正式发布闭环：
 
 1. E3 staging 用户验收已完成：真实账号完成实时研究、Evidence 定位、Compare 双模型恢复、私密记录恢复、显式发布和未登录公开页核验；390px 真机宽度仿真无横向溢出。
 2. 本次验收记录为 `/research/af0c88fb-a7be-4bd7-a806-20f0c7724e1e`，公开页为 `/share/gpt-5-claude-4-5-quality-unknown-cloud-api-none-af0c88fb`；页面展示 8 条结论、9 个来源和结构化决策说明。
 3. `staging-acceptance.yml` 已自动触发并严格核对双端完整 SHA；E4 发布闭环完成。
-4. GitHub Actions 手动周期已成功，但新 schedule 在前三个计划窗口尚无可见运行；继续观察首次 `schedule` 事件，不能以手动成功代替定时闭环。
+4. E4.1 已完成：Cloudflare Cron `*/30 * * * *` 的真实事件为 Success，结构化日志同时证明请求到达后端并完成周期；GitHub `schedule` 已退出主路径。
 5. Live Gate 当前仍受 `demo` 模式、邮件投递配置/验证和数据质量门禁约束。
 6. 数据质量的当前主缺口是 16 个核心实体合计少 41 条可解释关系；该数字是发现队列，不是允许补造的 KPI。
 7. production 分支、独立服务、数据库、域名、监控、备份、回滚与责任人尚未定义。
@@ -312,7 +313,7 @@ flowchart TD
 | E2 有限审核批次     | 已完成                                     | 1 条安全候选批准，44 条确定性无效候选拒绝                            | 待审 0、无效 0、批准与拒绝审计记录           | 不对终态记录做无版本覆盖                |
 | E3 staging 用户验收 | 已完成                                     | 保留真实研究、Evidence、Compare、登录恢复、公开分享和 390px 验收记录 | 私密记录、公开链接、移动端截图与失败恢复提交 | 登录/权限或事实链路回归时重新打开该节点 |
 | E4 默认分支自动闭环 | 已完成                                     | Quality 后自动触发验收并匹配双端完整 SHA                             | Staging acceptance #10 全绿                  | release gate 或 smoke 回归时重新打开    |
-| E4.1 定时周期观察   | 手动单周期已成功                           | 等待并核对首次 GitHub `schedule` 事件                                | schedule 运行记录与健康 heartbeat            | 未出现前不宣称无人值守调度完成          |
+| E4.1 定时周期观察   | 已完成                                     | 保持 Cloudflare Cron 主调度与 GitHub 手动应急入口                    | Cron Success、周期 ID 与健康 heartbeat       | Cron 或后端心跳回归时重新打开           |
 | E5 Live Gate        | E0–E4 完成且 data quality `liveReady=true` | 执行 production-readiness 与外部人工检查                             | 机器门禁响应、人工签字、回滚提交             | 任一阻塞项存在则保持 demo/staging       |
 | E6 正式发布决策     | E5 通过；production 责任表完成             | 用户明确选择保持 Demo、接受 staging 或进入 live                      | 发布窗口、负责人、监控、备份、回滚和最终验收 | 未明确授权不得切换 live 或生产写入      |
 
