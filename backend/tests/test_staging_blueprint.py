@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import yaml
@@ -38,18 +39,30 @@ def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
     assert env_vars["PORT"]["value"] == "8000"
 
 
-def test_github_automation_runs_directly_against_database() -> None:
+def test_github_manual_automation_fallback_runs_directly_against_database() -> None:
     repository_root = Path(__file__).resolve().parents[2]
     workflow = (repository_root / ".github" / "workflows" / "automation.yml").read_text(
         encoding="utf-8"
     )
 
-    assert 'cron: "11,41 * * * *"' in workflow
-    assert 'timezone: "Asia/Shanghai"' in workflow
+    assert "workflow_dispatch:" in workflow
+    assert "schedule:" not in workflow
+    assert "cron:" not in workflow
     assert "AI_RADAR_DATABASE_URL: ${{ secrets.AI_RADAR_DATABASE_URL }}" in workflow
     assert "app.worker --scheduled-once --next-cycle-seconds 1800" in workflow
     assert "/api/v2/automation/run-cycle" not in workflow
     assert "curl " not in workflow
+
+
+def test_cloudflare_cron_is_the_primary_automation_schedule() -> None:
+    repository_root = Path(__file__).resolve().parents[2]
+    cron_root = repository_root / "ops" / "cloudflare-cron"
+    config = json.loads((cron_root / "wrangler.json").read_text(encoding="utf-8"))
+    worker = (cron_root / "worker.mjs").read_text(encoding="utf-8")
+
+    assert config["triggers"]["crons"] == ["*/30 * * * *"]
+    assert "/api/v2/automation/run-cycle" in worker
+    assert '"X-Automation-Token"' in worker
 
 
 def test_staging_blueprint_enables_guarded_cloudflare_hybrid() -> None:
