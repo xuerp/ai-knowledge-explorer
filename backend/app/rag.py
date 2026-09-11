@@ -768,6 +768,13 @@ class HybridRagRetriever:
             )
             if self.reranker is not None and citations:
                 citations = self._apply_reranker(question, citations)
+            citations = self._apply_lexical_coverage_guardrails(
+                snapshot,
+                question,
+                citations,
+                lexical_result.citations,
+                limit,
+            )
         except Exception as exc:  # noqa: BLE001 -- 第三方供应商异常必须统一降级。
             LOGGER.warning(
                 "hybrid retrieval degraded to lexical",
@@ -836,6 +843,83 @@ class HybridRagRetriever:
         ordered_ids = [claim_id for claim_id in requested_ids if claim_id in by_id]
         ordered_ids.extend(claim_id for claim_id in by_id if claim_id not in ordered_ids)
         return [by_id[claim_id] for claim_id in ordered_ids]
+
+    def _apply_lexical_coverage_guardrails(
+        self,
+        snapshot: KnowledgeSnapshot,
+        question: str,
+        citations: list[ResearchCitation],
+        lexical_citations: list[ResearchCitation],
+        limit: int,
+    ) -> list[ResearchCitation]:
+        """Preserve deterministic entity coverage after semantic fusion."""
+        matched_entity_ids = self.lexical.resolve_mentions(snapshot.entities, question)
+        preferred_entity_types = self.lexical.resolve_entity_type_intent(question)
+        entity_by_id = {entity.id: entity for entity in snapshot.entities}
+
+        def group_id(entity_id: str) -> str:
+            entity = entity_by_id.get(entity_id)
+            if entity is None or entity.type != "model":
+                return entity_id
+            seen: set[str] = set()
+            while entity.family_id and entity.family_id not in seen:
+                seen.add(entity.id)
+                parent = entity_by_id.get(entity.family_id)
+                if parent is None:
+                    break
+                entity = parent
+            return entity.id
+
+        anchors: list[ResearchCitation] = []
+        if matched_entity_ids:
+            for entity_id in sorted(matched_entity_ids):
+                scope = self.lexical.expand_entity_scope(snapshot.entities, {entity_id})
+                match = next(
+                    (
+                        citation
+                        for citation in lexical_citations
+                        if citation.claim.entity_id in scope
+                    ),
+                    None,
+                )
+                if match is not None:
+                    anchors.append(match)
+        elif preferred_entity_types:
+            anchored_groups: set[str] = set()
+            for citation in lexical_citations[:limit]:
+                entity = entity_by_id.get(citation.claim.entity_id or "")
+                if entity is None or entity.type not in preferred_entity_types:
+                    continue
+                group = group_id(entity.id)
+                if group in anchored_groups:
+                    continue
+                anchors.append(citation)
+                anchored_groups.add(group)
+
+        selected = citations[:limit]
+        selected_ids = {citation.claim.id for citation in selected}
+        anchor_ids = {citation.claim.id for citation in anchors}
+        for anchor in anchors:
+            if anchor.claim.id in selected_ids:
+                continue
+            if len(selected) < limit:
+                selected.append(anchor)
+                selected_ids.add(anchor.claim.id)
+                continue
+            replacement_index = next(
+                (
+                    index
+                    for index in range(len(selected) - 1, -1, -1)
+                    if selected[index].claim.id not in anchor_ids
+                ),
+                None,
+            )
+            if replacement_index is None:
+                break
+            selected_ids.remove(selected[replacement_index].claim.id)
+            selected[replacement_index] = anchor
+            selected_ids.add(anchor.claim.id)
+        return selected
 
     @staticmethod
     def _lexical_fallback(
