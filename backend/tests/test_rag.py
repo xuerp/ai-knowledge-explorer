@@ -388,6 +388,47 @@ def test_hybrid_rag_fuses_results_and_applies_reranker():
     assert result.citations[0].claim.id == claim_ids[-1]
 
 
+@pytest.mark.parametrize(
+    ("question", "expected_entities"),
+    [
+        ("GPT 和 Claude 的上下文能力如何比较，证据来自哪里？", {"e-gpt", "e-claude"}),
+        (
+            "过去一年图谱中有哪些模型能力发生了变化？",
+            {"e-gpt", "e-claude", "e-gemini"},
+        ),
+    ],
+)
+def test_hybrid_rag_preserves_lexical_entity_coverage_after_vector_fusion(
+    question: str,
+    expected_entities: set[str],
+):
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    lexical = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        lexical.prepare(session, snapshot)
+        all_claim_ids = list(
+            session.scalars(
+                select(RagClaimDocumentRecord.claim_id).order_by(
+                    RagClaimDocumentRecord.claim_id.desc()
+                )
+            ).all()
+        )
+        retriever = HybridRagRetriever(
+            lexical,
+            embedding_provider=FakeEmbeddingProvider(),
+            vector_index=FakeVectorIndex(all_claim_ids),
+            enabled=True,
+        )
+        result = retriever.search(session, snapshot, question, limit=8)
+
+    retrieved = GoldenQuestionEvaluator._citation_entity_ids(snapshot, result.citations)
+    assert expected_entities.issubset(retrieved)
+
+
 def test_hybrid_rag_incrementally_persists_document_embeddings():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
