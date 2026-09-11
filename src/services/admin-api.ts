@@ -333,6 +333,17 @@ export interface GoldenQuestionReport {
   passRatio: number;
   requiredRatio: number;
   ready: boolean;
+  retrievalPassRatio?: number;
+  ragReady?: boolean;
+  ragMetrics?: {
+    entityRecallAt8: number;
+    claimRecallAt8: number;
+    citationCoverage: number;
+    officialSourceRatio: number;
+    temporalAccuracy: number;
+    refusalAccuracy: number;
+    lifecyclePrecision: number;
+  };
   results: Array<{
     id: string;
     question: string;
@@ -340,6 +351,10 @@ export interface GoldenQuestionReport {
     matchedEntityIds: string[];
     missingEntityIds: string[];
     reason: string;
+    retrievedClaimIds: string[];
+    retrievalPassed?: boolean;
+    entityRecallAt8?: number;
+    citationCoverage?: number;
   }>;
 }
 
@@ -467,6 +482,9 @@ export const adminApi = {
 
   productionReadiness: (token: string) =>
     request<ProductionReadiness>("/api/v2/admin/production-readiness", {}, token),
+
+  goldenQuestions: (token: string) =>
+    request<GoldenQuestionReport>("/api/v2/admin/golden-questions", {}, token, 120_000),
 
   claimEntityRepair: (token: string, mode: "dry-run" | "apply", claimIds: string[] = []) =>
     request<ClaimEntityRepairReport>(
