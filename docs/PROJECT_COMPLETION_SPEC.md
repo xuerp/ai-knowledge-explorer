@@ -3,7 +3,7 @@
 ## 文档状态
 
 - 状态：当前唯一项目收尾执行清单
-- 更新时间：2026-09-10
+- 更新时间：2026-09-11
 - 工作分支：`codex/productionize`
 - 本轮完成 staging 验收的功能提交：`dfba28183d48dac34e93cca1ea0e4f147e0f7384`
 - 数据模式：`demo`
@@ -61,8 +61,9 @@
 4. `staging-acceptance.yml` 已从 Quality 自动触发，严格匹配双端完整 SHA，并完成 smoke。
 5. 登录态实时研究、Evidence 定位、Compare 恢复、发布分享和 390px staging 用户流程已完成真实浏览器验收。
 6. 管理员 JWT 只读核验已完成：自动抽取关闭、关系自动批准为 0；开放审核已清零。
-7. GitHub Actions 手动单周期 #1 已成功；首次 `schedule` 事件尚未出现，当前不能宣称无人值守调度已完成。
-8. Live Gate 仍受 demo 模式、邮件投递配置/验证和数据质量门禁约束；当前也未定义正式 production 环境与责任人。
+7. GitHub Actions 手动单周期 #1 已成功，但平台未投递任何 `schedule` 事件；定时职责已切回 Cloudflare Cron，GitHub 仅保留 `workflow_dispatch` 手动回退。
+8. Cloudflare Cron 已于 2026-09-11 07:31:04（UTC+8）成功触发 `*/30 * * * *`；后端记录 `automation-cycle-succeeded`，周期 ID 为 `07a11297-bb55-48d5-ad9d-9d6034cd22d9`，E4.1 已完成。
+9. Live Gate 仍受 demo 模式、邮件投递配置/验证和数据质量门禁约束；当前也未定义正式 production 环境与责任人。
 
 ## 3. 完成定义
 
@@ -75,7 +76,7 @@
 - [x] `/ready`、公开快照、质量指标、审核统计和 staging smoke 已完成只读核验。
 - [x] 核心用户流程在桌面和移动端通过真实浏览器验收。
 - [x] 当前关系 Candidate 和开放审核项经过人工判断；不以数量门槛替代证据质量。
-- [ ] GitHub Actions 至少生成一次成功的 `schedule` 运行；手动运行不能替代该证据。
+- [x] Cloudflare Cron 至少生成一次成功的真实定时运行，且后端记录对应的成功周期与调度心跳。
 - [ ] `live` 只在 `/api/v2/admin/production-readiness` 无自动阻塞项、质量报告 `liveReady=true`、外部人工检查完成后切换。
 - [ ] 正式发布分支、Render 服务、Cloudflare Worker、域名、监控和回滚责任已明确；否则只声明 staging 完成。
 
@@ -90,7 +91,7 @@
 | Node 2   | 让 CI 和 staging 运行同一提交 | 已完成；Quality #285、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
 | Node 3   | 收口开放审核和关系候选        | 已完成；open 0，批准/拒绝审计完整              | 逐条决定记录、操作前后计数、质量报告           |
 | Node 4   | 交付完整产品闭环              | 已完成；staging 登录态与公开流程均通过         | 页面级验收、交互测试、引用链路和任务测试       |
-| Node 4.1 | 确认无人值守调度              | 待首次 GitHub `schedule` 运行                  | schedule 运行记录、周期结果、heartbeat         |
+| Node 4.1 | 确认无人值守调度              | 已完成；Cloudflare Cron 与后端周期均成功       | Cron 运行记录、周期结果、heartbeat             |
 | Node 5   | 判断是否具备 live 条件        | 阻塞                                           | 机器门禁响应和外部人工检查记录                 |
 | Node 6   | 明确正式发布并执行发布决策    | 未定义 production                              | 环境责任表、发布窗口、回滚提交和最终验收       |
 
