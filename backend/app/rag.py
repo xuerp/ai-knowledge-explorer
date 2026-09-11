@@ -240,7 +240,16 @@ class LexicalRagRetriever:
         if not prepared:
             self.prepare(session, snapshot)
         matched_entity_ids = self.resolve_mentions(snapshot.entities, question)
+        preferred_entity_types = self.resolve_entity_type_intent(question)
         search_entity_ids = self.expand_entity_scope(snapshot.entities, matched_entity_ids)
+        search_entity_ids.update(
+            self.expand_relation_scope(
+                snapshot,
+                matched_entity_ids,
+                preferred_entity_types,
+                question,
+            )
+        )
         base_statement = select(RagClaimDocumentRecord).where(
             RagClaimDocumentRecord.lifecycle_status == "current"
         )
@@ -278,9 +287,6 @@ class LexicalRagRetriever:
             fallback_reason = fallback_reason or "full-text-no-match"
             rows = list(session.scalars(base_statement).all())
         entity_type_by_id = {entity.id: entity.type for entity in snapshot.entities}
-        preferred_entity_types = (
-            self.resolve_entity_type_intent(question) if not matched_entity_ids else set()
-        )
         scored = sorted(
             (
                 (
@@ -300,6 +306,7 @@ class LexicalRagRetriever:
             scored,
             snapshot.entities,
             matched_entity_ids,
+            preferred_entity_types,
             limit,
         )
         citations = self.citations_from_rows(selected)
@@ -447,7 +454,19 @@ class LexicalRagRetriever:
             + 0.15 * official_score
             + 0.1 * time_score
             + 0.1 * evidence_score
+            + cls.predicate_intent_score(question, Claim.model_validate_json(row.claim_json))
         )
+
+    @staticmethod
+    def predicate_intent_score(question: str, claim: Claim) -> float:
+        """Small deterministic boost for explicit query/predicate intent matches."""
+        key = question.casefold()
+        predicate = (claim.predicate or "").casefold()
+        if any(term in key for term in ("平台", "提供", "available", "availability")) and any(
+            term in predicate for term in ("availability", "available-on", "available-as")
+        ):
+            return 0.12
+        return 0.0
 
     @staticmethod
     def resolve_mentions(entities: list[Entity], question: str) -> set[str]:
@@ -495,6 +514,8 @@ class LexicalRagRetriever:
             intents.add("agent")
         if "框架" in key or "framework" in key:
             intents.add("framework")
+        if "协议" in key or "protocol" in key:
+            intents.add("framework")
         if "公司" in key or "company" in key or "机构" in key:
             intents.add("company")
         if "论文" in key or "paper" in key:
@@ -519,26 +540,103 @@ class LexicalRagRetriever:
             scope = expanded
 
     @classmethod
+    def expand_relation_scope(
+        cls,
+        snapshot: KnowledgeSnapshot,
+        matched_entity_ids: set[str],
+        preferred_entity_types: set[str],
+        question: str,
+    ) -> set[str]:
+        """Include grounded one-hop neighbors for explicit relationship questions."""
+        if not matched_entity_ids or not any(
+            term in question.casefold()
+            for term in (
+                "开发",
+                "关系",
+                "相关",
+                "路径",
+                "develop",
+                "relationship",
+                "related",
+                "path",
+            )
+        ):
+            return set()
+        evidence_ids = {item.id for item in snapshot.evidence}
+        entity_type_by_id = {item.id: item.type for item in snapshot.entities}
+        neighbors: set[str] = set()
+        for edge in snapshot.graph.edges:
+            if (
+                edge.confidence != "verified"
+                or not edge.source_ids
+                or not set(edge.source_ids).issubset(evidence_ids)
+            ):
+                continue
+            candidate: str | None = None
+            if edge.from_id in matched_entity_ids:
+                candidate = edge.to_id
+            elif edge.to_id in matched_entity_ids:
+                candidate = edge.from_id
+            if candidate is None:
+                continue
+            if (
+                preferred_entity_types
+                and entity_type_by_id.get(candidate) not in preferred_entity_types
+            ):
+                continue
+            neighbors.add(candidate)
+        return cls.expand_entity_scope(snapshot.entities, neighbors)
+
+    @classmethod
     def select_diverse_rows(
         cls,
         scored: list[tuple[float, RagClaimDocumentRecord]],
         entities: list[Entity],
         matched_entity_ids: set[str],
+        preferred_entity_types: set[str],
         limit: int,
     ) -> list[RagClaimDocumentRecord]:
-        """多实体问题先为每个实体保留一个结果，再按总分补足。"""
+        """Reserve named entities and broad-query entity groups before filling by score."""
         eligible = [(score, row) for score, row in scored if score > 0]
         selected: list[RagClaimDocumentRecord] = []
         selected_ids: set[str] = set()
-        if len(matched_entity_ids) > 1:
-            for entity_id in sorted(matched_entity_ids):
-                scope = cls.expand_entity_scope(entities, {entity_id})
-                match = next((row for _, row in eligible if row.entity_id in scope), None)
-                if match is not None and match.claim_id not in selected_ids:
-                    selected.append(match)
-                    selected_ids.add(match.claim_id)
-                    if len(selected) >= limit:
-                        return selected
+        for entity_id in sorted(matched_entity_ids):
+            scope = cls.expand_entity_scope(entities, {entity_id})
+            match = next((row for _, row in eligible if row.entity_id in scope), None)
+            if match is not None and match.claim_id not in selected_ids:
+                selected.append(match)
+                selected_ids.add(match.claim_id)
+                if len(selected) >= limit:
+                    return selected
+
+        entity_by_id = {entity.id: entity for entity in entities}
+
+        def group_id(entity_id: str) -> str:
+            entity = entity_by_id.get(entity_id)
+            if entity is None or entity.type != "model":
+                return entity_id
+            seen: set[str] = set()
+            while entity.family_id and entity.family_id not in seen:
+                seen.add(entity.id)
+                parent = entity_by_id.get(entity.family_id)
+                if parent is None:
+                    break
+                entity = parent
+            return entity.id
+
+        selected_groups = {group_id(row.entity_id) for row in selected}
+        for _, row in eligible:
+            entity = entity_by_id.get(row.entity_id)
+            if entity is None or entity.type not in preferred_entity_types:
+                continue
+            group = group_id(row.entity_id)
+            if group in selected_groups or row.claim_id in selected_ids:
+                continue
+            selected.append(row)
+            selected_ids.add(row.claim_id)
+            selected_groups.add(group)
+            if len(selected) >= limit:
+                return selected
         for _, row in eligible:
             if row.claim_id in selected_ids:
                 continue

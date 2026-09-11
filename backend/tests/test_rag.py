@@ -174,6 +174,31 @@ def test_lexical_rag_prioritizes_model_facts_for_broad_model_questions():
     assert {"e-gpt", "e-claude", "e-gemini"}.issubset(retrieved)
 
 
+def test_lexical_rag_uses_grounded_neighbors_for_relationship_questions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "OpenAI 开发了哪些模型或协议？")
+
+    retrieved = GoldenQuestionEvaluator._expand_entity_families(
+        snapshot,
+        {item.claim.entity_id for item in result.citations if item.claim.entity_id},
+    )
+    assert "e-gpt" in retrieved
+
+
+def test_lexical_rag_boosts_availability_predicates_for_platform_questions():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    claim = snapshot.claims[0].model_copy(update={"predicate": "availability"})
+
+    assert LexicalRagRetriever.predicate_intent_score("这个模型在哪些平台提供？", claim) > 0
+    assert LexicalRagRetriever.predicate_intent_score("这个模型价格如何？", claim) == 0
+
+
 def test_lexical_rag_can_find_related_claim_when_entity_has_no_direct_claim():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
