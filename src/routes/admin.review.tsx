@@ -57,6 +57,7 @@ import {
   type IngestionRun,
   type IntegrationStatus,
   type HealthStatus,
+  type GoldenQuestionReport,
   type OperationsDiagnostics,
   type OutboxEntry,
   type ProductionReadiness,
@@ -233,6 +234,10 @@ function AdminReviewPage() {
   const [sourceSnapshots, setSourceSnapshots] = useState<Record<string, DocumentSnapshotView[]>>(
     {},
   );
+  const [goldenQuestionReport, setGoldenQuestionReport] = useState<GoldenQuestionReport | null>(
+    null,
+  );
+  const [goldenQuestionsBusy, setGoldenQuestionsBusy] = useState(false);
 
   const refresh = useCallback(async (activeToken: string) => {
     const currentUser = await adminApi.me(activeToken);
@@ -1298,6 +1303,26 @@ function AdminReviewPage() {
     setToken("");
     setUser(null);
     setWorkspace(null);
+    setGoldenQuestionReport(null);
+  };
+
+  const runGoldenQuestions = async () => {
+    if (!token || goldenQuestionsBusy) return;
+    setGoldenQuestionsBusy(true);
+    try {
+      const report = await adminApi.goldenQuestions(token);
+      setGoldenQuestionReport(report);
+      toast.success("完整 RAG Golden 评测已完成", {
+        description: `${report.passed}/${report.total} 个问题证据可回答，检索通过率 ${Math.round((report.retrievalPassRatio ?? 0) * 100)}%。`,
+      });
+    } catch (failure) {
+      toast.error("完整 RAG Golden 评测失败", {
+        description: failure instanceof Error ? failure.message : "请稍后重试。",
+        duration: 8_000,
+      });
+    } finally {
+      setGoldenQuestionsBusy(false);
+    }
   };
 
   const retryWorkspace = async () => {
@@ -1417,6 +1442,7 @@ function AdminReviewPage() {
   }
 
   const allowlistedHosts = workspace.integrations?.fetchAllowedHosts ?? [];
+  const activeGoldenQuestionReport = goldenQuestionReport ?? workspace.quality?.goldenQuestions;
   const filteredSources = workspace.sources.filter((source) => {
     const search = sourceSearch.trim().toLocaleLowerCase("zh-CN");
     const matchesSearch =
@@ -1780,10 +1806,23 @@ function AdminReviewPage() {
               条关系。演示和工程闭环可用，但不能据此宣称正式数据完备。
             </p>
             {workspace.quality.evaluationScope === "overview" && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                当前为快速质量概览；完整 RAG 黄金问题检索仅在独立评估和发布基线中运行，
-                不再阻塞后台登录与刷新。
-              </p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">
+                  当前为快速质量概览；完整 RAG 黄金问题检索按需运行，不阻塞后台登录与刷新。
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={goldenQuestionsBusy}
+                  onClick={runGoldenQuestions}
+                >
+                  <RefreshCw
+                    className={`mr-2 h-3.5 w-3.5 ${goldenQuestionsBusy ? "animate-spin" : ""}`}
+                  />
+                  {goldenQuestionsBusy ? "正在运行完整评测" : "运行完整 RAG Golden"}
+                </Button>
+              </div>
             )}
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border border-border bg-background/60 p-3 text-sm">
@@ -1801,34 +1840,79 @@ function AdminReviewPage() {
                 </p>
               </div>
             </div>
-            {workspace.quality.goldenQuestions && (
+            {activeGoldenQuestionReport && (
               <div className="mt-3 rounded-md border border-border bg-background/60 p-3 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="font-medium">黄金问题证据可回答性</div>
                   <span
                     className={`rounded-full px-2 py-1 text-xs ${
-                      workspace.quality.goldenQuestions.ready
+                      (activeGoldenQuestionReport.ragReady ?? activeGoldenQuestionReport.ready)
                         ? "bg-verified/10 text-verified"
                         : "bg-conflict/10 text-conflict"
                     }`}
                   >
-                    {workspace.quality.goldenQuestions.passed}/
-                    {workspace.quality.goldenQuestions.total} ·{" "}
-                    {Math.round(workspace.quality.goldenQuestions.passRatio * 100)}%
+                    {activeGoldenQuestionReport.passed}/{activeGoldenQuestionReport.total} ·{" "}
+                    {Math.round(activeGoldenQuestionReport.passRatio * 100)}%
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   自动核验实体解析、带来源关系、时间证据和最短路径；正式要求 ≥{" "}
-                  {Math.round(workspace.quality.goldenQuestions.requiredRatio * 100)}%。
+                  {Math.round(activeGoldenQuestionReport.requiredRatio * 100)}%。
                 </p>
-                {workspace.quality.goldenQuestions.failed > 0 && (
+                {activeGoldenQuestionReport.retrievalPassRatio !== undefined && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    检索通过率：
+                    {Math.round(activeGoldenQuestionReport.retrievalPassRatio * 100)}% · RAG 门禁：
+                    {activeGoldenQuestionReport.ragReady ? "通过" : "未通过"}
+                  </p>
+                )}
+                {activeGoldenQuestionReport.ragMetrics && (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      {
+                        label: "实体 Recall@8",
+                        value: activeGoldenQuestionReport.ragMetrics.entityRecallAt8,
+                      },
+                      {
+                        label: "Claim Recall@8",
+                        value: activeGoldenQuestionReport.ragMetrics.claimRecallAt8,
+                      },
+                      {
+                        label: "引用覆盖",
+                        value: activeGoldenQuestionReport.ragMetrics.citationCoverage,
+                      },
+                      {
+                        label: "官方来源",
+                        value: activeGoldenQuestionReport.ragMetrics.officialSourceRatio,
+                      },
+                      {
+                        label: "时间准确",
+                        value: activeGoldenQuestionReport.ragMetrics.temporalAccuracy,
+                      },
+                      {
+                        label: "拒答准确",
+                        value: activeGoldenQuestionReport.ragMetrics.refusalAccuracy,
+                      },
+                      {
+                        label: "生命周期精度",
+                        value: activeGoldenQuestionReport.ragMetrics.lifecyclePrecision,
+                      },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="rounded border border-border p-2 text-xs">
+                        <div className="text-muted-foreground">{label}</div>
+                        <div className="mt-1 font-medium">{Math.round(value * 100)}%</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {activeGoldenQuestionReport.results.some(
+                  (result) => !result.passed || result.retrievalPassed === false,
+                ) && (
                   <details className="mt-3">
-                    <summary className="cursor-pointer text-xs font-medium">
-                      查看未通过问题（{workspace.quality.goldenQuestions.failed}）
-                    </summary>
+                    <summary className="cursor-pointer text-xs font-medium">查看未通过问题</summary>
                     <div className="mt-2 space-y-2">
-                      {workspace.quality.goldenQuestions.results
-                        .filter((result) => !result.passed)
+                      {activeGoldenQuestionReport.results
+                        .filter((result) => !result.passed || result.retrievalPassed === false)
                         .map((result) => (
                           <div key={result.id} className="rounded border border-border p-2 text-xs">
                             <div className="font-medium">
