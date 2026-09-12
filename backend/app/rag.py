@@ -275,9 +275,7 @@ class LexicalRagRetriever:
             related_statement = base_statement
             query_text = self.postgres_query_text(question)
             preferred_entity_ids = {
-                entity.id
-                for entity in snapshot.entities
-                if entity.type in preferred_entity_types
+                entity.id for entity in snapshot.entities if entity.type in preferred_entity_types
             }
             uses_type_scope = not search_entity_ids and bool(preferred_entity_ids)
             if uses_type_scope:
