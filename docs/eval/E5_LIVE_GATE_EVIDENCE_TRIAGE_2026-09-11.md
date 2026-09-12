@@ -1,6 +1,6 @@
 # E5 Live Gate：只读核验、Golden 评估与关系证据分级
 
-日期：2026-09-11
+日期：2026-09-11（最后更新：2026-09-12）
 
 范围：只读核验、本地隔离评估，以及经授权的 staging Hybrid Golden 评测。未切换 `live`，未执行 production 写入，未触发模型抽取、关系批准或外部供应商探针。Hybrid 评测允许在 staging 写入 Embedding 索引/预算账本。
 
@@ -8,7 +8,7 @@
 
 E5 尚未通过，必须继续保持 `demo/staging`。
 
-- staging `/ready` 与 `/health` 均返回 200；应用构建为 `a8fd97e21d6fe95eb3e8b821877216feb254c394`，迁移版本为 `20260905_0023`。
+- staging `/ready` 与 `/health` 均返回 200；应用构建为 `b19a0c07967a`，迁移版本为 `20260905_0023`。
 - 运行环境报告 `production`，但数据模式仍为 `demo`；JWT 已启用，管理员写入能力存在但本次未使用。
 - 公开快照时间为 `2026-09-11T00:57:51.751519+00:00`，包含 49 Entity、200 Claim、222 Evidence、78 Relation、55 Timeline。
 - 质量计算结果：Evidence 引用覆盖 100%，官方 Evidence 97.30%，人工核验 99.10%，180 天新鲜度 100%，已核验内容 98.50%，23 个来源域名，0 个缺失引用或缺失实体。
@@ -17,34 +17,34 @@ E5 尚未通过，必须继续保持 `demo/staging`。
 - 管理员会话恢复后，于 2026-09-11 09:15–09:16（UTC+8）重新读取受保护页面：`production-readiness` 为 3 项阻塞、0 项警告；阻塞项仍为 `demo`、邮件未配置和数据质量未通过。
 - worker 心跳正常；最近周期 `59087ef4-c51e-4bba-9379-11894c931c98` 于 09:01:12 自动完成，耗时 19.1 秒。采集重试、采集熔断、抽取冷却、邮件待发/重试/发送中/终态失败均为 0；仍有 4 个待抽取 Snapshot。
 - AI 抽取已配置但自动抽取未启用；关系自动批准保持为 0。Hybrid 为 Cloudflare `@cf/baai/bge-m3`、1024 维。
-- 当前 Hybrid 面板显示每日上限为 1000 Neurons / 1000 次请求，而历史发布基线记录为 100 / 100；该差异必须作为供应商预算配置漂移核对，不能默认视为已授权扩容。
+- 当前 Hybrid 面板显示每日上限为 1000 Neurons / 1000 次请求，而历史发布基线记录为 100 / 100。负责人已明确授权 2026-09-12 这一次完整 staging Hybrid Golden；该单次授权不等同于永久确认扩容。
 - 提交 `a8fd97e` 的 GitHub Quality #299（1 分 57 秒）通过。首次 Staging acceptance #21 因 Render `checksPass` 未触发部署而等待 15 分 42 秒后失败：Cloudflare 已为 `a8fd97e`，Render 仍为 `a93625c`。21:21（UTC+8）从 Render 控制台手动部署最新提交，1 分 37 秒成功；随后重跑同一验收，18 秒通过，前后端均对齐 `a8fd97e`。
 - 2026-09-11 21:24–21:26（UTC+8）在构建 `a8fd97e` 的受保护 staging 管理后台重新运行完整 Hybrid Golden：证据可回答 18/20（90%），检索 18/20（90%），`ragReady=true`，Entity Recall@8 为 95%。`gq-02` 已恢复通过，RAG 子门禁获得 5 个百分点余量；E5 整体仍被核心关系覆盖、`demo` 数据模式、邮件和外部人工门禁阻塞。
+- 提交 `b19a0c0` 的 GitHub Quality #302 通过，Render 自动部署成功，Staging acceptance #24 以 1 分 46 秒通过。2026-09-12 12:49–12:50（UTC+8）在该构建运行完整 Hybrid Golden：证据可回答 18/20（90%），检索 19/20（95%），`ragReady=true`，Entity Recall@8、Claim Recall@8 与 Citation Coverage 均为 100%，Temporal Accuracy 为 83.33%。`gq-16` 的宽泛模型检索已恢复；唯一检索失败为真实数据缺口 `gq-04`。
 
 ## 2. Golden 问题评估
 
 ### 2.1 20 题产品 Golden Set（staging Cloudflare Hybrid）
 
-在构建 `a8fd97e` 的受保护 staging 管理后台运行完整端点；检索模式为 Hybrid，Embedding 为 Cloudflare `@cf/baai/bge-m3`（1024 维）。该构建在 RRF 融合与可选 reranker 之后保留 lexical 命名实体锚点，并为宽泛类型问题保留顶层实体组多样性。
+在构建 `b19a0c0` 的受保护 staging 管理后台运行完整端点；检索模式为 Hybrid，Embedding 为 Cloudflare `@cf/baai/bge-m3`（1024 维）。该构建在 RRF 融合与可选 reranker 之后保留 lexical 命名实体锚点，并让 PostgreSQL 与 SQLite 对无显式实体、但有优先实体类型的宽泛问题采用一致的类型候选范围。
 
 | 指标 | 结果 | 判断 |
 | --- | ---: | --- |
 | 证据可回答性 | 18 / 20（90%） | 通过 85% 门槛 |
-| RAG 检索通过 | 18 / 20（90%） | `ragReady=true`，高于门槛 5 个百分点 |
-| Entity Recall@8 | 95.00% | 通过；较前次增加 2.5 个百分点 |
+| RAG 检索通过 | 19 / 20（95%） | `ragReady=true`，高于门槛 10 个百分点 |
+| Entity Recall@8 | 100% | 通过；较前次增加 5 个百分点 |
 | Claim Recall@8 | 100% | 通过 |
 | Citation Coverage | 100% | 通过 |
 | Official Source Ratio | 97.39% | 通过 |
-| Temporal Accuracy | 66.67% | 需继续改善 |
+| Temporal Accuracy | 83.33% | 较前次改善 16.66 个百分点 |
 | Refusal Accuracy | 100% | 通过 |
 | Lifecycle Precision | 100% | 通过 |
 
-检索失败 2 题：
+检索失败 1 题：
 
 1. `gq-04` DeepSeek 演化路径：Entity Recall@8 为 100%、Citation Coverage 为 100%，但仍未满足 RAG 基线的 Claim 检索约束。最新快照缺少可索引的已核验时序 Claim，不能靠排序伪造。
-2. `gq-16` 过去一年模型能力变化：Entity Recall@8 为 0%、Citation Coverage 为 100%，同时证据图未覆盖 `e-claude`、`e-gemini`、`e-gpt`。本次 guardrail 能保住已进入 lexical 候选池的组别，但实际 PostgreSQL/Hybrid 候选池没有召回这三个实体，后续需要扩展宽泛中文时间意图的候选生成。
 
-`gq-02` 的 GPT/Claude 比较已从前次 Entity Recall@8 50% 恢复为通过，验证融合后的命名实体覆盖保护生效。证据可回答性仍失败 2 题：`gq-15` 因快照没有可解释的冲突或证据不足候选而拒答，`gq-16` 因问题解析及一跳证据图未覆盖三个预期模型系列而失败。结果显示当前改进使 Hybrid 检索从 85% 提升到 90%，但与本地候选 lexical 95% 仍有差距，且不能把 Hybrid 通过误写为 E5 整体通过。
+`gq-16` 已从检索失败恢复为通过，验证宽泛类型候选范围在真实 PostgreSQL/Cloudflare Hybrid 路径生效；Hybrid 检索现已与本地候选 lexical 的 95% 对齐。证据可回答性仍失败 2 题：`gq-15` 因快照没有可解释的冲突或证据不足候选而拒答，`gq-16` 因问题解析及一跳证据图未覆盖三个预期模型系列而失败。检索门禁通过不等于 E5 整体通过。
 
 ### 2.2 20 题产品 Golden Set（完整 RAG 路径，本地隔离 lexical）
 
@@ -152,8 +152,8 @@ P2 覆盖差值合计 24。已保存的 AutoGen、CrewAI、Manus Snapshot 是最
 
 ## 4. E5 最短执行顺序
 
-1. **继续稳定 Golden 检索。** staging Hybrid 已提升到 18/20（90%），RAG 门禁通过；`gq-02` 已修复。下一步把 `gq-04` 明确归入已核验数据缺口，并为 `gq-16` 扩展宽泛中文时间意图的候选生成，目标是接近本地 lexical 19/20，而不是放宽门槛。
-2. **核对 Hybrid 预算漂移。** 本轮已在用户授权下完成限额内复测；后续再次运行全量评估前，仍需明确 100→1000 是否为负责人有意配置。
+1. **保持 Golden 检索基线。** staging Hybrid 已提升到 19/20（95%）并与本地候选 lexical 对齐；唯一检索失败 `gq-04` 已明确归入已核验数据缺口，不能通过放宽门槛修饰。
+2. **核对 Hybrid 预算漂移。** 本轮已在负责人单次授权下完成限额内复测；再次运行全量评估或把 1000 / 1000 作为长期预算前，仍需明确永久配置意图。
 3. **处理 P1 人工证据审查。** 先确认 Gemini→Google 候选与 Claude Code→MCP Evidence 合并；其余条目只有在端点建模被明确接受时才继续。
 4. **处理已保存的三条高可修复 Snapshot。** AutoGen、CrewAI、Manus 只进入小批量抽取和人工审核，保持自动抽取关闭、关系自动批准为 0。该步骤需要外部模型调用和 staging 写入授权。
 5. **再扩展新信源。** Gemini CLI、OpenAI Agents SDK、Devin、DeepSeek、ERNIE 按单条官方来源采集，不做实体两两组合，不承诺填满 41。
@@ -162,9 +162,9 @@ P2 覆盖差值合计 24。已保存的 AutoGen、CrewAI、Manus Snapshot 是最
 
 ## 5. 当前需要用户的明确操作点
 
-- staging 管理员会话已恢复；完整 Hybrid Golden 已通过按需按钮在构建 `a8fd97e` 上复测，结果为 18/20（90%），RAG 子门禁通过。
-- Render 的 `checksPass` 本次没有自动启动 `a8fd97e` 部署，已用“Deploy latest commit”完成一次 staging 手动恢复并通过 Staging acceptance #21 重跑。该触发链路仍应单独观察或修复，避免下一次验收再次等待 15 分钟。
-- 请确认 Hybrid 日上限 1000 Neurons / 1000 次是否为有意配置；历史基线是 100 / 100。
+- staging 管理员会话已恢复；完整 Hybrid Golden 已通过按需按钮在构建 `b19a0c0` 上复测，检索为 19/20（95%），RAG 子门禁通过。
+- Render 对 `b19a0c0` 的 `checksPass` 自动部署已恢复正常，Staging acceptance #24 通过；继续观察后续提交即可。
+- 本次 1000 Neurons / 1000 次预算内评测已有明确单次授权；历史基线仍是 100 / 100，长期配置仍需单独确认。
 - 若要对 AutoGen、CrewAI、Manus 已保存 Snapshot 运行模型抽取，需要另行明确授权本次 staging 写入及外部模型预算；当前不执行。
 - 邮件供应商、API/SMTP 密钥、正式域名绑定、付费监控与备份配置继续保持未操作状态。
 
