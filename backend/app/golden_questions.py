@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session
 
+from .query_intent import resolve_entity_type_intent
 from .schemas import (
     GoldenQuestionReport,
     GoldenQuestionResult,
@@ -245,6 +246,7 @@ class GoldenQuestionEvaluator:
             and set(edge.source_ids).issubset(evidence_ids)
         ]
         mentioned = self._resolve_mentions(snapshot, text)
+        mentioned.update(self._resolve_entity_type_mentions(snapshot, text))
         reachable = set(mentioned)
         for edge in grounded_edges:
             if edge.from_id in mentioned:
@@ -318,6 +320,19 @@ class GoldenQuestionEvaluator:
             entity_id
             for entity_id, token in matches
             if not any(token != other and token in other for _, other in matches)
+        }
+
+    @staticmethod
+    def _resolve_entity_type_mentions(
+        snapshot: KnowledgeSnapshot,
+        question: str,
+    ) -> set[str]:
+        """Broad type questions cover top-level families without inventing expected IDs."""
+        intents = resolve_entity_type_intent(question)
+        return {
+            entity.id
+            for entity in snapshot.entities
+            if entity.type in intents and entity.family_id is None
         }
 
     @staticmethod

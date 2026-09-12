@@ -631,8 +631,8 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert response.status_code == 200
     payload = response.json()
     assert payload["total"] == 20
-    assert payload["passed"] == 18
-    assert payload["passRatio"] == 0.9
+    assert payload["passed"] == 19
+    assert payload["passRatio"] == 0.95
     assert payload["requiredRatio"] == 0.85
     assert payload["ready"] is False
     assert payload["retrievalPassRatio"] == 0.6

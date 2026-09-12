@@ -30,14 +30,16 @@ def test_golden_questions_execute_against_grounded_catalog():
     report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(snapshot)
 
     assert report.total == 20
-    assert report.passed == 18
-    assert report.pass_ratio == 0.9
+    assert report.passed == 19
+    assert report.pass_ratio == 0.95
     assert report.required_ratio == 0.85
     assert report.ready is True
     failed = {result.id: result for result in report.results if not result.passed}
-    assert set(failed) == {"gq-15", "gq-16"}
+    assert set(failed) == {"gq-15"}
     assert "冲突或证据不足" in failed["gq-15"].reason
-    assert failed["gq-16"].missing_entity_ids == ["e-claude", "e-gemini", "e-gpt"]
+    broad_model_result = next(result for result in report.results if result.id == "gq-16")
+    assert broad_model_result.missing_entity_ids == []
+    assert set(broad_model_result.matched_entity_ids) == {"e-claude", "e-gemini", "e-gpt"}
 
 
 def test_concrete_version_retrieval_satisfies_family_expectation():
