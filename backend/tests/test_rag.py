@@ -166,12 +166,17 @@ def test_lexical_rag_prioritizes_model_facts_for_broad_model_questions():
         repository.seed_catalog(session)
         snapshot = repository.public_snapshot(session)
         result = retriever.search(session, snapshot, "过去一年有哪些模型能力发生了变化？")
+        indexed_rows = list(session.scalars(select(RagClaimDocumentRecord)).all())
 
     retrieved = GoldenQuestionEvaluator._expand_entity_families(
         snapshot,
         {item.claim.entity_id for item in result.citations if item.claim.entity_id},
     )
+    model_entity_ids = {entity.id for entity in snapshot.entities if entity.type == "model"}
     assert {"e-gpt", "e-claude", "e-gemini"}.issubset(retrieved)
+    assert result.diagnostics.candidate_count == sum(
+        row.entity_id in model_entity_ids for row in indexed_rows
+    )
 
 
 def test_lexical_rag_uses_grounded_neighbors_for_relationship_questions():
