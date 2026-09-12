@@ -274,7 +274,17 @@ class LexicalRagRetriever:
         if not search_entity_ids or fallback_reason == "entity-scope-incomplete":
             related_statement = base_statement
             query_text = self.postgres_query_text(question)
-            if session.get_bind().dialect.name == "postgresql" and query_text:
+            preferred_entity_ids = {
+                entity.id
+                for entity in snapshot.entities
+                if entity.type in preferred_entity_types
+            }
+            uses_type_scope = not search_entity_ids and bool(preferred_entity_ids)
+            if uses_type_scope:
+                related_statement = related_statement.where(
+                    RagClaimDocumentRecord.entity_id.in_(preferred_entity_ids)
+                )
+            elif session.get_bind().dialect.name == "postgresql" and query_text:
                 query = func.websearch_to_tsquery("simple", query_text)
                 vector = func.to_tsvector("simple", RagClaimDocumentRecord.search_text)
                 related_statement = related_statement.where(vector.op("@@")(query))
