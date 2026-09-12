@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from .database import RagClaimDocumentRecord, RagClaimEmbeddingRecord
 from .entity_aliases import normalize_entity_alias
+from .query_intent import resolve_entity_type_intent
 from .schemas import (
     Claim,
     Entity,
@@ -514,23 +515,7 @@ class LexicalRagRetriever:
     @staticmethod
     def resolve_entity_type_intent(question: str) -> set[str]:
         """在没有点名具体实体的宽泛问题中，优先召回与问题类型一致的事实。"""
-        key = question.casefold()
-        intents: set[str] = set()
-        if "模型" in key or "model" in key:
-            intents.add("model")
-        if "agent" in key or "智能体" in key:
-            intents.add("agent")
-        if "框架" in key or "framework" in key:
-            intents.add("framework")
-        if "协议" in key or "protocol" in key:
-            intents.add("framework")
-        if "公司" in key or "company" in key or "机构" in key:
-            intents.add("company")
-        if "论文" in key or "paper" in key:
-            intents.add("paper")
-        if "基准" in key or "benchmark" in key:
-            intents.add("benchmark")
-        return intents
+        return resolve_entity_type_intent(question)
 
     @staticmethod
     def expand_entity_scope(entities: list[Entity], matched_entity_ids: set[str]) -> set[str]:
