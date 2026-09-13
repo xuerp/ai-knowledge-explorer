@@ -619,9 +619,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: Session,
     ) -> PublishedResearchView:
         snapshot = get_public_snapshot(session)
-        citations_by_id = {
-            item.claim.id: item for item in grounded_retrieval_citations(snapshot)
-        }
+        citations_by_id = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
         citations = [
             citations_by_id[claim_id]
             for claim_id in result.claim_ids

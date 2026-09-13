@@ -69,9 +69,7 @@ def test_grounded_projection_indexes_timeline_and_relation_knowledge():
         assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-r2") is not None
         assert session.get(RagClaimDocumentRecord, "rag-relation:r16") is not None
 
-    projected_ids = {
-        citation.claim.id for citation in grounded_retrieval_citations(snapshot)
-    }
+    projected_ids = {citation.claim.id for citation in grounded_retrieval_citations(snapshot)}
     assert "rag-timeline:t-deepseek-r2" in projected_ids
     assert "rag-relation:r16" in projected_ids
 
