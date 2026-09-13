@@ -634,12 +634,13 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert payload["passed"] == 19
     assert payload["passRatio"] == 0.95
     assert payload["requiredRatio"] == 0.85
-    assert payload["ready"] is False
-    assert payload["retrievalPassRatio"] == 0.6
-    assert payload["ragReady"] is False
+    assert payload["ready"] is True
+    assert payload["retrievalPassRatio"] == 1.0
+    assert payload["ragReady"] is True
     assert payload["ragMetrics"]["citationCoverage"] == 1.0
     assert payload["ragMetrics"]["lifecyclePrecision"] == 1.0
-    assert payload["ragMetrics"]["entityRecallAt8"] == 0.625
+    assert payload["ragMetrics"]["entityRecallAt8"] == 1.0
+    assert payload["ragMetrics"]["temporalAccuracy"] == 1.0
     assert len(payload["results"]) == 20
 
 
@@ -3286,12 +3287,14 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
         },
     )
     assert agent_research.status_code == 200
-    assert set(agent_research.json()["claimIds"]) == {
+    assert {
         "c-codex-agent",
         "c-claude-code-agent",
         "c-devin-agent",
-    }
-    assert agent_research.json()["steps"][1]["detail"]["en"] == ("Matched 3 entities and 3 claims")
+    }.issubset(set(agent_research.json()["claimIds"]))
+    assert agent_research.json()["steps"][1]["detail"]["en"] == (
+        f"Matched 3 entities and {len(agent_research.json()['claimIds'])} claims"
+    )
 
     published = client.post(
         f"/api/v2/research/{research.json()['id']}/publish",
@@ -3301,8 +3304,12 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert slug
     shared = client.get(f"/api/v2/share/{slug}")
     assert shared.status_code == 200
-    assert shared.json()["citations"][0]["claim"]["id"] == "claim-gpt-notification"
-    assert shared.json()["citations"][0]["evidence"][0]["publisher"] == "Example"
+    shared_notification = next(
+        item
+        for item in shared.json()["citations"]
+        if item["claim"]["id"] == "claim-gpt-notification"
+    )
+    assert shared_notification["evidence"][0]["publisher"] == "Example"
     markdown = client.get(f"/api/v2/share/{slug}/markdown")
     assert markdown.status_code == 200
     assert "claim-gpt-notification" in markdown.text

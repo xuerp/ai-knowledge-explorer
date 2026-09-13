@@ -14,6 +14,7 @@ from app.rag import (
     SqlAlchemyVectorClaimIndex,
     VectorDocument,
     VectorSearchHit,
+    grounded_retrieval_citations,
 )
 from app.repository import KnowledgeRepository
 
@@ -53,6 +54,26 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
         snapshot.claims.append(unresolved)
         retriever.sync_snapshot(session, snapshot)
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
+
+
+def test_grounded_projection_indexes_timeline_and_relation_knowledge():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        retriever.prepare(session, snapshot)
+
+        assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-r2") is not None
+        assert session.get(RagClaimDocumentRecord, "rag-relation:r16") is not None
+
+    projected_ids = {
+        citation.claim.id for citation in grounded_retrieval_citations(snapshot)
+    }
+    assert "rag-timeline:t-deepseek-r2" in projected_ids
+    assert "rag-relation:r16" in projected_ids
 
 
 def test_claim_embedding_schema_supports_parallel_model_versions():

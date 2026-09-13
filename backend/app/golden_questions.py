@@ -122,7 +122,14 @@ class GoldenQuestionEvaluator:
             temporal_ok = not bool(question.get("requiresTemporalEvidence", False)) or any(
                 item.claim.valid_from or any(source.published_at for source in item.evidence)
                 for item in citations
-                if not expected_entities or item.claim.entity_id in expected_entities
+                if not expected_entities
+                or bool(
+                    self._expand_entity_families(
+                        snapshot,
+                        {item.claim.entity_id} if item.claim.entity_id else set(),
+                    )
+                    & expected_entities
+                )
             )
             if question.get("requiresTemporalEvidence", False):
                 temporal_checks.append(temporal_ok)

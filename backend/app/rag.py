@@ -86,6 +86,109 @@ class VectorSearchHit:
     score: float
 
 
+def grounded_retrieval_citations(snapshot: KnowledgeSnapshot) -> list[ResearchCitation]:
+    """Project every grounded knowledge shape into the citation index.
+
+    Claims are only one of the public snapshot's reviewed knowledge shapes. Timeline
+    entries and graph relations also carry explicit evidence, so excluding them makes
+    named entities with no direct Claim impossible to retrieve.
+    """
+    evidence_by_id = {item.id: item for item in snapshot.evidence}
+    entity_by_id = {item.id: item for item in snapshot.entities}
+    citations: list[ResearchCitation] = []
+
+    def evidence_for(source_ids: list[str]) -> list[Evidence]:
+        return [
+            evidence_by_id[source_id]
+            for source_id in source_ids
+            if source_id in evidence_by_id
+        ]
+
+    for claim in snapshot.claims:
+        evidence = evidence_for(claim.source_ids)
+        if (
+            claim.confidence == "verified"
+            and claim.entity_id in entity_by_id
+            and evidence
+            and len(evidence) == len(claim.source_ids)
+        ):
+            citations.append(ResearchCitation(claim=claim, evidence=evidence))
+
+    for entity_id, entries in snapshot.timeline.items():
+        entity = entity_by_id.get(entity_id)
+        if entity is None:
+            continue
+        for entry in entries:
+            evidence = evidence_for(entry.source_ids)
+            if (
+                entry.confidence != "verified"
+                or not evidence
+                or len(evidence) != len(entry.source_ids)
+            ):
+                continue
+            citations.append(
+                ResearchCitation(
+                    claim=Claim(
+                        id=f"rag-timeline:{entry.id}",
+                        entity_id=entity_id,
+                        text={
+                            "zh": f"{entity.name.zh}：{entry.title.zh}。{entry.summary.zh}",
+                            "en": f"{entity.name.en}: {entry.title.en}. {entry.summary.en}",
+                        },
+                        confidence="verified",
+                        source_ids=entry.source_ids,
+                        updated_at=entry.date,
+                        subject=entity.name.en,
+                        predicate=f"timeline-{entry.kind}",
+                        object_or_value=entry.title.en,
+                        valid_from=entry.date,
+                    ),
+                    evidence=evidence,
+                )
+            )
+
+    for edge in snapshot.graph.edges:
+        source = entity_by_id.get(edge.from_id)
+        target = entity_by_id.get(edge.to_id)
+        evidence = evidence_for(edge.source_ids)
+        if (
+            source is None
+            or target is None
+            or edge.confidence != "verified"
+            or not evidence
+            or len(evidence) != len(edge.source_ids)
+        ):
+            continue
+        label_zh = edge.label.zh if edge.label else edge.kind
+        label_en = edge.label.en if edge.label else edge.kind
+        updated_at = edge.valid_from or snapshot.graph.valid_at
+        citations.append(
+            ResearchCitation(
+                claim=Claim(
+                    id=f"rag-relation:{edge.id}",
+                    entity_id=edge.from_id,
+                    text={
+                        "zh": f"{source.name.zh}与{target.name.zh}的已核验关系：{label_zh}。",
+                        "en": (
+                            f"Verified relationship between {source.name.en} and "
+                            f"{target.name.en}: {label_en}."
+                        ),
+                    },
+                    confidence="verified",
+                    source_ids=edge.source_ids,
+                    updated_at=updated_at,
+                    subject=source.name.en,
+                    predicate=edge.kind,
+                    object_or_value=target.name.en,
+                    valid_from=edge.valid_from,
+                    valid_to=edge.valid_to,
+                ),
+                evidence=evidence,
+            )
+        )
+    return citations
+
+
 class VectorClaimIndex(Protocol):
     def stale_documents(self, session: Session) -> list[RagClaimDocumentRecord]: ...
 
@@ -333,19 +436,13 @@ class LexicalRagRetriever:
         )
 
     def sync_snapshot(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
-        evidence_by_id = {item.id: item for item in snapshot.evidence}
         entity_by_id = {item.id: item for item in snapshot.entities}
         indexed_ids: set[str] = set()
         now = datetime.now(UTC)
-        for claim in snapshot.claims:
-            if claim.confidence != "verified" or claim.entity_id not in entity_by_id:
-                continue
-            evidence = [
-                evidence_by_id[source_id]
-                for source_id in claim.source_ids
-                if source_id in evidence_by_id
-            ]
-            if not evidence or len(evidence) != len(claim.source_ids):
+        for citation in grounded_retrieval_citations(snapshot):
+            claim = citation.claim
+            evidence = citation.evidence
+            if claim.entity_id is None:
                 continue
             entity = entity_by_id[claim.entity_id]
             search_text = self.document_text(claim, entity, evidence)
@@ -471,6 +568,10 @@ class LexicalRagRetriever:
         """Small deterministic boost for explicit query/predicate intent matches."""
         key = question.casefold()
         predicate = (claim.predicate or "").casefold()
+        if any(
+            term in key for term in ("最近", "变化", "演化", "日期", "current", "recent", "change")
+        ) and predicate.startswith("timeline-"):
+            return 0.18
         if any(term in key for term in ("平台", "提供", "available", "availability")) and any(
             term in predicate for term in ("availability", "available-on", "available-as")
         ):
