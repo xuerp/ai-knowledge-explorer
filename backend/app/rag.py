@@ -99,9 +99,7 @@ def grounded_retrieval_citations(snapshot: KnowledgeSnapshot) -> list[ResearchCi
 
     def evidence_for(source_ids: list[str]) -> list[Evidence]:
         return [
-            evidence_by_id[source_id]
-            for source_id in source_ids
-            if source_id in evidence_by_id
+            evidence_by_id[source_id] for source_id in source_ids if source_id in evidence_by_id
         ]
 
     for claim in snapshot.claims:
