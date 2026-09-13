@@ -94,3 +94,23 @@ def test_retrieval_evaluation_prepares_the_index_only_once(monkeypatch):
 
     assert report.rag_metrics is not None
     assert prepare_calls == 1
+
+
+def test_full_retrieval_golden_set_covers_grounded_timeline_and_relations():
+    data = Path(__file__).resolve().parents[1] / "data"
+    repository = KnowledgeRepository(data / "demo_snapshot.json")
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(
+            snapshot,
+            session=session,
+            retriever=LexicalRagRetriever(),
+        )
+
+    assert report.retrieval_pass_ratio == 1.0
+    assert report.rag_metrics is not None
+    assert report.rag_metrics.entity_recall_at_8 == 1.0
+    assert report.rag_metrics.temporal_accuracy == 1.0
