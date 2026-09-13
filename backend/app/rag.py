@@ -86,7 +86,11 @@ class VectorSearchHit:
     score: float
 
 
-def grounded_retrieval_citations(snapshot: KnowledgeSnapshot) -> list[ResearchCitation]:
+def grounded_retrieval_citations(
+    snapshot: KnowledgeSnapshot,
+    *,
+    include_derived_knowledge: bool = True,
+) -> list[ResearchCitation]:
     """Project every grounded knowledge shape into the citation index.
 
     Claims are only one of the public snapshot's reviewed knowledge shapes. Timeline
@@ -111,6 +115,9 @@ def grounded_retrieval_citations(snapshot: KnowledgeSnapshot) -> list[ResearchCi
             and len(evidence) == len(claim.source_ids)
         ):
             citations.append(ResearchCitation(claim=claim, evidence=evidence))
+
+    if not include_derived_knowledge:
+        return citations
 
     for entity_id, entries in snapshot.timeline.items():
         entity = entity_by_id.get(entity_id)
@@ -326,6 +333,9 @@ class ClaimReranker(Protocol):
 
 
 class LexicalRagRetriever:
+    def __init__(self, *, include_derived_knowledge: bool = True) -> None:
+        self.include_derived_knowledge = include_derived_knowledge
+
     def prepare(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
         self.sync_snapshot(session, snapshot)
 
@@ -437,7 +447,10 @@ class LexicalRagRetriever:
         entity_by_id = {item.id: item for item in snapshot.entities}
         indexed_ids: set[str] = set()
         now = datetime.now(UTC)
-        for citation in grounded_retrieval_citations(snapshot):
+        for citation in grounded_retrieval_citations(
+            snapshot,
+            include_derived_knowledge=self.include_derived_knowledge,
+        ):
             claim = citation.claim
             evidence = citation.evidence
             if claim.entity_id is None:

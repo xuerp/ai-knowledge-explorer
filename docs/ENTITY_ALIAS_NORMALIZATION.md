@@ -50,4 +50,5 @@ Epic 1B 采用独立 `entity_alias` 表，但它不是第二事实源。实体�
 前后对照由 `scripts/eval_alias_normalization.py` 执行，固定使用 Golden Set v1.0.0、
 2026-08-30 公开快照及 TopK=8。主评估必须分别保留整体和实体类别指标；由于该 Golden Set 的
 实体 Recall@8 在改造前已经达到 100%，脚本另以同一快照逐条执行 24 个确定性别名探针，诚实记录
-新增覆盖，不修改 Golden Set 来制造提升。
+新增覆盖，不修改 Golden Set 来制造提升。该对照只索引正式 Claim，以隔离别名归一化变量；时间线
+与关系的检索覆盖由 RAG Golden Set 和对应回归测试单独验证。

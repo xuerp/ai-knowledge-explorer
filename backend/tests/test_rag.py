@@ -74,6 +74,21 @@ def test_grounded_projection_indexes_timeline_and_relation_knowledge():
     assert "rag-relation:r16" in projected_ids
 
 
+def test_claim_only_projection_keeps_alias_evaluation_isolated():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever(include_derived_knowledge=False)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        retriever.prepare(session, snapshot)
+        indexed_ids = set(session.scalars(select(RagClaimDocumentRecord.claim_id)).all())
+
+    assert indexed_ids
+    assert all(not claim_id.startswith("rag-") for claim_id in indexed_ids)
+
+
 def test_claim_embedding_schema_supports_parallel_model_versions():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
