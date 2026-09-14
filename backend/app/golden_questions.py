@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import deque
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 
 GOLDEN_PASS_RATIO = 0.85
 GOLDEN_QUESTIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "golden_questions.json"
+LOGGER = logging.getLogger(__name__)
 
 
 class GoldenQuestionEvaluator:
@@ -86,7 +88,17 @@ class GoldenQuestionEvaluator:
         temporal_checks: list[bool] = []
         refusal_checks: list[bool] = []
         retrieval_passed = 0
-        retriever.prepare(session, snapshot)
+        try:
+            retriever.prepare(session, snapshot)
+        except Exception as exc:  # noqa: BLE001 -- 第三方向量服务异常必须安全降级。
+            from .rag import LexicalRagRetriever
+
+            LOGGER.warning(
+                "golden retrieval preparation degraded to lexical",
+                extra={"error_type": type(exc).__name__},
+            )
+            retriever = LexicalRagRetriever()
+            retriever.prepare(session, snapshot)
         for question, graph_result in zip(questions, results, strict=True):
             retrieval = retriever.search(
                 session,
