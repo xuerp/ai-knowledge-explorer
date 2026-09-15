@@ -2814,11 +2814,20 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     assert item["snapshotId"] == latest["snapshotId"]
     assert item["snapshotId"] != first["snapshotId"]
 
-    monkeypatch.setattr(
-        StructuredExtractionService,
-        "extract",
-        lambda self, source, snapshot, max_candidates, catalog_entities=None, **kwargs: [],
-    )
+    extraction_limits: list[int] = []
+
+    def extract_with_limit(
+        self,
+        source,
+        snapshot,
+        max_candidates,
+        catalog_entities=None,
+        **kwargs,
+    ):
+        extraction_limits.append(max_candidates)
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", extract_with_limit)
     extracted = client.post(
         "/api/v2/admin/sources/source-extraction-plan/extract",
         headers=headers,
@@ -2826,6 +2835,7 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     )
     assert extracted.status_code == 200
     assert extracted.json() == []
+    assert extraction_limits == [5]
 
     refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)

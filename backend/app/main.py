@@ -2304,7 +2304,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 session,
                 source,
                 snapshot_row,
-                payload.max_candidates,
+                min(payload.max_candidates, 5),
             )
         except ExtractionUnavailableError as error:
             raise HTTPException(

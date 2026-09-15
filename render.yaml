@@ -22,7 +22,7 @@ envVarGroups:
         # 已授权批次 2026-09-core-relations-02 已完成；普通自动抽取保持关闭。
         value: "0"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT
-        value: "10"
+        value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES
         value: "360"
       - key: AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS
