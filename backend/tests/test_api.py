@@ -719,7 +719,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         ).json()
         assert integrations["automaticExtractionEnabled"] is True
         assert integrations["automaticExtractionMaxSnapshotsPerCycle"] == 2
-        assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
+        assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 5
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
         assert integrations["extractionPipelineVersion"] == EXTRACTION_PIPELINE_VERSION
@@ -1570,7 +1570,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "extractionModel": None,
         "automaticExtractionEnabled": False,
         "automaticExtractionMaxSnapshotsPerCycle": 0,
-        "automaticExtractionMaxCandidatesPerSnapshot": 10,
+        "automaticExtractionMaxCandidatesPerSnapshot": 5,
         "automaticExtractionRetryMinutes": 360,
         "automaticRelationApprovalEnabled": False,
         "retrievalMode": "lexical",

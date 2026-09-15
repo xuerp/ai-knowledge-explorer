@@ -813,7 +813,7 @@ export const adminApi = {
       token,
     ),
 
-  extractSource: (token: string, id: string, maxCandidates = 10, snapshotId?: string) =>
+  extractSource: (token: string, id: string, maxCandidates = 5, snapshotId?: string) =>
     request<ReviewQueueItem[]>(
       `/api/v2/admin/sources/${encodeURIComponent(id)}/extract`,
       { method: "POST", body: JSON.stringify({ maxCandidates, snapshotId }) },
