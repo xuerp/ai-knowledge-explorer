@@ -128,11 +128,13 @@ class StructuredExtractionService:
         api_key: str | None,
         model: str | None,
         *,
+        response_timeout_seconds: float = 80.0,
         transport: httpx.BaseTransport | None = None,
     ):
         self.api_url = api_url
         self.api_key = api_key
         self.model = model
+        self.response_timeout_seconds = response_timeout_seconds
         self.transport = transport
         self._response_format_mode = "json_schema"
 
@@ -467,7 +469,7 @@ class StructuredExtractionService:
                 payload,
                 schema=schema,
                 schema_name="ai_radar_facts",
-                timeout_seconds=60.0,
+                timeout_seconds=self.response_timeout_seconds,
             )
             extracted = _parse_extraction_envelope(body)
         except httpx.HTTPStatusError as error:

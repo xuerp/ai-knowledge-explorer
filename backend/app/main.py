@@ -247,6 +247,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app_settings.extraction_api_url,
         app_settings.extraction_api_key,
         app_settings.extraction_model,
+        response_timeout_seconds=app_settings.extraction_response_timeout_seconds,
     )
     email_delivery = EmailDeliveryService(
         app_settings.smtp_host,

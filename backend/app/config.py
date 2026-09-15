@@ -37,6 +37,7 @@ class Settings:
     extraction_api_url: str | None = None
     extraction_api_key: str | None = None
     extraction_model: str | None = None
+    extraction_response_timeout_seconds: int = 80
     auto_extraction_max_snapshots_per_cycle: int = 0
     auto_extraction_max_candidates_per_snapshot: int = 10
     auto_extraction_retry_minutes: int = 360
@@ -95,6 +96,10 @@ class Settings:
             )
         if not 1 <= self.auto_extraction_retry_minutes <= 1440:
             raise ValueError("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440.")
+        if not 30 <= self.extraction_response_timeout_seconds <= 85:
+            raise ValueError(
+                "AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS must be between 30 and 85."
+            )
         if not 0 <= self.relation_backfill_max_snapshots <= 10:
             raise ValueError("AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS must be between 0 and 10.")
         if self.relation_backfill_max_snapshots > 0 and not self.relation_backfill_batch_id:
@@ -204,6 +209,9 @@ class Settings:
             extraction_api_url=os.getenv("AI_RADAR_EXTRACTION_API_URL") or None,
             extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
+            extraction_response_timeout_seconds=int(
+                os.getenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "80")
+            ),
             auto_extraction_max_snapshots_per_cycle=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")
             ),
