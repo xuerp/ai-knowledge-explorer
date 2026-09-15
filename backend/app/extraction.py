@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 from datetime import UTC, datetime
-from time import perf_counter
+from time import perf_counter, sleep
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -287,6 +287,8 @@ class StructuredExtractionService:
             if self._response_format_mode == "json_object"
             else ("json_schema", "json_object")
         )
+        retryable_statuses = {429, 502, 503, 504}
+        deadline = perf_counter() + timeout_seconds
         with httpx.Client(
             transport=self.transport,
             timeout=httpx.Timeout(timeout_seconds, connect=10.0),
@@ -304,11 +306,24 @@ class StructuredExtractionService:
                     }
                 else:
                     response_format = {"type": "json_object"}
-                response = client.post(
-                    self.api_url or "",
-                    headers={"Authorization": f"Bearer {self.api_key}"},
-                    json={**payload, "response_format": response_format},
-                )
+                response: httpx.Response | None = None
+                for attempt in range(2):
+                    remaining_seconds = max(0.1, deadline - perf_counter())
+                    response = client.post(
+                        self.api_url or "",
+                        headers={"Authorization": f"Bearer {self.api_key}"},
+                        json={**payload, "response_format": response_format},
+                        timeout=httpx.Timeout(
+                            remaining_seconds,
+                            connect=min(10.0, remaining_seconds),
+                        ),
+                    )
+                    if response.status_code not in retryable_statuses or attempt == 1:
+                        break
+                    retry_delay = min(0.25, max(0.0, deadline - perf_counter()))
+                    if retry_delay:
+                        sleep(retry_delay)
+                assert response is not None
                 if (
                     mode == "json_schema"
                     and response.status_code in {400, 422}

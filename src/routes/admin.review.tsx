@@ -906,7 +906,7 @@ function AdminReviewPage() {
         `正在批量抽取 ${index + 1}/${plan.length}：${item.sourceTitle}。已生成 ${created.length} 条候选。`,
       );
       try {
-        created.push(...(await adminApi.extractSource(token, item.sourceId, 15, item.snapshotId)));
+        created.push(...(await adminApi.extractSource(token, item.sourceId, 5, item.snapshotId)));
       } catch (failure) {
         failures.push(
           `${item.sourceTitle}：${failure instanceof Error ? failure.message : "抽取失败"}`,

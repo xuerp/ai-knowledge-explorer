@@ -39,7 +39,7 @@ class Settings:
     extraction_model: str | None = None
     extraction_response_timeout_seconds: int = 80
     auto_extraction_max_snapshots_per_cycle: int = 0
-    auto_extraction_max_candidates_per_snapshot: int = 10
+    auto_extraction_max_candidates_per_snapshot: int = 5
     auto_extraction_retry_minutes: int = 360
     auto_approve_grounded_relations: bool = False
     relation_backfill_batch_id: str | None = None
@@ -216,7 +216,7 @@ class Settings:
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")
             ),
             auto_extraction_max_candidates_per_snapshot=int(
-                os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT", "10")
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT", "5")
             ),
             auto_extraction_retry_minutes=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES", "360")

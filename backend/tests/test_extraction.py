@@ -454,6 +454,47 @@ def test_extraction_classifies_provider_failure_without_leaking_response_body():
     assert "secret" not in str(caught.value)
 
 
+def test_extraction_retries_transient_provider_failure_once():
+    attempts = 0
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(503, text="temporary overload")
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"content": '{"facts":[]}'}}]},
+        )
+
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+    source = SourceRecord(
+        id="source-test",
+        url="https://example.com/spec",
+        title="Official specification",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-test",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="Official source text.",
+        observed_at=datetime.now(UTC),
+    )
+
+    assert service.extract(source, snapshot, 5) == []
+    assert attempts == 2
+
+
 def test_extraction_compatibility_normalizes_fenced_top_level_array():
     def handler(request: httpx.Request) -> httpx.Response:
         request_json = json.loads(request.content)
