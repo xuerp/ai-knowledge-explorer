@@ -1313,6 +1313,96 @@ def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient)
     assert payload["reviewCandidates"] == []
     assert payload["syncRuns"] == []
     assert "c-gpt5-1m" not in {claim["id"] for claim in payload["claims"]}
+    assert payload["changes"] == []
+
+
+def test_changes_project_only_current_approved_dated_claims_with_anchored_evidence(
+    client: TestClient,
+):
+    def add_review(
+        suffix: str,
+        *,
+        status: str = "approved",
+        lifecycle: str = "current",
+        fact_date: str | None = "2026-08-20",
+        observed_at: str | None = None,
+        excerpt: str = "Official release notes confirm the update.",
+        entity_id: str = "e-gpt",
+        url: str | None = None,
+    ) -> None:
+        claim_id = f"claim-change-{suffix}"
+        evidence_id = f"evidence-change-{suffix}"
+        claim = {
+            "id": claim_id,
+            "entityId": entity_id,
+            "text": {"zh": f"审核事实 {suffix}", "en": f"Reviewed fact {suffix}"},
+            "confidence": "verified",
+            "sourceIds": [evidence_id],
+            "updatedAt": "2026-09-01",
+            "validFrom": fact_date,
+            "observedAt": observed_at,
+        }
+        evidence = {
+            "id": evidence_id,
+            "title": {"zh": "官方说明", "en": "Official notes"},
+            "url": url or f"https://example.com/{suffix}",
+            "publisher": "Example",
+            "publishedAt": "2026-08-20",
+            "collectedAt": "2026-08-21",
+            "type": "official",
+            "sourceExcerpt": excerpt,
+        }
+        with client.app.state.database.session() as session:
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-change-{suffix}",
+                    entity_id=entity_id,
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim, ensure_ascii=False),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence], ensure_ascii=False),
+                    conflict_ids_json="[]",
+                    status=status,
+                    lifecycle_status=lifecycle,
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC) if status == "approved" else None,
+                    reviewed_by="reviewer@example.com" if status == "approved" else None,
+                    version=1,
+                )
+            )
+            session.commit()
+
+    add_review("valid")
+    add_review("observed", fact_date=None, observed_at="2026-08-21T12:00:00Z")
+    add_review("pending", status="pending")
+    add_review("historical", lifecycle="superseded")
+    add_review("undated", fact_date=None)
+    add_review("unanchored", excerpt="")
+    add_review("unknown-entity", entity_id="e-missing")
+    add_review("bad-url", url="https://[invalid")
+
+    payload = client.get("/api/v2/snapshot").json()
+    assert payload["changes"] == [
+        {
+            "id": "change-claim-claim-change-observed",
+            "entityId": "e-gpt",
+            "date": "2026-08-21",
+            "summary": {"zh": "审核事实 observed", "en": "Reviewed fact observed"},
+            "kind": "updated",
+            "confidence": "verified",
+            "sourceIds": ["evidence-change-observed"],
+        },
+        {
+            "id": "change-claim-claim-change-valid",
+            "entityId": "e-gpt",
+            "date": "2026-08-20",
+            "summary": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+            "kind": "updated",
+            "confidence": "verified",
+            "sourceIds": ["evidence-change-valid"],
+        },
+    ]
+    assert any(item["id"] == "evidence-change-valid" for item in payload["evidence"])
 
 
 def test_live_mode_fails_closed_until_data_quality_is_ready(tmp_path: Path):

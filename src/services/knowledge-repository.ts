@@ -151,8 +151,10 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
     return (await response.json()) as T;
   }
 
-  getSnapshot(signal?: AbortSignal) {
-    return this.request<KnowledgeSnapshot>("/api/v2/snapshot", {}, signal);
+  async getSnapshot(signal?: AbortSignal) {
+    const snapshot = await this.request<KnowledgeSnapshot | null>("/api/v2/snapshot", {}, signal);
+    if (!snapshot) throw new Error("Knowledge snapshot is unavailable");
+    return snapshot;
   }
 
   getEntities(query: EntityQuery = {}, signal?: AbortSignal) {

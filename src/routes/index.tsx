@@ -2,10 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { ArrowRight, Check, ExternalLink, Info, Search, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
+import { DataStatePanel } from "@/components/data-state";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { ChangeEvent, Entity, Evidence } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { pick, useApp } from "@/lib/app-state";
+import { knowledgeRepository } from "@/services/knowledge-repository";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,14 +43,44 @@ function HomePage() {
     () => false,
   );
   const snapshot = hydrated
-    ? (snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT)
-    : DEMO_KNOWLEDGE_SNAPSHOT;
-  const showingSampleSnapshot = snapshot.meta.mode === "demo";
+    ? snapshotQuery.data
+    : knowledgeRepository.mode === "demo"
+      ? DEMO_KNOWLEDGE_SNAPSHOT
+      : undefined;
   const [timeFilter, setTimeFilter] = useState("all");
   const [domainFilter, setDomainFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("model");
   const [evidenceFilter, setEvidenceFilter] = useState("all");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [selectedId, setSelectedId] = useState("");
+
+  if (!snapshot) {
+    return (
+      <AppShell>
+        <div className="page-container">
+          <DataStatePanel
+            kind={snapshotQuery.unavailableKind}
+            title={
+              snapshotQuery.error
+                ? t("变化数据暂不可用", "Change data is unavailable")
+                : t("正在加载变化数据", "Loading change data")
+            }
+            description={
+              snapshotQuery.error
+                ? t(
+                    "无法获取当前数据。请检查连接后重试。",
+                    "Current data could not be loaded. Check your connection and retry.",
+                  )
+                : t("正在连接数据服务。", "Connecting to the data service.")
+            }
+            onRetry={snapshotQuery.error ? () => void snapshotQuery.refetch() : undefined}
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
+  const showingSampleSnapshot = snapshot.meta.mode === "demo";
   const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
   const cutoff = new Date(snapshot.meta.retrievedAt);
   cutoff.setUTCDate(cutoff.getUTCDate() - 90);
@@ -65,13 +97,10 @@ function HomePage() {
       return true;
     })
     .slice(0, 6);
-  const [selectedId, setSelectedId] = useState(snapshot.changes[0]?.id ?? "");
   const selectedChange =
-    latestChanges.find((change) => change.id === selectedId) ??
-    latestChanges[0] ??
-    snapshot.changes[0];
-  const hasFilteredChanges = latestChanges.length > 0;
+    latestChanges.find((change) => change.id === selectedId) ?? latestChanges[0];
   const selectedEntity = selectedChange ? entityById.get(selectedChange.entityId) : undefined;
+  const hasFilteredChanges = latestChanges.length > 0 && Boolean(selectedEntity);
   const selectedSources = selectedChange
     ? (selectedChange.sourceIds
         ?.map((id) => snapshot.evidence.find((source) => source.id === id))
@@ -87,8 +116,6 @@ function HomePage() {
     setEvidenceFilter("all");
     setVerifiedOnly(false);
   };
-
-  if (!selectedChange || !selectedEntity) return null;
 
   return (
     <AppShell>
@@ -190,7 +217,7 @@ function HomePage() {
                 </details>
               )}
             </header>
-            {hasFilteredChanges ? (
+            {hasFilteredChanges && selectedChange && selectedEntity ? (
               <>
                 <aside className="change-index">
                   <div className="workspace-panel-title">
@@ -252,7 +279,7 @@ function HomePage() {
                       <path className="is-evidence" d="M580 234 C642 248 673 300 714 316" />
                     </svg>
                     <div className="fact-stack">
-                      {factFragments(selectedChange, selectedEntity, lang).map((fact, index) => (
+                      {factFragments(selectedChange, lang).map((fact, index) => (
                         <div
                           className="fact-chip"
                           key={`${selectedChange.id}-${fact}`}
@@ -297,16 +324,27 @@ function HomePage() {
             ) : (
               <div className="radar-empty" role="status" aria-live="polite">
                 <span className="radar-empty__mark" aria-hidden="true" />
-                <h2>{t("没有符合条件的变化", "No changes match these filters")}</h2>
+                <h2>
+                  {snapshot.changes.length === 0
+                    ? t("暂无可展示的变化", "No changes to display yet")
+                    : t("没有符合条件的变化", "No changes match these filters")}
+                </h2>
                 <p>
-                  {t(
-                    "当前组合过于严格。清除筛选后可重新查看全部可追溯变化。",
-                    "This combination is too narrow. Reset the filters to see all traceable changes.",
-                  )}
+                  {snapshot.changes.length === 0
+                    ? t(
+                        "当前没有符合审核与证据要求的变化。",
+                        "No changes currently meet the review and evidence requirements.",
+                      )
+                    : t(
+                        "当前组合过于严格。清除筛选后可重新查看全部可追溯变化。",
+                        "This combination is too narrow. Reset the filters to see all traceable changes.",
+                      )}
                 </p>
-                <button type="button" onClick={resetFilters}>
-                  {t("清除筛选", "Reset filters")}
-                </button>
+                {snapshot.changes.length > 0 && (
+                  <button type="button" onClick={resetFilters}>
+                    {t("清除筛选", "Reset filters")}
+                  </button>
+                )}
               </div>
             )}
           </section>
@@ -359,11 +397,13 @@ function HomePage() {
                       </span>
                       <span role="cell">{entity.vendor || "—"}</span>
                       <span className="model-table__change" role="cell">
-                        {latest ? pick(latest.summary, lang) : pick(entity.summary, lang)}
+                        {latest
+                          ? pick(latest.summary, lang)
+                          : t("暂无已核验变化", "No reviewed change yet")}
                       </span>
-                      <time role="cell" dateTime={latest?.date || entity.lastUpdatedAt}>
-                        {latest?.date || entity.lastUpdatedAt}
-                      </time>
+                      <span role="cell">
+                        {latest ? <time dateTime={latest.date}>{latest.date}</time> : "—"}
+                      </span>
                       <span role="cell">{sourceCount || "—"}</span>
                       <span className="model-table__tags" role="cell">
                         {entity.tags.slice(0, 2).join(" · ")}
@@ -477,20 +517,13 @@ function EvidenceInspector({
   );
 }
 
-function factFragments(change: ChangeEvent, entity: Entity, lang: "zh" | "en") {
+function factFragments(change: ChangeEvent, lang: "zh" | "en") {
   const summary = pick(change.summary, lang);
   const parts = summary
     .split(lang === "zh" ? /[，。；]/ : /[,.;]/)
     .map((part) => part.trim())
     .filter(Boolean);
-  const identity = entity.vendor
-    ? lang === "zh"
-      ? `${entity.vendor} 发布`
-      : `Published by ${entity.vendor}`
-    : lang === "zh"
-      ? "实体已识别"
-      : "Entity identified";
-  return Array.from(new Set([identity, ...parts, ...entity.tags.slice(0, 2)])).slice(0, 5);
+  return Array.from(new Set(parts)).slice(0, 5);
 }
 
 function entityDisplayName(entity: Entity, lang: "zh" | "en") {

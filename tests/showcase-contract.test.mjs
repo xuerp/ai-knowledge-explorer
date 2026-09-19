@@ -4,8 +4,11 @@ import test from "node:test";
 
 const read = (path) => readFile(path, "utf8");
 
-test("公开首页先呈现产品价值，不被知识快照加载阻断", async () => {
-  const source = await read("src/routes/index.tsx");
+test("公开首页仅在演示模式展示示例，API 不可用时显式提示", async () => {
+  const [source, repository] = await Promise.all([
+    read("src/routes/index.tsx"),
+    read("src/services/knowledge-repository.ts"),
+  ]);
 
   assert.match(source, /基于可验证的最新变化，做出更可靠的 AI 选择/);
   assert.match(source, /GPT、Claude、Gemini/);
@@ -18,8 +21,23 @@ test("公开首页先呈现产品价值，不被知识快照加载阻断", async
   )?.[0];
   assert.ok(coreEntitySelection);
   assert.doesNotMatch(coreEntitySelection, /\.slice\(/);
-  assert.match(source, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
-  assert.doesNotMatch(source, /if \(!snapshotQuery\.data\)\s*\{\s*return/);
+  assert.match(source, /knowledgeRepository\.mode === "demo"/);
+  assert.match(source, /if \(!snapshot\)\s*\{\s*return/);
+  assert.match(source, /onRetry=\{snapshotQuery\.error/);
+  assert.doesNotMatch(source, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
+  assert.match(source, /snapshot\.changes\.length === 0/);
+  assert.match(source, /当前没有符合审核与证据要求的变化/);
+  assert.match(source, /暂无已核验变化/);
+  assert.match(source, /hasFilteredChanges && selectedChange && selectedEntity \?/);
+  assert.doesNotMatch(source, /if \(!selectedChange \|\| !selectedEntity\)/);
+  assert.doesNotMatch(
+    source,
+    /latest \? pick\(latest\.summary, lang\) : pick\(entity\.summary, lang\)/,
+  );
+  assert.match(
+    repository,
+    /if \(!snapshot\) throw new Error\("Knowledge snapshot is unavailable"\)/,
+  );
 });
 
 test("决策助手进入一级导航，关系图谱只保留二级入口", async () => {
