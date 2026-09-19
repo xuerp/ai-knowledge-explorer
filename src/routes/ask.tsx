@@ -264,11 +264,11 @@ function AskPage() {
           <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
             {t(
               snapshotQuery.error
-                ? "实时接口暂时不可用，当前明确使用内置演示快照完成预置研究。"
-                : "实时接口正在连接，当前可先使用内置演示快照体验预置研究。",
+                ? "实时接口暂时不可用，当前使用内置示例快照完成预置研究。"
+                : "实时接口正在连接，当前可先使用内置示例快照体验预置研究。",
               snapshotQuery.error
-                ? "The live API is temporarily unavailable; preset research explicitly uses the bundled demo snapshot."
-                : "The live API is connecting; preset research can use the bundled demo snapshot now.",
+                ? "The live API is temporarily unavailable; preset research uses the bundled sample snapshot."
+                : "The live API is connecting; preset research can use the bundled sample snapshot now.",
             )}
           </div>
         </div>
@@ -665,8 +665,8 @@ function toShowcaseResearch(
                 state: "inferred" as const,
                 detail:
                   lang === "zh"
-                    ? "公开演示仅覆盖预置问题与快照证据。"
-                    : "The public demo covers only preset questions and snapshot evidence.",
+                    ? "公开研究仅覆盖预置问题与快照证据。"
+                    : "Public research covers only preset questions and snapshot evidence.",
                 claimIds: answer.claimIds,
               },
             ],
