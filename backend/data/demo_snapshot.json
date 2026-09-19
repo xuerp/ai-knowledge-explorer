@@ -4,8 +4,8 @@
     "freshness": "fresh",
     "retrievedAt": "2026-07-25T00:00:00Z",
     "message": {
-      "zh": "当前展示固定演示快照，不代表实时产品事实。",
-      "en": "Showing a fixed demo snapshot, not live product facts."
+      "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
+      "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
     }
   },
   "entities": [
