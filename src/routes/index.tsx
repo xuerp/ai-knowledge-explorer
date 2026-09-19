@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
-import { ArrowRight, Check, ExternalLink, Search, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, Info, Search, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { ChangeEvent, Entity, Evidence } from "@/domain/types";
@@ -43,7 +43,6 @@ function HomePage() {
   const snapshot = hydrated
     ? (snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT)
     : DEMO_KNOWLEDGE_SNAPSHOT;
-  const showingBundledSnapshot = !hydrated || !snapshotQuery.data;
   const showingSampleSnapshot = snapshot.meta.mode === "demo";
   const [timeFilter, setTimeFilter] = useState("all");
   const [domainFilter, setDomainFilter] = useState("all");
@@ -173,18 +172,23 @@ function HomePage() {
                   )}
                 </p>
               </div>
-              <div className="radar-heading__status">
-                <span
-                  className={
-                    showingSampleSnapshot || showingBundledSnapshot ? "is-demo" : "is-live"
-                  }
-                />
-                {showingSampleSnapshot
-                  ? t("示例快照 · 非实时", "Sample snapshot · not live")
-                  : showingBundledSnapshot
-                    ? t("本地快照 · 正在连接", "Local snapshot · connecting")
-                    : t("已审核数据 · 已同步", "Reviewed data · synced")}
-              </div>
+              {showingSampleSnapshot && (
+                <details className="radar-heading__disclosure">
+                  <summary>
+                    <Info aria-hidden="true" />
+                    {t("数据说明", "About the data")}
+                  </summary>
+                  <div className="radar-heading__disclosure-panel">
+                    <p>
+                      {t(
+                        "本页当前使用固定示例内容，不代表实时产品事实。重要结论请核对日期与原始来源。",
+                        "This page currently uses fixed sample content, not live product facts. Verify dates and original sources before relying on important conclusions.",
+                      )}
+                    </p>
+                    <Link to="/quality">{t("查看数据质量", "View data quality")}</Link>
+                  </div>
+                </details>
+              )}
             </header>
             {hasFilteredChanges ? (
               <>
