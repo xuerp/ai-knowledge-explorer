@@ -67,7 +67,7 @@ export function DataFreshnessBadge({ meta }: { meta: DataMeta }) {
       className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${FRESHNESS_STYLE[meta.freshness]}`}
       title={meta.message ? pick(meta.message, lang) : undefined}
     >
-      {meta.mode === "demo" ? t("演示快照", "Demo snapshot") : label}
+      {meta.mode === "demo" ? t("示例快照", "Sample snapshot") : label}
       {meta.mode === "live" && ` · ${label}`}
     </span>
   );

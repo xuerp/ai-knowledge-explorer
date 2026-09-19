@@ -44,6 +44,7 @@ function HomePage() {
     ? (snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT)
     : DEMO_KNOWLEDGE_SNAPSHOT;
   const showingBundledSnapshot = !hydrated || !snapshotQuery.data;
+  const showingSampleSnapshot = snapshot.meta.mode === "demo";
   const [timeFilter, setTimeFilter] = useState("all");
   const [domainFilter, setDomainFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("model");
@@ -173,10 +174,16 @@ function HomePage() {
                 </p>
               </div>
               <div className="radar-heading__status">
-                <span className={showingBundledSnapshot ? "is-demo" : "is-live"} />
-                {showingBundledSnapshot
-                  ? t("演示快照 · 可追溯", "Demo snapshot · traceable")
-                  : t("实时数据 · 已同步", "Live data · synced")}
+                <span
+                  className={
+                    showingSampleSnapshot || showingBundledSnapshot ? "is-demo" : "is-live"
+                  }
+                />
+                {showingSampleSnapshot
+                  ? t("示例快照 · 非实时", "Sample snapshot · not live")
+                  : showingBundledSnapshot
+                    ? t("本地快照 · 正在连接", "Local snapshot · connecting")
+                    : t("已审核数据 · 已同步", "Reviewed data · synced")}
               </div>
             </header>
             {hasFilteredChanges ? (

@@ -93,8 +93,8 @@ function QualityPage() {
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                 <p>
                   {t(
-                    "当前仍为演示数据模式。以下数字描述已核验快照和固定评估，不代表全网实时覆盖，也不用于强行宣称 Live Ready。",
-                    "The product remains in demo-data mode. These figures describe the verified snapshot and fixed evaluation; they do not claim real-time global coverage or force a Live Ready conclusion.",
+                    "当前包含示例快照与固定评测。以下数字不代表全网实时覆盖，也不能作为正式数据验收结果。",
+                    "This includes a sample snapshot and fixed evaluation. These figures do not represent real-time global coverage or formal data acceptance.",
                   )}
                 </p>
               </div>

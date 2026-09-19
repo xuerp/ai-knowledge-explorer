@@ -17,8 +17,8 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
       <BottomNav />
       <footer className="hidden border-t border-border bg-card/70 md:block">
         <div className="page-container py-3 text-[11px] text-muted-foreground flex flex-wrap gap-4 justify-between">
-          <span>在线 · 演示数据模式 · AI Radar V2</span>
-          <span>所有事实、评分与关系均标记来源和可信度，不代表真实产品结论。</span>
+          <span>AI Radar V2 · AI 研究工作台</span>
+          <span>部分页面包含示例内容；重要决策请核对数据状态、日期与原始来源。</span>
         </div>
       </footer>
     </div>

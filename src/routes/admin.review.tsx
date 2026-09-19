@@ -1803,7 +1803,7 @@ function AdminReviewPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               当前 {workspace.quality.entityCount} 个实体、{workspace.quality.claimCount} 条 Claim、
               {workspace.quality.relationCount}{" "}
-              条关系。演示和工程闭环可用，但不能据此宣称正式数据完备。
+              条关系。当前数据可用于功能与检索验证，达到关系覆盖门槛后才能切换正式数据模式。
             </p>
             {workspace.quality.evaluationScope === "overview" && (
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">

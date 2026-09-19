@@ -67,7 +67,7 @@ def build_production_readiness(
             "正式数据模式",
             inputs.data_mode == "live",
             "公开目录已使用正式数据模式。",
-            "当前仍为 demo 模式，页面内容不能作为正式数据验收结果。",
+            "当前仍处于示例数据模式（demo），页面内容仅供功能验证，不能作为正式数据验收结果。",
             "完成真实采集和质量验收后设置 AI_RADAR_DATA_MODE=live。",
         ),
         _check(

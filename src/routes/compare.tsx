@@ -65,8 +65,8 @@ function ComparePage() {
       <PageHeader
         title={t("AI 路线对比", "Compare AI product directions")}
         subtitle={t(
-          "默认对比 GPT、Claude 与 Gemini 的长期定位、能力重点和生态方向；需要采购决策时再切换到具体版本。所有内容均保留演示数据边界。",
-          "Start with GPT, Claude, and Gemini at the family level, then switch to concrete versions for purchasing decisions. Demo-data boundaries remain explicit.",
+          "对比 GPT、Claude 与 Gemini 的长期定位、能力重点和生态方向；采购决策请切换到具体版本并核对官方来源。",
+          "Compare GPT, Claude, and Gemini at the family level; for purchasing decisions, switch to concrete versions and verify official sources.",
         )}
       />
       <div className="page-container space-y-6 pb-12 pt-3">
@@ -74,11 +74,11 @@ function ComparePage() {
           <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
             {t(
               catalogQuery.error
-                ? "实时目录暂时不可用，当前明确使用内置演示快照进行比较。"
-                : "实时目录正在连接，当前先使用内置演示快照进行比较。",
+                ? "实时目录暂时不可用，当前使用内置示例快照进行比较。"
+                : "实时目录正在连接，当前先使用内置示例快照进行比较。",
               catalogQuery.error
-                ? "The live catalog is temporarily unavailable; comparison explicitly uses the bundled demo snapshot."
-                : "The live catalog is connecting; comparison uses the bundled demo snapshot in the meantime.",
+                ? "The live catalog is temporarily unavailable; comparison uses the bundled sample snapshot."
+                : "The live catalog is connecting; comparison uses the bundled sample snapshot in the meantime.",
             )}
           </div>
         )}
