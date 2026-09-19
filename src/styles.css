@@ -429,28 +429,67 @@
   overflow-wrap: anywhere;
 }
 
-.radar-heading__status {
+.radar-heading__disclosure {
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.radar-heading__disclosure summary {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding-bottom: 0.12rem;
+  gap: 0.35rem;
+  min-height: 1.75rem;
+  cursor: pointer;
+  list-style: none;
   color: var(--color-muted-foreground);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   white-space: nowrap;
 }
 
-.radar-heading__status > span {
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: var(--color-unverified);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-unverified) 12%, transparent);
+.radar-heading__disclosure summary::-webkit-details-marker {
+  display: none;
 }
 
-.radar-heading__status > .is-live {
-  background: var(--color-verified);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-verified) 12%, transparent);
+.radar-heading__disclosure summary svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.radar-heading__disclosure summary:hover {
+  color: var(--color-foreground);
+}
+
+.radar-heading__disclosure summary:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+.radar-heading__disclosure-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(20rem, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  box-shadow: 0 8px 20px rgb(20 31 55 / 0.12);
+}
+
+.radar-heading__disclosure-panel p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.radar-heading__disclosure-panel a {
+  display: inline-block;
+  margin-top: 0.65rem;
+  color: var(--color-signal);
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 0.15rem;
 }
 
 .radar-workspace {
@@ -1212,8 +1251,12 @@
   .radar-heading p {
     margin-top: 0.65rem;
   }
-  .radar-heading__status {
-    margin-top: 0.85rem;
+  .radar-heading__disclosure {
+    margin-top: 0.75rem;
+  }
+  .radar-heading__disclosure-panel {
+    right: auto;
+    left: 0;
   }
   .radar-workspace {
     display: block;
