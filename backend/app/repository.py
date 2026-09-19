@@ -3,9 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlparse
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -27,6 +28,7 @@ from .entity_aliases import (
 )
 from .quality import resolve_claim_entity_reference
 from .schemas import (
+    ChangeEvent,
     Claim,
     Entity,
     Evidence,
@@ -136,6 +138,32 @@ MACHINE_SOURCE_CATALOG = (
 def _parse_datetime(value: str) -> datetime:
     parsed = datetime.fromisoformat(value)
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+def _fact_date(value: str | None) -> str | None:
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError:
+        try:
+            return datetime.fromisoformat(value).date().isoformat()
+        except ValueError:
+            return None
+
+
+def _traceable_evidence(evidence: Evidence) -> bool:
+    try:
+        url = urlparse(evidence.url)
+        return bool(
+            evidence.id
+            and evidence.source_excerpt
+            and evidence.source_excerpt.strip()
+            and url.scheme == "https"
+            and url.hostname
+        )
+    except ValueError:
+        return False
 
 
 class KnowledgeRepository:
@@ -656,6 +684,49 @@ class KnowledgeRepository:
             else claim
             for claim in snapshot.claims
         ]
+        # Changes are a projection of reviewed facts, never of the bundled seed's
+        # editorial change cards. A review date is not the date of the fact.
+        entity_ids = {entity.id for entity in snapshot.entities}
+        public_evidence = {evidence.id: evidence for evidence in snapshot.evidence}
+        changes: list[ChangeEvent] = []
+        for job in jobs:
+            if (
+                job.status != "approved"
+                or job.lifecycle_status != "current"
+                or job.publication_action == "merged-evidence"
+            ):
+                continue
+            claim = self.approved_claim(job)
+            entity_id = claim.entity_id or resolve_claim_entity_reference(claim, snapshot.entities)
+            fact_date = _fact_date(claim.valid_from) or _fact_date(claim.observed_at)
+            if not entity_id or entity_id not in entity_ids or not fact_date:
+                continue
+            approved_evidence_ids = {item.id for item in self.approved_evidence(job)}
+            source_ids = list(
+                dict.fromkeys(
+                    source_id
+                    for source_id in claim.source_ids
+                    if source_id in approved_evidence_ids
+                    and source_id in public_evidence
+                    and _traceable_evidence(public_evidence[source_id])
+                )
+            )
+            if not source_ids:
+                continue
+            changes.append(
+                ChangeEvent(
+                    id=f"change-claim-{claim.id}",
+                    entity_id=entity_id,
+                    date=fact_date,
+                    summary=LocalizedText(zh=claim.text.zh, en=claim.text.en),
+                    kind="updated",
+                    confidence="verified",
+                    source_ids=source_ids,
+                )
+            )
+        snapshot.changes = sorted(
+            changes, key=lambda change: (change.date, change.id), reverse=True
+        )
         snapshot.review_candidates = []
         snapshot.sync_runs = []
         snapshot.meta.mode = self.data_mode
