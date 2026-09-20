@@ -46,6 +46,21 @@ from .schemas import (
 OPEN_REVIEW_STATUSES = {"pending", "needs-more-evidence"}
 logger = logging.getLogger(__name__)
 
+# A validity date on a static capability or price does not make it a change.
+# Only predicates that state an event or an availability transition enter the feed.
+CHANGE_EVENT_PREDICATES = {
+    "release",
+    "released-on",
+    "available-in",
+    "available-on",
+    "available-as",
+    "availability",
+    "expanded-access-to",
+    "deprecated-on",
+    "scheduled-for-retirement-on",
+    "recommended-replacement",
+}
+
 RELATION_PREDICATES: dict[str, RelationKind] = {
     "developed-by": "developed-by",
     "developed by": "developed-by",
@@ -698,8 +713,13 @@ class KnowledgeRepository:
                 continue
             claim = self.approved_claim(job)
             entity_id = claim.entity_id or resolve_claim_entity_reference(claim, snapshot.entities)
-            fact_date = _fact_date(claim.valid_from) or _fact_date(claim.observed_at)
-            if not entity_id or entity_id not in entity_ids or not fact_date:
+            fact_date = _fact_date(claim.valid_from)
+            if (
+                not entity_id
+                or entity_id not in entity_ids
+                or not fact_date
+                or claim.predicate not in CHANGE_EVENT_PREDICATES
+            ):
                 continue
             approved_evidence_ids = {item.id for item in self.approved_evidence(job)}
             source_ids = list(
