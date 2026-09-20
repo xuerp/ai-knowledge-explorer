@@ -391,7 +391,7 @@ function HomePage() {
                       role="row"
                     >
                       <span className="model-table__model" role="cell">
-                        {entityDisplayName(entity, lang)}
+                        {pick(entity.name, lang)}
                       </span>
                       <span role="cell">{entity.vendor || "—"}</span>
                       <span className="model-table__change" role="cell">
@@ -522,10 +522,6 @@ function factFragments(change: ChangeEvent, lang: "zh" | "en") {
     .map((part) => part.trim())
     .filter(Boolean);
   return Array.from(new Set(parts)).slice(0, 5);
-}
-
-function entityDisplayName(entity: Entity, lang: "zh" | "en") {
-  return entity.latestVersion || pick(entity.name, lang);
 }
 
 function confidenceLabel(confidence: ChangeEvent["confidence"], lang: "zh" | "en") {
