@@ -243,7 +243,7 @@ function HomePage() {
                             {String(index + 1).padStart(2, "0")}
                           </span>
                           <span className="change-index__name">
-                            {entity.latestVersion || pick(entity.name, lang)}
+                            {pick(entity.name, lang)}
                             <small>{entity.vendor || pick(entity.name, lang)}</small>
                           </span>
                           <time dateTime={change.date}>
@@ -301,9 +301,7 @@ function HomePage() {
                         <span className={`confidence-dot is-${selectedChange.confidence}`} />
                         {confidenceLabel(selectedChange.confidence, lang)}
                       </div>
-                      <p className="conclusion-card__entity">
-                        {entityDisplayName(selectedEntity, lang)}
-                      </p>
+                      <p className="conclusion-card__entity">{pick(selectedEntity.name, lang)}</p>
                       <h2>{pick(selectedChange.summary, lang)}</h2>
                       <div className="conclusion-card__meta">
                         <span>
@@ -466,7 +464,7 @@ function EvidenceInspector({
       </div>
       <div className="evidence-inspector__entity">
         <p>{entity.vendor || t("模型实体", "Model entity")}</p>
-        <h2>{entityDisplayName(entity, lang)}</h2>
+        <h2>{pick(entity.name, lang)}</h2>
         <div className="evidence-state">
           <span className={`confidence-dot is-${change.confidence}`} />
           {confidenceLabel(change.confidence, lang)}
