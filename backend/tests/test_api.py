@@ -1326,6 +1326,7 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
         lifecycle: str = "current",
         fact_date: str | None = "2026-08-20",
         observed_at: str | None = None,
+        predicate: str = "release",
         excerpt: str = "Official release notes confirm the update.",
         entity_id: str = "e-gpt",
         url: str | None = None,
@@ -1341,6 +1342,7 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
             "updatedAt": "2026-09-01",
             "validFrom": fact_date,
             "observedAt": observed_at,
+            "predicate": predicate,
         }
         evidence = {
             "id": evidence_id,
@@ -1374,6 +1376,7 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
 
     add_review("valid")
     add_review("observed", fact_date=None, observed_at="2026-08-21T12:00:00Z")
+    add_review("static", predicate="supports")
     add_review("pending", status="pending")
     add_review("historical", lifecycle="superseded")
     add_review("undated", fact_date=None)
@@ -1383,15 +1386,6 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
 
     payload = client.get("/api/v2/snapshot").json()
     assert payload["changes"] == [
-        {
-            "id": "change-claim-claim-change-observed",
-            "entityId": "e-gpt",
-            "date": "2026-08-21",
-            "summary": {"zh": "审核事实 observed", "en": "Reviewed fact observed"},
-            "kind": "updated",
-            "confidence": "verified",
-            "sourceIds": ["evidence-change-observed"],
-        },
         {
             "id": "change-claim-claim-change-valid",
             "entityId": "e-gpt",
