@@ -8,6 +8,8 @@
 
 E5 尚未通过，继续保持 `demo/staging`。
 
+`demo` 是门禁通过前的安全状态。生产预检应将它报告为切换警告，真实自动阻塞项仍由邮件、数据质量、运行环境等检查决定。
+
 ## 已核验证据
 
 - 产品功能验收基线为 `f0976baa9baccf203387f17598fcb03c84b57825`；GitHub Quality #326 与 Staging acceptance #42 通过。

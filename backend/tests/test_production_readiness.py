@@ -61,3 +61,13 @@ def test_production_readiness_separates_blockers_and_warnings():
     assert statuses["runtime_environment"] == "blocked"
     assert statuses["worker_heartbeat"] == "blocked"
     assert statuses["legacy_admin_token"] == "warning"
+
+
+def test_demo_mode_is_a_pre_switch_warning_instead_of_a_blocker():
+    report = build_production_readiness(replace(_ready_inputs(), data_mode="demo"))
+    statuses = {check.code: check.status for check in report.checks}
+
+    assert report.automated_ready is True
+    assert report.blocking_count == 0
+    assert report.warning_count == 1
+    assert statuses["live_data_mode"] == "warning"
