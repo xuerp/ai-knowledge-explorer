@@ -5,7 +5,7 @@
 - 状态：当前唯一项目收尾执行清单
 - 更新时间：2026-09-21
 - 工作分支：`codex/productionize`
-- 当前 staging 验收提交：`f0976baa9baccf203387f17598fcb03c84b57825`
+- 产品功能验收基线：`f0976baa9baccf203387f17598fcb03c84b57825`
 - 数据模式：`demo`
 - 适用环境：staging；当前没有已验收的正式 production 环境
 
@@ -24,17 +24,18 @@
 7. 保留用户无关改动；禁止 force push、rebase、amend 或 squash 已推送历史。
 8. 一项节点只有在验收证据实际生成后才能完成，不能以“代码已写”“已发起部署”代替完成。
 
-## 2. 当前核实基线
+## 2. 已归档核实基线
 
 ### 2.1 运行状态
 
-| 项目                   | 当前事实                                                                                     |
+| 项目                   | 2026-09-21 已核实事实                                                                        |
 | ---------------------- | -------------------------------------------------------------------------------------------- |
 | 功能验收基线           | `f0976baa9baccf203387f17598fcb03c84b57825`                                                   |
 | GitHub Quality         | #326 全绿；frontend、backend、deploy-staging 均通过                                          |
 | Staging acceptance     | #42 全绿；双端完整 SHA 匹配并完成 smoke                                                      |
 | Render                 | `/ready` 返回 200，commit `f0976baa9baccf203387f17598fcb03c84b57825`，schema `20260905_0023` |
 | Cloudflare             | 不可变 `/releases/<sha>.txt` 返回完整 commit `f0976baa9baccf203387f17598fcb03c84b57825`      |
+| 只读审计工具           | `1384439dd2170b9983eaf99b0b3d6723b70f44fe`；Quality #328、Staging acceptance #44 全绿        |
 | 公开快照               | 49 Entity / 150 Claim / 171 Evidence / 71 Relation / 55 Timeline / 15 Change                 |
 | 最近一次管理员数据质量 | Evidence 引用覆盖率 100%，核心关系缺口 41                                                    |
 | 核心实体               | 16 个低于最近一次管理员审计的关系覆盖门槛                                                    |
@@ -58,8 +59,8 @@
 
 1. `admin_token.txt` 已从仓库 tip 移除并加入忽略规则；旧静态管理员令牌在运行时禁用，仅接受 JWT。历史提交仍包含文件记录，历史改写不在本轮授权范围内。
 2. GitHub Secret Scanning 已启用；2026-09-21 只读复核显示 0 个未解决 Secret。
-3. GitHub Quality #326、Cloudflare staging、Render staging 和 Staging acceptance #42 已在提交 `f0976baa9baccf203387f17598fcb03c84b57825` 上通过。
-4. `staging-acceptance.yml` 已从 Quality 自动触发，严格匹配双端完整 SHA，并完成 smoke。
+3. 产品功能基线 `f0976baa9baccf203387f17598fcb03c84b57825` 已通过 GitHub Quality #326、Cloudflare staging、Render staging 和 Staging acceptance #42。
+4. 后续只读审计工具提交 `1384439dd2170b9983eaf99b0b3d6723b70f44fe` 已通过 Quality #328 与 Staging acceptance #44；验收日志严格匹配双端完整 SHA，并完成 smoke。
 5. 登录态实时研究、Evidence 定位、Compare 恢复、发布分享和 390px staging 用户流程已完成真实浏览器验收。
 6. 管理员 JWT 只读核验已完成：自动抽取关闭、关系自动批准为 0；开放审核已清零。
 7. GitHub Actions 手动单周期 #1 已成功，但平台未投递任何 `schedule` 事件；定时职责已切回 Cloudflare Cron，GitHub 仅保留 `workflow_dispatch` 手动回退。
@@ -89,7 +90,7 @@
 | -------- | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- |
 | Node 0   | 安全收口与停止未授权抽取      | 部分完成；tip 与扫描已清理，历史凭据轮换待确认 | tip 清理、Secret Scanning、运行时开关响应      |
 | Node 1   | 固化当前代码与 UI 基线        | 已完成；产品闭环提交及后续 CI 修复均已推送     | 完整本地门禁、桌面与真实 390px 验收、有限 diff |
-| Node 2   | 让 CI 和 staging 运行同一提交 | 已完成；Quality #326、双端 SHA、smoke 全部通过 | 绿色 Quality、两端完整 commit、smoke 记录      |
+| Node 2   | 让 CI 和 staging 运行同一提交 | 已完成；功能基线及只读审计工具提交均通过验收   | 绿色 Quality、两端完整 commit、smoke 记录      |
 | Node 3   | 收口开放审核和关系候选        | 已完成；open 0，批准/拒绝审计完整              | 逐条决定记录、操作前后计数、质量报告           |
 | Node 4   | 交付完整产品闭环              | 已完成；staging 登录态与公开流程均通过         | 页面级验收、交互测试、引用链路和任务测试       |
 | Node 4.1 | 确认无人值守调度              | 已完成；Cloudflare Cron 与后端周期均成功       | Cron 运行记录、周期结果、heartbeat             |
