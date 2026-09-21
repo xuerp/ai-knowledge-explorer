@@ -1744,10 +1744,10 @@ def test_admin_production_readiness_reports_blockers_without_secrets(client: Tes
     payload = response.json()
     assert payload["automatedReady"] is False
     assert payload["blockingCount"] > 0
-    assert payload["warningCount"] == 1
+    assert payload["warningCount"] == 2
     checks = {check["code"]: check for check in payload["checks"]}
     assert checks["runtime_environment"]["status"] == "blocked"
-    assert checks["live_data_mode"]["status"] == "blocked"
+    assert checks["live_data_mode"]["status"] == "warning"
     assert checks["database_schema"]["status"] == "blocked"
     assert checks["jwt_authentication"]["status"] == "ready"
     assert checks["legacy_admin_token"]["status"] == "warning"

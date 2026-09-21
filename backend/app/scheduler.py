@@ -88,7 +88,7 @@ class IngestionScheduler:
             session.commit()
             due += 1
 
-            started = datetime.now(UTC)
+            started = current
             try:
                 document = None
                 successful_fetch_url = None
@@ -129,7 +129,10 @@ class IngestionScheduler:
                     snapshot = session.scalars(
                         select(DocumentSnapshotRecord)
                         .where(DocumentSnapshotRecord.source_id == source.id)
-                        .order_by(DocumentSnapshotRecord.observed_at.desc())
+                        .order_by(
+                            DocumentSnapshotRecord.observed_at.desc(),
+                            DocumentSnapshotRecord.id.desc(),
+                        )
                         .limit(1)
                     ).first()
                     session.add(

@@ -62,13 +62,23 @@ def build_production_readiness(
             f"当前环境为 {inputs.environment}，不能作为公网生产实例。",
             "设置 AI_RADAR_ENVIRONMENT=production。",
         ),
-        _check(
-            "live_data_mode",
-            "正式数据模式",
-            inputs.data_mode == "live",
-            "公开目录已使用正式数据模式。",
-            "当前仍处于示例数据模式（demo），页面内容仅供功能验证，不能作为正式数据验收结果。",
-            "完成真实采集和质量验收后设置 AI_RADAR_DATA_MODE=live。",
+        ProductionReadinessCheck(
+            code="live_data_mode",
+            title="正式数据模式",
+            status="ready" if inputs.data_mode == "live" else "warning",
+            detail=(
+                "公开目录已使用正式数据模式。"
+                if inputs.data_mode == "live"
+                else (
+                    "当前仍处于示例数据模式（demo）；这是上线前的安全状态，"
+                    "不会阻止其余自动门禁判断。"
+                )
+            ),
+            action=(
+                None
+                if inputs.data_mode == "live"
+                else "其余自动门禁和外部人工检查通过后，再设置 AI_RADAR_DATA_MODE=live。"
+            ),
         ),
         _check(
             "database_schema",
