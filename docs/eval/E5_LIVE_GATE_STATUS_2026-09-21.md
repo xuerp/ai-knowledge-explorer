@@ -10,8 +10,8 @@ E5 尚未通过，继续保持 `demo/staging`。
 
 ## 已核验证据
 
-- staging 验收提交为 `f0976baa9baccf203387f17598fcb03c84b57825`。
-- GitHub Quality #326 与 Staging acceptance #42 通过。
+- 产品功能验收基线为 `f0976baa9baccf203387f17598fcb03c84b57825`；GitHub Quality #326 与 Staging acceptance #42 通过。
+- 后续只读审计工具提交 `1384439dd2170b9983eaf99b0b3d6723b70f44fe` 通过 Quality #328 与 Staging acceptance #44，双端完整 SHA 一致且 smoke 通过。
 - Render `/ready` 返回 `ok=true`，schema 为 `20260905_0023`，数据模式为 `demo`。
 - Cloudflare 不可变 release marker 与 Render 返回同一完整提交。
 - staging smoke 通过；前端返回 200，公开 API 返回 49 个实体。
