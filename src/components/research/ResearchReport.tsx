@@ -127,7 +127,7 @@ export function ResearchReport({
             </span>
             <span>
               {dataMode === "demo"
-                ? t("数据模式：演示快照", "Data mode: demo snapshot")
+                ? t("数据范围：示例快照", "Data scope: sample snapshot")
                 : t("数据模式：已审核图谱", "Data mode: reviewed graph")}
             </span>
           </div>
@@ -313,7 +313,13 @@ export function ResearchReport({
               <li>· {t("事实与推断分别标记", "Facts and inferences are labelled")}</li>
               <li>· {t("每条结论绑定来源", "Every claim binds to sources")}</li>
               <li>· {t("冲突不会被静默覆盖", "Conflicts are never silently overwritten")}</li>
-              <li>· {t("演示数据不冒充实时结果", "Demo data never masquerades as live")}</li>
+              <li>
+                ·{" "}
+                {t(
+                  "固定快照与实时结果清晰区分",
+                  "Fixed snapshots remain distinct from live results",
+                )}
+              </li>
             </ul>
           </section>
 

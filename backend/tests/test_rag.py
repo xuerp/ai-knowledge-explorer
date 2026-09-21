@@ -14,6 +14,7 @@ from app.rag import (
     SqlAlchemyVectorClaimIndex,
     VectorDocument,
     VectorSearchHit,
+    grounded_retrieval_citations,
 )
 from app.repository import KnowledgeRepository
 
@@ -53,6 +54,39 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
         snapshot.claims.append(unresolved)
         retriever.sync_snapshot(session, snapshot)
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
+
+
+def test_grounded_projection_indexes_timeline_and_relation_knowledge():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        retriever.prepare(session, snapshot)
+
+        assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-r2") is not None
+        assert session.get(RagClaimDocumentRecord, "rag-relation:r16") is not None
+
+    projected_ids = {citation.claim.id for citation in grounded_retrieval_citations(snapshot)}
+    assert "rag-timeline:t-deepseek-r2" in projected_ids
+    assert "rag-relation:r16" in projected_ids
+
+
+def test_claim_only_projection_keeps_alias_evaluation_isolated():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever(include_derived_knowledge=False)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        retriever.prepare(session, snapshot)
+        indexed_ids = set(session.scalars(select(RagClaimDocumentRecord.claim_id)).all())
+
+    assert indexed_ids
+    assert all(not claim_id.startswith("rag-") for claim_id in indexed_ids)
 
 
 def test_claim_embedding_schema_supports_parallel_model_versions():
@@ -166,12 +200,42 @@ def test_lexical_rag_prioritizes_model_facts_for_broad_model_questions():
         repository.seed_catalog(session)
         snapshot = repository.public_snapshot(session)
         result = retriever.search(session, snapshot, "过去一年有哪些模型能力发生了变化？")
+        indexed_rows = list(session.scalars(select(RagClaimDocumentRecord)).all())
 
     retrieved = GoldenQuestionEvaluator._expand_entity_families(
         snapshot,
         {item.claim.entity_id for item in result.citations if item.claim.entity_id},
     )
+    model_entity_ids = {entity.id for entity in snapshot.entities if entity.type == "model"}
     assert {"e-gpt", "e-claude", "e-gemini"}.issubset(retrieved)
+    assert result.diagnostics.candidate_count == sum(
+        row.entity_id in model_entity_ids for row in indexed_rows
+    )
+
+
+def test_lexical_rag_uses_grounded_neighbors_for_relationship_questions():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        result = retriever.search(session, snapshot, "OpenAI 开发了哪些模型或协议？")
+
+    retrieved = GoldenQuestionEvaluator._expand_entity_families(
+        snapshot,
+        {item.claim.entity_id for item in result.citations if item.claim.entity_id},
+    )
+    assert "e-gpt" in retrieved
+
+
+def test_lexical_rag_boosts_availability_predicates_for_platform_questions():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    claim = snapshot.claims[0].model_copy(update={"predicate": "availability"})
+
+    assert LexicalRagRetriever.predicate_intent_score("这个模型在哪些平台提供？", claim) > 0
+    assert LexicalRagRetriever.predicate_intent_score("这个模型价格如何？", claim) == 0
 
 
 def test_lexical_rag_can_find_related_claim_when_entity_has_no_direct_claim():
@@ -361,6 +425,47 @@ def test_hybrid_rag_fuses_results_and_applies_reranker():
     assert embedding.query_calls == 1
     assert vector_index.search_calls == 1
     assert result.citations[0].claim.id == claim_ids[-1]
+
+
+@pytest.mark.parametrize(
+    ("question", "expected_entities"),
+    [
+        ("GPT 和 Claude 的上下文能力如何比较，证据来自哪里？", {"e-gpt", "e-claude"}),
+        (
+            "过去一年图谱中有哪些模型能力发生了变化？",
+            {"e-gpt", "e-claude", "e-gemini"},
+        ),
+    ],
+)
+def test_hybrid_rag_preserves_lexical_entity_coverage_after_vector_fusion(
+    question: str,
+    expected_entities: set[str],
+):
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    lexical = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        lexical.prepare(session, snapshot)
+        all_claim_ids = list(
+            session.scalars(
+                select(RagClaimDocumentRecord.claim_id).order_by(
+                    RagClaimDocumentRecord.claim_id.desc()
+                )
+            ).all()
+        )
+        retriever = HybridRagRetriever(
+            lexical,
+            embedding_provider=FakeEmbeddingProvider(),
+            vector_index=FakeVectorIndex(all_claim_ids),
+            enabled=True,
+        )
+        result = retriever.search(session, snapshot, question, limit=8)
+
+    retrieved = GoldenQuestionEvaluator._citation_entity_ids(snapshot, result.citations)
+    assert expected_entities.issubset(retrieved)
 
 
 def test_hybrid_rag_incrementally_persists_document_embeddings():

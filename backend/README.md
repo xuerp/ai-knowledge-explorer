@@ -133,7 +133,7 @@ POST /api/v2/admin/email-outbox/{outbox_id}/retry
 
 worker 也会按照 `AI_RADAR_DIGEST_TIMEZONE` 和每个账户保存的发送时间生成每日摘要，同一账户同一天最多生成一封。SMTP 已配置时自动投递；未配置时安全保留在 Outbox。SMTP 只能提供“至少一次”投递语义：远端已接收而本地状态尚未提交时，极端故障仍可能造成重复邮件。
 
-管理员审核后台包含“生产上线预检”，也可通过 `GET /api/v2/admin/production-readiness` 读取。它自动检查生产环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、SMTP、采集白名单、自动信源、数据质量和 worker 心跳，并将公网域名、恢复演练、外部监控和供应商额度列为必须人工确认的项目。响应只包含状态、计数和操作建议，不返回凭据。
+管理员审核后台包含“生产上线预检”，也可通过 `GET /api/v2/admin/production-readiness` 读取。它自动检查生产环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、SMTP、采集白名单、自动信源、数据质量和 worker 心跳。上线前的 `demo` 模式作为切换警告，不计入自动阻塞项；其余自动门禁和人工检查通过后才能切换 `live`，切换后该项必须为 `ready`。公网域名、恢复演练、外部监控和供应商额度仍是必须人工确认的项目。响应只包含状态、计数和操作建议，不返回凭据。
 
 管理员仍可使用以下接口手动触发生成和投递：
 

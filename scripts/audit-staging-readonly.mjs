@@ -9,6 +9,9 @@ const endpoints = Object.freeze({
   integrations: "/api/v2/admin/integrations",
   reviewInventory: "/api/v2/admin/review-queue-inventory",
   dataQuality: "/api/v2/admin/data-quality",
+  goldenQuestions: "/api/v2/admin/golden-questions",
+  operations: "/api/v2/admin/operations",
+  productionReadiness: "/api/v2/admin/production-readiness",
   releaseBaseline: "/api/v2/admin/release-baseline",
 });
 
@@ -105,6 +108,33 @@ export async function runReadonlyStagingAudit({
       evidenceReferenceCoverage: result.dataQuality.evidenceReferenceCoverage,
       coreRelationDeficit: result.dataQuality.coreRelationDeficit,
       issues: result.dataQuality.issues,
+    },
+    goldenQuestions: {
+      total: result.goldenQuestions.total,
+      passed: result.goldenQuestions.passed,
+      failed: result.goldenQuestions.failed,
+      passRatio: result.goldenQuestions.passRatio,
+      requiredRatio: result.goldenQuestions.requiredRatio,
+      ready: result.goldenQuestions.ready,
+      retrievalPassRatio: result.goldenQuestions.retrievalPassRatio,
+      ragReady: result.goldenQuestions.ragReady,
+      ragMetrics: result.goldenQuestions.ragMetrics,
+    },
+    operations: {
+      generatedAt: result.operations.generatedAt,
+      heartbeatStatus: result.operations.heartbeatStatus,
+      staleAfterSeconds: result.operations.staleAfterSeconds,
+      worker: result.operations.worker,
+      latestRun: result.operations.recentRuns?.[0] ?? null,
+      queues: result.operations.queues,
+    },
+    readiness: {
+      generatedAt: result.productionReadiness.generatedAt,
+      automatedReady: result.productionReadiness.automatedReady,
+      blockingCount: result.productionReadiness.blockingCount,
+      warningCount: result.productionReadiness.warningCount,
+      checks: result.productionReadiness.checks,
+      manualChecks: result.productionReadiness.manualChecks,
     },
     release: {
       commit: result.releaseBaseline.build?.buildCommit,

@@ -97,10 +97,18 @@ def main() -> None:
     golden_version, samples = load_golden_set(args.golden_set)
 
     before_metrics, before_results, before_dialect = evaluate(
-        before_snapshot, samples, top_k=args.top_k, database_url=args.database_url
+        before_snapshot,
+        samples,
+        top_k=args.top_k,
+        database_url=args.database_url,
+        retriever=LexicalRagRetriever(include_derived_knowledge=False),
     )
     after_metrics, after_results, after_dialect = evaluate(
-        after_snapshot, samples, top_k=args.top_k, database_url=args.database_url
+        after_snapshot,
+        samples,
+        top_k=args.top_k,
+        database_url=args.database_url,
+        retriever=LexicalRagRetriever(include_derived_knowledge=False),
     )
     scrub_runtime_noise(before_results)
     scrub_runtime_noise(after_results)

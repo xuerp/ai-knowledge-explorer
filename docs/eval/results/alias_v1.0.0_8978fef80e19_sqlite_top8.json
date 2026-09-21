@@ -15,10 +15,10 @@
     "metrics": {
       "overall": {
         "samples": 80,
-        "recallAtK": 0.9938,
-        "precisionAtK": 0.1406,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.1422,
         "entityRecallAtK": 0.9938,
-        "passRatio": 0.9875
+        "passRatio": 1.0
       },
       "categories": {
         "entity": {
@@ -37,10 +37,10 @@
         },
         "timeline": {
           "samples": 20,
-          "recallAtK": 0.975,
-          "precisionAtK": 0.125,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.1313,
           "entityRecallAtK": 1.0,
-          "passRatio": 0.95
+          "passRatio": 1.0
         },
         "comparison": {
           "samples": 10,
@@ -392,11 +392,11 @@
           "c-crewai-framework",
           "c-codex-agent",
           "c-gemini-cli-agent",
-          "c-langgraph-framework",
           "c-manus-agent",
-          "c-openai-agents-sdk-framework",
-          "claim-26b1d5225baf5e9bf207",
-          "claim-37d0d89648d2a393d0c3"
+          "c-claude-code-agent",
+          "c-devin-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -841,12 +841,12 @@
         "retrievedClaimIds": [
           "claim-6f9aaf8ca2c9c500592f",
           "claim-e88536c0e20174d180b0",
-          "claim-67cdd43c2bbc5c3c9094",
           "claim-9a28d268080030afc6a8",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-67cdd43c2bbc5c3c9094",
           "claim-1176c1661b5a43b0362d",
           "claim-1b0f409b34194dc20bc3",
-          "claim-263c6b747ae00eacada2",
-          "claim-28476f793c22ba4bc0b4"
+          "claim-263c6b747ae00eacada2"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -1037,9 +1037,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 34,
+          "candidateCount": 65,
           "returnedCount": 8,
-          "filteredCount": 26,
+          "filteredCount": 57,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-claude-code",
@@ -1059,12 +1059,12 @@
         "retrievedClaimIds": [
           "claim-708f41b052b365989d5f",
           "claim-7a980fecbd8f15bc1c83",
-          "claim-3ec4878162e369974a0b",
           "claim-0bb5fe18f20b9d37d620",
-          "claim-14f5b73d8708bbc4a360",
           "claim-21ed507207e65f133a8d",
-          "claim-36513ae7dedc09e1fc93",
-          "claim-46a65791b4fe4379aa31"
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-bedca8ceed0954f4bc73"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -1093,21 +1093,21 @@
         "retrievedClaimIds": [
           "claim-c544c2ed2ada9fb5a54b",
           "claim-44a75c23edcd9681adda",
+          "claim-4fd46ae604567d5065bd",
           "claim-a3787c9919a5b1c28bee",
           "claim-aa028d98f64ccca7df43",
           "claim-aec3ec964cca35fb7ce0",
           "claim-b16d6589cd7104289b88",
-          "claim-d09942e317650cc3435d",
-          "claim-dd07fb638a7530ff2309"
+          "claim-d09942e317650cc3435d"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 31,
+          "candidateCount": 42,
           "returnedCount": 8,
-          "filteredCount": 23,
+          "filteredCount": 34,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-anthropic",
@@ -1139,9 +1139,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 10,
+          "candidateCount": 25,
           "returnedCount": 8,
-          "filteredCount": 2,
+          "filteredCount": 17,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-ernie-50",
@@ -1340,9 +1340,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 13,
+          "candidateCount": 20,
           "returnedCount": 8,
-          "filteredCount": 5,
+          "filteredCount": 12,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-doubao-seed18"
@@ -1440,9 +1440,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 14,
+          "candidateCount": 29,
           "returnedCount": 8,
-          "filteredCount": 6,
+          "filteredCount": 21,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-codex",
@@ -1965,9 +1965,9 @@
           "claim-f160486f6dd1f6c4205d"
         ],
         "retrievedClaimIds": [
-          "c-claude-code-agent",
           "claim-852c17dc4b53a389f8d9",
           "claim-f160486f6dd1f6c4205d",
+          "c-claude-code-agent",
           "claim-0ffb64747e7a0626d653",
           "claim-14f5b73d8708bbc4a360",
           "claim-22b1f161b39c7a6dc3ba",
@@ -2092,18 +2092,18 @@
         ],
         "retrievedClaimIds": [
           "claim-b16d6589cd7104289b88",
+          "claim-fa38113d856b439d625a",
           "claim-44a75c23edcd9681adda",
           "claim-a3787c9919a5b1c28bee",
           "claim-aa028d98f64ccca7df43",
           "claim-aec3ec964cca35fb7ce0",
           "claim-d09942e317650cc3435d",
-          "claim-dd07fb638a7530ff2309",
-          "claim-ee0aaa3d27f27adc8c0f"
+          "claim-dd07fb638a7530ff2309"
         ],
-        "claimRecallAtK": 0.5,
-        "precisionAtK": 0.125,
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
         "entityRecallAtK": 1.0,
-        "passed": false,
+        "passed": true,
         "diagnostics": {
           "candidateCount": 19,
           "returnedCount": 8,
@@ -2622,10 +2622,10 @@
     "metrics": {
       "overall": {
         "samples": 80,
-        "recallAtK": 0.9938,
-        "precisionAtK": 0.1406,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.1422,
         "entityRecallAtK": 0.9938,
-        "passRatio": 0.9875
+        "passRatio": 1.0
       },
       "categories": {
         "entity": {
@@ -2644,10 +2644,10 @@
         },
         "timeline": {
           "samples": 20,
-          "recallAtK": 0.975,
-          "precisionAtK": 0.125,
+          "recallAtK": 1.0,
+          "precisionAtK": 0.1313,
           "entityRecallAtK": 1.0,
-          "passRatio": 0.95
+          "passRatio": 1.0
         },
         "comparison": {
           "samples": 10,
@@ -2999,11 +2999,11 @@
           "c-crewai-framework",
           "c-codex-agent",
           "c-gemini-cli-agent",
-          "c-langgraph-framework",
           "c-manus-agent",
-          "c-openai-agents-sdk-framework",
-          "claim-26b1d5225baf5e9bf207",
-          "claim-37d0d89648d2a393d0c3"
+          "c-claude-code-agent",
+          "c-devin-agent",
+          "claim-0ffb64747e7a0626d653",
+          "claim-14f5b73d8708bbc4a360"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -3448,12 +3448,12 @@
         "retrievedClaimIds": [
           "claim-6f9aaf8ca2c9c500592f",
           "claim-e88536c0e20174d180b0",
-          "claim-67cdd43c2bbc5c3c9094",
           "claim-9a28d268080030afc6a8",
+          "claim-aa5ba10ed3df283961e4",
+          "claim-67cdd43c2bbc5c3c9094",
           "claim-1176c1661b5a43b0362d",
           "claim-1b0f409b34194dc20bc3",
-          "claim-263c6b747ae00eacada2",
-          "claim-28476f793c22ba4bc0b4"
+          "claim-263c6b747ae00eacada2"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -3644,9 +3644,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 34,
+          "candidateCount": 65,
           "returnedCount": 8,
-          "filteredCount": 26,
+          "filteredCount": 57,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-claude-code",
@@ -3666,12 +3666,12 @@
         "retrievedClaimIds": [
           "claim-708f41b052b365989d5f",
           "claim-7a980fecbd8f15bc1c83",
-          "claim-3ec4878162e369974a0b",
           "claim-0bb5fe18f20b9d37d620",
-          "claim-14f5b73d8708bbc4a360",
           "claim-21ed507207e65f133a8d",
-          "claim-36513ae7dedc09e1fc93",
-          "claim-46a65791b4fe4379aa31"
+          "claim-46a65791b4fe4379aa31",
+          "claim-739edf11461045ce579e",
+          "claim-b4baf2feae10cc1faa7b",
+          "claim-bedca8ceed0954f4bc73"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -3700,21 +3700,21 @@
         "retrievedClaimIds": [
           "claim-c544c2ed2ada9fb5a54b",
           "claim-44a75c23edcd9681adda",
+          "claim-4fd46ae604567d5065bd",
           "claim-a3787c9919a5b1c28bee",
           "claim-aa028d98f64ccca7df43",
           "claim-aec3ec964cca35fb7ce0",
           "claim-b16d6589cd7104289b88",
-          "claim-d09942e317650cc3435d",
-          "claim-dd07fb638a7530ff2309"
+          "claim-d09942e317650cc3435d"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 31,
+          "candidateCount": 42,
           "returnedCount": 8,
-          "filteredCount": 23,
+          "filteredCount": 34,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-anthropic",
@@ -3746,9 +3746,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 10,
+          "candidateCount": 25,
           "returnedCount": 8,
-          "filteredCount": 2,
+          "filteredCount": 17,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-ernie-50",
@@ -3947,9 +3947,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 13,
+          "candidateCount": 20,
           "returnedCount": 8,
-          "filteredCount": 5,
+          "filteredCount": 12,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-doubao-seed18"
@@ -4047,9 +4047,9 @@
         "entityRecallAtK": 1.0,
         "passed": true,
         "diagnostics": {
-          "candidateCount": 14,
+          "candidateCount": 29,
           "returnedCount": 8,
-          "filteredCount": 6,
+          "filteredCount": 21,
           "elapsedMs": 0,
           "matchedEntityIds": [
             "e-codex",
@@ -4572,9 +4572,9 @@
           "claim-f160486f6dd1f6c4205d"
         ],
         "retrievedClaimIds": [
-          "c-claude-code-agent",
           "claim-852c17dc4b53a389f8d9",
           "claim-f160486f6dd1f6c4205d",
+          "c-claude-code-agent",
           "claim-0ffb64747e7a0626d653",
           "claim-14f5b73d8708bbc4a360",
           "claim-22b1f161b39c7a6dc3ba",
@@ -4699,18 +4699,18 @@
         ],
         "retrievedClaimIds": [
           "claim-b16d6589cd7104289b88",
+          "claim-fa38113d856b439d625a",
           "claim-44a75c23edcd9681adda",
           "claim-a3787c9919a5b1c28bee",
           "claim-aa028d98f64ccca7df43",
           "claim-aec3ec964cca35fb7ce0",
           "claim-d09942e317650cc3435d",
-          "claim-dd07fb638a7530ff2309",
-          "claim-ee0aaa3d27f27adc8c0f"
+          "claim-dd07fb638a7530ff2309"
         ],
-        "claimRecallAtK": 0.5,
-        "precisionAtK": 0.125,
+        "claimRecallAtK": 1.0,
+        "precisionAtK": 0.25,
         "entityRecallAtK": 1.0,
-        "passed": false,
+        "passed": true,
         "diagnostics": {
           "candidateCount": 19,
           "returnedCount": 8,
