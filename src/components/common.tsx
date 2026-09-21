@@ -10,13 +10,16 @@ export function DemoBadge({ className = "" }: { className?: string }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1 rounded-md border border-signal/25 bg-accent text-signal text-[11px] px-2 py-0.5 font-medium " +
+        "inline-flex items-center gap-1 rounded-md border border-border bg-muted/70 text-muted-foreground text-[11px] px-2 py-0.5 font-medium " +
         className
       }
-      title={t("本项目所有事实均为演示数据", "All facts in this project are demo data")}
+      title={t(
+        "当前包含固定示例内容，并非实时事实；重要结论请结合来源与日期核验",
+        "Contains fixed sample content, not live facts; verify important conclusions against sources and dates",
+      )}
     >
       <Info className="h-3 w-3" />
-      {t("演示数据", "Demo data")}
+      {t("示例快照", "Sample snapshot")}
     </span>
   );
 }

@@ -749,7 +749,7 @@ function DemoFollowingPage() {
                         `本机更新于 ${personalization.updatedAt.slice(0, 10)}`,
                         `Updated on this device ${personalization.updatedAt.slice(0, 10)}`,
                       )
-                    : t("来自演示快照", "From demo snapshot")}
+                    : t("来自示例快照", "From sample snapshot")}
                 </p>
               </div>
               <Link

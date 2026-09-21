@@ -480,7 +480,10 @@ class IngestionService:
         source_id: str | None = None,
         limit: int = 200,
     ) -> list[IngestionRunView]:
-        statement = select(IngestionRunRecord).order_by(IngestionRunRecord.started_at.desc())
+        statement = select(IngestionRunRecord).order_by(
+            IngestionRunRecord.started_at.desc(),
+            IngestionRunRecord.id.desc(),
+        )
         if source_id:
             statement = statement.where(IngestionRunRecord.source_id == source_id)
         rows = session.scalars(statement.limit(limit)).all()

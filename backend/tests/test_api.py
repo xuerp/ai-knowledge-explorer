@@ -631,15 +631,16 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert response.status_code == 200
     payload = response.json()
     assert payload["total"] == 20
-    assert payload["passed"] == 18
-    assert payload["passRatio"] == 0.9
+    assert payload["passed"] == 19
+    assert payload["passRatio"] == 0.95
     assert payload["requiredRatio"] == 0.85
-    assert payload["ready"] is False
-    assert payload["retrievalPassRatio"] == 0.6
-    assert payload["ragReady"] is False
+    assert payload["ready"] is True
+    assert payload["retrievalPassRatio"] == 1.0
+    assert payload["ragReady"] is True
     assert payload["ragMetrics"]["citationCoverage"] == 1.0
     assert payload["ragMetrics"]["lifecyclePrecision"] == 1.0
-    assert payload["ragMetrics"]["entityRecallAt8"] == 0.625
+    assert payload["ragMetrics"]["entityRecallAt8"] == 1.0
+    assert payload["ragMetrics"]["temporalAccuracy"] == 1.0
     assert len(payload["results"]) == 20
 
 
@@ -718,7 +719,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         ).json()
         assert integrations["automaticExtractionEnabled"] is True
         assert integrations["automaticExtractionMaxSnapshotsPerCycle"] == 2
-        assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 10
+        assert integrations["automaticExtractionMaxCandidatesPerSnapshot"] == 5
         assert integrations["automaticExtractionRetryMinutes"] == 360
         assert integrations["automaticRelationApprovalEnabled"] is False
         assert integrations["extractionPipelineVersion"] == EXTRACTION_PIPELINE_VERSION
@@ -1312,6 +1313,90 @@ def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient)
     assert payload["reviewCandidates"] == []
     assert payload["syncRuns"] == []
     assert "c-gpt5-1m" not in {claim["id"] for claim in payload["claims"]}
+    assert payload["changes"] == []
+
+
+def test_changes_project_only_current_approved_dated_claims_with_anchored_evidence(
+    client: TestClient,
+):
+    def add_review(
+        suffix: str,
+        *,
+        status: str = "approved",
+        lifecycle: str = "current",
+        fact_date: str | None = "2026-08-20",
+        observed_at: str | None = None,
+        predicate: str = "release",
+        excerpt: str = "Official release notes confirm the update.",
+        entity_id: str = "e-gpt",
+        url: str | None = None,
+    ) -> None:
+        claim_id = f"claim-change-{suffix}"
+        evidence_id = f"evidence-change-{suffix}"
+        claim = {
+            "id": claim_id,
+            "entityId": entity_id,
+            "text": {"zh": f"审核事实 {suffix}", "en": f"Reviewed fact {suffix}"},
+            "confidence": "verified",
+            "sourceIds": [evidence_id],
+            "updatedAt": "2026-09-01",
+            "validFrom": fact_date,
+            "observedAt": observed_at,
+            "predicate": predicate,
+        }
+        evidence = {
+            "id": evidence_id,
+            "title": {"zh": "官方说明", "en": "Official notes"},
+            "url": url or f"https://example.com/{suffix}",
+            "publisher": "Example",
+            "publishedAt": "2026-08-20",
+            "collectedAt": "2026-08-21",
+            "type": "official",
+            "sourceExcerpt": excerpt,
+        }
+        with client.app.state.database.session() as session:
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-change-{suffix}",
+                    entity_id=entity_id,
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim, ensure_ascii=False),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence], ensure_ascii=False),
+                    conflict_ids_json="[]",
+                    status=status,
+                    lifecycle_status=lifecycle,
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC) if status == "approved" else None,
+                    reviewed_by="reviewer@example.com" if status == "approved" else None,
+                    version=1,
+                )
+            )
+            session.commit()
+
+    add_review("valid")
+    add_review("observed", fact_date=None, observed_at="2026-08-21T12:00:00Z")
+    add_review("static", predicate="supports")
+    add_review("pending", status="pending")
+    add_review("historical", lifecycle="superseded")
+    add_review("undated", fact_date=None)
+    add_review("unanchored", excerpt="")
+    add_review("unknown-entity", entity_id="e-missing")
+    add_review("bad-url", url="https://[invalid")
+
+    payload = client.get("/api/v2/snapshot").json()
+    assert payload["changes"] == [
+        {
+            "id": "change-claim-claim-change-valid",
+            "entityId": "e-gpt",
+            "date": "2026-08-20",
+            "summary": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+            "kind": "updated",
+            "confidence": "verified",
+            "sourceIds": ["evidence-change-valid"],
+        },
+    ]
+    assert any(item["id"] == "evidence-change-valid" for item in payload["evidence"])
 
 
 def test_live_mode_fails_closed_until_data_quality_is_ready(tmp_path: Path):
@@ -1569,7 +1654,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "extractionModel": None,
         "automaticExtractionEnabled": False,
         "automaticExtractionMaxSnapshotsPerCycle": 0,
-        "automaticExtractionMaxCandidatesPerSnapshot": 10,
+        "automaticExtractionMaxCandidatesPerSnapshot": 5,
         "automaticExtractionRetryMinutes": 360,
         "automaticRelationApprovalEnabled": False,
         "retrievalMode": "lexical",
@@ -1659,10 +1744,10 @@ def test_admin_production_readiness_reports_blockers_without_secrets(client: Tes
     payload = response.json()
     assert payload["automatedReady"] is False
     assert payload["blockingCount"] > 0
-    assert payload["warningCount"] == 1
+    assert payload["warningCount"] == 2
     checks = {check["code"]: check for check in payload["checks"]}
     assert checks["runtime_environment"]["status"] == "blocked"
-    assert checks["live_data_mode"]["status"] == "blocked"
+    assert checks["live_data_mode"]["status"] == "warning"
     assert checks["database_schema"]["status"] == "blocked"
     assert checks["jwt_authentication"]["status"] == "ready"
     assert checks["legacy_admin_token"]["status"] == "warning"
@@ -2813,11 +2898,20 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     assert item["snapshotId"] == latest["snapshotId"]
     assert item["snapshotId"] != first["snapshotId"]
 
-    monkeypatch.setattr(
-        StructuredExtractionService,
-        "extract",
-        lambda self, source, snapshot, max_candidates, catalog_entities=None, **kwargs: [],
-    )
+    extraction_limits: list[int] = []
+
+    def extract_with_limit(
+        self,
+        source,
+        snapshot,
+        max_candidates,
+        catalog_entities=None,
+        **kwargs,
+    ):
+        extraction_limits.append(max_candidates)
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", extract_with_limit)
     extracted = client.post(
         "/api/v2/admin/sources/source-extraction-plan/extract",
         headers=headers,
@@ -2825,6 +2919,7 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     )
     assert extracted.status_code == 200
     assert extracted.json() == []
+    assert extraction_limits == [5]
 
     refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
@@ -3286,12 +3381,14 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
         },
     )
     assert agent_research.status_code == 200
-    assert set(agent_research.json()["claimIds"]) == {
+    assert {
         "c-codex-agent",
         "c-claude-code-agent",
         "c-devin-agent",
-    }
-    assert agent_research.json()["steps"][1]["detail"]["en"] == ("Matched 3 entities and 3 claims")
+    }.issubset(set(agent_research.json()["claimIds"]))
+    assert agent_research.json()["steps"][1]["detail"]["en"] == (
+        f"Matched 3 entities and {len(agent_research.json()['claimIds'])} claims"
+    )
 
     published = client.post(
         f"/api/v2/research/{research.json()['id']}/publish",
@@ -3301,8 +3398,12 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert slug
     shared = client.get(f"/api/v2/share/{slug}")
     assert shared.status_code == 200
-    assert shared.json()["citations"][0]["claim"]["id"] == "claim-gpt-notification"
-    assert shared.json()["citations"][0]["evidence"][0]["publisher"] == "Example"
+    shared_notification = next(
+        item
+        for item in shared.json()["citations"]
+        if item["claim"]["id"] == "claim-gpt-notification"
+    )
+    assert shared_notification["evidence"][0]["publisher"] == "Example"
     markdown = client.get(f"/api/v2/share/{slug}/markdown")
     assert markdown.status_code == 200
     assert "claim-gpt-notification" in markdown.text

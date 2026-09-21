@@ -77,3 +77,12 @@ def test_resend_email_provider_requires_https_endpoint(monkeypatch):
 
     with pytest.raises(ValueError, match="must use HTTPS"):
         Settings.from_env()
+
+
+def test_extraction_response_timeout_is_configurable_and_bounded(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "84")
+    assert Settings.from_env().extraction_response_timeout_seconds == 84
+
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "86")
+    with pytest.raises(ValueError, match="EXTRACTION_RESPONSE_TIMEOUT_SECONDS"):
+        Settings.from_env()

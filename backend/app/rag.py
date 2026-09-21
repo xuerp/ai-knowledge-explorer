@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from .database import RagClaimDocumentRecord, RagClaimEmbeddingRecord
 from .entity_aliases import normalize_entity_alias
+from .query_intent import resolve_entity_type_intent
 from .schemas import (
     Claim,
     Entity,
@@ -83,6 +84,114 @@ class VectorDocument:
 class VectorSearchHit:
     claim_id: str
     score: float
+
+
+def grounded_retrieval_citations(
+    snapshot: KnowledgeSnapshot,
+    *,
+    include_derived_knowledge: bool = True,
+) -> list[ResearchCitation]:
+    """Project every grounded knowledge shape into the citation index.
+
+    Claims are only one of the public snapshot's reviewed knowledge shapes. Timeline
+    entries and graph relations also carry explicit evidence, so excluding them makes
+    named entities with no direct Claim impossible to retrieve.
+    """
+    evidence_by_id = {item.id: item for item in snapshot.evidence}
+    entity_by_id = {item.id: item for item in snapshot.entities}
+    citations: list[ResearchCitation] = []
+
+    def evidence_for(source_ids: list[str]) -> list[Evidence]:
+        return [
+            evidence_by_id[source_id] for source_id in source_ids if source_id in evidence_by_id
+        ]
+
+    for claim in snapshot.claims:
+        evidence = evidence_for(claim.source_ids)
+        if (
+            claim.confidence == "verified"
+            and claim.entity_id in entity_by_id
+            and evidence
+            and len(evidence) == len(claim.source_ids)
+        ):
+            citations.append(ResearchCitation(claim=claim, evidence=evidence))
+
+    if not include_derived_knowledge:
+        return citations
+
+    for entity_id, entries in snapshot.timeline.items():
+        entity = entity_by_id.get(entity_id)
+        if entity is None:
+            continue
+        for entry in entries:
+            evidence = evidence_for(entry.source_ids)
+            if (
+                entry.confidence != "verified"
+                or not evidence
+                or len(evidence) != len(entry.source_ids)
+            ):
+                continue
+            citations.append(
+                ResearchCitation(
+                    claim=Claim(
+                        id=f"rag-timeline:{entry.id}",
+                        entity_id=entity_id,
+                        text={
+                            "zh": f"{entity.name.zh}：{entry.title.zh}。{entry.summary.zh}",
+                            "en": f"{entity.name.en}: {entry.title.en}. {entry.summary.en}",
+                        },
+                        confidence="verified",
+                        source_ids=entry.source_ids,
+                        updated_at=entry.date,
+                        subject=entity.name.en,
+                        predicate=f"timeline-{entry.kind}",
+                        object_or_value=entry.title.en,
+                        valid_from=entry.date,
+                    ),
+                    evidence=evidence,
+                )
+            )
+
+    for edge in snapshot.graph.edges:
+        source = entity_by_id.get(edge.from_id)
+        target = entity_by_id.get(edge.to_id)
+        evidence = evidence_for(edge.source_ids)
+        if (
+            source is None
+            or target is None
+            or edge.confidence != "verified"
+            or not evidence
+            or len(evidence) != len(edge.source_ids)
+        ):
+            continue
+        label_zh = edge.label.zh if edge.label else edge.kind
+        label_en = edge.label.en if edge.label else edge.kind
+        updated_at = edge.valid_from or snapshot.graph.valid_at
+        citations.append(
+            ResearchCitation(
+                claim=Claim(
+                    id=f"rag-relation:{edge.id}",
+                    entity_id=edge.from_id,
+                    text={
+                        "zh": f"{source.name.zh}与{target.name.zh}的已核验关系：{label_zh}。",
+                        "en": (
+                            f"Verified relationship between {source.name.en} and "
+                            f"{target.name.en}: {label_en}."
+                        ),
+                    },
+                    confidence="verified",
+                    source_ids=edge.source_ids,
+                    updated_at=updated_at,
+                    subject=source.name.en,
+                    predicate=edge.kind,
+                    object_or_value=target.name.en,
+                    valid_from=edge.valid_from,
+                    valid_to=edge.valid_to,
+                ),
+                evidence=evidence,
+            )
+        )
+    return citations
 
 
 class VectorClaimIndex(Protocol):
@@ -224,6 +333,9 @@ class ClaimReranker(Protocol):
 
 
 class LexicalRagRetriever:
+    def __init__(self, *, include_derived_knowledge: bool = True) -> None:
+        self.include_derived_knowledge = include_derived_knowledge
+
     def prepare(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
         self.sync_snapshot(session, snapshot)
 
@@ -240,7 +352,16 @@ class LexicalRagRetriever:
         if not prepared:
             self.prepare(session, snapshot)
         matched_entity_ids = self.resolve_mentions(snapshot.entities, question)
+        preferred_entity_types = self.resolve_entity_type_intent(question)
         search_entity_ids = self.expand_entity_scope(snapshot.entities, matched_entity_ids)
+        search_entity_ids.update(
+            self.expand_relation_scope(
+                snapshot,
+                matched_entity_ids,
+                preferred_entity_types,
+                question,
+            )
+        )
         base_statement = select(RagClaimDocumentRecord).where(
             RagClaimDocumentRecord.lifecycle_status == "current"
         )
@@ -265,7 +386,15 @@ class LexicalRagRetriever:
         if not search_entity_ids or fallback_reason == "entity-scope-incomplete":
             related_statement = base_statement
             query_text = self.postgres_query_text(question)
-            if session.get_bind().dialect.name == "postgresql" and query_text:
+            preferred_entity_ids = {
+                entity.id for entity in snapshot.entities if entity.type in preferred_entity_types
+            }
+            uses_type_scope = not search_entity_ids and bool(preferred_entity_ids)
+            if uses_type_scope:
+                related_statement = related_statement.where(
+                    RagClaimDocumentRecord.entity_id.in_(preferred_entity_ids)
+                )
+            elif session.get_bind().dialect.name == "postgresql" and query_text:
                 query = func.websearch_to_tsquery("simple", query_text)
                 vector = func.to_tsvector("simple", RagClaimDocumentRecord.search_text)
                 related_statement = related_statement.where(vector.op("@@")(query))
@@ -278,9 +407,6 @@ class LexicalRagRetriever:
             fallback_reason = fallback_reason or "full-text-no-match"
             rows = list(session.scalars(base_statement).all())
         entity_type_by_id = {entity.id: entity.type for entity in snapshot.entities}
-        preferred_entity_types = (
-            self.resolve_entity_type_intent(question) if not matched_entity_ids else set()
-        )
         scored = sorted(
             (
                 (
@@ -300,6 +426,7 @@ class LexicalRagRetriever:
             scored,
             snapshot.entities,
             matched_entity_ids,
+            preferred_entity_types,
             limit,
         )
         citations = self.citations_from_rows(selected)
@@ -317,19 +444,16 @@ class LexicalRagRetriever:
         )
 
     def sync_snapshot(self, session: Session, snapshot: KnowledgeSnapshot) -> None:
-        evidence_by_id = {item.id: item for item in snapshot.evidence}
         entity_by_id = {item.id: item for item in snapshot.entities}
         indexed_ids: set[str] = set()
         now = datetime.now(UTC)
-        for claim in snapshot.claims:
-            if claim.confidence != "verified" or claim.entity_id not in entity_by_id:
-                continue
-            evidence = [
-                evidence_by_id[source_id]
-                for source_id in claim.source_ids
-                if source_id in evidence_by_id
-            ]
-            if not evidence or len(evidence) != len(claim.source_ids):
+        for citation in grounded_retrieval_citations(
+            snapshot,
+            include_derived_knowledge=self.include_derived_knowledge,
+        ):
+            claim = citation.claim
+            evidence = citation.evidence
+            if claim.entity_id is None:
                 continue
             entity = entity_by_id[claim.entity_id]
             search_text = self.document_text(claim, entity, evidence)
@@ -447,7 +571,23 @@ class LexicalRagRetriever:
             + 0.15 * official_score
             + 0.1 * time_score
             + 0.1 * evidence_score
+            + cls.predicate_intent_score(question, Claim.model_validate_json(row.claim_json))
         )
+
+    @staticmethod
+    def predicate_intent_score(question: str, claim: Claim) -> float:
+        """Small deterministic boost for explicit query/predicate intent matches."""
+        key = question.casefold()
+        predicate = (claim.predicate or "").casefold()
+        if any(
+            term in key for term in ("最近", "变化", "演化", "日期", "current", "recent", "change")
+        ) and predicate.startswith("timeline-"):
+            return 0.18
+        if any(term in key for term in ("平台", "提供", "available", "availability")) and any(
+            term in predicate for term in ("availability", "available-on", "available-as")
+        ):
+            return 0.12
+        return 0.0
 
     @staticmethod
     def resolve_mentions(entities: list[Entity], question: str) -> set[str]:
@@ -487,21 +627,7 @@ class LexicalRagRetriever:
     @staticmethod
     def resolve_entity_type_intent(question: str) -> set[str]:
         """在没有点名具体实体的宽泛问题中，优先召回与问题类型一致的事实。"""
-        key = question.casefold()
-        intents: set[str] = set()
-        if "模型" in key or "model" in key:
-            intents.add("model")
-        if "agent" in key or "智能体" in key:
-            intents.add("agent")
-        if "框架" in key or "framework" in key:
-            intents.add("framework")
-        if "公司" in key or "company" in key or "机构" in key:
-            intents.add("company")
-        if "论文" in key or "paper" in key:
-            intents.add("paper")
-        if "基准" in key or "benchmark" in key:
-            intents.add("benchmark")
-        return intents
+        return resolve_entity_type_intent(question)
 
     @staticmethod
     def expand_entity_scope(entities: list[Entity], matched_entity_ids: set[str]) -> set[str]:
@@ -519,26 +645,103 @@ class LexicalRagRetriever:
             scope = expanded
 
     @classmethod
+    def expand_relation_scope(
+        cls,
+        snapshot: KnowledgeSnapshot,
+        matched_entity_ids: set[str],
+        preferred_entity_types: set[str],
+        question: str,
+    ) -> set[str]:
+        """Include grounded one-hop neighbors for explicit relationship questions."""
+        if not matched_entity_ids or not any(
+            term in question.casefold()
+            for term in (
+                "开发",
+                "关系",
+                "相关",
+                "路径",
+                "develop",
+                "relationship",
+                "related",
+                "path",
+            )
+        ):
+            return set()
+        evidence_ids = {item.id for item in snapshot.evidence}
+        entity_type_by_id = {item.id: item.type for item in snapshot.entities}
+        neighbors: set[str] = set()
+        for edge in snapshot.graph.edges:
+            if (
+                edge.confidence != "verified"
+                or not edge.source_ids
+                or not set(edge.source_ids).issubset(evidence_ids)
+            ):
+                continue
+            candidate: str | None = None
+            if edge.from_id in matched_entity_ids:
+                candidate = edge.to_id
+            elif edge.to_id in matched_entity_ids:
+                candidate = edge.from_id
+            if candidate is None:
+                continue
+            if (
+                preferred_entity_types
+                and entity_type_by_id.get(candidate) not in preferred_entity_types
+            ):
+                continue
+            neighbors.add(candidate)
+        return cls.expand_entity_scope(snapshot.entities, neighbors)
+
+    @classmethod
     def select_diverse_rows(
         cls,
         scored: list[tuple[float, RagClaimDocumentRecord]],
         entities: list[Entity],
         matched_entity_ids: set[str],
+        preferred_entity_types: set[str],
         limit: int,
     ) -> list[RagClaimDocumentRecord]:
-        """多实体问题先为每个实体保留一个结果，再按总分补足。"""
+        """Reserve named entities and broad-query entity groups before filling by score."""
         eligible = [(score, row) for score, row in scored if score > 0]
         selected: list[RagClaimDocumentRecord] = []
         selected_ids: set[str] = set()
-        if len(matched_entity_ids) > 1:
-            for entity_id in sorted(matched_entity_ids):
-                scope = cls.expand_entity_scope(entities, {entity_id})
-                match = next((row for _, row in eligible if row.entity_id in scope), None)
-                if match is not None and match.claim_id not in selected_ids:
-                    selected.append(match)
-                    selected_ids.add(match.claim_id)
-                    if len(selected) >= limit:
-                        return selected
+        for entity_id in sorted(matched_entity_ids):
+            scope = cls.expand_entity_scope(entities, {entity_id})
+            match = next((row for _, row in eligible if row.entity_id in scope), None)
+            if match is not None and match.claim_id not in selected_ids:
+                selected.append(match)
+                selected_ids.add(match.claim_id)
+                if len(selected) >= limit:
+                    return selected
+
+        entity_by_id = {entity.id: entity for entity in entities}
+
+        def group_id(entity_id: str) -> str:
+            entity = entity_by_id.get(entity_id)
+            if entity is None or entity.type != "model":
+                return entity_id
+            seen: set[str] = set()
+            while entity.family_id and entity.family_id not in seen:
+                seen.add(entity.id)
+                parent = entity_by_id.get(entity.family_id)
+                if parent is None:
+                    break
+                entity = parent
+            return entity.id
+
+        selected_groups = {group_id(row.entity_id) for row in selected}
+        for _, row in eligible:
+            entity = entity_by_id.get(row.entity_id)
+            if entity is None or entity.type not in preferred_entity_types:
+                continue
+            group = group_id(row.entity_id)
+            if group in selected_groups or row.claim_id in selected_ids:
+                continue
+            selected.append(row)
+            selected_ids.add(row.claim_id)
+            selected_groups.add(group)
+            if len(selected) >= limit:
+                return selected
         for _, row in eligible:
             if row.claim_id in selected_ids:
                 continue
@@ -670,6 +873,13 @@ class HybridRagRetriever:
             )
             if self.reranker is not None and citations:
                 citations = self._apply_reranker(question, citations)
+            citations = self._apply_lexical_coverage_guardrails(
+                snapshot,
+                question,
+                citations,
+                lexical_result.citations,
+                limit,
+            )
         except Exception as exc:  # noqa: BLE001 -- 第三方供应商异常必须统一降级。
             LOGGER.warning(
                 "hybrid retrieval degraded to lexical",
@@ -738,6 +948,83 @@ class HybridRagRetriever:
         ordered_ids = [claim_id for claim_id in requested_ids if claim_id in by_id]
         ordered_ids.extend(claim_id for claim_id in by_id if claim_id not in ordered_ids)
         return [by_id[claim_id] for claim_id in ordered_ids]
+
+    def _apply_lexical_coverage_guardrails(
+        self,
+        snapshot: KnowledgeSnapshot,
+        question: str,
+        citations: list[ResearchCitation],
+        lexical_citations: list[ResearchCitation],
+        limit: int,
+    ) -> list[ResearchCitation]:
+        """Preserve deterministic entity coverage after semantic fusion."""
+        matched_entity_ids = self.lexical.resolve_mentions(snapshot.entities, question)
+        preferred_entity_types = self.lexical.resolve_entity_type_intent(question)
+        entity_by_id = {entity.id: entity for entity in snapshot.entities}
+
+        def group_id(entity_id: str) -> str:
+            entity = entity_by_id.get(entity_id)
+            if entity is None or entity.type != "model":
+                return entity_id
+            seen: set[str] = set()
+            while entity.family_id and entity.family_id not in seen:
+                seen.add(entity.id)
+                parent = entity_by_id.get(entity.family_id)
+                if parent is None:
+                    break
+                entity = parent
+            return entity.id
+
+        anchors: list[ResearchCitation] = []
+        if matched_entity_ids:
+            for entity_id in sorted(matched_entity_ids):
+                scope = self.lexical.expand_entity_scope(snapshot.entities, {entity_id})
+                match = next(
+                    (
+                        citation
+                        for citation in lexical_citations
+                        if citation.claim.entity_id in scope
+                    ),
+                    None,
+                )
+                if match is not None:
+                    anchors.append(match)
+        elif preferred_entity_types:
+            anchored_groups: set[str] = set()
+            for citation in lexical_citations[:limit]:
+                entity = entity_by_id.get(citation.claim.entity_id or "")
+                if entity is None or entity.type not in preferred_entity_types:
+                    continue
+                group = group_id(entity.id)
+                if group in anchored_groups:
+                    continue
+                anchors.append(citation)
+                anchored_groups.add(group)
+
+        selected = citations[:limit]
+        selected_ids = {citation.claim.id for citation in selected}
+        anchor_ids = {citation.claim.id for citation in anchors}
+        for anchor in anchors:
+            if anchor.claim.id in selected_ids:
+                continue
+            if len(selected) < limit:
+                selected.append(anchor)
+                selected_ids.add(anchor.claim.id)
+                continue
+            replacement_index = next(
+                (
+                    index
+                    for index in range(len(selected) - 1, -1, -1)
+                    if selected[index].claim.id not in anchor_ids
+                ),
+                None,
+            )
+            if replacement_index is None:
+                break
+            selected_ids.remove(selected[replacement_index].claim.id)
+            selected[replacement_index] = anchor
+            selected_ids.add(anchor.claim.id)
+        return selected
 
     @staticmethod
     def _lexical_fallback(

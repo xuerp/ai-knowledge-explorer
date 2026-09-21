@@ -50,6 +50,34 @@ test("readonly staging audit only performs allowlisted GET requests and redacts 
       coreRelationDeficit: 42,
       issues: ["relation gap"],
     },
+    "/api/v2/admin/golden-questions": {
+      total: 20,
+      passed: 18,
+      failed: 2,
+      passRatio: 0.9,
+      requiredRatio: 0.85,
+      ready: true,
+      retrievalPassRatio: 0.95,
+      ragReady: true,
+      ragMetrics: { citationCoverage: 1 },
+      results: [{ id: "must-not-be-copied", question: "private question" }],
+    },
+    "/api/v2/admin/operations": {
+      generatedAt: "2026-09-21T00:00:00Z",
+      heartbeatStatus: "healthy",
+      staleAfterSeconds: 180,
+      worker: { workerId: "scheduler" },
+      recentRuns: [{ id: "cycle-1", status: "succeeded" }],
+      queues: { extractionReady: 4, emailQueued: 0 },
+    },
+    "/api/v2/admin/production-readiness": {
+      generatedAt: "2026-09-21T00:00:00Z",
+      automatedReady: false,
+      blockingCount: 3,
+      warningCount: 0,
+      checks: [{ code: "data-mode", status: "blocked" }],
+      manualChecks: [{ code: "backup-restore", status: "manual" }],
+    },
     "/api/v2/admin/release-baseline": {
       build: { buildCommit: "a".repeat(40) },
       claims: { publicClaimCount: 198 },
@@ -69,7 +97,7 @@ test("readonly staging audit only performs allowlisted GET requests and redacts 
     fetchImpl,
   });
 
-  assert.equal(requests.length, 7);
+  assert.equal(requests.length, 10);
   assert.ok(requests.every(({ init }) => init.method === "GET"));
   assert.ok(requests.every(({ init }) => init.headers["X-Admin-Token"] === secret));
   assert.equal(report.readOnly, true);
@@ -78,5 +106,11 @@ test("readonly staging audit only performs allowlisted GET requests and redacts 
   assert.equal(report.extraction.relationAutoApprovalEnabled, false);
   assert.equal(report.review.inventory.openTotal, 34);
   assert.equal(report.quality.liveReady, false);
+  assert.equal(report.goldenQuestions.ragReady, true);
+  assert.equal(report.goldenQuestions.results, undefined);
+  assert.equal(report.operations.heartbeatStatus, "healthy");
+  assert.equal(report.operations.latestRun.id, "cycle-1");
+  assert.equal(report.readiness.automatedReady, false);
+  assert.equal(report.readiness.blockingCount, 3);
   assert.equal(JSON.stringify(report).includes(secret), false);
 });

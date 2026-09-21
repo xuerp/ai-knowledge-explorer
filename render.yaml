@@ -22,7 +22,7 @@ envVarGroups:
         # 已授权批次 2026-09-core-relations-02 已完成；普通自动抽取保持关闭。
         value: "0"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT
-        value: "10"
+        value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES
         value: "360"
       - key: AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS
@@ -53,7 +53,7 @@ envVarGroups:
       # 首批仅允许现有演示目录中的官方站点。信源仍默认关闭自动采集，
       # 必须在审核后台通过批量安全预检后启用，并核验首次快照后才进入定时任务。
       - key: AI_RADAR_FETCH_ALLOWED_HOSTS
-        value: openai.com,developers.openai.com,anthropic.com,platform.claude.com,deepmind.google,ai.google.dev,cursor.com,docs.cursor.com,docs.langchain.com,ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org,raw.githubusercontent.com,microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im
+        value: openai.com,developers.openai.com,anthropic.com,platform.claude.com,deepmind.google,ai.google.dev,cursor.com,docs.cursor.com,docs.langchain.com,langchain-ai.github.io,ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org,raw.githubusercontent.com,microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im
       - key: AI_RADAR_EMAIL_MAX_ATTEMPTS
         value: "5"
       - key: AI_RADAR_EMAIL_PROVIDER
@@ -69,7 +69,7 @@ envVarGroups:
       - key: AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS
         value: "900"
       - key: AI_RADAR_WORKER_STALE_SECONDS
-        # GitHub Actions 每 30 分钟执行一次；容忍平台排队后再判定调度异常。
+        # Cloudflare Cron 每 30 分钟执行一次；容忍 Render 冷启动和网络重试后再判定调度异常。
         value: "5400"
 
 services:

@@ -30,14 +30,16 @@ def test_golden_questions_execute_against_grounded_catalog():
     report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(snapshot)
 
     assert report.total == 20
-    assert report.passed == 18
-    assert report.pass_ratio == 0.9
+    assert report.passed == 19
+    assert report.pass_ratio == 0.95
     assert report.required_ratio == 0.85
     assert report.ready is True
     failed = {result.id: result for result in report.results if not result.passed}
-    assert set(failed) == {"gq-15", "gq-16"}
+    assert set(failed) == {"gq-15"}
     assert "冲突或证据不足" in failed["gq-15"].reason
-    assert failed["gq-16"].missing_entity_ids == ["e-claude", "e-gemini", "e-gpt"]
+    broad_model_result = next(result for result in report.results if result.id == "gq-16")
+    assert broad_model_result.missing_entity_ids == []
+    assert set(broad_model_result.matched_entity_ids) == {"e-claude", "e-gemini", "e-gpt"}
 
 
 def test_concrete_version_retrieval_satisfies_family_expectation():
@@ -92,3 +94,48 @@ def test_retrieval_evaluation_prepares_the_index_only_once(monkeypatch):
 
     assert report.rag_metrics is not None
     assert prepare_calls == 1
+
+
+def test_retrieval_evaluation_falls_back_when_index_preparation_fails():
+    class FailingPrepareRetriever:
+        def prepare(self, session, snapshot):
+            raise RuntimeError("embedding provider unavailable")
+
+        def search(self, session, snapshot, question, *, limit=8, prepared=False):
+            raise AssertionError("the failed retriever must be replaced")
+
+    data = Path(__file__).resolve().parents[1] / "data"
+    repository = KnowledgeRepository(data / "demo_snapshot.json")
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(
+            snapshot,
+            session=session,
+            retriever=FailingPrepareRetriever(),
+        )
+
+    assert report.rag_metrics is not None
+    assert report.retrieval_pass_ratio == 1.0
+
+
+def test_full_retrieval_golden_set_covers_grounded_timeline_and_relations():
+    data = Path(__file__).resolve().parents[1] / "data"
+    repository = KnowledgeRepository(data / "demo_snapshot.json")
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        report = GoldenQuestionEvaluator(data / "golden_questions.json").evaluate(
+            snapshot,
+            session=session,
+            retriever=LexicalRagRetriever(),
+        )
+
+    assert report.retrieval_pass_ratio == 1.0
+    assert report.rag_metrics is not None
+    assert report.rag_metrics.entity_recall_at_8 == 1.0
+    assert report.rag_metrics.temporal_accuracy == 1.0

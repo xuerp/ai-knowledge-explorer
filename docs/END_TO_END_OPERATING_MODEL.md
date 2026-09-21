@@ -298,7 +298,7 @@ flowchart TD
 2. 本次验收记录为 `/research/af0c88fb-a7be-4bd7-a806-20f0c7724e1e`，公开页为 `/share/gpt-5-claude-4-5-quality-unknown-cloud-api-none-af0c88fb`；页面展示 8 条结论、9 个来源和结构化决策说明。
 3. `staging-acceptance.yml` 已自动触发并严格核对双端完整 SHA；E4 发布闭环完成。
 4. E4.1 已完成：Cloudflare Cron `*/30 * * * *` 的真实事件为 Success，结构化日志同时证明请求到达后端并完成周期；GitHub `schedule` 已退出主路径。
-5. Live Gate 当前仍受 `demo` 模式、邮件投递配置/验证和数据质量门禁约束。
+5. Live Gate 当前仍受邮件投递配置/验证和数据质量门禁约束；`demo` 保持为上线前安全状态，并在预检中显示为切换警告。
 6. 数据质量的当前主缺口是 16 个核心实体合计少 41 条可解释关系；该数字是发现队列，不是允许补造的 KPI。
 7. production 分支、独立服务、数据库、域名、监控、备份、回滚与责任人尚未定义。
 

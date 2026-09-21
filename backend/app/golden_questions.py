@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import deque
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Session
 
+from .query_intent import resolve_entity_type_intent
 from .schemas import (
     GoldenQuestionReport,
     GoldenQuestionResult,
@@ -21,6 +23,7 @@ if TYPE_CHECKING:
 
 GOLDEN_PASS_RATIO = 0.85
 GOLDEN_QUESTIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "golden_questions.json"
+LOGGER = logging.getLogger(__name__)
 
 
 class GoldenQuestionEvaluator:
@@ -85,7 +88,17 @@ class GoldenQuestionEvaluator:
         temporal_checks: list[bool] = []
         refusal_checks: list[bool] = []
         retrieval_passed = 0
-        retriever.prepare(session, snapshot)
+        try:
+            retriever.prepare(session, snapshot)
+        except Exception as exc:  # noqa: BLE001 -- 第三方向量服务异常必须安全降级。
+            from .rag import LexicalRagRetriever
+
+            LOGGER.warning(
+                "golden retrieval preparation degraded to lexical",
+                extra={"error_type": type(exc).__name__},
+            )
+            retriever = LexicalRagRetriever()
+            retriever.prepare(session, snapshot)
         for question, graph_result in zip(questions, results, strict=True):
             retrieval = retriever.search(
                 session,
@@ -121,7 +134,14 @@ class GoldenQuestionEvaluator:
             temporal_ok = not bool(question.get("requiresTemporalEvidence", False)) or any(
                 item.claim.valid_from or any(source.published_at for source in item.evidence)
                 for item in citations
-                if not expected_entities or item.claim.entity_id in expected_entities
+                if not expected_entities
+                or bool(
+                    self._expand_entity_families(
+                        snapshot,
+                        {item.claim.entity_id} if item.claim.entity_id else set(),
+                    )
+                    & expected_entities
+                )
             )
             if question.get("requiresTemporalEvidence", False):
                 temporal_checks.append(temporal_ok)
@@ -245,6 +265,7 @@ class GoldenQuestionEvaluator:
             and set(edge.source_ids).issubset(evidence_ids)
         ]
         mentioned = self._resolve_mentions(snapshot, text)
+        mentioned.update(self._resolve_entity_type_mentions(snapshot, text))
         reachable = set(mentioned)
         for edge in grounded_edges:
             if edge.from_id in mentioned:
@@ -318,6 +339,19 @@ class GoldenQuestionEvaluator:
             entity_id
             for entity_id, token in matches
             if not any(token != other and token in other for _, other in matches)
+        }
+
+    @staticmethod
+    def _resolve_entity_type_mentions(
+        snapshot: KnowledgeSnapshot,
+        question: str,
+    ) -> set[str]:
+        """Broad type questions cover top-level families without inventing expected IDs."""
+        intents = resolve_entity_type_intent(question)
+        return {
+            entity.id
+            for entity in snapshot.entities
+            if entity.type in intents and entity.family_id is None
         }
 
     @staticmethod

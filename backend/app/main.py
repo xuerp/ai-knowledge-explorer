@@ -53,7 +53,12 @@ from .quality import (
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
-from .rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
+from .rag import (
+    HybridRagRetriever,
+    LexicalRagRetriever,
+    SqlAlchemyVectorClaimIndex,
+    grounded_retrieval_citations,
+)
 from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .schemas import (
@@ -112,7 +117,6 @@ from .schemas import (
     RelationClaimRepairRequest,
     ReleaseBaseline,
     ReleaseClaimMetrics,
-    ResearchCitation,
     ResearchCreate,
     ResearchView,
     RetrievalDiagnostics,
@@ -243,6 +247,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app_settings.extraction_api_url,
         app_settings.extraction_api_key,
         app_settings.extraction_model,
+        response_timeout_seconds=app_settings.extraction_response_timeout_seconds,
     )
     email_delivery = EmailDeliveryService(
         app_settings.smtp_host,
@@ -615,23 +620,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: Session,
     ) -> PublishedResearchView:
         snapshot = get_public_snapshot(session)
-        evidence_by_id = {item.id: item for item in snapshot.evidence}
-        claims_by_id = {item.id: item for item in snapshot.claims}
-        citations = []
-        for claim_id in result.claim_ids:
-            claim = claims_by_id.get(claim_id)
-            if not claim:
-                continue
-            citations.append(
-                ResearchCitation(
-                    claim=claim,
-                    evidence=[
-                        evidence_by_id[evidence_id]
-                        for evidence_id in claim.source_ids
-                        if evidence_id in evidence_by_id
-                    ],
-                )
-            )
+        citations_by_id = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
+        citations = [
+            citations_by_id[claim_id]
+            for claim_id in result.claim_ids
+            if claim_id in citations_by_id
+        ]
         return PublishedResearchView.model_validate(
             {
                 **result.model_dump(mode="json", by_alias=True),
@@ -2310,7 +2304,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 session,
                 source,
                 snapshot_row,
-                payload.max_candidates,
+                min(payload.max_candidates, 5),
             )
         except ExtractionUnavailableError as error:
             raise HTTPException(
