@@ -209,7 +209,7 @@ flowchart LR
   Delivery -->|否| SafeQueue["安全保留，不伪装已发送"]
 ```
 
-当前 staging 使用免费 Render，SMTP 端口受到限制。因此 Outbox 可验证，但真实邮件送达不是当前完成事实；后续应选择 HTTPS 邮件 API 或明确的付费运行环境。
+本次上线范围采用 Outbox 模式：摘要生成、持久化和重试状态可验证，外部邮件送达延期且不阻塞上线。后续启用时应选择 HTTPS 邮件 API、验证发件域名，并单独完成受控投递验收。
 
 staging 自动化由 Cloudflare Cron 每 30 分钟调用 Render 的专用单周期端点；GitHub Actions 只保留 `workflow_dispatch`，用于人工应急直连 Neon。两条路径都不依赖 Render 常驻 Worker 或管理员登录令牌。数据库 advisory lock、周期租约、信源租约和幂等键共同防止重复运行。自动抽取保持为 0，关系不能自动批准。
 

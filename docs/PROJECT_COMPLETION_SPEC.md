@@ -65,7 +65,7 @@
 6. 管理员 JWT 只读核验已完成：自动抽取关闭、关系自动批准为 0；开放审核已清零。
 7. GitHub Actions 手动单周期 #1 已成功，但平台未投递任何 `schedule` 事件；定时职责已切回 Cloudflare Cron，GitHub 仅保留 `workflow_dispatch` 手动回退。
 8. Cloudflare Cron 已于 2026-09-11 07:31:04（UTC+8）成功触发 `*/30 * * * *`；后端记录 `automation-cycle-succeeded`，周期 ID 为 `07a11297-bb55-48d5-ad9d-9d6034cd22d9`，E4.1 已完成。
-9. Live Gate 仍受邮件投递配置/验证和数据质量门禁约束；`demo` 是门禁通过前必须保持的安全状态，作为切换警告而非自动阻塞项。2026-09-21 对 Render 环境变量名称的只读复核确认 provider 与 API URL 已声明，但 `AI_RADAR_EMAIL_API_KEY` 和 `AI_RADAR_SMTP_FROM` 尚未配置；当前也未定义正式 production 环境与责任人。
+9. 本次上线明确采用 Outbox 模式，邮件外部投递延期，不再作为自动阻塞项；未配置时生产预检必须显示警告且不得伪装已发送。Live Gate 仍受数据质量门禁约束；`demo` 是门禁通过前必须保持的安全状态，作为切换警告而非自动阻塞项。当前也未定义正式 production 环境与责任人。
 
 ## 3. 完成定义
 
@@ -353,6 +353,7 @@ GET /api/v2/admin/release-baseline
 - `production-readiness.automatedReady` 和 `blockingCount` 是自动预检汇总。
 - 检查状态只有 `ready`、`blocked`、`warning`、`manual`。
 - 上线前保持 `demo` 时，`live_data_mode` 必须为 `warning`；它提示最后的显式切换，但不能形成要求先切换才能清零的循环阻塞。
+- 本次范围采用 Outbox 模式；未配置外部邮件投递时，`smtp_delivery` 必须为 `warning`，摘要留在 Outbox，后续以独立验收启用。
 - 备份恢复、外部监控、域名、供应商额度等人工事实不得由服务自行宣称通过。
 
 若任一条件不满足，保持 `demo` 并记录真实阻塞原因。不得通过删除 Demo 标签、放宽阈值或补造关系绕过门禁。

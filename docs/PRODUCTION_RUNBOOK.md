@@ -1,6 +1,6 @@
 # AI Radar 生产运行手册
 
-本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render Free API、Cloudflare Cron 周期任务、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 每 30 分钟调用一次受保护的单周期接口，GitHub Actions 仅保留 `workflow_dispatch` 手动回退。自定义域名、邮件投递、外部监控和备份恢复演练仍需单独验收。
+本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render Free API、Cloudflare Cron 周期任务、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 每 30 分钟调用一次受保护的单周期接口，GitHub Actions 仅保留 `workflow_dispatch` 手动回退。自定义域名、外部监控和备份恢复演练仍需单独验收；邮件外部投递延期，当前采用 Outbox 模式。
 
 ## 1. 准备环境变量与密钥
 
@@ -158,7 +158,7 @@ docker compose --env-file .env.production exec -T api python -m alembic current 
 GET /api/v2/admin/production-readiness
 ```
 
-自动预检覆盖运行环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、邮件投递、采集白名单、自动信源、数据质量和 worker 心跳。上线前保持 `demo` 会显示为切换警告，不计入自动阻塞项，从而可以先确认其余门禁，再执行一次明确的 `live` 切换；切换后的正式实例必须显示该项为 `ready`。接口会给出明确阻塞项与下一步，但不会读取或返回任何密钥。公网域名与 HTTPS、备份恢复、外部监控、供应商额度属于外部事实，始终保留为人工确认项，不能仅凭服务自身状态自动宣称完成。
+自动预检覆盖运行环境、正式数据模式、PostgreSQL 迁移、JWT、HTTPS CORS、AI 抽取、邮件投递、采集白名单、自动信源、数据质量和 worker 心跳。上线前保持 `demo` 会显示为切换警告，不计入自动阻塞项，从而可以先确认其余门禁，再执行一次明确的 `live` 切换；切换后的正式实例必须显示该项为 `ready`。邮件未配置时显示 Outbox 模式警告，不计入自动阻塞项；系统仍会持久化摘要且不会伪装已发送。接口会给出明确阻塞项与下一步，但不会读取或返回任何密钥。公网域名与 HTTPS、备份恢复、外部监控、供应商额度属于外部事实，始终保留为人工确认项，不能仅凭服务自身状态自动宣称完成。
 
 AI 抽取供应商完成配置后，可在审核后台“外部集成状态”点击“验证连接与结构化输出”。预检只发送一个要求返回空事实数组的小请求，用于验证 API 地址、鉴权、额度以及 JSON Schema 支持；它不会读取或返回密钥，不会生成审核候选，也不会修改公开数据。失败结果会区分鉴权、地址、限流、结构化输出不兼容、网络连接和响应格式问题。
 

@@ -119,13 +119,20 @@ def build_production_readiness(
             "抽取端点、模型或密钥尚未完整配置。",
             "在本机或云平台 Secret 中配置 OpenAI-compatible 抽取服务。",
         ),
-        _check(
-            "smtp_delivery",
-            "摘要邮件投递",
-            inputs.smtp_configured,
-            "邮件投递渠道和发件地址已配置。",
-            "邮件投递渠道尚未配置，摘要只会保留在 Outbox。",
-            "配置 HTTPS 邮件 API 或 SMTP，并完成 SPF、DKIM、DMARC 验证。",
+        ProductionReadinessCheck(
+            code="smtp_delivery",
+            title="摘要邮件投递",
+            status="ready" if inputs.smtp_configured else "warning",
+            detail=(
+                "邮件投递渠道和发件地址已配置。"
+                if inputs.smtp_configured
+                else "本次上线采用 Outbox 模式：摘要会安全保留，暂不发送外部邮件。"
+            ),
+            action=(
+                None
+                if inputs.smtp_configured
+                else "后续启用邮件时，配置 HTTPS 邮件 API 和已验证发件域名，再执行受控投递验收。"
+            ),
         ),
         _check(
             "fetch_allowlist",
