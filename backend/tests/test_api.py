@@ -900,6 +900,14 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             source.fetch_url = "https://mirror.example.net/claude-code-relations"
             source.auto_paused_at = datetime.now(UTC)
             source.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            for relation_id in (
+                "r-landscape-claude-code-codex",
+                "r-landscape-claude-code-devin",
+                "r-landscape-claude-code-gemini-cli",
+            ):
+                relation = session.get(KnowledgeRelationRecord, relation_id)
+                assert relation is not None
+                session.delete(relation)
             session.add(
                 AuditLogRecord(
                     actor="automation@ai-radar.local",
@@ -959,8 +967,8 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             "relationsAutoApproved": 0,
             "attemptsRemaining": 0,
             "eligibleSnapshots": 0,
-            "relationDeficit": 49,
-            "coreEntitiesBelowRequirement": 17,
+            "relationDeficit": 2,
+            "coreEntitiesBelowRequirement": 2,
         }
 
         second = automatic_client.post(
@@ -1671,7 +1679,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "emailDeliveryProvider": "smtp",
         "emailDeliveryEndpointHost": None,
         "fetchAllowedHosts": ["example.com"],
-        "registeredSources": 35,
+        "registeredSources": 38,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }
@@ -1744,10 +1752,11 @@ def test_admin_production_readiness_reports_blockers_without_secrets(client: Tes
     payload = response.json()
     assert payload["automatedReady"] is False
     assert payload["blockingCount"] > 0
-    assert payload["warningCount"] == 2
+    assert payload["warningCount"] == 3
     checks = {check["code"]: check for check in payload["checks"]}
     assert checks["runtime_environment"]["status"] == "blocked"
     assert checks["live_data_mode"]["status"] == "warning"
+    assert checks["smtp_delivery"]["status"] == "warning"
     assert checks["database_schema"]["status"] == "blocked"
     assert checks["jwt_authentication"]["status"] == "ready"
     assert checks["legacy_admin_token"]["status"] == "warning"
@@ -3045,6 +3054,17 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
         json={"content": "A newer generic document contains an explicit fact."},
     )
     assert generic.status_code == 200
+
+    with client.app.state.database.session() as session:
+        for relation_id in (
+            "r-landscape-claude-code-manus",
+            "r-landscape-codex-manus",
+            "r-landscape-deepseek-gemini",
+        ):
+            relation = session.get(KnowledgeRelationRecord, relation_id)
+            assert relation is not None
+            session.delete(relation)
+        session.commit()
 
     planned = client.get(
         "/api/v2/admin/extraction-plan?limit=50",

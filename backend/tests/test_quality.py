@@ -222,9 +222,8 @@ def test_core_relation_coverage_ignores_edges_without_resolved_evidence():
     report = KnowledgeQualityGate().report(snapshot)
 
     assert relation.id in report.relations_with_missing_evidence
-    assert report.core_entity_relation_counts["e-manus"] == (
-        baseline.core_entity_relation_counts["e-manus"] - 1
-    )
+    assert "e-manus" not in baseline.core_entity_relation_counts
+    assert report.core_entity_relation_counts["e-manus"] == 4
     assert report.core_relation_deficit == baseline.core_relation_deficit + 1
 
 
@@ -284,6 +283,10 @@ def test_catalog_extension_includes_core_agents_frameworks_and_evidence():
             "e-openai-agents-sdk",
         )
     )
+    report = KnowledgeQualityGate().report(snapshot)
+    assert report.core_entities_below_five_relations == []
+    assert report.core_relation_deficit == 0
+    assert report.verified_content_ratio >= 0.8
 
 
 def test_seed_catalog_migrates_only_legacy_country_labels():

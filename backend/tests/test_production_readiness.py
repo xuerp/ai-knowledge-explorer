@@ -71,3 +71,15 @@ def test_demo_mode_is_a_pre_switch_warning_instead_of_a_blocker():
     assert report.blocking_count == 0
     assert report.warning_count == 1
     assert statuses["live_data_mode"] == "warning"
+
+
+def test_outbox_only_launch_reports_deferred_email_as_warning():
+    report = build_production_readiness(replace(_ready_inputs(), smtp_configured=False))
+    checks = {check.code: check for check in report.checks}
+
+    assert report.automated_ready is True
+    assert report.blocking_count == 0
+    assert report.warning_count == 1
+    assert checks["smtp_delivery"].status == "warning"
+    assert "Outbox" in checks["smtp_delivery"].detail
+    assert "已验证发件域名" in (checks["smtp_delivery"].action or "")
