@@ -1221,8 +1221,23 @@
       "path": "vite.config.ts",
       "sha256": "e80541568f760647c3ff387a2490449f232867d18d4cd9bcf4e5b4b7318031e6",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/scripts/__init__.py",
+      "sha256": "1d3233ccdd65c256011a6257c7983bc6109f42d84279f35f629c4202d5b9e5c6",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
+    },
+    {
+      "path": "backend/scripts/audit_observation_18h.py",
+      "sha256": "d0d03c69e33bf4cca558e3fdf0bec153a923864ebe3d0147d27016d73fa61176",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
+    },
+    {
+      "path": "backend/scripts/observe_official_36h.py",
+      "sha256": "3041f6c6ae14172ff1ced2f1bb1be0c0647faaf01462fc6d4e8ef9d519a8022b",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
     }
   ],
-  "publicFileCount": 244,
+  "publicFileCount": 247,
   "historicalConsentAndAccountExecutorRemoved": true
 }
