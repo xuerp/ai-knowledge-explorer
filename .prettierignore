@@ -7,3 +7,8 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+
+# Immutable test/evaluation bytes are verified by their generators.
+docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json
+docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.json
+docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.md
