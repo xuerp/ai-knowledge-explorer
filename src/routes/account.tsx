@@ -1,10 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Bell, BookOpen, Check, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { Bell, BookOpen, Check, LogOut, ShieldCheck, UserPlus, UserRound } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { clearAuthToken, readAuthToken, writeAuthToken } from "@/services/auth-session";
+import { useApp } from "@/lib/app-state";
+import {
+  authSessionExpiredEvent,
+  clearAuthToken,
+  readAuthToken,
+  writeAuthToken,
+} from "@/services/auth-session";
+import { AuthSessionExpiredError, accountErrorMessage } from "@/services/auth-errors";
 import {
   userApi,
   type FollowItem,
@@ -14,11 +21,15 @@ import {
 } from "@/services/user-api";
 
 export const Route = createFileRoute("/account")({
+  validateSearch: (search: Record<string, unknown>): { returnTo?: string } => ({
+    returnTo: typeof search.returnTo === "string" ? search.returnTo : undefined,
+  }),
   head: () => ({ meta: [{ title: "Account · AI Radar" }] }),
   component: AccountPage,
 });
 
 function AccountPage() {
+  const { t } = useApp();
   const [token, setToken] = useState("");
   const [user, setUser] = useState<SessionUser | null>(null);
   const [following, setFollowing] = useState<FollowItem[]>([]);
@@ -26,28 +37,59 @@ function AccountPage() {
   const [research, setResearch] = useState<ResearchResult | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authReady, setAuthReady] = useState(false);
+  useEffect(() => setAuthReady(true), []);
 
-  const refresh = useCallback(async (activeToken: string) => {
-    const [nextUser, nextFollowing, nextNotifications] = await Promise.all([
-      userApi.me(activeToken),
-      userApi.following(activeToken),
-      userApi.notifications(activeToken),
-    ]);
-    setUser(nextUser);
-    setFollowing(nextFollowing);
-    setNotifications(nextNotifications);
-  }, []);
+  const refresh = useCallback(
+    async (activeToken: string) => {
+      const nextUser = await userApi.me(activeToken);
+      if (readAuthToken() !== activeToken) return;
+      setUser(nextUser);
+      const [nextFollowing, nextNotifications] = await Promise.allSettled([
+        userApi.following(activeToken),
+        userApi.notifications(activeToken),
+      ]);
+      if (readAuthToken() !== activeToken) return;
+      if (nextFollowing.status === "fulfilled") setFollowing(nextFollowing.value);
+      if (nextNotifications.status === "fulfilled") setNotifications(nextNotifications.value);
+      if (nextFollowing.status === "rejected" || nextNotifications.status === "rejected") {
+        setError(
+          t(
+            "部分账户资料加载失败，请刷新重试。",
+            "Some account data could not load. Refresh to retry.",
+          ),
+        );
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     const stored = readAuthToken();
     if (!stored) return;
     setToken(stored);
     refresh(stored).catch((reason: unknown) => {
-      clearAuthToken();
-      setToken("");
-      setError(reason instanceof Error ? reason.message : "Session expired.");
+      if (readAuthToken() && readAuthToken() !== stored) return;
+      if (reason instanceof AuthSessionExpiredError) {
+        clearAuthToken();
+        setToken("");
+      }
+      setError(accountErrorMessage(reason, t));
     });
-  }, [refresh]);
+  }, [refresh, t]);
+
+  useEffect(() => {
+    const expired = () => {
+      setToken("");
+      setUser(null);
+      setFollowing([]);
+      setNotifications([]);
+      setResearch(null);
+    };
+    window.addEventListener(authSessionExpiredEvent, expired);
+    return () => window.removeEventListener(authSessionExpiredEvent, expired);
+  }, []);
 
   const execute = async (operation: () => Promise<void>) => {
     setBusy(true);
@@ -55,7 +97,7 @@ function AccountPage() {
     try {
       await operation();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Operation failed.");
+      setError(accountErrorMessage(reason, t));
     } finally {
       setBusy(false);
     }
@@ -67,6 +109,33 @@ function AccountPage() {
     void execute(async () => {
       const response = await userApi.login(String(form.get("email")), String(form.get("password")));
       writeAuthToken(response.accessToken);
+      setFollowing([]);
+      setNotifications([]);
+      setResearch(null);
+      setToken(response.accessToken);
+      await refresh(response.accessToken);
+      const returnTo = safeReturnTo(
+        new URLSearchParams(window.location.search).get("returnTo"),
+        window.location.origin,
+      );
+      if (returnTo) window.location.assign(returnTo);
+    });
+  };
+
+  const register = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const password = String(form.get("password"));
+    if (password !== String(form.get("confirmPassword"))) {
+      setError(t("两次输入的密码不一致。", "The passwords do not match."));
+      return;
+    }
+    void execute(async () => {
+      const response = await userApi.register(String(form.get("email")), password);
+      writeAuthToken(response.accessToken);
+      setFollowing([]);
+      setNotifications([]);
+      setResearch(null);
       setToken(response.accessToken);
       await refresh(response.accessToken);
       const returnTo = safeReturnTo(
@@ -86,25 +155,119 @@ function AccountPage() {
   }
 
   if (!user) {
+    const isRegistering = authMode === "register";
     return (
       <AppShell>
-        <main className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md items-center px-4">
-          <form className="paper-card w-full space-y-5 p-6" onSubmit={login}>
-            <UserRound className="h-6 w-6 text-signal" />
-            <div>
-              <h1 className="font-serif text-3xl font-semibold">登录 AI Radar</h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                登录后关注、通知和研究记录由后端持久化。访问令牌仅保存在当前标签页。
-              </p>
+        <div className="account-auth">
+          <form
+            method="post"
+            className="account-auth__card"
+            onSubmit={isRegistering ? register : login}
+          >
+            <div className="account-auth__icon" aria-hidden="true">
+              {isRegistering ? <UserPlus /> : <UserRound />}
             </div>
-            <Input name="email" type="email" placeholder="you@example.com" required />
-            <Input name="password" type="password" placeholder="密码" required />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button className="w-full" disabled={busy}>
-              {busy ? "正在登录…" : "登录"}
+            <header className="account-auth__header">
+              <h1>
+                {isRegistering
+                  ? t("创建账户", "Create an account")
+                  : t("登录 AI Radar", "Sign in to AI Radar")}
+              </h1>
+              <p>
+                {isRegistering
+                  ? t(
+                      "创建普通用户账户，用于跨设备保存关注、通知和私密研究。",
+                      "Create a personal account to sync follows, notifications, and private research.",
+                    )
+                  : t(
+                      "登录后，关注、通知和研究记录将在不同设备间同步。",
+                      "Sign in to sync follows, notifications, and research across devices.",
+                    )}
+              </p>
+            </header>
+
+            {token && error && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy}
+                onClick={() => void execute(() => refresh(token))}
+              >
+                {t("重新加载账户", "Reload account")}
+              </Button>
+            )}
+
+            <div className="account-auth__fields">
+              <label>
+                <span>{t("邮箱", "Email")}</span>
+                <Input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  required
+                />
+              </label>
+              <label>
+                <span>{t("密码", "Password")}</span>
+                <Input
+                  name="password"
+                  type="password"
+                  autoComplete={isRegistering ? "new-password" : "current-password"}
+                  placeholder={t("输入密码", "Enter your password")}
+                  minLength={isRegistering ? 12 : 1}
+                  required
+                />
+                {isRegistering && (
+                  <small>{t("至少 12 个字符。", "Use at least 12 characters.")}</small>
+                )}
+              </label>
+              {isRegistering && (
+                <label>
+                  <span>{t("确认密码", "Confirm password")}</span>
+                  <Input
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder={t("再次输入密码", "Enter your password again")}
+                    minLength={12}
+                    required
+                  />
+                </label>
+              )}
+            </div>
+
+            {error && (
+              <p className="account-auth__error" role="alert">
+                {error}
+              </p>
+            )}
+            <Button className="account-auth__submit" disabled={busy || !authReady}>
+              {busy
+                ? isRegistering
+                  ? t("正在创建…", "Creating account…")
+                  : t("正在登录…", "Signing in…")
+                : isRegistering
+                  ? t("创建账户", "Create account")
+                  : t("登录", "Sign in")}
             </Button>
+
+            <p className="account-auth__switch">
+              {isRegistering
+                ? t("已有账户？", "Already have an account?")
+                : t("还没有账户？", "New to AI Radar?")}
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode(isRegistering ? "login" : "register");
+                  setError("");
+                }}
+              >
+                {isRegistering ? t("返回登录", "Sign in") : t("注册", "Create one")}
+              </button>
+            </p>
           </form>
-        </main>
+        </div>
       </AppShell>
     );
   }
@@ -135,6 +298,10 @@ function AccountPage() {
                 clearAuthToken();
                 setUser(null);
                 setToken("");
+                setFollowing([]);
+                setNotifications([]);
+                setResearch(null);
+                setError("");
               }}
             >
               <LogOut />

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import signal
 import sys
@@ -107,19 +108,30 @@ def run_cycle(
     return result
 
 
+def next_interval_cycle(
+    anchor: datetime, cycle_started: datetime, finished: datetime, interval_seconds: int
+) -> datetime:
+    """Keep the original cadence without issuing catch-up runs for missed slots."""
+    if interval_seconds < 60 or any(
+        value.tzinfo is None for value in (anchor, cycle_started, finished)
+    ):
+        raise ValueError("Interval requires aware times and at least 60 seconds.")
+    after_start = math.floor((cycle_started - anchor).total_seconds() / interval_seconds) + 1
+    after_finish = math.ceil((finished - anchor).total_seconds() / interval_seconds)
+    return anchor + timedelta(seconds=max(1, after_start, after_finish) * interval_seconds)
+
+
 def wait_with_heartbeats(
     database: Database,
     operations: OperationsService,
     worker_id: str,
     *,
-    wait_seconds: int,
     heartbeat_seconds: int,
     next_cycle_at: datetime,
     state: str,
 ) -> None:
-    deadline = time.monotonic() + wait_seconds
     while True:
-        remaining = deadline - time.monotonic()
+        remaining = (next_cycle_at - datetime.now(UTC)).total_seconds()
         if remaining <= 0:
             return
         time.sleep(min(heartbeat_seconds, remaining))
@@ -201,8 +213,13 @@ def main() -> None:
     database = Database(settings.database_url)
     if database.engine.dialect.name == "sqlite":
         database.create_all()
+    resolver = None
+    if settings.fetch_dns_mode == "https-google":
+        from .safe_dns import GoogleHttpsResolver
+
+        resolver = GoogleHttpsResolver()
     scheduler = IngestionScheduler(
-        SafeHttpFetcher(settings.fetch_allowed_hosts, settings.fetch_max_bytes),
+        SafeHttpFetcher(settings.fetch_allowed_hosts, settings.fetch_max_bytes, resolver=resolver),
         IngestionService(settings.fetch_allowed_hosts),
         retry_base_minutes=settings.fetch_retry_base_minutes,
         retry_max_minutes=settings.fetch_retry_max_minutes,
@@ -242,6 +259,8 @@ def main() -> None:
         with database.session() as heartbeat_session:
             operations.heartbeat(heartbeat_session, worker_id, state="running")
 
+    cadence_anchor = datetime.now(UTC)
+    expected_cycle_at = cadence_anchor
     try:
         while True:
             cycle_started = datetime.now(UTC)
@@ -274,7 +293,21 @@ def main() -> None:
                 if args.interval_seconds is not None
                 else args.next_cycle_seconds
             )
-            next_cycle_at = finished + timedelta(seconds=cycle_delay) if scheduled else None
+            if args.interval_seconds is not None:
+                lateness = max(0.0, (cycle_started - expected_cycle_at).total_seconds())
+                if result is not None:
+                    result["schedule"] = {
+                        "expectedCycleAt": expected_cycle_at.isoformat(),
+                        "actualCycleAt": cycle_started.isoformat(),
+                        "latenessSeconds": lateness,
+                        "missedIntervalsBeforeCycle": math.floor(lateness / args.interval_seconds),
+                        "catchUpRunsIssued": 0,
+                    }
+                next_cycle_at = next_interval_cycle(
+                    cadence_anchor, cycle_started, finished, args.interval_seconds
+                )
+            else:
+                next_cycle_at = finished + timedelta(seconds=cycle_delay) if scheduled else None
             with database.session() as session:
                 if cycle_error is not None:
                     operations.fail_cycle(
@@ -310,11 +343,11 @@ def main() -> None:
             )
             if run_once:
                 break
+            expected_cycle_at = next_cycle_at
             wait_with_heartbeats(
                 database,
                 operations,
                 worker_id,
-                wait_seconds=args.interval_seconds,
                 heartbeat_seconds=settings.worker_heartbeat_seconds,
                 next_cycle_at=next_cycle_at,
                 state="failed" if cycle_error else "idle",

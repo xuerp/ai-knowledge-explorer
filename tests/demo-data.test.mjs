@@ -17,7 +17,9 @@ const vite = await createServer({
 
 const { CLAIMS, ENTITIES, FOLLOWING, RECENT_CHANGES, RELATIONS, SOURCES, TIMELINE } =
   await vite.ssrLoadModule("/src/lib/demo-data.ts");
-const { DEMO_KNOWLEDGE_SNAPSHOT } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
+const { DEMO_KNOWLEDGE_SNAPSHOT, BASE_DEMO_KNOWLEDGE_SNAPSHOT } = await vite.ssrLoadModule(
+  "/src/data/demo-adapter.ts",
+);
 const { knowledgeRepository } = await vite.ssrLoadModule("/src/services/knowledge-repository.ts");
 const { expandNeighborhood, filterGraphEdges, findShortestPath } =
   await vite.ssrLoadModule("/src/domain/graph.ts");
@@ -99,26 +101,24 @@ test("repository exposes family, version, timeline, and comparison queries", asy
   assert.ok(families.some((entity) => entity.id === "e-qwen"));
 
   const qwenVersions = await knowledgeRepository.getFamilyVersions("e-qwen");
-  assert.deepEqual(
-    qwenVersions.map((entity) => entity.id),
-    ["e-qwen-25-max", "e-qwen-3-max"],
-  );
+  assert.equal(qwenVersions.length, 25);
+  assert.ok(qwenVersions.some((entity) => entity.id === "e-qwen-3-8-max"));
+  assert.ok(qwenVersions.every((entity) => entity.familyId === "e-qwen"));
 
   const detail = await knowledgeRepository.getEntityBySlug("qwen-3-max", "model");
   assert.equal(detail?.familyId, "e-qwen");
-  assert.ok(detail?.specs?.contextWindow);
+  assert.equal(detail?.specs?.contextWindow, "256K tokens");
+  assert.equal(detail?.specs?.inputPrice, "¥6–15 / 1M tokens · Beijing · tiered");
+  assert.equal(detail?.specs?.availability, "Alibaba Cloud hosted API · Beijing");
 
   const kimiVersions = await knowledgeRepository.getFamilyVersions("e-kimi");
-  assert.deepEqual(
-    kimiVersions.map((entity) => entity.id),
-    ["e-kimi-k26", "e-kimi-k3"],
-  );
+  assert.equal(kimiVersions.length, 8);
+  assert.ok(kimiVersions.some((entity) => entity.id === "e-kimi-k27-code"));
+  assert.equal(kimiVersions.find((entity) => entity.id === "e-kimi-k25").release.stage, "retired");
 
   const ernieVersions = await knowledgeRepository.getFamilyVersions("e-ernie");
-  assert.deepEqual(
-    ernieVersions.map((entity) => entity.id),
-    ["e-ernie-45", "e-ernie-50", "e-ernie-51"],
-  );
+  assert.equal(ernieVersions.length, 16);
+  assert.ok(ernieVersions.some((entity) => entity.id === "e-ernie-x11"));
 
   const timeline = await knowledgeRepository.getEntityTimeline("e-qwen-3-max");
   assert.equal(timeline.length, 1);
@@ -188,8 +188,13 @@ test("the demo adapter exposes a complete, explicitly labelled snapshot", () => 
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.meta.mode, "demo");
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.researchQuestions.length >= 3);
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.interestProfile.length >= 3);
-  assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, ENTITIES.length);
-  assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.edges.length, RELATIONS.length);
+  assert.equal(BASE_DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, ENTITIES.length);
+  assert.equal(BASE_DEMO_KNOWLEDGE_SNAPSHOT.graph.edges.length, RELATIONS.length);
+  assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, DEMO_KNOWLEDGE_SNAPSHOT.entities.length);
+  const ids = new Set(DEMO_KNOWLEDGE_SNAPSHOT.entities.map((entity) => entity.id));
+  assert.ok(
+    DEMO_KNOWLEDGE_SNAPSHOT.graph.edges.every((edge) => ids.has(edge.fromId) && ids.has(edge.toId)),
+  );
 });
 
 test("graph filters support explicit empty and combined selections", () => {

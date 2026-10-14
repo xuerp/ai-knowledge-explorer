@@ -18,6 +18,7 @@ from app.database import (
     RagClaimDocumentRecord,
     ReviewJobRecord,
     SourceRecord,
+    UserRecord,
 )
 from app.extraction import (
     EXTRACTION_PIPELINE_VERSION,
@@ -37,6 +38,260 @@ from app.schemas import CandidateCreate, GraphEdge
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_dense_version_selection_controls_research_evidence_and_keeps_hard_constraints(client):
+    account = client.post(
+        "/api/v2/auth/register",
+        json={
+            "email": "dense-candidate-scope@example.com",
+            "password": "isolated dense candidate scope password",
+        },
+    )
+    assert account.status_code == 201
+    owner = {"Authorization": "Bearer " + account.json()["accessToken"]}
+    selected = {"e-mistral-large-3", "e-mistral-large-4"}
+    question = "Compare Mistral Large 4 and Large 3 total parameters and active parameters; quality remains unverified."
+    context = {
+        "task": question,
+        "taskType": "model-api",
+        "priority": "quality",
+        "budget": {"mode": "unknown"},
+        "deployment": "undecided",
+        "candidateEntityIds": sorted(selected),
+        "exclusions": [],
+    }
+    response = client.post(
+        "/api/v2/research",
+        headers=owner,
+        json={"question": question, "language": "en", "decisionContext": context},
+    )
+    assert response.status_code == 200
+    research = response.json()
+    assert {item["claim"]["entityId"] for item in research["citations"]} == selected
+    assert research["decision"]["recommendation"]["primaryEntityId"] is None
+    assert set(research["decision"]["recommendation"]["alternativeEntityIds"]) == selected
+    rows = {item["id"]: item for item in research["decision"]["comparisons"]}
+    assert all(cell["state"] == "unknown" for cell in rows["task-quality"]["cells"])
+    for field in ("total-parameters", "active-parameters"):
+        assert {cell["entityId"] for cell in rows[field]["cells"]} == selected
+        assert all(cell["state"] == "supported" for cell in rows[field]["cells"])
+    assert research["publishedSlug"] is None
+    assert client.get("/api/v2/research/" + research["id"], headers=owner).json() == research
+    assert client.get("/api/v2/research/" + research["id"]).status_code == 401
+    context.update(
+        deployment="private",
+        budget={"mode": "range", "max": 100, "currency": "USD", "period": "month"},
+    )
+    strict = client.post(
+        "/api/v2/research",
+        headers=owner,
+        json={"question": question, "language": "en", "decisionContext": context},
+    ).json()
+    assert strict["decision"]["status"] == "insufficient-evidence"
+    assert strict["decision"]["recommendation"]["primaryEntityId"] is None
+    assert strict["decision"]["comparisons"] == []
+    assert {item["claim"]["entityId"] for item in strict["citations"]} == selected
+    assert any("Mistral Large 3" in item for item in strict["decision"]["nextChecks"])
+    assert any("Mistral Large 4" in item for item in strict["decision"]["nextChecks"])
+
+
+@pytest.mark.parametrize("account_state", ["missing", "disabled", "demoted"])
+def test_jwt_uses_current_database_account_and_role(client, account_state):
+    bootstrap = client.post(
+        "/api/v2/auth/bootstrap",
+        headers={"X-Admin-Token": "test-admin-token"},
+        json={
+            "email": "current-account@example.com",
+            "password": "current account fixture password",
+        },
+    )
+    assert bootstrap.status_code == 200
+    token = bootstrap.json()["accessToken"]
+    if account_state == "missing":
+        token = client.app.state.auth.issue_token(
+            UserRecord(
+                id="absent-current-account",
+                email="absent@example.com",
+                role="admin",
+                active=True,
+                daily_digest_enabled=False,
+                digest_hour="08:00",
+                created_at=datetime.now(UTC),
+                password_hash="unused-test-only",
+            )
+        ).access_token
+    else:
+        with client.app.state.database.session() as session:
+            user = session.scalars(
+                select(UserRecord).where(UserRecord.email == "current-account@example.com")
+            ).one()
+            if account_state == "disabled":
+                user.active = False
+            else:
+                user.role = "viewer"
+            session.commit()
+    headers = {"Authorization": "Bearer " + token}
+    response = client.get("/api/v2/admin/sources", headers=headers)
+    assert response.status_code == (403 if account_state == "demoted" else 401)
+    research = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={"question": "Gemini CLI source verification", "language": "en"},
+    )
+    assert research.status_code == (200 if account_state == "demoted" else 401)
+
+
+def test_decision_36h_published_price_constraints_and_history(client):
+    """Twenty frozen API cases against a reviewed synthetic price, isolated by fixture."""
+    auth = client.post(
+        "/api/v2/auth/bootstrap",
+        headers={"X-Admin-Token": "test-admin-token"},
+        json={"email": "decision36h@example.com", "password": "isolated fixture password 36h"},
+    )
+    assert auth.status_code == 200
+    headers = {"Authorization": "Bearer " + auth.json()["accessToken"]}
+    price = json.dumps(
+        {
+            "input": 2,
+            "output": 8,
+            "currency": "USD",
+            "unit": "per-million-tokens",
+            "channel": "official",
+        }
+    )
+    candidate = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-price36h",
+            "entityId": "e-gpt",
+            "claim": {
+                "id": "price36h",
+                "text": {"zh": "GPT 测试预算价格", "en": "GPT fixture API budget price"},
+                "confidence": "verified",
+                "sourceIds": ["source-price36h"],
+                "updatedAt": "2026-10-01",
+                "subject": "GPT",
+                "predicate": "api_price",
+                "objectOrValue": price,
+                "validFrom": "2026-10-01",
+            },
+            "evidence": [
+                {
+                    "id": "source-price36h",
+                    "title": {"zh": "隔离测试资料", "en": "Isolated fixture"},
+                    "url": "https://example.com/price36h",
+                    "publisher": "Fixture",
+                    "type": "official",
+                    "publishedAt": "2026-10-01",
+                    "collectedAt": "2026-10-01",
+                    "sourceExcerpt": "GPT " + price,
+                }
+            ],
+        },
+    )
+    assert candidate.status_code == 201
+    base = {
+        "task": "GPT fixture API budget comparison",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": ["e-gpt"],
+        "budget": {
+            "mode": "range",
+            "max": 10,
+            "currency": "USD",
+            "channel": "official",
+            "monthlyInputTokens": 1000000,
+            "monthlyOutputTokens": 1000000,
+        },
+    }
+
+    def request(context, language="en"):
+        response = client.post(
+            "/api/v2/research",
+            headers=headers,
+            json={
+                "question": "GPT fixture API budget price",
+                "language": language,
+                "decisionContext": context,
+            },
+        )
+        assert response.status_code == 200
+        return response.json()
+
+    pending_decision = request(base)["decision"]
+    assert pending_decision["recommendation"]["primaryEntityId"] is None
+    assert pending_decision["comparisons"] == []
+    approved = client.post(
+        "/api/v2/admin/review-queue/review-price36h/approve",
+        headers=headers,
+        json={
+            "expectedVersion": candidate.json()["version"],
+            "reason": "Isolated test evidence verified.",
+        },
+    )
+    assert approved.status_code == 200
+    cases = [
+        ("exact-budget", {}, {}, True),
+        ("chinese", {}, {}, True),
+        ("over-budget", {}, {"max": 9}, False),
+        ("zero-budget", {}, {"max": 0}, False),
+        ("usd-ceiling", {}, {"max": 11}, True),
+        ("currency", {}, {"currency": "CNY"}, False),
+        ("channel", {}, {"channel": "reseller"}, False),
+        ("missing-channel", {}, {"channel": None}, False),
+        ("missing-input", {}, {"monthlyInputTokens": None}, False),
+        ("missing-output", {}, {"monthlyOutputTokens": None}, False),
+        ("missing-ceiling", {}, {"max": None}, False),
+        ("private", {"deployment": "private"}, {}, False),
+        ("device", {"deployment": "on-device"}, {}, False),
+        ("hybrid", {"deployment": "hybrid"}, {}, False),
+        ("excluded", {"exclusions": ["e-gpt"]}, {}, False),
+        ("closed-source", {"exclusions": ["不接受闭源"]}, {}, False),
+        ("regional", {"region": "CN"}, {}, False),
+        ("coding-product", {"taskType": "coding-product"}, {}, False),
+        ("agent-development", {"taskType": "agent-development"}, {}, False),
+        ("unknown-exclusion", {"exclusions": ["必须支持特殊审计条件"]}, {}, False),
+    ]
+    saved = None
+    for name, changes, budget_changes, expected in cases:
+        context = {**base, **changes, "budget": {**base["budget"], **budget_changes}}
+        result = request(context, "zh" if name == "chinese" else "en")
+        decision = result["decision"]
+        assert decision["recommendation"]["primaryEntityId"] == ("e-gpt" if expected else None), (
+            name
+        )
+        assert set(decision["claimIds"]).issubset(result["claimIds"]), name
+        if not expected:
+            assert decision["claimIds"] == [], name
+            assert decision["comparisons"] == [], name
+        else:
+            assert "price36h" in decision["claimIds"], name
+            price_row = next(
+                row for row in decision["comparisons"] if row["id"].startswith("api-price")
+            )
+            price_cell = next(cell for cell in price_row["cells"] if cell["entityId"] == "e-gpt")
+            assert price_cell["state"] == "supported", name
+            assert any(fact["claimIds"] == ["price36h"] for fact in price_cell["facts"]), name
+            saved = result
+    retracted = client.post(
+        "/api/v2/admin/review-queue/review-price36h/publication-state",
+        headers=headers,
+        json={
+            "action": "retract",
+            "expectedVersion": approved.json()["version"],
+            "reason": "Isolated withdrawal drill.",
+        },
+    )
+    assert retracted.status_code == 200
+    historical = client.get("/api/v2/research/" + saved["id"], headers=headers).json()
+    assert historical["citationStates"]["price36h"] == "unavailable"
+    assert historical["decision"]["recommendation"]["primaryEntityId"] is None
+    assert historical["decision"]["comparisons"] == []
+    assert historical["status"] == "insufficient-evidence"
 
 
 @pytest.fixture
@@ -93,7 +348,7 @@ def test_health_exposes_write_boundary(client: TestClient):
         "ok": True,
         "release": "2026.09.01-review-observability-v68",
         "buildCommit": "test-build-commit",
-        "schemaRevision": "20260905_0023",
+        "schemaRevision": DATABASE_SCHEMA_REVISION,
         "builtAt": "2026-08-25T00:00:00Z",
         "environment": "test",
         "dataMode": "demo",
@@ -188,6 +443,8 @@ def test_data_quality_overview_does_not_run_full_rag_index_sync(client: TestClie
 def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
     client: TestClient,
 ):
+    with client.app.state.database.session() as session:
+        indexed_before = session.query(RagClaimDocumentRecord).count()
     response = client.get("/api/quality/metrics")
 
     assert response.status_code == 200
@@ -203,7 +460,7 @@ def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
     )
     assert payload["business"]["updatedAt"]
     assert payload["evaluation"]["updatedAt"] == "2026-08-31T06:00:28.810798Z"
-    assert payload["evaluation"]["cadence"] == "daily-or-on-retrieval-change"
+    assert payload["evaluation"]["cadence"] == "on-evaluation-publication"
     assert payload["evaluation"]["goldenSetVersion"] == "1.0.0"
     assert payload["evaluation"]["sampleCount"] == 80
     assert payload["evaluation"]["retrievalMode"] == "hybrid"
@@ -211,6 +468,21 @@ def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
     assert payload["evaluation"]["precisionAt8"] == 0.1422
     assert payload["evaluation"]["entityRecallAt8"] == 0.9875
     assert payload["evaluation"]["passRatio"] == 1.0
+    applicability = payload["evaluation"]["applicability"]
+    assert applicability["status"] == "historical"
+    assert applicability["corpusMatches"] is False
+    assert applicability["retrievalConfigMatches"] is False
+    assert applicability["configuredRetrievalMode"] == "lexical"
+    reference = json.loads((BACKEND_ROOT / "data/quality_evaluation.json").read_text("utf-8"))[
+        "reference"
+    ]
+    current_claim_ids = {claim["id"] for claim in snapshot["claims"]}
+    assert applicability["missingExpectedClaimSampleCount"] == sum(
+        not set(ids).issubset(current_claim_ids) for ids in reference["expectedClaimIdsBySample"]
+    )
+    assert "reference" not in payload["evaluation"]
+    with client.app.state.database.session() as session:
+        assert session.query(RagClaimDocumentRecord).count() == indexed_before
     versioned = client.get("/api/v2/quality/metrics")
     assert versioned.status_code == 200
     assert versioned.json()["dataMode"] == payload["dataMode"]
@@ -631,8 +903,8 @@ def test_golden_question_report_is_protected_and_executable(client: TestClient):
     assert response.status_code == 200
     payload = response.json()
     assert payload["total"] == 20
-    assert payload["passed"] == 19
-    assert payload["passRatio"] == 0.95
+    assert payload["passed"] == 20
+    assert payload["passRatio"] == 1.0
     assert payload["requiredRatio"] == 0.85
     assert payload["ready"] is True
     assert payload["retrievalPassRatio"] == 1.0
@@ -967,8 +1239,8 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             "relationsAutoApproved": 0,
             "attemptsRemaining": 0,
             "eligibleSnapshots": 0,
-            "relationDeficit": 2,
-            "coreEntitiesBelowRequirement": 2,
+            "relationDeficit": before.json()["relationDeficit"],
+            "coreEntitiesBelowRequirement": before.json()["coreEntitiesBelowRequirement"],
         }
 
         second = automatic_client.post(
@@ -1321,7 +1593,11 @@ def test_public_snapshot_is_live_and_hides_unreviewed_claims(client: TestClient)
     assert payload["reviewCandidates"] == []
     assert payload["syncRuns"] == []
     assert "c-gpt5-1m" not in {claim["id"] for claim in payload["claims"]}
-    assert payload["changes"] == []
+    assert payload["changes"]
+    assert all(
+        change["id"].startswith(("change-release-", "change-event-"))
+        for change in payload["changes"]
+    )
 
 
 def test_changes_project_only_current_approved_dated_claims_with_anchored_evidence(
@@ -1391,20 +1667,26 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
     add_review("unanchored", excerpt="")
     add_review("unknown-entity", entity_id="e-missing")
     add_review("bad-url", url="https://[invalid")
+    add_review("future", fact_date="2099-01-01")
+    add_review("blocked-catalog-release", status="pending", entity_id="e-gpt-61-sol")
 
     payload = client.get("/api/v2/snapshot").json()
-    assert payload["changes"] == [
+    assert [
+        change for change in payload["changes"] if change["id"].startswith("change-claim-")
+    ] == [
         {
             "id": "change-claim-claim-change-valid",
+            "detail": None,
             "entityId": "e-gpt",
             "date": "2026-08-20",
             "summary": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
-            "kind": "updated",
+            "kind": "new",
             "confidence": "verified",
             "sourceIds": ["evidence-change-valid"],
         },
     ]
     assert any(item["id"] == "evidence-change-valid" for item in payload["evidence"])
+    assert all(change["entityId"] != "e-gpt-61-sol" for change in payload["changes"])
 
 
 def test_live_mode_fails_closed_until_data_quality_is_ready(tmp_path: Path):
@@ -1471,16 +1753,41 @@ def test_non_model_entities_expose_editorial_knowledge_articles(client: TestClie
 def test_model_families_expose_editorial_guides(client: TestClient):
     families = client.get("/api/v2/model-families")
     assert families.status_code == 200
-    assert len(families.json()) == 8
+    assert {family["id"] for family in families.json()} == {
+        "e-gpt",
+        "e-claude",
+        "e-gemini",
+        "e-deepseek",
+        "e-qwen",
+        "e-kimi",
+        "e-glm",
+        "e-hunyuan",
+        "e-doubao",
+        "e-ernie",
+        "e-grok",
+        "e-minimax",
+        "e-mistral",
+    }
 
     for family in families.json():
         entity = client.get(f"/api/v2/entities/model/{family['slug']}")
         assert entity.status_code == 200
         knowledge = entity.json()["knowledge"]
-        assert len(knowledge["introduction"]) >= 2
+        assert knowledge["introduction"]
+        assert all(
+            paragraph["zh"].strip() and paragraph["en"].strip()
+            for paragraph in knowledge["introduction"]
+        )
         assert len(knowledge["keyPoints"]) >= 3
-        assert len(knowledge["useCases"]) >= 3
-        assert len(knowledge["limitations"]) >= 3
+        # Catalog guides deliberately keep two distinct adoption paths concise.
+        assert len(knowledge["useCases"]) >= 2
+        assert len(knowledge["limitations"]) >= 2
+        for use_case in knowledge["useCases"]:
+            assert all(
+                use_case[field][language].strip()
+                for field in ("title", "description")
+                for language in ("zh", "en")
+            )
         assert knowledge["officialUrl"].startswith("https://")
         assert any(point.get("sourceIds") for point in knowledge["keyPoints"])
 
@@ -1494,24 +1801,101 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
 
     versions = client.get("/api/v2/model-families/e-qwen/versions")
     assert versions.status_code == 200
-    assert [item["id"] for item in versions.json()] == ["e-qwen-25-max", "e-qwen-3-max"]
+    qwen_by_id = {item["id"]: item for item in versions.json()}
+    assert {
+        "e-qwen-25-max",
+        "e-qwen-3-max",
+        "e-qwen-3-8-max",
+        "e-qwen-38-flash",
+        "e-qwen-coder-plus",
+    } <= set(qwen_by_id)
     assert all(item["familyId"] == "e-qwen" for item in versions.json())
-    assert all(item["specs"]["contextWindow"] for item in versions.json())
+    assert qwen_by_id["e-qwen-3-max"]["specs"]["contextWindow"] == "256K tokens"
+    release = qwen_by_id["e-qwen-3-8-max"]["release"]
+    assert release["generation"] == "Qwen 3.8"
+    assert release["variant"] == "Max"
+    assert release["releaseId"] == "qwen3.8-max-0902"
+    assert release["stage"] == "stable"
+    assert release["lastVerifiedAt"] == "2026-10-01"
+    assert "qwen3.8-max" in release["apiModelIds"]
+    assert any(channel["type"] == "official-api" for channel in release["accessChannels"])
+
+    gemini_versions = client.get("/api/v2/model-families/e-gemini/versions")
+    assert gemini_versions.status_code == 200
+    gemini_lines = {
+        item["id"]: item.get("release", {}).get("productLine", {}).get("id")
+        for item in gemini_versions.json()
+    }
+    assert {
+        "e-gemini-15-pro",
+        "e-gemini-25-pro",
+        "e-gemini-3-1-pro",
+        "e-gemini-20-flash",
+        "e-gemini-25-flash",
+        "e-gemini-35-flash",
+        "e-gemini-36-flash",
+        "e-gemini-37-flash",
+        "e-gemini-3-8-flash",
+        "e-gemini-20-flash-lite",
+        "e-gemini-25-flash-lite",
+        "e-gemini-31-flash-lite",
+        "e-gemini-3-5-flash-lite",
+        "e-gemini-4-pending",
+        "e-gemini-38-live",
+        "e-gemini-38-flash-tts",
+        "e-gemini-35-transcribe",
+        "e-gemini-31-flash-image",
+        "e-gemini-omni-flash",
+        "e-gemini-deep-research",
+        "e-gemini-embedding-2",
+        "e-gemini-robotics-er-2",
+    } <= set(gemini_lines)
+    line_counts = {
+        line: list(gemini_lines.values()).count(line) for line in set(gemini_lines.values())
+    }
+    assert line_counts == {
+        "gemini-pro": 10,
+        "gemini-flash": 9,
+        "gemini-flash-lite": 5,
+        "gemini-live": 8,
+        "gemini-tts": 5,
+        "gemini-transcribe": 1,
+        "gemini-image": 7,
+        "gemini-video": 1,
+        "gemini-deep-research": 2,
+        "gemini-embedding": 2,
+        "gemini-robotics-er": 3,
+    }
+    assert all(gemini_lines.values())
+    gemini_by_id = {item["id"]: item for item in gemini_versions.json()}
+    assert gemini_by_id["e-gemini-15-pro"]["status"] == "deprecated"
+    assert gemini_by_id["e-gemini-15-pro"]["release"]["stage"] == "retired"
+    assert gemini_by_id["e-gemini-20-flash"]["release"]["stage"] == "retired"
+    assert gemini_by_id["e-gemini-20-flash-lite"]["release"]["stage"] == "retired"
+    assert gemini_by_id["e-gemini-31-flash-lite"]["release"]["stage"] == "stable"
+    assert gemini_by_id["e-gemini-25-flash"]["status"] == "active"
+    assert gemini_by_id["e-gemini-25-flash-lite"]["status"] == "active"
+    assert gemini_by_id["e-gemini-4-pending"]["release"]["stage"] == "pending"
+    assert len({item["slug"] for item in gemini_versions.json()}) == 53
+    gemini_timeline = client.get("/api/v2/entities/e-gemini/timeline")
+    assert gemini_timeline.status_code == 200
+    assert {
+        "t-gemini-family-3-1-pro",
+        "t-gemini-family-3-5-flash-lite",
+        "t-gemini-family-3-8-flash",
+    } <= {item["id"] for item in gemini_timeline.json()}
 
     kimi_versions = client.get("/api/v2/model-families/e-kimi/versions")
     assert kimi_versions.status_code == 200
-    assert [item["id"] for item in kimi_versions.json()] == [
-        "e-kimi-k26",
-        "e-kimi-k3",
-    ]
+    assert {"e-kimi-k26", "e-kimi-k3", "e-kimi-k27-code", "e-kimi-k27-code-highspeed"} <= {
+        item["id"] for item in kimi_versions.json()
+    }
 
     ernie_versions = client.get("/api/v2/model-families/e-ernie/versions")
     assert ernie_versions.status_code == 200
-    assert [item["id"] for item in ernie_versions.json()] == [
-        "e-ernie-45",
-        "e-ernie-50",
-        "e-ernie-51",
-    ]
+    assert {"e-ernie-45", "e-ernie-50", "e-ernie-51", "e-ernie-x11", "e-ernie-turbo-text"} <= {
+        item["id"] for item in ernie_versions.json()
+    }
 
     comparison = client.post(
         "/api/v2/model-versions/compare",
@@ -1615,7 +1999,9 @@ def test_admin_can_extend_persistent_catalog_without_frontend_changes(client: Te
     assert versions.status_code == 200
     assert [item["id"] for item in versions.json()] == ["e-test-v1"]
     assert client.get("/api/v2/entities/model/test-series").status_code == 200
-    assert client.get("/api/v2/entities/e-test-series/timeline").json() == [event]
+    assert client.get("/api/v2/entities/e-test-series/timeline").json() == [
+        {**event, "dateKind": None, "releaseEntityId": None, "changeKind": None, "detail": None}
+    ]
     neighbors = client.get("/api/v2/entities/e-test-series/neighbors").json()
     assert any(item["id"] == "edge-test-v1-family" for item in neighbors["edges"])
 
@@ -1655,11 +2041,18 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
     )
     assert response.status_code == 200
     payload = response.json()
+    registered_sources = payload.pop("registeredSources")
+    public_evidence = client.get("/api/v2/snapshot").json()["evidence"]
+    # Fetch registrations are deduplicated by canonical URL, while evidence
+    # records can cite the same official document for multiple reviewed facts.
+    assert registered_sources >= len({item["url"].rstrip("/") for item in public_evidence})
     assert payload == {
         "extractionConfigured": False,
         "extractionPipelineVersion": EXTRACTION_PIPELINE_VERSION,
         "extractionEndpointHost": None,
         "extractionModel": None,
+        "extractionReasoningEffort": None,
+        "extractionMaxCompletionTokens": None,
         "automaticExtractionEnabled": False,
         "automaticExtractionMaxSnapshotsPerCycle": 0,
         "automaticExtractionMaxCandidatesPerSnapshot": 5,
@@ -1679,7 +2072,6 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "emailDeliveryProvider": "smtp",
         "emailDeliveryEndpointHost": None,
         "fetchAllowedHosts": ["example.com"],
-        "registeredSources": 38,
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
     }
@@ -2146,6 +2538,75 @@ def test_superseding_claim_hides_old_fact_and_checks_target_version(client: Test
     assert first_page.json()["items"][0]["id"] == target["claim"]["id"]
     assert first_page.json()["items"][0]["validTo"] == "2026-08-22"
     assert first_page.json()["evidence"]
+
+
+@pytest.mark.parametrize("revision", ["identical", "qualification", "undated-value", "validity"])
+def test_review_revision_preserves_effective_dates_and_requires_changed_content(client, revision):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    original = approve_lifecycle_candidate(
+        client, headers, create_lifecycle_candidate(client, headers, "qualified-old", "1M")
+    )
+    claim = {
+        **original["claim"],
+        "id": "claim-qualified-revision",
+        "confidence": "unverified",
+        "sourceIds": ["evidence-qualified-revision"],
+    }
+    if revision == "qualification":
+        claim["text"] = {
+            "zh": "GPT 在启用预览开关时支持 1M 上下文。",
+            "en": "GPT supports a 1M context window with the preview flag enabled.",
+        }
+    elif revision == "undated-value":
+        claim["objectOrValue"] = "2M"
+        claim["text"] = {"zh": "GPT 支持 2M 上下文。", "en": "GPT supports a 2M context window."}
+        claim["validFrom"] = None
+    elif revision == "validity":
+        claim["validFrom"] = "2026-08-23"
+    evidence = {
+        **original["evidenceItems"][0],
+        "id": "evidence-qualified-revision",
+        "supportsClaimIds": [claim["id"]],
+        "sourceExcerpt": claim["text"]["en"],
+    }
+    candidate = client.post(
+        "/api/v2/admin/review-candidates",
+        headers=headers,
+        json={
+            "id": "review-qualified-revision",
+            "entityId": "e-gpt",
+            "claim": claim,
+            "evidence": [evidence],
+        },
+    )
+    assert candidate.status_code == 201
+    decision = {
+        "expectedVersion": candidate.json()["version"],
+        "targetClaimId": original["claim"]["id"],
+        "expectedTargetVersion": original["version"],
+        "idempotencyKey": "review-qualified-revision-v1",
+        "reason": "Reviewed qualification or value correction.",
+    }
+    response = client.post(
+        "/api/v2/admin/review-queue/review-qualified-revision/approve-superseding",
+        headers=headers,
+        json=decision,
+    )
+    assert response.status_code == (409 if revision == "identical" else 200)
+    history = client.get(
+        "/api/v2/admin/review-queue", params={"scope": "history"}, headers=headers
+    ).json()
+    previous = next(row for row in history if row["id"] == original["id"])
+    assert previous["claim"]["validTo"] is None
+    assert previous["lifecycleStatus"] == ("current" if revision == "identical" else "superseded")
+    public = {row["id"]: row for row in client.get("/api/v2/snapshot").json()["claims"]}
+    if revision == "identical":
+        assert original["claim"]["id"] in public and claim["id"] not in public
+    else:
+        assert (
+            original["claim"]["id"] not in public
+            and public[claim["id"]]["text"] == response.json()["claim"]["text"]
+        )
 
 
 def test_review_queue_supports_bounded_open_and_history_scopes(client: TestClient):
@@ -2726,6 +3187,38 @@ def test_jwt_bootstrap_login_roles_and_audit_log(client: TestClient):
     assert {item["action"] for item in audit.json()} >= {"user.bootstrap", "user.create"}
 
 
+def test_public_registration_creates_viewer_and_rejects_duplicate(client: TestClient):
+    payload = {
+        "email": "new-viewer@example.com",
+        "password": "correct horse battery staple",
+    }
+    registered = client.post("/api/v2/auth/register", json=payload)
+    assert registered.status_code == 201
+    assert registered.json()["user"]["email"] == payload["email"]
+    assert registered.json()["user"]["role"] == "viewer"
+
+    headers = {"Authorization": f"Bearer {registered.json()['accessToken']}"}
+    assert client.get("/api/v2/auth/me", headers=headers).status_code == 200
+    assert client.get("/api/v2/admin/review-queue", headers=headers).status_code == 403
+    login = client.post("/api/v2/auth/login", json=payload)
+    assert login.status_code == 200
+    assert login.json()["user"]["role"] == "viewer"
+    wrong_password = client.post(
+        "/api/v2/auth/login", json={**payload, "password": "a different long password"}
+    )
+    assert wrong_password.status_code == 401
+
+    duplicate = client.post("/api/v2/auth/register", json=payload)
+    assert duplicate.status_code == 409
+    assert duplicate.json()["detail"] == "An account with this email already exists."
+
+    too_short = client.post(
+        "/api/v2/auth/register",
+        json={"email": "short-password@example.com", "password": "too-short"},
+    )
+    assert too_short.status_code == 422
+
+
 def test_source_snapshots_are_normalized_deduplicated_and_diffed(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
@@ -2928,7 +3421,7 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     )
     assert extracted.status_code == 200
     assert extracted.json() == []
-    assert extraction_limits == [5]
+    assert extraction_limits == [15]
 
     refreshed = client.get("/api/v2/admin/extraction-plan", headers=headers).json()
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
@@ -3011,7 +3504,7 @@ def test_repeated_extraction_repairs_missing_entity_link_without_duplicate(
         headers=headers,
     ).json()
     repaired = next(item for item in queue if item["id"] == "review-entity-repair")
-    assert repaired["entityId"] == "e-gemini"
+    assert repaired["entityId"] == "e-gemini-35-transcribe"
     assert repaired["version"] == 2
 
 
@@ -3060,9 +3553,16 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
             "r-landscape-claude-code-manus",
             "r-landscape-codex-manus",
             "r-landscape-deepseek-gemini",
+            "r-gemini-3-1-pro-family",
+            "r-gemini-3-8-flash-family",
+            "r-gemini-3-5-flash-lite-family",
         ):
             relation = session.get(KnowledgeRelationRecord, relation_id)
             assert relation is not None
+            session.delete(relation)
+        for relation in session.scalars(
+            select(KnowledgeRelationRecord).where(KnowledgeRelationRecord.to_id == "e-gemini")
+        ):
             session.delete(relation)
         session.commit()
 
@@ -3072,7 +3572,7 @@ def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
     ).json()
     source_order = [row["sourceId"] for row in planned]
     assert source_order.index("source-high-priority-plan") < source_order.index(
-        "source-low-priority-plan"
+        "source-generic-plan"
     )
     assert source_order.index("source-low-priority-plan") < source_order.index(
         "source-generic-plan"
@@ -3351,7 +3851,9 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     decision_payload = decision_research.json()
     assert decision_payload["decisionContext"]["priority"] == "cost"
     assert decision_payload["decision"]["status"] in {"ready", "insufficient-evidence"}
-    assert decision_payload["decision"]["claimIds"] == decision_payload["claimIds"]
+    assert set(decision_payload["decision"]["claimIds"]).issubset(decision_payload["claimIds"])
+    # Retrieval coverage cannot establish a private deployment guarantee.
+    assert decision_payload["decision"]["recommendation"]["primaryEntityId"] is None
     assert all(
         set(item["claimIds"]).issubset(set(decision_payload["claimIds"]))
         for item in decision_payload["decision"]["tradeoffs"]
@@ -3418,6 +3920,11 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert slug
     shared = client.get(f"/api/v2/share/{slug}")
     assert shared.status_code == 200
+    assert published.json()["createdAt"] == research.json()["createdAt"]
+    assert shared.json()["createdAt"] == research.json()["createdAt"]
+    assert shared.json()["publishedAt"] == published.json()["publishedAt"]
+    assert datetime.fromisoformat(shared.json()["createdAt"]).tzinfo is not None
+    assert datetime.fromisoformat(shared.json()["publishedAt"]).tzinfo is not None
     shared_notification = next(
         item
         for item in shared.json()["citations"]

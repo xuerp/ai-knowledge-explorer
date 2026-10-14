@@ -77,33 +77,30 @@ const ENTITY_SECTION_ORDER: Record<
 > = {
   model: {
     general: [
+      "timeline",
       "guide",
+      "lineage",
       "profile",
       "claims",
-      "lineage",
-      "relationships",
-      "timeline",
       "comparison",
       "questions",
       "evidence",
     ],
     product: [
+      "timeline",
+      "lineage",
       "guide",
       "claims",
-      "lineage",
       "comparison",
-      "relationships",
-      "timeline",
+      "evidence",
       "profile",
       "questions",
-      "evidence",
     ],
     technical: [
+      "timeline",
       "profile",
       "lineage",
       "claims",
-      "relationships",
-      "timeline",
       "evidence",
       "guide",
       "comparison",
@@ -113,7 +110,43 @@ const ENTITY_SECTION_ORDER: Record<
   generic: {
     general: ["guide", "profile", "claims", "relationships", "timeline", "evidence"],
     product: ["guide", "claims", "relationships", "timeline", "profile", "evidence"],
-    technical: ["profile", "relationships", "timeline", "evidence", "claims", "guide"],
+    technical: ["guide", "profile", "claims", "evidence", "relationships", "timeline"],
+  },
+};
+
+export const REFERENCE_READING_CONTEXT = {
+  general: {
+    description: {
+      zh: "了解它是什么、提供什么，以及适合做哪些任务。",
+      en: "Understand what it is, what it provides and which tasks it serves.",
+    },
+    focusAreas: [
+      { zh: "用途", en: "Purpose" },
+      { zh: "工作方式", en: "Workflow" },
+      { zh: "关联对象", en: "Related entities" },
+    ],
+  },
+  product: {
+    description: {
+      zh: "围绕具体任务比较采用路径与使用边界。",
+      en: "Compare adoption paths and limitations against a specific task.",
+    },
+    focusAreas: [
+      { zh: "适合任务", en: "Suitable tasks" },
+      { zh: "接入条件", en: "Access conditions" },
+      { zh: "采用风险", en: "Adoption risks" },
+    ],
+  },
+  technical: {
+    description: {
+      zh: "从工作机制、结构化档案和官方来源核对信息。",
+      en: "Review mechanisms, structured reference data and official evidence.",
+    },
+    focusAreas: [
+      { zh: "工作机制", en: "Mechanisms" },
+      { zh: "资料档案", en: "Reference profile" },
+      { zh: "原始来源", en: "Original sources" },
+    ],
   },
 };
 
@@ -126,29 +159,26 @@ const ENTITY_SECTION_DENSITY: Record<
       guide: "focus",
       claims: "focus",
       lineage: "supporting",
-      relationships: "supporting",
       timeline: "supporting",
       questions: "supporting",
       profile: "hidden",
       comparison: "hidden",
-      evidence: "hidden",
+      evidence: "supporting",
     },
     product: {
       guide: "focus",
       claims: "focus",
       lineage: "focus",
       comparison: "focus",
-      relationships: "supporting",
       timeline: "supporting",
       profile: "hidden",
       questions: "hidden",
-      evidence: "hidden",
+      evidence: "supporting",
     },
     technical: {
       profile: "focus",
       claims: "focus",
-      relationships: "focus",
-      timeline: "focus",
+      timeline: "supporting",
       evidence: "focus",
       lineage: "supporting",
       guide: "supporting",

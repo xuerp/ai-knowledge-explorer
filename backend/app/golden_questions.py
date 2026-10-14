@@ -369,7 +369,12 @@ class GoldenQuestionEvaluator:
 
     @staticmethod
     def _has_explicit_evidence_gap(snapshot: KnowledgeSnapshot, evidence_ids: set[str]) -> bool:
-        if any(claim.confidence != "verified" for claim in snapshot.claims):
+        records = [
+            *snapshot.claims,
+            *snapshot.graph.edges,
+            *(entry for entries in snapshot.timeline.values() for entry in entries),
+        ]
+        if any(record.confidence != "verified" for record in records):
             return True
         return any(
             not source_ids or not set(source_ids).issubset(evidence_ids)

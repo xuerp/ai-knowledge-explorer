@@ -75,50 +75,28 @@ function layout(
     entities[0];
   const others = entities.filter((entity) => entity.id !== center.id);
 
-  const orbits: Record<EntityType, number> = {
-    model: 245,
-    company: 150,
-    framework: 275,
-    benchmark: 285,
-    paper: 300,
-    application: 260,
-    agent: 270,
-    dataset: 295,
-    api: 280,
-    tool: 280,
-  };
-
-  const buckets = new Map<EntityType, Entity[]>();
-  for (const entity of others) {
-    const bucket = buckets.get(entity.type) ?? [];
-    bucket.push(entity);
-    buckets.set(entity.type, bucket);
-  }
-
+  // Separate rings keep different entity types from occupying the same angular slots.
+  // Elliptical rings use the wide canvas and reserve space beneath every full label.
+  const ordered = [...others].sort(
+    (left, right) =>
+      left.type.localeCompare(right.type) || left.name.en.localeCompare(right.name.en),
+  );
   const nodes: PositionedNode[] = [{ entity: center, x: centerX, y: centerY }];
-  for (const [type, bucket] of buckets) {
-    const radius = orbits[type] ?? 220;
-    const startAngle = (
-      {
-        model: -Math.PI / 2,
-        company: Math.PI,
-        framework: Math.PI / 4,
-        benchmark: -Math.PI / 4,
-        paper: (3 * Math.PI) / 4,
-        application: (-3 * Math.PI) / 4,
-        agent: Math.PI / 2,
-        dataset: Math.PI,
-        api: Math.PI / 3,
-        tool: -Math.PI / 3,
-      } as Record<EntityType, number>
-    )[type];
-    bucket.forEach((entity, index) => {
-      const step = (Math.PI * 1.2) / Math.max(bucket.length, 2);
-      const angle = startAngle + (index - (bucket.length - 1) / 2) * step;
+  const ringSize = width < 600 ? 6 : 12;
+  for (let offset = 0; offset < ordered.length; offset += ringSize) {
+    const ring = ordered.slice(offset, offset + ringSize);
+    const ringIndex = offset / ringSize;
+    const radiusX = Math.max(
+      width < 600 ? 65 : 150,
+      width / 2 - (width < 600 ? 65 : 115) - ringIndex * 120,
+    );
+    const radiusY = Math.max(80, height / 2 - 70 - ringIndex * 65);
+    ring.forEach((entity, index) => {
+      const angle = -Math.PI / 2 + (index / ring.length) * Math.PI * 2 + ringIndex * 0.17;
       nodes.push({
         entity,
-        x: roundCoordinate(centerX + Math.cos(angle) * radius),
-        y: roundCoordinate(centerY + Math.sin(angle) * radius),
+        x: roundCoordinate(centerX + Math.cos(angle) * radiusX),
+        y: roundCoordinate(centerY + Math.sin(angle) * radiusY),
       });
     });
   }
@@ -225,12 +203,25 @@ export function KnowledgeGraph({
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [viewport, setViewport] = useState<Viewport>({ x: 0, y: 0, scale: 1 });
+  const [measuredWidth, setMeasuredWidth] = useState(canvasWidth);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) {
+        setMeasuredWidth(Math.max(300, Math.min(canvasWidth, entry.contentRect.width)));
+      }
+    });
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, [canvasWidth]);
 
   const visibleEntities = useMemo(
     () => (entityIds ? entities.filter((entity) => entityIds.includes(entity.id)) : entities),
     [entities, entityIds],
   );
-  const width = canvasWidth;
+  const width = measuredWidth;
   const baseNodes = useMemo(
     () => layout(visibleEntities, centerId, width, height),
     [visibleEntities, centerId, height, width],
@@ -358,7 +349,14 @@ export function KnowledgeGraph({
   };
 
   const finishInteraction = (event: PointerEvent<SVGSVGElement>) => {
-    if (interactionRef.current?.pointerId !== event.pointerId) return;
+    const interaction = interactionRef.current;
+    if (interaction?.pointerId !== event.pointerId) return;
+    // Pointer capture retargets the click to the SVG. Resolve a tap here,
+    // while keeping node drags and cancelled gestures separate.
+    if (event.type === "pointerup" && interaction.kind === "node" && !interaction.moved) {
+      const node = nodes.find((item) => item.entity.id === interaction.nodeId);
+      if (node) onSelectNode?.(node.entity);
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -368,7 +366,7 @@ export function KnowledgeGraph({
   };
 
   const selectNode = (entity: Entity) => {
-    if (interactionRef.current?.moved) return;
+    if (interactionRef.current) return;
     onSelectNode?.(entity);
   };
 
@@ -378,7 +376,7 @@ export function KnowledgeGraph({
     onSelectNode?.(entity);
   };
 
-  const onEdgeKeyDown = (event: KeyboardEvent<SVGLineElement>, edge: GraphEdge) => {
+  const onEdgeKeyDown = (event: KeyboardEvent<SVGPolygonElement>, edge: GraphEdge) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     onSelectEdge?.(edge);
@@ -494,6 +492,9 @@ export function KnowledgeGraph({
                 hoveredNodeId && (hoveredNodeId === edge.fromId || hoveredNodeId === edge.toId),
               );
             const appearance = edgeAppearance(edge, active);
+            const length = Math.hypot(to.x - from.x, to.y - from.y) || 1;
+            const offsetX = ((to.y - from.y) / length) * 7;
+            const offsetY = ((from.x - to.x) / length) * 7;
             return (
               <g key={edge.id}>
                 <line
@@ -529,14 +530,9 @@ export function KnowledgeGraph({
                       {pick(RELATION_LABELS[edge.kind], lang)}
                     </text>
                   )}
-                <line
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
-                  stroke="transparent"
-                  strokeWidth={14}
-                  vectorEffect="non-scaling-stroke"
+                <polygon
+                  points={`${from.x + offsetX},${from.y + offsetY} ${to.x + offsetX},${to.y + offsetY} ${to.x - offsetX},${to.y - offsetY} ${from.x - offsetX},${from.y - offsetY}`}
+                  fill="transparent"
                   className="cursor-pointer"
                   role="button"
                   tabIndex={0}
@@ -574,6 +570,7 @@ export function KnowledgeGraph({
                 onClick={() => selectNode(node.entity)}
                 onKeyDown={(event) => onNodeKeyDown(event, node.entity)}
               >
+                <title>{pick(node.entity.name, lang)}</title>
                 <circle
                   r={radius + 9}
                   fill={meta.color}
@@ -604,7 +601,9 @@ export function KnowledgeGraph({
                   fontWeight={500}
                   style={{ pointerEvents: "none" }}
                 >
-                  {pick(node.entity.name, lang)}
+                  {pick(node.entity.name, lang).length > (width < 600 ? 18 : 25)
+                    ? `${pick(node.entity.name, lang).slice(0, width < 600 ? 17 : 24)}…`
+                    : pick(node.entity.name, lang)}
                 </text>
               </g>
             );

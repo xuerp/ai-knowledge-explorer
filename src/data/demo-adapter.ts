@@ -1,4 +1,7 @@
 import type { KnowledgeSnapshot } from "@/domain/types";
+import catalogExtension from "../../backend/data/catalog_extension.json";
+import frontierCatalog from "../../backend/data/frontier_catalog_v1.json";
+import { applyCatalogOverlays } from "./catalog-overlay.mjs";
 import {
   CLAIMS,
   ENTITIES,
@@ -9,7 +12,7 @@ import {
   TIMELINE,
 } from "@/lib/demo-data";
 
-export const DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
+export const BASE_DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
   meta: {
     mode: "demo",
     freshness: "fresh",
@@ -188,3 +191,9 @@ export const DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
     },
   ],
 };
+
+export const DEMO_KNOWLEDGE_SNAPSHOT = applyCatalogOverlays(
+  BASE_DEMO_KNOWLEDGE_SNAPSHOT,
+  catalogExtension,
+  frontierCatalog,
+);

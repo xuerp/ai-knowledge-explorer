@@ -17,9 +17,68 @@ const {
   impactScope,
   incidentRelations,
   relationshipStats,
+  sourcedRelationships,
+  featuredRelationships,
+  filteredRelationships,
 } = await vite.ssrLoadModule("/src/domain/relationship-insights.ts");
+const { DEMO_KNOWLEDGE_SNAPSHOT: snapshot } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
 
 test.after(async () => vite.close());
+
+test("graph filters keep valid sourced endpoints and never invent a connection", () => {
+  const copy = structuredClone(snapshot);
+  const edge = copy.graph.edges[0];
+  copy.graph.edges.push(
+    { ...edge, id: "bad-endpoint", toId: "missing" },
+    { ...edge, id: "bad-evidence", sourceIds: ["missing"] },
+  );
+  const filtered = filteredRelationships(copy, {
+    kind: "developed-by",
+    confidence: "verified",
+    linkedOnly: true,
+  });
+  assert.ok(filtered.length > 0);
+  assert.ok(
+    filtered.every((item) => item.kind === "developed-by" && item.confidence === "verified"),
+  );
+  assert.ok(
+    filtered.every((item) =>
+      item.sourceIds.some((id) => copy.evidence.some((source) => source.id === id && source.url)),
+    ),
+  );
+  assert.ok(!filtered.some((item) => item.id.startsWith("bad-")));
+  const empty = filteredRelationships(copy, { kind: "does-not-exist", linkedOnly: true });
+  assert.deepEqual(empty, []);
+  assert.equal(connectionPath(copy.entities, empty, "e-workbuddy", "e-hy4-preview").path, null);
+  assert.ok(
+    filteredRelationships(copy, { linkedOnly: false }).some((item) => item.id === "bad-evidence"),
+  );
+});
+
+test("首页关系只展示有端点和来源的记录，并提供不同用途的已核验入口", () => {
+  const copy = structuredClone(snapshot);
+  const known = copy.graph.edges[0];
+  copy.graph.edges.push(
+    { ...known, id: "missing-endpoint", fromId: "missing" },
+    { ...known, id: "missing-source", sourceIds: ["missing"] },
+  );
+  const relations = sourcedRelationships(copy);
+  assert.ok(!relations.some((edge) => edge.id.startsWith("missing-")));
+  const featured = featuredRelationships(copy);
+  assert.equal(featured.length, 3);
+  assert.equal(new Set(featured.map((edge) => edge.kind)).size, 3);
+  assert.equal(new Set(featured.map((edge) => edge.fromId)).size, 3);
+  assert.ok(featured.every((edge) => edge.confidence === "verified" && relations.includes(edge)));
+  assert.ok(
+    featured.every(
+      (edge) =>
+        snapshot.entities.some((entity) => entity.id === edge.fromId) &&
+        snapshot.entities.some((entity) => entity.id === edge.toId),
+    ),
+  );
+  assert.ok(featured.some((edge) => edge.kind === "integrates-with"));
+  assert.deepEqual(snapshot.graph.edges.length + 2, copy.graph.edges.length);
+});
 
 test("生态组成按实体类型聚合直接关系", () => {
   const target = ENTITIES.find((entity) => incidentRelations(RELATIONS, entity.id).length >= 2);

@@ -63,7 +63,7 @@ function CaseStudyPage() {
               {t("体验决策助手", "Try the decision assistant")} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              to="/"
+              to="/updates"
               className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-4 text-sm font-medium"
             >
               {t("查看最新变化", "View latest changes")}
@@ -219,7 +219,7 @@ function CaseStudyPage() {
         >
           <div className="grid gap-4 md:grid-cols-3">
             <JourneyLink
-              to="/"
+              to="/updates"
               icon={<History className="h-5 w-5" />}
               title={t("追踪器 · 高频入口", "Tracker · frequent entry")}
               body={t(
@@ -358,7 +358,7 @@ function JourneyLink({
   title,
   body,
 }: {
-  to: "/" | "/knowledge/model/$slug" | "/ask";
+  to: "/updates" | "/knowledge/model/$slug" | "/ask";
   icon: React.ReactNode;
   title: string;
   body: string;

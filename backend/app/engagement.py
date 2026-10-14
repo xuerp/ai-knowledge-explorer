@@ -18,7 +18,12 @@ from .database import (
     ResearchRecord,
     UserRecord,
 )
-from .rag import LexicalRagRetriever, RagRetriever
+from .decision_candidates import discover_candidates
+from .decision_comparison import build_comparisons
+from .decision_constraints import constraint_failures, current_claims, date_value
+from .decision_explanation import explain_decision
+from .decision_workflow import REASONS, candidate_dispositions, conflicting_entities, missing_inputs
+from .rag import HybridRagRetriever, LexicalRagRetriever, RagRetriever, grounded_retrieval_citations
 from .schemas import (
     Claim,
     DecisionContext,
@@ -37,6 +42,94 @@ from .schemas import (
     ResearchStep,
     ResearchView,
 )
+
+
+def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> ResearchView:
+    """Reconcile saved advice against current publication, without rewriting history."""
+    public = {item.claim.id: item.claim for item in grounded_retrieval_citations(snapshot)}
+    today = datetime.now(UTC).date()
+    public = {
+        key: claim
+        for key, claim in public.items()
+        if (
+            not claim.valid_from
+            or (date_value(claim.valid_from) is not None and date_value(claim.valid_from) <= today)
+        )
+        and (
+            not claim.valid_to
+            or (date_value(claim.valid_to) is not None and date_value(claim.valid_to) > today)
+        )
+    }
+    saved = {citation.claim.id: citation for citation in result.citations}
+    states = {}
+    for claim_id in result.claim_ids:
+        if claim_id not in public:
+            states[claim_id] = "unavailable"
+        elif claim_id not in saved or saved[claim_id].claim != public[claim_id]:
+            states[claim_id] = "updated"
+        else:
+            states[claim_id] = "current"
+    stale = any(state != "current" for state in states.values())
+    updates = {
+        "citation_states": states,
+        "claim_ids": [key for key, state in states.items() if state == "current"],
+        "citations": [
+            saved[key] for key, state in states.items() if state == "current" and key in saved
+        ],
+    }
+    if stale:
+        updates["status"] = "insufficient-evidence"
+        updates["summary"] = (
+            "历史引用已更新或不可用，请重新运行核验。 / Historical citations changed or are unavailable; run again."
+        )
+        if result.decision:
+            updates["decision"] = result.decision.model_copy(
+                update={
+                    "status": "insufficient-evidence",
+                    "claim_ids": [],
+                    "tradeoffs": [],
+                    "comparisons": [],
+                    "candidates": [],
+                    "scenario": result.decision.scenario.model_copy(
+                        update={"clarification_checks": []}
+                    ),
+                    "scope": result.decision.scope.model_copy(
+                        update={"considered_entity_ids": [], "omitted_entity_ids": []}
+                    ),
+                    "workflow_state": "insufficient-evidence",
+                    "plan": None,
+                    "risks": [],
+                    "recommendation": DecisionRecommendation(summary=updates["summary"]),
+                    "next_checks": [updates["summary"]],
+                }
+            )
+    if (
+        not stale
+        and result.decision
+        and result.decision_context
+        and result.decision_context.workflow_version == 2
+    ):
+        # Refresh presentation from the SAME saved, current citations. Keep the
+        # original constraints, eligibility, scope and timestamp; never persist.
+        groups = {}
+        for citation in updates["citations"]:
+            if citation.claim.entity_id:
+                groups.setdefault(citation.claim.entity_id, []).append(citation.claim)
+        language = "zh" if re.search(r"[\u3400-\u9fff]", result.question) else "en"
+        base = result.decision.model_copy(
+            update={
+                "comparisons": [
+                    row for row in result.decision.comparisons if not row.id.startswith("feature-")
+                ],
+                "tradeoffs": [
+                    row for row in result.decision.tradeoffs if row.dimension != "business-fit"
+                ],
+            }
+        )
+        refreshed = explain_decision(base, result.decision_context, groups, snapshot, language)
+        updates["decision"] = refreshed
+        updates["summary"] = refreshed.recommendation.summary
+    return result.model_copy(update=updates)
 
 
 class EngagementService:
@@ -158,11 +251,58 @@ class EngagementService:
         payload: ResearchCreate,
         snapshot: KnowledgeSnapshot,
     ) -> ResearchView:
-        retrieval = self.retriever.search(session, snapshot, payload.question, limit=8)
+        workflow_v2 = bool(
+            payload.decision_context and payload.decision_context.workflow_version == 2
+        )
+        # V2's offline boundary is explicit. Reuse the existing hybrid fallback,
+        # without inheriting an enabled external embedding provider.
+        retriever = HybridRagRetriever(enabled=False) if workflow_v2 else self.retriever
+        retrieval = retriever.search(
+            session,
+            snapshot,
+            payload.decision_context.task if workflow_v2 else payload.question,
+            limit=32 if workflow_v2 else 8,
+            entity_ids=(
+                set(payload.decision_context.candidate_entity_ids)
+                if payload.decision_context and payload.decision_context.candidate_entity_ids
+                else None
+            ),
+        )
         matched_claims = [item.claim for item in retrieval.citations]
         matched_entity_ids = set(retrieval.diagnostics.matched_entity_ids)
+        decision_context = payload.decision_context
+        if decision_context and decision_context.workflow_version == 2:
+            # Candidate-specific evidence must not compete for eight global search slots.
+            grounded = grounded_retrieval_citations(snapshot)
+            current = current_claims([item.claim for item in grounded], snapshot)
+            current_ids = {claim.id for claim in current}
+            current_by_entity = {}
+            for claim in current:
+                current_by_entity.setdefault(claim.entity_id, []).append(claim)
+            requested, decision_scope = discover_candidates(
+                decision_context, snapshot, current_by_entity, payload.language
+            )
+            decision_context = decision_context.model_copy(
+                update={"candidate_entity_ids": requested}
+            )
+            citations = [
+                item
+                for item in grounded
+                if item.claim.entity_id in requested and item.claim.id in current_ids
+            ]
+            retrieval.citations = citations
+            retrieval.diagnostics = retrieval.diagnostics.model_copy(
+                update={
+                    "returned_count": len(citations),
+                    "candidate_count": len(current),
+                    "filtered_count": len(current) - len(citations),
+                    "matched_entity_ids": requested,
+                }
+            )
+            matched_claims = [item.claim for item in citations]
+            matched_entity_ids = set(requested)
         status = "ready" if matched_claims else "insufficient-evidence"
-        answer = self.answer_service.answer(
+        answer = (CitedAnswerService() if workflow_v2 else self.answer_service).answer(
             payload.question,
             retrieval.citations,
             payload.language,
@@ -172,12 +312,18 @@ class EngagementService:
             update={"generation_fallback_reason": answer.fallback_reason}
         )
         decision = self._build_decision(
-            payload.decision_context,
+            decision_context,
             matched_claims,
             diagnostics.matched_entity_ids,
             snapshot,
             payload.language,
         )
+        if decision:
+            if workflow_v2:
+                decision.scope = decision_scope
+            summary = decision.recommendation.summary
+            if decision.status != "ready":
+                status = "failed" if decision.status == "failed" else "insufficient-evidence"
         steps = [
             ResearchStep(
                 id="understand",
@@ -240,54 +386,81 @@ class EngagementService:
         if context is None:
             return None
 
+        relevant_entities = (
+            set(matched_entity_ids)
+            | set(context.candidate_entity_ids)
+            | {claim.entity_id for claim in matched_claims if claim.entity_id}
+        )
+        today = datetime.now(UTC).date()
+        conflict_entities = {
+            claim.entity_id
+            for claim in snapshot.claims
+            if claim.confidence == "conflict"
+            and claim.entity_id in relevant_entities
+            and (
+                not claim.valid_from
+                or (
+                    date_value(claim.valid_from) is not None
+                    and date_value(claim.valid_from) <= today
+                )
+            )
+            and (
+                not claim.valid_to
+                or (date_value(claim.valid_to) is not None and date_value(claim.valid_to) > today)
+            )
+        }
+        matched_claims = current_claims(matched_claims, snapshot)
         claim_ids = [claim.id for claim in matched_claims]
         allowed_entities = set(context.candidate_entity_ids)
         claims_by_entity: dict[str, list[Claim]] = {}
         for claim in matched_claims:
             if claim.entity_id:
                 claims_by_entity.setdefault(claim.entity_id, []).append(claim)
+        entity_by_id = {entity.id: entity for entity in snapshot.entities}
+        if context.workflow_version == 2:
+            conflict_entities |= conflicting_entities(claims_by_entity, context)
+        matched_entity_ids = list(
+            dict.fromkeys([*matched_entity_ids, *context.candidate_entity_ids, *claims_by_entity])
+        )
+
+        def is_decision_eligible(entity_id: str) -> bool:
+            entity = entity_by_id.get(entity_id)
+            if entity is None:
+                return False
+            if entity_id in conflict_entities:
+                return False
+            return not constraint_failures(entity, claims_by_entity.get(entity_id, []), context)
+
         candidates = [
             entity_id
             for entity_id in matched_entity_ids
             if entity_id in claims_by_entity
             and (not allowed_entities or entity_id in allowed_entities)
+            and is_decision_eligible(entity_id)
         ]
-        has_conflict = any(claim.confidence == "conflict" for claim in matched_claims)
+        has_conflict = bool(conflict_entities)
         status = "conflict" if has_conflict else "ready" if candidates else "insufficient-evidence"
-        priority_keywords = {
-            "quality": ("quality", "accuracy", "benchmark", "质量", "准确", "评测"),
-            "cost": ("price", "pricing", "cost", "cheap", "价格", "成本", "便宜"),
-            "speed": ("speed", "latency", "fast", "速度", "时延", "延迟"),
-            "privacy": ("privacy", "data", "安全", "隐私", "数据"),
-            "control": ("open", "weight", "self-host", "可控", "开源", "权重", "自托管"),
-            "balanced": (),
-        }[context.priority]
-        deployment_keywords = {
-            "cloud-api": ("api", "cloud", "云"),
-            "private": ("private", "self-host", "私有", "自托管", "开放权重"),
-            "on-device": ("device", "edge", "端侧", "设备"),
-            "hybrid": ("hybrid", "混合"),
-            "undecided": (),
-        }[context.deployment]
-
-        def score(entity_id: str) -> tuple[int, int, str]:
-            entity_claims = claims_by_entity[entity_id]
-            searchable = " ".join(
-                f"{claim.text.zh} {claim.text.en}" for claim in entity_claims
-            ).casefold()
-            confidence_score = sum(
-                {"verified": 3, "inferred": 1, "unverified": 0, "conflict": -5}[claim.confidence]
-                for claim in entity_claims
+        # Stable comparison order is not a capability ranking. Only a sole eligible
+        # candidate can be a conditional first choice without comparable metrics.
+        ranked_candidates = list(dict.fromkeys(candidates))
+        candidate_types = {entity_by_id[item].type for item in ranked_candidates}
+        if context.task_type == "unspecified" and len(candidate_types) > 1:
+            ranked_candidates = []
+            status = "insufficient-evidence"
+        claim_ids = [claim.id for item in ranked_candidates for claim in claims_by_entity[item]]
+        blocked = [
+            (
+                entity_by_id[item].name.zh if language == "zh" else entity_by_id[item].name.en,
+                constraint_failures(entity_by_id[item], claims_by_entity.get(item, []), context),
             )
-            constraint_score = sum(
-                2 for keyword in (*priority_keywords, *deployment_keywords) if keyword in searchable
-            )
-            return confidence_score + constraint_score, len(entity_claims), entity_id
-
-        ranked_candidates = sorted(candidates, key=score, reverse=True)
-        primary = ranked_candidates[0] if status == "ready" and ranked_candidates else None
-        alternatives = ranked_candidates[1:3] if primary else []
-        entity_by_id = {entity.id: entity for entity in snapshot.entities}
+            for item in matched_entity_ids
+            if item in entity_by_id and (not allowed_entities or item in allowed_entities)
+        ]
+        blocked = [(name, reasons) for name, reasons in blocked if reasons]
+        primary = (
+            ranked_candidates[0] if status == "ready" and len(ranked_candidates) == 1 else None
+        )
+        alternatives = ranked_candidates[:2] if not primary else []
 
         def entity_name(entity_id: str) -> str:
             entity = entity_by_id.get(entity_id)
@@ -295,14 +468,31 @@ class EngagementService:
                 return entity_id
             return entity.name.zh if language == "zh" else entity.name.en
 
+        comparison_candidates = (
+            [
+                item
+                for item in matched_entity_ids
+                if item in claims_by_entity and (not allowed_entities or item in allowed_entities)
+            ]
+            if context.workflow_version == 2
+            else ranked_candidates
+        )
+        if context.workflow_version == 2:
+            claim_ids = [
+                claim.id for item in comparison_candidates for claim in claims_by_entity[item]
+            ]
+        comparisons, compared_claim_ids = build_comparisons(
+            context, comparison_candidates, claims_by_entity, language
+        )
         tradeoffs = [
             DecisionTradeoff(
-                dimension=context.priority,
+                dimension="additional-evidence",
                 finding=claim.text.zh if language == "zh" else claim.text.en,
                 claim_ids=[claim.id],
             )
-            for entity_id in ranked_candidates[:3]
+            for entity_id in comparison_candidates[:3]
             for claim in claims_by_entity[entity_id][:2]
+            if claim.id not in compared_claim_ids
         ]
 
         if language == "zh":
@@ -314,13 +504,17 @@ class EngagementService:
                     else "。"
                 )
                 if primary
-                else "当前证据不足以形成有来源的候选优先级；请先完成后续核验。"
+                else (
+                    "当前证据仅支持候选比较，尚不能形成能力排名；请核验预算、部署和同维度能力。"
+                    if ranked_candidates
+                    else "当前没有经证据核验满足全部硬约束的候选；缺失价格、部署或地区信息保持未知。"
+                )
             )
             conditions = [
                 f"任务：{context.task}",
-                f"首要优先级：{context.priority}",
-                f"部署方式：{context.deployment}",
-                f"预算模式：{context.budget.mode}",
+                f"首要优先级：{ {'balanced': '综合平衡', 'quality': '效果质量', 'cost': '成本', 'speed': '速度', 'privacy': '隐私', 'control': '可控性'}[context.priority] }",
+                f"部署方式：{ {'undecided': '暂不确定', 'cloud-api': '云 API', 'private': '私有部署', 'on-device': '端侧', 'hybrid': '混合'}[context.deployment] }",
+                f"预算模式：{ {'unknown': '暂不确定', 'cost-first': '成本优先', 'range': '指定区间'}[context.budget.mode] }",
             ]
             next_checks = [
                 "用真实样本进行小规模 PoC，并记录质量、时延与单位成本。",
@@ -340,7 +534,11 @@ class EngagementService:
                     else "."
                 )
                 if primary
-                else "The current evidence cannot support a sourced candidate priority; complete the next checks first."
+                else (
+                    "Evidence supports comparison only, without a capability ranking; verify budget, deployment and comparable metrics."
+                    if ranked_candidates
+                    else "No candidate is verified to meet every hard constraint; missing price, deployment or regional data remains unknown."
+                )
             )
             conditions = [
                 f"Task: {context.task}",
@@ -361,9 +559,138 @@ class EngagementService:
         if context.exclusions:
             label = "排除条件：" if language == "zh" else "Exclusions: "
             conditions.append(label + ", ".join(context.exclusions))
+        if context.service_access:
+            access = context.service_access
+            conditions.append(
+                f"商用服务范围：{access.channel}；账户层级：{access.tier}；服务使用国家：{access.region or '未确认'}。此国家不是数据存储地区；不替代全部条款及业务适用性核验。"
+                if language == "zh"
+                else f"Commercial service scope: {access.channel}; account tier: {access.tier}; country of service use: {access.region or 'unknown'}. This is not data residency or verification of every term and business condition."
+            )
+        if context.budget.mode == "range":
+            conditions.append(
+                "预算仅核算 Standard 未缓存模型 token 费用，不包含工具、缓存、税费或第三方加价。"
+                if context.budget.cost_scope == "standard-token-only" and language == "zh"
+                else "Budget covers Standard uncached model tokens only, excluding tools, caching, tax and reseller charges."
+                if context.budget.cost_scope == "standard-token-only"
+                else "预算要求包含全部费用；仅有模型 token 报价不能证明总费用适配。"
+                if language == "zh"
+                else "Budget covers all costs; a model token quote alone cannot establish total-cost fit."
+            )
+        if context.workflow_version == 2:
+            if context.minimum_context_tokens is not None:
+                conditions.append(
+                    f"{'最低上下文' if language == 'zh' else 'Minimum context'}: {context.minimum_context_tokens} tokens"
+                )
+            if context.input_modalities:
+                modality_labels = {
+                    "text": "文本",
+                    "image": "图像",
+                    "audio": "音频",
+                    "video": "视频",
+                }
+                conditions.append(
+                    f"{'必须支持的输入' if language == 'zh' else 'Required inputs'}: {', '.join(modality_labels[value] if language == 'zh' else value for value in context.input_modalities)}"
+                )
+            if context.region:
+                conditions.append(
+                    f"{'部署地区' if language == 'zh' else 'Hosting region'}: {context.region}"
+                )
+            if context.commercial_use_required:
+                conditions.append(
+                    "须有当前可核验的商用许可"
+                    if language == "zh"
+                    else "Current verified commercial-use permission required"
+                )
+            if context.budget.mode == "range":
+                unknown = "未明确" if language == "zh" else "unspecified"
+                input_workload = context.budget.monthly_input_tokens
+                output_workload = context.budget.monthly_output_tokens
+                period = (
+                    ("每月" if context.budget.period == "month" else "每百万 token")
+                    if language == "zh"
+                    else context.budget.period
+                )
+                conditions.append(
+                    f"{'预算上限及口径' if language == 'zh' else 'Budget ceiling and basis'}: {context.budget.max if context.budget.max is not None else unknown} {context.budget.currency or unknown}, {period}, {context.budget.channel or unknown}; {'输入' if language == 'zh' else 'input'}={input_workload if input_workload is not None else unknown}, {'输出' if language == 'zh' else 'output'}={output_workload if output_workload is not None else unknown}"
+                )
+                if context.budget.maximum_input_tokens_per_request is not None:
+                    conditions.append(
+                        f"{'每个请求最多输入' if language == 'zh' else 'Maximum input per request'}: {context.budget.maximum_input_tokens_per_request} token"
+                    )
+        if blocked:
+            reason_labels = {
+                "excluded": "符合排除条件",
+                "open-weights-unverified": "开放权重缺少核验证据",
+                "region-unverified": "部署地区缺少核验证据",
+                "exclusion-needs-clarification": "排除条件需要澄清",
+                "different-task-type": "对象类型不符合选型任务",
+                "unavailable-version": "版本尚不可用或已退出当前目录",
+                "deployment-unverified": "部署方式缺少核验证据",
+                "budget-assumptions-missing": "预算上限、币种或渠道未明确",
+                "workload-missing": "月输入或输出工作量未明确",
+                "price-unverified-or-conflicting": "价格缺少核验证据或存在冲突",
+                "over-budget": "按指定工作量计算超过预算",
+            }
+            if context.workflow_version == 2:
+                next_checks.extend(
+                    REASONS[reason][language == "en"]
+                    for reason in dict.fromkeys(
+                        reason for _name, reasons in blocked for reason in reasons
+                    )
+                )
+            else:
+                next_checks.extend(
+                    f"{name}: {', '.join(reason_labels.get(reason, reason) if language == 'zh' else reason for reason in reasons)}"
+                    for name, reasons in blocked
+                )
 
         risk_state = "conflict" if has_conflict else "inferred" if claim_ids else "unknown"
-        return DecisionResult(
+        dispositions = candidate_dispositions(
+            context,
+            context.candidate_entity_ids or matched_entity_ids,
+            claims_by_entity,
+            snapshot,
+            conflict_entities,
+            language,
+        )
+        missing = missing_inputs(context)
+        if context.workflow_version == 2:
+            if ranked_candidates:
+                names = "、".join(entity_name(item) for item in ranked_candidates[:3])
+                summary = (
+                    (
+                        f"{names} 的现有资料支持所选硬条件，可作为下一轮实测候选。先用同一批业务样本比较效果，再结合实际工作量核算成本。"
+                        if language == "zh"
+                        else f"Current evidence supports the selected hard constraints for {names}. Compare these candidates on the same business samples and cost the actual workload."
+                    )
+                    if not has_conflict
+                    else summary
+                )
+            elif comparison_candidates and not has_conflict:
+                reasons = list(
+                    dict.fromkeys(reason for _name, items in blocked for reason in items)
+                )
+                gaps = "；".join(REASONS[reason][language == "en"] for reason in reasons[:3])
+                summary = (
+                    f"已找到 {len(comparison_candidates)} 个有引用的候选，可以比较下方已收录的事实。暂不能确认最终适配：{gaps or '任务效果尚未实测'}。"
+                    if language == "zh"
+                    else f"Found {len(comparison_candidates)} cited candidates. Compare the recorded facts below; final fit remains unverified: {gaps or 'task performance has not been tested'}."
+                )
+        workflow_state = (
+            "needs-input"
+            if missing
+            else "conflict"
+            if has_conflict
+            else "no-eligible-candidate"
+            if dispositions and all(row.eligibility == "excluded" for row in dispositions)
+            else "insufficient-evidence"
+            if not ranked_candidates
+            else "ready"
+        )
+        result = DecisionResult(
+            candidates=dispositions,
+            missing_inputs=missing,
+            workflow_state=workflow_state,
             status=status,
             as_of=datetime.now(UTC),
             recommendation=DecisionRecommendation(
@@ -373,9 +700,23 @@ class EngagementService:
             ),
             conditions=conditions,
             tradeoffs=tradeoffs,
-            risks=[DecisionRisk(state=risk_state, detail=risk_detail, claim_ids=claim_ids)],
+            comparisons=comparisons,
+            risks=[
+                DecisionRisk(
+                    state=risk_state,
+                    detail=risk_detail,
+                    claim_ids=[]
+                    if context.workflow_version == 2 and not has_conflict
+                    else claim_ids,
+                )
+            ],
             next_checks=next_checks,
             claim_ids=claim_ids,
+        )
+        return (
+            explain_decision(result, context, claims_by_entity, snapshot, language)
+            if context.workflow_version == 2
+            else result
         )
 
     def get_research(
@@ -536,6 +877,13 @@ class EngagementService:
 
     @staticmethod
     def _research_view(row: ResearchRecord) -> ResearchView:
+        def utc_timestamp(value: datetime | None) -> datetime | None:
+            # SQLite drops timezone information from UTC database timestamps.
+            # Keep freshly created and reopened research dates consistent.
+            return (
+                value.replace(tzinfo=UTC) if value is not None and value.tzinfo is None else value
+            )
+
         return ResearchView(
             id=row.id,
             question=row.question,
@@ -550,6 +898,6 @@ class EngagementService:
             steps=[ResearchStep.model_validate(item) for item in json.loads(row.steps_json)],
             status=row.status,
             published_slug=row.published_slug,
-            created_at=row.created_at,
-            published_at=row.published_at,
+            created_at=utc_timestamp(row.created_at),
+            published_at=utc_timestamp(row.published_at),
         )

@@ -1,0 +1,1719 @@
+{
+  "frozenAt": "2026-10-07T09:31:15.697790+00:00",
+  "frozenBeforeExecution": true,
+  "syntheticFixtures": true,
+  "officialPriceAccuracyClaimed": false,
+  "seedSha256": "456705bff7701ecd6fee9b686eb0a58fefabac50f6796c28cbfed5f1e83c4bdd",
+  "fixtureSeedPolicy": "Copy catalog entities; remove all seed claims/evidence/review/sync/timeline/changes/edges. No network, paid calls, production writes or shared-user database writes. Each case uses separate tmp SQLite. Actual authenticated FastAPI review/publication/research routes; every research belongs to viewer.",
+  "assertions": [
+    "Recommendation obeys frozen hard constraints.",
+    "Only current public verified citations may support decision facts.",
+    "Every displayed comparison finding is exact localized cited Claim text; no generated numerical scores.",
+    "Every result is reopened with private owner; anonymous and other account cannot read; publishedSlug remains null.",
+    "Withdrawal/replacement invalidates saved advice without rewriting stored record.",
+    "Chinese and English decision output/cited findings use selected language.",
+    "Conflicting current prices, missing data, mixed object types and inactive prices cannot become definite recommendations."
+  ],
+  "cases": [
+    {
+      "id": "budget-exact-en",
+      "category": "budget",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "budget-over-limit",
+      "category": "budget",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 9,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "budget-currency",
+      "category": "budget",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "CNY",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "budget-channel",
+      "category": "budget",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "reseller",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "budget-workload-missing",
+      "category": "budget",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": null
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "private-unknown",
+      "category": "private-deployment",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "private",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "private-supported",
+      "category": "private-deployment",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "private",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-private",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-private",
+              "text": {
+                "zh": "GPT 隔离测试资料：private",
+                "en": "GPT isolated semantic fixture: private"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-private"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "deployment",
+              "objectOrValue": "private",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-private",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/private",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: private",
+                "supportsClaimIds": [
+                  "semantic-private"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "excluded-entity",
+      "category": "exclusion",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [
+          "e-gpt"
+        ],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "excluded-vendor",
+      "category": "exclusion",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [
+          "OpenAI"
+        ],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "model-task-with-tool",
+      "category": "cross-type",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-cursor"
+        ],
+        "budget": {
+          "mode": "unknown"
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-tool",
+            "entityId": "e-cursor",
+            "claim": {
+              "id": "semantic-tool",
+              "text": {
+                "zh": "Cursor 隔离测试资料：cloud-api",
+                "en": "Cursor isolated semantic fixture: cloud-api"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-tool"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "Cursor",
+              "predicate": "deployment",
+              "objectOrValue": "cloud-api",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-tool",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/tool",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "Cursor isolated semantic fixture: cloud-api",
+                "supportsClaimIds": [
+                  "semantic-tool"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "mixed-type-no-ranking",
+      "category": "cross-type",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "unspecified",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt",
+          "e-cursor"
+        ],
+        "budget": {
+          "mode": "unknown"
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-tool",
+            "entityId": "e-cursor",
+            "claim": {
+              "id": "semantic-tool",
+              "text": {
+                "zh": "Cursor 隔离测试资料：cloud-api",
+                "en": "Cursor isolated semantic fixture: cloud-api"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-tool"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "Cursor",
+              "predicate": "deployment",
+              "objectOrValue": "cloud-api",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-tool",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/tool",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "Cursor isolated semantic fixture: cloud-api",
+                "supportsClaimIds": [
+                  "semantic-tool"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "historical-price-expired",
+      "category": "historical-price",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-old-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-old-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-old-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2000-01-01",
+              "validTo": "2001-01-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-old-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/old-price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-old-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked",
+      "forbiddenCitationIds": [
+        "semantic-old-price"
+      ]
+    },
+    {
+      "id": "future-price",
+      "category": "historical-price",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-future-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-future-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-future-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2099-01-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-future-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/future-price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-future-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked",
+      "forbiddenCitationIds": [
+        "semantic-future-price"
+      ]
+    },
+    {
+      "id": "conflicting-current-prices",
+      "category": "conflict",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price-conflict",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price-conflict",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 4, \"output\": 12, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 4, \"output\": 12, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price-conflict"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 4, \"output\": 12, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price-conflict",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price-conflict",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 4, \"output\": 12, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price-conflict"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked"
+    },
+    {
+      "id": "no-evidence",
+      "category": "no-evidence",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [],
+      "flow": "standard",
+      "expected": "blocked",
+      "forbiddenAllCitations": true
+    },
+    {
+      "id": "pending-not-public",
+      "category": "unpublished",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "pending",
+          "body": {
+            "id": "semantic-review-pending",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-pending",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-pending"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-pending",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/pending",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-pending"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "blocked",
+      "forbiddenAllCitations": true
+    },
+    {
+      "id": "withdrawal-invalidates-history",
+      "category": "withdrawal",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "withdrawal",
+      "expected": "blocked"
+    },
+    {
+      "id": "restore-new-research",
+      "category": "restore",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "restore",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "budget-exact-zh",
+      "category": "bilingual",
+      "language": "zh",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "new-publication-visible",
+      "category": "new-published-fact",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "pending",
+          "body": {
+            "id": "semantic-review-new",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-new",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-new"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-new",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/new",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-new"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "publish",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "superseding-invalidates-history",
+      "category": "updated-fact",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "cost",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt"
+        ],
+        "budget": {
+          "mode": "range",
+          "max": 10,
+          "currency": "USD",
+          "channel": "official",
+          "period": "month",
+          "monthlyInputTokens": 1000000,
+          "monthlyOutputTokens": 1000000
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "initialState": "pending",
+          "body": {
+            "id": "semantic-review-replacement",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-replacement",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 3, \"output\": 6, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 3, \"output\": 6, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-replacement"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 3, \"output\": 6, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-03"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-replacement",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/replacement",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 3, \"output\": 6, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-replacement"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "superseding",
+      "expected": "sole-gpt"
+    },
+    {
+      "id": "two-models-quality-unknown",
+      "category": "unknown-quality",
+      "language": "en",
+      "question": "GPT Claude Cursor isolated semantic fixture API deployment price",
+      "context": {
+        "task": "GPT isolated semantic model API selection",
+        "taskType": "model-api",
+        "priority": "quality",
+        "deployment": "undecided",
+        "exclusions": [],
+        "candidateEntityIds": [
+          "e-gpt",
+          "e-claude"
+        ],
+        "budget": {
+          "mode": "unknown"
+        }
+      },
+      "facts": [
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-price",
+            "entityId": "e-gpt",
+            "claim": {
+              "id": "semantic-price",
+              "text": {
+                "zh": "GPT 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-price"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "GPT",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-price",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/price",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "GPT isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-price"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "initialState": "approved",
+          "body": {
+            "id": "semantic-review-claude",
+            "entityId": "e-claude",
+            "claim": {
+              "id": "semantic-claude",
+              "text": {
+                "zh": "Claude 隔离测试资料：{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "en": "Claude isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}"
+              },
+              "confidence": "unverified",
+              "sourceIds": [
+                "semantic-source-claude"
+              ],
+              "updatedAt": "2026-10-01",
+              "subject": "Claude",
+              "predicate": "api_price",
+              "objectOrValue": "{\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+              "validFrom": "2026-10-01"
+            },
+            "evidence": [
+              {
+                "id": "semantic-source-claude",
+                "title": {
+                  "zh": "合成语义测试资料",
+                  "en": "Synthetic semantic fixture"
+                },
+                "url": "https://example.com/semantic/claude",
+                "publisher": "Isolated synthetic fixture",
+                "type": "official",
+                "publishedAt": "2026-10-01",
+                "collectedAt": "2026-10-07",
+                "sourceExcerpt": "Claude isolated semantic fixture: {\"channel\": \"official\", \"currency\": \"USD\", \"input\": 2, \"output\": 8, \"unit\": \"per-million-tokens\"}",
+                "supportsClaimIds": [
+                  "semantic-claude"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "flow": "standard",
+      "expected": "comparison-only"
+    }
+  ]
+}

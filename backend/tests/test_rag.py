@@ -21,6 +21,57 @@ from app.repository import KnowledgeRepository
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
 
 
+@pytest.mark.parametrize("mode", ["lexical", "disabled", "unavailable", "hybrid", "provider-error"])
+def test_explicit_candidates_share_evidence_and_reject_outside_vector_hits(mode):
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    lexical = LexicalRagRetriever()
+    selected = {"e-mistral-large-3", "e-mistral-large-4"}
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        outside_ids = [claim.id for claim in snapshot.claims if claim.entity_id not in selected][
+            :12
+        ]
+        provider = FakeEmbeddingProvider(fail=mode == "provider-error")
+        retriever = (
+            lexical
+            if mode == "lexical"
+            else HybridRagRetriever(
+                lexical,
+                enabled=mode != "disabled",
+                embedding_provider=None if mode == "unavailable" else provider,
+                vector_index=None if mode == "unavailable" else FakeVectorIndex(outside_ids),
+            )
+        )
+        # The second selection is explicit in the form, but abbreviated in prose.
+        result = retriever.search(
+            session,
+            snapshot,
+            "Compare Mistral Large 4 and Large 3 total parameters and active parameters.",
+            limit=8,
+            entity_ids=selected,
+        )
+        assert result.diagnostics.matched_entity_ids == sorted(selected)
+        assert len(result.citations) == 8
+        assert all(citation.claim.entity_id in selected for citation in result.citations)
+        for entity_id in selected:
+            entity_citations = [
+                citation for citation in result.citations if citation.claim.entity_id == entity_id
+            ]
+            assert len(entity_citations) == 4
+            assert {"total-parameters", "active-parameters"}.issubset(
+                {item.claim.predicate for item in entity_citations}
+            )
+        missing = retriever.search(
+            session, snapshot, "What does Claude offer?", entity_ids={"not-in-catalogue"}
+        )
+        assert missing.citations == []
+        assert missing.diagnostics.fallback_reason == "candidate-scope-empty"
+    engine.dispose()
+
+
 def test_lexical_rag_builds_grounded_projection_and_returns_citations():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
@@ -66,11 +117,13 @@ def test_grounded_projection_indexes_timeline_and_relation_knowledge():
         snapshot = repository.public_snapshot(session)
         retriever.prepare(session, snapshot)
 
-        assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-r2") is not None
+        assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-v3") is not None
+        assert session.get(RagClaimDocumentRecord, "rag-timeline:t-deepseek-r2") is None
         assert session.get(RagClaimDocumentRecord, "rag-relation:r16") is not None
 
     projected_ids = {citation.claim.id for citation in grounded_retrieval_citations(snapshot)}
-    assert "rag-timeline:t-deepseek-r2" in projected_ids
+    assert "rag-timeline:t-deepseek-v3" in projected_ids
+    assert "rag-timeline:t-deepseek-r2" not in projected_ids
     assert "rag-relation:r16" in projected_ids
 
 
@@ -161,7 +214,7 @@ def test_lexical_rag_expands_family_mentions_to_concrete_versions():
         result = retriever.search(session, snapshot, "GPT 最近有哪些已核验变化？")
 
     assert result.diagnostics.matched_entity_ids == ["e-gpt"]
-    assert any(item.claim.entity_id == "e-gpt-5" for item in result.citations)
+    assert any(item.claim.entity_id in {"e-gpt-5", "e-gpt-6-astra"} for item in result.citations)
 
 
 def test_lexical_rag_resolves_normalized_catalog_aliases():

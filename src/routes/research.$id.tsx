@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
 import { DecisionBrief } from "@/components/research/DecisionBrief";
+import { DecisionValidationPanel } from "@/components/research/DecisionValidationPanel";
 import type { ResearchAnswer } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { pick, useApp } from "@/lib/app-state";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/research/$id")({
 });
 
 function ResearchRecordPage() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   const { id } = Route.useParams();
   const snapshotQuery = useKnowledgeSnapshot();
   const [liveResearch, setLiveResearch] = useState<ResearchResult | null>(null);
@@ -49,7 +50,10 @@ function ResearchRecordPage() {
     if (!liveResearch) return null;
     return {
       id: liveResearch.id,
-      question: { zh: liveResearch.question, en: liveResearch.question },
+      question: {
+        zh: liveResearch.decisionContext?.task ?? liveResearch.question,
+        en: liveResearch.decisionContext?.task ?? liveResearch.question,
+      },
       summary: { zh: liveResearch.summary, en: liveResearch.summary },
       claimIds: liveResearch.claimIds,
       steps: liveResearch.steps,
@@ -161,24 +165,43 @@ function ResearchRecordPage() {
               {publishError}
             </div>
           )}
-          <DecisionBrief
-            research={liveResearch}
-            entityName={(entityId) => {
-              const entity = snapshotQuery.data.entities.find((item) => item.id === entityId);
-              return entity ? pick(entity.name, "zh") : entityId;
-            }}
-            isComparable={(entityId) =>
-              snapshotQuery.data.entities.some(
-                (item) => item.id === entityId && item.type === "model",
-              )
-            }
-          />
         </div>
         <ResearchReport
           answer={liveAnswer}
           snapshot={snapshotQuery.data}
           dataMode="live"
           publishedSlug={liveResearch.publishedSlug}
+          research={liveResearch}
+          decisionContent={
+            <>
+              <DecisionBrief
+                research={liveResearch}
+                outcomeLevel={2}
+                validationContent={
+                  <DecisionValidationPanel
+                    headingLevel={2}
+                    research={liveResearch}
+                    token={token}
+                    entityName={(entityId) => {
+                      const entity = snapshotQuery.data.entities.find(
+                        (item) => item.id === entityId,
+                      );
+                      return entity ? pick(entity.name, lang) : entityId;
+                    }}
+                  />
+                }
+                entityName={(entityId) => {
+                  const entity = snapshotQuery.data.entities.find((item) => item.id === entityId);
+                  return entity ? pick(entity.name, lang) : entityId;
+                }}
+                isComparable={(entityId) =>
+                  snapshotQuery.data.entities.some(
+                    (item) => item.id === entityId && item.type === "model",
+                  )
+                }
+              />
+            </>
+          }
         />
       </AppShell>
     );

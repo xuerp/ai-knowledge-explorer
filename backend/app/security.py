@@ -6,6 +6,15 @@ from typing import Annotated
 from fastapi import Header, HTTPException, Request, status
 
 from .auth import Principal
+from .database import UserRecord
+
+
+def _current_account_principal(request: Request, principal: Principal) -> Principal | None:
+    with request.app.state.database.session() as session:
+        user = session.get(UserRecord, principal.subject)
+        if user is None or not user.active:
+            return None
+        return Principal(subject=user.id, email=user.email, role=user.role)
 
 
 def _resolve_principal(
@@ -29,7 +38,9 @@ def _resolve_principal(
     if authorization and authorization.lower().startswith("bearer "):
         principal = request.app.state.auth.decode_token(authorization[7:].strip())
         if principal:
-            return principal
+            current = _current_account_principal(request, principal)
+            if current:
+                return current
 
     if not configured_admin_token and not request.app.state.auth.enabled:
         raise HTTPException(
@@ -59,6 +70,8 @@ def require_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     principal = request.app.state.auth.decode_token(authorization[7:].strip())
+    if principal:
+        principal = _current_account_principal(request, principal)
     if not principal:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

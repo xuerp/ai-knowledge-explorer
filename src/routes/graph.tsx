@@ -1,24 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  ArrowRight,
-  Building2,
-  Check,
-  CheckCircle2,
-  ChevronRight,
-  CircleDot,
-  ExternalLink,
-  GitCompareArrows,
-  Network,
-  Radar,
-  Search,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, Check, ChevronDown, ExternalLink, Search } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { ConfidenceChip, DemoBadge } from "@/components/common";
+import { ConfidenceChip, DemoBadge, WorkspaceHeader } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
-import { KnowledgeGraph } from "@/components/graph/KnowledgeGraph";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -29,1034 +14,646 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ENTITY_TYPE_LABELS, RELATION_LABELS } from "@/domain/labels";
+import { catalogTypeLabel, RELATION_LABELS } from "@/domain/labels";
+import { connectionPaths, impactLeads, incidentRelations } from "@/domain/relationship-insights";
 import {
-  connectionPath,
-  connectionPaths,
-  ecosystemGroups,
-  impactLeads,
-  impactScope,
-  incidentRelations,
-  relationshipStats,
-} from "@/domain/relationship-insights";
-import type { Entity, Evidence, GraphEdge, KnowledgeSnapshot } from "@/domain/types";
+  catalogRelationships,
+  familyEntityId,
+  graphEntryEntities,
+  relationshipPurpose,
+  type CatalogRelationship,
+} from "@/domain/relationship-catalog";
+import type { Entity, KnowledgeSnapshot } from "@/domain/types";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { pick, useApp } from "@/lib/app-state";
 
 type InsightMode = "ecosystem" | "connection" | "impact";
-type InsightSearch = { entity?: string; target?: string; mode?: InsightMode };
-
+type InsightSearch = {
+  entity?: string;
+  target?: string;
+  mode?: InsightMode;
+  confidence?: string;
+  linked?: "all";
+  relation?: string;
+  depth?: 1 | 2;
+};
 export const Route = createFileRoute("/graph")({
-  validateSearch: (search: Record<string, unknown>): InsightSearch => {
-    const validated: InsightSearch = {};
-    if (typeof search.entity === "string") validated.entity = search.entity;
-    if (typeof search.target === "string") validated.target = search.target;
-    if (search.mode === "ecosystem" || search.mode === "connection" || search.mode === "impact") {
-      validated.mode = search.mode;
-    }
-    return validated;
-  },
+  validateSearch: (search: Record<string, unknown>): InsightSearch => ({
+    entity: typeof search.entity === "string" ? search.entity : undefined,
+    target: typeof search.target === "string" ? search.target : undefined,
+    mode: search.mode === "impact" || search.mode === "connection" ? search.mode : "ecosystem",
+    confidence: ["verified", "inferred", "unverified", "conflict"].includes(
+      String(search.confidence),
+    )
+      ? String(search.confidence)
+      : undefined,
+    linked: search.linked === "all" ? "all" : undefined,
+    relation:
+      typeof search.relation === "string" && search.relation in RELATION_LABELS
+        ? search.relation
+        : undefined,
+  }),
   head: () => ({
     meta: [
-      { title: "关系洞察 · AI Radar" },
+      { title: "知识图谱 · AI Radar" },
       {
         name: "description",
-        content: "解释 AI 实体之间的关系、生态组成与潜在影响范围，并核验每段关系的证据。",
-      },
-      { property: "og:title", content: "AI Radar · 关系洞察" },
-      {
-        property: "og:description",
-        content: "从已审核关系中获得可读结论，而不是只看一张节点图。",
+        content: "按模型家族浏览提供方、应用接入、技术依赖与评测联系，逐条核对原始证据。",
       },
     ],
   }),
-  component: RelationshipInsightsPage,
+  component: GraphPage,
 });
 
-const MODE_META = {
-  ecosystem: {
-    icon: Building2,
-    zh: "生态组成",
-    en: "Ecosystem",
-    descZh: "看清一个对象连接的公司、版本、协议、工具与评测。",
-    descEn: "Map the companies, versions, protocols, tools, and benchmarks around one entity.",
-  },
-  connection: {
-    icon: GitCompareArrows,
-    zh: "关系解释",
-    en: "Connection",
-    descZh: "选择两个对象，逐段解释它们为什么有关。",
-    descEn: "Choose two entities and explain why they are connected, step by step.",
-  },
-  impact: {
-    icon: Radar,
-    zh: "关联范围",
-    en: "Reach",
-    descZh: "区分直接关系与二跳线索，发现值得继续调查的对象。",
-    descEn: "Separate direct links from two-hop leads worth investigating.",
-  },
-} as const;
-
-function RelationshipInsightsPage() {
+function GraphPage() {
   const { t } = useApp();
-  const search = Route.useSearch();
-  const snapshotQuery = useKnowledgeSnapshot();
-  if (!snapshotQuery.data) {
-    return (
-      <AppShell>
-        <DataStatePanel
-          kind={snapshotQuery.unavailableKind}
-          title={t(
-            snapshotQuery.error ? "关系数据加载失败" : "正在加载关系洞察",
-            snapshotQuery.error ? "Relationship data failed to load" : "Loading insights",
-          )}
-          description={t(
-            "请稍后重试；页面不会用缺失关系生成推断。",
-            "Retry shortly; missing relationships are never replaced with invented inferences.",
-          )}
-          onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
-        />
-      </AppShell>
-    );
-  }
-  return <RelationshipWorkspace snapshot={snapshotQuery.data} initialSearch={search} />;
-}
-
-function RelationshipWorkspace({
-  snapshot,
-  initialSearch,
-}: {
-  snapshot: KnowledgeSnapshot;
-  initialSearch: { entity?: string; target?: string; mode?: InsightMode };
-}) {
-  const { t, lang } = useApp();
-  const navigate = Route.useNavigate();
-  const entities = snapshot.entities;
-  const relations = snapshot.graph.edges;
-  const entityById = useMemo(
-    () => new Map(entities.map((entity) => [entity.id, entity])),
-    [entities],
-  );
-  const evidenceById = useMemo(
-    () => new Map(snapshot.evidence.map((source) => [source.id, source])),
-    [snapshot.evidence],
-  );
-  const defaultPrimary =
-    initialSearch.entity && entityById.has(initialSearch.entity)
-      ? initialSearch.entity
-      : entityById.has("e-gpt")
-        ? "e-gpt"
-        : (entities[0]?.id ?? "");
-  const defaultSecondary =
-    initialSearch.target && entityById.has(initialSearch.target)
-      ? initialSearch.target
-      : entityById.has("e-claude")
-        ? "e-claude"
-        : (entities.find((entity) => entity.id !== defaultPrimary)?.id ?? "");
-  const [mode, setMode] = useState<InsightMode>(initialSearch.mode ?? "ecosystem");
-  const [primaryId, setPrimaryId] = useState(defaultPrimary);
-  const [secondaryId, setSecondaryId] = useState(defaultSecondary);
-  const [impactDepth, setImpactDepth] = useState<1 | 2>(2);
-  const [connectionIndex, setConnectionIndex] = useState(0);
-  const [selectedEdgeId, setSelectedEdgeId] = useState("");
-
-  useEffect(() => {
-    void navigate({
-      search: {
-        entity: primaryId,
-        target: mode === "connection" ? secondaryId : undefined,
-        mode,
-      },
-      replace: true,
-    });
-  }, [mode, navigate, primaryId, secondaryId]);
-
-  useEffect(() => {
-    if (initialSearch.entity && entityById.has(initialSearch.entity)) {
-      setPrimaryId(initialSearch.entity);
-    }
-    if (initialSearch.target && entityById.has(initialSearch.target)) {
-      setSecondaryId(initialSearch.target);
-    }
-    if (initialSearch.mode) setMode(initialSearch.mode);
-  }, [entityById, initialSearch.entity, initialSearch.mode, initialSearch.target]);
-
-  const primary = entityById.get(primaryId) ?? entities[0];
-  const secondary = entityById.get(secondaryId);
-  const groups = useMemo(
-    () => (primary ? ecosystemGroups(entities, relations, primary.id) : []),
-    [entities, primary, relations],
-  );
-  const primaryRelations = useMemo(
-    () => (primary ? incidentRelations(relations, primary.id) : []),
-    [primary, relations],
-  );
-  const connection = useMemo(
-    () => connectionPath(entities, relations, primaryId, secondaryId),
-    [entities, primaryId, relations, secondaryId],
-  );
-  const alternativeConnections = useMemo(
-    () => connectionPaths(entities, relations, primaryId, secondaryId, 3),
-    [entities, primaryId, relations, secondaryId],
-  );
-  const activeConnection = alternativeConnections[connectionIndex] ?? connection;
-  const stats = useMemo(
-    () => (primary ? relationshipStats(relations, primary.id) : null),
-    [primary, relations],
-  );
-  const leads = useMemo(
-    () => (primary ? impactLeads(relations, primary.id) : []),
-    [primary, relations],
-  );
-  const scope = useMemo(
-    () =>
-      primary
-        ? impactScope(entities, relations, primary.id, impactDepth)
-        : { entityIds: [], directIds: new Set<string>(), indirectIds: new Set<string>() },
-    [entities, impactDepth, primary, relations],
-  );
-  const selectedEdge = relations.find((edge) => edge.id === selectedEdgeId) ?? null;
-  const relevantRelations = useMemo(() => {
-    if (mode === "connection") {
-      const ids = new Set(activeConnection.path?.edgeIds ?? []);
-      return relations.filter((edge) => ids.has(edge.id));
-    }
-    if (mode === "impact") {
-      const ids = new Set([primaryId, ...scope.entityIds]);
-      return relations
-        .filter((edge) => ids.has(edge.fromId) && ids.has(edge.toId))
-        .sort(
-          (left, right) =>
-            Number(right.fromId === primaryId || right.toId === primaryId) -
-            Number(left.fromId === primaryId || left.toId === primaryId),
-        );
-    }
-    return primaryRelations;
-  }, [
-    activeConnection.path?.edgeIds,
-    mode,
-    primaryId,
-    primaryRelations,
-    relations,
-    scope.entityIds,
-  ]);
-
-  const graphEntityIds = useMemo(() => {
-    if (!primary) return [];
-    if (mode === "connection") return activeConnection.path?.nodeIds ?? [primary.id];
-    if (mode === "impact") return [primary.id, ...scope.entityIds].slice(0, 20);
-    const directIds = groups.flatMap((group) => group.entities.map((entity) => entity.id));
-    return [primary.id, ...directIds].slice(0, 20);
-  }, [activeConnection.path?.nodeIds, groups, mode, primary, scope.entityIds]);
-  const graphIdSet = useMemo(() => new Set(graphEntityIds), [graphEntityIds]);
-  const graphRelations = useMemo(
-    () =>
-      relevantRelations.filter((edge) => graphIdSet.has(edge.fromId) && graphIdSet.has(edge.toId)),
-    [graphIdSet, relevantRelations],
-  );
-
-  const switchMode = (nextMode: InsightMode) => {
-    setMode(nextMode);
-    setConnectionIndex(0);
-    setSelectedEdgeId("");
-  };
-
-  if (!primary) return null;
-
+  const query = useKnowledgeSnapshot();
   return (
     <AppShell>
-      <main className="min-h-[calc(100vh-3.5rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
-        <div className="page-container min-w-0 pb-14 pt-8 md:pt-10">
-          <header className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <DemoBadge />
-              <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-muted-foreground">
-                {t("关系均来自已收录数据", "Relationships use recorded data only")}
-              </span>
-            </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-              {t("关系洞察", "Relationship insights")}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-              {t(
-                "先回答问题，再用局部关系图解释答案。查看生态组成、解释两个对象为何相关，或发现值得继续核验的关联范围。",
-                "Start with an answer, then use a local graph to explain it. Map an ecosystem, explain a connection, or identify relationships worth further review.",
-              )}
-            </p>
-          </header>
-
-          <section
-            className="mt-7 grid gap-3 md:grid-cols-3"
-            aria-label={t("洞察任务", "Insight tasks")}
-          >
-            {(Object.keys(MODE_META) as InsightMode[]).map((key) => {
-              const item = MODE_META[key];
-              const Icon = item.icon;
-              const active = mode === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => switchMode(key)}
-                  aria-pressed={active}
-                  className={`rounded-xl border p-4 text-left transition-colors ${
-                    active
-                      ? "border-signal bg-signal/5 shadow-sm"
-                      : "border-border bg-card hover:border-signal/40 hover:bg-accent/40"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`grid h-9 w-9 place-items-center rounded-lg ${
-                        active ? "bg-signal text-white" : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="font-semibold">{t(item.zh, item.en)}</span>
-                    {active && <CheckCircle2 className="ml-auto h-4 w-4 text-signal" />}
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                    {t(item.descZh, item.descEn)}
-                  </p>
-                </button>
-              );
-            })}
-          </section>
-
-          <section className="mt-5 rounded-xl border border-border bg-card p-4 md:p-5">
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-              <EntityPicker
-                label={
-                  mode === "connection"
-                    ? t("起点对象", "Start entity")
-                    : t("分析对象", "Entity to analyze")
-                }
-                value={primaryId}
-                entities={entities}
-                onChange={(value) => {
-                  setPrimaryId(value);
-                  setConnectionIndex(0);
-                  if (value === secondaryId) {
-                    setSecondaryId(entities.find((entity) => entity.id !== value)?.id ?? "");
-                  }
-                  setSelectedEdgeId("");
-                }}
-              />
-              {mode === "connection" ? (
-                <EntityPicker
-                  label={t("终点对象", "Destination entity")}
-                  value={secondaryId}
-                  entities={entities.filter((entity) => entity.id !== primaryId)}
-                  onChange={(value) => {
-                    setSecondaryId(value);
-                    setConnectionIndex(0);
-                    setSelectedEdgeId("");
-                  }}
-                />
-              ) : (
-                <div className="hidden md:block" />
-              )}
-              {mode === "impact" && (
-                <div>
-                  <div className="mb-2 text-xs font-medium text-muted-foreground">
-                    {t("分析深度", "Analysis depth")}
-                  </div>
-                  <div className="inline-flex rounded-lg border border-border bg-background p-1">
-                    {[1, 2].map((depth) => (
-                      <button
-                        key={depth}
-                        type="button"
-                        onClick={() => setImpactDepth(depth as 1 | 2)}
-                        className={`h-8 rounded-md px-3 text-xs ${
-                          impactDepth === depth
-                            ? "bg-signal text-white"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {depth === 1 ? t("直接", "Direct") : t("含二跳", "Two hops")}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0 space-y-5">
-              <InsightAnswer
-                mode={mode}
-                primary={primary}
-                secondary={secondary}
-                groups={groups}
-                directCount={scope.directIds.size}
-                indirectCount={scope.indirectIds.size}
-                pathLength={activeConnection.path?.edgeIds.length ?? null}
-              />
-
-              {stats && <RelationshipOverview stats={stats} />}
-
-              {mode === "ecosystem" && (
-                <EcosystemResult groups={groups} primary={primary} relations={relations} />
-              )}
-              {mode === "connection" && (
-                <ConnectionResult
-                  primary={primary}
-                  secondary={secondary}
-                  paths={alternativeConnections}
-                  activeIndex={connectionIndex}
-                  onChangePath={(index) => {
-                    setConnectionIndex(index);
-                    setSelectedEdgeId("");
-                  }}
-                  steps={activeConnection.steps}
-                  onSelectEdge={setSelectedEdgeId}
-                />
-              )}
-              {mode === "impact" && (
-                <ImpactResult
-                  entities={entities}
-                  edges={relations}
-                  directIds={scope.directIds}
-                  indirectIds={scope.indirectIds}
-                  leads={impactDepth === 2 ? leads : []}
-                  centerId={primary.id}
-                  onSelectEdge={setSelectedEdgeId}
-                />
-              )}
-
-              <section className="rounded-xl border border-border bg-card p-4 md:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h2 className="flex items-center gap-2 font-semibold">
-                      <Network className="h-4 w-4 text-signal" />
-                      {t("局部关系视图", "Local relationship view")}
-                    </h2>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {t(
-                        "图形只用于解释上面的结论；点击连线可核验证据。",
-                        "The graph explains the result above. Select an edge to verify evidence.",
-                      )}
-                    </p>
-                  </div>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {graphEntityIds.length} {t("个对象", "entities")} · {graphRelations.length}{" "}
-                    {t("条关系", "relationships")}
-                  </span>
-                </div>
-                <div className="mt-4 overflow-hidden rounded-lg border border-border">
-                  <KnowledgeGraph
-                    entities={entities}
-                    relations={graphRelations}
-                    entityIds={graphEntityIds}
-                    centerId={primary.id}
-                    selectedEdgeId={selectedEdge?.id}
-                    highlightedNodeIds={activeConnection.path?.nodeIds}
-                    highlightedEdgeIds={activeConnection.path?.edgeIds}
-                    onSelectEdge={(edge) => setSelectedEdgeId(edge.id)}
-                    height={480}
-                    canvasWidth={900}
-                  />
-                </div>
-              </section>
-            </div>
-
-            <aside className="h-fit xl:sticky xl:top-20">
-              <EvidencePanel
-                edge={selectedEdge}
-                fallbackEdges={relevantRelations}
-                entityById={entityById}
-                evidenceById={evidenceById}
-                onSelectEdge={setSelectedEdgeId}
-              />
-            </aside>
-          </div>
-        </div>
-      </main>
+      <div className="support-workspace workspace-page">
+        {query.data && graphEntryEntities(query.data.entities).length === 0 ? (
+          <DataStatePanel
+            kind="empty"
+            title={t("暂无关系目录", "No relationship catalog yet")}
+            description={t(
+              "先收录模型家族或应用对象，再建立有来源的联系。",
+              "Add model families or applications before reviewing their sourced connections.",
+            )}
+          />
+        ) : query.data ? (
+          <RelationshipWorkspace snapshot={query.data} />
+        ) : (
+          <DataStatePanel
+            kind={query.unavailableKind}
+            title={t(
+              query.error ? "关系数据加载失败" : "正在加载知识图谱",
+              query.error ? "Unable to load relationships" : "Loading relationships",
+            )}
+            description={t(
+              "请重试，缺失资料不会被替换为推测关系。",
+              "Retry; missing data is never replaced with invented relationships.",
+            )}
+            onRetry={query.error ? () => query.refetch() : undefined}
+          />
+        )}
+      </div>
     </AppShell>
   );
 }
 
-function InsightAnswer({
-  mode,
-  primary,
-  secondary,
-  groups,
-  directCount,
-  indirectCount,
-  pathLength,
-}: {
-  mode: InsightMode;
-  primary: Entity;
-  secondary?: Entity;
-  groups: ReturnType<typeof ecosystemGroups>;
-  directCount: number;
-  indirectCount: number;
-  pathLength: number | null;
-}) {
-  const { t, lang } = useApp();
-  const primaryName = pick(primary.name, lang);
-  let answer: string;
-  if (mode === "connection") {
-    const secondaryName = secondary
-      ? pick(secondary.name, lang)
-      : t("所选对象", "the selected entity");
-    answer =
-      pathLength === null
-        ? t(
-            `${primaryName} 与 ${secondaryName} 在当前已审核关系中没有可解释路径。`,
-            `No explainable path connects ${primaryName} and ${secondaryName} in the reviewed relationships.`,
-          )
-        : t(
-            `${primaryName} 与 ${secondaryName} 通过 ${pathLength} 段已收录关系相连。下方逐段展示关系方向、可信度和证据。`,
-            `${primaryName} and ${secondaryName} are connected through ${pathLength} recorded relationship${pathLength === 1 ? "" : "s"}. Each step, confidence level, and source appears below.`,
-          );
-  } else if (mode === "impact") {
-    answer = t(
-      `${primaryName} 当前有 ${directCount} 个直接关联对象${indirectCount ? `，以及 ${indirectCount} 个二跳线索` : ""}。这些是调查范围，不代表已经证明的因果影响。`,
-      `${primaryName} currently has ${directCount} direct relationships${indirectCount ? ` and ${indirectCount} two-hop leads` : ""}. This is an investigation scope, not proof of causal impact.`,
-    );
-  } else {
-    answer = t(
-      `${primaryName} 的直接生态覆盖 ${groups.length} 类对象、${groups.reduce((total, group) => total + group.entities.length, 0)} 个关联实体。`,
-      `${primaryName}'s direct ecosystem spans ${groups.length} entity types and ${groups.reduce((total, group) => total + group.entities.length, 0)} related entities.`,
-    );
-  }
-  return (
-    <section className="rounded-xl border border-signal/25 bg-signal/5 p-5 md:p-6">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-signal">
-        <Sparkles className="h-4 w-4" />
-        {t("洞察结论", "Insight")}
-      </div>
-      <p className="mt-3 text-lg font-medium leading-8 text-foreground">{answer}</p>
-    </section>
-  );
-}
+const PURPOSES = [
+  {
+    id: "provider",
+    zh: "开发与提供方",
+    en: "Developers & providers",
+    desc: "谁提供或维护它",
+    descEn: "Who develops or maintains it",
+  },
+  {
+    id: "application",
+    zh: "应用与接入",
+    en: "Applications & integrations",
+    desc: "在哪些应用和开发工具中使用",
+    descEn: "Where it is used or integrated",
+  },
+  {
+    id: "technology",
+    zh: "技术依赖",
+    en: "Technical foundations",
+    desc: "依赖哪些技术、协议或研究",
+    descEn: "Underlying technologies and research",
+  },
+  {
+    id: "research",
+    zh: "评测与研究",
+    en: "Evaluation & research",
+    desc: "如何评估，依据来自哪里",
+    descEn: "How it is evaluated and studied",
+  },
+] as const;
 
-function EcosystemResult({
-  groups,
-  primary,
-  relations,
-}: {
-  groups: ReturnType<typeof ecosystemGroups>;
-  primary: Entity;
-  relations: GraphEdge[];
-}) {
+function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
   const { t, lang } = useApp();
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const entries = graphEntryEntities(snapshot.entities);
+  const primaryId = familyEntityId(snapshot.entities, search.entity ?? "e-gpt");
+  const primary = entries.find((entity) => entity.id === primaryId) ?? entries[0];
+  const requestedSecondary = familyEntityId(snapshot.entities, search.target ?? "e-claude");
+  const secondaryId = entries.some(
+    (entity) => entity.id === requestedSecondary && entity.id !== primary.id,
+  )
+    ? requestedSecondary
+    : (entries.find((entity) => entity.id !== primary.id)?.id ?? "");
+  const mode = search.mode ?? "ecosystem";
+  const [expandedLeads, setExpandedLeads] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const edges = useMemo(
+    () =>
+      catalogRelationships(snapshot, {
+        confidence: search.confidence,
+        linkedOnly: search.linked !== "all",
+      }).filter((edge) => !search.relation || edge.kind === search.relation),
+    [snapshot, search.confidence, search.linked, search.relation],
+  );
+  const direct = incidentRelations(edges, primary.id) as CatalogRelationship[];
+  const byId = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
+  const filtered = direct.filter((edge) =>
+    [byId.get(edge.fromId)?.name, byId.get(edge.toId)?.name, RELATION_LABELS[edge.kind]].some(
+      (name) => name && pick(name, lang).toLowerCase().includes(filterText.toLowerCase()),
+    ),
+  );
+  const leads = impactLeads(edges, primary.id);
+  const paths =
+    mode === "connection" ? connectionPaths(entries, edges, primary.id, secondaryId, 3) : [];
+  const versions = snapshot.entities.filter((entity) => entity.familyId === primary.id);
+  const sourceCount = snapshot.evidence.filter(
+    (source) => source.url && direct.some((edge) => edge.sourceIds.includes(source.id)),
+  ).length;
+  const points =
+    primary.knowledge?.keyPoints
+      .filter((point) =>
+        point.sourceIds?.some((id) =>
+          snapshot.evidence.some((source) => source.id === id && source.url),
+        ),
+      )
+      .slice(0, 3) ?? [];
+  const update = (patch: Partial<InsightSearch>) => {
+    void navigate({ search: { ...search, ...patch }, replace: true, resetScroll: false });
+    setExpandedLeads(false);
+    setFilterText("");
+  };
+
   return (
-    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
-      <SectionHeading
-        icon={<CircleDot className="h-4 w-4" />}
-        title={t("生态组成", "Ecosystem composition")}
+    <div className="relationship-page workspace-container">
+      <WorkspaceHeader
+        title={t("知识图谱", "Knowledge graph")}
         description={t(
-          "只统计与分析对象直接相连的关系。",
-          "Only direct relationships are counted.",
+          "从提供方、应用接入和技术依据，看清一个模型或产品的联系。",
+          "Understand a model or product through its providers, integrations and technical evidence.",
         )}
+        actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
       />
-      {groups.length ? (
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {groups.map((group) => (
-            <div key={group.type} className="rounded-lg border border-border bg-background p-4">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold">
-                  {pick(ENTITY_TYPE_LABELS[group.type], lang)}
-                </h3>
-                <span className="text-xs tabular-nums text-muted-foreground">
-                  {group.entities.length}
-                </span>
-              </div>
-              <ul className="mt-3 space-y-2">
-                {group.entities.map((entity) => {
-                  const edge = relations.find(
-                    (item) =>
-                      (item.fromId === primary.id && item.toId === entity.id) ||
-                      (item.toId === primary.id && item.fromId === entity.id),
-                  );
-                  return (
-                    <li key={entity.id}>
-                      <Link
-                        to="/knowledge/$type/$slug"
-                        params={{ type: entity.type, slug: entity.slug }}
-                        className="group flex items-center gap-2 rounded-md p-2 hover:bg-accent"
-                      >
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium">
-                            {pick(entity.name, lang)}
-                          </span>
-                          {edge && (
-                            <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                              {pick(RELATION_LABELS[edge.kind], lang)}
-                            </span>
-                          )}
-                        </span>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-signal" />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <EmptyResult>
-          {t("当前对象还没有直接关系。", "No direct relationships are recorded yet.")}
-        </EmptyResult>
-      )}
-    </section>
-  );
-}
-
-function RelationshipOverview({ stats }: { stats: ReturnType<typeof relationshipStats> }) {
-  const { t } = useApp();
-  const verifiedRate = stats.relationshipCount
-    ? Math.round((stats.verifiedCount / stats.relationshipCount) * 100)
-    : 0;
-  const sourcedRate = stats.relationshipCount
-    ? Math.round((stats.sourcedCount / stats.relationshipCount) * 100)
-    : 0;
-  const items = [
-    {
-      label: t("关联对象", "Related entities"),
-      value: stats.relatedEntityCount,
-      note: t(`${stats.relationKindCount} 种关系类型`, `${stats.relationKindCount} relation types`),
-    },
-    {
-      label: t("已核验关系", "Verified relationships"),
-      value: `${verifiedRate}%`,
-      note: `${stats.verifiedCount} / ${stats.relationshipCount}`,
-    },
-    {
-      label: t("证据覆盖", "Evidence coverage"),
-      value: `${sourcedRate}%`,
-      note: t(`${stats.sourceCount} 个独立来源`, `${stats.sourceCount} distinct sources`),
-    },
-  ];
-  return (
-    <section
-      className="grid gap-3 sm:grid-cols-3"
-      aria-label={t("关系质量概览", "Relationship quality")}
-    >
-      {items.map((item) => (
-        <div key={item.label} className="rounded-xl border border-border bg-card p-4">
-          <div className="text-xs text-muted-foreground">{item.label}</div>
-          <div className="mt-2 text-2xl font-semibold tabular-nums">{item.value}</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">{item.note}</div>
-        </div>
-      ))}
-    </section>
-  );
-}
-
-function ConnectionResult({
-  primary,
-  secondary,
-  paths,
-  activeIndex,
-  onChangePath,
-  steps,
-  onSelectEdge,
-}: {
-  primary: Entity;
-  secondary?: Entity;
-  paths: ReturnType<typeof connectionPaths>;
-  activeIndex: number;
-  onChangePath: (index: number) => void;
-  steps: ReturnType<typeof connectionPath>["steps"];
-  onSelectEdge: (id: string) => void;
-}) {
-  const { t, lang } = useApp();
-  return (
-    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
-      <SectionHeading
-        icon={<GitCompareArrows className="h-4 w-4" />}
-        title={t("关系解释", "Connection explanation")}
-        description={t(
-          "最短路径只是最紧凑的已有解释，不代表唯一关系。",
-          "The shortest path is the most compact recorded explanation, not the only possible one.",
-        )}
-      />
-      {steps.length ? (
-        <>
-          {paths.length > 1 && (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-xs text-muted-foreground">
-                {t("可用解释", "Available explanations")}
-              </span>
-              {paths.map((item, index) => (
-                <button
-                  key={item.path.edgeIds.join("|")}
-                  type="button"
-                  onClick={() => onChangePath(index)}
-                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                    index === activeIndex
-                      ? "border-signal bg-signal text-white"
-                      : "border-border bg-background hover:border-signal/40"
-                  }`}
-                >
-                  {index === 0
-                    ? t("最短路径", "Shortest")
-                    : t(`备选 ${index}`, `Alternative ${index}`)}{" "}
-                  · {item.path.edgeIds.length} {t("段", "steps")}
-                </button>
-              ))}
-            </div>
-          )}
-          <ol className="mt-5 space-y-3">
-            {steps.map((step, index) => {
-              const forward = step.edge.fromId === step.from.id;
-              return (
-                <li key={step.edge.id}>
-                  <button
-                    type="button"
-                    onClick={() => onSelectEdge(step.edge.id)}
-                    className="w-full rounded-lg border border-border bg-background p-4 text-left hover:border-signal/40 hover:bg-accent/40"
-                  >
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="grid h-5 w-5 place-items-center rounded-full bg-signal text-[10px] font-semibold text-white">
-                        {index + 1}
-                      </span>
-                      {t("关系步骤", "Relationship step")}
-                      <ConfidenceChip level={step.edge.confidence} />
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium">
-                      <span>{pick(step.from.name, lang)}</span>
-                      <span className="inline-flex items-center gap-1 text-signal">
-                        {forward ? "—" : "←"}
-                        {pick(RELATION_LABELS[step.edge.kind], lang)}
-                        {forward ? "→" : "—"}
-                      </span>
-                      <span>{pick(step.to.name, lang)}</span>
-                    </div>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {step.edge.sourceIds.length
-                        ? t(
-                            `关联 ${step.edge.sourceIds.length} 条来源证据，点击核验。`,
-                            `${step.edge.sourceIds.length} source${step.edge.sourceIds.length === 1 ? "" : "s"} attached; select to verify.`,
-                          )
-                        : t("该关系尚未绑定来源。", "No source is attached to this relationship.")}
-                    </p>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </>
-      ) : (
-        <EmptyResult>
-          {t(
-            `${pick(primary.name, lang)} 与 ${secondary ? pick(secondary.name, lang) : "所选对象"} 之间没有可用路径。可更换对象，或等待更多关系通过审核。`,
-            `No path is available between ${pick(primary.name, lang)} and ${secondary ? pick(secondary.name, lang) : "the selected entity"}. Choose another entity or wait for more reviewed relationships.`,
-          )}
-        </EmptyResult>
-      )}
-    </section>
-  );
-}
-
-function ImpactResult({
-  entities,
-  edges,
-  directIds,
-  indirectIds,
-  leads,
-  centerId,
-  onSelectEdge,
-}: {
-  entities: Entity[];
-  edges: GraphEdge[];
-  directIds: Set<string>;
-  indirectIds: Set<string>;
-  leads: ReturnType<typeof impactLeads>;
-  centerId: string;
-  onSelectEdge: (id: string) => void;
-}) {
-  const { t, lang } = useApp();
-  return (
-    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
-      <SectionHeading
-        icon={<Radar className="h-4 w-4" />}
-        title={t("关联范围", "Relationship reach")}
-        description={t(
-          "直接关系可用于核验；二跳对象只是研究线索，不能自动视为受影响对象。",
-          "Direct links can be verified. Two-hop entities are research leads, not confirmed impact.",
-        )}
-      />
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <ScopeGroup
-          title={t("直接关系", "Direct relationships")}
-          description={t(
-            "与分析对象共享一条已收录关系。",
-            "One recorded edge from the analyzed entity.",
-          )}
-          ids={directIds}
-          entities={entities}
-          tone="direct"
-          onInspect={(entityId) => {
-            const edge = edges.find(
-              (item) =>
-                (item.fromId === centerId && item.toId === entityId) ||
-                (item.toId === centerId && item.fromId === entityId),
-            );
-            if (edge) onSelectEdge(edge.id);
-          }}
+      <section className="relationship-controls" aria-label={t("图谱筛选", "Graph controls")}>
+        <EntityPicker
+          label={t("模型家族或其他对象", "Model family or entity")}
+          value={primary.id}
+          entities={entries}
+          onChange={(entity) => update({ entity })}
         />
-        <ScopeGroup
-          title={t("二跳调查线索", "Two-hop research leads")}
-          description={t(
-            "通过另一个对象间接连接，需要进一步核验。",
-            "Indirectly connected and requires further review.",
-          )}
-          ids={indirectIds}
-          entities={entities}
-          tone="indirect"
-        />
-      </div>
-      {leads.length > 0 && (
-        <div className="mt-4 rounded-lg border border-border bg-background p-4">
-          <h3 className="text-sm font-semibold">
-            {t("二跳线索为什么出现", "Why these leads appear")}
-          </h3>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            {t(
-              "每条线索都展示桥接对象；点击任一关系即可在右侧核验证据。",
-              "Each lead shows its bridge entity. Select either relationship to verify evidence.",
-            )}
-          </p>
-          <div className="mt-3 space-y-2">
-            {leads.slice(0, 8).map((lead) => {
-              const entity = entities.find((item) => item.id === lead.entityId);
-              if (!entity) return null;
-              return (
-                <div key={lead.entityId} className="rounded-lg border border-border bg-card p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <Link
-                      to="/knowledge/$type/$slug"
-                      params={{ type: entity.type, slug: entity.slug }}
-                      className="text-sm font-semibold hover:text-signal"
-                    >
-                      {pick(entity.name, lang)}
-                    </Link>
-                    <span className="text-[11px] text-muted-foreground">
-                      {lead.routes.length} {t("条桥接路径", "bridge routes")}
-                    </span>
-                  </div>
-                  <div className="mt-2 space-y-1">
-                    {lead.routes.slice(0, 2).map((route) => {
-                      const bridge = entities.find((item) => item.id === route.bridgeId);
-                      const first = edges.find((edge) => edge.id === route.firstEdgeId);
-                      const second = edges.find((edge) => edge.id === route.secondEdgeId);
-                      if (!bridge || !first || !second) return null;
-                      return (
-                        <div
-                          key={`${route.bridgeId}-${route.firstEdgeId}-${route.secondEdgeId}`}
-                          className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"
-                        >
-                          <span>{t("经由", "via")}</span>
-                          <span className="font-medium text-foreground">
-                            {pick(bridge.name, lang)}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => onSelectEdge(first.id)}
-                            className="text-signal hover:underline"
-                          >
-                            {pick(RELATION_LABELS[first.kind], lang)}
-                          </button>
-                          <span>+</span>
-                          <button
-                            type="button"
-                            onClick={() => onSelectEdge(second.id)}
-                            className="text-signal hover:underline"
-                          >
-                            {pick(RELATION_LABELS[second.kind], lang)}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+        <label>
+          {t("核验状态", "Verification")}
+          <select
+            value={search.confidence ?? "all"}
+            onChange={(event) =>
+              update({ confidence: event.target.value === "all" ? undefined : event.target.value })
+            }
+          >
+            <option value="all">{t("全部状态", "All states")}</option>
+            <option value="verified">{t("已核验", "Verified")}</option>
+            <option value="inferred">{t("推断", "Inferred")}</option>
+            <option value="unverified">{t("待核验", "Unverified")}</option>
+            <option value="conflict">{t("有冲突", "Conflicting")}</option>
+          </select>
+        </label>
+        <label className="relationship-controls__check">
+          <input
+            type="checkbox"
+            checked={search.linked !== "all"}
+            onChange={(event) => update({ linked: event.target.checked ? undefined : "all" })}
+          />
+          {t("只看有来源的联系", "With source links only")}
+        </label>
+        {search.relation && (
+          <Button variant="outline" onClick={() => update({ relation: undefined })}>
+            {pick(RELATION_LABELS[search.relation as keyof typeof RELATION_LABELS], lang)} ·{" "}
+            {t("清除", "Clear")}
+          </Button>
+        )}
+      </section>
+      <section className="relationship-profile">
+        <div className="relationship-profile__header">
+          <h2>{pick(primary.name, lang)}</h2>
+          <div className="relationship-profile__actions">
+            <EntityLink entity={primary}>
+              {t("查看档案", "Open dossier")}
+              <ArrowRight size={15} />
+            </EntityLink>
+            <Link
+              to="/ask"
+              search={{
+                candidates: primary.id,
+                task: t(
+                  `评估 ${pick(primary.name, lang)} 的接入条件与使用边界`,
+                  `Evaluate ${pick(primary.name, lang)} access and limitations`,
+                ),
+              }}
+            >
+              {t("交给决策助手", "Analyze with assistant")}
+            </Link>
           </div>
         </div>
+        <p>{pick(primary.summary, lang)}</p>
+        <div className="relationship-profile__meta">
+          <span>
+            {direct.length} {t("条关系记录", "recorded links")}
+          </span>
+          <span>
+            {sourceCount} {t("个来源", "sources")}
+          </span>
+          {versions.length > 0 && (
+            <EntityLink entity={primary}>
+              {t(
+                `查看 ${versions.length} 个版本与规格`,
+                `View ${versions.length} versions and specs`,
+              )}
+            </EntityLink>
+          )}
+        </div>
+      </section>
+      <nav className="relationship-tabs" aria-label={t("关系视角", "Relationship views")}>
+        {(
+          [
+            { id: "ecosystem", zh: "直接联系", en: "Direct links" },
+            { id: "impact", zh: "间接线索", en: "Indirect leads" },
+            { id: "connection", zh: "查找路径", en: "Find a path" },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            aria-pressed={mode === tab.id}
+            onClick={() => update({ mode: tab.id })}
+          >
+            {t(tab.zh, tab.en)}
+            {mode === tab.id && <Check size={14} />}
+          </button>
+        ))}
+      </nav>
+      {mode === "ecosystem" && (
+        <>
+          <div className="relationship-section-heading">
+            <div>
+              <h2>{t("关系总览", "Relationship overview")}</h2>
+              <p>
+                {t(
+                  "版本已归并到家族；具体版本的适用范围保留在原始记录中。",
+                  "Versions are grouped by family; original records retain their exact scope.",
+                )}
+              </p>
+            </div>
+            <label className="relationship-search">
+              <Search size={16} />
+              <input
+                aria-label={t("筛选当前联系", "Filter current links")}
+                placeholder={t("搜索当前联系…", "Search these links…")}
+                value={filterText}
+                onChange={(event) => setFilterText(event.target.value)}
+              />
+            </label>
+          </div>
+          {filtered.length ? (
+            PURPOSES.map((purpose) => {
+              const rows = filtered.filter(
+                (edge) => relationshipPurpose(edge, snapshot.entities) === purpose.id,
+              );
+              return (
+                rows.length > 0 && (
+                  <section className="relationship-group" key={purpose.id}>
+                    <header>
+                      <h3>
+                        {t(purpose.zh, purpose.en)} <span>({rows.length})</span>
+                      </h3>
+                      <p>{t(purpose.desc, purpose.descEn)}</p>
+                    </header>
+                    <div className="relationship-records">
+                      {rows.map((edge) => (
+                        <RelationRow key={edge.id} edge={edge} snapshot={snapshot} />
+                      ))}
+                    </div>
+                  </section>
+                )
+              );
+            })
+          ) : (
+            <EmptyState
+              title={t(
+                filterText ? "没有匹配的联系" : "这个对象的关系资料还不足",
+                filterText ? "No matching links" : "Relationship coverage is limited",
+              )}
+              text={t(
+                filterText
+                  ? "换一个关键词，或清空搜索条件。"
+                  : "当前筛选下没有可展示的提供方、应用接入或技术联系。下方保留已有来源要点；缺少的关系需要核实后收录。",
+                filterText
+                  ? "Try another keyword or clear the search."
+                  : "No provider, integration or technical links match these filters. Existing sourced notes are shown below; missing relationships need review.",
+              )}
+            />
+          )}
+        </>
       )}
-    </section>
-  );
-}
-
-function ScopeGroup({
-  title,
-  description,
-  ids,
-  entities,
-  tone,
-  onInspect,
-}: {
-  title: string;
-  description: string;
-  ids: Set<string>;
-  entities: Entity[];
-  tone: "direct" | "indirect";
-  onInspect?: (entityId: string) => void;
-}) {
-  const { lang } = useApp();
-  const items = entities.filter((entity) => ids.has(entity.id));
-  return (
-    <div className="rounded-lg border border-border bg-background p-4">
-      <div className="flex items-center gap-2">
-        <span
-          className={`h-2.5 w-2.5 rounded-full ${tone === "direct" ? "bg-signal" : "bg-warning"}`}
-        />
-        <h3 className="text-sm font-semibold">{title}</h3>
-        <span className="ml-auto text-xs tabular-nums text-muted-foreground">{items.length}</span>
-      </div>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {items.length ? (
-          items.map((entity) => (
-            <button
-              key={entity.id}
-              type="button"
-              onClick={() => onInspect?.(entity.id)}
-              disabled={!onInspect}
-              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs hover:border-signal/40 hover:text-signal"
-            >
-              {pick(entity.name, lang)}
-            </button>
-          ))
-        ) : (
-          <span className="text-xs text-muted-foreground">—</span>
-        )}
-      </div>
+      {mode === "impact" && (
+        <>
+          <div className="relationship-section-heading">
+            <div>
+              <h2>{t("通过一个中间对象发现线索", "Discover leads through one intermediary")}</h2>
+              <p>
+                {t(
+                  "每条线索展示两段实际联系，不代表影响、兼容性或因果关系。",
+                  "Each lead shows two recorded links, not impact, compatibility or causation.",
+                )}
+              </p>
+            </div>
+            <span>
+              {leads.length} {t("个对象", "entities")}
+            </span>
+          </div>
+          {leads.length ? (
+            <div className="relationship-leads">
+              {(expandedLeads ? leads : leads.slice(0, 8)).map((lead) => {
+                const target = byId.get(lead.entityId)!;
+                return (
+                  <section key={lead.entityId}>
+                    <header>
+                      <h3>{pick(target.name, lang)}</h3>
+                      <button onClick={() => update({ entity: target.id, mode: "ecosystem" })}>
+                        {t("探索联系", "Explore links")}
+                        <ArrowRight size={15} />
+                      </button>
+                    </header>
+                    <p className="relationship-lead-preview">
+                      {t("经由", "Via")}{" "}
+                      <strong>
+                        {lead.routes
+                          .map((route) => pick(byId.get(route.bridgeId)!.name, lang))
+                          .join(" / ")}
+                      </strong>{" "}
+                      ·{" "}
+                      {lead.routes
+                        .map((route) =>
+                          [route.firstEdgeId, route.secondEdgeId]
+                            .map((id) =>
+                              pick(
+                                RELATION_LABELS[edges.find((edge) => edge.id === id)!.kind],
+                                lang,
+                              ),
+                            )
+                            .join(" / "),
+                        )
+                        .join("；")}
+                    </p>
+                    <p>{pick(target.summary, lang)}</p>
+                    <details>
+                      <summary>
+                        {t("查看两段关系与来源", "Inspect the two links and sources")} (
+                        {lead.routes.length})
+                      </summary>
+                      {lead.routes.map((route) => (
+                        <div key={route.bridgeId} className="relationship-lead-route">
+                          <p>
+                            {pick(primary.name, lang)} <ArrowRight size={14} />{" "}
+                            {pick(byId.get(route.bridgeId)!.name, lang)} <ArrowRight size={14} />{" "}
+                            {pick(target.name, lang)}
+                          </p>
+                          {[route.firstEdgeId, route.secondEdgeId].map((id) => (
+                            <RelationRow
+                              key={id}
+                              edge={edges.find((edge) => edge.id === id)!}
+                              snapshot={snapshot}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </details>
+                  </section>
+                );
+              })}
+              {leads.length > 8 && (
+                <Button variant="outline" onClick={() => setExpandedLeads(!expandedLeads)}>
+                  {expandedLeads
+                    ? t("收起", "Show less")
+                    : t(
+                        `查看其余 ${leads.length - 8} 个线索`,
+                        `Show ${leads.length - 8} more leads`,
+                      )}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <EmptyState
+              title={t("暂无可追溯的间接线索", "No traceable indirect leads")}
+              text={t(
+                "需要两段有来源的联系才能形成线索；不会用竞品或版本归属扩充范围。",
+                "Two sourced links are needed; rivalry and version membership do not expand this view.",
+              )}
+            />
+          )}
+        </>
+      )}
+      {mode === "connection" && (
+        <>
+          <div className="relationship-path-picker">
+            <EntityPicker
+              label={t("查找到哪个对象", "Destination entity")}
+              value={secondaryId}
+              entities={entries.filter((entity) => entity.id !== primary.id)}
+              onChange={(target) => update({ target })}
+            />
+            <p>
+              {t(
+                "沿已有联系核对路径。路径连接不等于可以互相替换或兼容。",
+                "Follow recorded links. A connected path does not imply substitutability or compatibility.",
+              )}
+            </p>
+          </div>
+          {paths.length ? (
+            paths.map((path, index) => (
+              <section className="relationship-path" key={path.path.edgeIds.join("|")}>
+                <header>
+                  <h2>
+                    {t("关系路径", "Relationship path")} ({index + 1})
+                  </h2>
+                  <p>
+                    {path.steps
+                      .map((step) => pick(step.from.name, lang))
+                      .concat(pick(path.steps.at(-1)!.to.name, lang))
+                      .join(" → ")}
+                  </p>
+                </header>
+                {path.steps.map((step) => (
+                  <RelationRow
+                    key={step.edge.id}
+                    edge={step.edge as CatalogRelationship}
+                    snapshot={snapshot}
+                  />
+                ))}
+              </section>
+            ))
+          ) : (
+            <EmptyState
+              title={t("没有找到可核对的路径", "No inspectable path found")}
+              text={t(
+                "这只表示当前资料没有连接路径，不能据此断言它们互不相关。",
+                "The current catalog has no path; this does not prove the entities are unrelated.",
+              )}
+            />
+          )}
+        </>
+      )}
+      {points.length > 0 && (
+        <section className="relationship-notes">
+          <header>
+            <h2>{t("来源要点", "Sourced notes")}</h2>
+            <p>
+              {t(
+                "已有资料说明了什么，帮助判断还需要调查哪些联系。",
+                "What existing documentation establishes, and what to investigate next.",
+              )}
+            </p>
+          </header>
+          <div>
+            {points.map((point) => (
+              <article key={point.title.zh}>
+                <h3>{pick(point.title, lang)}</h3>
+                <p>{pick(point.description, lang)}</p>
+                <SourceLinks ids={point.sourceIds ?? []} snapshot={snapshot} />
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      <footer className="relationship-boundary">
+        <p>
+          {t(
+            "竞品比较请进入决策助手；版本谱系请进入家族档案。这里保留能查来源、解释接入与技术背景的联系。",
+            "Use the decision assistant for comparisons and family dossiers for version history. This view focuses on sourced integrations and technical context.",
+          )}
+        </p>
+        <Link to="/admin/review">
+          {t("完善关系资料", "Review relationship data")}
+          <ArrowRight size={14} />
+        </Link>
+      </footer>
     </div>
   );
 }
 
-function EvidencePanel({
+function EntityLink({ entity, children }: { entity: Entity; children: React.ReactNode }) {
+  return entity.type === "model" ? (
+    <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }}>
+      {children}
+    </Link>
+  ) : (
+    <Link to="/knowledge/$type/$slug" params={{ type: entity.type, slug: entity.slug }}>
+      {children}
+    </Link>
+  );
+}
+function SourceLinks({ ids, snapshot }: { ids: string[]; snapshot: KnowledgeSnapshot }) {
+  const { lang } = useApp();
+  const sources = snapshot.evidence.filter((source) => ids.includes(source.id) && source.url);
+  return (
+    <ul className="relationship-sources">
+      {sources.map((source) => (
+        <li key={source.id}>
+          <a href={source.url} target="_blank" rel="noreferrer">
+            <span>{pick(source.title, lang)}</span>
+            <ExternalLink size={13} />
+          </a>
+          <span>
+            {source.publisher}
+            {source.publishedAt ? ` · ${source.publishedAt}` : ""}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+function RelationRow({
   edge,
-  fallbackEdges,
-  entityById,
-  evidenceById,
-  onSelectEdge,
+  snapshot,
 }: {
-  edge: GraphEdge | null;
-  fallbackEdges: GraphEdge[];
-  entityById: Map<string, Entity>;
-  evidenceById: Map<string, Evidence>;
-  onSelectEdge: (id: string) => void;
+  edge: CatalogRelationship;
+  snapshot: KnowledgeSnapshot;
 }) {
   const { t, lang } = useApp();
-  const active = edge ?? fallbackEdges[0] ?? null;
-  const sources = active
-    ? active.sourceIds
-        .map((id) => evidenceById.get(id))
-        .filter((source): source is Evidence => Boolean(source))
-    : [];
-  const from = active ? entityById.get(active.fromId) : undefined;
-  const to = active ? entityById.get(active.toId) : undefined;
+  const from = snapshot.entities.find((entity) => entity.id === edge.fromId)!;
+  const to = snapshot.entities.find((entity) => entity.id === edge.toId)!;
+  const scoped = edge.records.some(
+    (record) => record.fromId !== edge.fromId || record.toId !== edge.toId,
+  );
+  const validSources = snapshot.evidence.filter(
+    (source) => edge.sourceIds.includes(source.id) && source.url,
+  );
   return (
-    <section className="rounded-xl border border-border bg-card p-4 md:p-5">
-      <div className="flex items-center gap-2">
-        <ShieldCheck className="h-4 w-4 text-signal" />
-        <h2 className="font-semibold">{t("关系证据", "Relationship evidence")}</h2>
-      </div>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">
-        {t(
-          "选择关系步骤或图中连线，核验它为什么成立。",
-          "Select a relationship step or graph edge to verify why it exists.",
-        )}
-      </p>
-      {active ? (
-        <>
-          <div className="mt-4 rounded-lg border border-border bg-background p-4">
-            <div className="text-sm font-medium">
-              {from ? pick(from.name, lang) : active.fromId}
-            </div>
-            <div className="my-2 flex items-center gap-2 text-xs font-medium text-signal">
-              <ArrowRight className="h-3.5 w-3.5" />
-              {pick(RELATION_LABELS[active.kind], lang)}
-            </div>
-            <div className="text-sm font-medium">{to ? pick(to.name, lang) : active.toId}</div>
-            <div className="mt-3">
-              <ConfidenceChip level={active.confidence} />
-            </div>
+    <details className="relationship-row">
+      <summary>
+        <div className="relationship-row__connection">
+          <strong>{pick(from.name, lang)}</strong>
+          <span>{pick(RELATION_LABELS[edge.kind], lang)}</span>
+          <strong>{pick(to.name, lang)}</strong>
+        </div>
+        <div className="relationship-row__status">
+          <ConfidenceChip level={edge.confidence} />
+          <span>
+            {scoped
+              ? t("含具体版本记录", "Version-specific records")
+              : t(`${validSources.length} 个来源`, `${validSources.length} sources`)}
+          </span>
+          <ChevronDown size={16} />
+        </div>
+      </summary>
+      <div className="relationship-row__details">
+        <div className="relationship-row__context">
+          <p>{pick((from.type === "company" ? to : from).summary, lang)}</p>
+          <div>
+            <EntityLink entity={from}>
+              {pick(from.name, lang)} · {t("档案", "Dossier")}
+            </EntityLink>
+            <EntityLink entity={to}>
+              {pick(to.name, lang)} · {t("档案", "Dossier")}
+            </EntityLink>
           </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("来源", "Sources")} · {sources.length}
-            </h3>
-            {sources.length ? (
-              <ul className="mt-2 space-y-2">
-                {sources.map((source) => (
-                  <li key={source.id}>
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block rounded-lg border border-border p-3 hover:border-signal/40 hover:bg-accent/40"
-                    >
-                      <span className="flex items-start justify-between gap-2 text-sm font-medium">
-                        <span>{pick(source.title, lang)}</span>
-                        <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      </span>
-                      <span className="mt-1 block text-[11px] text-muted-foreground">
-                        {source.publisher} · {source.publishedAt}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs leading-5 text-muted-foreground">
-                {t(
-                  "这条关系尚未绑定来源，应视为待核验信息。",
-                  "No source is attached. Treat this relationship as pending verification.",
-                )}
-              </p>
+        </div>
+        {scoped && (
+          <p>
+            {t(
+              "以下是原始记录的对象范围，不代表该家族所有版本都有相同接入条件：",
+              "Original scope below does not imply identical access across every family version:",
             )}
+          </p>
+        )}
+        {edge.records.map((record) => (
+          <div key={record.id} className="relationship-original">
+            <p>
+              {pick(snapshot.entities.find((entity) => entity.id === record.fromId)!.name, lang)} ·{" "}
+              {pick(RELATION_LABELS[record.kind], lang)} ·{" "}
+              {pick(snapshot.entities.find((entity) => entity.id === record.toId)!.name, lang)}
+              {record.validFrom ? ` · ${record.validFrom}` : ""}
+            </p>
+            <SourceLinks ids={record.sourceIds} snapshot={snapshot} />
           </div>
-          {fallbackEdges.length > 1 && (
-            <div className="mt-5 border-t border-border pt-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("其他相关关系", "Other relationships")}
-              </h3>
-              <div className="mt-2 space-y-1">
-                {fallbackEdges.slice(0, 6).map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => onSelectEdge(item.id)}
-                    className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs hover:bg-accent ${
-                      item.id === active.id ? "bg-accent text-foreground" : "text-muted-foreground"
-                    }`}
-                  >
-                    <span className="min-w-0 flex-1 truncate">
-                      {entityById.get(item.fromId)
-                        ? pick(entityById.get(item.fromId)!.name, lang)
-                        : item.fromId}{" "}
-                      →{" "}
-                      {entityById.get(item.toId)
-                        ? pick(entityById.get(item.toId)!.name, lang)
-                        : item.toId}
-                    </span>
-                    <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        <EmptyResult>
-          {t("当前结果没有可检查的关系。", "No relationship is available to inspect.")}
-        </EmptyResult>
-      )}
+        ))}
+        {!validSources.length && (
+          <p>
+            {t(
+              "此记录缺少可打开的直接来源，应先补充证据。",
+              "This record lacks a linked source and needs evidence review.",
+            )}
+          </p>
+        )}
+      </div>
+    </details>
+  );
+}
+function EmptyState({ title, text }: { title: string; text: string }) {
+  return (
+    <section className="relationship-empty">
+      <h3>{title}</h3>
+      <p>{text}</p>
     </section>
   );
 }
-
 function EntityPicker({
   label,
   value,
@@ -1066,104 +663,67 @@ function EntityPicker({
   label: string;
   value: string;
   entities: Entity[];
-  onChange: (value: string) => void;
+  onChange: (id: string) => void;
 }) {
-  const { lang, t } = useApp();
+  const { t, lang } = useApp();
   const [open, setOpen] = useState(false);
-  const sorted = useMemo(
-    () =>
-      [...entities].sort((left, right) =>
-        pick(left.name, lang).localeCompare(pick(right.name, lang)),
-      ),
-    [entities, lang],
-  );
+  const selected = entities.find((entity) => entity.id === value);
+  const groups = [
+    { title: t("模型家族", "Model families"), match: (entity: Entity) => entity.type === "model" },
+    {
+      title: t("应用与开发工具", "Applications & development"),
+      match: (entity: Entity) =>
+        ["application", "agent", "tool", "framework", "api"].includes(entity.type),
+    },
+    {
+      title: t("研究与组织", "Research & organizations"),
+      match: (entity: Entity) => ["paper", "benchmark", "dataset", "company"].includes(entity.type),
+    },
+  ];
   return (
-    <div className="block min-w-0">
-      <span className="mb-2 block text-xs font-medium text-muted-foreground">{label}</span>
+    <div className="relationship-picker">
+      <span>{label}</span>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            role="combobox"
-            aria-label={label}
-            aria-expanded={open}
-            className="h-10 w-full justify-between bg-background px-3 font-normal"
-          >
-            <span className="flex min-w-0 items-center gap-2">
-              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">
-                {sorted.find((entity) => entity.id === value)
-                  ? `${pick(sorted.find((entity) => entity.id === value)!.name, lang)} · ${pick(
-                      ENTITY_TYPE_LABELS[sorted.find((entity) => entity.id === value)!.type],
-                      lang,
-                    )}`
-                  : t("选择对象", "Select an entity")}
-              </span>
-            </span>
-            <ChevronRight className="h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+          <Button variant="outline" role="combobox" aria-label={label} aria-expanded={open}>
+            <span>{selected ? pick(selected.name, lang) : t("选择对象", "Select entity")}</span>
+            <ChevronDown size={16} />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <PopoverContent className="relationship-picker-popover p-0" align="start">
           <Command>
-            <CommandInput placeholder={t("搜索名称、类型或标签…", "Search name, type, or tag…")} />
+            <CommandInput
+              placeholder={t("搜索家族、应用或组织…", "Search families, apps or organizations…")}
+            />
             <CommandList>
               <CommandEmpty>{t("没有匹配对象", "No matching entity")}</CommandEmpty>
-              <CommandGroup>
-                {sorted.map((entity) => (
-                  <CommandItem
-                    key={entity.id}
-                    value={`${pick(entity.name, lang)} ${pick(ENTITY_TYPE_LABELS[entity.type], lang)} ${entity.tags.join(" ")}`}
-                    onSelect={() => {
-                      onChange(entity.id);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={`h-4 w-4 ${entity.id === value ? "opacity-100" : "opacity-0"}`}
-                    />
-                    <span className="min-w-0 flex-1 truncate">{pick(entity.name, lang)}</span>
-                    <span className="text-[11px] text-muted-foreground">
-                      {pick(ENTITY_TYPE_LABELS[entity.type], lang)}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              {groups.map((group) => (
+                <CommandGroup key={group.title} heading={group.title}>
+                  {entities.filter(group.match).map((entity) => (
+                    <CommandItem
+                      key={entity.id}
+                      value={`${entity.name.zh} ${entity.name.en} ${(entity.aliases ?? []).join(" ")}`}
+                      onSelect={() => {
+                        onChange(entity.id);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        size={15}
+                        className={entity.id === value ? "opacity-100" : "opacity-0"}
+                      />
+                      <span className="relationship-picker-option">{pick(entity.name, lang)}</span>
+                      <span className="relationship-picker-type">
+                        {pick(catalogTypeLabel(entity), lang)}
+                      </span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ))}
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
-      {!entities.length && (
-        <span className="text-xs text-muted-foreground">{t("没有可选对象", "No entities")}</span>
-      )}
-    </div>
-  );
-}
-
-function SectionHeading({
-  icon,
-  title,
-  description,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div>
-      <h2 className="flex items-center gap-2 font-semibold">
-        <span className="text-signal">{icon}</span>
-        {title}
-      </h2>
-      <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
-    </div>
-  );
-}
-
-function EmptyResult({ children }: { children: ReactNode }) {
-  return (
-    <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-6 text-center text-sm leading-6 text-muted-foreground">
-      {children}
     </div>
   );
 }

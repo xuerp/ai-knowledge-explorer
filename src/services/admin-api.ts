@@ -1,6 +1,7 @@
-import type { Entity, Evidence, GraphEdge, TimelineEntry } from "@/domain/types";
+import type { Claim, Entity, Evidence, GraphEdge, TimelineEntry } from "@/domain/types";
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
 import { expireAuthSession } from "@/services/auth-session";
+import { authResponseError } from "@/services/auth-errors";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 import type { ReviewReasonCategory } from "@/domain/review-decision";
 
@@ -113,7 +114,7 @@ export interface ReviewQueueItem {
   entityId?: string;
   claim: {
     id: string;
-    text: { zh: string; en: string };
+    text: Claim["text"];
     confidence: string;
     subject?: string;
     predicate?: string;
@@ -363,6 +364,8 @@ export interface IntegrationStatus {
   extractionPipelineVersion: string;
   extractionEndpointHost?: string;
   extractionModel?: string;
+  extractionReasoningEffort?: string | null;
+  extractionMaxCompletionTokens?: number | null;
   automaticExtractionEnabled: boolean;
   automaticExtractionMaxSnapshotsPerCycle: number;
   automaticExtractionMaxCandidatesPerSnapshot: number;
@@ -449,8 +452,9 @@ async function request<T>(
   if (!response.ok) {
     if (response.status === 401 && token) {
       expireAuthSession();
-      throw new Error("登录已过期，请重新登录。");
     }
+    const authError = authResponseError(response.status, Boolean(token), path);
+    if (authError) throw authError;
     const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
     throw new Error(`${path}：${detail?.detail || `请求失败（${response.status}）`}`);
   }
@@ -458,6 +462,22 @@ async function request<T>(
 }
 
 export const adminApi = {
+  entryRequests: (token: string, offset = 0, status = "all", query = "") =>
+    request<import("./entry-request-types").EntryRequestView[]>(
+      `/api/v2/admin/entry-requests?${new URLSearchParams({ offset: String(offset), limit: "21", ...(status !== "all" ? { status } : {}), ...(query.trim() ? { q: query.trim() } : {}) })}`,
+      {},
+      token,
+    ),
+  reviewEntryRequest: (
+    token: string,
+    id: string,
+    payload: import("./entry-request-types").EntryRequestDecision,
+  ) =>
+    request<import("./entry-request-types").EntryRequestView>(
+      `/api/v2/admin/entry-requests/${encodeURIComponent(id)}`,
+      { method: "PATCH", body: JSON.stringify(payload) },
+      token,
+    ),
   configured: Boolean(apiBaseUrl),
 
   async login(email: string, password: string) {
@@ -679,6 +699,21 @@ export const adminApi = {
       token,
     ),
 
+  changePublicationState: (
+    token: string,
+    item: ReviewQueueItem,
+    action: "retract" | "restore",
+    reason: string,
+  ) =>
+    request<ReviewQueueItem>(
+      `/api/v2/admin/review-queue/${encodeURIComponent(item.id)}/publication-state`,
+      {
+        method: "POST",
+        body: JSON.stringify({ action, expectedVersion: item.version, reason }),
+      },
+      token,
+    ),
+
   decideLifecycle: (
     token: string,
     id: string,
@@ -825,6 +860,17 @@ export const adminApi = {
     request<ReviewQueueItem>(
       "/api/v2/admin/review-candidates",
       { method: "POST", body: JSON.stringify(candidate) },
+      token,
+    ),
+
+  reviseCandidate: (
+    token: string,
+    item: ReviewQueueItem,
+    revision: { textZh: string; textEn: string; reason: string; idempotencyKey: string },
+  ) =>
+    request<ReviewQueueItem>(
+      `/api/v2/admin/review-queue/${encodeURIComponent(item.id)}/revise`,
+      { method: "POST", body: JSON.stringify({ ...revision, expectedVersion: item.version }) },
       token,
     ),
 

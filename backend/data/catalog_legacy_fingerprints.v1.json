@@ -1,0 +1,21 @@
+{
+  "version": "legacy-catalog-fingerprints-v1",
+  "purpose": "Recognize exact historical Gemini seed records, without storing duplicate facts or replacing administrator edits. Nullable fields are omitted before hashing.",
+  "timeline": [
+    {
+      "id": "t-gemini-family-3-1-pro",
+      "entityId": "e-gemini",
+      "sha256": "2d6c98992ff8542e05e95d9660b911b37fa00ceefe4b4487eb240522891e7430"
+    },
+    {
+      "id": "t-gemini-family-3-5-flash-lite",
+      "entityId": "e-gemini",
+      "sha256": "4574bf0973be1348c533e4d10dd766c07aedd41102601531e1168569b76dff50"
+    },
+    {
+      "id": "t-gemini-family-3-8-flash",
+      "entityId": "e-gemini",
+      "sha256": "7f3b7ef40ad0495085cad1114c9a7f499a492a8c99a66bf60c61dc43aac7bcbd"
+    }
+  ]
+}

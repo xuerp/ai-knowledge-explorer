@@ -19,7 +19,7 @@ try {
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(
     outputPath,
-    `${JSON.stringify(module.DEMO_KNOWLEDGE_SNAPSHOT, null, 2)}\n`,
+    `${JSON.stringify(module.BASE_DEMO_KNOWLEDGE_SNAPSHOT, null, 2)}\n`,
     "utf8",
   );
   console.log(`Exported demo snapshot to ${path.relative(projectRoot, outputPath)}`);

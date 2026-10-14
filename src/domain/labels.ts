@@ -1,8 +1,14 @@
-import type { Confidence, EntityType, LocalizedText, RelationKind } from "@/domain/types";
+import type { Confidence, Entity, EntityType, LocalizedText, RelationKind } from "@/domain/types";
+
+export function catalogTypeLabel(entity: Pick<Entity, "type" | "tags">): LocalizedText {
+  if (entity.tags.includes("协议")) return { zh: "协议", en: "Protocol" };
+  if (entity.tags.includes("SDK")) return { zh: "SDK", en: "SDK" };
+  return ENTITY_TYPE_LABELS[entity.type];
+}
 
 export const ENTITY_TYPE_LABELS: Record<EntityType, LocalizedText> = {
   model: { zh: "模型", en: "Model" },
-  agent: { zh: "Agent", en: "Agent" },
+  agent: { zh: "应用", en: "Application" },
   framework: { zh: "框架", en: "Framework" },
   paper: { zh: "论文", en: "Paper" },
   benchmark: { zh: "评测", en: "Benchmark" },

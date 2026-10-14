@@ -99,6 +99,7 @@ jobs:
         run: |
           python ../scripts/publish_quality_metrics.py \
             --source ../docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json \
+            --snapshot ../docs/eval/snapshots/public_snapshot_2026-08-30.json \
             --output ../artifacts/quality-evaluation.json \
             --artifact-path docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json
           diff -u data/quality_evaluation.json ../artifacts/quality-evaluation.json

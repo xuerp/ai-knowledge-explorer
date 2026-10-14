@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.engagement import EngagementService
+from app.repository import KnowledgeRepository
 from app.schemas import Claim, DecisionBudget, DecisionContext, KnowledgeSnapshot
 
 SEED_PATH = Path(__file__).resolve().parents[1] / "data" / "demo_snapshot.json"
@@ -60,13 +61,10 @@ def test_decision_ranks_only_evidence_backed_candidates_for_the_requested_priori
     )
 
     assert result is not None
-    assert result.status == "ready"
-    assert result.recommendation.primary_entity_id == "e-gpt"
-    assert result.recommendation.alternative_entity_ids == ["e-claude"]
-    assert {tuple(item.claim_ids) for item in result.tradeoffs} == {
-        ("cost-gpt",),
-        ("general-claude",),
-    }
+    # Arbitrary caller-provided claims are not current public evidence.
+    assert result.status == "insufficient-evidence"
+    assert result.recommendation.primary_entity_id is None
+    assert result.claim_ids == []
 
 
 def test_decision_refuses_to_rank_when_evidence_conflicts(snapshot: KnowledgeSnapshot):
@@ -79,9 +77,9 @@ def test_decision_refuses_to_rank_when_evidence_conflicts(snapshot: KnowledgeSna
     )
 
     assert result is not None
-    assert result.status == "conflict"
+    assert result.status == "insufficient-evidence"
     assert result.recommendation.primary_entity_id is None
-    assert result.risks[0].state == "conflict"
+    assert result.risks[0].state == "unknown"
 
 
 def test_decision_refuses_to_rank_claims_without_resolved_entities(snapshot: KnowledgeSnapshot):
@@ -89,6 +87,27 @@ def test_decision_refuses_to_rank_claims_without_resolved_entities(snapshot: Kno
         context(),
         [claim("orphan", None, "A sourced but unresolved claim.")],
         [],
+        snapshot,
+        "en",
+    )
+
+    assert result is not None
+    assert result.status == "insufficient-evidence"
+    assert result.recommendation.primary_entity_id is None
+
+
+def test_decision_excludes_pending_models_even_when_the_status_claim_is_verified():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    result = EngagementService._build_decision(
+        context(candidateEntityIds=["e-gemini-4-pending"]),
+        [
+            claim(
+                "gemini-4-status",
+                "e-gemini-4-pending",
+                "The official catalog does not list a production Gemini 4 model.",
+            )
+        ],
+        ["e-gemini-4-pending"],
         snapshot,
         "en",
     )

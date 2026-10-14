@@ -21,7 +21,7 @@ test("阅读模式由一份共享配置驱动正文入口与设置页", async ()
   assert.match(selector, /READING_MODE_OPTIONS\.map/);
   assert.match(selector, /option\.shortLabel\[lang\]/);
   assert.match(selector, /onChange\(option\.id\)/);
-  assert.match(selector, /activeOption\.focusAreas\.map/);
+  assert.match(selector, /activeContext\.focusAreas\.map/);
   assert.match(selector, /aria-pressed=\{isActive\}/);
   assert.match(settings, /READING_MODE_OPTIONS\.map/);
 });
@@ -47,7 +47,13 @@ test("模型与通用实体页按阅读模式展示不同重点信息", async ()
   assert.match(config, /knowledgeBlockOrder/);
   assert.match(
     config,
-    /technical: \[\s*"profile",\s*"lineage",\s*"claims",\s*"relationships",\s*"timeline",\s*"evidence",\s*"guide"/,
+    /technical: \[\s*"timeline",\s*"profile",\s*"lineage",\s*"claims",\s*"evidence",\s*"guide"/,
+  );
+  assert.match(config, /general: \[\s*"timeline",\s*"guide",\s*"lineage"/);
+  assert.match(config, /product: \[\s*"timeline",\s*"lineage",\s*"guide"/);
+  assert.doesNotMatch(
+    config.slice(config.indexOf("  model: {"), config.indexOf("  generic: {")),
+    /"relationships"/,
   );
   assert.match(
     config,
@@ -62,7 +68,14 @@ test("模型与通用实体页按阅读模式展示不同重点信息", async ()
   assert.match(modelPage, /section="profile"/);
   assert.match(modelPage, /data-reading-section="lineage"/);
   assert.match(modelPage, /visible=\{sectionVisible\("comparison"\)\}/);
-  assert.match(modelPage, /<ReadingModeSelector value=\{mode\} onChange=\{setMode\} \/>/);
+  assert.match(modelPage, /context=\{FAMILY_READING_CONTEXT\}/);
+  assert.match(modelPage, /<FamilyLineSummary lines=\{productLineGroups\} mode=\{mode\} \/>/);
+  assert.match(modelPage, /section="timeline"/);
+  assert.match(modelPage, /visible=\{sectionVisible\("timeline"\)\}/);
+  assert.match(modelPage, /<FamilyTimeline[\s\S]*events=\{timeline\}[\s\S]*sources=\{evidence\}/);
+  assert.doesNotMatch(modelPage, /section="relationships"/);
+  assert.doesNotMatch(modelPage, /to="\/graph"/);
+  assert.match(modelPage, /model-family__atlas-capabilities/);
   assert.doesNotMatch(entityPage, /label=\{t\("最近核验", "Last verified"\)\}/);
   assert.doesNotMatch(entityPage, /保留直接证据与最近核验时间/);
   assert.match(entityPage, /section="relationships"/);

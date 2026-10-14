@@ -11,6 +11,16 @@ const { getVisibleEntitySections } = await vite.ssrLoadModule("/src/domain/readi
 const { claimTextForReadingMode, rankClaimsForReadingMode } = await vite.ssrLoadModule(
   "/src/domain/claim-reading-mode.ts",
 );
+const { DEMO_KNOWLEDGE_SNAPSHOT } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
+
+test("已审核正文覆盖后技术阅读不保留旧演示评测", () => {
+  const claim = DEMO_KNOWLEDGE_SNAPSHOT.claims.find((row) => row.id === "c-gpt5-swe");
+  assert.ok(claim);
+  const technical = claimTextForReadingMode(claim, "technical");
+  assert.equal(technical.zh, claim.text.zh);
+  assert.match(technical.en, /400K context/);
+  assert.doesNotMatch(`${technical.zh} ${technical.en}`, /62\.4%|2026-07-12/);
+});
 
 test.after(async () => vite.close());
 
@@ -19,7 +29,6 @@ const modelSections = [
   "profile",
   "claims",
   "lineage",
-  "relationships",
   "timeline",
   "comparison",
   "questions",
@@ -31,31 +40,9 @@ test("三种阅读模式拥有不同的模型页信息集合", () => {
   const product = getVisibleEntitySections("product", "model", modelSections);
   const technical = getVisibleEntitySections("technical", "model", modelSections);
 
-  assert.deepEqual(general, [
-    "guide",
-    "claims",
-    "lineage",
-    "relationships",
-    "timeline",
-    "questions",
-  ]);
-  assert.deepEqual(product, [
-    "guide",
-    "claims",
-    "lineage",
-    "relationships",
-    "timeline",
-    "comparison",
-  ]);
-  assert.deepEqual(technical, [
-    "guide",
-    "profile",
-    "claims",
-    "lineage",
-    "relationships",
-    "timeline",
-    "evidence",
-  ]);
+  assert.deepEqual(general, ["guide", "claims", "lineage", "timeline", "questions", "evidence"]);
+  assert.deepEqual(product, ["guide", "claims", "lineage", "timeline", "comparison", "evidence"]);
+  assert.deepEqual(technical, ["guide", "profile", "claims", "lineage", "timeline", "evidence"]);
 });
 
 test("产品与技术模式按语义优先展示不同事实", () => {

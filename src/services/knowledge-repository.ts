@@ -16,6 +16,7 @@ export interface EntityQuery {
 }
 
 export interface EntityClaimPage {
+  total: number;
   items: Claim[];
   evidence: Source[];
   nextCursor?: string;
@@ -40,6 +41,7 @@ export interface KnowledgeRepository {
     cursor?: string,
     limit?: number,
     signal?: AbortSignal,
+    filters?: { q?: string; topic?: string },
   ) => Promise<EntityClaimPage>;
 }
 
@@ -87,7 +89,11 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
   async getFamilyVersions(familyId: string) {
     return DEMO_KNOWLEDGE_SNAPSHOT.entities
       .filter((entity) => entity.familyId === familyId)
-      .sort((a, b) => (a.firstReleasedAt ?? "").localeCompare(b.firstReleasedAt ?? ""));
+      .sort((a, b) =>
+        (a.release?.releasedAt ?? a.firstReleasedAt ?? "").localeCompare(
+          b.release?.releasedAt ?? b.firstReleasedAt ?? "",
+        ),
+      );
   }
 
   async compareModelVersions(versionIds: string[]) {
@@ -104,6 +110,8 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
     scope: "current" | "history" | "all",
     cursor?: string,
     limit = 10,
+    _signal?: AbortSignal,
+    filters?: { q?: string; topic?: string },
   ) {
     const ordered = DEMO_KNOWLEDGE_SNAPSHOT.claims
       .filter((claim) => claim.entityId === entityId)
@@ -111,13 +119,29 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
         (left, right) =>
           right.updatedAt.localeCompare(left.updatedAt) || right.id.localeCompare(left.id),
       );
-    const scoped = scope === "history" ? ordered.slice(5) : ordered;
+    const scoped = (scope === "history" ? ordered.slice(5) : ordered).filter((claim) => {
+      if (filters?.topic && claim.predicate !== filters.topic) return false;
+      const text = [
+        claim.text.zh,
+        claim.text.en,
+        claim.text.technical?.zh,
+        claim.text.technical?.en,
+        claim.subject,
+        claim.predicate,
+        claim.objectOrValue,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return !filters?.q?.trim() || text.includes(filters.q.trim().toLowerCase());
+    });
     const remaining = cursor
       ? scoped.filter((claim) => `${claim.updatedAt}|${claim.id}` < cursor)
       : scoped;
     const items = remaining.slice(0, limit);
     const sourceIds = new Set(items.flatMap((claim) => claim.sourceIds));
     return {
+      total: scoped.length,
       items,
       evidence: DEMO_KNOWLEDGE_SNAPSHOT.evidence.filter((item) => sourceIds.has(item.id)),
       nextCursor:
@@ -210,9 +234,12 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
     cursor?: string,
     limit = 10,
     signal?: AbortSignal,
+    filters?: { q?: string; topic?: string },
   ) {
     const params = new URLSearchParams({ scope, limit: String(limit) });
     if (cursor) params.set("cursor", cursor);
+    if (filters?.q?.trim()) params.set("q", filters.q.trim());
+    if (filters?.topic) params.set("topic", filters.topic);
     return this.request<EntityClaimPage>(
       `/api/v2/entities/${encodeURIComponent(entityId)}/claims?${params.toString()}`,
       {},
@@ -224,7 +251,9 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
 // 浏览器通过 Cloudflare 同域代理访问 API；SSR 若回调同一个 Worker 会被
 // Cloudflare 拒绝，因此服务端直接使用公开的 Render 上游地址。
 const apiBaseUrl = (
-  import.meta.env.SSR ? import.meta.env.VITE_API_UPSTREAM_URL : import.meta.env.VITE_API_BASE_URL
+  import.meta.env.SSR
+    ? (import.meta.env.VITE_API_UPSTREAM_URL ?? import.meta.env.VITE_API_BASE_URL)
+    : import.meta.env.VITE_API_BASE_URL
 )?.trim();
 
 export const knowledgeRepository: KnowledgeRepository = apiBaseUrl

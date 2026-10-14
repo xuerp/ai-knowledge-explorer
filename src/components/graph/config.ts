@@ -37,8 +37,8 @@ export const NODE_TYPE_META: Record<
     color: "var(--graph-node-agent)",
   },
   agent: {
-    label: { zh: "Agent", en: "Agent" },
-    shape: "circle",
+    label: { zh: "应用", en: "Application" },
+    shape: "square",
     color: "var(--graph-node-agent)",
   },
   dataset: {

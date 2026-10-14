@@ -1,0 +1,347 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "knowledge-assistant",
+      "name": {
+        "zh": "知识库与文档问答",
+        "en": "Knowledge and document answers"
+      },
+      "patterns": [
+        "知识库",
+        "文档问答",
+        "企业问答",
+        "检索增强",
+        "RAG",
+        "knowledge base",
+        "document question",
+        "retrieval augmented"
+      ],
+      "taskType": "model-api",
+      "features": ["text-generation"],
+      "checks": {
+        "zh": ["用真实文档检查答案与出处是否一致", "明确文档是否允许发送到外部服务"],
+        "en": [
+          "Check answer and source agreement on real documents",
+          "Clarify whether documents may leave your environment"
+        ]
+      }
+    },
+    {
+      "id": "career-assistant",
+      "name": {
+        "zh": "求职资料与岗位匹配助手",
+        "en": "Career document and job matching assistant"
+      },
+      "patterns": ["求职", "简历", "岗位匹配", "resume", "job search", "career assistant"],
+      "taskType": "model-api",
+      "features": ["text-generation", "structured-output"],
+      "checks": {
+        "zh": [
+          "明确先处理简历、岗位匹配还是面试练习",
+          "用脱敏简历与岗位描述检查信息抽取、匹配理由和事实保真"
+        ],
+        "en": [
+          "Choose resume processing, job matching or interview practice first",
+          "Test extraction, matching explanations and fidelity on anonymized resumes and job descriptions"
+        ]
+      }
+    },
+    {
+      "id": "coding-workspace",
+      "name": {
+        "zh": "代码编辑与开发工作台",
+        "en": "Code editing and development workspace"
+      },
+      "patterns": [
+        "编码工具",
+        "编程工具",
+        "代码编辑器",
+        "终端编程",
+        "IDE",
+        "coding product",
+        "coding assistant",
+        "code editor",
+        "coding workspace"
+      ],
+      "taskType": "coding-product",
+      "features": ["code-editing", "tool-use"],
+      "optionalFeatures": ["file-editing", "test-execution"],
+      "checks": {
+        "zh": ["明确需要 IDE、终端还是云端任务入口", "在现有仓库检查补丁、测试与审批边界"],
+        "en": [
+          "Choose an IDE, terminal or cloud task interface",
+          "Check patches, tests and approval boundaries on your repository"
+        ]
+      }
+    },
+    {
+      "id": "coding-model",
+      "name": {
+        "zh": "代码生成与软件工程模型",
+        "en": "Coding and software engineering model"
+      },
+      "patterns": [
+        "代码生成",
+        "编程模型",
+        "代码模型",
+        "code generation",
+        "coding model",
+        "coding API"
+      ],
+      "taskType": "model-api",
+      "features": ["code-generation", "tool-use"],
+      "checks": {
+        "zh": ["明确补全、代码修改还是自主修复任务", "用相同仓库任务与工具配置比较成功率"],
+        "en": [
+          "Choose completion, code changes or autonomous repair",
+          "Compare success on the same repository tasks and tool setup"
+        ]
+      }
+    },
+    {
+      "id": "agent-orchestration",
+      "name": {
+        "zh": "Agent 应用编排",
+        "en": "Agent application orchestration"
+      },
+      "patterns": [
+        "Agent开发",
+        "Agent 开发",
+        "智能体开发",
+        "Agent框架",
+        "Agent 框架",
+        "多智能体",
+        "有状态",
+        "长运行",
+        "agent development",
+        "agent framework",
+        "multi-agent",
+        "stateful",
+        "orchestration"
+      ],
+      "taskType": "agent-development",
+      "features": ["orchestration", "tool-use"],
+      "checks": {
+        "zh": [
+          "明确是否需要持久状态、人工审批和恢复",
+          "在中断恢复、工具失败和权限隔离场景验证编排"
+        ],
+        "en": [
+          "Clarify persistent state, human approval and recovery needs",
+          "Test orchestration under interruption, tool failure and permission isolation"
+        ]
+      },
+      "optionalFeatures": ["persistent-state", "human-approval", "failure-recovery"]
+    },
+    {
+      "id": "document-extraction",
+      "name": {
+        "zh": "文档信息抽取",
+        "en": "Document information extraction"
+      },
+      "patterns": [
+        "信息抽取",
+        "文档提取",
+        "发票",
+        "OCR",
+        "document extraction",
+        "invoice",
+        "extract data"
+      ],
+      "taskType": "model-api",
+      "features": ["structured-output", "document-input"],
+      "checks": {
+        "zh": ["明确输入为文本、扫描件还是图片", "核对字段准确率、缺失字段与格式稳定性"],
+        "en": [
+          "Specify text, scans or images as input",
+          "Measure field accuracy, missing fields and format stability"
+        ]
+      }
+    },
+    {
+      "id": "general-text",
+      "name": {
+        "zh": "文本生成与对话",
+        "en": "Text generation and conversation"
+      },
+      "patterns": [
+        "文本生成",
+        "写作",
+        "客服",
+        "对话",
+        "text generation",
+        "writing",
+        "chatbot",
+        "customer support"
+      ],
+      "taskType": "model-api",
+      "features": ["text-generation"],
+      "checks": {
+        "zh": ["说明输出面向谁，以及怎样判定结果合格", "用同一组实际请求检查准确性和可接受表达"],
+        "en": [
+          "Specify the audience and acceptance criteria",
+          "Check accuracy and acceptable wording on the same real requests"
+        ]
+      }
+    }
+  ],
+  "features": {
+    "file-editing": {
+      "name": { "zh": "编辑仓库文件", "en": "Edit repository files" },
+      "supersedes": ["code-editing"],
+      "patterns": [
+        "编辑文件",
+        "编辑代码",
+        "edit files",
+        "edits files",
+        "edit code",
+        "editing files"
+      ]
+    },
+    "test-execution": {
+      "name": { "zh": "运行测试", "en": "Run tests" },
+      "supersedes": ["tool-use"],
+      "patterns": [
+        "运行测试",
+        "执行测试",
+        "运行和测试代码",
+        "run tests",
+        "runs tests",
+        "running tests",
+        "execute tests",
+        "run and test code"
+      ]
+    },
+    "text-generation": {
+      "name": {
+        "zh": "文本与对话用途",
+        "en": "Text and conversation use"
+      },
+      "patterns": [
+        "文本",
+        "对话",
+        "写作",
+        "text",
+        "chat",
+        "conversation",
+        "writing",
+        "reasoning",
+        "推理"
+      ]
+    },
+    "structured-output": {
+      "name": {
+        "zh": "结构化输出",
+        "en": "Structured output"
+      },
+      "patterns": ["结构化输出", "JSON schema", "structured output", "schema-constrained"]
+    },
+    "retrieval": {
+      "name": {
+        "zh": "检索与来源整合",
+        "en": "Retrieval and source integration"
+      },
+      "patterns": ["检索", "搜索", "retrieval", "search", "RAG"]
+    },
+    "code-generation": {
+      "name": {
+        "zh": "代码生成用途",
+        "en": "Code generation use"
+      },
+      "patterns": ["代码", "编程", "coding", "code", "software engineering"]
+    },
+    "code-editing": {
+      "name": {
+        "zh": "代码编辑工作流",
+        "en": "Code editing workflow"
+      },
+      "patterns": [
+        "代码编辑",
+        "编辑文件",
+        "多文件编辑",
+        "code edit",
+        "editing",
+        "edit files",
+        "patch",
+        "IDE",
+        "software engineer",
+        "软件工程"
+      ]
+    },
+    "tool-use": {
+      "name": {
+        "zh": "工具接入与执行",
+        "en": "Tool integration and execution"
+      },
+      "patterns": ["工具", "测试", "命令", "tool", "test", "command", "terminal", "MCP", "handoff"]
+    },
+    "orchestration": {
+      "name": {
+        "zh": "Agent 编排",
+        "en": "Agent orchestration"
+      },
+      "patterns": [
+        "编排",
+        "有状态",
+        "协作",
+        "Agent",
+        "agent",
+        "orchestration",
+        "runtime",
+        "Flows",
+        "guardrail"
+      ]
+    },
+    "document-input": {
+      "name": {
+        "zh": "文档处理用途",
+        "en": "Document processing use"
+      },
+      "patterns": ["文档解析", "文档抽取", "文档理解", "图像输入", "图片输入", "document input", "document processing", "document understanding", "document extraction", "image input", "PDF", "OCR"]
+    },
+    "persistent-state": {
+      "name": {
+        "zh": "持久状态与长运行",
+        "en": "Persistent state and long-running work"
+      },
+      "patterns": [
+        "有状态",
+        "持久状态",
+        "长运行",
+        "stateful",
+        "persistent state",
+        "long-running",
+        "durable execution"
+      ]
+    },
+    "human-approval": {
+      "name": {
+        "zh": "人工审批",
+        "en": "Human approval"
+      },
+      "patterns": [
+        "人工审批",
+        "人工介入",
+        "human-in-the-loop",
+        "human approval",
+        "human intervention"
+      ]
+    },
+    "failure-recovery": {
+      "name": {
+        "zh": "中断与失败恢复",
+        "en": "Interruption and failure recovery"
+      },
+      "patterns": [
+        "中断恢复",
+        "失败恢复",
+        "断点恢复",
+        "checkpoint",
+        "failure recovery",
+        "resumable",
+        "resume execution"
+      ]
+    }
+  }
+}

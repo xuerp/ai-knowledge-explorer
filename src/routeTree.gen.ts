@@ -14,12 +14,15 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as CaseStudyRouteImport } from './routes/case-study'
 import { Route as CompareRouteImport } from './routes/compare'
+import { Route as DesignReviewRouteImport } from './routes/design-review'
 import { Route as FollowingRouteImport } from './routes/following'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
+import { Route as LandingRouteImport } from './routes/landing'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as QualityRouteImport } from './routes/quality'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
 import { Route as ResearchIdRouteImport } from './routes/research.$id'
@@ -52,6 +55,11 @@ const CompareRoute = CompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignReviewRoute = DesignReviewRouteImport.update({
+  id: '/design-review',
+  path: '/design-review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FollowingRoute = FollowingRouteImport.update({
   id: '/following',
   path: '/following',
@@ -67,6 +75,11 @@ const KnowledgeRoute = KnowledgeRouteImport.update({
   path: '/knowledge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -80,6 +93,11 @@ const QualityRoute = QualityRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminReviewRoute = AdminReviewRouteImport.update({
@@ -119,12 +137,15 @@ export interface FileRoutesByFullPath {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
+  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
+  '/landing': typeof LandingRoute
   '/onboarding': typeof OnboardingRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
@@ -138,12 +159,15 @@ export interface FileRoutesByTo {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
+  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
+  '/landing': typeof LandingRoute
   '/onboarding': typeof OnboardingRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
@@ -158,12 +182,15 @@ export interface FileRoutesById {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
+  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
+  '/landing': typeof LandingRoute
   '/onboarding': typeof OnboardingRoute
   '/quality': typeof QualityRoute
   '/settings': typeof SettingsRoute
+  '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
   '/research/$id': typeof ResearchIdRoute
@@ -179,12 +206,15 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
+    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/landing'
     | '/onboarding'
     | '/quality'
     | '/settings'
+    | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
@@ -198,12 +228,15 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
+    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/landing'
     | '/onboarding'
     | '/quality'
     | '/settings'
+    | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
@@ -217,12 +250,15 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
+    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
+    | '/landing'
     | '/onboarding'
     | '/quality'
     | '/settings'
+    | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
     | '/research/$id'
@@ -237,12 +273,15 @@ export interface RootRouteChildren {
   AskRoute: typeof AskRoute
   CaseStudyRoute: typeof CaseStudyRoute
   CompareRoute: typeof CompareRoute
+  DesignReviewRoute: typeof DesignReviewRoute
   FollowingRoute: typeof FollowingRoute
   GraphRoute: typeof GraphRoute
   KnowledgeRoute: typeof KnowledgeRoute
+  LandingRoute: typeof LandingRoute
   OnboardingRoute: typeof OnboardingRoute
   QualityRoute: typeof QualityRoute
   SettingsRoute: typeof SettingsRoute
+  UpdatesRoute: typeof UpdatesRoute
   AdminReviewRoute: typeof AdminReviewRoute
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
   ResearchIdRoute: typeof ResearchIdRoute
@@ -288,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design-review': {
+      id: '/design-review'
+      path: '/design-review'
+      fullPath: '/design-review'
+      preLoaderRoute: typeof DesignReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/following': {
       id: '/following'
       path: '/following'
@@ -309,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -328,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/review': {
@@ -381,12 +441,15 @@ const rootRouteChildren: RootRouteChildren = {
   AskRoute: AskRoute,
   CaseStudyRoute: CaseStudyRoute,
   CompareRoute: CompareRoute,
+  DesignReviewRoute: DesignReviewRoute,
   FollowingRoute: FollowingRoute,
   GraphRoute: GraphRoute,
   KnowledgeRoute: KnowledgeRoute,
+  LandingRoute: LandingRoute,
   OnboardingRoute: OnboardingRoute,
   QualityRoute: QualityRoute,
   SettingsRoute: SettingsRoute,
+  UpdatesRoute: UpdatesRoute,
   AdminReviewRoute: AdminReviewRoute,
   AdminReviewDemoRoute: AdminReviewDemoRoute,
   ResearchIdRoute: ResearchIdRoute,

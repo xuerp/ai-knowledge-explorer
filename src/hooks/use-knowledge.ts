@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSyncExternalStore } from "react";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { EntityType } from "@/domain/types";
 import { knowledgeRepository, type EntityQuery } from "@/services/knowledge-repository";
 
@@ -33,7 +32,6 @@ export function useKnowledgeSnapshot() {
   const query = useQuery({
     queryKey: knowledgeKeys.snapshot(),
     queryFn: ({ signal }) => knowledgeRepository.getSnapshot(signal),
-    initialData: knowledgeRepository.mode === "demo" ? DEMO_KNOWLEDGE_SNAPSHOT : undefined,
     staleTime: knowledgeRepository.mode === "demo" ? Infinity : 60_000,
     retry: knowledgeRepository.mode === "demo" ? false : 2,
   });
@@ -49,12 +47,6 @@ export function useEntities(query: EntityQuery = {}) {
   return useQuery({
     queryKey: knowledgeKeys.entities(query),
     queryFn: ({ signal }) => knowledgeRepository.getEntities(query, signal),
-    initialData:
-      knowledgeRepository.mode === "demo"
-        ? DEMO_KNOWLEDGE_SNAPSHOT.entities.filter(
-            (entity) => !query.type || entity.type === query.type,
-          )
-        : undefined,
     staleTime: knowledgeRepository.mode === "demo" ? Infinity : 60_000,
   });
 }

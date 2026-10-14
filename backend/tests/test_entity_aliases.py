@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from pathlib import Path
 
 from sqlalchemy import create_engine, select
@@ -66,8 +67,16 @@ def test_seed_catalog_persists_typed_alias_index_and_keeps_payload_authoritative
         ).all()
         mcp = session.get(KnowledgeEntityRecord, "e-mcp")
 
-    assert len(rows) == 34
+    assert len(rows) >= 34
     assert sum(row.alias_type != "other" for row in rows) == 24
+    assert {(row.entity_id, row.alias_key) for row in rows} >= {
+        ("e-gpt-6-astra", "gpt-6-astra"),
+        ("e-claude-fable-5-1", "claude-fable-5-1"),
+        ("e-gemini-3-1-pro", "gemini-3.1-pro-preview"),
+        ("e-deepseek-v4-pro", "deepseek-v4-pro"),
+        ("e-qwen-3-8-max", "qwen3.8-max"),
+        ("e-kimi-k3", "kimi-k3"),
+    }
     assert {row.alias_type for row in rows} <= {
         "abbreviation",
         "product-name",
@@ -101,3 +110,41 @@ def test_entity_upsert_rebuilds_alias_index_for_admin_aliases():
     by_key = {row.alias_key: row.alias_type for row in aliases}
     assert by_key["codex"] == "product-name"
     assert by_key["openai coding agent"] == "other"
+
+
+def test_frontier_profile_refreshes_new_fields_without_overwriting_newer_admin_data():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    entity_id = "e-gemini-38-live"
+
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        row = session.get(KnowledgeEntityRecord, entity_id)
+        assert row is not None
+        stored = Entity.model_validate_json(row.payload_json)
+        assert stored.capabilities and stored.specs
+        stored.capabilities = []
+        stored.specs = None
+        row.payload_json = stored.model_dump_json(by_alias=True)
+        session.commit()
+
+        repository.seed_catalog(session)
+        refreshed = Entity.model_validate_json(row.payload_json)
+        assert len(refreshed.capabilities or []) == 3
+        assert refreshed.specs and refreshed.specs.context_window
+
+        # The admin record must actually be newer than the curated revision.
+        # A fixed date becomes older when the official catalog is refreshed.
+        newer_admin_date = (
+            date.fromisoformat(refreshed.last_updated_at) + timedelta(days=1)
+        ).isoformat()
+        refreshed.last_updated_at = newer_admin_date
+        refreshed.capabilities = []
+        row.payload_json = refreshed.model_dump_json(by_alias=True)
+        session.commit()
+
+        repository.seed_catalog(session)
+        admin_record = Entity.model_validate_json(row.payload_json)
+        assert admin_record.last_updated_at == newer_admin_date
+        assert admin_record.capabilities == []
