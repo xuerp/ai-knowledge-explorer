@@ -129,12 +129,14 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 
 ## 本地运行
 
-前端要求 Node.js 22 和 Bun 1.3.14：
+前端要求 Node.js 22 和 Bun 1.4.3：
 
 ```bash
 bun install --frozen-lockfile
 bun run dev
 ```
+
+依赖以 `package.json` 指定的 Bun 和唯一 `bun.lock` 为准；不要另行生成 npm/pnpm 锁文件。可运行 `bun audit --audit-level low` 核查已解析依赖，CI 同样执行该检查。
 
 后端：
 
