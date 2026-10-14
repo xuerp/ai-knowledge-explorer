@@ -474,12 +474,12 @@
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "18549b08ed1175a484338edc6e2d6e9927705775e666bc33c78ff0361b2d61b6",
+      "sha256": "72a8221688675ab9fd29074389b2eb5dfd264e65a6764e798abbb9fe85d2b2fa",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
       "path": "docs/DECISION_PRODUCT_PROGRESS_20261014.md",
-      "sha256": "5bc17b27886be16fdbe77d951a36d5add35957ed0a0742092da501c581e72bbe",
+      "sha256": "006339efa97b1bbedb760021a537e00ea9c39c911b2300ba74d1c5baf52c54ca",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -494,7 +494,7 @@
     },
     {
       "path": "docs/RELEASE_SYNC_20261014.md",
-      "sha256": "05a170827095a619838ad941222fa22490a17f76209a25d1264c4c10bdcbee61",
+      "sha256": "c78c2c935ad349befa113df9dfb56a1a94d4074d1019e871465808960d5bc647",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
