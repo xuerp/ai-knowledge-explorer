@@ -30,10 +30,29 @@ from .database import (
     SourceRecord,
     UserRecord,
 )
+from .decision_evidence_requests import (
+    DecisionEvidenceRequestCreate,
+    DecisionEvidenceRequestView,
+    create_evidence_request,
+    evidence_requests,
+    require_completed_evidence,
+)
+from .decision_validation import save_validation, validation_view
 from .email_delivery import EmailDeliveryService, EmailDeliveryUnavailableError
 from .embeddings import CloudflareEmbeddingProvider
-from .engagement import EngagementService
+from .engagement import EngagementService, revalidate_research
 from .entity_linkage import audit_claim_entity_links, classify_unlinked_claim
+from .entry_requests import (
+    EntryRequestCreate,
+    EntryRequestDecision,
+    EntryRequestReceipt,
+    EntryRequestStatus,
+    EntryRequestView,
+    create_entry_request,
+    decide_entry_request,
+    list_entry_requests,
+)
+from .evaluation_scope import assess_evaluation
 from .extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionUnavailableError,
@@ -60,6 +79,8 @@ from .rag import (
     grounded_retrieval_citations,
 )
 from .repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES, KnowledgeRepository
+from .research_report import build_report, report_markdown, report_pdf
+from .review_revision import create_revision
 from .scheduler import IngestionScheduler
 from .schemas import (
     RELATION_KINDS,
@@ -77,6 +98,8 @@ from .schemas import (
     ClaimEntityResolutionRequest,
     ClaimEntityResolutionResult,
     DataQualityReport,
+    DecisionValidationSave,
+    DecisionValidationView,
     DigestPreference,
     DigestRunSummary,
     DocumentIngestRequest,
@@ -125,8 +148,10 @@ from .schemas import (
     ReviewDecision,
     ReviewInventoryReport,
     ReviewLifecycleDecision,
+    ReviewPublicationStateRequest,
     ReviewQueueItem,
     ReviewReasonBreakdown,
+    ReviewRevisionRequest,
     ReviewStats,
     SchedulerRunSummary,
     SourceCreate,
@@ -142,7 +167,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20260905_0023"
+DATABASE_SCHEMA_REVISION = "20261013_0026"
 SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
@@ -194,7 +219,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database = Database(app_settings.database_url)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
     ingestion = IngestionService(app_settings.fetch_allowed_hosts)
-    fetcher = SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes)
+    if app_settings.fetch_dns_mode == "https-google":
+        from .safe_dns import GoogleHttpsResolver
+
+        fetcher = SafeHttpFetcher(
+            app_settings.fetch_allowed_hosts,
+            app_settings.fetch_max_bytes,
+            resolver=GoogleHttpsResolver(),
+        )
+    else:
+        fetcher = SafeHttpFetcher(app_settings.fetch_allowed_hosts, app_settings.fetch_max_bytes)
     scheduler = IngestionScheduler(
         fetcher,
         ingestion,
@@ -248,6 +282,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app_settings.extraction_api_key,
         app_settings.extraction_model,
         response_timeout_seconds=app_settings.extraction_response_timeout_seconds,
+        reasoning_effort=app_settings.extraction_reasoning_effort,
+        max_completion_tokens=app_settings.extraction_max_completion_tokens,
+        require_json_schema=app_settings.extraction_require_json_schema,
+        require_usage=app_settings.extraction_require_usage,
+        contract_state_path=app_settings.extraction_contract_state_path,
     )
     email_delivery = EmailDeliveryService(
         app_settings.smtp_host,
@@ -298,7 +337,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=list(app_settings.cors_origins),
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Accept", "Authorization", "Content-Type", "X-Admin-Token"],
     )
 
@@ -409,6 +448,39 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password.",
             )
+        return auth.issue_token(user)
+
+    @app.post(
+        "/api/v2/auth/register",
+        response_model=TokenResponse,
+        status_code=status.HTTP_201_CREATED,
+    )
+    def register(payload: BootstrapUser, session: SessionDependency) -> TokenResponse:
+        if not auth.enabled:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="JWT authentication is not configured.",
+            )
+        try:
+            user = auth.create_user(
+                session,
+                UserCreate(email=payload.email, password=payload.password, role="viewer"),
+            )
+        except IntegrityError as error:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An account with this email already exists.",
+            ) from error
+        audit.record(
+            session,
+            Principal(subject=user.id, email=user.email, role="viewer"),
+            "user.register",
+            "user",
+            user.id,
+            {"role": "viewer"},
+        )
+        session.commit()
         return auth.issue_token(user)
 
     @app.post("/api/v2/automation/run-cycle", response_model=AutomationCycleResponse)
@@ -582,7 +654,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload,
             get_public_snapshot(session),
         )
-        return visible_research(result, principal.role)
+        return visible_research(
+            revalidate_research(result, get_public_snapshot(session)), principal.role
+        )
 
     def visible_research(result: ResearchView, role: str | None = None) -> ResearchView:
         if role == "admin":
@@ -602,7 +676,99 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return visible_research(result, principal.role)
+        return visible_research(
+            revalidate_research(result, get_public_snapshot(session)), principal.role
+        )
+
+    @app.get("/api/v2/research/{research_id}/validation", response_model=DecisionValidationView)
+    def research_validation(
+        research_id: str, principal: UserDependency, session: SessionDependency
+    ) -> DecisionValidationView:
+        return validation_view(
+            session, research_id, principal.subject, get_public_snapshot(session)
+        )
+
+    @app.get(
+        "/api/v2/research/{research_id}/evidence-requests",
+        response_model=list[DecisionEvidenceRequestView],
+    )
+    def research_evidence_requests(
+        research_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+    ):
+        return evidence_requests(
+            session, research_id, principal.subject, get_public_snapshot(session)
+        )
+
+    @app.post(
+        "/api/v2/research/{research_id}/evidence-requests",
+        response_model=DecisionEvidenceRequestView,
+        status_code=201,
+    )
+    def request_decision_evidence(
+        research_id: str,
+        payload: DecisionEvidenceRequestCreate,
+        principal: UserDependency,
+        session: SessionDependency,
+    ):
+        return create_evidence_request(
+            session, research_id, principal.subject, payload, get_public_snapshot(session)
+        )
+
+    def export_report_response(
+        result: ResearchView, session: Session, file_format: str, language: str
+    ):
+        snapshot = get_public_snapshot(session)
+        document = build_report(revalidate_research(result, snapshot), snapshot, language)
+        content = report_pdf(document) if file_format == "pdf" else report_markdown(document)
+        return Response(
+            content,
+            media_type="application/pdf"
+            if file_format == "pdf"
+            else "text/markdown; charset=utf-8",
+            headers={
+                "Content-Disposition": f'attachment; filename="ai-radar-{result.id}.{file_format}"',
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+            },
+        )
+
+    @app.get("/api/v2/research/{research_id}/report")
+    def private_report(
+        research_id: str,
+        principal: UserDependency,
+        session: SessionDependency,
+        file_format: Literal["pdf", "md"] = Query("pdf", alias="format"),
+        language: Literal["zh", "en"] = "zh",
+    ):
+        result = engagement.get_research(session, research_id, user_id=principal.subject)
+        if not result:
+            raise HTTPException(status_code=404, detail="Research not found.")
+        return export_report_response(result, session, file_format, language)
+
+    @app.get("/api/v2/share/{slug}/report")
+    def shared_report(
+        slug: str,
+        session: SessionDependency,
+        file_format: Literal["pdf", "md"] = Query("pdf", alias="format"),
+        language: Literal["zh", "en"] = "zh",
+    ):
+        result = engagement.get_research(session, "", public_slug=slug)
+        if not result:
+            raise HTTPException(status_code=404, detail="Published research not found.")
+        return export_report_response(result, session, file_format, language)
+
+    @app.put("/api/v2/research/{research_id}/validation", response_model=DecisionValidationView)
+    def update_research_validation(
+        research_id: str,
+        payload: DecisionValidationSave,
+        principal: UserDependency,
+        session: SessionDependency,
+    ) -> DecisionValidationView:
+        return save_validation(
+            session, research_id, principal.subject, payload, get_public_snapshot(session)
+        )
 
     @app.post("/api/v2/research/{research_id}/publish", response_model=ResearchView)
     def publish_research(
@@ -613,13 +779,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         result = engagement.publish_research(session, research_id, principal.subject)
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
-        return visible_research(result, principal.role)
+        return visible_research(
+            revalidate_research(result, get_public_snapshot(session)), principal.role
+        )
 
     def published_research_view(
         result: ResearchView,
         session: Session,
     ) -> PublishedResearchView:
         snapshot = get_public_snapshot(session)
+        result = revalidate_research(result, snapshot)
         citations_by_id = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
         citations = [
             citations_by_id[claim_id]
@@ -722,6 +891,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             extraction_pipeline_version=EXTRACTION_PIPELINE_VERSION,
             extraction_endpoint_host=extraction_host,
             extraction_model=app_settings.extraction_model,
+            extraction_reasoning_effort=extraction.reasoning_effort,
+            extraction_max_completion_tokens=extraction.max_completion_tokens,
             automatic_extraction_enabled=(
                 extraction.enabled and app_settings.auto_extraction_max_snapshots_per_cycle > 0
             ),
@@ -795,6 +966,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "endpointHost": result.endpoint_host,
                 "model": result.model,
                 "latencyMs": result.latency_ms,
+                "providerCall": extraction.call_metadata(),
             },
         )
         session.commit()
@@ -1499,6 +1671,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "relationsAutoApproved": auto_approved,
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                         "sourceId": source.id,
+                        "providerCall": extraction.call_metadata(),
                         **audit_context,
                     },
                 )
@@ -1525,6 +1698,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         "sourceId": source.id,
                         "error": str(error)[:500],
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
+                        "providerCall": extraction.call_metadata(),
                         **audit_context,
                     },
                 )
@@ -1591,10 +1765,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return datetime.now(UTC)
         return latest if latest.tzinfo is not None else latest.replace(tzinfo=UTC)
 
-    def evaluation_quality_metrics() -> EvaluationQualityMetrics:
+    def evaluation_quality_metrics(snapshot: KnowledgeSnapshot) -> EvaluationQualityMetrics:
         try:
             payload = json.loads(app_settings.quality_evaluation_path.read_text(encoding="utf-8"))
-            return EvaluationQualityMetrics.model_validate(payload)
+            reference = payload.pop("reference", None)
+            evaluation = EvaluationQualityMetrics.model_validate(payload)
+            return evaluation.model_copy(
+                update={
+                    "applicability": assess_evaluation(
+                        evaluation, reference, snapshot, app_settings
+                    )
+                }
+            )
         except (OSError, json.JSONDecodeError, ValueError) as error:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -1612,6 +1794,44 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 )
         return snapshot
 
+    @app.post("/api/v2/entry-requests", response_model=EntryRequestReceipt, status_code=201)
+    def submit_entry_request(payload: EntryRequestCreate, session: SessionDependency):
+        return create_entry_request(session, payload)
+
+    @app.get("/api/v2/admin/entry-requests", response_model=list[EntryRequestView])
+    def entry_requests(
+        session: SessionDependency,
+        _: ReviewerDependency,
+        status: EntryRequestStatus | None = None,
+        offset: int = Query(default=0, ge=0),
+        limit: int = Query(default=50, ge=1, le=100),
+        q: str | None = Query(default=None, max_length=120),
+    ):
+        return list_entry_requests(session, status, offset, limit, q)
+
+    @app.patch("/api/v2/admin/entry-requests/{request_id}", response_model=EntryRequestView)
+    def review_entry_request(
+        request_id: str,
+        payload: EntryRequestDecision,
+        session: SessionDependency,
+        principal: ReviewerDependency,
+    ):
+        if payload.status == "resolved":
+            require_completed_evidence(
+                session, request_id, payload.entity_id, get_public_snapshot(session)
+            )
+        result = decide_entry_request(session, request_id, payload, principal.email)
+        audit.record(
+            session,
+            principal,
+            "entry-request.review",
+            "entry-request",
+            request_id,
+            {"status": result.status, "entityId": result.entity_id},
+        )
+        session.commit()
+        return result
+
     @app.get("/api/snapshot", response_model=KnowledgeSnapshot)
     @app.get("/api/v2/snapshot", response_model=KnowledgeSnapshot)
     def snapshot(session: SessionDependency) -> KnowledgeSnapshot:
@@ -1620,7 +1840,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/quality/metrics", response_model=QualityMetrics)
     @app.get("/api/v2/quality/metrics", response_model=QualityMetrics)
     def quality_metrics(session: SessionDependency) -> QualityMetrics:
-        report = quality_gate.report(get_catalog_snapshot(session))
+        snapshot = get_catalog_snapshot(session)
+        report = quality_gate.report(snapshot)
         return QualityMetrics(
             generated_at=datetime.now(UTC),
             data_mode=app_settings.data_mode,
@@ -1638,7 +1859,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 verified_content_ratio=report.verified_content_ratio,
                 core_relation_deficit=report.core_relation_deficit,
             ),
-            evaluation=evaluation_quality_metrics(),
+            evaluation=evaluation_quality_metrics(snapshot),
         )
 
     @app.get("/api/review/stats", response_model=ReviewStats)
@@ -1719,6 +1940,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         session: SessionDependency,
         scope: Annotated[Literal["current", "history", "all"], Query()] = "current",
         topic: str | None = None,
+        q: str | None = Query(default=None, max_length=200),
         cursor: str | None = None,
         limit: Annotated[int, Query(ge=1, le=50)] = 10,
     ) -> EntityClaimPage:
@@ -1753,6 +1975,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 for claim in items
                 if " ".join((claim.predicate or "").casefold().split()) == topic_key
             ]
+        if q and q.strip():
+            needle = q.strip().casefold()
+            items = [
+                claim
+                for claim in items
+                if needle
+                in " ".join(
+                    [
+                        claim.text.zh,
+                        claim.text.en,
+                        claim.predicate or "",
+                        claim.subject or "",
+                        claim.object_or_value or "",
+                        claim.text.technical.zh if claim.text.technical else "",
+                        claim.text.technical.en if claim.text.technical else "",
+                    ]
+                ).casefold()
+            ]
+        total = len(items)
         items = sorted(items, key=lambda claim: (claim.updated_at, claim.id), reverse=True)
         if cursor:
             items = [claim for claim in items if f"{claim.updated_at}|{claim.id}" < cursor]
@@ -1768,6 +2009,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 evidence_by_id[evidence.id] = evidence
         source_ids = {source_id for claim in page_items for source_id in claim.source_ids}
         return EntityClaimPage(
+            total=total,
             items=page_items,
             evidence=[
                 evidence_by_id[item_id] for item_id in source_ids if item_id in evidence_by_id
@@ -1801,7 +2043,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return sorted(
             [item for item in snapshot.entities if item.family_id == family_id],
-            key=lambda item: item.first_released_at or "",
+            key=lambda item: (
+                (item.release.released_at if item.release else None) or item.first_released_at or ""
+            ),
         )
 
     @app.post("/api/v2/model-versions/compare", response_model=list[Entity])
@@ -2304,9 +2548,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 session,
                 source,
                 snapshot_row,
-                min(payload.max_candidates, 5),
+                payload.max_candidates,
             )
         except ExtractionUnavailableError as error:
+            session.rollback()
+            audit.record(
+                session,
+                principal,
+                "extraction.failed",
+                "document_snapshot",
+                snapshot_row.id,
+                {
+                    "sourceId": source_id,
+                    "error": str(error),
+                    "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
+                    "providerCall": extraction.call_metadata(),
+                },
+            )
+            session.commit()
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(error),
@@ -2322,6 +2581,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "duplicatesSkipped": duplicates_skipped,
                 "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                 "sourceId": source_id,
+                "providerCall": extraction.call_metadata(),
             },
         )
         session.commit()
@@ -2437,6 +2697,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         session.commit()
         return repository.to_queue_item(row)
+
+    @app.post("/api/v2/admin/review-queue/{review_id}/revise", response_model=ReviewQueueItem)
+    def revise_review_candidate(
+        review_id: str,
+        payload: ReviewRevisionRequest,
+        principal: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ReviewQueueItem:
+        return create_revision(
+            review_id,
+            payload,
+            principal,
+            session,
+            repository,
+            quality_gate,
+            audit,
+            get_catalog_snapshot(session),
+        )
 
     @app.get("/api/v2/admin/review-queue", response_model=list[ReviewQueueItem])
     def review_queue(
@@ -3355,6 +3633,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         target_subject = " ".join((target_claim.subject or "").casefold().split())
         candidate_predicate = " ".join((candidate_claim.predicate or "").casefold().split())
         target_predicate = " ".join((target_claim.predicate or "").casefold().split())
+        # A reviewed correction can qualify the same number (for example adding
+        # benchmark conditions). IDs, evidence additions and collection times alone
+        # do not constitute a replacement; identical facts should merge evidence.
+        content_changed = (
+            any(
+                " ".join((incoming or "").split()) != " ".join((previous or "").split())
+                for incoming, previous in (
+                    (candidate_claim.text.zh, target_claim.text.zh),
+                    (candidate_claim.text.en, target_claim.text.en),
+                )
+            )
+            or candidate_claim.text.technical != target_claim.text.technical
+        )
+        value_changed = candidate_claim.object_or_value != target_claim.object_or_value
+        validity_changed = (
+            candidate_claim.valid_from != target_claim.valid_from
+            or candidate_claim.valid_to != target_claim.valid_to
+        )
         if publication_action == "merged-evidence":
             if claim_semantic_fingerprint(
                 candidate_claim, row.entity_id
@@ -3369,11 +3665,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             or candidate_subject != target_subject
             or not candidate_predicate
             or candidate_predicate != target_predicate
-            or candidate_claim.object_or_value == target_claim.object_or_value
+            or not (value_changed or content_changed or validity_changed)
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="A superseding claim must change the value of the same entity fact.",
+                detail="A superseding claim must revise the value, content or validity of the same entity fact.",
             )
 
         now = datetime.now(UTC)
@@ -3439,9 +3735,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             target.reviewed_at = now
             target.reviewed_by = actor.email
             target.version += 1
-            target_claim = target_claim.model_copy(
-                update={"valid_to": candidate_claim.valid_from or now.date().isoformat()}
-            )
+            # Publication replacement is separate from a fact's effective period.
+            # Clarifying a historical score does not make it expire on review day.
+            if value_changed and candidate_claim.valid_from:
+                target_claim = target_claim.model_copy(
+                    update={"valid_to": candidate_claim.valid_from}
+                )
             target.claim_json = target_claim.model_dump_json(by_alias=True)
             repository.persist_approved_verification(target)
             repository.persist_approved_verification(row)
@@ -3759,6 +4058,103 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             actor,
             session,
         )
+
+    @app.post(
+        "/api/v2/admin/review-queue/{review_id}/publication-state",
+        response_model=ReviewQueueItem,
+    )
+    def change_review_publication_state(
+        review_id: str,
+        payload: ReviewPublicationStateRequest,
+        actor: ReviewerDependency,
+        session: SessionDependency,
+    ) -> ReviewQueueItem:
+        row = session.scalar(
+            select(ReviewJobRecord).where(ReviewJobRecord.id == review_id).with_for_update()
+        )
+        if row is None:
+            raise HTTPException(status_code=404, detail="Review job not found.")
+        if row.version != payload.expected_version:
+            raise HTTPException(status_code=409, detail="Review version changed; refresh first.")
+        if row.status != "approved" or row.publication_action == "merged-evidence":
+            raise HTTPException(
+                status_code=409,
+                detail="Only approved standalone claims can change publication state.",
+            )
+        expected_state = "current" if payload.action == "retract" else "retracted"
+        target_state = "retracted" if payload.action == "retract" else "current"
+        if row.lifecycle_status != expected_state:
+            raise HTTPException(
+                status_code=409, detail="This lifecycle state cannot use this action."
+            )
+        reason = payload.reason.strip()
+        if len(reason) < 3:
+            raise HTTPException(status_code=422, detail="A meaningful reason is required.")
+        if payload.action == "restore":
+            require_publishable_entity(row, session)
+            queue_item = repository.to_queue_item(row)
+            # Human-reviewed claims can synthesize several source excerpts; the
+            # literal subject/value rule is only appropriate for automatic approval.
+            evidence_by_id = {item.id: item for item in queue_item.evidence_items}
+            if not queue_item.claim.source_ids or any(
+                source_id not in evidence_by_id
+                or not evidence_by_id[source_id].url.strip()
+                or not (evidence_by_id[source_id].source_excerpt or "").strip()
+                for source_id in queue_item.claim.source_ids
+            ):
+                raise HTTPException(
+                    status_code=422, detail="Restoring requires reviewed source excerpts."
+                )
+        changed = session.execute(
+            update(ReviewJobRecord)
+            .where(
+                ReviewJobRecord.id == review_id,
+                ReviewJobRecord.version == payload.expected_version,
+                ReviewJobRecord.status == "approved",
+                ReviewJobRecord.lifecycle_status == expected_state,
+            )
+            .values(
+                lifecycle_status=target_state,
+                version=ReviewJobRecord.version + 1,
+                review_reason=reason,
+                reviewed_by=actor.email,
+                reviewed_at=datetime.now(UTC),
+            )
+        )
+        if changed.rowcount != 1:
+            raise HTTPException(
+                status_code=409, detail="Review changed concurrently; refresh first."
+            )
+        session.expire(row)
+        session.refresh(row)
+        audit.record(
+            session,
+            actor,
+            f"review.{payload.action}",
+            "review_job",
+            row.id,
+            {
+                "claimId": row.claim_id,
+                "reason": reason,
+                "lifecycleStatus": target_state,
+                "previousLifecycleStatus": expected_state,
+                "version": row.version,
+            },
+        )
+        session.add(
+            PublicationRecordRow(
+                review_job_id=row.id,
+                claim_id=row.claim_id,
+                published_at=row.reviewed_at,
+                actor=actor.email,
+            )
+        )
+        # Synchronize local documents only; lifecycle changes must not invoke an embedding API.
+        LexicalRagRetriever(include_derived_knowledge=False).sync_snapshot(
+            session, repository.public_snapshot(session)
+        )
+        session.commit()
+        return repository.to_queue_item(row)
 
     @app.post(
         "/api/v2/admin/review-queue/{review_id}/reject",

@@ -22,6 +22,22 @@ class Base(DeclarativeBase):
     pass
 
 
+class EntryRequestRecord(Base):
+    __tablename__ = "entry_requests"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    entity_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True, default="pending")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    reviewer_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+
+
 class ReviewJobRecord(Base):
     __tablename__ = "review_jobs"
     __table_args__ = (
@@ -297,6 +313,30 @@ class ResearchRecord(Base):
     published_slug: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DecisionValidationRecord(Base):
+    __tablename__ = "decision_validations"
+
+    research_id: Mapped[str] = mapped_column(ForeignKey("research_records.id"), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    items_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class DecisionEvidenceRequestRecord(Base):
+    """Private link to a public-object maintenance request; no research text is shared."""
+
+    __tablename__ = "decision_evidence_requests"
+    __table_args__ = (
+        UniqueConstraint("research_id", "candidate_id", name="uq_decision_evidence_candidate"),
+    )
+    id: Mapped[str] = mapped_column(ForeignKey("entry_requests.id"), primary_key=True)
+    research_id: Mapped[str] = mapped_column(ForeignKey("research_records.id"), nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    candidate_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    dimensions_json: Mapped[str] = mapped_column(Text, nullable=False)
 
 
 class RagClaimDocumentRecord(Base):

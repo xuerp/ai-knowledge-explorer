@@ -2,25 +2,82 @@ import { type ReactNode } from "react";
 import { Info, ShieldCheck, HelpCircle, AlertTriangle, ExternalLink } from "lucide-react";
 import { useApp, pick } from "@/lib/app-state";
 import { CONFIDENCE_LABELS, ENTITY_TYPE_LABELS } from "@/domain/labels";
-import type { Confidence, Entity, Source } from "@/domain/types";
+import type { Confidence, DataMode, Entity, Source } from "@/domain/types";
 import { Link } from "@tanstack/react-router";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export function DemoBadge({ className = "" }: { className?: string }) {
+export function DemoBadge({
+  className = "",
+  mode = "demo",
+  updatedAt,
+}: {
+  className?: string;
+  mode?: DataMode;
+  updatedAt?: string;
+}) {
   const { t } = useApp();
   return (
-    <span
-      className={
-        "inline-flex items-center gap-1 rounded-md border border-border bg-muted/70 text-muted-foreground text-[11px] px-2 py-0.5 font-medium " +
-        className
-      }
-      title={t(
-        "当前包含固定示例内容，并非实时事实；重要结论请结合来源与日期核验",
-        "Contains fixed sample content, not live facts; verify important conclusions against sources and dates",
-      )}
-    >
-      <Info className="h-3 w-3" />
-      {t("示例快照", "Sample snapshot")}
-    </span>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className={`data-status-badge ${className}`}>
+          <Info aria-hidden="true" />
+          {mode === "demo" ? t("示例快照", "Sample snapshot") : t("数据状态", "Data status")}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="data-status-explanation"
+        align="end"
+        aria-label={t("数据状态说明", "Data status explanation")}
+      >
+        <h2>{t("当前数据从哪里来", "Where this data comes from")}</h2>
+        <p>
+          {mode === "demo"
+            ? t(
+                "当前处于示例模式，包含固定演示内容和人工核验的模型目录，并非持续实时采集。",
+                "Sample mode combines fixed demonstrations and a manually reviewed model catalog, without continuous live collection.",
+              )
+            : t(
+                "当前使用 API 返回的数据快照。接口连接成功不代表每条信息刚刚发生或已完成核验。",
+                "This snapshot comes from the API. A successful connection does not mean every fact is recent or verified.",
+              )}
+        </p>
+        {updatedAt && (
+          <p>
+            {t("快照日期", "Snapshot date")}: {updatedAt.slice(0, 10)}
+          </p>
+        )}
+        <p>
+          {t(
+            "每条内容的发生日期、核验日期和证据等级需要分别查看。",
+            "Check each record's event date, verification date and evidence level separately.",
+          )}
+        </p>
+        <Link to="/quality">
+          {t("查看数据质量与覆盖说明", "View data quality and coverage")}{" "}
+          <ExternalLink aria-hidden="true" />
+        </Link>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+export function WorkspaceHeader({
+  title,
+  description,
+  actions,
+}: {
+  title: string;
+  description: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <header className="workspace-header">
+      <div>
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+      {actions && <div className="workspace-header__actions">{actions}</div>}
+    </header>
   );
 }
 
@@ -38,10 +95,11 @@ export function ConfidenceChip({ level }: { level: Confidence }) {
   return (
     <span
       className={
-        "inline-flex items-center gap-1 rounded-md text-[11px] px-2 py-0.5 border " + meta.cls
+        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md border px-2 py-0.5 text-[11px] " +
+        meta.cls
       }
     >
-      <Icon className="h-3 w-3" />
+      <Icon className="h-3 w-3 shrink-0" />
       {pick(CONFIDENCE_LABELS[level], lang)}
     </span>
   );
@@ -105,14 +163,19 @@ export function SourceRow({ source: src }: { source: Source }) {
         </div>
         <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3">
           <span>
-            {t("发布", "Published")} {src.publishedAt}
+            {src.publishedAt
+              ? `${t("发布", "Published")} ${src.publishedAt.slice(0, 10)}`
+              : t("发布日期待核实", "Publication date not verified")}
           </span>
           <span>
-            {t("采集", "Collected")} {src.collectedAt}
+            {t("采集", "Collected")} {src.collectedAt.slice(0, 10)}
           </span>
           {src.verifiedAt && (
             <span>
-              {t("核验", "Verified")} {src.verifiedAt}
+              {t("核验", "Verified")}{" "}
+              <time dateTime={src.verifiedAt} title={src.verifiedAt}>
+                {src.verifiedAt.slice(0, 10)}
+              </time>
             </span>
           )}
         </div>

@@ -4,6 +4,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import { DataStatePanel } from "@/components/data-state";
 import { ResearchReport } from "@/components/research/ResearchReport";
 import { DecisionBrief } from "@/components/research/DecisionBrief";
+import { SourceExcerpt } from "@/components/research/SourceExcerpt";
+import { ConfidenceChip } from "@/components/common";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp } from "@/lib/app-state";
 import { userApi, type PublishedResearch } from "@/services/user-api";
@@ -23,7 +25,7 @@ export const Route = createFileRoute("/share/$id")({
 });
 
 function PublicResearchPage() {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   const { id } = Route.useParams();
   const snapshotQuery = useKnowledgeSnapshot();
   const [liveResearch, setLiveResearch] = useState<PublishedResearch | null>(null);
@@ -75,10 +77,19 @@ function PublicResearchPage() {
             <h1 className="mt-2 font-serif text-3xl font-semibold md:text-4xl">
               {liveResearch.question}
             </h1>
-            <div className="mt-3 text-sm text-muted-foreground">{liveResearch.status}</div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              {liveResearch.status === "ready"
+                ? t("研究完成", "Research ready")
+                : liveResearch.status === "failed"
+                  ? t("研究失败", "Research failed")
+                  : liveResearch.status === "cancelled"
+                    ? t("研究已取消", "Research cancelled")
+                    : t("证据不足", "Insufficient evidence")}
+            </div>
           </header>
           <DecisionBrief
             research={liveResearch}
+            outcomeLevel={2}
             entityName={(entityId) => {
               const entity = snapshotQuery.data?.entities.find((item) => item.id === entityId);
               return entity ? t(entity.name.zh, entity.name.en) : entityId;
@@ -95,34 +106,51 @@ function PublicResearchPage() {
               {liveResearch.summary}
             </div>
           </section>
-          <section className="space-y-3">
-            <h2 className="font-serif text-2xl font-semibold">{t("引用与来源", "Citations")}</h2>
-            {liveResearch.citations.map((citation) => (
-              <div
-                key={citation.claim.id}
-                id={`claim-${citation.claim.id}`}
-                className="paper-card scroll-mt-24 p-5"
-              >
-                <div className="font-mono text-xs text-muted-foreground">
-                  {citation.claim.id} · {citation.claim.confidence}
+          <details
+            className="research-source-library"
+            open={liveResearch.decision ? undefined : true}
+          >
+            <summary>
+              {t(
+                `查看引用与来源（${liveResearch.citations.length} 条）`,
+                `Inspect citations and sources (${liveResearch.citations.length})`,
+              )}
+            </summary>
+            <section className="space-y-3">
+              <h2 className="font-serif text-2xl font-semibold">{t("引用与来源", "Citations")}</h2>
+              {liveResearch.citations.map((citation, index) => (
+                <div
+                  key={citation.claim.id}
+                  id={`claim-${citation.claim.id}`}
+                  className="paper-card scroll-mt-24 p-5"
+                >
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span>{t(`结论 ${index + 1}`, `Claim ${index + 1}`)}</span>
+                    <ConfidenceChip level={citation.claim.confidence} />
+                  </div>
+                  <p className="mt-2 text-sm">
+                    {t(citation.claim.text.zh, citation.claim.text.en)}
+                  </p>
+                  <div className="mt-3 space-y-4">
+                    {citation.evidence.map((source) => (
+                      <div key={source.id}>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="chip hover:text-foreground"
+                        >
+                          {source.publisher} ·{" "}
+                          {source.publishedAt || t("来源日期未标注", "Source date unavailable")}
+                        </a>
+                        <SourceExcerpt source={source} lang={lang} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className="mt-2 text-sm">{t(citation.claim.text.zh, citation.claim.text.en)}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {citation.evidence.map((source) => (
-                    <a
-                      key={source.id}
-                      href={source.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="chip hover:text-foreground"
-                    >
-                      {source.publisher} · {source.publishedAt}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
+              ))}
+            </section>
+          </details>
         </article>
       </AppShell>
     );

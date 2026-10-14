@@ -54,9 +54,21 @@ test("人工候选使用快照生成稳定且可追溯的事实与证据", () =>
   assert.equal(candidate.claim.sourceIds[0], candidate.evidence[0].id);
   assert.equal(candidate.evidence[0].url, source.url);
   assert.equal(candidate.evidence[0].verifiedAt, "2026-08-12");
+  assert.equal(candidate.evidence[0].publishedAt, "");
+  assert.equal(candidate.evidence[0].collectedAt, "2026-08-12");
   assert.ok(candidate.evidence[0].supportsClaimIds.includes(candidate.claim.id));
   assert.match(candidate.id, /^[a-z0-9][a-z0-9._-]+$/);
   assert.ok(candidate.id.length <= 128);
+});
+
+test("来源发布日期独立于采集日期", () => {
+  const candidate = buildManualCandidate(
+    source,
+    { ...snapshot, publishedAt: "2025-05-22T00:00:00Z" },
+    { claimZh: "示例事实。", claimEn: "Example fact." },
+  );
+  assert.equal(candidate.evidence[0].publishedAt, "2025-05-22");
+  assert.equal(candidate.evidence[0].collectedAt, "2026-08-12");
 });
 
 test("中英文事实缺失时拒绝创建人工候选", () => {

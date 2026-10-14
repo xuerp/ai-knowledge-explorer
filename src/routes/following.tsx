@@ -411,7 +411,7 @@ function AuthenticatedFollowingPage({ token }: { token: string }) {
           <div className="paper-card bg-accent/40 p-5">
             <h3 className="font-serif font-semibold">{t("下一步", "Next")}</h3>
             <Link
-              to="/"
+              to="/updates"
               className="mt-2 inline-flex items-center gap-1 text-sm text-signal hover:underline"
             >
               {t("回到首页看今日更新", "Back to today's updates")}{" "}
@@ -864,7 +864,7 @@ function DemoFollowingPage() {
           <div className="paper-card p-5 bg-accent/40">
             <h3 className="font-serif font-semibold mb-2">{t("下一步", "Next")}</h3>
             <Link
-              to="/"
+              to="/updates"
               className="text-sm text-signal hover:underline inline-flex items-center gap-1"
             >
               {t("回到首页看今日更新", "Back to today's updates")}{" "}

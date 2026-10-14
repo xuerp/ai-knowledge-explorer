@@ -60,3 +60,16 @@ test("审核候选区分完全重复事实与同主题更新", () => {
     lifecycleIdempotencyKey(candidate, duplicate, "merged-evidence"),
   );
 });
+
+test("相同数值补充实验条件需要修订，不静默合并为重复事实", () => {
+  const original = item("unqualified", "72.7%");
+  const qualified = item("qualified", "72.7%", { status: "pending", version: 1 });
+  qualified.claim.text = {
+    zh: "72.7%，未使用扩展思考，完整500题",
+    en: "72.7%, no extended thinking, all 500 problems",
+  };
+  assert.equal(findClaimLifecycleMatches(qualified, [original])[0].relationship, "update");
+  const spacingOnly = item("spacing-only", "72.7%", { status: "pending", version: 1 });
+  spacingOnly.claim.text = { zh: " 72.7%  ", en: "72.7%\n" };
+  assert.equal(findClaimLifecycleMatches(spacingOnly, [original])[0].relationship, "duplicate");
+});

@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from .catalog_changes import catalog_changes
 from .database import (
     EntityAliasRecord,
     KnowledgeEntityRecord,
@@ -59,6 +60,9 @@ CHANGE_EVENT_PREDICATES = {
     "deprecated-on",
     "scheduled-for-retirement-on",
     "recommended-replacement",
+    "capability-updated-on",
+    "pricing-changed-on",
+    "benchmark-changed-on",
 }
 
 RELATION_PREDICATES: dict[str, RelationKind] = {
@@ -194,6 +198,12 @@ class KnowledgeRepository:
         self.alias_catalog_version: str | None = None
         self.alias_catalog_sha256: str | None = None
         self._alias_definitions: tuple[EntityAliasDefinition, ...] = ()
+        self._frontier_entity_ids: set[str] = set()
+        self._frontier_timeline_keys: set[tuple[str, str]] = set()
+        self._frontier_relation_ids: set[str] = set()
+        self._baseline_timeline: dict[tuple[str, str], dict] = {}
+        self._legacy_timeline_fingerprints: dict[tuple[str, str], set[str]] = {}
+        self._baseline_relations: dict[str, dict] = {}
 
     def load_seed(self) -> KnowledgeSnapshot:
         if self._seed is None:
@@ -201,6 +211,8 @@ class KnowledgeRepository:
             extension_path = self.seed_snapshot_path.with_name("catalog_extension.json")
             if extension_path.exists():
                 extension = json.loads(extension_path.read_text(encoding="utf-8"))
+                if verified_at := extension.get("meta", {}).get("verifiedAt"):
+                    payload["meta"]["retrievedAt"] = f"{verified_at}T00:00:00Z"
                 for key in ("entities", "evidence", "claims"):
                     existing_ids = {item["id"] for item in payload.get(key, [])}
                     payload.setdefault(key, []).extend(
@@ -232,7 +244,113 @@ class KnowledgeRepository:
                     payload["timeline"].setdefault(entity_id, []).extend(
                         item for item in entries if item["id"] not in known_entry_ids
                     )
+            frontier_path = self.seed_snapshot_path.with_name("frontier_catalog_v1.json")
+            if frontier_path.exists():
+                frontier = json.loads(frontier_path.read_text(encoding="utf-8"))
+                if verified_at := max(
+                    payload["meta"].get("retrievedAt", "")[:10],
+                    frontier.get("meta", {}).get("verifiedAt", ""),
+                    frontier.get("meta", {}).get("changeEventsVerifiedAt", ""),
+                ):
+                    payload["meta"]["retrievedAt"] = f"{verified_at}T00:00:00Z"
+                self._baseline_timeline = {
+                    (entry["id"], entity_id): TimelineEntry.model_validate(entry).model_dump(
+                        mode="json", by_alias=True
+                    )
+                    for entity_id, entries in payload.get("timeline", {}).items()
+                    for entry in entries
+                }
+                self._baseline_relations = {
+                    entry["id"]: GraphEdge.model_validate(entry).model_dump(
+                        mode="json", by_alias=True
+                    )
+                    for entry in payload["graph"].get("edges", [])
+                }
+                self._frontier_timeline_keys = {
+                    (entry["id"], entity_id)
+                    for entity_id, entries in frontier.get("timeline", {}).items()
+                    for entry in entries
+                }
+                legacy_path = self.seed_snapshot_path.with_name(
+                    "catalog_legacy_fingerprints.v1.json"
+                )
+                if legacy_path.exists():
+                    legacy = json.loads(legacy_path.read_text(encoding="utf-8"))
+                    for entry in legacy.get("timeline", []):
+                        self._legacy_timeline_fingerprints.setdefault(
+                            (entry["id"], entry["entityId"]), set()
+                        ).add(entry["sha256"])
+                self._frontier_relation_ids = {
+                    entry["id"] for entry in frontier.get("relations", [])
+                }
+                superseded_changes = set(frontier.get("supersededChangeIds", []))
+                payload["changes"] = [
+                    entry
+                    for entry in payload.get("changes", [])
+                    if entry["id"] not in superseded_changes
+                ]
+                self._frontier_entity_ids = {item["id"] for item in frontier.get("entities", [])}
+
+                def merge_dict(base: dict, overlay: dict) -> dict:
+                    merged = dict(base)
+                    for key, value in overlay.items():
+                        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+                            merged[key] = merge_dict(merged[key], value)
+                        else:
+                            merged[key] = value
+                    return merged
+
+                for key in ("entities", "evidence", "claims"):
+                    items = payload.setdefault(key, [])
+                    positions = {item["id"]: index for index, item in enumerate(items)}
+                    for item in frontier.get(key, []):
+                        index = positions.get(item["id"])
+                        if index is None:
+                            positions[item["id"]] = len(items)
+                            items.append(item)
+                        else:
+                            items[index] = merge_dict(items[index], item)
+
+                edges = payload["graph"].setdefault("edges", [])
+                edge_positions = {item["id"]: index for index, item in enumerate(edges)}
+                for item in frontier.get("relations", []):
+                    index = edge_positions.get(item["id"])
+                    if index is None:
+                        edge_positions[item["id"]] = len(edges)
+                        edges.append(item)
+                    else:
+                        edges[index] = merge_dict(edges[index], item)
+
+                known_node_entity_ids = {
+                    item["entityId"] for item in payload["graph"].setdefault("nodes", [])
+                }
+                payload["graph"]["nodes"].extend(
+                    {
+                        "id": f"node-{entity['id']}",
+                        "entityId": entity["id"],
+                        "type": entity.get("type", "model"),
+                        "importance": 0.9,
+                    }
+                    for entity in frontier.get("entities", [])
+                    if entity["id"] not in known_node_entity_ids
+                )
+
+                for entity_id, entries in frontier.get("timeline", {}).items():
+                    timeline = payload.setdefault("timeline", {}).setdefault(entity_id, [])
+                    positions = {item["id"]: index for index, item in enumerate(timeline)}
+                    for item in entries:
+                        index = positions.get(item["id"])
+                        if index is None:
+                            positions[item["id"]] = len(timeline)
+                            timeline.append(item)
+                        else:
+                            timeline[index] = merge_dict(timeline[index], item)
             self._seed = KnowledgeSnapshot.model_validate(payload)
+            changes = {change.id: change for change in self._seed.changes}
+            changes.update({change.id: change for change in catalog_changes(self._seed)})
+            self._seed.changes = sorted(
+                changes.values(), key=lambda change: (change.date, change.id), reverse=True
+            )
             if self.alias_catalog_path.exists():
                 (
                     self.alias_catalog_version,
@@ -337,6 +455,42 @@ class KnowledgeRepository:
             if stored.aliases != merged_aliases:
                 stored.aliases = merged_aliases
                 changed = True
+            # Curated frontier records are versioned official-source overlays. Apply a
+            # newer overlay to an older local seed record, while preserving records that
+            # an administrator has already advanced beyond the bundled catalog date.
+            if (
+                entity.id in self._frontier_entity_ids
+                and stored.last_updated_at <= entity.last_updated_at
+                and (
+                    stored.last_updated_at < entity.last_updated_at
+                    or stored.release != entity.release
+                    or stored.specs != entity.specs
+                    or stored.capabilities != entity.capabilities
+                    or stored.metrics != entity.metrics
+                    or stored.knowledge != entity.knowledge
+                    or stored.latest_version != entity.latest_version
+                    or stored.status != entity.status
+                )
+            ):
+                stored.name = entity.name
+                stored.summary = entity.summary
+                stored.vendor = entity.vendor
+                stored.origin = entity.origin
+                stored.status = entity.status
+                stored.tags = entity.tags
+                stored.latest_version = entity.latest_version
+                stored.first_released_at = entity.first_released_at
+                stored.last_updated_at = entity.last_updated_at
+                stored.aliases = entity.aliases
+                stored.release = entity.release
+                stored.specs = entity.specs
+                stored.capabilities = entity.capabilities
+                stored.metrics = entity.metrics
+                stored.knowledge = entity.knowledge
+                row.entity_type = entity.type
+                row.slug = entity.slug
+                row.family_id = entity.family_id
+                changed = True
             if changed:
                 row.payload_json = stored.model_dump_json(by_alias=True)
                 row.updated_at = now
@@ -349,31 +503,137 @@ class KnowledgeRepository:
         )
         for entity_id, entries in seed.timeline.items():
             for entry in entries:
-                if (entry.id, entity_id) not in known_timeline_ids:
+                key = (entry.id, entity_id)
+                row = (
+                    session.get(KnowledgeTimelineRecord, key) if key in known_timeline_ids else None
+                )
+                payload = entry.model_dump(mode="json", by_alias=True)
+                if key in self._frontier_timeline_keys:
+                    # Catalog ownership is tracked separately from event dates. A
+                    # corrected release date can move backward. Admin upserts remove
+                    # this marker, and changed admin payloads must remain untouched.
+                    serialized = self._catalog_seed_payload(
+                        row,
+                        payload,
+                        self._baseline_timeline.get(key),
+                        self._legacy_timeline_fingerprints.get(key, set()),
+                    )
+                else:
+                    serialized = entry.model_dump_json(by_alias=True) if row is None else None
+                if row is None:
                     session.add(
                         KnowledgeTimelineRecord(
                             id=entry.id,
                             entity_id=entity_id,
                             event_date=entry.date,
-                            payload_json=entry.model_dump_json(by_alias=True),
+                            payload_json=serialized,
                             updated_at=now,
                         )
                     )
+                elif serialized is not None and row.payload_json != serialized:
+                    row.event_date = entry.date
+                    row.payload_json = serialized
+                    row.updated_at = now
 
         known_relation_ids = set(session.scalars(select(KnowledgeRelationRecord.id)).all())
         for edge in seed.graph.edges:
-            if edge.id not in known_relation_ids:
+            row = (
+                session.get(KnowledgeRelationRecord, edge.id)
+                if edge.id in known_relation_ids
+                else None
+            )
+            payload = edge.model_dump(mode="json", by_alias=True)
+            if edge.id in self._frontier_relation_ids:
+                serialized = self._catalog_seed_payload(
+                    row, payload, self._baseline_relations.get(edge.id)
+                )
+            else:
+                serialized = edge.model_dump_json(by_alias=True) if row is None else None
+            if row is None:
                 session.add(
                     KnowledgeRelationRecord(
                         id=edge.id,
                         from_id=edge.from_id,
                         to_id=edge.to_id,
                         kind=edge.kind,
-                        payload_json=edge.model_dump_json(by_alias=True),
+                        payload_json=serialized,
                         updated_at=now,
                     )
                 )
+            elif serialized is not None and row.payload_json != serialized:
+                row.from_id, row.to_id, row.kind = edge.from_id, edge.to_id, edge.kind
+                row.payload_json = serialized
+                row.updated_at = now
         session.commit()
+
+    @staticmethod
+    def _catalog_seed_payload(
+        row,
+        payload: dict,
+        baseline: dict | None,
+        legacy_fingerprints: set[str] | None = None,
+    ) -> str | None:
+        def fingerprint(value: dict) -> str:
+            return hashlib.sha256(
+                json.dumps(value, sort_keys=True, ensure_ascii=False).encode()
+            ).hexdigest()
+
+        def without_null_fields(value):
+            # Older serializers omitted optional null fields. This is a format
+            # difference, not evidence that an administrator changed the record.
+            if isinstance(value, dict):
+                return {
+                    key: without_null_fields(item)
+                    for key, item in value.items()
+                    if item is not None
+                }
+            if isinstance(value, list):
+                return [without_null_fields(item) for item in value]
+            return value
+
+        if row is not None:
+            stored = json.loads(row.payload_json)
+            previous_hash = stored.pop("_catalogSeedHash", None)
+            catalog_owned = previous_hash is not None and previous_hash == fingerprint(stored)
+            historical_seed_match = not {"dateKind", "releaseEntityId"}.intersection(
+                stored
+            ) and fingerprint(without_null_fields(stored)) in (legacy_fingerprints or set())
+            baseline_match = baseline is not None and without_null_fields(
+                stored
+            ) == without_null_fields(baseline)
+            payload_match = without_null_fields(stored) == without_null_fields(payload)
+            # Pre-anchor release rows have no dateKind/releaseEntityId keys at
+            # all. Upgrade only when every existing fact, source and date exactly
+            # matches the reviewed release. Current admin writes serialize these
+            # keys (including explicit null), so an intentionally unanchored
+            # admin event is not silently promoted to a catalog release.
+            legacy_release_match = (
+                payload.get("kind") == "release"
+                and not {"dateKind", "releaseEntityId"}.intersection(stored)
+                and without_null_fields(stored)
+                == without_null_fields(
+                    {
+                        key: value
+                        for key, value in payload.items()
+                        if key not in {"dateKind", "releaseEntityId"}
+                    }
+                )
+            )
+            if not (
+                catalog_owned
+                or historical_seed_match
+                or baseline_match
+                or payload_match
+                or legacy_release_match
+            ):
+                return None
+        return json.dumps({**payload, "_catalogSeedHash": fingerprint(payload)}, ensure_ascii=False)
+
+    @staticmethod
+    def _public_catalog_payload(payload_json: str) -> dict:
+        payload = json.loads(payload_json)
+        payload.pop("_catalogSeedHash", None)
+        return payload
 
     @staticmethod
     def _entity_record(entity: Entity, updated_at: datetime) -> KnowledgeEntityRecord:
@@ -411,6 +671,10 @@ class KnowledgeRepository:
     def upsert_entity(self, session: Session, entity: Entity) -> Entity:
         if entity.family_id == entity.id:
             raise ValueError("An entity cannot be its own model family.")
+        if entity.release and not entity.family_id:
+            raise ValueError("Model release metadata requires a concrete model family release.")
+        if entity.release and entity.type != "model":
+            raise ValueError("Only model entities can declare release metadata.")
         if entity.family_id:
             if entity.type != "model":
                 raise ValueError("Only model entities can belong to a model family.")
@@ -644,7 +908,7 @@ class KnowledgeRepository:
             timeline: dict[str, list[TimelineEntry]] = {}
             for row in timeline_rows:
                 timeline.setdefault(row.entity_id, []).append(
-                    TimelineEntry.model_validate_json(row.payload_json)
+                    TimelineEntry.model_validate(self._public_catalog_payload(row.payload_json))
                 )
             snapshot.timeline = timeline
 
@@ -652,7 +916,8 @@ class KnowledgeRepository:
                 select(KnowledgeRelationRecord).order_by(KnowledgeRelationRecord.id)
             ).all()
             snapshot.graph.edges = [
-                GraphEdge.model_validate_json(row.payload_json) for row in relation_rows
+                GraphEdge.model_validate(self._public_catalog_payload(row.payload_json))
+                for row in relation_rows
             ]
             snapshot.graph.captured_at = datetime.now(UTC).isoformat()
 
@@ -692,6 +957,23 @@ class KnowledgeRepository:
                 else:
                     snapshot.evidence.append(evidence)
                     evidence_ids.add(evidence.id)
+        active_source_ids = {
+            source_id for claim in snapshot.claims for source_id in claim.source_ids
+        }
+        inactive_source_ids = {
+            source_id
+            for job in jobs
+            if job.claim_id in blocked_claim_ids
+            for source_id in json.loads(job.evidence_ids_json)
+        } - active_source_ids
+        # Relations retain their stored provenance, so restoration is reversible.
+        # Shared evidence used by a current claim remains eligible.
+        snapshot.graph.edges = [
+            edge.model_copy(update={"source_ids": eligible})
+            for edge in snapshot.graph.edges
+            if (eligible := [sid for sid in edge.source_ids if sid not in inactive_source_ids])
+            or not edge.source_ids
+        ]
         snapshot.claims = [
             claim.model_copy(update={"entity_id": resolved_entity_id})
             if not claim.entity_id
@@ -699,11 +981,24 @@ class KnowledgeRepository:
             else claim
             for claim in snapshot.claims
         ]
-        # Changes are a projection of reviewed facts, never of the bundled seed's
-        # editorial change cards. A review date is not the date of the fact.
+        # Changes project the reviewed catalog's anchored release timelines and
+        # approved event claims, never the seed's editorial change cards.
+        # A review date is not the date of the fact.
         entity_ids = {entity.id for entity in snapshot.entities}
         public_evidence = {evidence.id: evidence for evidence in snapshot.evidence}
-        changes: list[ChangeEvent] = []
+        blocked_release_entities = {
+            claim.entity_id
+            for job in jobs
+            if job.claim_id in blocked_claim_ids
+            and (claim := Claim.model_validate_json(job.claim_json)).predicate
+            in {"release", "released-on"}
+        }
+        today = datetime.now(UTC).date().isoformat()
+        changes = [
+            change
+            for change in catalog_changes(snapshot)
+            if change.entity_id not in blocked_release_entities and change.date <= today
+        ]
         for job in jobs:
             if (
                 job.status != "approved"
@@ -718,6 +1013,7 @@ class KnowledgeRepository:
                 not entity_id
                 or entity_id not in entity_ids
                 or not fact_date
+                or fact_date > today
                 or claim.predicate not in CHANGE_EVENT_PREDICATES
             ):
                 continue
@@ -733,13 +1029,42 @@ class KnowledgeRepository:
             )
             if not source_ids:
                 continue
+            kind = (
+                "new"
+                if claim.predicate in {"release", "released-on"}
+                else "deprecated"
+                if claim.predicate in {"deprecated-on", "scheduled-for-retirement-on"}
+                else "pricing"
+                if claim.predicate == "pricing-changed-on"
+                else "benchmark"
+                if claim.predicate == "benchmark-changed-on"
+                else "availability"
+                if claim.predicate
+                in {
+                    "available-in",
+                    "available-on",
+                    "available-as",
+                    "availability",
+                    "expanded-access-to",
+                }
+                else "updated"
+            )
+            changes = [
+                change
+                for change in changes
+                if not (
+                    change.entity_id == entity_id
+                    and change.date == fact_date
+                    and change.kind == kind
+                )
+            ]
             changes.append(
                 ChangeEvent(
                     id=f"change-claim-{claim.id}",
                     entity_id=entity_id,
                     date=fact_date,
                     summary=LocalizedText(zh=claim.text.zh, en=claim.text.en),
-                    kind="updated",
+                    kind=kind,
                     confidence="verified",
                     source_ids=source_ids,
                 )

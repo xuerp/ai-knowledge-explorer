@@ -31,7 +31,9 @@ test("decision output exposes conditions, trade-offs, risks, next checks, and ev
     assert.match(userApi, new RegExp(field));
     assert.match(`${askRoute}\n${decisionBrief}`, new RegExp(field));
   }
-  assert.match(decisionBrief, /有条件建议/);
+  assert.match(decisionBrief, /decisionPresentation\(research, lang\)/);
+  assert.match(decisionBrief, /decisionVerdict\(research, validation, entityName, lang\)/);
+  assert.match(decisionBrief, /verdict.headline/);
 });
 
 test("decision evidence links resolve and persisted records restore the same brief", () => {
@@ -50,9 +52,10 @@ test("live submission is single-flight and preserves inputs after network failur
 
 test("expired sessions clear auth and resume the complete decision form after login", () => {
   assert.match(userApi, /expireAuthSession\(\)/);
-  assert.match(userApi, /throw new AuthSessionExpiredError\(\)/);
+  assert.match(userApi, /authResponseError\(response.status, Boolean\(token\), path\)/);
+  assert.match(userApi, /export \{ AuthSessionExpiredError \}/);
   assert.match(askRoute, /authSessionExpiredEvent/);
-  assert.match(askRoute, /重新登录并继续/);
+  assert.match(askRoute, /登录并继续/);
   assert.match(accountRoute, /destination\.pathname === "\/ask"/);
   assert.match(accountRoute, /research/);
   assert.match(accountRoute, /window\.location\.assign\(returnTo\)/);
@@ -75,4 +78,10 @@ test("private research login returns to the same record after session expiry", (
   assert.match(privateRecord, /returnTo/);
   assert.match(privateRecord, /重新登录并返回此记录/);
   assert.match(privateRecord, /encodeURIComponent\(id\)/);
+});
+
+test("authentication cannot submit passwords into a GET URL before hydration", () => {
+  assert.match(accountRoute, /<form\s+method="post"\s+className="account-auth__card"/);
+  assert.match(accountRoute, /disabled=\{busy \|\| !authReady\}/);
+  assert.match(accountRoute, /useEffect\(\(\) => setAuthReady\(true\), \[\]\)/);
 });

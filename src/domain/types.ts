@@ -57,6 +57,10 @@ export interface Claim {
 export interface TimelineEntry {
   id: string;
   date: string;
+  dateKind?: "release" | "announcement" | "catalog-review" | null;
+  releaseEntityId?: string | null;
+  changeKind?: ChangeEvent["kind"] | null;
+  detail?: ChangeDetail | null;
   title: LocalizedText;
   summary: LocalizedText;
   kind: "release" | "update" | "paper" | "benchmark" | "incident" | "deprecation";
@@ -106,10 +110,45 @@ export interface EntitySummary {
   lastUpdatedAt: string;
 }
 
+export type ModelReleaseStage = "stable" | "preview" | "pending" | "deprecated" | "retired";
+
+export type ModelAccessChannelType =
+  "official-api" | "first-party-product" | "managed-cloud" | "open-weights" | "restricted-access";
+
+export interface ModelAccessChannel {
+  type: ModelAccessChannelType;
+  provider: string;
+  modelId?: string;
+  url?: string;
+}
+
+export interface ModelProductLine {
+  id: string;
+  name: LocalizedText;
+  positioning: LocalizedText;
+}
+
+export interface ModelReleaseMetadata {
+  generation: string;
+  variant: string;
+  releaseId: string;
+  apiModelIds: string[];
+  stage: ModelReleaseStage;
+  productLine?: ModelProductLine;
+  /** Current representative in the reviewed official catalog, independent of a known release date. */
+  catalogCurrent?: boolean;
+  releasedAt?: string;
+  retirementNotBefore?: string;
+  lastVerifiedAt: string;
+  accessChannels: ModelAccessChannel[];
+}
+
 export interface EntityDetail extends EntitySummary {
   aliases?: string[];
   /** Present only on a concrete model release; points to its model-family entity. */
   familyId?: string;
+  /** Version identity and availability for a concrete model release. */
+  release?: ModelReleaseMetadata;
   specs?: {
     contextWindow?: string;
     inputPrice?: string;
@@ -141,6 +180,13 @@ export interface EntityDetail extends EntitySummary {
     }>;
     limitations: LocalizedText[];
     officialUrl?: string;
+    sections?: Array<{
+      id: string;
+      title: LocalizedText;
+      summary: LocalizedText;
+      items: LocalizedText[];
+      sourceIds: string[];
+    }>;
   };
 }
 
@@ -160,12 +206,21 @@ export interface GraphSnapshot {
   validAt: string;
 }
 
+export interface ChangeDetail {
+  description: LocalizedText;
+  before: LocalizedText;
+  after: LocalizedText;
+  affected: LocalizedText;
+  action: LocalizedText;
+}
+
 export interface ChangeEvent {
   id: string;
   entityId: string;
   date: string;
   summary: LocalizedText;
-  kind: "new" | "updated" | "deprecated" | "benchmark" | "rumor";
+  kind: "new" | "updated" | "deprecated" | "benchmark" | "rumor" | "pricing" | "availability";
+  detail?: ChangeDetail | null;
   confidence: Confidence;
   sourceIds?: string[];
 }

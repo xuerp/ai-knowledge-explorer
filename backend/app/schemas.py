@@ -120,6 +120,14 @@ class KnowledgeUseCase(CamelModel):
     description: LocalizedText
 
 
+class KnowledgeSection(CamelModel):
+    id: str
+    title: LocalizedText
+    summary: LocalizedText
+    items: list[LocalizedText] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+
+
 class EntityKnowledge(CamelModel):
     introduction: list[LocalizedText]
     significance: LocalizedText
@@ -127,6 +135,40 @@ class EntityKnowledge(CamelModel):
     use_cases: list[KnowledgeUseCase]
     limitations: list[LocalizedText]
     official_url: str | None = None
+    sections: list[KnowledgeSection] = Field(default_factory=list)
+
+
+class ModelAccessChannel(CamelModel):
+    type: Literal[
+        "official-api",
+        "first-party-product",
+        "managed-cloud",
+        "open-weights",
+        "restricted-access",
+    ]
+    provider: str
+    model_id: str | None = None
+    url: str | None = None
+
+
+class ModelProductLine(CamelModel):
+    id: str
+    name: LocalizedText
+    positioning: LocalizedText
+
+
+class ModelReleaseMetadata(CamelModel):
+    generation: str
+    variant: str
+    release_id: str
+    api_model_ids: list[str] = Field(default_factory=list)
+    stage: Literal["stable", "preview", "pending", "deprecated", "retired"]
+    product_line: ModelProductLine | None = None
+    catalog_current: bool | None = None
+    released_at: str | None = None
+    retirement_not_before: str | None = None
+    last_verified_at: str
+    access_channels: list[ModelAccessChannel] = Field(default_factory=list)
 
 
 class Entity(CamelModel):
@@ -155,15 +197,33 @@ class Entity(CamelModel):
     last_updated_at: str
     aliases: list[str] | None = None
     family_id: str | None = None
+    release: ModelReleaseMetadata | None = None
     specs: EntitySpecs | None = None
     capabilities: list[Capability] | None = None
     metrics: list[Metric] | None = None
     knowledge: EntityKnowledge | None = None
 
 
+ChangeKind = Literal[
+    "new", "updated", "deprecated", "benchmark", "rumor", "pricing", "availability"
+]
+
+
+class ChangeDetail(CamelModel):
+    description: LocalizedText
+    before: LocalizedText
+    after: LocalizedText
+    affected: LocalizedText
+    action: LocalizedText
+
+
 class TimelineEntry(CamelModel):
     id: str
     date: str
+    date_kind: Literal["release", "announcement", "catalog-review"] | None = None
+    release_entity_id: str | None = None
+    change_kind: ChangeKind | None = None
+    detail: ChangeDetail | None = None
     title: LocalizedText
     summary: LocalizedText
     kind: Literal["release", "update", "paper", "benchmark", "incident", "deprecation"]
@@ -202,7 +262,8 @@ class ChangeEvent(CamelModel):
     entity_id: str
     date: str
     summary: LocalizedText
-    kind: Literal["new", "updated", "deprecated", "benchmark", "rumor"]
+    kind: ChangeKind
+    detail: ChangeDetail | None = None
     confidence: Confidence
     source_ids: list[str] | None = None
 
@@ -314,6 +375,20 @@ class ReviewLifecycleDecision(ReviewDecision):
     idempotency_key: str = Field(min_length=8, max_length=128)
 
 
+class ReviewPublicationStateRequest(CamelModel):
+    action: Literal["retract", "restore"]
+    expected_version: int = Field(ge=1)
+    reason: str = Field(min_length=3, max_length=500)
+
+
+class ReviewRevisionRequest(CamelModel):
+    expected_version: int = Field(ge=1)
+    idempotency_key: str = Field(min_length=8, max_length=128)
+    text_zh: str = Field(min_length=1, max_length=10000)
+    text_en: str = Field(min_length=1, max_length=10000)
+    reason: str = Field(min_length=3, max_length=500)
+
+
 class ReviewBatchDecision(CamelModel):
     id: str = Field(min_length=1, max_length=128)
     expected_version: int = Field(ge=1)
@@ -378,6 +453,7 @@ class ReviewStats(CamelModel):
 
 
 class EntityClaimPage(CamelModel):
+    total: int = 0
     items: list[Claim]
     evidence: list[Evidence]
     next_cursor: str | None = None
@@ -426,6 +502,8 @@ class IntegrationStatus(CamelModel):
     extraction_pipeline_version: str
     extraction_endpoint_host: str | None = None
     extraction_model: str | None = None
+    extraction_reasoning_effort: str | None = None
+    extraction_max_completion_tokens: int | None = None
     automatic_extraction_enabled: bool
     automatic_extraction_max_snapshots_per_cycle: int
     automatic_extraction_max_candidates_per_snapshot: int
@@ -896,9 +974,17 @@ class DigestPreference(CamelModel):
 
 class DecisionBudget(CamelModel):
     mode: Literal["cost-first", "range", "unknown"] = "unknown"
+    cost_scope: Literal["all-costs", "standard-token-only"] = "all-costs"
+    maximum_input_tokens_per_request: int | None = Field(
+        default=None, ge=1, le=100_000_000, strict=True
+    )
     min: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
     max: float | None = Field(default=None, ge=0, le=1_000_000_000_000, allow_inf_nan=False)
     currency: str | None = Field(default=None, pattern=r"^[A-Z]{3,8}$")
+    period: Literal["month", "per-million-tokens"] = "month"
+    monthly_input_tokens: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    monthly_output_tokens: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    channel: str | None = Field(default=None, max_length=200)
 
     @model_validator(mode="after")
     def validate_range(self) -> DecisionBudget:
@@ -907,7 +993,25 @@ class DecisionBudget(CamelModel):
         return self
 
 
+class DecisionServiceAccess(CamelModel):
+    channel: str = Field(min_length=1, max_length=200)
+    tier: Literal["paid", "free", "unknown"] = "unknown"
+    region: str | None = Field(default=None, pattern=r"^[A-Z]{2}$")
+
+    @field_validator("channel", mode="before")
+    @classmethod
+    def trim_channel(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
 class DecisionContext(CamelModel):
+    workflow_version: Literal[1, 2] = 1
+    minimum_context_tokens: int | None = Field(default=None, ge=1, le=100_000_000, strict=True)
+    input_modalities: list[Literal["text", "image", "audio", "video"]] = Field(
+        default_factory=list, max_length=4
+    )
+    commercial_use_required: bool = False
+    service_access: DecisionServiceAccess | None = None
     task: str = Field(min_length=5, max_length=1000)
     priority: Literal["quality", "cost", "speed", "privacy", "control", "balanced"]
     budget: DecisionBudget = Field(default_factory=DecisionBudget)
@@ -915,6 +1019,10 @@ class DecisionContext(CamelModel):
     exclusions: list[str] = Field(default_factory=list, max_length=20)
     candidate_entity_ids: list[str] = Field(default_factory=list, max_length=20)
     notes: str | None = Field(default=None, max_length=1000)
+    task_type: Literal["model-api", "coding-product", "agent-development", "unspecified"] = (
+        "unspecified"
+    )
+    region: str | None = Field(default=None, max_length=100)
 
     @field_validator("exclusions")
     @classmethod
@@ -975,6 +1083,18 @@ class DecisionTradeoff(CamelModel):
     claim_ids: list[str] = Field(default_factory=list)
 
 
+class DecisionComparisonCell(CamelModel):
+    entity_id: str
+    state: Literal["supported", "unknown"]
+    facts: list[DecisionTradeoff] = Field(default_factory=list)
+
+
+class DecisionComparison(CamelModel):
+    id: str
+    dimension: str
+    cells: list[DecisionComparisonCell] = Field(default_factory=list)
+
+
 class DecisionRisk(CamelModel):
     state: Literal["verified", "inferred", "unknown", "conflict"]
     detail: str
@@ -985,20 +1105,348 @@ class DecisionRecommendation(CamelModel):
     primary_entity_id: str | None = None
     alternative_entity_ids: list[str] = Field(default_factory=list)
     summary: str
+    basis: Literal["sole-eligible", "comparable-cost", "validation-sequence", "comparison-only"] = (
+        "comparison-only"
+    )
+    reasons: list[DecisionTradeoff] = Field(default_factory=list)
+    validation_entity_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionGap(CamelModel):
+    dimension: str
+    reason: Literal[
+        "not-recorded",
+        "not-structured",
+        "not-current",
+        "needs-input",
+        "conflicting",
+        "requires-poc",
+    ]
+    detail: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionScenario(CamelModel):
+    id: str = "unspecified"
+    name: str = ""
+    required_features: list[str] = Field(default_factory=list)
+    clarification_checks: list[str] = Field(default_factory=list)
+
+
+class DecisionScope(CamelModel):
+    considered_entity_ids: list[str] = Field(default_factory=list)
+    omitted_entity_ids: list[str] = Field(default_factory=list)
+    selection_basis: str = ""
+    explicit: bool = False
+
+
+class DecisionCandidate(CamelModel):
+    entity_id: str
+    eligibility: Literal["eligible", "excluded", "unknown", "conflict"]
+    reasons: list[str] = Field(default_factory=list)
+    claim_ids: list[str] = Field(default_factory=list)
+    covered_dimensions: list[str] = Field(default_factory=list)
+    required_dimensions: list[str] = Field(default_factory=list)
+    is_concrete_version: bool = False
+    strengths: list[DecisionTradeoff] = Field(default_factory=list)
+    gaps: list[DecisionGap] = Field(default_factory=list)
+    fit_state: Literal["described", "unverified"] = "unverified"
+
+
+class DecisionTestConditions(CamelModel):
+    model_version: str = Field(default="", max_length=200)
+    configuration: str = Field(default="", max_length=1000)
+    sample_count: int | None = Field(default=None, ge=1, le=100_000_000, strict=True)
+    tested_at: str = Field(default="", max_length=32)
+    scope: str = Field(default="", max_length=1000)
+
+    @field_validator("tested_at")
+    @classmethod
+    def valid_test_date(cls, value: str) -> str:
+        if value:
+            try:
+                datetime.fromisoformat(value)
+            except ValueError:
+                raise ValueError("test date must be an ISO date or datetime") from None
+        return value
+
+
+class DecisionMeasurements(CamelModel):
+    successful_samples: int | None = Field(default=None, ge=0, le=1_000_000, strict=True)
+    minimum_successful_samples: int | None = Field(default=None, ge=1, le=1_000_000, strict=True)
+    total_cost: float | None = Field(default=None, ge=0, le=1e15, allow_inf_nan=False, strict=True)
+    currency: str | None = Field(default=None, pattern=r"^[A-Z]{3}$")
+    cost_basis: Literal["actual-charge", "estimate"] | None = None
+    source_note: str = Field(default="", max_length=500)
+    p50_ms: float | None = Field(default=None, ge=0, le=1e15, allow_inf_nan=False, strict=True)
+    p95_ms: float | None = Field(default=None, gt=0, le=1e15, allow_inf_nan=False, strict=True)
+    privacy_verified: bool | None = Field(default=None, strict=True)
+    control_verified: bool | None = Field(default=None, strict=True)
+
+    @model_validator(mode="after")
+    def consistent_latency(self) -> DecisionMeasurements:
+        if self.p50_ms is not None and self.p95_ms is not None and self.p95_ms < self.p50_ms:
+            raise ValueError("P95 latency cannot be lower than P50 latency")
+        return self
+
+
+class DecisionValidationItem(CamelModel):
+    measurements: DecisionMeasurements | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    suggested_protocol: DecisionTrial | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    test_conditions: DecisionTestConditions | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    id: str = Field(min_length=1, max_length=128)
+    title: str = Field(min_length=1, max_length=500)
+    candidate_id: str | None = Field(default=None, max_length=128)
+    status: Literal["pending", "passed", "failed", "blocked"] = "pending"
+    result: str = Field(default="", max_length=3000)
+
+    @model_validator(mode="after")
+    def tested_results(self) -> DecisionValidationItem:
+        if self.measurements:
+            measures = self.measurements
+            if (
+                measures.successful_samples is not None
+                or measures.minimum_successful_samples is not None
+            ):
+                if self.id != "quality" and not self.id.endswith("-quality"):
+                    raise ValueError("successful sample counts belong to a task quality check")
+                count = self.test_conditions.sample_count if self.test_conditions else None
+                if count is not None and any(
+                    value is not None and value > count
+                    for value in (measures.successful_samples, measures.minimum_successful_samples)
+                ):
+                    raise ValueError(
+                        "successful and minimum sample counts cannot exceed the sample count"
+                    )
+                if (
+                    self.status in {"passed", "failed"}
+                    and measures.successful_samples is not None
+                    and measures.minimum_successful_samples is None
+                ):
+                    raise ValueError(
+                        "numeric task results require the predeclared minimum successful sample count"
+                    )
+                if (
+                    self.status == "passed"
+                    and measures.successful_samples is not None
+                    and measures.minimum_successful_samples is not None
+                    and measures.successful_samples < measures.minimum_successful_samples
+                ):
+                    raise ValueError(
+                        "a task below its declared success threshold cannot be marked passed"
+                    )
+            if measures.total_cost is not None:
+                if self.id != "cost" and not self.id.endswith("-cost"):
+                    raise ValueError("cost measurements belong to a cost check")
+                if self.status in {"passed", "failed"} and not all(
+                    [measures.currency, measures.cost_basis, measures.source_note.strip()]
+                ):
+                    raise ValueError(
+                        "measured cost requires currency, actual-charge/estimate basis and source note"
+                    )
+            if (
+                (measures.p50_ms is not None or measures.p95_ms is not None)
+                and self.id != "latency"
+                and not self.id.endswith("-latency")
+            ):
+                raise ValueError("latency measurements belong to a latency check")
+            if (
+                (measures.privacy_verified is not None or measures.control_verified is not None)
+                and self.id != "terms"
+                and not self.id.endswith("-terms")
+            ):
+                raise ValueError("privacy/control verification belongs to an entry and terms check")
+        if self.status in {"passed", "failed"} and not self.result.strip():
+            raise ValueError("tested items require actual results and test conditions")
+        if self.status in {"passed", "failed"} and self.test_conditions is not None:
+            conditions = self.test_conditions
+            if not all(
+                [
+                    conditions.model_version.strip(),
+                    conditions.configuration.strip(),
+                    conditions.sample_count,
+                    conditions.tested_at,
+                    conditions.scope.strip(),
+                ]
+            ):
+                raise ValueError(
+                    "measured items require version, configuration, sample count, test date and scope"
+                )
+        return self
+
+
+class DecisionValidationSave(CamelModel):
+    expected_revision: int = Field(ge=0)
+    items: list[DecisionValidationItem] = Field(default_factory=list, max_length=100)
+
+    @model_validator(mode="after")
+    def unique_items(self) -> DecisionValidationSave:
+        if len({item.id for item in self.items}) != len(self.items):
+            raise ValueError("validation item ids must be unique")
+        return self
+
+
+class DecisionValidationCheckReview(CamelModel):
+    dimension: Literal["quality", "latency", "cost", "terms"]
+    item_ids: list[str] = Field(default_factory=list)
+    complete: bool = False
+    reason: Literal["missing", "pending", "blocked", "conditions-missing", "ambiguous", "complete"]
+    missing_conditions: list[str] = Field(default_factory=list)
+
+
+class DecisionValidationCandidateReview(CamelModel):
+    candidate_id: str | None = None
+    recorded_checks: int = 0
+    completed_checks: int = 0
+    required_checks: int = 4
+    checks: list[DecisionValidationCheckReview] = Field(default_factory=list)
+
+
+class DecisionValidationComparisonGroup(CamelModel):
+    minimum_successful_samples: int | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    measurement_unit: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    cost_basis: Literal["actual-charge", "estimate"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    dimension: Literal["quality", "latency", "cost", "terms"]
+    candidate_ids: list[str]
+    item_ids: list[str]
+    configuration: str
+    scope: str
+    sample_count: int
+    test_date: str
+
+
+class DecisionValidationFinding(CamelModel):
+    candidate_id: str
+    outcome: Literal[
+        "limited-fit",
+        "tested-fail",
+        "testing-blocked",
+        "record-incomplete",
+        "unverified",
+        "entry-unverified",
+        "eligibility-unverified",
+    ]
+    item_ids: list[str] = Field(default_factory=list)
+    scope: str = ""
+    model_version: str = ""
+
+
+class DecisionMeasuredChoice(CamelModel):
+    minimum_successful_samples: int | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    priority: Literal["quality", "cost", "speed"]
+    candidate_ids: list[str]
+    item_ids: list[str]
+    metric: Literal["successful-samples", "total-cost", "p95-ms"]
+    unit: str
+    values: dict[str, float]
+    configuration: str
+    scope: str
+    sample_count: int
+    test_date: str
+    basis: Literal["user-declared-actual-measurements"] = "user-declared-actual-measurements"
+
+
+class DecisionValidationConclusion(CamelModel):
+    measured_choices: list[DecisionMeasuredChoice] = Field(default_factory=list)
+    status: Literal[
+        "limited-fit",
+        "no-tested-fit",
+        "validation-blocked",
+        "insufficient-tests",
+        "priority-unverified",
+    ] = "insufficient-tests"
+    trial_candidate_ids: list[str] = Field(default_factory=list)
+    findings: list[DecisionValidationFinding] = Field(default_factory=list)
+
+
+class DecisionValidationReview(CamelModel):
+    source_revision: int
+    basis: Literal["user-records"] = "user-records"
+    candidates: list[DecisionValidationCandidateReview] = Field(default_factory=list)
+    comparable_groups: list[DecisionValidationComparisonGroup] = Field(default_factory=list)
+    conclusion: DecisionValidationConclusion = Field(default_factory=DecisionValidationConclusion)
+
+
+class DecisionValidationView(CamelModel):
+    research_id: str
+    revision: int = 0
+    items: list[DecisionValidationItem] = Field(default_factory=list)
+    updated_at: datetime | None = None
+    review: DecisionValidationReview | None = None
+
+
+class DecisionAction(CamelModel):
+    id: str
+    kind: Literal["clarify", "reconcile", "source", "test", "change-scope"]
+    title: str
+    instruction: str
+    unlocks: str
+    candidate_ids: list[str] = Field(default_factory=list)
+    dimensions: list[str] = Field(default_factory=list)
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionTrial(CamelModel):
+    sample: str
+    procedure: list[str]
+    metrics: list[str]
+    acceptance: list[str]
+    # A proposed protocol is never an executed measurement or product score.
+    executed: Literal[False] = False
+
+
+class DecisionPlan(CamelModel):
+    state: Literal[
+        "needs-input",
+        "needs-evidence",
+        "conflict",
+        "all-excluded",
+        "no-candidates",
+        "ready-to-validate",
+        "failed",
+    ]
+    can_decide: str
+    actions: list[DecisionAction] = Field(default_factory=list)
+    trial_candidate_ids: list[str] = Field(default_factory=list)
+    trial: DecisionTrial | None = None
 
 
 class DecisionResult(CamelModel):
+    scenario: DecisionScenario = Field(default_factory=DecisionScenario)
+    scope: DecisionScope = Field(default_factory=DecisionScope)
+    candidates: list[DecisionCandidate] = Field(default_factory=list)
+    missing_inputs: list[str] = Field(default_factory=list)
+    workflow_state: Literal[
+        "ready", "needs-input", "insufficient-evidence", "conflict", "no-eligible-candidate"
+    ] = "insufficient-evidence"
     status: Literal["ready", "insufficient-evidence", "conflict", "failed"]
     as_of: datetime
     recommendation: DecisionRecommendation
     conditions: list[str] = Field(default_factory=list)
     tradeoffs: list[DecisionTradeoff] = Field(default_factory=list)
+    comparisons: list[DecisionComparison] = Field(default_factory=list)
     risks: list[DecisionRisk] = Field(default_factory=list)
     next_checks: list[str] = Field(default_factory=list)
     claim_ids: list[str] = Field(default_factory=list)
+    plan: DecisionPlan | None = None
 
 
 class ResearchView(CamelModel):
+    citation_states: dict[str, Literal["current", "updated", "unavailable"]] = Field(
+        default_factory=dict
+    )
     id: str
     question: str
     summary: str
@@ -1130,9 +1578,19 @@ class BusinessQualityMetrics(CamelModel):
     core_relation_deficit: int
 
 
+class EvaluationApplicability(CamelModel):
+    status: Literal["historical", "scope-matched"]
+    corpus_matches: bool | None
+    retrieval_config_matches: bool
+    build_matches: bool
+    missing_expected_claim_sample_count: int | None
+    configured_retrieval_mode: Literal["lexical", "hybrid"]
+    reasons: list[str]
+
+
 class EvaluationQualityMetrics(CamelModel):
     updated_at: datetime
-    cadence: Literal["daily-or-on-retrieval-change"]
+    cadence: Literal["daily-or-on-retrieval-change", "on-evaluation-publication"]
     artifact_path: str
     golden_set_version: str
     sample_count: int
@@ -1145,6 +1603,7 @@ class EvaluationQualityMetrics(CamelModel):
     precision_at_8: float
     entity_recall_at_8: float
     pass_ratio: float
+    applicability: EvaluationApplicability | None = None
 
 
 class QualityMetrics(CamelModel):

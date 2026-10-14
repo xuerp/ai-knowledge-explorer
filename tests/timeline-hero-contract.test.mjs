@@ -26,9 +26,9 @@ test("阅读模式选择器不再用高层级 sticky 容器覆盖顶部导航", 
     read("src/styles.css"),
   ]);
 
-  assert.match(selector, /overflow-x-auto/);
-  assert.match(selector, /overflow-y-hidden/);
-  assert.match(selector, /shrink-0/);
+  assert.match(styles, /\.reading-mode-tabs\s*\{[^}]*overflow-x:\s*auto/s);
+  assert.match(styles, /\.reading-mode-tabs\s*\{[^}]*overflow-y:\s*hidden/s);
+  assert.match(styles, /\.reading-mode-button\s*\{[^}]*flex:\s*0 0 auto/s);
   assert.doesNotMatch(styles, /\.reading-mode-selector\s*\{[^}]*position:\s*sticky/s);
   assert.doesNotMatch(styles, /\.reading-mode-selector\s*\{[^}]*z-index:\s*40/s);
 });

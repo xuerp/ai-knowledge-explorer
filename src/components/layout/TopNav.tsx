@@ -13,6 +13,7 @@ import {
 import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import { backNavigationFor } from "@/domain/back-navigation";
+import { useKnowledgeReturn } from "@/hooks/use-knowledge-return";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,15 +24,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NAV = [
-  { to: "/", zh: "动态", en: "Updates" },
-  { to: "/ask", zh: "决策助手", en: "Decide" },
+  { to: "/updates", zh: "动态", en: "Updates" },
   { to: "/knowledge", zh: "知识库", en: "Knowledge" },
+  { to: "/ask", zh: "决策助手", en: "Decide" },
+  { to: "/graph", zh: "知识图谱", en: "Graph" },
 ] as const;
 
 export function TopNav() {
   const { lang, setLang, theme, setTheme, t } = useApp();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const knowledgeReturn = useKnowledgeReturn();
   const backNavigation = backNavigationFor(pathname, 0);
 
   const navigateBack = () => {
@@ -70,14 +73,13 @@ export function TopNav() {
 
         <nav className="ml-5 hidden h-full items-center gap-0 md:flex">
           {NAV.map((item) => {
-            const active =
-              item.to === "/"
-                ? pathname === "/"
-                : pathname === item.to || pathname.startsWith(item.to + "/");
+            const active = pathname === item.to || pathname.startsWith(item.to + "/");
             return (
               <Link
                 key={item.to}
                 to={item.to}
+                search={item.to === "/knowledge" ? knowledgeReturn.search : undefined}
+                hash={item.to === "/knowledge" ? knowledgeReturn.hash : undefined}
                 className={
                   "relative inline-flex h-full items-center whitespace-nowrap px-3 text-[13px] transition-colors " +
                   (active
@@ -95,11 +97,15 @@ export function TopNav() {
 
         <Link
           to="/knowledge"
-          className="hidden h-8 w-52 items-center gap-2 rounded-md border border-border bg-background px-3 text-xs text-muted-foreground hover:border-border-strong hover:text-foreground lg:flex xl:w-64"
+          search={knowledgeReturn.search}
+          hash={knowledgeReturn.hash}
+          className="hidden h-8 w-52 min-w-0 items-center gap-2 overflow-hidden rounded-md border border-border bg-background px-3 text-xs text-muted-foreground hover:border-border-strong hover:text-foreground lg:flex xl:w-64"
         >
-          <Search className="h-4 w-4" />
-          <span>{t("搜索 模型 · Agent · 论文…", "Search models, agents, papers…")}</span>
-          <kbd className="ml-auto text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">
+          <Search className="h-4 w-4 shrink-0" />
+          <span className="min-w-0 flex-1 truncate whitespace-nowrap">
+            {t("搜索模型、产品…", "Search models and products…")}
+          </span>
+          <kbd className="ml-auto shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
             /
           </kbd>
         </Link>

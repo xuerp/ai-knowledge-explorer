@@ -31,6 +31,13 @@ export function findClaimLifecycleMatches(
       target,
       relationship:
         normalize(target.claim.objectOrValue) === normalize(candidate.claim.objectOrValue) &&
+        ["zh", "en"].every(
+          (language) =>
+            (target.claim.text[language as "zh" | "en"] ?? "").trim().replaceAll(/\s+/g, " ") ===
+            (candidate.claim.text[language as "zh" | "en"] ?? "").trim().replaceAll(/\s+/g, " "),
+        ) &&
+        JSON.stringify(target.claim.text.technical ?? null) ===
+          JSON.stringify(candidate.claim.text.technical ?? null) &&
         (target.claim.validFrom ?? "") === (candidate.claim.validFrom ?? "") &&
         (target.claim.validTo ?? "") === (candidate.claim.validTo ?? "")
           ? ("duplicate" as const)

@@ -15,6 +15,11 @@ export default tseslint.config(
       "**/.pytest_cache/**",
       ".venv",
       "**/.venv/**",
+      // Local receipts and environments are not application source.
+      "artifacts/**",
+      ".impeccable/**",
+      "**/.venv*/**",
+      "**/.pytest*/**",
     ],
   },
   {

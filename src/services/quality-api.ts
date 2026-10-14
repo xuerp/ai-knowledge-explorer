@@ -19,7 +19,7 @@ export interface QualityMetrics {
   };
   evaluation: {
     updatedAt: string;
-    cadence: "daily-or-on-retrieval-change";
+    cadence: "daily-or-on-retrieval-change" | "on-evaluation-publication";
     artifactPath: string;
     goldenSetVersion: string;
     sampleCount: number;
@@ -32,6 +32,15 @@ export interface QualityMetrics {
     precisionAt8: number;
     entityRecallAt8: number;
     passRatio: number;
+    applicability?: {
+      status: "historical" | "scope-matched";
+      corpusMatches: boolean | null;
+      retrievalConfigMatches: boolean;
+      buildMatches: boolean;
+      missingExpectedClaimSampleCount: number | null;
+      configuredRetrievalMode: "lexical" | "hybrid";
+      reasons: string[];
+    } | null;
   };
 }
 

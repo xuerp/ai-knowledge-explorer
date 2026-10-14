@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, History, LibraryBig } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { ConfidenceChip, SourceRow } from "@/components/common";
-import { getClaimDisplayDate, splitClaimsForDisplay } from "@/domain/claim-display";
-import { claimTextForReadingMode, rankClaimsForReadingMode } from "@/domain/claim-reading-mode";
+import { getClaimDisplayDate } from "@/domain/claim-display";
+import {
+  claimTextForReadingMode,
+  rankClaimsForReadingMode,
+  claimTopicLabel,
+} from "@/domain/claim-reading-mode";
 import type { Claim, Source } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
-import { knowledgeRepository } from "@/services/knowledge-repository";
+import { knowledgeRepository, type EntityClaimPage } from "@/services/knowledge-repository";
 
-const HISTORY_PAGE_SIZE = 10;
-
-function displayDate(value: string, lang: "zh" | "en") {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(date);
-}
+const FACT_PAGE_SIZE = 8;
 
 export function ReviewedFacts({
   entityId,
@@ -29,167 +23,243 @@ export function ReviewedFacts({
   evidence: Source[];
 }) {
   const { t, lang, mode } = useApp();
-  const visibleLimit = mode === "general" ? 3 : mode === "product" ? 5 : 8;
-  const rankedClaims = rankClaimsForReadingMode(claims, mode);
-  const displayed = splitClaimsForDisplay(rankedClaims, visibleLimit, true);
-  const [remoteHistory, setRemoteHistory] = useState<Claim[]>([]);
-  const [remoteEvidence, setRemoteEvidence] = useState<Source[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | undefined>();
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const visibleHistory = remoteHistory.length
-    ? remoteHistory
-    : displayed.history.slice(0, HISTORY_PAGE_SIZE);
-  const remainingHistory = remoteHistory.length
-    ? Number(Boolean(nextCursor))
-    : displayed.history.length - visibleHistory.length;
+  const [expanded, setExpanded] = useState(false);
+  const [query, setQuery] = useState("");
+  const [topic, setTopic] = useState("");
+  const [cursors, setCursors] = useState<Array<string | undefined>>([undefined]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [result, setResult] = useState<EntityClaimPage | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const cursor = cursors[pageIndex];
+  const topics = [
+    ...new Set(
+      claims.map((claim) => claim.predicate).filter((value): value is string => Boolean(value)),
+    ),
+  ];
+  const prioritized = rankClaimsForReadingMode(claims, mode).slice(0, 3);
   const evidenceById = new Map(
-    [...evidence, ...remoteEvidence].map((source) => [source.id, source]),
+    [...evidence, ...(result?.evidence ?? [])].map((source) => [source.id, source]),
   );
 
-  const loadMoreHistory = async () => {
-    setLoadingHistory(true);
-    try {
-      const page = await knowledgeRepository.getEntityClaims(
-        entityId,
-        "history",
-        remoteHistory.length ? nextCursor : undefined,
-        HISTORY_PAGE_SIZE,
-      );
-      setRemoteHistory((current) =>
-        Array.from(new Map([...current, ...page.items].map((claim) => [claim.id, claim])).values()),
-      );
-      setRemoteEvidence((current) =>
-        Array.from(
-          new Map([...current, ...page.evidence].map((source) => [source.id, source])).values(),
-        ),
-      );
-      setNextCursor(page.nextCursor);
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
-
   useEffect(() => {
+    if (!expanded) return;
     const controller = new AbortController();
-    void knowledgeRepository
-      .getEntityClaims(entityId, "history", undefined, HISTORY_PAGE_SIZE, controller.signal)
-      .then((page) => {
-        setRemoteHistory(page.items);
-        setRemoteEvidence(page.evidence);
-        setNextCursor(page.nextCursor);
-      })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [entityId]);
+    let active = true;
+    setLoading(true);
+    setError("");
+    setResult(null);
+    const timer = window.setTimeout(() => {
+      void knowledgeRepository
+        .getEntityClaims(entityId, "all", cursor, FACT_PAGE_SIZE, controller.signal, {
+          q: query,
+          topic,
+        })
+        .then((page) => {
+          if (active) setResult(page);
+        })
+        .catch(() => {
+          if (active)
+            setError(t("事实暂时无法加载，请重试。", "Facts could not be loaded. Retry."));
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    }, 200);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [entityId, expanded, cursor, query, topic, retry, t]);
 
-  const renderClaim = (claim: Claim, compact = false) => {
+  function resetPage() {
+    setCursors([undefined]);
+    setPageIndex(0);
+  }
+  function renderClaim(claim: Claim) {
     const claimSources = claim.sourceIds
-      .map((sourceId) => evidenceById.get(sourceId))
+      .map((id) => evidenceById.get(id))
       .filter((source): source is Source => Boolean(source));
-    const primaryDate = getClaimDisplayDate(claim, claimSources);
-
+    const date = getClaimDisplayDate(claim, claimSources);
     return (
-      <article key={claim.id} className={compact ? "px-4 py-4 md:px-5" : "px-4 py-5 md:px-5"}>
+      <article key={claim.id} className="reviewed-facts__row">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          {primaryDate ? (
-            <time className="font-mono text-xs text-muted-foreground">
-              {primaryDate.kind === "effective"
-                ? t("发生 / 生效", "Occurred / effective")
-                : t("官方资料发布", "Official source published")}{" "}
-              {displayDate(primaryDate.value, lang)}
-            </time>
-          ) : (
-            <span />
-          )}
+          <span className="text-xs text-muted-foreground">
+            {date ? (
+              <time dateTime={date.value}>
+                {date.kind === "effective"
+                  ? t("发生 / 生效", "Occurred / effective")
+                  : t("官方资料发布", "Source published")}{" "}
+                {date.value.slice(0, 10)}
+              </time>
+            ) : (
+              t("未标注发生日期", "Event date unavailable")
+            )}
+            {claim.validTo && (
+              <span>
+                {" "}
+                · {t("有效至", "Valid until")} {claim.validTo}
+              </span>
+            )}
+          </span>
           <ConfidenceChip level={claim.confidence} />
         </div>
-        <p className="mt-2 text-sm leading-6 text-foreground md:text-[15px]">
+        <p className="mt-2 text-sm leading-6 text-foreground">
           {pick(claimTextForReadingMode(claim, mode), lang)}
         </p>
-        {claimSources.length > 0 && (
+        {claimSources.length > 0 ? (
           <details className="group mt-2">
             <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-signal hover:underline">
-              {t(
-                `${claimSources.length} 个直接证据来源`,
-                `${claimSources.length} direct evidence source${claimSources.length > 1 ? "s" : ""}`,
-              )}
+              {t(`查看依据 (${claimSources.length})`, `View evidence (${claimSources.length})`)}
               <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
             </summary>
-            <div className="mt-2 rounded-lg border border-border bg-muted/20 py-1">
+            <div className="mt-2 divide-y divide-border">
               {claimSources.map((source) => (
-                <SourceRow key={source.id} source={source} />
+                <div key={source.id} className="py-1">
+                  <SourceRow source={source} />
+                  {source.sourceExcerpt && (
+                    <blockquote className="mx-3 mb-2 border-l-2 border-border pl-3 text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">
+                      {source.sourceExcerpt}
+                    </blockquote>
+                  )}
+                </div>
               ))}
             </div>
           </details>
+        ) : (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("当前没有可显示的直接来源。", "No directly displayable source.")}
+          </p>
         )}
       </article>
     );
-  };
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="paper-card overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-3 md:px-5">
-          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-            <LibraryBig className="h-4 w-4 text-signal" />
-            {t(
-              mode === "general"
-                ? "关键事实"
-                : mode === "product"
-                  ? "产品决策事实"
-                  : "技术与证据事实",
-              mode === "general"
-                ? "Key facts"
-                : mode === "product"
-                  ? "Product decision facts"
-                  : "Technical and evidence facts",
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {t(
-              `共 ${claims.length} 条，本模式重点展示 ${displayed.visible.length} 条`,
-              `${claims.length} total · ${displayed.visible.length} prioritized for this mode`,
-            )}
-          </div>
-        </div>
-        <div className="divide-y divide-border">
-          {displayed.visible.map((claim) => renderClaim(claim))}
-        </div>
-      </div>
-
-      {visibleHistory.length > 0 && (
-        <details className="paper-card group overflow-hidden">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-4 md:px-5">
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-signal">
-              <History className="h-4 w-4" />
-              {t(
-                `历史事实（已加载 ${visibleHistory.length} 条）`,
-                `Fact history (${visibleHistory.length} loaded)`,
+    <div className="paper-card reviewed-facts">
+      <div className="reviewed-facts__toolbar">
+        <span className="text-sm text-muted-foreground">
+          {expanded
+            ? t("检索全部事实与历史依据", "Browse all facts and historical evidence")
+            : t(
+                `${claims.length} 条当前事实 · 精选 ${prioritized.length} 条`,
+                `${claims.length} current facts · ${prioritized.length} highlighted`,
               )}
-            </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
-          </summary>
-          <div className="border-t border-border">
+        </span>
+        <button
+          type="button"
+          aria-expanded={expanded}
+          className="text-sm font-medium text-signal"
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? t("收起列表", "Collapse list") : t("查阅全部事实", "Browse all facts")}
+        </button>
+      </div>
+      {expanded && (
+        <div className="reviewed-facts__filters">
+          <label className="reviewed-facts__search">
+            <Search aria-hidden="true" />
+            <input
+              value={query}
+              maxLength={200}
+              aria-label={t("搜索全部事实", "Search all facts")}
+              placeholder={t(
+                "搜索能力、价格或接入条件…",
+                "Search capabilities, pricing or access…",
+              )}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                resetPage();
+              }}
+            />
+          </label>
+          <select
+            value={topic}
+            aria-label={t("事实主题", "Fact topic")}
+            onChange={(event) => {
+              setTopic(event.target.value);
+              resetPage();
+            }}
+          >
+            <option value="">{t("全部主题", "All topics")}</option>
+            {topics.map((value) => (
+              <option key={value} value={value}>
+                {claimTopicLabel(value, lang)}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      {expanded ? (
+        loading ? (
+          <p role="status" className="p-4 text-sm text-muted-foreground">
+            {t("正在加载事实…", "Loading facts…")}
+          </p>
+        ) : error ? (
+          <div role="alert" className="p-4 text-sm">
+            <p>{error}</p>
+            <button
+              type="button"
+              className="mt-2 text-signal"
+              onClick={() => setRetry((value) => value + 1)}
+            >
+              {t("重试", "Retry")}
+            </button>
+          </div>
+        ) : (
+          <>
             <div className="divide-y divide-border">
-              {visibleHistory.map((claim) => renderClaim(claim, true))}
-            </div>
-            {remainingHistory > 0 && (
-              <div className="border-t border-border p-4 text-center">
-                <button
-                  type="button"
-                  className="rounded-md border border-border px-4 py-2 text-sm font-medium text-signal transition-colors hover:bg-accent"
-                  disabled={loadingHistory}
-                  onClick={() => void loadMoreHistory()}
-                >
+              {result?.items.length ? (
+                result.items.map(renderClaim)
+              ) : (
+                <p className="p-4 text-sm text-muted-foreground">
                   {t(
-                    loadingHistory ? "加载中…" : "再加载 10 条",
-                    loadingHistory ? "Loading…" : "Load 10 more",
+                    "没有匹配事实，试试其他关键词或主题。",
+                    "No matching facts. Try another query or topic.",
                   )}
-                </button>
+                </p>
+              )}
+            </div>
+            {result && (
+              <div className="reviewed-facts__pagination">
+                <span>
+                  {t(
+                    `共 ${result.total} 条 · 第 ${pageIndex + 1} 页`,
+                    `${result.total} facts · Page ${pageIndex + 1}`,
+                  )}
+                </span>
+                {(pageIndex > 0 || result.nextCursor) && (
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      disabled={pageIndex === 0}
+                      onClick={() => setPageIndex((value) => value - 1)}
+                    >
+                      {t("上一页", "Previous")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!result.nextCursor}
+                      onClick={() => {
+                        setCursors((values) => [
+                          ...values.slice(0, pageIndex + 1),
+                          result.nextCursor,
+                        ]);
+                        setPageIndex((value) => value + 1);
+                      }}
+                    >
+                      {t("下一页", "Next")}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        </details>
+          </>
+        )
+      ) : (
+        <div className="divide-y divide-border">{prioritized.map(renderClaim)}</div>
       )}
     </div>
   );

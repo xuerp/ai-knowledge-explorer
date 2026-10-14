@@ -4,6 +4,18 @@
 
 [在线体验](https://ai-radar-staging.1966761779.workers.dev) · [数据质量](https://ai-radar-staging.1966761779.workers.dev/quality) · [产品 Case Study](https://ai-radar-staging.1966761779.workers.dev/case-study) · [架构说明](docs/ARCHITECTURE.md)
 
+## 当前版本与使用入口
+
+- 固定公网入口：[决策助手](https://ai-radar-staging.1966761779.workers.dev/ask)。这是预发布环境，仍明确标记为 `demo`，不等于正式生产数据或全市场证据已补齐。
+- 本地开发页面依赖本机前后端进程，`127.0.0.1` 地址不能用于其他设备或长期在线访问。公网前端、API 与数据库独立托管，不依赖开发电脑开机。
+- [发布与恢复说明](docs/STAGING_DEPLOYMENT.md)、[最新同步记录](docs/RELEASE_SYNC_20261014.md)、[决策助手完成标准](docs/DECISION_PRODUCT_ACCEPTANCE.md)。部署是否完成以公网前后端的精确版本及迁移检查为准。
+
+决策助手先给出有依据的候选与限制。选择自己能使用的一个候选，点击“下一步：准备试用”，拿到任务与验收要求；在现有产品入口执行后，回来记录真实结果。其他候选的资料维护和筛选审计是次级路径。没有候选满足必要条件时，会显示实际阻断项。
+
+目前没有集成通用模型账户连接与自动业务评测。候选顺序不是性能排名，保存计划不会生成测试成绩，私人试用记录不会自动变为公开事实。当前支持范围与资料缺口见[产品验收标准](docs/DECISION_PRODUCT_ACCEPTANCE.md)。
+
+![决策助手首次使用流程：已审核资料的候选选择页面，非模型实测成绩](docs/assets/decision-assistant/first-use-desktop.png)
+
 ![AI Radar 公开首页](docs/assets/portfolio/home-desktop.png)
 
 ## 为什么需要 AI Radar
@@ -81,12 +93,12 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 前端：Cloudflare Workers
 - API：Render FastAPI
 - 数据库：Neon PostgreSQL
-- 定时任务：GitHub Actions 每 30 分钟直接连接 Neon 执行；Cloudflare Cron 仅保留为切换前回退方案
-- 环境：`production`
+- 定时任务：Cloudflare Cron 为主调度；GitHub Actions 仅保留手动应急回退
+- 环境：公网预发布；后端运行配置为 `production`，不代表正式数据验收通过
 - 数据模式：`demo`
 - 快照新鲜度：`cached`
 
-截至 2026-09-04 的最新核实快照包含 49 个实体、198 条 Claim、220 条 Evidence、77 条 Relation 和 55 条 Timeline；Claim 数量已经超过 150 条正式门槛，证据引用覆盖率为 100%。当前仍未通过核心关系覆盖门槛：16 个核心实体的总覆盖差值为 42。该差值是质量诊断，不是必须用模型调用补齐的 KPI；系统继续保持 `demo/cached`，不会仅为去掉演示标签而提前切换为 `live`。普通自动抽取默认关闭，任何新批次都需要明确授权和硬预算。
+2026-10-14 本轮发布资料在独立空数据库核对为 261 个实体、316 条公开事实、532 条来源，事实和来源与本地已审核公开接口逐项一致。公网是否已经运行该版本，以发布记录中的精确 commit 和部署后核对为准。事实数量不等于正式验收；冲突、过期和资料缺项仍受各自门槛约束，保持 `demo`。普通自动抽取默认关闭，新调用不继承历史预算或授权。
 
 ## 主要入口
 
@@ -109,7 +121,7 @@ LLM 在系统中是“提议者”，不是“事实裁决者”。模型输出�
 - 后端：FastAPI、Pydantic、SQLAlchemy、Alembic、JWT/RBAC。
 - 数据：PostgreSQL；本地和 CI 同时保护 SQLite/PostgreSQL 迁移兼容。
 - 部署：Cloudflare Workers 同域代理 → Render API → Neon PostgreSQL。
-- 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox 与 GitHub Actions 周期 worker。
+- 自动化：安全采集、租约、退避、OpenAI-compatible 抽取、审核、通知 Outbox、Cloudflare Cron 与 GitHub Actions 手动回退。
 - RAG：PostgreSQL 全文检索、GIN 投影索引、逐 Claim 引用、严格生成 Schema、失败降级与黄金问题评估。
 - 质量：ESLint、TypeScript、前后端自动测试、Ruff、生产构建、SQLite/PostgreSQL 迁移验证、固定集检索评估和数据质量门槛。
 
@@ -179,7 +191,7 @@ python -m alembic check
 
 ### v1.5 Live Ready
 
-- 只在真实新增官方 Evidence 支持时处理关系缺口，不把 42 条覆盖差值当作强制 KPI；150+ Claim 门槛已经达成。
+- 只在真实新增官方 Evidence 支持时处理资料缺口，不把历史计数或覆盖差值当作强制 KPI。
 - 运行黄金问题、数据质量和生产就绪检查。
 - 完成 SMTP、正式域名、外部监控和备份恢复演练。
 - 只有 `liveReady=true` 后才把 `AI_RADAR_DATA_MODE` 改为 `live`。

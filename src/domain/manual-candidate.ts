@@ -67,7 +67,7 @@ export function buildManualCandidate(
   const suffix = `${snapshotSuffix}-${now.getTime().toString(36)}`;
   const claimId = `claim-${source.id}-${suffix}`;
   const observedAt = calendarDate(snapshot.observedAt);
-  const publishedAt = calendarDate(snapshot.publishedAt ?? snapshot.observedAt);
+  const publishedAt = snapshot.publishedAt ? calendarDate(snapshot.publishedAt) : "";
 
   return {
     id: `manual-${source.id}-${suffix}`,

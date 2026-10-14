@@ -1,0 +1,1228 @@
+{
+  "date": "2026-10-14",
+  "scope": "Current application, reviewed public catalogue and curated current project documentation only",
+  "unverifiedHistoricalFilesOmitted": 197,
+  "allOmittedOriginalFilesRetainedLocally": true,
+  "privateUserDataIncluded": false,
+  "supplierAccountReceiptsIncluded": false,
+  "rawConsentTranscriptsIncluded": false,
+  "files": [
+    {
+      "path": ".github/workflows/quality.yml",
+      "sha256": "c5e9d5d78f6b0498e355e351e51a78d49996f8097b500f577a4ccea3c357e120",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "e4ebae697e18e2923e36759e0613edcc18216e6a6d85b36f0ee9f8e2089ce3e1",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "f53dfae203d200ce73fb3180660597a6e4c73c42fd7f7ecad443e1534c1d10af",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "README.md",
+      "sha256": "025b05d257b65893201af8198ae4cfbf759a1f4c50955a0cde58c71341b090ee",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/.dockerignore",
+      "sha256": "770bfce8ff9a12fc74ec4abb1ed70f8db841c3935699c5be34cb6beddf101071",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/Dockerfile",
+      "sha256": "b494fcbc20985777be7193e77cdcaaf68fa5b7e892bc48ca5751f32c5af33b22",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/catalog_changes.py",
+      "sha256": "41a7ecfd629aab891b6fa4cf2bd29c162f85a5c635f34a002a01f28d1e874c41",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/config.py",
+      "sha256": "176c0d8f6017f18ffc235328d9b2655ff57a8684273f0c091374f5583272d866",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/database.py",
+      "sha256": "61bdbbf83b8c534f88eff94b69e220a979d120f5c2268f7ef4a905f4389594fc",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_candidates.py",
+      "sha256": "031a30158ce4a0975ba25ab91965bbb4e58adb8957fd63a206595bcb9578f8d3",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_comparison.py",
+      "sha256": "7c5aecb45aa2f66e7d0f8b2fc519d9c79f3df7170c118c11e7f16477721e1c6d",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_constraints.py",
+      "sha256": "248e841bfc8aa015f3e1dac5f03e7cab86681ae9a7e91c71375191e38f270e2c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_evidence_requests.py",
+      "sha256": "53f6d5a41d08be858f2e148330a213fe335d0bc28eac651ca24e5c2f5f19b1d3",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_explanation.py",
+      "sha256": "01a8b775827557b25064e28292878d5857e2132b1334281514c61afd91666570",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_facts.py",
+      "sha256": "7237f88b3df5f31fb83ef1543c893805e77ae5046492522cc2b9467b277bdf8a",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_intake.py",
+      "sha256": "4286186ebe01b462fb05d799798a9d9d731fdc433f1369060ac16d04fa0f6aa3",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_licenses.py",
+      "sha256": "64631b3d07ae522002b299e500338eee55cd29461709fd32e21d35b061715ec2",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_plan.py",
+      "sha256": "875ba71b406660e0ee4d99ec524d642f6000c123a6eef7186ac0d4feec070efb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_validation.py",
+      "sha256": "b50d4e80c68c607569d0d27761e27565b380f8d4ac3a864462c900cbbb74452d",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_validation_review.py",
+      "sha256": "de8331a2ea89b0fd2de3dc9e2c6884476a45f2aa0a78f01432597cf6a5c7f265",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_workflow.py",
+      "sha256": "fe29f67864351ed89bd22838f76d02f24dfb7ab488d6e125297e919fb8046e94",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/engagement.py",
+      "sha256": "fa34ceb002ade9e2b20244e70a060b9215a41b6d69178b374420674442535d3f",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/entry_requests.py",
+      "sha256": "748cf5e294de5d7771318b34cd3cd5c4963be9c8e6d82d88963dfcaed45566eb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/evaluation_scope.py",
+      "sha256": "202ed9b244f88d566d7098acd856868c729124697774ff7027390344655a2ee2",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/extraction.py",
+      "sha256": "6568555e4195f9696f19f2d28a03ba55095131bf67b614d9218ca305c409fee8",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/fetching.py",
+      "sha256": "8b5db0f827fd3d74449ad4aca4491c66088bc38d7b4895b93ed83ce78f27eed9",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/golden_questions.py",
+      "sha256": "24f7d4ed10644705d026ea4983d9a587dae0ae0ba7dca7e2472dd2a4a84bfed4",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/main.py",
+      "sha256": "53445bdff8141571e83aa842f1105ec62bbeeeb57170ee84485d7e4b378330ce",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/quality.py",
+      "sha256": "e1edeb3dce3ac305bdf4d54368779dbe6fc0b2957415721f7de3c2dfeef1145c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/rag.py",
+      "sha256": "06ee0957bf45e2e4227cb33fb7183890421e9fcf0319250e7e09849a318af531",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/repository.py",
+      "sha256": "ffbb1eeef3a0fc0767e377a3a570a79b31e0b73626b4f73f825f5ec22768a38b",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/research_report.py",
+      "sha256": "defa3bb89766f3a0e47122415182898dc46d148bfd1b28ac3bcfeb8426a13f55",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/review_revision.py",
+      "sha256": "e1cacfe7950e523593c59deb0e0c08d2b3f5e377557feb2cd2509505f435b365",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/safe_dns.py",
+      "sha256": "0e797e5a45994df4e682530df6b3ad9fde688ec00121d2570aa73719e301739c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/schemas.py",
+      "sha256": "77da14db98b060ba97f9b65b45aa59080260df137571b8d505ab60c837a9866e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/security.py",
+      "sha256": "be2b7df2622d62c6ba362deabed86adc289ea84f005b25ae6c764e56ac2c0265",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/worker.py",
+      "sha256": "61e5c323f6deec6391fc13a9934bcd922bf1b5fad24913967456954570d1cdd9",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/data/catalog_extension.json",
+      "sha256": "052c3ec466e116c05f5c459493160911c879978b0d55e01c30feaec69d0f73d7",
+      "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
+    },
+    {
+      "path": "backend/data/catalog_legacy_fingerprints.v1.json",
+      "sha256": "0f803b5e6ca3c6fc749cd6d45cc2801f3404f3eb383d43027e631911b920a1c9",
+      "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
+    },
+    {
+      "path": "backend/data/decision_scenarios.v1.json",
+      "sha256": "236bebfa9f0a2892b818cc3bdde8498e4874effac9dabe6f9facd6f2aeba62cd",
+      "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
+    },
+    {
+      "path": "backend/data/frontier_catalog_v1.json",
+      "sha256": "478ff55f84f6d83ba1e53b8329e5093ff217b66699b9ae9f27deec845b9bfd28",
+      "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
+    },
+    {
+      "path": "backend/data/quality_evaluation.json",
+      "sha256": "c1d9c3e7023a84ec7b84693e07178d67ba8b5fcf67c581cbb57e438a9b720259",
+      "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
+    },
+    {
+      "path": "backend/migrations/versions/20261002_0024_entry_requests.py",
+      "sha256": "596ae1efc1422c19e9891fdfc13567a5218de76f8f4b0e151724785b12e816e9",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/migrations/versions/20261009_0025_decision_validation.py",
+      "sha256": "d2f8ef5ba96692d6fb4705b518fbfe12d0400614777774b9ded56f1a309e66c0",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/migrations/versions/20261013_0026_decision_evidence_requests.py",
+      "sha256": "d1ed278b00166373cb64d07b39a2dafe0ced95ac61176df59245e936a03d61de",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/pyproject.toml",
+      "sha256": "94a70b2c05818c15a2af4742b5e55cd9c923d1478266783bb184a3e2df039f37",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/requirements.txt",
+      "sha256": "f2a3ab512961e2d9c37d29c651780c36c31d9f2707d6905af3641acca6df2530",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/scripts/reconcile_36h_windows.py",
+      "sha256": "3dd608fb9962c5456be952009dabc1af59ffcec2e2eae084298ae474d91fec07",
+      "reviewBasis": "Reviewed generic recovery/reconciliation or pure budget contract code. Historical account executor and consent transcripts excluded; no stored credentials."
+    },
+    {
+      "path": "backend/scripts/recover_entry_requests.py",
+      "sha256": "830de9a662db9526390cb1690a09ed6fcf47a113f3767e40ad73911300a2813b",
+      "reviewBasis": "Reviewed generic recovery/reconciliation or pure budget contract code. Historical account executor and consent transcripts excluded; no stored credentials."
+    },
+    {
+      "path": "backend/scripts/run_coding_benchmark.py",
+      "sha256": "5927fef30ca522c5886eeeb5ec4bd8f50d2be0250b11c015a4e4258f41ad69fa",
+      "reviewBasis": "Reviewed generic recovery/reconciliation or pure budget contract code. Historical account executor and consent transcripts excluded; no stored credentials."
+    },
+    {
+      "path": "backend/tests/test_api.py",
+      "sha256": "4bf094ecf58071d961de0c839962f8c5a437dbbcfbbbb554b4cc07fdc751abc7",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_coding_benchmark_budget.py",
+      "sha256": "49ee649ec034e55ff45b8faa42bdc3a421b07f9ae0b1faa825424b982fcb1b22",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_comparison_36h.py",
+      "sha256": "d644103e82b9c1b83f47838bf9136381a57304db1eea9af9174eada61302c528",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_constraints_36h.py",
+      "sha256": "d7db6590685e28dee5df0a3fdcf570744dbafcd864f80bedf2e69dada2dbd794",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_contract.py",
+      "sha256": "6fd5c05f657f4362cc4d5c35aff434cd2e05bf03c4a99bed82825ffa4e9553c9",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_evidence_requests.py",
+      "sha256": "0a906266a168052a1c2baa5b3a9320d9f5fcc3f4f6e76f4938a20193896e52e9",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_full.py",
+      "sha256": "d45be2706568948db5921428b81edb9c0ff834b3541112ad20b591a391881f12",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_input_projection.py",
+      "sha256": "c5449a2345d3a7537264dab05bd80ead0ebb43e2e325f935e4d95a3350bd7693",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_intake.py",
+      "sha256": "c7d75c508290384337b6456ac1e7fed1e5fd5362a26c980fbc4d31b2322fc876",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_licenses.py",
+      "sha256": "c329ec0b1cdbff304fecdfd01eafe64338c47736f1a5010ded735a99daec2780",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_measurements_api.py",
+      "sha256": "48cb3afd2ba126fc51cea9c898e16d63f6edbe3a61e8bff9b5cd2a062881b90d",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_plan.py",
+      "sha256": "5558ae700ca32195fe7d0f42e946cd00646d6fc49d9b9dcf0871e256f0569bed",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_price_scope.py",
+      "sha256": "fd003270750d0d38e9395d9b68d455cf78826a85785f3bb71323591de28522c3",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_semantic_12h.py",
+      "sha256": "2465bb6822acb471daa74ab0c76b0156ce6bc42ccac2b5dc1c206c3d0b42c529",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_validation_review.py",
+      "sha256": "c3e0e54791315e7a8eddaa24ecd1729cec51827ffd725e6a4ce94407b6db64e0",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_workflow.py",
+      "sha256": "ce51e9a4fa2a2466f8c590b1890341ef73fc00d19e15514b577626d40744b686",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_entity_aliases.py",
+      "sha256": "e41adf9717c8cc218c821a047b441e47fdcef491e1ce927bfc54104573298e25",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_entry_recovery.py",
+      "sha256": "3c8aa93504799edfa211368bf17955402d772021e70c04f972999967fbf5361b",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_entry_request_migration.py",
+      "sha256": "71d3fce9656588582208af900fa7b5ed1ed61b17bd5a477a0f41b3cd45a8b663",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_entry_requests.py",
+      "sha256": "5fc96a54709d324f6e818a7ec0f46e45759384e7e7a48fcf14968da8a5baed3b",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_evaluation_scope.py",
+      "sha256": "4481e494a6ee28113203a06828244061a89dd844cd8be7515a0b06e13add1967",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_extraction.py",
+      "sha256": "d8fdcc3ff917923431521d79c4f8e8b417fffdc8582ba95fd24ddc72479bb360",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_extraction_coverage.py",
+      "sha256": "0aa586442f55472ac86aaf55c292d3c05f8b8c15c502f26afc10fe4731fbe184",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_golden_questions.py",
+      "sha256": "117e75c7479b8f9e7a5564a29c447582dd809bcf5f9fee7cd0279da23fbfe9a7",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_license_relevance_36h.py",
+      "sha256": "19a8c521f876f2d88b824747ae99782b175dad6afe9de8b104be979c5633c1ea",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_model_family_catalog.py",
+      "sha256": "56714484052f694c482d4024ed2173306863e00ab668eb8512ffbc491c342804",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_model_spec_enrichment.py",
+      "sha256": "77c61316e4b0f88162ca739472318449f65c90958ef9fdd848b158c48812bda7",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_observation_acceptance_18h.py",
+      "sha256": "703249abb2511805f8ddfb9cfb804b1c07848058cedfb0215a4ed2c878be2c7f",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_observation_shutdown_36h.py",
+      "sha256": "311090a9b0d7b9226919077fda2c82d6f9aefd0ac0353904f170e8da4d052154",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_quality.py",
+      "sha256": "23f06fe95bb491d76561f65472e72be24f4b3a19f02f248817d589db10d23c5e",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_rag.py",
+      "sha256": "fa4f06598468214ebf85068d6deb10a236d2fc3cde27d49a086cc4b108a1a313",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_rag_metadata_sync_36h.py",
+      "sha256": "bd0801595b85daedf2b8169693700cf70a1f471abe79be144e73b2ff7f50c3a8",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_reference_dossiers.py",
+      "sha256": "650ef20aa5abff55f2dd443fe6b4503723a6831b1ddcb5b89f7281277eabcffe",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_research_report.py",
+      "sha256": "5a1882bf619bbb38bedb9d519c1d0253dd752a2df91f9c740b508d7a744dee27",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_review_publication_state.py",
+      "sha256": "36186c8cdb75cf1400044ebb53d054f9309b9fbebf3e7f5638d5a2d9b66e2d71",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_review_revision_36h.py",
+      "sha256": "7de0b7b01b70bf0e476a93a6b2b259035b489a279be3264f318ea52c75455155",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_safe_dns_36h.py",
+      "sha256": "ecb91df45e769fc3007671f1d51f60d205035ff3a1659922036b6f0c27bb630a",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_sol_api.py",
+      "sha256": "a34392f797b5b4aa8b16095f74ccb832fb5591bdff55bf6a6b9eff0a25d2e821",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_sol_extraction.py",
+      "sha256": "827a3d697e6be6cc5ef6e5ef657f7422a7a89d9418aae2b6aaef404dc556f43b",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_window_reconciliation_36h.py",
+      "sha256": "c5e72f0f2c58f188539c54d90192378c4d231bcad9d04ae31cd67c4848f1bbcd",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_worker.py",
+      "sha256": "da3042fa60782d25b81cc30b01587cc427b866a698ce123dd910eea8d42522fa",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "docs/CORE_MODEL_COVERAGE.md",
+      "sha256": "1c4e94346bfa58ce1b606340fcd2d3246616585c163adc948c22c7b8dd9efffa",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/DECISION_FIRST_USE_20261014.md",
+      "sha256": "81e1d6be21054a1afb5f11fee8faf4b40a256208560dc514ebe4003cdd03b800",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
+      "sha256": "3bcf2a67577f85d7b030844713a4b77c47e049a72be794e5016c199cb3d0ae7b",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/DECISION_PRODUCT_PROGRESS_20261014.md",
+      "sha256": "999a635fa3b2f3b48c22aa7c8720791eca5553f4222a558b8df588fd5b80c8fc",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
+      "sha256": "13ca494fe6773af21c1931e0c6e966b474d7a30524a88752b2f27f27eb56a750",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "05f0bf08a3391a092a79bd336b3bdc59de8c5bb444867fec689892ff2ca11def",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/RELEASE_SYNC_20261014.md",
+      "sha256": "05a170827095a619838ad941222fa22490a17f76209a25d1264c4c10bdcbee61",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/assets/decision-assistant/first-use-desktop.png",
+      "sha256": "e077954225b235b7a54395cdad71d70048da3ecefa090d01739c56e53e109d07",
+      "reviewBasis": "Manually inspected interface screenshot: model names and public findings only; no account identity, credential or actual trial results."
+    },
+    {
+      "path": "docs/model-spec-enrichment-20261005.json",
+      "sha256": "0a7b1a1566403e47d97562d61aba002bd4d77ffd5a8e484113d1b2c68a564c54",
+      "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "eslint.config.js",
+      "sha256": "7fde0abebf9a28f7b08f9d9fd7119bf4adc4fe22b975db6d3936e1463e98a568",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "package.json",
+      "sha256": "385288dabc0825fef190a3ab957864011aab1a033e7ef74dfedee0531745e756",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "8441dad3030926f0d6b896c6fd1452cb294b0c4163964cc9479f320691957f98",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "6359bd8f75433097f29658553521374ccd6ed4ab214ba2723312aaee39502484",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/check-coding-benchmark.mjs",
+      "sha256": "3706387aca03642e07fa4e3a939cab8e98eb77f2f154c1d41da89f4b3b01cf66",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/check-coding-loader.mjs",
+      "sha256": "d15c17a7c3f4e021207eb14d41c0579bb3828e5e244e1895818650561f304402",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/check-decision-layout.mjs",
+      "sha256": "4bd53717fefa6ca3786ead513fecc4fc3a9dffadef0b85d06e0d19bee9ed74b4",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/check-format.mjs",
+      "sha256": "8c5b87282c078c5b7569654f65cdaad3d26bf59621b6b7fbf73a46c12a9e1561",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/coding-benchmark.mjs",
+      "sha256": "27f295633dd6b7f5b5770ebd1b71d0ba45af35721e5fdbdf0784f5f7dad4fbe0",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/export-decision-guide.mjs",
+      "sha256": "51e9b4f79ba622826686e8c773532853412fcc3cfe3176ff1d6a7a3c472a3788",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/export-demo-snapshot.mjs",
+      "sha256": "a397d62679ea308cf5d204f4165e91c7e66a220e44e18d62bccd396d73a1ad6e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/publish_quality_metrics.py",
+      "sha256": "a697f9cda9f2c9c19243652d235d08fba4916b86994bff7404d45b8054a5ac76",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/report-core-model-coverage.mjs",
+      "sha256": "80f5706a10a132de9908ddad2b54aafd8ab6c0c57407472d3303a2878a1cf9f8",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/start-local-backend.ps1",
+      "sha256": "e8f6d5782d916b7c289760a39122553d8b496b564dba9868ac1bb78cc87e9cb5",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/common.tsx",
+      "sha256": "7fe973933fe405d0f2821fada9194f9898ca09d5c4f061778b7754129f60ac44",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/graph/KnowledgeGraph.tsx",
+      "sha256": "dd7ae88afd2b19603734cb53ef340255284e52440596d3b7fcab3ff68c93b2b5",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/graph/config.ts",
+      "sha256": "cfde3083d15543dff7d5042ffcea8718ecc052ef50d29c00a261848d66fbf1ad",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/EntityDossier.tsx",
+      "sha256": "457d18f481cf026e5297b6b959f3e82b54f2a343bd0912915ab647cf23e3a7bb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/EntryRequestDialog.tsx",
+      "sha256": "0fe93b4730e201e3e6e8eba11ac879e4a58a8796651bcbdbc66ce23294c20729",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/EntryRequestsPanel.tsx",
+      "sha256": "204adac3a22f203546478801764f5fb676ea78f9cbcaebbf91c2c2c344da500a",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/KnowledgeArticle.tsx",
+      "sha256": "4a0e4851c2c86f89c35e7c177e990b5ca113ec76369b3946003c75a1d70ae822",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/ReadingModeSelector.tsx",
+      "sha256": "2fb0f34eeeb87983c84a1f3518f323d68def7742468d9a241f158eb46ce16e72",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/ReviewRevisionForm.tsx",
+      "sha256": "86d5f72d4bdef2ffce332deeb6a0b401f7dac8f6807befb5105f1620be429bb1",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/knowledge/ReviewedFacts.tsx",
+      "sha256": "bbcb8b9dfb27fdab292fd9ff3d9789dfc425ef87a7b6e22affd44c1b215a3f13",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/layout/AppShell.tsx",
+      "sha256": "d096563ffa96aa3d45d9407e809bd88daa58a9e8ed96749974c7b24ff4b8404b",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/layout/BottomNav.tsx",
+      "sha256": "198859b820aff9f1afc43bf250ddf27df57bee2d0899210618f3540ac7d33f52",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/layout/TopNav.tsx",
+      "sha256": "98d958a48d3f0d0e7fc86109a8c295f286f4d00ebd02928b20663ef1af20fa7f",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionBrief.tsx",
+      "sha256": "568a09322b58754db11f0288e0e18a35fda2394906ee5887d94b9568af10037c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionChoice.tsx",
+      "sha256": "44688fc54fa6177e32c7e6c68f75c73348955a7b6b125b851123c78e8849ea7f",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionEvidenceRequests.tsx",
+      "sha256": "bb3854088c1c330d8fb72858a747491ae4b5edc402763497ba58c862bd1cbb45",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionGuide.tsx",
+      "sha256": "fb25d9c6d64aa9ef18b16f7d52b07568a319ae655bd0aa30997c7daa986d613e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionMeasurements.tsx",
+      "sha256": "d51262171b972999f8ded92ae49dc1648b82d14be7a5b8516d5fd4d673be5bc8",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionPlan.tsx",
+      "sha256": "129dd479da3538558dd5ceb4e86c94d51b5106f0c9b89056e6d9a3ec621b189a",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionTrialEntry.tsx",
+      "sha256": "0810397ac0006737f8392968956b58d8ed322fedef574cb0088b30da4f284c32",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionTrialKit.tsx",
+      "sha256": "b2be6803adf4f9eb673881c5c5b30d1020a20dd66548d853e20e9d94edca5c75",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionValidationPanel.tsx",
+      "sha256": "9aed4f920c8031a83984983d45c8832ae8826c3a494733ab88c95bfbb7c8915f",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/ResearchReport.tsx",
+      "sha256": "fcc3aefb1df2b38cac5de9083354581ca73b9ce1512fabe6d7f9561ce75e621e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/SourceExcerpt.tsx",
+      "sha256": "37eeb4e23c37a0e2e80cbf89fe661bf3805f90780d898ca476e12cfce0f2a9bb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/decision-choice.css",
+      "sha256": "1abad22a660661ce80254ece4fde1aee60f2106164e7bea08207410d8181c5c1",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/catalog-changes.d.mts",
+      "sha256": "ac2bf20008507074d289b928957dfc5f8d1856973ae60cb148b201f01fd6190e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/catalog-changes.mjs",
+      "sha256": "90c9577dab2025320468bdeab207583dd370351395b03cb542ff020486553e96",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/catalog-overlay.d.mts",
+      "sha256": "7cef5db285230e85fcd2a748ea7e453b98da9a97a9de46117ac05c469a8db1ee",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/catalog-overlay.mjs",
+      "sha256": "1a99e13a02d95e2ced456fe83101efdc93499466b269af39dd9a9d6b8ee12bd9",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/demo-adapter.ts",
+      "sha256": "820584dc4992639324e286bb7fd1eeb033e7ec32fa9e45b7da9ed6f750b1413b",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/data/model-spec-labels.json",
+      "sha256": "37215c435270bf40c45bab4b4f6a0791e7a5c741815123a0176ab85fae3f1123",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/design-review.css",
+      "sha256": "99f85d9e3876f82b8a76de96983e4c3c8179b96a317100cafd4356c653ccfe2b",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/change-filters.ts",
+      "sha256": "d2ff3721b2e970b03361c8ec4b7bbf17b2d506e72f8957b75de285f065f8502d",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/change-navigation.ts",
+      "sha256": "2ae9e0493d8aacd8364a4727499f0956479963de199f5a7232deec61e65bd28e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/change-presentation.ts",
+      "sha256": "b01148c66a2e6ed867f27a995473412363b6b378e643d95f2a9e3a6902fde646",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/claim-lifecycle.ts",
+      "sha256": "0270dfbb12a19f931e0a04ad3ac0b5e5f0404dfbabb6d2decfb08d3061ae4655",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/claim-reading-mode.ts",
+      "sha256": "f8cddb3f70558167cbe8d21e4f16005331e10bd1dc89232d3910bee66eb64b45",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-choice.ts",
+      "sha256": "2ae8e8c8947754e5439a55babaedcc39603d937322411c585d5558d1f664be9a",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-examples.ts",
+      "sha256": "0b731dbe14c9e16cbd412103c187a25aebe9ca01e496d928e4bd295ac858fd26",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-measurements.ts",
+      "sha256": "629f576333a28064e9e3bc54086d7afa813ad413c9220dc6619a0f675935d785",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-plan-reading.ts",
+      "sha256": "f1c67c2a77481580ce40bf83fcf42734490fe978b2fbeec35be63cdb6ee7d3aa",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-presentation.ts",
+      "sha256": "8fd9fae2a54a44492c5d56b33ed98db7fb348f020240d162ac856ece157a4e13",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-reading.ts",
+      "sha256": "6975c34bc2c07e9cf45ed2edff826bcc0ff3a31296bfdca9b48d32ace3453eae",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-report-html.ts",
+      "sha256": "f508d005e534d471cfd3fc6543c4e463af17fd7c25b04e0eb5f01d8e5a4c9493",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-trial-kit.ts",
+      "sha256": "c0e6fe7a83b5a8a01799ed89a4c1802af610738a5fff29187a8096f554086324",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-validation-review.ts",
+      "sha256": "3142d2f827d9a0d6514d7bd14ba74f14cd5d62942c193a9b6d426b55188fa7a4",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-validation-view.ts",
+      "sha256": "f4faf6c04169ffb6fcfd1c07415377b88922f2da17a710b76f9eadb3a59f69fb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-verdict.ts",
+      "sha256": "02cca0ee3fa8ca4df2b6c839f69919f07c2ea6586d9dacfd1edb1600d4890f24",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-workflow.ts",
+      "sha256": "4ad0a613efde1ff92510590c24467059f6fa1c04bb8096311f4d73446518550b",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/family-evolution.ts",
+      "sha256": "1b6abc1a1dab75579b38250af47bc60895a9e6904ce639b6ef16e222bf4e3644",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/graph-neighborhood.ts",
+      "sha256": "5906aafd41b4fe70585868ccf7ec96b98dc401d4ce1055a7d6c6eb3063c3e95a",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/knowledge-browse.ts",
+      "sha256": "0b92f1d5a0ed489366802ec12657359b5ce00416e63f75ded73e888bb12a9d70",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/labels.ts",
+      "sha256": "bd8e7d4c2182ab69a068e430fca87e1560228e515477f37c91ac315bdcb61e48",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/manual-candidate.ts",
+      "sha256": "532a12018e323d4591cc41ea9ba6d41ce4c6dce3192452409b1ccb50e0c76860",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/model-families.ts",
+      "sha256": "8426da85cee29a32d3484405a9183db37792b4b00c8b0ce50233d683d4613019",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/model-product-lines.ts",
+      "sha256": "109e7412c451a865ae25cfca6707e49b3f0bf0757a302929f548820545296bf0",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/model-spec.ts",
+      "sha256": "5668950c75ec38382a33fae426d68dec5b9f7409a52c2c7a0b9737523bf77c93",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/reading-mode.ts",
+      "sha256": "339ebae46de4d83fa5a6336eac06c6130ed77fbde1dff92367501e35600cc6d5",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/reference-reading.ts",
+      "sha256": "89f51509e4e15c3433b2934437fd2c8a9ec8caa19cceaf0cfe875bc9d3a4d96c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/relationship-catalog.ts",
+      "sha256": "8246c8b5b1288521441b7a71225468b19bb8300acfa20e165e108fe5aa12ad22",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/relationship-insights.ts",
+      "sha256": "86fccf46d4b6aeec4f46b0ff7ef3b259cc7e5414e03161886d8b91aa574c3bbb",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/research-evidence.ts",
+      "sha256": "1d37e5b8b3f722e67d43f2c9ab25ac6778dea9fdccb7e886fb23f8d3728fa7f3",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/research-markdown.ts",
+      "sha256": "22ab92bdc35f38ce2e8a4069110e3f4b8b46c4adc55a9a766b6eea4dae904d50",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/source-links.ts",
+      "sha256": "14cda18dfbc85ce56c344e0d6ef6907cf64a2cdc0296f26d54890b4832138301",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/types.ts",
+      "sha256": "3514d8073aa48b707bc4cc369c1e18e9c5f08a8cec09bed05035abd5030a923f",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/hooks/use-knowledge-return.ts",
+      "sha256": "738d23dfba00b57354556c77f6b1095eea8279850ca46d9a055bbbe14f5d86cf",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/hooks/use-knowledge.ts",
+      "sha256": "c44a0897ca0de7d149b7d7d9abb56b09f9d6171cb410282c87cd562b4decb9e4",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/lib/comparison-picker.ts",
+      "sha256": "beb90470f58c63129e9404bf48f6f82c876bb1ce04d4e0cc46fdc5ad85a4cb23",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/lib/comparison-selection.ts",
+      "sha256": "e3a8f3146ddb8ae9e2dd83f4b01a7eec31ad29b4cef9af4d3a605f15946c42c4",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/lib/model-display.ts",
+      "sha256": "0c260e7215afd2286f1f0d8206d6543052a791780dd0ee2f260da4fed6ec1ec6",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routeTree.gen.ts",
+      "sha256": "ebaa8789c1151aac74116356e039642becced0ec937f234ee63ea1d0b454d376",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/account.tsx",
+      "sha256": "d925bc935025bb984212308bf5f245c755a8d0a0508804c78c6762b65b6e44a7",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/admin.review.tsx",
+      "sha256": "cacd8221e7f0cd97aa92a5fa2af8b6aec929f5a1feb1e0a356ceb7cedab6d8d2",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/ask.tsx",
+      "sha256": "07df1dca2166d3a1cff2792e79c06531d7d6ee9715931ae40cae4a4f6dec3f37",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/case-study.tsx",
+      "sha256": "ff1cd18a6ebad62f4ace94956981e72e30b4e33db41b9ae12e62a37afe62cab5",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/compare.tsx",
+      "sha256": "8e4070eb37d4c4907b9781db1c9fef577cd45892cd7b6757521c96ff822145ea",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/design-review.tsx",
+      "sha256": "4056ca7c8a06a5c3d2bed94459b95dc1dab12b4f8b7f74a786b50cdf360d7613",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/following.tsx",
+      "sha256": "7680c689ba99544816147e9651e60dd07b48f8e0c63b8b14216977882d6432c0",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/graph.tsx",
+      "sha256": "de3e9f9ab6720f59cc575565df4132b02c8f966a29ec761e7139de6dca2351b2",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/index.tsx",
+      "sha256": "89a72c7bbc2237675ab1ef7b2ad7e80c9bfc965fe35494dac1759d8a8a9e9383",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/knowledge.tsx",
+      "sha256": "2fbc665ca469c764a9955f499741a114ac38bfb8245c1f11f3f4f353ab599991",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/knowledge_.$type.$slug.tsx",
+      "sha256": "6945d8bf9b4d1956816e430ae55354298b05dcb3aa317744fe67ebfd81049eab",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/knowledge_.model.$slug.tsx",
+      "sha256": "f00058df71ccee920fd94b19d0cccfefe6bda3bb2e97d6af0023c59308197a26",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/landing.tsx",
+      "sha256": "d4fc976874ee229769ea4d71de1a224689137c45d5badd3d2f1368d339463ace",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/quality.tsx",
+      "sha256": "c4274a83597988c83c676ec0bff5576a312896b41b2456a45ff55c48c9434602",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/research.$id.tsx",
+      "sha256": "d20728a0c52333e4b16d8096f0edfc4d05e106d66df07464512604f6b5d9621c",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/share.$id.tsx",
+      "sha256": "0de3145aec82559dca76404bcf4e0e3684155378f2d4a7c0f1edaefee88c345e",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/routes/updates.tsx",
+      "sha256": "bb42f987fb8abc22806bd1cf1ab1bbaba28ba289e0c8e70359cd47f51768c257",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/admin-api.ts",
+      "sha256": "1fe27a89b38c9aae4493d875221d04de87068c0861b1d3879a58d6cd0e8e1126",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/auth-errors.ts",
+      "sha256": "232e3d885aa4e994d3411a9de77aba012246971e76771f34a5d2eb67c30360ff",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/entry-request-types.ts",
+      "sha256": "ab8fe08462cf008123cab2e2d7d506502b6944a483ca50a8cedfad45f05df292",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/knowledge-repository.ts",
+      "sha256": "7b514e41860979f55268571b3aaeb5d600dffaee2840ecd9a71128e68498bca1",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/quality-api.ts",
+      "sha256": "c0420c35edcfa2d9fd13c6f29111469988e1365d99e37f19e273f70abd4d0d70",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/report-export.ts",
+      "sha256": "88663cb3a9f36992de8c11c6ca90d55a1d5273f147ac3a82a3368eca59778ee9",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/services/user-api.ts",
+      "sha256": "3991265e00e92e7b1ba78e42f8904ce990f083cd6b47cbe139578da2ad377570",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/styles.css",
+      "sha256": "14432998943d1d04a0344a0e35a08e33a61eb72d68748c0f6a8018d69862e1f6",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "tests/catalog-changes.test.mjs",
+      "sha256": "c96cd9b0428f7c90ef9e8d29f460f99a2a1cf22476edf26cdfa5917ef60eb558",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/claim-lifecycle.test.mjs",
+      "sha256": "e337478f46961b917304fec5bb8382348062ef830e687fd9caa6ced3564fb918",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/claim-pagination-contract.test.mjs",
+      "sha256": "fa7e8c351e29c6bad2756f5296294de0e4333856eb83545f1171e27368ac69a9",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/comparison-picker.test.mjs",
+      "sha256": "808197c9d6fe362592a4a72f7967f3033f686a07428b742050817d935a88cc14",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-assistant-contract.test.mjs",
+      "sha256": "0a2d87815bfa8be659088fbb74a4622887203bfffab044027ac4ecc2f8e100b7",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-choice.test.mjs",
+      "sha256": "77db76de44f9e90a2ab8175a69be419d8ec599f65111028f858e535dd1606b24",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-examples.test.mjs",
+      "sha256": "fa4c20556cdd8d4c4b93567a4f1d75e6851a2449f9ed77e1a8f0c0c55e826fb2",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-export-reading.test.mjs",
+      "sha256": "04b46aaa247b544e6c0f4f70ca88fa6fb52e3a5a2ecffbea8f78dcd5370dcb71",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-layout.test.mjs",
+      "sha256": "ee12a9072a7ae8b54a35df405cd5ed5da71ba710fd8663297f168f8f8feff3ba",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-measurements.test.mjs",
+      "sha256": "464cfdbe4d168c3c420e69c46215a5b76bfdabc061f36ad5022f74890c0e8030",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-plan.test.mjs",
+      "sha256": "bf2c795d73c5508ad63fa5518eaecc587b8c0c5af2490c6c6a5fe4b84f747ef2",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-presentation.test.mjs",
+      "sha256": "abc4ea6baa8ea60255b11327f125153f4490c99d9d99e4c6d7af673a98ccd06c",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-trial-kit.test.mjs",
+      "sha256": "dfd5576802dd632d262be36373dd1c9e2f087f6398bee43943da060072ed9064",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-validation-view.test.mjs",
+      "sha256": "d1497612836ad3d35fb20d2b91ee34d7e6e65d64ec5221179f72465ae26e6c67",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-verdict.test.mjs",
+      "sha256": "b40ff94ef481e231b6081cc9353597f7c3a97bc9df4fe7583248356fc5357b9d",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/decision-workflow.test.mjs",
+      "sha256": "6d43f42dbacbae62a68f36b8a841d9cdec91efe1624608eaf38d6bb9f8cbf2c6",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/demo-data.test.mjs",
+      "sha256": "178ec5f293426e0402b960b55c587c90b1999581874cab44cbd9274cdd779910",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/gemini-detail-contract.test.mjs",
+      "sha256": "fdcf6d9503458b9350c2be6863f0f7b915c960b053918fa6437ac4d443da3c95",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/knowledge-browse.test.mjs",
+      "sha256": "488ee42839a00620b78d5f9ce37cecc181bdbc5e4ecb734c5c104b65df78d03e",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/manual-candidate.test.mjs",
+      "sha256": "bb4cdbc9af4ef6128d9d34a9f56fce79a494ca84250eab4ba9023e2e05043c18",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/model-family-catalog.test.mjs",
+      "sha256": "71cf8bfe8989f86d954c64a3dd768498bf4569ecbea3f64093466cd71b669e12",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/quality-dashboard.test.mjs",
+      "sha256": "ea0c57283860d0cdafe75bcd5ca8ab328f74852b14b3e15d58d47ca6ea09411d",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/reading-mode-behavior.test.mjs",
+      "sha256": "2dc51897df0f0bd099851b24ddd809cb7f806aa0d7570943f61d94f1edabc827",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/reading-mode-contract.test.mjs",
+      "sha256": "f9807f470f494d2c2b9499af8a3e5338850622950b989b964ad191a03617e930",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/reference-navigation.test.mjs",
+      "sha256": "4da17f74415ef878502d21787c45a685e5c7e2016a7c1f89adc18885d5809586",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/relationship-catalog.test.mjs",
+      "sha256": "8bbd732fbe8f744882f023a9d3e0a5ed67431e566d84894a778bec2d93711a27",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/relationship-insights.test.mjs",
+      "sha256": "196c48c32e0e2db59f85b8af4285bbef5835bab4ab5558f550d72c7da5e6d96e",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/report-export.test.mjs",
+      "sha256": "9ce47e75d36db975e592ee6926b63e70681ef07e3c4bce78ef192421b5ffd39d",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/research-source-excerpt.test.mjs",
+      "sha256": "9b3fb2ccd6de82ac404838664f036e1a1d30acefc3a5747cd6ed9ea8e77a3586",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/showcase-contract.test.mjs",
+      "sha256": "23cc1126226e532ab36745317cd9b1920f268e2ee17c8a51fa2dd22040ecd2fd",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/timeline-hero-contract.test.mjs",
+      "sha256": "c4cbb4e25f46ee3f428bba1c162aa86fb320502a281a5bfd01e4119f5540d866",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "tests/updates-filters.test.mjs",
+      "sha256": "3ada12e141c9ee2b480c8ce8d2b43cab8ff117ba35580045d7146f76edc1848d",
+      "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "e80541568f760647c3ff387a2490449f232867d18d4cd9bcf4e5b4b7318031e6",
+      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    }
+  ],
+  "publicFileCount": 244,
+  "historicalConsentAndAccountExecutorRemoved": true
+}

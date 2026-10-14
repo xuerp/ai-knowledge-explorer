@@ -164,8 +164,11 @@ class SafeHttpFetcher:
             headers["If-Modified-Since"] = last_modified
         current_url = url
         visited_urls = {url}
+        from .safe_dns import PinnedPublicTransport
+
         with httpx.Client(
-            transport=self.transport,
+            transport=self.transport or PinnedPublicTransport(self.allowed_hosts, self.resolver),
+            trust_env=False,
             timeout=httpx.Timeout(15.0, connect=5.0),
             follow_redirects=False,
         ) as client:

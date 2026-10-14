@@ -1,20 +1,28 @@
 import { READING_MODE_OPTIONS } from "@/domain/reading-mode";
-import type { ReadingMode } from "@/domain/types";
+import type { LocalizedText, ReadingMode } from "@/domain/types";
 import { useApp } from "@/lib/app-state";
 
 interface ReadingModeSelectorProps {
   value: ReadingMode;
   onChange: (mode: ReadingMode) => void;
+  context?: Partial<
+    Record<ReadingMode, { description: LocalizedText; focusAreas: readonly LocalizedText[] }>
+  >;
 }
 
-export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProps) {
-  const { lang } = useApp();
+export function ReadingModeSelector({ value, onChange, context }: ReadingModeSelectorProps) {
+  const { lang, t } = useApp();
   const activeOption =
     READING_MODE_OPTIONS.find((option) => option.id === value) ?? READING_MODE_OPTIONS[0];
+  const activeContext = context?.[value] ?? activeOption;
 
   return (
-    <div className="reading-mode-selector min-w-0">
-      <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden rounded-lg border border-border bg-card p-1 shadow-sm">
+    <div className="reading-mode-selector">
+      <div
+        className="reading-mode-tabs"
+        role="group"
+        aria-label={t("选择阅读视角", "Choose a reading lens")}
+      >
         {READING_MODE_OPTIONS.map((option) => {
           const isActive = value === option.id;
 
@@ -24,29 +32,20 @@ export function ReadingModeSelector({ value, onChange }: ReadingModeSelectorProp
               type="button"
               onClick={() => onChange(option.id)}
               aria-pressed={isActive}
-              className={`reading-mode-button group relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ${
-                isActive
-                  ? "bg-timeline-accent text-white shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-              title={option.description[lang]}
+              className={`reading-mode-button${isActive ? " is-active" : ""}`}
+              title={(context?.[option.id] ?? option).description[lang]}
             >
-              <span>{option.shortLabel[lang]}</span>
+              {option.shortLabel[lang]}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-2 animate-in fade-in duration-300" aria-live="polite">
-        <p className="text-xs text-muted-foreground">{activeOption.description[lang]}</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {activeOption.focusAreas.map((area) => (
-            <span
-              key={area.en}
-              className="rounded-full border border-border bg-background px-2 py-1 text-[11px] text-foreground"
-            >
-              {area[lang]}
-            </span>
+      <div className="reading-mode-context" aria-live="polite">
+        <p>{activeContext.description[lang]}</p>
+        <div className="reading-mode-focus" aria-label={t("当前关注重点", "Current focus areas")}>
+          {activeContext.focusAreas.map((area) => (
+            <span key={area.en}>{area[lang]}</span>
           ))}
         </div>
       </div>

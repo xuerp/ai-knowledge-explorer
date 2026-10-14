@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
+import { EntryRequestsPanel } from "@/components/knowledge/EntryRequestsPanel";
+import { ReviewRevisionForm } from "@/components/knowledge/ReviewRevisionForm";
 import {
   Activity,
   Braces,
@@ -208,6 +210,7 @@ function AdminReviewPage() {
   const [reasonCategories, setReasonCategories] = useState<Record<string, string>>({});
   const [reviewingIds, setReviewingIds] = useState<Set<string>>(() => new Set());
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
+  const [publicationReasons, setPublicationReasons] = useState<Record<string, string>>({});
   const [entityRepairReport, setEntityRepairReport] = useState<ClaimEntityRepairReport | null>(
     null,
   );
@@ -253,6 +256,19 @@ function AdminReviewPage() {
         : data,
     );
   }, []);
+
+  const addRevision = (created: ReviewQueueItem) => {
+    setWorkspace((current) =>
+      current
+        ? {
+            ...current,
+            queue: mergeReviewQueue(current.queue, [created]),
+          }
+        : current,
+    );
+    setReviewFilter("all");
+    toast.success("修订已进入待审队列");
+  };
 
   useEffect(() => {
     const stored = readAuthToken();
@@ -317,6 +333,40 @@ function AdminReviewPage() {
     const timer = window.setInterval(refreshOperations, 60_000);
     return () => window.clearInterval(timer);
   }, [token, user?.role]);
+
+  const changePublicationState = async (item: ReviewQueueItem) => {
+    const reason = (publicationReasons[item.id] ?? "").trim();
+    if (reason.length < 3) {
+      setReviewErrors((current) => ({ ...current, [item.id]: "请填写至少 3 个字的处理原因。" }));
+      return;
+    }
+    const action = item.lifecycleStatus === "retracted" ? "restore" : "retract";
+    setBusy(true);
+    setReviewErrors((current) => ({ ...current, [item.id]: "" }));
+    try {
+      const updated = await adminApi.changePublicationState(token, item, action, reason);
+      setWorkspace((current) =>
+        current
+          ? {
+              ...current,
+              queue: current.queue.map((row) => (row.id === updated.id ? updated : row)),
+            }
+          : current,
+      );
+      setPublicationReasons((current) => ({ ...current, [item.id]: "" }));
+      const message =
+        action === "retract" ? "事实已撤回，公开页面与检索已同步移除。" : "事实已恢复公开。";
+      setOperationMessage(message);
+      toast.success(message);
+      await refresh(token);
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "处理失败，请刷新后重试。";
+      setReviewErrors((current) => ({ ...current, [item.id]: message }));
+      toast.error("处理失败", { description: message });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const login = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -601,7 +651,7 @@ function AdminReviewPage() {
       reasons[item.id]?.trim() ||
       (action === "merged-evidence"
         ? "确定性语义指纹一致，合并新的证据来源。"
-        : "同一实体与谓词出现新值，人工确认以新事实替代旧事实。");
+        : "同一实体与谓词的数值、条件或有效期已修订，人工确认以新事实替代旧事实。");
     setReviewingIds((current) => new Set(current).add(item.id));
     setReviewErrors((current) => ({ ...current, [item.id]: "" }));
     try {
@@ -1515,7 +1565,7 @@ function AdminReviewPage() {
               </p>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {user.role === "admin" && (
               <>
                 <Button variant="outline" onClick={() => run("ingestion")} disabled={busy}>
@@ -2390,6 +2440,7 @@ function AdminReviewPage() {
                     {reviewErrors[item.id]}
                   </p>
                 )}
+                <ReviewRevisionForm item={item} token={token} onCreated={addRevision} />
               </article>
             );
           })}
@@ -2450,9 +2501,11 @@ function AdminReviewPage() {
             <div className="mt-4 divide-y divide-border">
               {reviewHistory.map((item) => (
                 <article key={item.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="font-mono text-xs text-muted-foreground">{item.id}</div>
+                  <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+                    <div className="w-full min-w-0 flex-1 sm:w-auto">
+                      <div className="break-all font-mono text-xs text-muted-foreground">
+                        {item.id}
+                      </div>
                       <p className="mt-2 text-sm font-medium">{item.claim.text.zh}</p>
                       {(item.reasonNote || item.reviewReason) && (
                         <p className="mt-1 text-xs text-muted-foreground">
@@ -2465,8 +2518,18 @@ function AdminReviewPage() {
                         </p>
                       )}
                     </div>
-                    <span className="rounded-full border border-border px-2.5 py-1 text-xs">
-                      {item.status === "approved" ? "已批准" : "已拒绝"}
+                    <span className="whitespace-nowrap rounded-full border border-border px-2.5 py-1 text-xs">
+                      {item.lifecycleStatus === "retracted"
+                        ? "已撤回"
+                        : item.status === "approved"
+                          ? item.lifecycleStatus === "superseded"
+                            ? "已替代"
+                            : item.lifecycleStatus === "historical"
+                              ? item.publicationAction === "merged-evidence"
+                                ? "已并入证据"
+                                : "历史记录"
+                              : "已批准 · 当前公开"
+                          : "已拒绝"}
                       {item.reviewMethod === "automation"
                         ? " · 自动批准"
                         : item.reviewMethod === "human"
@@ -2474,6 +2537,59 @@ function AdminReviewPage() {
                           : " · 历史记录"}
                     </span>
                   </div>
+                  <ReviewRevisionForm item={item} token={token} onCreated={addRevision} />
+                  {item.status === "approved" &&
+                    item.publicationAction !== "merged-evidence" &&
+                    (item.lifecycleStatus === "current" ||
+                      item.lifecycleStatus === "retracted") && (
+                      <details className="mt-3">
+                        <summary className="cursor-pointer text-sm text-muted-foreground">
+                          {item.lifecycleStatus === "retracted" ? "恢复公开" : "撤回公开事实"}
+                        </summary>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {item.lifecycleStatus === "retracted"
+                            ? "复核原文与事实后可以恢复公开；此次处理也会保留在审计中。"
+                            : "撤回后从公开页面、图谱与检索移除，来源和审核历史保留。"}
+                        </p>
+                        <form
+                          className="mt-2 flex flex-wrap items-start gap-2"
+                          onSubmit={(event) => {
+                            event.preventDefault();
+                            void changePublicationState(item);
+                          }}
+                        >
+                          <Input
+                            className="min-w-0 flex-1 basis-64"
+                            aria-label={`${item.lifecycleStatus === "retracted" ? "恢复" : "撤回"}原因 ${item.id}`}
+                            placeholder="处理原因（必填）"
+                            required
+                            minLength={3}
+                            maxLength={500}
+                            value={publicationReasons[item.id] ?? ""}
+                            onChange={(event) =>
+                              setPublicationReasons((current) => ({
+                                ...current,
+                                [item.id]: event.target.value,
+                              }))
+                            }
+                          />
+                          <Button
+                            type="submit"
+                            size="sm"
+                            variant="outline"
+                            className="whitespace-nowrap"
+                            disabled={busy}
+                          >
+                            {item.lifecycleStatus === "retracted" ? "恢复公开" : "撤回公开"}
+                          </Button>
+                        </form>
+                        {reviewErrors[item.id] && (
+                          <p role="alert" className="mt-2 text-xs text-destructive">
+                            {reviewErrors[item.id]}
+                          </p>
+                        )}
+                      </details>
+                    )}
                 </article>
               ))}
             </div>
@@ -2481,7 +2597,7 @@ function AdminReviewPage() {
         )}
 
         <section className="grid items-start gap-5 lg:grid-cols-2">
-          <section className="paper-card p-5">
+          <section className="min-w-0 paper-card p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="flex items-center gap-2 font-serif text-xl font-semibold">
@@ -2925,17 +3041,18 @@ function AdminReviewPage() {
           />
         </section>
 
+        <EntryRequestsPanel token={token} />
         {user.role === "admin" && (
           <section id="catalog-editor" className="scroll-mt-6 paper-card p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2 className="flex items-center gap-2 font-serif text-2xl font-semibold">
                   <Braces className="h-5 w-5 text-signal" />
-                  扩展模型目录
+                  知识目录编辑器
                 </h2>
                 <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                  用经过核验的数据新增或更新模型系列、具体版本、时间线和关系。具体版本填写 familyId
-                  后，知识库、详情、图谱与版本对比会自动读取。
+                  新增或更新模型、应用、开发材料、评测和组织，并补充来源、时间线与关系。只有模型具体版本填写
+                  familyId 后，知识库、详情、图谱与版本对比会自动读取。
                 </p>
               </div>
               <div className="flex rounded-md border border-border p-1">

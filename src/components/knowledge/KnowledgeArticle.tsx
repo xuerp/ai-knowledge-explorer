@@ -1,8 +1,9 @@
 import { BookOpen, CheckCircle2, Lightbulb, ShieldAlert } from "lucide-react";
 import { SectionHeading } from "@/components/common";
-import type { EntityDetail, LocalizedText } from "@/domain/types";
+import type { EntityDetail, Evidence, LocalizedText } from "@/domain/types";
 import { pick, useApp } from "@/lib/app-state";
 import { getKnowledgeBlockOrder } from "@/domain/reading-mode";
+import { uniqueSourceLinks } from "@/domain/source-links";
 
 type Knowledge = NonNullable<EntityDetail["knowledge"]>;
 type KnowledgeArticleProps = {
@@ -11,6 +12,7 @@ type KnowledgeArticleProps = {
   sectionEyebrow?: string;
   articleLabel?: LocalizedText;
   articleTitle?: LocalizedText;
+  sources?: Evidence[];
 };
 
 export function KnowledgeArticle({
@@ -19,6 +21,7 @@ export function KnowledgeArticle({
   sectionEyebrow = "01",
   articleLabel,
   articleTitle,
+  sources,
 }: KnowledgeArticleProps) {
   const { t, lang, mode } = useApp();
 
@@ -38,6 +41,8 @@ export function KnowledgeArticle({
         knowledge={knowledge}
         entityName={entityName}
         sectionEyebrow={sectionEyebrow}
+        sources={sources}
+        articleTitle={articleTitle}
       />
     );
   }
@@ -91,14 +96,18 @@ export function KnowledgeArticle({
                     <p className="mt-1.5 text-sm leading-6 text-ink-soft">
                       {pick(point.description, lang)}
                     </p>
-                    {point.sourceIds && point.sourceIds.length > 0 && (
-                      <span className="mt-2 inline-block text-[11px] text-verified">
-                        {t(
-                          `${point.sourceIds.length} 个直接来源`,
-                          `${point.sourceIds.length} direct source${point.sourceIds.length > 1 ? "s" : ""}`,
-                        )}
-                      </span>
-                    )}
+                    {point.sourceIds &&
+                      point.sourceIds.length > 0 &&
+                      (sources ? (
+                        <PointSources ids={point.sourceIds} sources={sources} />
+                      ) : (
+                        <span className="mt-2 inline-block text-[11px] text-verified">
+                          {t(
+                            `${point.sourceIds.length} 条来源引用`,
+                            `${point.sourceIds.length} source reference${point.sourceIds.length > 1 ? "s" : ""}`,
+                          )}
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -136,18 +145,15 @@ export function KnowledgeArticle({
       <section
         data-reading-block="limitations"
         style={{ order: getKnowledgeBlockOrder(mode, "limitations") }}
-        className="rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]"
+        className="knowledge-boundary"
       >
-        <div className="flex items-center gap-2 font-semibold">
-          <ShieldAlert className="h-4 w-4" />
-          {t("选择与判断边界", "Limits and interpretation")}
+        <div className="knowledge-boundary__heading">
+          <ShieldAlert aria-hidden="true" />
+          <h3>{t("使用前留意", "Before you use it")}</h3>
         </div>
-        <ul className="mt-3 grid gap-2 text-sm leading-6 md:grid-cols-2">
+        <ul>
           {knowledge.limitations.map((limitation, index) => (
-            <li key={index} className="flex gap-2">
-              <span aria-hidden="true">•</span>
-              <span>{pick(limitation, lang)}</span>
-            </li>
+            <li key={index}>{pick(limitation, lang)}</li>
           ))}
         </ul>
       </section>
@@ -167,7 +173,7 @@ function ProductKnowledgeArticle({
       <section data-reading-block="use-cases">
         <SectionHeading
           eyebrow={sectionEyebrow}
-          title={t("产品决策视图", "Product decision view")}
+          title={t("产品决策", "Product decision")}
           description={t(
             "围绕用户价值、适用任务和采用风险判断是否值得进入方案。",
             "Evaluate user value, suitable jobs, and adoption risks before choosing it.",
@@ -195,20 +201,14 @@ function ProductKnowledgeArticle({
         )}
       </section>
 
-      <section
-        data-reading-block="limitations"
-        className="rounded-xl border border-[#f4c767] bg-[#fffbeb] p-5 text-[#78350f] dark:border-[#8a621a] dark:bg-[#2d210b] dark:text-[#fde7ae]"
-      >
-        <div className="flex items-center gap-2 font-semibold">
-          <ShieldAlert className="h-4 w-4" />
-          {t("采用前必须确认", "Confirm before adoption")}
+      <section data-reading-block="limitations" className="knowledge-boundary">
+        <div className="knowledge-boundary__heading">
+          <ShieldAlert aria-hidden="true" />
+          <h3>{t("采用前核对", "Check before adoption")}</h3>
         </div>
-        <ul className="mt-3 grid gap-2 text-sm leading-6 md:grid-cols-2">
+        <ul>
           {knowledge.limitations.map((limitation, index) => (
-            <li key={index} className="flex gap-2">
-              <span aria-hidden="true">•</span>
-              <span>{pick(limitation, lang)}</span>
-            </li>
+            <li key={index}>{pick(limitation, lang)}</li>
           ))}
         </ul>
       </section>
@@ -238,6 +238,8 @@ function TechnicalKnowledgeArticle({
   knowledge,
   entityName,
   sectionEyebrow = "01",
+  sources,
+  articleTitle,
 }: KnowledgeArticleProps) {
   const { t, lang } = useApp();
   const sourcedPoints = knowledge.keyPoints.filter((point) => point.sourceIds?.length);
@@ -251,13 +253,14 @@ function TechnicalKnowledgeArticle({
       <section data-reading-block="guide">
         <SectionHeading
           eyebrow={sectionEyebrow}
-          title={t(
-            `${entityName.zh}：技术定义与证据口径`,
-            `${entityName.en}: technical definition`,
-          )}
+          title={
+            articleTitle
+              ? pick(articleTitle, lang)
+              : t(`${entityName.zh}：技术定义与证据口径`, `${entityName.en}: technical definition`)
+          }
           description={t(
-            "只展示已有结构化资料和可追溯表述；缺少技术专用文本时沿用已审核原文。",
-            "Uses structured, traceable material only; verified wording is retained when no technical variant exists.",
+            "沿官方资料了解工作方式、接入条件和使用边界。",
+            "Follow official sources to understand workflows, access conditions and limits.",
           )}
         />
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.7fr)]">
@@ -270,7 +273,7 @@ function TechnicalKnowledgeArticle({
           </article>
           <aside className="paper-card p-6">
             <div className="text-xs font-medium uppercase tracking-widest text-signal">
-              {t("有直接来源的技术要点", "Source-backed technical points")}
+              {t("有直接来源的要点", "Source-backed points")}
             </div>
             <div className="mt-4 space-y-4">
               {(sourcedPoints.length > 0 ? sourcedPoints : knowledge.keyPoints).map(
@@ -282,12 +285,16 @@ function TechnicalKnowledgeArticle({
                     <p className="mt-1 text-sm leading-6 text-ink-soft">
                       {pick(point.description, lang)}
                     </p>
-                    <span className="mt-2 inline-block font-mono text-[11px] text-verified">
-                      {t(
-                        `${point.sourceIds?.length ?? 0} 个直接来源`,
-                        `${point.sourceIds?.length ?? 0} direct sources`,
-                      )}
-                    </span>
+                    {sources ? (
+                      <PointSources ids={point.sourceIds ?? []} sources={sources} />
+                    ) : (
+                      <span className="mt-2 inline-block font-mono text-[11px] text-verified">
+                        {t(
+                          `${point.sourceIds?.length ?? 0} 条来源引用`,
+                          `${point.sourceIds?.length ?? 0} source references`,
+                        )}
+                      </span>
+                    )}
                   </div>
                 ),
               )}
@@ -296,33 +303,31 @@ function TechnicalKnowledgeArticle({
         </div>
       </section>
 
-      <section
-        data-reading-block="limitations"
-        className="rounded-xl border border-border bg-muted/20 p-5"
-      >
-        <div className="flex items-center gap-2 font-semibold text-foreground">
-          <ShieldAlert className="h-4 w-4 text-signal" />
-          {t("技术边界与证据限制", "Technical and evidence boundaries")}
+      <section data-reading-block="limitations" className="knowledge-boundary">
+        <div className="knowledge-boundary__heading">
+          <ShieldAlert aria-hidden="true" />
+          <h3>{t("技术与证据边界", "Technical and evidence limits")}</h3>
         </div>
-        <ul className="mt-3 grid gap-2 text-sm leading-6 text-ink-soft md:grid-cols-2">
+        <ul>
           {knowledge.limitations.map((limitation, index) => (
-            <li key={index} className="flex gap-2">
-              <span aria-hidden="true">•</span>
-              <span>{pick(limitation, lang)}</span>
-            </li>
+            <li key={index}>{pick(limitation, lang)}</li>
           ))}
         </ul>
       </section>
 
       {knowledge.useCases.length > 0 && (
-        <details data-reading-block="use-cases" className="paper-card group p-5">
+        <details
+          data-reading-block="use-cases"
+          open={sources ? true : undefined}
+          className="paper-card group p-5"
+        >
           <summary className="cursor-pointer list-none text-sm font-semibold text-foreground marker:hidden">
             <span className="flex items-center justify-between gap-4">
-              <span>{t("非技术信息：使用场景", "Non-technical context: use cases")}</span>
+              <span>{t("适合用来做什么", "What it is useful for")}</span>
               <span className="text-xs font-normal text-muted-foreground">
                 {t(
-                  `${knowledge.useCases.length} 项，默认收起`,
-                  `${knowledge.useCases.length} items, collapsed`,
+                  `${knowledge.useCases.length} 项使用场景`,
+                  `${knowledge.useCases.length} use cases`,
                 )}
               </span>
             </span>
@@ -332,6 +337,26 @@ function TechnicalKnowledgeArticle({
           </div>
         </details>
       )}
+    </div>
+  );
+}
+
+function PointSources({ ids, sources }: { ids: string[]; sources: Evidence[] }) {
+  const { lang, t } = useApp();
+  return (
+    <div className="mt-2 flex flex-wrap gap-2 text-xs text-signal">
+      {uniqueSourceLinks(sources.filter((source) => ids.includes(source.id))).map((source) => (
+        <a
+          key={source.id}
+          href={source.url}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2"
+          title={pick(source.title, lang)}
+        >
+          {source.publisher} · {t("来源", "Source")} ↗
+        </a>
+      ))}
     </div>
   );
 }

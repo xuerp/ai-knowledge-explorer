@@ -1,0 +1,1007 @@
+.ar-review-page {
+  min-height: calc(100vh - 60px);
+  padding: 28px clamp(16px, 2.5vw, 36px) 64px;
+  color: var(--foreground);
+  background: var(--background);
+}
+.ar-review-page button,
+.ar-review-page input,
+.ar-review-page textarea,
+.ar-review-page select {
+  font: inherit;
+}
+.ar-review-page button:focus-visible,
+.ar-review-page input:focus-visible,
+.ar-review-page textarea:focus-visible,
+.ar-review-page select:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+.ar-review-intro {
+  display: flex;
+  max-width: 1480px;
+  margin: 0 auto 22px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+}
+.ar-review-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.ar-review-title h1 {
+  margin: 0;
+  font:
+    650 clamp(1.65rem, 3vw, 2.7rem)/1 Bahnschrift,
+    "Arial Narrow",
+    sans-serif;
+  letter-spacing: -0.04em;
+}
+.ar-review-title span {
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  font:
+    600 0.6875rem/1.2 "Cascadia Mono",
+    monospace;
+}
+.ar-review-intro p {
+  margin: 10px 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+.ar-scenario-switch {
+  display: flex;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+}
+.ar-scenario-switch button {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  color: var(--muted-foreground);
+  background: transparent;
+  cursor: pointer;
+}
+.ar-scenario-switch button:last-child {
+  border-right: 0;
+}
+.ar-scenario-switch button[aria-pressed="true"] {
+  color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 8%, var(--card));
+  box-shadow: inset 0 -2px var(--signal);
+}
+.ar-scenario-switch svg {
+  width: 16px;
+}
+
+.ar-review-layout {
+  display: grid;
+  max-width: 1480px;
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  box-shadow: 0 18px 56px rgb(20 31 55 / 0.055);
+}
+.ar-prototype {
+  min-width: 0;
+  background: var(--card);
+}
+.ar-prototype-bar {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-strong);
+}
+.ar-prototype-bar > div,
+.ar-prototype-bar > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ar-prototype-bar svg {
+  width: 17px;
+  color: var(--signal);
+}
+.ar-prototype-bar code,
+.ar-prototype-bar > span {
+  color: var(--muted-foreground);
+  font:
+    0.6875rem/1.2 "Cascadia Mono",
+    monospace;
+}
+.ar-prototype-bar > span i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--verified);
+}
+.ar-workbench {
+  display: grid;
+  min-height: 720px;
+  grid-template-columns: 320px minmax(420px, 1fr) 260px;
+}
+
+.ar-constraints {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 17px;
+  padding: 20px 18px;
+  border-right: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--background) 55%, var(--card));
+}
+.ar-panel-title,
+.ar-panel-title > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ar-panel-title h2 {
+  margin: 0;
+  font:
+    650 1.03rem/1.2 Bahnschrift,
+    sans-serif;
+}
+.ar-panel-title svg {
+  width: 15px;
+  color: var(--signal);
+}
+.ar-panel-title button {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  color: var(--muted-foreground);
+  background: transparent;
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+.ar-panel-title button svg {
+  width: 13px;
+  color: currentColor;
+}
+.ar-field {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  gap: 7px;
+  border: 0;
+}
+.ar-field > span,
+.ar-field legend {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+.ar-field input,
+.ar-field textarea,
+.ar-field select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 9px 10px;
+  color: var(--foreground);
+  background: var(--card);
+  line-height: 1.45;
+}
+.ar-field textarea {
+  resize: vertical;
+}
+.ar-task-field textarea {
+  min-height: 90px;
+}
+.ar-field-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.ar-range-fields {
+  animation: ar-reveal 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ar-segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+.ar-segmented button {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  background: var(--card);
+  cursor: pointer;
+}
+.ar-segmented button[aria-pressed="true"] {
+  border-color: var(--signal);
+  color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 7%, var(--card));
+}
+.ar-segmented svg {
+  width: 13px;
+}
+.ar-constraint-summary {
+  display: grid;
+  gap: 4px;
+  margin-top: auto;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.ar-constraint-summary span {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-constraint-summary strong {
+  font-size: 0.75rem;
+}
+.ar-run-button {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  padding: 0 14px;
+  color: var(--signal-foreground);
+  background: var(--signal);
+  cursor: pointer;
+}
+.ar-run-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+.ar-run-button svg {
+  width: 16px;
+}
+
+.ar-result-panel {
+  min-width: 0;
+  border-right: 1px solid var(--border-strong);
+}
+.ar-result-header {
+  padding: 24px 24px 20px;
+}
+.ar-result-header > span {
+  color: var(--signal);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+.ar-result-header h2 {
+  max-width: 25ch;
+  margin: 8px 0 13px;
+  font:
+    650 clamp(1.3rem, 2vw, 1.7rem)/1.25 Bahnschrift,
+    sans-serif;
+  letter-spacing: -0.035em;
+}
+.ar-result-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-result-header code {
+  font-family: "Cascadia Mono", monospace;
+}
+.ar-result-header > div span {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.ar-progress {
+  display: grid;
+  margin: 0;
+  padding: 0 24px 18px;
+  grid-template-columns: repeat(4, 1fr);
+  list-style: none;
+}
+.ar-progress li {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-progress li::after {
+  position: absolute;
+  top: 9px;
+  right: 8px;
+  left: 27px;
+  height: 1px;
+  background: var(--border);
+  content: "";
+}
+.ar-progress li:last-child::after {
+  display: none;
+}
+.ar-progress svg {
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+}
+.ar-progress .complete {
+  color: var(--verified);
+}
+.ar-progress .complete::after {
+  background: color-mix(in srgb, var(--verified) 55%, var(--border));
+}
+.ar-progress .active {
+  color: var(--signal);
+}
+.ar-progress .active svg {
+  animation: ar-spin 900ms linear infinite;
+}
+.ar-progress .blocked {
+  color: var(--warning);
+}
+
+.ar-running {
+  display: flex;
+  min-height: 520px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+}
+.ar-radar-scan {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+.ar-radar-scan::before,
+.ar-radar-scan::after {
+  position: absolute;
+  content: "";
+  background: var(--border);
+}
+.ar-radar-scan::before {
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+.ar-radar-scan::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+.ar-radar-scan span {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.ar-radar-scan i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--signal);
+}
+.ar-radar-scan i:nth-of-type(1) {
+  top: 25px;
+  right: 24px;
+}
+.ar-radar-scan i:nth-of-type(2) {
+  right: 34px;
+  bottom: 20px;
+}
+.ar-radar-scan i:nth-of-type(3) {
+  top: 53px;
+  left: 20px;
+  opacity: 0.45;
+}
+.ar-running h3 {
+  margin: 0;
+  font:
+    650 1.03rem/1.3 Bahnschrift,
+    sans-serif;
+}
+.ar-running > p {
+  margin: 8px 0 24px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.ar-running-log {
+  display: grid;
+  width: min(100%, 360px);
+  grid-template-columns: 1fr auto;
+  gap: 8px 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  font-size: 0.6875rem;
+}
+.ar-running-log span {
+  color: var(--muted-foreground);
+}
+.ar-running-log strong {
+  font-weight: 600;
+}
+
+.ar-result-content {
+  animation: ar-reveal 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ar-conclusion {
+  margin: 0 24px 22px;
+  padding: 20px;
+  border: 1px solid var(--border-strong);
+}
+.ar-conclusion.ready {
+  background: color-mix(in srgb, var(--signal) 5%, var(--card));
+}
+.ar-conclusion.conflict {
+  background: color-mix(in srgb, var(--warning) 6%, var(--card));
+}
+.ar-conclusion-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--verified);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+.ar-conclusion.conflict .ar-conclusion-status {
+  color: var(--warning);
+}
+.ar-conclusion-status svg {
+  width: 16px;
+}
+.ar-conclusion h3 {
+  max-width: 29ch;
+  margin: 12px 0 9px;
+  font:
+    650 1.2rem/1.42 Bahnschrift,
+    sans-serif;
+  letter-spacing: -0.025em;
+}
+.ar-conclusion > p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+.ar-candidate-strip {
+  display: grid;
+  margin-top: 20px;
+  padding-top: 14px;
+  grid-template-columns: 1fr auto 1fr 1fr;
+  align-items: stretch;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+.ar-candidate-strip div {
+  display: grid;
+  gap: 4px;
+}
+.ar-candidate-strip span {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-candidate-strip strong {
+  font-size: 0.75rem;
+}
+.ar-candidate-strip i {
+  width: 1px;
+  background: var(--border);
+}
+.ar-conflict-pair {
+  display: grid;
+  margin-top: 18px;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.ar-conflict-pair div {
+  display: grid;
+  min-height: 92px;
+  align-content: center;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.ar-conflict-pair span,
+.ar-conflict-pair small {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-conflict-pair strong {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.ar-conflict-pair b {
+  color: var(--warning);
+  font-weight: 600;
+}
+.ar-next-check {
+  display: flex;
+  align-items: start;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 11px;
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--border));
+  background: var(--card);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.ar-next-check svg {
+  width: 15px;
+  flex: 0 0 auto;
+  color: var(--warning);
+}
+.ar-claim-section {
+  padding: 0 24px 26px;
+}
+.ar-section-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+.ar-section-line h3 {
+  margin: 0;
+  font:
+    650 1.03rem/1.2 Bahnschrift,
+    sans-serif;
+}
+.ar-section-line span {
+  color: var(--muted-foreground);
+  font:
+    0.6875rem "Cascadia Mono",
+    monospace;
+}
+.ar-claim-list {
+  border-top: 1px solid var(--border-strong);
+}
+.ar-claim-list button {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 82px;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.ar-claim-list button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--signal) 6%, transparent);
+}
+.ar-claim-list button[aria-pressed="true"]::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--signal);
+  content: "";
+}
+.ar-state-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+.ar-state-dot.verified {
+  color: var(--verified);
+  background: var(--verified);
+}
+.ar-state-dot.inferred {
+  color: var(--inferred);
+  background: transparent;
+}
+.ar-state-dot.conflict {
+  color: var(--destructive);
+  background: var(--destructive);
+}
+.ar-state-dot.missing {
+  color: var(--warning);
+  background: transparent;
+}
+.ar-claim-list button > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+}
+.ar-claim-list code {
+  color: var(--signal);
+  font:
+    0.6875rem "Cascadia Mono",
+    monospace;
+}
+.ar-claim-list strong {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.ar-claim-list small {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-claim-list button > svg {
+  width: 15px;
+  color: var(--muted-foreground);
+}
+
+.ar-evidence-inspector {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 20px 17px;
+  background: color-mix(in srgb, var(--background) 38%, var(--card));
+}
+.ar-inspector-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+}
+.ar-inspector-title code {
+  color: var(--signal);
+  font-family: "Cascadia Mono", monospace;
+}
+.ar-inspector-state {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.6875rem;
+}
+.ar-inspector-state.verified {
+  color: var(--verified);
+}
+.ar-inspector-state.inferred {
+  color: var(--inferred);
+}
+.ar-inspector-state.conflict {
+  color: var(--destructive);
+}
+.ar-inspector-state.missing {
+  color: var(--warning);
+}
+.ar-evidence-inspector h2 {
+  margin: 13px 0 10px;
+  font:
+    650 1.03rem/1.45 Bahnschrift,
+    sans-serif;
+}
+.ar-evidence-inspector > p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+.ar-evidence-inspector dl {
+  margin: 23px 0;
+  border-top: 1px solid var(--border);
+}
+.ar-evidence-inspector dl div {
+  display: grid;
+  padding: 9px 0;
+  grid-template-columns: 48px 1fr;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.6875rem;
+}
+.ar-evidence-inspector dt {
+  color: var(--muted-foreground);
+}
+.ar-evidence-inspector dd {
+  margin: 0;
+  line-height: 1.45;
+}
+.ar-evidence-inspector section {
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+}
+.ar-evidence-inspector section h3 {
+  margin: 0 0 7px;
+  font-size: 0.75rem;
+}
+.ar-evidence-inspector section p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.55;
+}
+.ar-evidence-inspector footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.6875rem;
+}
+.ar-evidence-inspector footer span {
+  color: var(--muted-foreground);
+}
+.ar-evidence-inspector footer strong {
+  color: var(--signal);
+}
+
+.ar-review-notes {
+  padding: 22px 19px;
+  border-left: 1px solid var(--border-strong);
+  background: var(--card);
+}
+.ar-review-notes code {
+  color: var(--signal);
+  font:
+    0.6875rem "Cascadia Mono",
+    monospace;
+}
+.ar-review-notes h2 {
+  margin: 10px 0 9px;
+  font:
+    650 1.2rem/1.25 Bahnschrift,
+    sans-serif;
+  letter-spacing: -0.025em;
+}
+.ar-review-notes > div > p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+.ar-review-notes section {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.ar-review-notes h3 {
+  margin: 0 0 9px;
+  font-size: 0.75rem;
+}
+.ar-review-notes ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 7px;
+  list-style: none;
+}
+.ar-review-notes li {
+  position: relative;
+  padding-left: 13px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+.ar-review-notes li::before {
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 5px;
+  height: 1px;
+  background: var(--signal);
+  content: "";
+}
+.ar-review-question {
+  display: grid;
+  gap: 6px;
+  margin-top: 24px;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--muted);
+}
+.ar-review-question strong {
+  font-size: 0.75rem;
+}
+.ar-review-question span {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+}
+
+@keyframes ar-reveal {
+  from {
+    opacity: 0.65;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1250px) {
+  .ar-review-layout {
+    grid-template-columns: 1fr;
+  }
+  .ar-review-notes {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(3, 1fr);
+    gap: 20px;
+    border-top: 1px solid var(--border-strong);
+    border-left: 0;
+  }
+  .ar-review-notes section {
+    margin: 0;
+    padding: 0 0 0 16px;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+  }
+  .ar-review-question {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+  .ar-workbench {
+    grid-template-columns: 300px minmax(400px, 1fr) 250px;
+  }
+}
+@media (max-width: 980px) {
+  .ar-workbench {
+    grid-template-columns: 290px 1fr;
+  }
+  .ar-evidence-inspector {
+    grid-column: 1 / -1;
+    min-height: 320px;
+    border-top: 1px solid var(--border-strong);
+  }
+  .ar-result-panel {
+    border-right: 0;
+  }
+  .ar-evidence-inspector dl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .ar-evidence-inspector dl div {
+    grid-template-columns: 1fr;
+    padding-right: 10px;
+  }
+  .ar-evidence-inspector footer {
+    margin-top: 22px;
+  }
+}
+@media (max-width: 720px) {
+  .ar-review-page {
+    padding: 18px 12px 88px;
+  }
+  .ar-review-intro {
+    display: grid;
+  }
+  .ar-review-title h1 {
+    font-size: 1.65rem;
+  }
+  .ar-scenario-switch {
+    width: 100%;
+  }
+  .ar-scenario-switch button {
+    flex: 1;
+    justify-content: center;
+  }
+  .ar-review-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .ar-review-notes {
+    display: block;
+    order: -1;
+    padding: 18px;
+  }
+  .ar-review-notes > div > p,
+  .ar-review-notes section {
+    display: block;
+  }
+  .ar-review-notes section {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+  .ar-review-notes ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ar-review-question {
+    margin: 14px 0 0;
+  }
+  .ar-workbench {
+    grid-template-columns: 1fr;
+  }
+  .ar-constraints {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .ar-result-panel {
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .ar-prototype-bar > span {
+    display: none;
+  }
+  .ar-result-header {
+    padding: 22px 18px 18px;
+  }
+  .ar-progress {
+    padding-inline: 18px;
+  }
+  .ar-progress li::after {
+    right: 5px;
+    left: 24px;
+  }
+  .ar-conclusion {
+    margin-inline: 18px;
+    padding: 17px;
+  }
+  .ar-candidate-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ar-candidate-strip i {
+    display: none;
+  }
+  .ar-conflict-pair {
+    grid-template-columns: 1fr;
+  }
+  .ar-conflict-pair b {
+    justify-self: center;
+  }
+  .ar-claim-section {
+    padding-inline: 18px;
+  }
+  .ar-claim-list button {
+    min-height: 88px;
+  }
+  .ar-evidence-inspector {
+    min-height: 0;
+    padding: 20px 18px;
+  }
+  .ar-evidence-inspector dl {
+    grid-template-columns: 1fr;
+  }
+  .ar-evidence-inspector dl div {
+    grid-template-columns: 68px 1fr;
+  }
+  .ar-evidence-inspector footer {
+    margin-top: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-result-content,
+  .ar-range-fields {
+    animation: none;
+  }
+  .ar-progress .active svg {
+    animation: none;
+  }
+}

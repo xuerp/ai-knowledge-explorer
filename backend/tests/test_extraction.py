@@ -248,13 +248,41 @@ def test_extraction_keeps_balanced_allocation_before_claim_threshold_is_met():
     assert result == []
 
 
-def test_extraction_audit_accepts_current_and_compatible_pipeline_versions():
+def test_extraction_audit_does_not_treat_legacy_head_only_runs_as_full_coverage():
     assert extraction_audit_is_current(json.dumps({"pipelineVersion": EXTRACTION_PIPELINE_VERSION}))
-    assert extraction_audit_is_current(
-        json.dumps({"pipelineVersion": "2026-08-symmetric-relation-dedup-v7"})
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-verbatim-contiguous-evidence-v15"})
     )
-    assert extraction_audit_is_current(
-        json.dumps({"pipelineVersion": "2026-08-relation-ontology-v8"})
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-reserved-document-budget-v16"})
+    )
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-product-license-scope-v17"})
+    )
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-complete-effective-dates-v18"})
+    )
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-visible-claim-evidence-v19"})
+    )
+    assert not extraction_audit_is_current(
+        json.dumps({"pipelineVersion": "2026-10-independent-evidence-anchors-v20"})
+    )
+    assert (
+        extraction_audit_is_current(
+            json.dumps({"pipelineVersion": "2026-08-symmetric-relation-dedup-v7"})
+        )
+        is False
+    )
+    assert (
+        extraction_audit_is_current(json.dumps({"pipelineVersion": "2026-08-relation-ontology-v8"}))
+        is False
+    )
+    assert (
+        extraction_audit_is_current(
+            json.dumps({"pipelineVersion": "2026-10-document-coverage-v10"})
+        )
+        is False
     )
     assert extraction_audit_is_current(json.dumps({"pipelineVersion": "retired-pipeline"})) is False
     assert extraction_audit_is_current("{}") is False
@@ -278,6 +306,22 @@ def test_source_excerpt_splits_chinese_sentences_without_spaces():
     content = "前一段不相关。MCP 使用 JSON-RPC 传输消息。后一段不相关。"
 
     assert locate_source_excerpt(content, "MCP", "JSON-RPC") == ("MCP 使用 JSON-RPC 传输消息。")
+
+
+def test_source_excerpt_preserves_verbatim_spacing_and_table_rows():
+    paragraph = "- DeepSeek-V3   uses  MLA for inference."
+    assert locate_source_excerpt(paragraph, "DeepSeek-V3", "MLA") == paragraph
+    table = (
+        "| Model | Arena-Hard | AlpacaEval 2.0 |\r\n"
+        "| --- | --- | --- |\r\n"
+        "| Other model | 80.4 | 51.1 |\r\n"
+        "| DeepSeek-V3 | **85.5** | **70.0** |"
+    )
+    excerpt = locate_source_excerpt(table, "DeepSeek-V3", "85.5")
+    assert excerpt == table
+    assert excerpt in table
+    # Never remove another model's row to squeeze a numerical quote into the limit.
+    assert locate_source_excerpt(table, "DeepSeek-V3", "85.5", max_characters=90) is None
 
 
 def test_source_excerpt_keeps_both_anchors_when_trimming_long_text():
@@ -331,7 +375,7 @@ def test_extraction_probe_classifies_provider_failures_without_exposing_response
     result = service.probe()
 
     assert result.passed is False
-    assert result.error_code == "structured_output_unsupported"
+    assert result.error_code == "invalid_request"
     assert "sensitive" not in result.detail
     assert "secret" not in result.model
 
@@ -344,7 +388,9 @@ def test_extraction_probe_falls_back_to_strictly_validated_json_object():
         response_format = request_json["response_format"]["type"]
         formats.append(response_format)
         if response_format == "json_schema":
-            return httpx.Response(400, json={"error": {"message": "unsupported"}})
+            return httpx.Response(
+                400, json={"error": {"param": "response_format", "message": "unsupported"}}
+            )
         prompt = " ".join(message["content"] for message in request_json["messages"])
         assert "objectOrValue" in prompt
         assert "validFrom" in prompt
@@ -384,7 +430,9 @@ def test_extraction_json_object_fallback_remains_schema_strict():
     def handler(request: httpx.Request) -> httpx.Response:
         request_json = json.loads(request.content)
         if request_json["response_format"]["type"] == "json_schema":
-            return httpx.Response(422, json={"error": {"message": "unsupported"}})
+            return httpx.Response(
+                422, json={"error": {"param": "response_format", "message": "unsupported"}}
+            )
         return httpx.Response(
             200,
             json={"choices": [{"message": {"content": '{"facts":[],"unsafe":true}'}}]},
@@ -499,7 +547,9 @@ def test_extraction_compatibility_normalizes_fenced_top_level_array():
     def handler(request: httpx.Request) -> httpx.Response:
         request_json = json.loads(request.content)
         if request_json["response_format"]["type"] == "json_schema":
-            return httpx.Response(400, json={"error": {"message": "unsupported"}})
+            return httpx.Response(
+                400, json={"error": {"param": "response_format", "message": "unsupported"}}
+            )
         return httpx.Response(
             200,
             json={
@@ -573,6 +623,32 @@ def test_extraction_probe_distinguishes_connection_timeout():
 
     assert result.error_code == "connection_timeout"
     assert "Render" in result.detail
+
+
+def test_excerpt_does_not_use_faq_question_as_an_assertion():
+    question = "- [Is CrewAI open-source?](#q-is-crewai-open-source)"
+    answer = "A: Yes, CrewAI is open-source and actively encourages community contributions."
+    assert locate_source_excerpt(question, "CrewAI", "open-source") is None
+    assert (
+        locate_source_excerpt(
+            question + "\n" + answer,
+            "CrewAI",
+            "open-source",
+            claim_text="CrewAI is open-source.",
+        )
+        == answer
+    )
+    assert locate_source_excerpt("### CrewAI支持人在环？", "CrewAI", "人在环") is None
+
+
+def test_excerpt_requires_answer_anchors_after_a_question_heading():
+    content = "### Q: Does CrewAI support human-in-the-loop workflows?\nA: Yes."
+    assert locate_source_excerpt(content, "CrewAI", "human-in-the-loop workflows") is None
+    answer = "CrewAI supports human-in-the-loop workflows."
+    assert (
+        locate_source_excerpt(content + "\n" + answer, "CrewAI", "human-in-the-loop workflows")
+        == answer
+    )
 
 
 def test_extraction_probe_distinguishes_dns_failure():

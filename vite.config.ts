@@ -7,6 +7,19 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  plugins: [
+    {
+      name: "isolate-development-dependency-cache",
+      config(config, { command }) {
+        if (command !== "serve") return;
+        // Middleware tests and previews must not replace each other's optimized files.
+        const owner = config.server?.middlewareMode
+          ? `middleware-${process.pid}`
+          : `dev-${config.server?.port ?? 8080}`;
+        return { cacheDir: `node_modules/.vite/${owner}` };
+      },
+    },
+  ],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

@@ -16,6 +16,13 @@ def normalize_database_url(url: str) -> str:
     return url
 
 
+def _extraction_bool(name: str) -> bool:
+    value = os.getenv(name, "false").strip().lower()
+    if value not in {"1", "true", "yes", "0", "false", "no"}:
+        raise ValueError(f"{name} must be true or false.")
+    return value in {"1", "true", "yes"}
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     database_url: str
@@ -30,6 +37,7 @@ class Settings:
     jwt_secret: str | None = None
     access_token_minutes: int = 30
     fetch_allowed_hosts: tuple[str, ...] = ()
+    fetch_dns_mode: Literal["system", "https-google"] = "system"
     fetch_max_bytes: int = 2_000_000
     fetch_retry_base_minutes: int = 15
     fetch_retry_max_minutes: int = 360
@@ -38,6 +46,11 @@ class Settings:
     extraction_api_key: str | None = None
     extraction_model: str | None = None
     extraction_response_timeout_seconds: int = 80
+    extraction_reasoning_effort: str | None = None
+    extraction_max_completion_tokens: int | None = None
+    extraction_require_json_schema: bool = False
+    extraction_require_usage: bool = False
+    extraction_contract_state_path: Path | None = None
     auto_extraction_max_snapshots_per_cycle: int = 0
     auto_extraction_max_candidates_per_snapshot: int = 5
     auto_extraction_retry_minutes: int = 360
@@ -76,6 +89,8 @@ class Settings:
     built_at: str | None = None
 
     def __post_init__(self) -> None:
+        if self.fetch_dns_mode not in {"system", "https-google"}:
+            raise ValueError("AI_RADAR_FETCH_DNS_MODE must be system or https-google.")
         if self.automation_token is not None and len(self.automation_token) < 32:
             raise ValueError("AI_RADAR_AUTOMATION_TOKEN must contain at least 32 characters.")
         if not 60 <= self.automation_cycle_lease_seconds <= 3600:
@@ -99,6 +114,16 @@ class Settings:
         if not 30 <= self.extraction_response_timeout_seconds <= 85:
             raise ValueError(
                 "AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS must be between 30 and 85."
+            )
+        if self.extraction_reasoning_effort not in {None, "low", "medium", "high", "xhigh", "max"}:
+            raise ValueError(
+                "AI_RADAR_EXTRACTION_REASONING_EFFORT must be low/medium/high/xhigh/max."
+            )
+        if self.extraction_max_completion_tokens is not None and not (
+            256 <= self.extraction_max_completion_tokens <= 32768
+        ):
+            raise ValueError(
+                "AI_RADAR_EXTRACTION_MAX_COMPLETION_TOKENS must be between 256 and 32768."
             )
         if not 0 <= self.relation_backfill_max_snapshots <= 10:
             raise ValueError("AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS must be between 0 and 10.")
@@ -203,6 +228,7 @@ class Settings:
                 if host.strip()
             ),
             fetch_max_bytes=int(os.getenv("AI_RADAR_FETCH_MAX_BYTES", "2000000")),
+            fetch_dns_mode=os.getenv("AI_RADAR_FETCH_DNS_MODE", "system"),
             fetch_retry_base_minutes=int(os.getenv("AI_RADAR_FETCH_RETRY_BASE_MINUTES", "15")),
             fetch_retry_max_minutes=int(os.getenv("AI_RADAR_FETCH_RETRY_MAX_MINUTES", "360")),
             fetch_lease_minutes=int(os.getenv("AI_RADAR_FETCH_LEASE_MINUTES", "5")),
@@ -211,6 +237,22 @@ class Settings:
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
             extraction_response_timeout_seconds=int(
                 os.getenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "80")
+            ),
+            extraction_reasoning_effort=os.getenv("AI_RADAR_EXTRACTION_REASONING_EFFORT") or None,
+            extraction_max_completion_tokens=(
+                int(os.environ["AI_RADAR_EXTRACTION_MAX_COMPLETION_TOKENS"])
+                if os.getenv("AI_RADAR_EXTRACTION_MAX_COMPLETION_TOKENS")
+                else None
+            ),
+            extraction_require_json_schema=_extraction_bool(
+                "AI_RADAR_EXTRACTION_REQUIRE_JSON_SCHEMA"
+            ),
+            extraction_require_usage=_extraction_bool("AI_RADAR_EXTRACTION_REQUIRE_USAGE"),
+            extraction_contract_state_path=Path(
+                os.getenv(
+                    "AI_RADAR_EXTRACTION_CONTRACT_STATE_PATH",
+                    str(BACKEND_ROOT / "data/extraction_contract_state.json"),
+                )
             ),
             auto_extraction_max_snapshots_per_cycle=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")

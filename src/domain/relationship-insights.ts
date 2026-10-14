@@ -1,5 +1,67 @@
-import type { Entity, EntityType, GraphEdge } from "@/domain/types";
+import type { Entity, EntityType, GraphEdge, KnowledgeSnapshot } from "@/domain/types";
 import { expandNeighborhood, findShortestPath, type GraphPath } from "@/domain/graph";
+
+export function filteredRelationships(
+  snapshot: KnowledgeSnapshot,
+  filters: { kind?: string; confidence?: string; linkedOnly?: boolean },
+): GraphEdge[] {
+  const entityIds = new Set(snapshot.entities.map((entity) => entity.id));
+  const sourceIds = new Set(
+    snapshot.evidence.filter((source) => source.url.trim()).map((source) => source.id),
+  );
+  return snapshot.graph.edges.filter(
+    (edge) =>
+      entityIds.has(edge.fromId) &&
+      entityIds.has(edge.toId) &&
+      (!filters.kind || filters.kind === "all" || edge.kind === filters.kind) &&
+      (!filters.confidence ||
+        filters.confidence === "all" ||
+        edge.confidence === filters.confidence) &&
+      (!filters.linkedOnly || edge.sourceIds.some((id) => sourceIds.has(id))),
+  );
+}
+
+export function sourcedRelationships(snapshot: KnowledgeSnapshot): GraphEdge[] {
+  const entities = new Set(snapshot.entities.map((entity) => entity.id));
+  const sources = new Set(
+    snapshot.evidence.filter((source) => source.url.trim()).map((source) => source.id),
+  );
+  return snapshot.graph.edges.filter(
+    (edge) =>
+      entities.has(edge.fromId) &&
+      entities.has(edge.toId) &&
+      edge.sourceIds.some((id) => sources.has(id)),
+  );
+}
+
+/** A few different, inspectable relationships instead of a wall of repeated model links. */
+export function featuredRelationships(snapshot: KnowledgeSnapshot): GraphEdge[] {
+  const entities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
+  const kinds = ["uses", "integrates-with", "developed-by"];
+  const candidates = sourcedRelationships(snapshot)
+    .filter(
+      (edge) =>
+        edge.confidence === "verified" &&
+        kinds.includes(edge.kind) &&
+        !entities.get(edge.fromId)?.familyId,
+    )
+    .sort(
+      (a, b) =>
+        kinds.indexOf(a.kind) - kinds.indexOf(b.kind) ||
+        (entities.get(b.toId)?.release?.releasedAt ?? "").localeCompare(
+          entities.get(a.toId)?.release?.releasedAt ?? "",
+        ) ||
+        entities.get(b.fromId)!.lastUpdatedAt.localeCompare(entities.get(a.fromId)!.lastUpdatedAt),
+    );
+  const result: GraphEdge[] = [];
+  for (const edge of candidates) {
+    if (result.some((selected) => selected.kind === edge.kind || selected.fromId === edge.fromId))
+      continue;
+    result.push(edge);
+    if (result.length === 3) break;
+  }
+  return result;
+}
 
 export interface RelationshipStep {
   edge: GraphEdge;
@@ -50,7 +112,8 @@ export function ecosystemGroups(
   for (const id of relatedIds) {
     const entity = entityById.get(id);
     if (!entity) continue;
-    grouped.set(entity.type, [...(grouped.get(entity.type) ?? []), entity]);
+    const displayType = entity.type === "agent" ? "application" : entity.type;
+    grouped.set(displayType, [...(grouped.get(displayType) ?? []), entity]);
   }
   return [...grouped.entries()]
     .map(([type, related]) => ({ type, entities: related }))
@@ -92,7 +155,7 @@ export function connectionPaths(
   endId: string,
   limit = 3,
 ): Array<{ path: GraphPath; steps: RelationshipStep[] }> {
-  if (!startId || !endId || limit <= 0) return [];
+  if (!startId || !endId || startId === endId || limit <= 0) return [];
   const first = findShortestPath(edges, startId, endId);
   if (!first) return [];
 

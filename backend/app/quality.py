@@ -105,6 +105,7 @@ def resolve_claim_entity_reference(claim: Claim, entities: list[Entity]) -> str 
     if resolved:
         return resolved
     texts = [_key(claim.text.zh), _key(claim.text.en)]
+    subject = _key(claim.subject)
     candidates: list[tuple[tuple[int, int, int, int], str]] = []
     for entity in entities:
         canonical_tokens = {
@@ -113,6 +114,14 @@ def resolve_claim_entity_reference(claim: Claim, entities: list[Entity]) -> str 
             if len(token) >= 2
         }
         alias_tokens = {_key(alias) for alias in entity.aliases or [] if len(_key(alias)) >= 2}
+        # An explicit model/product subject must anchor the entity itself. A
+        # reporting vendor or comparison target mentioned in prose cannot own it.
+        # Permit an omitted brand prefix only when the full name occurs in text.
+        if subject and not any(
+            token == subject or (len(subject) >= 5 and token.endswith(subject))
+            for token in canonical_tokens | alias_tokens
+        ):
+            continue
         occurrences = [
             (text_index, position, len(token), priority)
             for text_index, text in enumerate(texts)

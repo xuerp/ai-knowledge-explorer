@@ -50,6 +50,22 @@ def test_concrete_version_retrieval_satisfies_family_expectation():
     assert {"e-gpt-5", "e-gpt"}.issubset(expanded)
 
 
+def test_evidence_gap_survives_filtering_unverified_claims():
+    data = Path(__file__).resolve().parents[1] / "data"
+    snapshot = KnowledgeRepository(data / "demo_snapshot.json").load_seed()
+    snapshot.claims = [claim for claim in snapshot.claims if claim.confidence == "verified"]
+    snapshot.graph.edges = [edge for edge in snapshot.graph.edges if edge.confidence == "verified"]
+    snapshot.timeline = {
+        entity_id: [entry for entry in entries if entry.confidence == "verified"]
+        for entity_id, entries in snapshot.timeline.items()
+    }
+    evidence_ids = {source.id for source in snapshot.evidence}
+    assert not GoldenQuestionEvaluator._has_explicit_evidence_gap(snapshot, evidence_ids)
+    event = snapshot.timeline["e-deepseek"][0].model_copy(update={"confidence": "unverified"})
+    snapshot.timeline["e-deepseek"].append(event)
+    assert GoldenQuestionEvaluator._has_explicit_evidence_gap(snapshot, evidence_ids)
+
+
 def test_citation_text_can_satisfy_a_related_entity_expectation():
     data = Path(__file__).resolve().parents[1] / "data"
     repository = KnowledgeRepository(data / "demo_snapshot.json")

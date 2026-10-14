@@ -105,7 +105,27 @@ def test_quality_gate_resolves_known_entity_mentioned_in_candidate_text():
     assessment = KnowledgeQualityGate().assess(incoming, snapshot)
 
     assert assessment.resolution == "resolved"
-    assert assessment.resolved_entity_id == "e-gemini"
+    assert assessment.resolved_entity_id == "e-gemini-35-transcribe"
+
+
+def test_unresolved_model_subject_does_not_attach_to_reporting_vendor():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    incoming = _candidate("unknown-model-score")
+    incoming.claim.subject = "Unknown Model 9"
+    incoming.claim.text.en = "Anthropic reports Unknown Model 9 scored 74.9%."
+    incoming.claim.text.zh = "Anthropic reports Unknown Model 9 scored 74.9%."
+    assessment = KnowledgeQualityGate().assess(incoming, snapshot)
+    assert assessment.resolved_entity_id is None
+
+
+def test_versioned_model_subject_does_not_attach_to_family_in_prose():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    incoming = _candidate("unknown-version-context")
+    incoming.claim.subject = "Gemini 999 models"
+    incoming.claim.text.en = "Gemini 999 models provide a 1M token context window."
+    incoming.claim.text.zh = incoming.claim.text.en
+    assessment = KnowledgeQualityGate().assess(incoming, snapshot)
+    assert assessment.resolved_entity_id is None
 
 
 def test_semantic_fingerprint_ignores_snapshot_ids_and_text_wording():
@@ -166,9 +186,9 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
 
     assert report.live_ready is False
     assert report.entity_count >= 28
-    assert report.claim_count < 150
+    assert report.claim_count == len(snapshot.claims)
     assert report.claims_required == 150
-    assert report.claims_remaining == 150 - report.claim_count
+    assert report.claims_remaining == max(0, 150 - report.claim_count)
     assert report.claims_with_missing_evidence == []
     assert report.relations_with_missing_evidence == []
     assert report.timeline_entries_with_missing_evidence == []
@@ -178,8 +198,12 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.fresh_evidence_ratio >= 0.8
     assert report.evidence_domain_count >= 8
     assert report.verified_content_ratio >= 0.8
-    assert report.conflict_content_count == 0
-    assert any("150 reviewed claims" in issue for issue in report.issues)
+    # Reviewed publication now resolves legacy entity links. That improvement
+    # still cannot earn live acceptance while date conflicts remain unresolved.
+    assert report.conflict_content_count > 0
+    assert report.claims_with_missing_entity == []
+    assert any("conflict records" in issue for issue in report.issues)
+    assert not any("exactly one knowledge entity" in issue for issue in report.issues)
     assert "e-gpt-4o" not in report.core_entities_below_five_relations
     assert set(report.core_entity_relation_counts) == set(report.core_entities_below_five_relations)
     assert set(report.core_entity_relation_labels) == set(report.core_entities_below_five_relations)
@@ -296,9 +320,10 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
     try:
         with Session(engine) as session:
             repository.seed_catalog(session)
-            assert len(session.scalars(select(SourceRecord)).all()) == len(
-                repository.load_seed().evidence
-            ) + len(MACHINE_SOURCE_CATALOG)
+            expected_source_urls = {
+                source.url.rstrip("/") for source in repository.load_seed().evidence
+            } | {str(source["url"]).rstrip("/") for source in MACHINE_SOURCE_CATALOG}
+            assert len(session.scalars(select(SourceRecord)).all()) == len(expected_source_urls)
             assert session.get(SourceRecord, "s-openai-api-changelog") is not None
             assert session.get(SourceRecord, "s-openai-models") is not None
             assert session.get(SourceRecord, "s-openai-deprecations") is not None

@@ -32,11 +32,47 @@ backend/**/__pycache__/
 scripts/__pycache__/
 backend/data/*.db
 backend/data/*.db-*
+backend/data/real_loop/
+backend/data/extraction_contract_state.json
+backend/data/extraction_contract_state.json.*.tmp
 backups/
 
 # Local credential artifacts
 admin_token.txt
 snapshot_test.*
+# Supplier export contains an API Key column; publish only sanitized reconciliation.
+/ccsub-usage-7d.csv
+
+# Local validation, private records, supplier receipts and environments.
+/artifacts/
+/backend/artifacts/
+/backend/backups/
+/backend/data/quality_analysis.json
+**/.venv*/
+**/.pytest*/
+/.impeccable/
+/.claude/
+/.tmp-*
+*.tsbuildinfo
+
+# Design mockups remain local; the implemented application lives in src/.
+/*-optimized*.html
+/landing-page-compact*.html
+/model-detail-page*.html
+
+# Raw historical run receipts may include local account or supplier details.
+/docs/*.xml
+/docs/*.json
+!/docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json
+!/docs/model-spec-enrichment-20261005.json
+!/docs/reference-catalog-enrichment.json
+!/docs/ecosystem-runtime-audit.json
+!/docs/reference-runtime-audit.json
+!/docs/publication-scope-20261014.json
+/docs/CCSUB_*
+/docs/ACTIVE_TIME_BUDGET_*
+/HANDOFF_SUMMARY.md
+/HANDOFF_RECENT_CONVERSATION.txt
 
 # Editor directories and files
 .vscode/*
@@ -48,3 +84,36 @@ snapshot_test.*
 *.njsproj
 *.sln
 *.sw?
+
+# Historical local account automation and private result importers.
+/backend/scripts/audit_decision_module.py
+/backend/scripts/check_coding_record_access.py
+/backend/scripts/correct_coding_output_summary.py
+/backend/scripts/history_visual_drill_36h.py
+/backend/scripts/prepare_decision_usability_qa.py
+/backend/scripts/preview_decision_measurements_qa.py
+/backend/scripts/preview_decision_usefulness_qa.py
+/backend/scripts/qualify_sonnet_fact_36h.py
+/backend/scripts/reconcile_ccsub_billing_18h.py
+/backend/scripts/record_coding_budget_release_result.py
+/backend/scripts/record_coding_continuation_result.py
+/backend/scripts/record_coding_pilot_result.py
+/backend/scripts/record_verified_coding_result.py
+/backend/scripts/research_current_account_36h.py
+/backend/scripts/revalidate_mistral_acceptance_12h.py
+/backend/scripts/setup_review_gui_account_36h.py
+/backend/scripts/verify_decision_comparison_36h.py
+/backend/scripts/verify_decision_measurements_qa.py
+/backend/scripts/verify_decision_price_exports.py
+/backend/scripts/verify_decision_price_runtime.py
+/backend/scripts/verify_decision_product_exports.py
+/backend/scripts/verify_decision_product_runtime.py
+/backend/scripts/verify_decision_usability_qa.py
+/backend/scripts/verify_hunyuan_a13b_loop_12h.py
+/backend/scripts/verify_hunyuan_revision_runtime_12h.py
+/backend/scripts/verify_minimax_loop_12h.py
+/backend/scripts/verify_mistral_loop_12h.py
+/backend/scripts/verify_research_time_12h.py
+/backend/scripts/verify_review_gui_36h.py
+/backend/scripts/verify_review_gui_metadata_fixed_36h.py
+/backend/scripts/verify_ui_decisions_36h.py
