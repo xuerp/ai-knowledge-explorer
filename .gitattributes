@@ -1,3 +1,3 @@
 # This explicitly frozen synthetic test corpus is verified by its original bytes.
 # Do not normalize its historical CRLF bytes across Windows/Linux checkouts.
-/docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json -text
+/docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json -text whitespace=cr-at-eol

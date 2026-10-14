@@ -9,7 +9,7 @@
   "files": [
     {
       "path": ".github/workflows/quality.yml",
-      "sha256": "8190bb3bf7960bf744d21f4b06c290d40ea95a5fc5bd347ba6051b8419a60a9d",
+      "sha256": "b8b26d12399a79b2b6a5505c8d249e7b7c4024a6d4e43594c83df255b5c6479b",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1240,10 +1240,30 @@
     {
       "path": ".gitattributes",
       "reviewBasis": "Preserves the original bytes of an explicitly synthetic frozen test corpus across platforms.",
-      "sha256": "27ca265a96a1cb1b81d3b3f9cfe2115cb3df120c0b32c454a7b95750c7e34b76"
+      "sha256": "0d6c094dc548a2e34cc706edbf74b28ce45dfb18dfdbf16c9664eea6641a69ad"
+    },
+    {
+      "path": ".prettierignore",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "5af7aaaaa7a6bf6f134cd438f7952d4841c6dcfae8907fbe9104ebefa3721e91"
+    },
+    {
+      "path": "docs/eval/results/ALIAS_REPRODUCTION_20261014.md",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "262cc389dc6577623a4868391548fc68a3307d7fa9a99fa3cab618727bb8eb6d"
+    },
+    {
+      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.json",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "d04bc9530d740c83b173167b7b2707fe0d535e270d1d42b1d10b3ccb4df4b477"
+    },
+    {
+      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.md",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "ed3d6da9f5126b71fe2b29b19cef0d67fbe84e4c7ac75f1cb1b569f1180fd5fe"
     }
   ],
-  "publicFileCount": 248,
+  "publicFileCount": 252,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion"
 }
