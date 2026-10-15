@@ -111,6 +111,21 @@ def feature_ids(text: str) -> set[str]:
 def described_features(
     claims: list[Claim], scenario: DecisionScenario, language: str
 ) -> list[DecisionTradeoff]:
+    def satisfies(recorded: str | None, required: str) -> bool:
+        # The shared taxonomy already declares these stronger requirements.
+        # Preserve direction: a generic tool claim cannot prove test execution.
+        pending = [recorded] if recorded else []
+        visited = set()
+        while pending:
+            feature = pending.pop()
+            if feature in visited:
+                continue
+            if feature == required:
+                return True
+            visited.add(feature)
+            pending.extend(CATALOG["features"].get(feature, {}).get("supersedes", []))
+        return False
+
     findings = []
     for key in scenario.required_features:
         matching = [
@@ -125,7 +140,7 @@ def described_features(
                 )
                 or (
                     claim.predicate == "workflow-feature"
-                    and claim.object_or_value == key
+                    and satisfies(claim.object_or_value, key)
                     and not re.search(
                         r"不支持|不能(?:编辑|运行|生成|恢复)|未提供|does not support|cannot (?:modify|edit|run|execute|resume|generate)|unsupported|not available",
                         claim.text.zh + " " + claim.text.en,
