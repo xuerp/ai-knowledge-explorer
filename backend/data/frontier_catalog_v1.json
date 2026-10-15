@@ -47,6 +47,43 @@
         "timeline": 8
       },
       "normalization": "Equivalent Kimi and GLM part-of edges compiled into their existing canonical IDs; all original public source IDs retained."
+    },
+    "decisionCriticalIntake20261015": {
+      "reviewedAt": "2026-10-15T14:07:48.636820",
+      "authorization": "Human user explicitly approved local and existing staging use after reviewing the three-fact package.",
+      "method": "Individual existing review API approvals, followed by public claim/evidence export; isolated operator database, no private records.",
+      "captureQualification": "Official pages opened through web tool. Formal SafeHttpFetcher correctly rejected local non-public DNS; no DNS or safety bypass. Only quoted excerpts have local snapshot hashes. Publication dates unknown. Only these three individually approved candidates are enabled.",
+      "reviewPackageSha256": "b79f72cc81e6eecce108b6ed7fd6b0132da2084ae2ebdb879a913b1804f2ca32",
+      "claimIds": [
+        "claim-decision-critical-5f95bed01477c104cb41",
+        "claim-decision-critical-6c55a8f834e483e65551",
+        "claim-decision-critical-ddc2ad5233ddc684adce"
+      ],
+      "publicationRecords": [
+        {
+          "id": 3,
+          "reviewJobId": "decision-critical-5f95bed01477c104cb41",
+          "claimId": "claim-decision-critical-5f95bed01477c104cb41",
+          "publishedAt": "2026-10-15T14:07:48.636820",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 2,
+          "reviewJobId": "decision-critical-6c55a8f834e483e65551",
+          "claimId": "claim-decision-critical-6c55a8f834e483e65551",
+          "publishedAt": "2026-10-15T14:07:48.620708",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 1,
+          "reviewJobId": "decision-critical-ddc2ad5233ddc684adce",
+          "claimId": "claim-decision-critical-ddc2ad5233ddc684adce",
+          "publishedAt": "2026-10-15T14:07:48.616958",
+          "actor": "legacy-admin@local"
+        }
+      ],
+      "datePolicy": "Source publication dates and fact effective dates remain unknown. Categorical claims use human verification freshness; original API quote expires after seven days from observation.",
+      "scope": "Original OpenAI API deployment and Standard uncached text pricing; Codex CLI installed local tool execution. Not CCSub prices, account access or measured task outcomes."
     }
   },
   "entities": [
@@ -38738,6 +38775,57 @@
       "type": "official",
       "supportsClaimIds": null,
       "contradictsClaimIds": null
+    },
+    {
+      "id": "source-critical-ddc2ad5233ddc684adce",
+      "title": {
+        "zh": "GPT-6.1 Sol official API availability",
+        "en": "GPT-6.1 Sol official API availability"
+      },
+      "url": "https://openai.com/index/introducing-gpt-6-1-sol/",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-15T13:39:39.711406+00:00",
+      "verifiedAt": "2026-10-15T14:07:48.616958",
+      "sourceExcerpt": "Developers can also access it through the OpenAI API as gpt-6.1-sol.",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-critical-6c55a8f834e483e65551",
+      "title": {
+        "zh": "GPT-6.1 Sol official model pricing",
+        "en": "GPT-6.1 Sol official model pricing"
+      },
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-15T13:39:39.711406+00:00",
+      "verifiedAt": "2026-10-15T14:07:48.620708",
+      "sourceExcerpt": "Prompts with more than 272K input tokens are priced at 2x input and cache rates and 1.5x output",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-critical-5f95bed01477c104cb41",
+      "title": {
+        "zh": "Codex CLI official local tools",
+        "en": "Codex CLI official local tools"
+      },
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-15T13:39:39.711406+00:00",
+      "verifiedAt": "2026-10-15T14:07:48.636820",
+      "sourceExcerpt": "Let Codex inspect files, make edits, and run the tools already installed on your machine.",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
     }
   ],
   "claims": [
@@ -43984,6 +44072,60 @@
       "validFrom": "2026-03-23",
       "validTo": "2027-01-12",
       "observedAt": null
+    },
+    {
+      "id": "claim-decision-critical-ddc2ad5233ddc684adce",
+      "entityId": "e-gpt-61-sol",
+      "text": {
+        "zh": "GPT-6.1 Sol 官方公告明确提供 OpenAI API 型号 gpt-6.1-sol；只说明原厂 API 入口，不证明网关型号、账户可用性、服务国家、数据存储地区或商用合规。",
+        "en": "Official OpenAI API access is documented for gpt-6.1-sol; gateway identity, account access, country, data location and commercial scope are not established.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-critical-ddc2ad5233ddc684adce"],
+      "updatedAt": "2026-10-15",
+      "subject": null,
+      "predicate": "deployment",
+      "objectOrValue": "cloud-api",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-15T13:39:39.711406+00:00"
+    },
+    {
+      "id": "claim-decision-critical-6c55a8f834e483e65551",
+      "entityId": "e-gpt-61-sol",
+      "text": {
+        "zh": "GPT-6.1 Sol 原厂 Standard 非缓存文本 token 观察报价：每百万输入 $2、输出 $10；请求输入超过 272000 token 时整次请求输入 $4、输出 $15。不含缓存、工具费、地域附加费、Fast/Ultrafast、Batch/Flex、税费或任何网关报价；观察后仅 7 天内供限定估算，不是实际账单。",
+        "en": "Observed Standard uncached text-token list prices: USD 2 input / 10 output per million; above 272000 input tokens the full request costs 4 input / 15 output. Excludes cache, tools, regional processing, other tiers, taxes and gateways; seven-day scoped estimate only, not a bill.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-critical-6c55a8f834e483e65551"],
+      "updatedAt": "2026-10-15",
+      "subject": null,
+      "predicate": "api_price",
+      "objectOrValue": "{\"input\": 2, \"output\": 10, \"currency\": \"USD\", \"channel\": \"OpenAI API\", \"unit\": \"per-million-tokens\", \"conditions\": \"standard-uncached-tokens-only\", \"quoteBasis\": \"observed-list-price\", \"observedAt\": \"2026-10-15T13:39:39.711406+00:00\", \"sourceUrl\": \"https://developers.openai.com/api/docs/models/gpt-6.1-sol\", \"tiers\": [{\"upToInputTokens\": 272000, \"input\": 2, \"output\": 10}, {\"upToInputTokens\": null, \"input\": 4, \"output\": 15}]}",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-15T13:39:39.711406+00:00"
+    },
+    {
+      "id": "claim-decision-critical-5f95bed01477c104cb41",
+      "entityId": "e-codex",
+      "text": {
+        "zh": "Codex CLI 官方文档说明可运行本机已安装的开发工具；受所选权限、账户和实际工具环境限制，不扩展为所有 IDE 入口可用，也不证明业务测试通过。",
+        "en": "Codex CLI documents running installed local development tools, subject to permissions, account and environment; other interfaces and measured task outcomes remain unverified.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-critical-5f95bed01477c104cb41"],
+      "updatedAt": "2026-10-15",
+      "subject": null,
+      "predicate": "workflow-feature",
+      "objectOrValue": "tool-use",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-15T13:39:39.711406+00:00"
     }
   ],
   "relations": [

@@ -224,7 +224,7 @@
     },
     {
       "path": "backend/data/frontier_catalog_v1.json",
-      "sha256": "62808c3e6851dd3958b6a2b7987aca78e069d18d8fbfac6dbb9591790db81a89",
+      "sha256": "2c6af2e46049a485131ecb09d5d8fed9ec6936ad7d68a00bf4edd00276e5a184",
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
@@ -296,6 +296,11 @@
       "path": "backend/tests/test_coding_benchmark_budget.py",
       "sha256": "49ee649ec034e55ff45b8faa42bdc3a421b07f9ae0b1faa825424b982fcb1b22",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_approved_coverage.py",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "ba884aced1a7c83a1512a6f65ce0800b48b825b67c3fc748012e0d1dec2ba5df"
     },
     {
       "path": "backend/tests/test_decision_comparison_36h.py",
@@ -530,7 +535,7 @@
     {
       "path": "docs/DECISION_EVIDENCE_COVERAGE_20261015.md",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "1a545b9dd1edbc7dd319716d4fc94a18cb36a6eba80d57a56f6cfa02334db72a"
+      "sha256": "da97f89350e34ca964780c127f17515397bcd87aca78edd8971fcc15524c7381"
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
@@ -544,7 +549,7 @@
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "a665bfbdc84edf777f4b0ae968adaff368853a0613d7fdfc4000639b6c3ad1c6",
+      "sha256": "7faf623d7bba671e45a29de7b92c4116084085831bc9b42e25d8dc9620de7b44",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -615,7 +620,7 @@
     {
       "path": "scripts/audit_decision_coverage.py",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "023b6f61406e222e8e654a18492cf047c8f45928f6c40182eea16f71aa506a96"
+      "sha256": "b1cf89e67ab57b916b09f8d46824d64e61971729266e13f5ea5a16c13161c476"
     },
     {
       "path": "scripts/check-coding-benchmark.mjs",
@@ -1328,7 +1333,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 265,
+  "publicFileCount": 266,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-15",
