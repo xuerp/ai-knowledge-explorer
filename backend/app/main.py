@@ -26,6 +26,7 @@ from .database import (
     KnowledgeRelationRecord,
     KnowledgeTimelineRecord,
     PublicationRecordRow,
+    RememberedSessionRecord,
     ReviewJobRecord,
     SourceRecord,
     UserRecord,
@@ -167,7 +168,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20261013_0026"
+DATABASE_SCHEMA_REVISION = "20261015_0027"
 SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
@@ -448,7 +449,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password.",
             )
-        return auth.issue_token(user)
+        return auth.remember_login(session, user) if payload.remember_me else auth.issue_token(user)
+
+    @app.post("/api/v2/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
+    def logout(principal: UserDependency, session: SessionDependency) -> Response:
+        if principal.session_id:
+            remembered = session.get(RememberedSessionRecord, principal.session_id)
+            if remembered and remembered.user_id == principal.subject:
+                remembered.revoked_at = datetime.now(UTC)
+                session.commit()
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @app.post(
         "/api/v2/auth/register",

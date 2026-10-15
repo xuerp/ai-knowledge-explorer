@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import secrets
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Header, HTTPException, Request, status
 
 from .auth import Principal
-from .database import UserRecord
+from .database import RememberedSessionRecord, UserRecord
 
 
 def _current_account_principal(request: Request, principal: Principal) -> Principal | None:
@@ -14,7 +15,19 @@ def _current_account_principal(request: Request, principal: Principal) -> Princi
         user = session.get(UserRecord, principal.subject)
         if user is None or not user.active:
             return None
-        return Principal(subject=user.id, email=user.email, role=user.role)
+        if principal.session_id:
+            remembered = session.get(RememberedSessionRecord, principal.session_id)
+            if (
+                remembered is None
+                or remembered.user_id != user.id
+                or user.role != principal.role
+                or remembered.revoked_at is not None
+                or remembered.expires_at.replace(tzinfo=UTC) <= datetime.now(UTC)
+            ):
+                return None
+        return Principal(
+            subject=user.id, email=user.email, role=user.role, session_id=principal.session_id
+        )
 
 
 def _resolve_principal(

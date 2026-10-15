@@ -48,6 +48,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "backend/app/auth.py",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "48dc0344901806820692326d179bacb35f678556c59d37dd2c698412a11bcab0"
+    },
+    {
       "path": "backend/app/catalog_changes.py",
       "sha256": "41a7ecfd629aab891b6fa4cf2bd29c162f85a5c635f34a002a01f28d1e874c41",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -59,7 +64,7 @@
     },
     {
       "path": "backend/app/database.py",
-      "sha256": "b0608f03b56db8f35c113c66c86b64ffe3edd6e2d076501a0fa1b27bc8951526",
+      "sha256": "e87c6fea41785e8b1c4d67d0c47b64a685e0b6161adf1b7ac45b35a7ff317cae",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -159,7 +164,7 @@
     },
     {
       "path": "backend/app/main.py",
-      "sha256": "ab84f0530122a6b2790d6efa1efbb6bd3bbba1a4cc6a835aa04cfbba33d5cd9a",
+      "sha256": "f1eaa08b05382ce860e7d7fbb3579422dd07902e4eeba64ab2ef08552962cb56",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -194,12 +199,12 @@
     },
     {
       "path": "backend/app/schemas.py",
-      "sha256": "b2fe039224df60d40a7400e814aa2949f2dd666d1d34a756b06ba7a0a4307ce6",
+      "sha256": "9e14ded9dd4f8ee215fbd03ca71a2b3e4946993e65bad6cbd98bb3658615c7a9",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/security.py",
-      "sha256": "9d9abca69f8522767ded0606dc1806d81d57071ed1e9ba1a6b47efc1647c2d37",
+      "sha256": "bff8164ea983a5eb989917f969b3d3a5613433bed8ba7d0f68d8d547249854e0",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -246,6 +251,11 @@
       "path": "backend/migrations/versions/20261013_0026_decision_evidence_requests.py",
       "sha256": "d1ed278b00166373cb64d07b39a2dafe0ced95ac61176df59245e936a03d61de",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/migrations/versions/20261015_0027_remembered_sessions.py",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "2ee25b9e6001db0390f752265bf5e0d3d0002928afd9a8334fc875214926eb60"
     },
     {
       "path": "backend/pyproject.toml",
@@ -483,6 +493,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "backend/tests/test_remembered_login.py",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "021249e765a3cbb3afd2fe266a2fc6297fa28a7fb62fdc5b7c40292250c730e5"
+    },
+    {
       "path": "backend/tests/test_research_report.py",
       "sha256": "5a1882bf619bbb38bedb9d519c1d0253dd752a2df91f9c740b508d7a744dee27",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -521,6 +536,11 @@
       "path": "backend/tests/test_worker.py",
       "sha256": "da3042fa60782d25b81cc30b01587cc427b866a698ce123dd910eea8d42522fa",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "docs/ACCOUNT_LOGIN_20261015.md",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "dd6d350e9867ffc011fffc6cd8977c39698a430f2d6cf4f10ee2f4e8b78546d4"
     },
     {
       "path": "docs/AUTOMATIC_API_TRIALS.md",
@@ -673,6 +693,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "src/components/account/PasswordField.tsx",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "f266e66b5d8787f9884cabe571a82c1fc5c256f7ecff8d2d80c4ae218dc04a78"
+    },
+    {
       "path": "src/components/common.tsx",
       "sha256": "544c2dbdbdaf8ed30f87e2cfcb57d1026fdb7bab60e78ead64974105072510a7",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -724,7 +749,7 @@
     },
     {
       "path": "src/components/layout/AppShell.tsx",
-      "sha256": "22de1792e077ef4f9365cdfc3368707f8dd7f0460adb5d230f05feea0150c3b9",
+      "sha256": "695274287e57f3c6002ab9ccfdbaae0c8274727939a028694623207d1286deab",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1039,7 +1064,7 @@
     },
     {
       "path": "src/routes/account.tsx",
-      "sha256": "7915de99071308c60ee7870f398e0528e66554093774f6a195bcf39675befc34",
+      "sha256": "18070fca168dad70b243ff5a91af33544ac387161f410d24472288dc46f86d66",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1133,6 +1158,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "src/services/auth-session.ts",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "4d7f051f280bbc6fedc6dc6ba41ff3e24f2df736be3497fbf2a4618cf4f527f3"
+    },
+    {
       "path": "src/services/entry-request-types.ts",
       "sha256": "ab8fe08462cf008123cab2e2d7d506502b6944a483ca50a8cedfad45f05df292",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -1154,13 +1184,18 @@
     },
     {
       "path": "src/services/user-api.ts",
-      "sha256": "ee286bf2a85483524cfb6ac3e025a95eea095338a82fb6e8151ca655d7786cee",
+      "sha256": "5ff41e11cde16907a67bc789764cebe9841cd59102d843f0dd1498154cccc46a",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/styles.css",
-      "sha256": "8a1f32191b6a17c727fd1ee7f71a03d4293069d20cfb563c042167f0637a4477",
+      "sha256": "ee97167ca9f69cf64c9e62d23c69636d6b7db4e45fa82ad8fbd35011b4d459e5",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "tests/auth-session.test.mjs",
+      "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
+      "sha256": "fcebfd97271a17986becd739e24effa2a9079768f3f40dcfbdc5303f174e7ab2"
     },
     {
       "path": "tests/catalog-changes.test.mjs",
@@ -1333,7 +1368,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 266,
+  "publicFileCount": 273,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-15",
