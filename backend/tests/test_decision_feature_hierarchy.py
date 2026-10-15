@@ -46,6 +46,18 @@ def test_generic_features_cannot_prove_stronger_requirements(recorded, required)
     )
 
 
+def test_explicit_workflow_evidence_leads_the_explanation_without_losing_generic_sources():
+    explicit = finding("test-execution", "This tool runs test suites with approval.")
+    generic = finding("terminal", "An open-source terminal agent.").model_copy(
+        update={"id": "generic-release", "predicate": "release"}
+    )
+    rows = described_features(
+        [generic, explicit], DecisionScenario(required_features=["tool-use"]), "en"
+    )
+    assert rows[0].finding.startswith(explicit.text.en)
+    assert rows[0].claim_ids == [explicit.id, generic.id]
+
+
 def test_negative_or_unrecognized_features_do_not_satisfy_parents():
     scenario = DecisionScenario(required_features=["tool-use", "code-editing"])
     assert not described_features(
