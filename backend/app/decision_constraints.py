@@ -101,7 +101,8 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
             )
             or (
                 # A reviewed living-document quotation can establish current
-                # input support without inventing a publication/release date.
+                # categorical input/deployment support without inventing a
+                # publication/release date. This does not cover numeric specs.
                 # Other numeric facts and licenses retain their date gates.
                 # Prices have a separate seven-day quotation rule below.
                 (
@@ -110,6 +111,10 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
                     or (
                         claim.predicate == "input_modality"
                         and claim.object_or_value in {"text", "image", "audio", "video"}
+                    )
+                    or (
+                        claim.predicate == "deployment"
+                        and claim.object_or_value in {"cloud-api", "private", "on-device", "hybrid"}
                     )
                 )
                 and all(

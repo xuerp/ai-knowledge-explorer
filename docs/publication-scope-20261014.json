@@ -14,7 +14,7 @@
     },
     {
       "path": ".github/workflows/quality.yml",
-      "sha256": "623b1d2c3cd46860132c5ff6baaf6728b3e696c4ba7ec2ff69f65f549667ac47",
+      "sha256": "9aacab90d8ad935e4f00b9219499153e89c8651078aa3aff7b176cd57b762b8d",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -64,7 +64,7 @@
     },
     {
       "path": "backend/app/decision_candidates.py",
-      "sha256": "031a30158ce4a0975ba25ab91965bbb4e58adb8957fd63a206595bcb9578f8d3",
+      "sha256": "b2e39c4d25085947043093cf7adeaba69c47038d0e1b78bd3a8cfa7891e2579b",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -74,7 +74,7 @@
     },
     {
       "path": "backend/app/decision_constraints.py",
-      "sha256": "3c6e010b0af8373c9b3ed71b02503050f8f75bd77fcb71900d0443fa8c0a8b49",
+      "sha256": "c32476fe983e5db2d23f4cf6d97f05f650e6874850163f39898ef3fbdd39c811",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -313,9 +313,24 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "backend/tests/test_decision_coverage_audit.py",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "54ef278e5a027ecfe1c1a7515bffb3f1326e06f04a2481462eb812d2d1fb2cb6"
+    },
+    {
+      "path": "backend/tests/test_decision_deployment_observation.py",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "9c76095e4afe4b567f082acaadeade667a6f9b9d77f4620d605143e8ea48f87b"
+    },
+    {
       "path": "backend/tests/test_decision_evidence_requests.py",
       "sha256": "ea4b38fe10413f3726befe6aa8901f8faed7a55f6a5042534a4f8fec3429780c",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_feature_hierarchy.py",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "abc56ce3d9612a3001b6a06e088fa399259337987a4e3b4cd21336d9362cf36c"
     },
     {
       "path": "backend/tests/test_decision_full.py",
@@ -513,6 +528,11 @@
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
+      "path": "docs/DECISION_EVIDENCE_COVERAGE_20261015.md",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "5a5bc1da89fa9f82a59ab81485a1ef01739820a7b5f9969b0ef43af28ad4c856"
+    },
+    {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
       "sha256": "78c53ee710c71743484d9d9b4c5c5781e1677a47dd7f54873f8e08f429f3372b",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
@@ -524,7 +544,7 @@
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "83ec07e0a1201e14d415c381e886121aab1c3f6a7a35368a100934413c97975b",
+      "sha256": "a665bfbdc84edf777f4b0ae968adaff368853a0613d7fdfc4000639b6c3ad1c6",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -591,6 +611,11 @@
       "path": "pnpm-workspace.yaml",
       "sha256": "6359bd8f75433097f29658553521374ccd6ed4ab214ba2723312aaee39502484",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "scripts/audit_decision_coverage.py",
+      "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "023b6f61406e222e8e654a18492cf047c8f45928f6c40182eea16f71aa506a96"
     },
     {
       "path": "scripts/check-coding-benchmark.mjs",
@@ -1303,7 +1328,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 260,
+  "publicFileCount": 265,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-15",

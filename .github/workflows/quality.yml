@@ -97,6 +97,18 @@ jobs:
           python -m alembic check
       - name: Backend tests
         run: python -m pytest
+      - name: Audit actionable decision evidence coverage
+        run: |
+          python -m ruff format --check ../scripts/audit_decision_coverage.py
+          python -m ruff check ../scripts/audit_decision_coverage.py
+          python ../scripts/audit_decision_coverage.py --output ../artifacts/decision-coverage/report.json
+      - name: Upload decision evidence gaps
+        uses: actions/upload-artifact@v4
+        with:
+          name: decision-evidence-coverage-${{ github.sha }}
+          path: artifacts/decision-coverage/report.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify committed quality dashboard evaluation
         run: |
           python ../scripts/publish_quality_metrics.py \
