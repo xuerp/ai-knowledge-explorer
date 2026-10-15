@@ -839,7 +839,7 @@
     },
     {
       "path": "src/domain/decision-choice.ts",
-      "sha256": "8c7b11422ffddc69503d2cf8e4926e550136c6189a925506120dd1906b46ff72",
+      "sha256": "df75b2007665fede5b19e4eefc635c07edd5664516f9c9ecb5232cc3fcbaf6c9",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1164,7 +1164,7 @@
     },
     {
       "path": "tests/decision-choice.test.mjs",
-      "sha256": "9ea59359c9d9adc14a6d48b96bc86b853583e48ed7560783264f1f89aa46ab79",
+      "sha256": "1fa4ebd35cc89405f4c51b32b67e338a4633862b982faaf425f60ada0698db98",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
