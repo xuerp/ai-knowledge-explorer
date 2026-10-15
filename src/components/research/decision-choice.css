@@ -299,6 +299,72 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.decision-api-trial {
+  margin-block: 1rem;
+}
+.decision-api-trial > :not(summary) {
+  margin-top: 0.75rem;
+}
+.decision-api-trial h4 {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.decision-api-trial label:not(.decision-api-trial__replace) {
+  display: grid;
+  gap: 0.375rem;
+}
+.decision-api-trial textarea,
+.decision-api-trial input:not([type="checkbox"]),
+.decision-api-trial select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font: inherit;
+}
+.decision-api-trial__limits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.decision-api-trial__download {
+  display: inline-block;
+  margin-inline-start: 0.75rem;
+  color: var(--color-signal);
+  text-decoration: underline;
+}
+.decision-api-trial__replace {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+}
+.decision-api-trial ol,
+.decision-api-trial ul {
+  padding-inline-start: 1.25rem;
+  list-style: decimal;
+}
+.decision-api-trial li + li {
+  margin-top: 0.5rem;
+}
+.decision-api-trial ul {
+  list-style: disc;
+}
+@media (max-width: 640px) {
+  .decision-api-trial textarea,
+  .decision-api-trial input,
+  .decision-api-trial select {
+    font-size: 16px;
+  }
+  .decision-api-trial__limits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .decision-trial-kit {
   margin-block: 20px;
   max-width: none;

@@ -16,6 +16,7 @@ import {
 import { validationReviewReading } from "@/domain/decision-validation-review";
 import { DecisionMeasurements, RecordedMeasurements } from "./DecisionMeasurements";
 import { DecisionTrialEntry } from "./DecisionTrialEntry";
+import { DecisionApiTrial } from "./DecisionApiTrial";
 import { candidateRecordMode } from "@/domain/decision-choice";
 import {
   createValidationPlan,
@@ -427,6 +428,15 @@ export function DecisionValidationPanel({
               </Button>
             )}
           </div>
+          <DecisionApiTrial
+            research={research}
+            items={items}
+            entityName={entityName}
+            onApply={(next) => {
+              setItems(next);
+              setMessage("");
+            }}
+          />
           <DecisionTrialEntry
             research={research}
             requestedCandidate={

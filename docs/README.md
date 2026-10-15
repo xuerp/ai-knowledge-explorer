@@ -19,6 +19,8 @@
 - `RELEASE_SYNC_20261014.md`：此次源码、公开资料与公网版本同步的范围、验证及回滚点。
 - `DECISION_PRODUCT_ACCEPTANCE.md`：决策助手的产品完成标准及未解决边界。
 - `DECISION_FIRST_USE_20261014.md`：首次使用路径、实际界面验证及自动实测的能力边界。
+- `AUTOMATIC_API_TRIALS.md`：本地批量 API 试测、费用预览、执行确认和私人结果回填。
+- `DECISION_FOLLOWUP_20261015.md`：依赖安全、渠道资料与自动试测的当前验收范围。
 
 - `PROJECT_COMPLETION_SPEC.md`：从当前 staging 收束到可信交付的唯一执行清单。
 - `../PRODUCT_ROADMAP.md`：最新产品设计规划、页面体验、跨页面闭环和验证指标；不授予运行时写入或发布权限。

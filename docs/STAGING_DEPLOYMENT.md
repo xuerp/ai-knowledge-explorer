@@ -150,6 +150,8 @@ Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数�
 
 ## 6. 验收顺序
 
+发布时先推送 `codex/productionize`，等待 Quality、前后端精确版本和 Staging acceptance 全部通过，再将 `main` 快进到同一提交。不要并行提前更新默认分支：Render 的 `checksPass` 会等待同一提交上的全部检查，而提前附着在该提交上的预发布验收又会等待 Render，形成相互等待。保留这条顺序即可解除等待，不需要关闭质量门禁、强制部署未验证代码或改写历史。
+
 1. `/health`、`/ready` 和 API 服务健康检查均通过。
 2. Neon 位于 Alembic head，公开快照可读。
 3. 普通 viewer 无法进入审核后台。
