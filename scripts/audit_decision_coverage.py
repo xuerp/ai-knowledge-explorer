@@ -30,9 +30,7 @@ def evaluate(snapshot: KnowledgeSnapshot) -> dict:
     cases, gaps = [], {}
     for scenario in CATALOG["scenarios"]:
         deployments = (
-            ["undecided", "cloud-api"]
-            if scenario["taskType"] == "model-api"
-            else ["undecided"]
+            ["undecided", "cloud-api"] if scenario["taskType"] == "model-api" else ["undecided"]
         )
         for deployment in deployments:
             case_id = f"{scenario['id']}:{deployment}"
@@ -113,9 +111,7 @@ def evaluate(snapshot: KnowledgeSnapshot) -> dict:
             "sources": len(snapshot.evidence),
         },
         "currentPredicates": dict(
-            sorted(
-                Counter(claim.predicate or "unspecified" for claim in current).items()
-            )
+            sorted(Counter(claim.predicate or "unspecified" for claim in current).items())
         ),
         "cases": cases,
         "blockedCases": [
@@ -154,12 +150,8 @@ def main():
         sourceCommit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
-        sourceKind="explicit-public-snapshot"
-        if args.snapshot
-        else "committed-public-catalog",
-        snapshotSha256=hashlib.sha256(
-            snapshot.model_dump_json(by_alias=True).encode()
-        ).hexdigest(),
+        sourceKind="explicit-public-snapshot" if args.snapshot else "committed-public-catalog",
+        snapshotSha256=hashlib.sha256(snapshot.model_dump_json(by_alias=True).encode()).hexdigest(),
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
