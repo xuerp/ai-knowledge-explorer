@@ -1,15 +1,19 @@
 """Remembering is explicit, bounded, revocable and independent of passwords."""
 
-from datetime import UTC, datetime, timedelta
+from contextlib import contextmanager
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
+from app.auth import Principal
 from app.config import Settings
 from app.database import RememberedSessionRecord, UserRecord
 from app.main import create_app
+from app.security import _current_account_principal
 
 
 @pytest.fixture
@@ -93,3 +97,29 @@ def test_remember_checkbox_does_not_extend_privileged_access(client):
         session.get(UserRecord, result["user"]["id"]).role = "admin"
         session.commit()
     assert sign_in(client, True)["expiresIn"] == 30 * 60
+
+
+@pytest.mark.parametrize("offset", [-10, 10])
+def test_database_session_timezone_preserves_the_actual_expiry_instant(offset):
+    user = SimpleNamespace(
+        id="fixture-user", email="timezone@example.com", role="viewer", active=True
+    )
+    remembered = SimpleNamespace(
+        user_id=user.id,
+        revoked_at=None,
+        expires_at=(datetime.now(UTC) + timedelta(minutes=10)).astimezone(
+            timezone(timedelta(hours=offset))
+        ),
+    )
+
+    @contextmanager
+    def session():
+        yield SimpleNamespace(get=lambda model, key: user if model is UserRecord else remembered)
+
+    request = SimpleNamespace(
+        app=SimpleNamespace(state=SimpleNamespace(database=SimpleNamespace(session=session)))
+    )
+    principal = Principal(
+        subject=user.id, email=user.email, role=user.role, session_id="fixture-session"
+    )
+    assert _current_account_principal(request, principal) is not None

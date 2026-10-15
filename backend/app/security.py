@@ -22,7 +22,8 @@ def _current_account_principal(request: Request, principal: Principal) -> Princi
                 or remembered.user_id != user.id
                 or user.role != principal.role
                 or remembered.revoked_at is not None
-                or remembered.expires_at.replace(tzinfo=UTC) <= datetime.now(UTC)
+                or remembered.expires_at.replace(tzinfo=remembered.expires_at.tzinfo or UTC)
+                <= datetime.now(UTC)
             ):
                 return None
         return Principal(

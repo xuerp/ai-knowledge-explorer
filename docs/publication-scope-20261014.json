@@ -204,7 +204,7 @@
     },
     {
       "path": "backend/app/security.py",
-      "sha256": "bff8164ea983a5eb989917f969b3d3a5613433bed8ba7d0f68d8d547249854e0",
+      "sha256": "832b8b5dd470738ca6eaf10be967f21e10c6489579ba1c7ad6f63bf945fc3ca8",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -495,7 +495,7 @@
     {
       "path": "backend/tests/test_remembered_login.py",
       "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
-      "sha256": "021249e765a3cbb3afd2fe266a2fc6297fa28a7fb62fdc5b7c40292250c730e5"
+      "sha256": "e15aa1b0b23b4b789353a0fc784f5ccf1b63318109ad2f91881aa92bf419dc7e"
     },
     {
       "path": "backend/tests/test_research_report.py",
@@ -540,7 +540,7 @@
     {
       "path": "docs/ACCOUNT_LOGIN_20261015.md",
       "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
-      "sha256": "dd6d350e9867ffc011fffc6cd8977c39698a430f2d6cf4f10ee2f4e8b78546d4"
+      "sha256": "d3414c73a1d5b0d40652c1f46d1a0773d97eea0e3c984fce85ef27b39f9c115f"
     },
     {
       "path": "docs/AUTOMATIC_API_TRIALS.md",
