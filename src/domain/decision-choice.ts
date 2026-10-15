@@ -3,6 +3,23 @@ import { compactFindings } from "./decision-reading";
 
 type Candidate = NonNullable<NonNullable<ResearchResult["decision"]>["candidates"]>[number];
 
+/** One displayed statement may support several dimensions; never repeat it as extra evidence. */
+function choiceFindings(items: NonNullable<Candidate["strengths"]>) {
+  const groups = new Map<string, (typeof items)[number] & { dimensions: string[] }>();
+  for (const item of items) {
+    if (!item.finding?.trim()) continue;
+    const summary = item.finding.split(/(?<=[。])\s*|(?<=\.)\s+(?=[A-Z])/)[0];
+    const previous = groups.get(summary);
+    groups.set(summary, {
+      ...item,
+      finding: summary,
+      dimensions: [...new Set([...(previous?.dimensions ?? []), item.dimension])],
+      claimIds: [...new Set([...(previous?.claimIds ?? []), ...(item.claimIds ?? [])])],
+    });
+  }
+  return [...groups.values()];
+}
+
 /** Describe the evidence gap we actually received, never the availability of facts on the web. */
 export function candidateEvidenceStatus(candidate: Candidate, lang: "zh" | "en") {
   const reasons = new Set(
@@ -72,10 +89,20 @@ export function decisionChoices(research: ResearchResult) {
   return buckets.flat().map((row) => ({
     ...row,
     ready: trial.has(row.entityId),
+    qualifications: (research.citations ?? [])
+      .map((citation) => citation.claim)
+      .filter(
+        (claim) =>
+          claim.entityId === row.entityId &&
+          claim.predicate === "workflow-qualification" &&
+          claim.confidence === "verified" &&
+          (row.claimIds ?? []).includes(claim.id) &&
+          (!research.citationStates?.[claim.id] || research.citationStates[claim.id] === "current"),
+      ),
     estimatedCost: (row.strengths ?? []).find((finding) => finding.dimension === "api-price"),
-    known: (row.strengths ?? [])
-      .filter((finding) => required.includes(finding.dimension))
-      .slice(0, 2),
+    known: choiceFindings(
+      (row.strengths ?? []).filter((finding) => required.includes(finding.dimension)).slice(0, 2),
+    ),
     missing: [
       ...new Set(
         (row.gaps ?? [])

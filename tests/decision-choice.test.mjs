@@ -17,6 +17,61 @@ const {
 } = await vite.ssrLoadModule("/src/domain/decision-choice.ts");
 test.after(() => vite.close());
 
+test("repeated visible statements share one row and retain every dimension, citation and original qualification", () => {
+  const input = structuredClone(research);
+  const candidate = input.decision.candidates.find((row) => row.entityId === "qualified");
+  input.decision.scenario.requiredFeatures = ["code-editing", "tool-use"];
+  candidate.strengths = [
+    {
+      dimension: "code-editing",
+      finding: "Can edit and execute. Actual results are untested.",
+      claimIds: ["a"],
+    },
+    {
+      dimension: "tool-use",
+      finding: "Can edit and execute. Account permissions apply.",
+      claimIds: ["b"],
+    },
+  ];
+  const original = structuredClone(candidate.strengths);
+  const row = decisionChoices(input).find((item) => item.entityId === candidate.entityId);
+  assert.equal(row.known.length, 1);
+  assert.deepEqual(row.known[0].dimensions, ["code-editing", "tool-use"]);
+  assert.deepEqual(row.known[0].claimIds, ["a", "b"]);
+  assert.deepEqual(candidate.strengths, original);
+});
+
+test("documented account qualifications remain visible without asserting account access or accepting stale claims", () => {
+  const input = structuredClone(research);
+  input.decision.candidates.find((row) => row.entityId === "qualified").claimIds = ["entry-scope"];
+  input.citations = [
+    {
+      claim: {
+        id: "entry-scope",
+        entityId: "qualified",
+        predicate: "workflow-qualification",
+        confidence: "verified",
+        text: { zh: "需核对账户层级", en: "Check the account tier" },
+      },
+    },
+  ];
+  assert.equal(
+    decisionChoices(input).find((row) => row.entityId === "qualified").qualifications.length,
+    1,
+  );
+  input.citationStates = { "entry-scope": "missing" };
+  assert.equal(
+    decisionChoices(input).find((row) => row.entityId === "qualified").qualifications.length,
+    0,
+  );
+  input.citationStates = { "entry-scope": "current" };
+  input.citations[0].claim.entityId = "different-candidate";
+  assert.equal(
+    decisionChoices(input).find((row) => row.entityId === "qualified").qualifications.length,
+    0,
+  );
+});
+
 test("candidate states distinguish knowledge-base gaps, stale evidence and user input without implying online absence", () => {
   const labels = {
     "not-recorded": "知识库缺少相关依据",

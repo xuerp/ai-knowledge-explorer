@@ -84,42 +84,39 @@ export function DecisionChoice({
         {row.known.length ? (
           <div className="decision-choice__reasons">
             <span className="decision-choice__facts">
-              {row.known
-                .filter(
-                  (finding, index, all) =>
-                    all.findIndex((other) => other.finding === finding.finding) === index,
-                )
-                .map((finding) => (
-                  <span key={finding.dimension}>
-                    <b>{dimension(finding.dimension)}：</b>
-                    {finding.finding.split(/(?<=[。])\s*|(?<=\.)\s+(?=[A-Z])/)[0]}
-                    <span className="decision-choice__sources">
-                      {(research.citations ?? [])
-                        .filter((citation) => finding.claimIds.includes(citation.claim.id))
-                        .flatMap((citation) => citation.evidence)
-                        .filter(
-                          (evidence, index, all) =>
-                            all.findIndex((item) => item.url === evidence.url) === index,
-                        )
-                        .slice(0, 2)
-                        .map((evidence) => (
-                          <a
-                            key={evidence.id}
-                            href={evidence.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            {evidence.url.includes("/models/")
-                              ? t("型号说明", "Model documentation")
-                              : evidence.url.includes("changelog")
-                                ? t("更新记录", "Changelog")
-                                : t("原始资料", "Original source")}
-                          </a>
-                        ))}
-                    </span>
+              {row.known.map((finding) => (
+                <span key={finding.dimension}>
+                  <b>{finding.dimensions.map(dimension).join(" / ")}：</b>
+                  {finding.finding}
+                  <span className="decision-choice__sources">
+                    {(research.citations ?? [])
+                      .filter((citation) => finding.claimIds.includes(citation.claim.id))
+                      .flatMap((citation) => citation.evidence)
+                      .filter(
+                        (evidence, index, all) =>
+                          all.findIndex((item) => item.url === evidence.url) === index,
+                      )
+                      .slice(0, 2)
+                      .map((evidence, sourceIndex) => (
+                        <a
+                          key={evidence.id}
+                          href={evidence.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={lang === "zh" ? evidence.title.zh : evidence.title.en}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {evidence.url.includes("/models/")
+                            ? t("型号说明", "Model documentation")
+                            : evidence.url.includes("changelog")
+                              ? t("更新记录", "Changelog")
+                              : t("原始资料", "Original source")}{" "}
+                          {sourceIndex + 1}
+                        </a>
+                      ))}
                   </span>
-                ))}
+                </span>
+              ))}
             </span>
           </div>
         ) : (
@@ -141,6 +138,15 @@ export function DecisionChoice({
                 )}
           </span>
         )}
+        {row.qualifications.map((claim) => (
+          <span className="decision-choice__description" key={claim.id}>
+            <b>{t("使用前确认：", "Before using: ")}</b>
+            {lang === "zh" ? claim.text.zh : claim.text.en}{" "}
+            <a className="decision-choice__link" href={`#claim-${claim.id}`}>
+              {t("查看依据", "View evidence")}
+            </a>
+          </span>
+        ))}
         {row.estimatedCost && (
           <span className="decision-choice__estimate">{row.estimatedCost.finding}</span>
         )}

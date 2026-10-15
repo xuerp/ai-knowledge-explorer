@@ -64,7 +64,7 @@
     },
     {
       "path": "backend/app/decision_candidates.py",
-      "sha256": "b2e39c4d25085947043093cf7adeaba69c47038d0e1b78bd3a8cfa7891e2579b",
+      "sha256": "74e24c8b599408c113c3cd94803ca9397c4dbcf38db311a356dd90ef6bbd4b1b",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -330,7 +330,7 @@
     {
       "path": "backend/tests/test_decision_feature_hierarchy.py",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "abc56ce3d9612a3001b6a06e088fa399259337987a4e3b4cd21336d9362cf36c"
+      "sha256": "ed81841d19a9ef23627855edf38b9545ee4f5e928116f4d2417792d64033f62c"
     },
     {
       "path": "backend/tests/test_decision_full.py",
@@ -530,7 +530,7 @@
     {
       "path": "docs/DECISION_EVIDENCE_COVERAGE_20261015.md",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "5a5bc1da89fa9f82a59ab81485a1ef01739820a7b5f9969b0ef43af28ad4c856"
+      "sha256": "1a545b9dd1edbc7dd319716d4fc94a18cb36a6eba80d57a56f6cfa02334db72a"
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
@@ -744,7 +744,7 @@
     },
     {
       "path": "src/components/research/DecisionChoice.tsx",
-      "sha256": "2cebc78fb977f2528b048587c506e81571ddcc16d261ac266c6dc9ce0c4be069",
+      "sha256": "ed7db1a5046e1784e30baba075d49de6d2f8b5e4bea6d386d79a714ea91948c9",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -864,7 +864,7 @@
     },
     {
       "path": "src/domain/decision-choice.ts",
-      "sha256": "df75b2007665fede5b19e4eefc635c07edd5664516f9c9ecb5232cc3fcbaf6c9",
+      "sha256": "eabe9b6a1e05f17df0bc8013dd047a83f329ebac16653b325ddf93be9b55fe62",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1189,7 +1189,7 @@
     },
     {
       "path": "tests/decision-choice.test.mjs",
-      "sha256": "1fa4ebd35cc89405f4c51b32b67e338a4633862b982faaf425f60ada0698db98",
+      "sha256": "a08cfede6f13563c1421d8d5f497c3ed6fdf163dcb904482ddfe1bc9c07b832d",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {

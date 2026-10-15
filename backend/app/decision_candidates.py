@@ -149,6 +149,14 @@ def described_features(
                 )
             )
         ]
+        # Lead with the explicit reviewed capability, not a generic release
+        # sentence that happens to contain a workflow keyword. Retain all cites.
+        matching.sort(
+            key=lambda claim: (
+                claim.predicate != "workflow-feature",
+                claim.object_or_value != key,
+            )
+        )
         if matching:
             findings.append(
                 DecisionTradeoff(
