@@ -295,7 +295,18 @@ export function DecisionBrief({
                 open={index < 2 && row.cells.filter((cell) => cell.state !== "unknown").length <= 6}
               >
                 <summary>
-                  <h4>{row.dimension}</h4>
+                  <h4>
+                    {row.id.startsWith("api-price") ? (
+                      <>
+                        {t("API 价格", "API price")}
+                        <small className="decision-comparison__basis">
+                          {row.dimension.replace(/^API (?:价格|price)\s*/i, "")}
+                        </small>
+                      </>
+                    ) : (
+                      row.dimension
+                    )}
+                  </h4>
                   <span>
                     {t(
                       `${row.cells.filter((cell) => cell.state !== "unknown").length} 个候选有依据`,
@@ -447,66 +458,72 @@ export function DecisionBrief({
                       ))}
                     </ul>
                   )}
-                  {!!candidate.strengths?.length && (
-                    <details>
+                  {(!!candidate.strengths?.length ||
+                    !!candidate.gaps?.length ||
+                    candidate.claimIds.length > 0) && (
+                    <details className="decision-candidates__details">
                       <summary>
-                        {t("查看功能描述与引用", "Inspect described features and citations")}
+                        {t("查看资料与待核验项", "Inspect evidence and verification gaps")}
                       </summary>
-                      <EvidenceBoundList
-                        level={5}
-                        title={t("与业务有关的功能描述", "Features described for this business")}
-                        items={compactFindings(candidate.strengths)}
-                      />
-                    </details>
-                  )}
-                  {!!candidate.gaps?.length && (
-                    <details>
-                      <summary>
-                        {t("未知原因与补充方向", "Unknowns and how to resolve them")}
-                      </summary>
-                      <ul>
-                        {candidate.gaps.map((gap) => (
-                          <li key={gap.dimension}>
-                            <strong>{dimensionName(gap.dimension)}</strong>
-                            {" · "}
-                            {
-                              {
-                                "not-recorded": t("未收录", "Not recorded"),
-                                "not-structured": t("资料未结构化", "Not structured"),
-                                "not-current": t(
-                                  "资料当前不可用于核验",
-                                  "Evidence not current for verification",
-                                ),
-                                "needs-input": t("待补充条件", "Needs inputs"),
-                                conflicting: t("事实冲突", "Conflicting facts"),
-                                "requires-poc": t("待同口径实测", "Needs comparable testing"),
-                              }[gap.reason]
-                            }
-                            <p>{gap.detail}</p>
-                            {gap.claimIds.map((id) => (
+                      {!!candidate.strengths?.length && (
+                        <EvidenceBoundList
+                          level={5}
+                          title={t("与业务有关的功能描述", "Features described for this business")}
+                          items={compactFindings(candidate.strengths)}
+                        />
+                      )}
+                      {!!candidate.gaps?.length && (
+                        <div className="decision-candidates__gaps">
+                          <h5>{t("待核验项与补充方向", "Verification gaps and next steps")}</h5>
+                          <ul>
+                            {candidate.gaps.map((gap) => (
+                              <li key={gap.dimension}>
+                                <strong>{dimensionName(gap.dimension)}</strong>
+                                {" · "}
+                                {
+                                  {
+                                    "not-recorded": t("未收录", "Not recorded"),
+                                    "not-structured": t("资料未结构化", "Not structured"),
+                                    "not-current": t(
+                                      "资料当前不可用于核验",
+                                      "Evidence not current for verification",
+                                    ),
+                                    "needs-input": t("待补充条件", "Needs inputs"),
+                                    conflicting: t("事实冲突", "Conflicting facts"),
+                                    "requires-poc": t("待同口径实测", "Needs comparable testing"),
+                                  }[gap.reason]
+                                }
+                                <p>{gap.detail}</p>
+                                {gap.claimIds.map((id) => (
+                                  <a
+                                    key={id}
+                                    href={`#claim-${id}`}
+                                    className="decision-brief__claims text-signal hover:underline"
+                                  >
+                                    {t("查看现有相关资料", "Inspect related evidence")}
+                                  </a>
+                                ))}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {candidate.claimIds.length > 0 && (
+                        <div className="decision-candidates__references">
+                          <h5>{t("引用索引", "Citation index")}</h5>
+                          <div className="decision-brief__claims">
+                            {candidate.claimIds.map((id, index) => (
                               <a
                                 key={id}
                                 href={`#claim-${id}`}
-                                className="decision-brief__claims text-signal hover:underline"
+                                className="text-signal hover:underline"
                               >
-                                {t("查看现有相关资料", "Inspect related evidence")}
+                                {t("查看依据", "View evidence")} {index + 1}
                               </a>
                             ))}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
-                  {candidate.claimIds.length > 0 && (
-                    <details>
-                      <summary>{t("查看候选依据", "Inspect candidate evidence")}</summary>
-                      <div className="decision-brief__claims">
-                        {candidate.claimIds.map((id, index) => (
-                          <a key={id} href={`#claim-${id}`} className="text-signal hover:underline">
-                            {t("查看依据", "View evidence")} {index + 1}
-                          </a>
-                        ))}
-                      </div>
+                          </div>
+                        </div>
+                      )}
                     </details>
                   )}
                 </li>

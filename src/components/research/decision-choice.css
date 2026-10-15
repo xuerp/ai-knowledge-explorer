@@ -185,9 +185,11 @@
   font-size: 14px;
 }
 .decision-choice__more,
-.decision-workspace,
+.decision-workspace {
+  margin-block: 12px;
+}
 .decision-audit {
-  margin-block: 16px;
+  margin-block: 0 12px;
 }
 .decision-choice__more > summary,
 .decision-workspace > summary,
@@ -493,7 +495,7 @@
   font-size: 17px;
 }
 .decision-choice__refresh {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 .decision-brief--choice .decision-validation {
   padding-top: 24px;
@@ -570,92 +572,145 @@
   font-size: 14px;
   line-height: 1.7;
 }
-/* Native disclosure semantics, with explicit text and button affordance. */
+/* Disclosures reveal information; actions retain their own button hierarchy. */
 .decision-brief--choice summary,
 :is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
   > summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  min-height: 40px;
-  margin-block: 4px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-size: 13px;
-  line-height: 1.6;
-  font-weight: 500;
-  list-style: none;
   cursor: pointer;
-}
-.decision-brief--choice summary::marker,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
-  > summary::marker {
-  content: "";
+  list-style: none;
 }
 .decision-brief--choice summary::-webkit-details-marker,
 :is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
   > summary::-webkit-details-marker {
   display: none;
 }
-.decision-brief--choice summary::after,
+.decision-brief--choice summary::marker,
 :is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
-  > summary::after {
-  content: "查看";
-  font-size: 12px;
-  color: var(--color-signal);
-  flex-shrink: 0;
+  > summary::marker {
+  content: "";
 }
-.decision-brief--choice details[open] > summary::after,
+/* Secondary utilities read as links, never as another primary action. */
+:is(
+    .decision-choice__more,
+    .decision-audit,
+    .decision-candidates__details,
+    .decision-supporting-details,
+    .decision-scope,
+    .decision-guide,
+    .decision-validation__exports,
+    .decision-validation__conditions,
+    .decision-validation__records,
+    .decision-trial-kit__protocol,
+    .decision-preferences,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )
+  > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 36px;
+  padding-block: 6px;
+  margin: 0;
+  color: var(--color-signal);
+  font-size: 14px;
+  line-height: 1.65;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+/* A drawn chevron complements the label and retains native keyboard behavior. */
+.decision-brief--choice summary::before,
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  margin-inline: 2px 4px;
+  vertical-align: 2px;
+}
+.decision-brief--choice details[open] > summary::before,
 :is(
     .decision-preferences,
     .ask-source-library,
     .ask-secondary-evidence,
     .research-source-library
   )[open]
-  > summary::after {
-  content: "收起";
+  > summary::before {
+  transform: rotate(45deg);
 }
-.decision-brief--choice:lang(en) summary::after,
-:is(
-    .decision-preferences,
-    .ask-source-library,
-    .ask-secondary-evidence,
-    .research-source-library
-  ):lang(en)
-  > summary::after {
-  content: "View";
+.decision-choice__refresh .decision-choice__actions {
+  margin: 0;
+  gap: 16px;
 }
-.decision-brief--choice:lang(en) details[open] > summary::after,
-:is(
-    .decision-preferences,
-    .ask-source-library,
-    .ask-secondary-evidence,
-    .research-source-library
-  )[open]:lang(en)
-  > summary::after {
-  content: "Hide";
+.decision-choice__refresh button {
+  padding-inline: 0;
+  height: auto;
+  min-height: 36px;
+  font-size: 14px;
 }
-.decision-brief--choice summary:hover,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
-  > summary:hover {
-  background: var(--color-muted);
-  border-color: var(--color-signal);
+.decision-brief--choice .decision-comparison__row > summary {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding-block: 12px;
+  margin: 0;
+  min-height: 44px;
 }
-.decision-control-link,
-.decision-choice__sources a {
+.decision-brief--choice .decision-comparison__row > summary > span {
+  margin: 0;
+  white-space: normal;
+  text-align: right;
+}
+.decision-comparison__row > summary:hover h4 {
+  color: var(--color-signal);
+}
+.decision-comparison__basis {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted-foreground);
+  line-height: 1.65;
+}
+.decision-choice__sources a,
+.decision-control-link {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 2px 8px;
-  background: var(--color-background);
+  min-height: 28px;
   color: var(--color-signal);
   font-size: 12px;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.decision-candidates__details > .decision-brief__list,
+.decision-candidates__gaps,
+.decision-candidates__references {
+  margin-block: 12px;
+}
+.decision-candidates__details h5 {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .decision-brief--choice .decision-comparison__row > summary {
+    grid-template-columns: 8px minmax(0, 1fr);
+    gap: 4px 10px;
+  }
+  .decision-brief--choice .decision-comparison__row > summary > span {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 .decision-control-link:focus-visible,
 .decision-brief--choice summary:focus-visible {

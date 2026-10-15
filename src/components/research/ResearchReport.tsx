@@ -274,7 +274,7 @@ export function ResearchReport({
       <div
         className={`mx-auto grid max-w-5xl gap-8 px-4 py-8 md:px-6 ${research?.decision ? "" : "lg:grid-cols-[minmax(0,1fr)_280px]"}`}
       >
-        <div className="space-y-8">
+        <div className={research?.decision ? "space-y-3" : "space-y-8"}>
           {!research?.decision && (
             <section aria-labelledby="summary-title">
               <h2 id="summary-title" className="research-report__section-title">

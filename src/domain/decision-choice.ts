@@ -1,6 +1,29 @@
 import type { ResearchRequest, ResearchResult } from "@/services/user-api";
 import { compactFindings } from "./decision-reading";
 
+type Candidate = NonNullable<NonNullable<ResearchResult["decision"]>["candidates"]>[number];
+
+/** Describe the evidence gap we actually received, never the availability of facts on the web. */
+export function candidateEvidenceStatus(candidate: Candidate, lang: "zh" | "en") {
+  const reasons = new Set(
+    (candidate.gaps ?? [])
+      .filter((gap) => !["task-quality", "speed", "evidence"].includes(gap.dimension))
+      .map((gap) => gap.reason),
+  );
+  const t = (zh: string, en: string) => (lang === "zh" ? zh : en);
+  if (candidate.eligibility === "conflict" || reasons.has("conflicting"))
+    return t("知识库资料有冲突", "Conflicting knowledge-base evidence");
+  if (reasons.has("needs-input"))
+    return t("需要你补充条件", "Your requirements need clarification");
+  if (reasons.has("not-recorded"))
+    return t("知识库缺少相关依据", "Relevant evidence missing from knowledge base");
+  if (reasons.has("not-current"))
+    return t("知识库依据需重新核验", "Knowledge-base evidence needs revalidation");
+  if (reasons.has("not-structured"))
+    return t("已有资料尚未整理为选型依据", "Existing material is not structured for selection");
+  return t("当前依据不足以确认", "Current evidence does not establish eligibility");
+}
+
 export function decisionComparisonRows(research: ResearchResult, selected: string[]) {
   return (research.decision?.comparisons ?? [])
     .filter((row) =>
