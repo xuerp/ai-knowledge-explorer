@@ -572,7 +572,8 @@
 }
 /* Native disclosure semantics, with explicit text and button affordance. */
 .decision-brief--choice summary,
-.decision-preferences > summary {
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary {
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -590,34 +591,56 @@
   cursor: pointer;
 }
 .decision-brief--choice summary::marker,
-.decision-preferences > summary::marker {
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary::marker {
   content: "";
 }
 .decision-brief--choice summary::-webkit-details-marker,
-.decision-preferences > summary::-webkit-details-marker {
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary::-webkit-details-marker {
   display: none;
 }
 .decision-brief--choice summary::after,
-.decision-preferences > summary::after {
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary::after {
   content: "查看";
   font-size: 12px;
   color: var(--color-signal);
   flex-shrink: 0;
 }
 .decision-brief--choice details[open] > summary::after,
-.decision-preferences[open] > summary::after {
+:is(
+    .decision-preferences,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )[open]
+  > summary::after {
   content: "收起";
 }
 .decision-brief--choice:lang(en) summary::after,
-.decision-preferences:lang(en) > summary::after {
+:is(
+    .decision-preferences,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  ):lang(en)
+  > summary::after {
   content: "View";
 }
 .decision-brief--choice:lang(en) details[open] > summary::after,
-.decision-preferences[open]:lang(en) > summary::after {
+:is(
+    .decision-preferences,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )[open]:lang(en)
+  > summary::after {
   content: "Hide";
 }
 .decision-brief--choice summary:hover,
-.decision-preferences > summary:hover {
+:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+  > summary:hover {
   background: var(--color-muted);
   border-color: var(--color-signal);
 }

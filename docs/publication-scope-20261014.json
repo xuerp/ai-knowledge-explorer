@@ -769,7 +769,7 @@
     },
     {
       "path": "src/components/research/decision-choice.css",
-      "sha256": "4105518354a058273aef9e40fafe5b1195e85efc419f43dc71f3ed90b4ea06b7",
+      "sha256": "5909ff20defb3cb1fce0eb77447e856044df578e66067e0ca1e84790778a9363",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
