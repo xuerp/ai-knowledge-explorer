@@ -912,6 +912,7 @@ class BootstrapUser(CamelModel):
 class LoginRequest(CamelModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=256)
+    remember_me: bool = False
 
 
 class UserCreate(CamelModel):

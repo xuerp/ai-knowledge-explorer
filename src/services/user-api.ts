@@ -400,11 +400,12 @@ export const userApi = {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
-  login: (email: string, password: string) =>
-    request<{ accessToken: string; user: SessionUser }>("/api/v2/auth/login", {
+  login: (email: string, password: string, rememberMe = false) =>
+    request<{ accessToken: string; expiresIn: number; user: SessionUser }>("/api/v2/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe }),
     }),
+  logout: (token: string) => request<void>("/api/v2/auth/logout", { method: "POST" }, token),
   me: (token: string) => request<SessionUser>("/api/v2/auth/me", {}, token),
   following: (token: string) => request<FollowItem[]>("/api/v2/following", {}, token),
   follow: (token: string, entityId: string, intensity: FollowItem["intensity"]) =>

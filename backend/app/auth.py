@@ -10,7 +10,7 @@ from pwdlib import PasswordHash
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .database import AuditLogRecord, UserRecord
+from .database import AuditLogRecord, RememberedSessionRecord, UserRecord
 from .schemas import AuditLogView, Role, TokenResponse, UserCreate, UserView
 
 
@@ -20,6 +20,7 @@ class Principal:
     email: str
     role: Role
     legacy_token: bool = False
+    session_id: str | None = None
 
 
 class AuthService:
@@ -58,11 +59,21 @@ class AuthService:
             return None
         return record
 
-    def issue_token(self, user: UserRecord) -> TokenResponse:
+    def issue_token(
+        self, user: UserRecord, *, remembered_session_id: str | None = None
+    ) -> TokenResponse:
         if not self.jwt_secret:
             raise RuntimeError("JWT authentication is not configured")
         now = datetime.now(UTC)
-        expires = now + timedelta(minutes=self.access_token_minutes)
+        # Remembering is opt-in. Privileged accounts retain their short lifetime.
+        duration = (
+            7 * 24 * 60
+            if remembered_session_id and user.role == "viewer"
+            else min(self.access_token_minutes, 7 * 24 * 60)
+            if remembered_session_id
+            else self.access_token_minutes
+        )
+        expires = now + timedelta(minutes=duration)
         token = jwt.encode(
             {
                 "sub": user.id,
@@ -72,15 +83,29 @@ class AuthService:
                 "exp": expires,
                 "iss": "ai-radar",
                 "aud": "ai-radar-web",
+                **({"sid": remembered_session_id} if remembered_session_id else {}),
             },
             self.jwt_secret,
             algorithm="HS256",
         )
         return TokenResponse(
             access_token=token,
-            expires_in=self.access_token_minutes * 60,
+            expires_in=duration * 60,
             user=self.to_user_view(user),
         )
+
+    def remember_login(self, session: Session, user: UserRecord) -> TokenResponse:
+        session_id = str(uuid4())
+        response = self.issue_token(user, remembered_session_id=session_id)
+        session.add(
+            RememberedSessionRecord(
+                id=session_id,
+                user_id=user.id,
+                expires_at=datetime.now(UTC) + timedelta(seconds=response.expires_in),
+            )
+        )
+        session.commit()
+        return response
 
     def decode_token(self, token: str) -> Principal | None:
         if not self.jwt_secret:
@@ -100,6 +125,7 @@ class AuthService:
                 subject=str(payload["sub"]),
                 email=str(payload["email"]),
                 role=role,
+                session_id=payload.get("sid"),
             )
         except (jwt.InvalidTokenError, KeyError):
             return None

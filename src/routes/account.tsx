@@ -4,6 +4,7 @@ import { Bell, BookOpen, Check, LogOut, ShieldCheck, UserPlus, UserRound } from 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordField } from "@/components/account/PasswordField";
 import { useApp } from "@/lib/app-state";
 import {
   authSessionExpiredEvent,
@@ -39,6 +40,7 @@ function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [authReady, setAuthReady] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   useEffect(() => setAuthReady(true), []);
 
   const refresh = useCallback(
@@ -107,8 +109,12 @@ function AccountPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     void execute(async () => {
-      const response = await userApi.login(String(form.get("email")), String(form.get("password")));
-      writeAuthToken(response.accessToken);
+      const response = await userApi.login(
+        String(form.get("email")),
+        String(form.get("password")),
+        rememberMe,
+      );
+      writeAuthToken(response.accessToken, rememberMe, response.expiresIn);
       setFollowing([]);
       setNotifications([]);
       setResearch(null);
@@ -128,6 +134,7 @@ function AccountPage() {
     const password = String(form.get("password"));
     if (password !== String(form.get("confirmPassword"))) {
       setError(t("两次输入的密码不一致。", "The passwords do not match."));
+      event.currentTarget.querySelector<HTMLInputElement>('input[name="confirmPassword"]')?.focus();
       return;
     }
     void execute(async () => {
@@ -203,39 +210,58 @@ function AccountPage() {
                 <Input
                   name="email"
                   type="email"
-                  autoComplete="email"
+                  id="account-email"
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode="email"
+                  disabled={busy}
                   placeholder="you@example.com"
                   required
                 />
               </label>
-              <label>
-                <span>{t("密码", "Password")}</span>
-                <Input
-                  name="password"
-                  type="password"
-                  autoComplete={isRegistering ? "new-password" : "current-password"}
-                  placeholder={t("输入密码", "Enter your password")}
-                  minLength={isRegistering ? 12 : 1}
-                  required
-                />
-                {isRegistering && (
-                  <small>{t("至少 12 个字符。", "Use at least 12 characters.")}</small>
-                )}
-              </label>
+              <PasswordField
+                key={authMode}
+                id="account-password"
+                name="password"
+                label={t("密码", "Password")}
+                creating={isRegistering}
+                disabled={busy}
+              />
               {isRegistering && (
-                <label>
-                  <span>{t("确认密码", "Confirm password")}</span>
-                  <Input
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder={t("再次输入密码", "Enter your password again")}
-                    minLength={12}
-                    required
-                  />
-                </label>
+                <PasswordField
+                  id="account-confirm-password"
+                  name="confirmPassword"
+                  showHint={false}
+                  label={t("确认密码", "Confirm password")}
+                  creating
+                  disabled={busy}
+                />
               )}
             </div>
+
+            {!isRegistering && (
+              <div className="account-auth__options">
+                <label className="account-auth__remember">
+                  <input
+                    type="checkbox"
+                    name="rememberMe"
+                    checked={rememberMe}
+                    disabled={busy}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    aria-describedby="account-remember-hint"
+                  />
+                  <span>{t("保持登录，最长 7 天", "Keep me signed in for up to 7 days")}</span>
+                </label>
+                <p id="account-remember-hint">
+                  {t(
+                    "仅在个人设备上勾选。记住密码可使用浏览器的保存密码功能。",
+                    "Use on your own device. Your browser can save and autofill your password.",
+                  )}
+                </p>
+              </div>
+            )}
 
             {error && (
               <p className="account-auth__error" role="alert">
@@ -258,6 +284,7 @@ function AccountPage() {
                 : t("还没有账户？", "New to AI Radar?")}
               <button
                 type="button"
+                disabled={busy}
                 onClick={() => {
                   setAuthMode(isRegistering ? "login" : "register");
                   setError("");
@@ -294,15 +321,21 @@ function AccountPage() {
             )}
             <Button
               variant="ghost"
-              onClick={() => {
-                clearAuthToken();
-                setUser(null);
-                setToken("");
-                setFollowing([]);
-                setNotifications([]);
-                setResearch(null);
-                setError("");
-              }}
+              disabled={busy}
+              onClick={() =>
+                void execute(async () => {
+                  try {
+                    await userApi.logout(token);
+                  } finally {
+                    clearAuthToken();
+                    setUser(null);
+                    setToken("");
+                    setFollowing([]);
+                    setNotifications([]);
+                    setResearch(null);
+                  }
+                })
+              }
             >
               <LogOut />
               退出

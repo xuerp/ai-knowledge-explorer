@@ -1,4 +1,5 @@
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { expireAuthSession, readAuthToken, rememberedAuthKey } from "@/services/auth-session";
 import { TopNav } from "./TopNav";
 import { BottomNav } from "./BottomNav";
 import { PwaStatus } from "@/components/pwa-status";
@@ -6,6 +7,14 @@ import { useApp } from "@/lib/app-state";
 
 export function AppShell({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   const { t } = useApp();
+  useEffect(() => {
+    const syncLogout = (event: StorageEvent) => {
+      if (event.key === rememberedAuthKey && !event.newValue && !readAuthToken())
+        expireAuthSession();
+    };
+    window.addEventListener("storage", syncLogout);
+    return () => window.removeEventListener("storage", syncLogout);
+  }, []);
 
   return (
     <div
