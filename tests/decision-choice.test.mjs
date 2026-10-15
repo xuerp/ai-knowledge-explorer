@@ -51,6 +51,19 @@ test("candidate states distinguish knowledge-base gaps, stale evidence and user 
     ),
     "当前依据不足以确认",
   );
+  assert.equal(
+    candidateEvidenceStatus(
+      {
+        eligibility: "unknown",
+        gaps: [
+          { dimension: "evidence", reason: "not-current" },
+          { dimension: "deployment", reason: "not-recorded" },
+        ],
+      },
+      "zh",
+    ),
+    "知识库依据需重新核验",
+  );
 });
 
 test("different price tiers are distinguished from genuinely missing quote evidence", () => {
