@@ -8,7 +8,7 @@ Catalog specs and textual keyword matches cannot prove a budget or deployment.
 import json
 import math
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
 from .decision_facts import fact_values, normalized_facts
@@ -25,6 +25,49 @@ def date_value(value: str | None):
         return None
 
 
+def observed_price_value(claim: Claim) -> dict | None:
+    """An explicitly observed living quote, never an invented tariff start date."""
+    if claim.predicate != "api_price" or claim.valid_from:
+        return None
+    try:
+        price = json.loads(claim.object_or_value or "")
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(price, dict) or price.get("quoteBasis") != "observed-list-price":
+        return None
+    try:
+        observed = datetime.fromisoformat(price.get("observedAt", ""))
+    except (ValueError, TypeError):
+        return None
+    if (
+        observed.tzinfo is None
+        or price.get("observedAt") != claim.observed_at
+        or not timedelta(0) <= datetime.now(UTC) - observed <= timedelta(days=7)
+        or price.get("conditions") != "standard-uncached-tokens-only"
+        or not isinstance(price.get("sourceUrl"), str)
+        or urlsplit(price["sourceUrl"]).scheme != "https"
+    ):
+        return None
+    return price
+
+
+def current_observed_quote(claim: Claim, sources: dict) -> bool:
+    price = observed_price_value(claim)
+    if not price or not claim.source_ids:
+        return False
+    return all(
+        (source := sources.get(source_id)) is not None
+        and source.type == "official"
+        and source.url == price["sourceUrl"]
+        and bool((source.source_excerpt or "").strip())
+        and date_value(source.verified_at) is not None
+        and date_value(claim.observed_at)
+        <= date_value(source.verified_at)
+        <= datetime.now(UTC).date()
+        for source_id in claim.source_ids
+    )
+
+
 def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Claim]:
     public = {claim.id: claim for claim in snapshot.claims}
     sources = {source.id: source for source in snapshot.evidence}
@@ -36,6 +79,11 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
         and claim.confidence == "verified"
         and claim.source_ids
         and all(source_id in sources for source_id in claim.source_ids)
+        and (
+            claim.predicate != "api_price"
+            or claim.valid_from
+            or current_observed_quote(claim, sources)
+        )
         and (
             not claim.valid_from
             or (date_value(claim.valid_from) is not None and date_value(claim.valid_from) <= today)
@@ -54,7 +102,8 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
             or (
                 # A reviewed living-document quotation can establish current
                 # input support without inventing a publication/release date.
-                # Numeric capacity, price and license retain their date gates.
+                # Other numeric facts and licenses retain their date gates.
+                # Prices have a separate seven-day quotation rule below.
                 (
                     claim.predicate
                     in {"workflow-feature", "product-entry", "workflow-qualification"}
@@ -72,17 +121,25 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
                     for source_id in claim.source_ids
                 )
             )
+            or current_observed_quote(claim, sources)
         )
     ]
 
 
 def api_price_value(claim: Claim) -> dict | None:
     """One validation rule for budget checks and evidence comparison price rows."""
-    if claim.predicate != "api_price" or not claim.valid_from:
+    if claim.predicate != "api_price" or (
+        not claim.valid_from and observed_price_value(claim) is None
+    ):
         return None
     try:
         price = json.loads(claim.object_or_value or "")
         if not isinstance(price, dict) or price.get("unit") != "per-million-tokens":
+            return None
+        if (
+            any(key in price for key in ("quoteBasis", "observedAt", "sourceUrl"))
+            and observed_price_value(claim) is None
+        ):
             return None
         if any(
             not isinstance(price.get(key), str) or not price[key].strip()
@@ -114,7 +171,7 @@ def token_quote_bounds(price: dict, context: DecisionContext) -> tuple[float, fl
     if extra:
         if (
             context.budget.cost_scope != "standard-token-only"
-            or extra - {"conditions", "tiers"}
+            or extra - {"conditions", "tiers", "quoteBasis", "observedAt", "sourceUrl"}
             or price.get("conditions") != "standard-uncached-tokens-only"
         ):
             return None
@@ -187,7 +244,11 @@ def token_quote_bounds(price: dict, context: DecisionContext) -> tuple[float, fl
 
 def api_price_basis(price: dict) -> dict:
     """Rates are values, including tier rates; only conditions form a common basis."""
-    basis = {key: item for key, item in price.items() if key not in {"input", "output"}}
+    basis = {
+        key: item
+        for key, item in price.items()
+        if key not in {"input", "output", "quoteBasis", "observedAt", "sourceUrl"}
+    }
     if isinstance(basis.get("tiers"), list):
         basis["tiers"] = [
             {key: value for key, value in tier.items() if key not in {"input", "output"}}

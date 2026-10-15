@@ -8,8 +8,13 @@
   "rawConsentTranscriptsIncluded": false,
   "files": [
     {
+      "path": ".gitattributes",
+      "reviewBasis": "Preserves the original bytes of an explicitly synthetic frozen test corpus across platforms.",
+      "sha256": "0d6c094dc548a2e34cc706edbf74b28ce45dfb18dfdbf16c9664eea6641a69ad"
+    },
+    {
       "path": ".github/workflows/quality.yml",
-      "sha256": "b8b26d12399a79b2b6a5505c8d249e7b7c4024a6d4e43594c83df255b5c6479b",
+      "sha256": "623b1d2c3cd46860132c5ff6baaf6728b3e696c4ba7ec2ff69f65f549667ac47",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -18,13 +23,18 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": ".prettierignore",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "5af7aaaaa7a6bf6f134cd438f7952d4841c6dcfae8907fbe9104ebefa3721e91"
+    },
+    {
       "path": "AGENTS.md",
       "sha256": "f2254c4e27c356c5336ec642e831af85760d19017dc009464d5dad5a3dc7bef7",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "README.md",
-      "sha256": "9bca9f8e02978ae1e120dbd702e0cac45fb6f26d6909b808247ad24841241b4d",
+      "sha256": "eb14902f4f521d3b342b4e37da8f850b7328fb09b507ccc011bf9764d7f4d974",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -64,7 +74,7 @@
     },
     {
       "path": "backend/app/decision_constraints.py",
-      "sha256": "248e841bfc8aa015f3e1dac5f03e7cab86681ae9a7e91c71375191e38f270e2c",
+      "sha256": "3c6e010b0af8373c9b3ed71b02503050f8f75bd77fcb71900d0443fa8c0a8b49",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -96,6 +106,11 @@
       "path": "backend/app/decision_plan.py",
       "sha256": "875ba71b406660e0ee4d99ec524d642f6000c123a6eef7186ac0d4feec070efb",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_trial_runner.py",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "168aae22ed39da1c261a3152e7bbbcbe7dfb21fd0e69ac2b173c57e380b6ed12"
     },
     {
       "path": "backend/app/decision_validation.py",
@@ -243,6 +258,21 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "backend/scripts/__init__.py",
+      "sha256": "15f14b6b67583316fe42f3f2260a348a49bd1e8feaa4aa6ceb2d0a917ff7dd2e",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
+    },
+    {
+      "path": "backend/scripts/audit_observation_18h.py",
+      "sha256": "7d84d77a1160991e0dd8b1d1251f046a243f5a4492ec56f6f1aac3ac3f2b3f2f",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
+    },
+    {
+      "path": "backend/scripts/observe_official_36h.py",
+      "sha256": "dba937b5ae14dfa21b3298417fdfc78a73e0e306ef762b44bcaebb797a0b6d90",
+      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
+    },
+    {
       "path": "backend/scripts/reconcile_36h_windows.py",
       "sha256": "3dd608fb9962c5456be952009dabc1af59ffcec2e2eae084298ae474d91fec07",
       "reviewBasis": "Reviewed generic recovery/reconciliation or pure budget contract code. Historical account executor and consent transcripts excluded; no stored credentials."
@@ -313,6 +343,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "backend/tests/test_decision_observed_quotes.py",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "cc7094ea36a7d1a1b890b4d07273c396f2f11d6452d53c517662546e94ea638c"
+    },
+    {
       "path": "backend/tests/test_decision_plan.py",
       "sha256": "5558ae700ca32195fe7d0f42e946cd00646d6fc49d9b9dcf0871e256f0569bed",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -326,6 +361,11 @@
       "path": "backend/tests/test_decision_semantic_12h.py",
       "sha256": "2465bb6822acb471daa74ab0c76b0156ce6bc42ccac2b5dc1c206c3d0b42c529",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_trial_runner.py",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "4814e968ad696272ec9ed2a9cb3440e99bf30cdf790b9d1d3a63420abb10f6e4"
     },
     {
       "path": "backend/tests/test_decision_validation_review.py",
@@ -463,18 +503,28 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "docs/AUTOMATIC_API_TRIALS.md",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "9bf1cb937f0394efcd739277b23566d29e809935de3b6adb785017ffa37b7390"
+    },
+    {
       "path": "docs/CORE_MODEL_COVERAGE.md",
       "sha256": "1c4e94346bfa58ce1b606340fcd2d3246616585c163adc948c22c7b8dd9efffa",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
-      "sha256": "81e1d6be21054a1afb5f11fee8faf4b40a256208560dc514ebe4003cdd03b800",
+      "sha256": "8f4269d5bad441b9d122068eea2278be22aba50992dbb356fb18c7d3e956e75c",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
+      "path": "docs/DECISION_FOLLOWUP_20261015.md",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "7287eabf5eb9e486382f48e90f36d5fda0f3dc2ecb10338cf3d1b52dbed98b74"
+    },
+    {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "72a8221688675ab9fd29074389b2eb5dfd264e65a6764e798abbb9fe85d2b2fa",
+      "sha256": "83ec07e0a1201e14d415c381e886121aab1c3f6a7a35368a100934413c97975b",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -489,7 +539,7 @@
     },
     {
       "path": "docs/README.md",
-      "sha256": "05f0bf08a3391a092a79bd336b3bdc59de8c5bb444867fec689892ff2ca11def",
+      "sha256": "328ae475fe5273f9ee535aaaeef07387d39e2d6949d0c6db3f082e6be5d10c44",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -498,9 +548,29 @@
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
+      "path": "docs/STAGING_DEPLOYMENT.md",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "078986543210573d1046994c228d9b038cebd3ef3f103e3973d2b8194da4874b"
+    },
+    {
       "path": "docs/assets/decision-assistant/first-use-desktop.png",
       "sha256": "e077954225b235b7a54395cdad71d70048da3ecefa090d01739c56e53e109d07",
       "reviewBasis": "Manually inspected interface screenshot: model names and public findings only; no account identity, credential or actual trial results."
+    },
+    {
+      "path": "docs/eval/results/ALIAS_REPRODUCTION_20261014.md",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "262cc389dc6577623a4868391548fc68a3307d7fa9a99fa3cab618727bb8eb6d"
+    },
+    {
+      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.json",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "d04bc9530d740c83b173167b7b2707fe0d535e270d1d42b1d10b3ccb4df4b477"
+    },
+    {
+      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.md",
+      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
+      "sha256": "ed3d6da9f5126b71fe2b29b19cef0d67fbe84e4c7ac75f1cb1b569f1180fd5fe"
     },
     {
       "path": "docs/model-spec-enrichment-20261005.json",
@@ -514,12 +584,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "385288dabc0825fef190a3ab957864011aab1a033e7ef74dfedee0531745e756",
-      "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
-    },
-    {
-      "path": "pnpm-lock.yaml",
-      "sha256": "8441dad3030926f0d6b896c6fd1452cb294b0c4163964cc9479f320691957f98",
+      "sha256": "70ba30863d5f60730cbf4fb73de29727156f41422368393c438d59c3f18ea8e5",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -643,6 +708,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "src/components/research/DecisionApiTrial.tsx",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "9b99eb414962772c59b418c36d1673c5944a5bbc6f3619f3272ed98a1da949a2"
+    },
+    {
       "path": "src/components/research/DecisionBrief.tsx",
       "sha256": "af5d61b3bc7733ab09ddde08ba09925dba049346194793fe2f4db26311bbbfcd",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -684,7 +754,7 @@
     },
     {
       "path": "src/components/research/DecisionValidationPanel.tsx",
-      "sha256": "9aed4f920c8031a83984983d45c8832ae8826c3a494733ab88c95bfbb7c8915f",
+      "sha256": "82f50a0b0102b1227b931c39a79d69c61a5997187512a59bd76c30372b70f19e",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -699,7 +769,7 @@
     },
     {
       "path": "src/components/research/decision-choice.css",
-      "sha256": "1abad22a660661ce80254ece4fde1aee60f2106164e7bea08207410d8181c5c1",
+      "sha256": "a5141e8e63fffd829411de8e5ac615732fd72421bad6a56f28bf610e3731bb5a",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -761,6 +831,11 @@
       "path": "src/domain/claim-reading-mode.ts",
       "sha256": "42fafff929e4c3859936855506116a38b4b587477c39495aaa4ae01210528e75",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-api-trial.ts",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "89ff303f1f7251c932963a92cc5e7dca56bcd3781c8b5a9e8cc26f0fe77bc61c"
     },
     {
       "path": "src/domain/decision-choice.ts",
@@ -1078,6 +1153,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "tests/decision-api-trial.test.mjs",
+      "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
+      "sha256": "317959c1bdc39ca804f146a5d9cacb7b6e744183d6cc4af03d65ff573ffde02e"
+    },
+    {
       "path": "tests/decision-assistant-contract.test.mjs",
       "sha256": "0a2d87815bfa8be659088fbb74a4622887203bfffab044027ac4ecc2f8e100b7",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -1221,49 +1301,11 @@
       "path": "vite.config.ts",
       "sha256": "7d25209c0ece632428d6df54fb5603efdab4a850c0a52ae92e2feb82467fef97",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
-    },
-    {
-      "path": "backend/scripts/__init__.py",
-      "sha256": "15f14b6b67583316fe42f3f2260a348a49bd1e8feaa4aa6ceb2d0a917ff7dd2e",
-      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
-    },
-    {
-      "path": "backend/scripts/audit_observation_18h.py",
-      "sha256": "7d84d77a1160991e0dd8b1d1251f046a243f5a4492ec56f6f1aac3ac3f2b3f2f",
-      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
-    },
-    {
-      "path": "backend/scripts/observe_official_36h.py",
-      "sha256": "dba937b5ae14dfa21b3298417fdfc78a73e0e306ef762b44bcaebb797a0b6d90",
-      "reviewBasis": "Reviewed pure maintenance contract with synthetic identities; no original host IDs, account paths, receipts, credentials or collection entry point."
-    },
-    {
-      "path": ".gitattributes",
-      "reviewBasis": "Preserves the original bytes of an explicitly synthetic frozen test corpus across platforms.",
-      "sha256": "0d6c094dc548a2e34cc706edbf74b28ce45dfb18dfdbf16c9664eea6641a69ad"
-    },
-    {
-      "path": ".prettierignore",
-      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
-      "sha256": "5af7aaaaa7a6bf6f134cd438f7952d4841c6dcfae8907fbe9104ebefa3721e91"
-    },
-    {
-      "path": "docs/eval/results/ALIAS_REPRODUCTION_20261014.md",
-      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
-      "sha256": "262cc389dc6577623a4868391548fc68a3307d7fa9a99fa3cab618727bb8eb6d"
-    },
-    {
-      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.json",
-      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
-      "sha256": "d04bc9530d740c83b173167b7b2707fe0d535e270d1d42b1d10b3ccb4df4b477"
-    },
-    {
-      "path": "docs/eval/results/alias_v1.0.0_8978fef80e19_sqlite_top8_20261014.md",
-      "reviewBasis": "Reproducible public 80-query frozen evaluation or generator-byte protection. No private tasks, accounts or new model calls; original historical artifacts retained.",
-      "sha256": "ed3d6da9f5126b71fe2b29b19cef0d67fbe84e4c7ac75f1cb1b569f1180fd5fe"
     }
   ],
-  "publicFileCount": 252,
+  "publicFileCount": 260,
   "historicalConsentAndAccountExecutorRemoved": true,
-  "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion"
+  "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
+  "lastVerifiedOn": "2026-10-15",
+  "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }
