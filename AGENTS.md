@@ -39,6 +39,13 @@
 - Candidate eligibility never proves the user's account can access a model. Clearly identify model APIs versus finished products. A displayed recommendation must not require testing every candidate before providing value.
 - Preserve unsaved drafts, existing measurements and original records when simplifying the interface. Auto-testing must be an explicit separate capability with clear provider, input scope and spending limits; a question about the feature does not authorize new paid requests or document transmission.
 
+## Result Hierarchy and Trial Instructions
+
+- User screenshot requirements reaffirmed 2026-10-15: separate conclusion body from auxiliary notes, keep the parent section visibly stronger than its subsections, and never fold a single line of screening counts behind an arrow.
+- Keep the main trial workspace visible after selection. Preparing a task and recording an actual outcome are distinct, explicitly labeled stages; switching stages must preserve inputs. Secondary disclosures must look clickable and state their view/hide action without relying on a native triangle alone.
+- Default to a visible, copyable task for the user's existing product. Explain that it is an instruction to execute elsewhere, not an executed test. Downloads are optional; styled offline/print instructions and plain Markdown must preserve the same real task and evidence boundaries. Start a novice coding trial with one small actual task; retain full comparison protocols as optional detail.
+- During visual acceptance, check for empty callout backgrounds, duplicated findings, cramped controls and mobile action discoverability as well as overflow. Revalidate actual copy, download, save and reopen behavior; do not infer these from source strings alone.
+
 ## Prevent Premature Text Wrapping
 
 - User requirement (2026-10-13): never leave a wide result panel empty on the right while its Chinese text wraps in a narrow left column. This applies to conclusions, next steps, candidate facts, evidence updates, trial instructions, and saved-result text in both `/ask` and complete research reports.

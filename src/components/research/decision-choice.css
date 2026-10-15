@@ -1,12 +1,13 @@
 .decision-brief.decision-brief--choice .decision-outcome {
-  padding: 0;
-  border: 0;
-  background: transparent;
+  padding: 22px 24px;
+  border: 1px solid var(--color-border);
+  background: var(--color-signal-soft);
 }
 .decision-brief.decision-brief--choice .decision-outcome__headline {
-  font-size: 20px;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
 }
 .decision-brief.decision-brief--choice .decision-outcome__summary {
   font-size: 15px;
@@ -38,8 +39,9 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--color-border);
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
   cursor: default;
   line-height: 1.65;
 }
@@ -126,7 +128,10 @@
 }
 .decision-choice__status {
   display: inline-block;
-  margin-left: 12px;
+  margin: 4px 0 4px 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--color-muted);
   font-size: 12px;
   color: var(--color-muted-foreground);
 }
@@ -144,8 +149,8 @@
 .decision-choice__facts {
   display: grid;
   max-width: none;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 10px;
   font-size: 14px;
   line-height: 1.7;
 }
@@ -193,7 +198,6 @@
   font-size: 14px;
   line-height: 1.7;
 }
-.decision-workspace > .decision-validation,
 .decision-audit > .decision-next-actions {
   margin-top: 16px;
 }
@@ -370,9 +374,10 @@
   max-width: none;
 }
 .decision-trial-kit h4 {
-  margin-bottom: 10px;
-  font-size: 15px;
-  font-weight: 600;
+  margin: 0 0 10px;
+  font-size: 17px;
+  line-height: 1.55;
+  font-weight: 650;
 }
 .decision-trial-kit ol {
   padding-left: 22px;
@@ -427,5 +432,245 @@
   }
   .decision-choice__actions > * {
     max-width: 100%;
+  }
+}
+
+/* Result workspace: one conclusion, one next action, separate secondary notes. */
+.decision-brief--choice {
+  --decision-note-surface: color-mix(in srgb, var(--color-muted) 65%, var(--color-background));
+}
+.decision-brief--choice .decision-note {
+  margin-block: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--decision-note-surface);
+  color: var(--color-muted-foreground);
+}
+.decision-note > span {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  margin-bottom: 3px;
+}
+.decision-brief--choice .decision-note > p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--color-muted-foreground);
+}
+.decision-brief--choice .decision-screening p {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.decision-brief--choice .decision-outcome > .decision-note {
+  margin-bottom: 0;
+  background: var(--color-background);
+}
+.decision-brief--choice .decision-comparison__note {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-muted-foreground);
+}
+.decision-brief--choice .decision-choice > h3,
+.decision-brief--choice .decision-validation__title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+.decision-choice__list {
+  display: grid;
+  gap: 12px;
+}
+.decision-choice__candidate[data-selected="true"] {
+  border-color: var(--color-signal);
+  background: var(--color-signal-soft);
+}
+.decision-choice__candidate .decision-choice__name strong {
+  font-size: 17px;
+}
+.decision-choice__refresh {
+  margin-top: 16px;
+}
+.decision-brief--choice .decision-validation {
+  padding-top: 24px;
+  margin-top: 24px;
+}
+.decision-brief--choice .decision-validation__overview > p {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--color-muted-foreground);
+  margin-block: 14px;
+}
+.decision-validation__overview > p > span {
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--color-muted);
+  font-size: 12px;
+}
+.decision-workspace[hidden],
+.decision-trial-entry [hidden] {
+  display: none;
+}
+.decision-trial-entry__steps,
+.decision-trial-kit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-block: 16px;
+}
+.decision-trial-entry__steps {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.decision-trial-entry__product {
+  margin-block: 16px;
+  font-size: 14px;
+  color: var(--color-muted-foreground);
+}
+.decision-trial-entry__product strong {
+  color: var(--color-foreground);
+}
+.decision-trial-entry__results > h4 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  line-height: 1.55;
+  font-weight: 650;
+}
+.decision-trial-kit__intro {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.decision-trial-kit__prompt-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.decision-trial-kit__prompt-label textarea {
+  padding: 16px;
+  margin-top: 4px;
+  background: var(--color-muted);
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.75;
+  font-weight: 400;
+  min-height: 220px;
+}
+.decision-trial-kit__feedback {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  font-size: 14px;
+  line-height: 1.7;
+}
+/* Native disclosure semantics, with explicit text and button affordance. */
+.decision-brief--choice summary,
+.decision-preferences > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  min-height: 40px;
+  margin-block: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+.decision-brief--choice summary::marker,
+.decision-preferences > summary::marker {
+  content: "";
+}
+.decision-brief--choice summary::-webkit-details-marker,
+.decision-preferences > summary::-webkit-details-marker {
+  display: none;
+}
+.decision-brief--choice summary::after,
+.decision-preferences > summary::after {
+  content: "查看";
+  font-size: 12px;
+  color: var(--color-signal);
+  flex-shrink: 0;
+}
+.decision-brief--choice details[open] > summary::after,
+.decision-preferences[open] > summary::after {
+  content: "收起";
+}
+.decision-brief--choice:lang(en) summary::after,
+.decision-preferences:lang(en) > summary::after {
+  content: "View";
+}
+.decision-brief--choice:lang(en) details[open] > summary::after,
+.decision-preferences[open]:lang(en) > summary::after {
+  content: "Hide";
+}
+.decision-brief--choice summary:hover,
+.decision-preferences > summary:hover {
+  background: var(--color-muted);
+  border-color: var(--color-signal);
+}
+.decision-control-link,
+.decision-choice__sources a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  background: var(--color-background);
+  color: var(--color-signal);
+  font-size: 12px;
+  text-decoration: none;
+}
+.decision-control-link:focus-visible,
+.decision-brief--choice summary:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .decision-brief.decision-brief--choice .decision-outcome {
+    padding: 18px 16px;
+  }
+  .decision-brief.decision-brief--choice .decision-outcome__headline {
+    font-size: 21px;
+  }
+  .decision-choice__candidate {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+  .decision-choice__status {
+    margin-left: 0;
+  }
+  .decision-choice__name {
+    display: block;
+  }
+  .decision-trial-entry input,
+  .decision-trial-entry textarea,
+  .decision-trial-entry select {
+    font-size: 16px;
+  }
+  .decision-trial-kit__actions > button {
+    flex: 1 1 auto;
+  }
+  .decision-trial-kit__prompt-label textarea {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .decision-trial-kit__actions > button:first-child {
+    flex-basis: 100%;
   }
 }

@@ -135,3 +135,35 @@ test("cost assumptions survive reanalysis/login links without silently changing 
     decisionFingerprint({ ...context, budget: { ...context.budget, costScope: "all-costs" } }),
   );
 });
+
+test("formatted trial instructions remain offline, escape user content and share the actual protocol", () => {
+  const research = fixture();
+  research.decisionContext.task =
+    '<script src="https://untrusted.invalid/x.js"></script> & actual task';
+  const kit = decisionTrialKit(research, ["a"], () => "A <img src=x onerror=alert(1)>", "zh");
+  assert.match(kit.html, /<meta charset="utf-8">/);
+  assert.match(kit.html, /default-src 'none'/);
+  assert.match(kit.html, /&lt;script/);
+  assert.match(kit.html, /&lt;img/);
+  assert.doesNotMatch(kit.html, /<script|<img|<iframe|<link /);
+  assert.match(kit.html, /按实际文件逐字段核对/);
+  assert.match(kit.html, /不得虚构字段/);
+  assert.match(kit.html, /font-size:25px/);
+  assert.match(kit.html, /@media print/);
+  assert.match(kit.html, /isolated-fixture/);
+  assert.equal(research.decision.plan.trial.executed, false);
+});
+
+test("coding quick start is one actual task while full comparison stays optional", () => {
+  const research = fixture();
+  research.decisionContext.taskType = "coding-product";
+  research.decisionContext.task = "我是初学者，请建议是否换工具";
+  const kit = decisionTrialKit(research, ["a"], () => "Claude Code", "zh");
+  assert.match(kit.prompt, /本轮只做这一项/);
+  assert.match(kit.prompt, /不能运行测试就明确说明/);
+  assert.doesNotMatch(kit.prompt, /请建议是否换工具/);
+  assert.match(kit.starterInputs, /先试一项即可/);
+  assert.match(kit.markdown, /完整对比方案（可选）/);
+  assert.match(kit.html, /完整对比方案与验收标准（可选）/);
+  assert.equal(research.decision.plan.trial.executed, false);
+});

@@ -29,7 +29,7 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "f2254c4e27c356c5336ec642e831af85760d19017dc009464d5dad5a3dc7bef7",
+      "sha256": "9e0f9fed1664f6f862405cb56e074f2a8edd8da3f54499b2739c2da532c1eb46",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -514,7 +514,7 @@
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
-      "sha256": "8f4269d5bad441b9d122068eea2278be22aba50992dbb356fb18c7d3e956e75c",
+      "sha256": "e38894ef6eaad9edf0139d873dd55cc29e95be44e4f56c54a7d51f458a6436c6",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -714,12 +714,12 @@
     },
     {
       "path": "src/components/research/DecisionBrief.tsx",
-      "sha256": "af5d61b3bc7733ab09ddde08ba09925dba049346194793fe2f4db26311bbbfcd",
+      "sha256": "2c445f9bd4bc4bd3b938aecc99dd39755664b389a7fecd3ca7db6e488db3893a",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/components/research/DecisionChoice.tsx",
-      "sha256": "44688fc54fa6177e32c7e6c68f75c73348955a7b6b125b851123c78e8849ea7f",
+      "sha256": "e9680f13b857fc844e9b792dbaac3f3db7ab3b4c7cb426a3c04d282797da5afa",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -744,17 +744,17 @@
     },
     {
       "path": "src/components/research/DecisionTrialEntry.tsx",
-      "sha256": "0810397ac0006737f8392968956b58d8ed322fedef574cb0088b30da4f284c32",
+      "sha256": "3c4bb7aa9aa0810f1cb9434404da3b3280f1f32583e8843097768e086e3a9172",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/components/research/DecisionTrialKit.tsx",
-      "sha256": "b2be6803adf4f9eb673881c5c5b30d1020a20dd66548d853e20e9d94edca5c75",
+      "sha256": "c823df21637161315e761be063d2b3f9246fde2f2f7860b232d9bfa2a6d6ad50",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/components/research/DecisionValidationPanel.tsx",
-      "sha256": "82f50a0b0102b1227b931c39a79d69c61a5997187512a59bd76c30372b70f19e",
+      "sha256": "c37ca14d7d445ccba80aa1d9d2df9737a4c985107f4d3c1a92ca50daff856ce4",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -769,7 +769,7 @@
     },
     {
       "path": "src/components/research/decision-choice.css",
-      "sha256": "a5141e8e63fffd829411de8e5ac615732fd72421bad6a56f28bf610e3731bb5a",
+      "sha256": "4105518354a058273aef9e40fafe5b1195e85efc419f43dc71f3ed90b4ea06b7",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -874,7 +874,7 @@
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "c0e6fe7a83b5a8a01799ed89a4c1802af610738a5fff29187a8096f554086324",
+      "sha256": "d407d59055015891b33b8bf388b374232b0a4c5df4fe67f7b090ed507d3562d4",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1019,7 +1019,7 @@
     },
     {
       "path": "src/routes/ask.tsx",
-      "sha256": "ef7aea96cd7b532b95022918ad308790fa3e86ba26be0ede84b077122f92b1b3",
+      "sha256": "b0b156f819110572373f70c6702ae043931c320fae47d50c34ecb9085a8094b3",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1129,7 +1129,7 @@
     },
     {
       "path": "src/styles.css",
-      "sha256": "3c3951470db305616be46441f7ff070f9f6ef90a7b7d15265a438332f2a6012b",
+      "sha256": "b33243f1bfccc565b460188fc1a637ebc3265fe1deee227b0396531955ffba4f",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1199,7 +1199,7 @@
     },
     {
       "path": "tests/decision-trial-kit.test.mjs",
-      "sha256": "dfd5576802dd632d262be36373dd1c9e2f087f6398bee43943da060072ed9064",
+      "sha256": "31074678b38d617686df2a987384680b6881755125030f246637df9a9acf9fea",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {

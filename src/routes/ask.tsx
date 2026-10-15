@@ -682,7 +682,7 @@ function AskPage() {
                   )}
                 />
               </label>
-              <details className="decision-preferences decision-more-conditions">
+              <details className="decision-preferences decision-more-conditions" lang={lang}>
                 <summary>
                   {t("限制与偏好（可选）", "Limits and preferences (optional)")}
                   {!!appliedLimits.length && (

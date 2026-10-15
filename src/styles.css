@@ -8599,7 +8599,7 @@ dl.decision-validation__review-note dd {
 }
 .decision-preferences.decision-more-conditions {
   border: 0;
-  padding-block: 4px;
+  padding-block: 12px;
 }
 .decision-preferences__count {
   margin-left: 12px;
