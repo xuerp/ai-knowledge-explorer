@@ -8,9 +8,50 @@ const vite = await createServer({
   appType: "custom",
   optimizeDeps: { noDiscovery: true },
 });
-const { decisionChoices, decisionVisibleChoices, decisionComparisonRows, refreshDecision } =
-  await vite.ssrLoadModule("/src/domain/decision-choice.ts");
+const {
+  decisionChoices,
+  decisionVisibleChoices,
+  decisionComparisonRows,
+  refreshDecision,
+  candidateEvidenceStatus,
+} = await vite.ssrLoadModule("/src/domain/decision-choice.ts");
 test.after(() => vite.close());
+
+test("candidate states distinguish knowledge-base gaps, stale evidence and user input without implying online absence", () => {
+  const labels = {
+    "not-recorded": "知识库缺少相关依据",
+    "not-structured": "已有资料尚未整理为选型依据",
+    "not-current": "知识库依据需重新核验",
+    "needs-input": "需要你补充条件",
+    conflicting: "知识库资料有冲突",
+  };
+  for (const [reason, label] of Object.entries(labels)) {
+    const row = { eligibility: "unknown", gaps: [{ dimension: "deployment", reason }] };
+    assert.equal(candidateEvidenceStatus(row, "zh"), label);
+    assert.ok(candidateEvidenceStatus(row, "en").length > 0);
+    assert.equal(row.eligibility, "unknown");
+  }
+  assert.equal(
+    candidateEvidenceStatus(
+      {
+        eligibility: "unknown",
+        gaps: [
+          { dimension: "deployment", reason: "not-recorded" },
+          { dimension: "region", reason: "needs-input" },
+        ],
+      },
+      "zh",
+    ),
+    "需要你补充条件",
+  );
+  assert.equal(
+    candidateEvidenceStatus(
+      { eligibility: "eligible", gaps: [{ dimension: "task-quality", reason: "requires-poc" }] },
+      "zh",
+    ),
+    "当前依据不足以确认",
+  );
+});
 
 test("different price tiers are distinguished from genuinely missing quote evidence", () => {
   const input = {

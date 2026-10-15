@@ -4,6 +4,7 @@ import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import {
   candidateRecordMode,
+  candidateEvidenceStatus,
   decisionVisibleChoices,
   decisionComparisonRows,
   refreshDecision,
@@ -78,9 +79,7 @@ export function DecisionChoice({
                 ? t("样本通过，入口待核验", "Samples passed; verify interface")
                 : row.ready
                   ? t("可以试用，效果待测", "Ready to try; quality untested")
-                  : row.eligibility === "conflict"
-                    ? t("资料有冲突", "Conflicting information")
-                    : t("使用条件未确认", "Use conditions unconfirmed")}
+                  : candidateEvidenceStatus(row, lang)}
         </span>
         {row.known.length ? (
           <div className="decision-choice__reasons">
@@ -125,13 +124,17 @@ export function DecisionChoice({
           </div>
         ) : (
           <span className="decision-choice__description">
-            {t("目前没有足够用途资料", "Purpose evidence is insufficient")}
+            {t(
+              "当前知识库尚无足够的已审核用途依据",
+              "The current knowledge base lacks sufficient reviewed purpose evidence",
+            )}
           </span>
         )}
         {!row.ready && (
           <span className="decision-choice__description">
             {row.missing.length
-              ? t("还需确认：", "Still to confirm: ") + row.missing.map(dimension).join("、")
+              ? t("本次未核验项：", "Not verified in this analysis: ") +
+                row.missing.map(dimension).join("、")
               : t(
                   "请先查看产品资料，当前不能确认满足要求",
                   "Check product information; fit is not established",
@@ -191,6 +194,12 @@ export function DecisionChoice({
               <summary>
                 {t(`查看其他候选（${more.length}个）`, `Inspect other candidates (${more.length})`)}
               </summary>
+              <p className="decision-choice__hint">
+                {t(
+                  "以下状态只描述本次分析取得的知识库依据；未核验不代表网上没有资料或产品不支持。",
+                  "These states describe knowledge-base evidence retrieved for this analysis. Unverified does not mean unavailable online or unsupported.",
+                )}
+              </p>
               <div className="decision-choice__list">{more.map(renderRow)}</div>
             </details>
           )}
@@ -317,11 +326,10 @@ export function DecisionChoice({
           )}
         </>
       )}
-      <details className="decision-choice__refresh decision-secondary-details">
-        <summary>{t("修改条件或更新分析", "Edit requirements or refresh analysis")}</summary>
+      <div className="decision-choice__refresh">
         <div className="decision-choice__actions">
           <Button
-            variant="outline"
+            variant="link"
             disabled={busy || !research.decisionContext}
             onClick={async () => {
               if (inFlight.current) return;
@@ -357,13 +365,7 @@ export function DecisionChoice({
             </Link>
           )}
         </div>
-        <p className="decision-choice__hint">
-          {t(
-            "重新分析保留原要求，生成一份新结果；原报告和试用记录保留。",
-            "Reanalysis keeps your requirements and creates a new result. The original report and trial records are retained.",
-          )}
-        </p>
-      </details>
+      </div>
     </section>
   );
 }
