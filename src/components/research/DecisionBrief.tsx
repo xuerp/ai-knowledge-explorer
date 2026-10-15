@@ -31,7 +31,7 @@ export function DecisionBrief({
   const [recordedResearchId, setRecordedResearchId] = useState<string | null>(null);
   const [trialRequest, setTrialRequest] = useState<{ ids: string[]; nonce: number } | undefined>();
   const [validation, setValidation] = useState<DecisionValidation | null>(null);
-  const workspaceRef = useRef<HTMLDetailsElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
   const onValidationChange = useCallback(
     (value: DecisionValidation | null) => setValidation(value),
     [],
@@ -54,19 +54,14 @@ export function DecisionBrief({
     : validationContent;
   const validationFirst = recordedResearchId === research.id;
   const workspace = validationNode && (
-    <details
+    <div
       key="private-workspace"
       ref={workspaceRef}
       className="decision-workspace"
-      open={validationFirst || !!trialRequest}
+      hidden={!validationFirst && !trialRequest}
     >
-      <summary>
-        {validationFirst
-          ? t("我的试用记录与判断", "My trial records and findings")
-          : t("试用任务与我的记录", "Trial task and my records")}
-      </summary>
       {validationNode}
-    </details>
+    </div>
   );
   const dimensionName = (key: string) => {
     const feature = scenarios.features[key as keyof typeof scenarios.features];
@@ -112,6 +107,7 @@ export function DecisionBrief({
   return (
     <section
       className="decision-brief decision-brief--choice"
+      lang={lang === "zh" ? "zh-CN" : "en"}
       aria-label={t("结构化决策说明", "Decision brief")}
     >
       <div className="decision-brief__recommendation">
@@ -121,7 +117,6 @@ export function DecisionBrief({
         >
           <OutcomeHeading className="decision-outcome__headline">{verdict.headline}</OutcomeHeading>
           <p className="decision-outcome__summary">{verdict.summary}</p>
-          <p className="decision-choice__hint">{verdict.boundary}</p>
           <p className="decision-verdict__next">
             <strong>{t("下一步：", "Next: ")}</strong>
             {verdict.next}
@@ -133,7 +128,9 @@ export function DecisionBrief({
                 setTrialRequest({ ids: [], nonce: Date.now() });
                 requestAnimationFrame(() => {
                   workspaceRef.current?.scrollIntoView({ block: "start" });
-                  workspaceRef.current?.querySelector("summary")?.focus();
+                  workspaceRef.current
+                    ?.querySelector<HTMLElement>(".decision-validation__title")
+                    ?.focus();
                 });
               }}
             >
@@ -148,17 +145,20 @@ export function DecisionBrief({
               )}
             </p>
           )}
-          <details className="decision-choice__more">
-            <summary>{t("查看本次筛选统计", "Inspect screening counts")}</summary>
+          <div className="decision-screening">
             {decision.candidates?.length ? (
               <p className="decision-outcome__counts">
                 {t(
-                  `可进入业务验证 ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · 排除 ${presentation.counts.excluded} · 待核验 ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · 冲突 ${presentation.counts.conflict}`,
+                  `可试用 ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · 排除 ${presentation.counts.excluded} · 待核验 ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · 冲突 ${presentation.counts.conflict}`,
                   `Ready for a business trial ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · excluded ${presentation.counts.excluded} · awaiting verification ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · conflicting ${presentation.counts.conflict}`,
                 )}
               </p>
             ) : null}
-          </details>
+          </div>
+          <aside className="decision-note" aria-label={t("结论适用范围", "Scope of this advice")}>
+            <span>{t("说明", "Note")}</span>
+            <p>{verdict.boundary}</p>
+          </aside>
         </div>
         {!!decision.missingInputs?.length && (
           <p role="status">
@@ -202,7 +202,9 @@ export function DecisionBrief({
                 setTrialRequest({ ids, nonce: Date.now() });
                 requestAnimationFrame(() => {
                   workspaceRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-                  workspaceRef.current?.querySelector("summary")?.focus({ preventScroll: true });
+                  workspaceRef.current
+                    ?.querySelector<HTMLElement>(".decision-validation__title")
+                    ?.focus({ preventScroll: true });
                 });
               }
             : undefined
@@ -217,9 +219,7 @@ export function DecisionBrief({
       )}
       {workspace}
       <details className="decision-audit">
-        <summary>
-          {t("查看筛选依据与其他候选（可选）", "Screening details and other candidates (optional)")}
-        </summary>
+        <summary>{t("筛选依据与其他候选", "Screening details and other candidates")}</summary>
         {validationContent && hasTrialCandidates && (
           <div className="decision-maintenance">
             <p>

@@ -30,7 +30,10 @@ export function DecisionChoice({
 }) {
   const { t, lang } = useApp();
   const selectionId = useId();
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>(() => {
+    const { shown } = decisionVisibleChoices(research);
+    return shown.length === 1 && shown[0].ready ? [shown[0].entityId] : [];
+  });
   const [busy, setBusy] = useState(false);
   const [comparing, setComparing] = useState(false);
   const inFlight = useRef(false);
@@ -42,7 +45,11 @@ export function DecisionChoice({
   const canTrial = recordMode === "business";
   const dimension = (key: string) => planDimensionName(key, lang);
   const renderRow = (row: (typeof shown)[number]) => (
-    <div key={row.entityId} className="decision-choice__candidate">
+    <div
+      key={row.entityId}
+      className="decision-choice__candidate"
+      data-selected={selected.includes(row.entityId)}
+    >
       <input
         type="checkbox"
         id={`${selectionId}-${row.entityId}`}
@@ -76,45 +83,46 @@ export function DecisionChoice({
                     : t("使用条件未确认", "Use conditions unconfirmed")}
         </span>
         {row.known.length ? (
-          <details className="decision-choice__reasons">
-            <summary>
-              {t("查看入选依据：", "Why it is listed: ")}
-              {row.known.map((finding) => dimension(finding.dimension)).join(" · ")}
-            </summary>
+          <div className="decision-choice__reasons">
             <span className="decision-choice__facts">
-              {row.known.map((finding) => (
-                <span key={finding.dimension}>
-                  <b>{dimension(finding.dimension)}：</b>
-                  {finding.finding.split(/(?<=[。])\s*|(?<=\.)\s+(?=[A-Z])/)[0]}
-                  <span className="decision-choice__sources">
-                    {(research.citations ?? [])
-                      .filter((citation) => finding.claimIds.includes(citation.claim.id))
-                      .flatMap((citation) => citation.evidence)
-                      .filter(
-                        (evidence, index, all) =>
-                          all.findIndex((item) => item.url === evidence.url) === index,
-                      )
-                      .slice(0, 2)
-                      .map((evidence) => (
-                        <a
-                          key={evidence.id}
-                          href={evidence.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {evidence.url.includes("/models/")
-                            ? t("型号说明", "Model documentation")
-                            : evidence.url.includes("changelog")
-                              ? t("更新记录", "Changelog")
-                              : t("原始资料", "Original source")}
-                        </a>
-                      ))}
+              {row.known
+                .filter(
+                  (finding, index, all) =>
+                    all.findIndex((other) => other.finding === finding.finding) === index,
+                )
+                .map((finding) => (
+                  <span key={finding.dimension}>
+                    <b>{dimension(finding.dimension)}：</b>
+                    {finding.finding.split(/(?<=[。])\s*|(?<=\.)\s+(?=[A-Z])/)[0]}
+                    <span className="decision-choice__sources">
+                      {(research.citations ?? [])
+                        .filter((citation) => finding.claimIds.includes(citation.claim.id))
+                        .flatMap((citation) => citation.evidence)
+                        .filter(
+                          (evidence, index, all) =>
+                            all.findIndex((item) => item.url === evidence.url) === index,
+                        )
+                        .slice(0, 2)
+                        .map((evidence) => (
+                          <a
+                            key={evidence.id}
+                            href={evidence.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            {evidence.url.includes("/models/")
+                              ? t("型号说明", "Model documentation")
+                              : evidence.url.includes("changelog")
+                                ? t("更新记录", "Changelog")
+                                : t("原始资料", "Original source")}
+                          </a>
+                        ))}
+                    </span>
                   </span>
-                </span>
-              ))}
+                ))}
             </span>
-          </details>
+          </div>
         ) : (
           <span className="decision-choice__description">
             {t("目前没有足够用途资料", "Purpose evidence is insufficient")}
@@ -155,42 +163,6 @@ export function DecisionChoice({
       className="decision-choice"
       aria-label={t("选择候选与下一步", "Choose candidates and the next step")}
     >
-      <div className="decision-choice__actions">
-        <Button
-          variant="outline"
-          disabled={busy || !research.decisionContext}
-          onClick={async () => {
-            if (inFlight.current) return;
-            inFlight.current = true;
-            setBusy(true);
-            setError("");
-            try {
-              const next = await refreshDecision(research, lang, readAuthToken(), userApi.research);
-              window.location.assign(`/research/${encodeURIComponent(next.id)}`);
-            } catch (reason) {
-              setError(accountErrorMessage(reason, t));
-            } finally {
-              inFlight.current = false;
-              setBusy(false);
-            }
-          }}
-        >
-          {busy
-            ? t("正在更新结果…", "Updating results…")
-            : t("用最新资料重新分析", "Reanalyze with current evidence")}
-        </Button>
-        {research.decisionContext && (
-          <Link className="decision-choice__link" to={decisionResumePath(research.decisionContext)}>
-            {t("修改我的要求", "Edit my requirements")}
-          </Link>
-        )}
-      </div>
-      <p className="decision-choice__hint">
-        {t(
-          "重新分析保留原要求，生成一份新结果；原报告和试用记录保留。",
-          "Reanalysis keeps your requirements and creates a new result. The original report and trial records are retained.",
-        )}
-      </p>
       {error && (
         <p role="alert">
           {error}{" "}
@@ -201,13 +173,7 @@ export function DecisionChoice({
       )}
       {!!shown.length && (
         <>
-          <h3>{t("选择一个开始试用", "Choose one to try")}</h3>
-          <p className="decision-choice__hint">
-            {t(
-              "先选你已有入口能使用的候选；有多个入口时可选2–3个比较。这里的顺序不代表效果排名。",
-              "Choose a candidate you can already access; select two or three if you have multiple interfaces. Order is not a quality ranking.",
-            )}
-          </p>
+          <h3>{t("先选一个试用", "Choose one to try")}</h3>
           <p className="decision-choice__context">
             {research.decisionContext?.taskType === "model-api"
               ? t(
@@ -215,8 +181,8 @@ export function DecisionChoice({
                   "These are underlying models for an existing API, gateway or product interface. Selecting does not provision access or call a model.",
                 )
               : t(
-                  "选择你已经能打开或安装的产品。下一步会准备试用任务，实际操作在该产品中进行。",
-                  "Choose a product you can open or install. The next step prepares a task to carry out in that product.",
+                  "在已有产品中完成一次真实任务，再回来记录效果。准备任务不会调用产品或产生费用。",
+                  "Try one real task in a product you can access, then record the outcome here. Preparing a task makes no calls or charges.",
                 )}
           </p>
           <div className="decision-choice__list">{shown.map(renderRow)}</div>
@@ -236,7 +202,7 @@ export function DecisionChoice({
                       "准备这些候选的资格核验记录",
                       "Prepare qualification records for these candidates",
                     )
-                  : t("下一步：准备试用", "Next: prepare a trial")}
+                  : t("查看试用任务", "View trial task")}
               </Button>
             )}
             {canCompare ? (
@@ -351,6 +317,53 @@ export function DecisionChoice({
           )}
         </>
       )}
+      <details className="decision-choice__refresh decision-secondary-details">
+        <summary>{t("修改条件或更新分析", "Edit requirements or refresh analysis")}</summary>
+        <div className="decision-choice__actions">
+          <Button
+            variant="outline"
+            disabled={busy || !research.decisionContext}
+            onClick={async () => {
+              if (inFlight.current) return;
+              inFlight.current = true;
+              setBusy(true);
+              setError("");
+              try {
+                const next = await refreshDecision(
+                  research,
+                  lang,
+                  readAuthToken(),
+                  userApi.research,
+                );
+                window.location.assign(`/research/${encodeURIComponent(next.id)}`);
+              } catch (reason) {
+                setError(accountErrorMessage(reason, t));
+              } finally {
+                inFlight.current = false;
+                setBusy(false);
+              }
+            }}
+          >
+            {busy
+              ? t("正在更新结果…", "Updating results…")
+              : t("用最新资料重新分析", "Reanalyze with current evidence")}
+          </Button>
+          {research.decisionContext && (
+            <Link
+              className="decision-choice__link"
+              to={decisionResumePath(research.decisionContext)}
+            >
+              {t("修改我的要求", "Edit my requirements")}
+            </Link>
+          )}
+        </div>
+        <p className="decision-choice__hint">
+          {t(
+            "重新分析保留原要求，生成一份新结果；原报告和试用记录保留。",
+            "Reanalysis keeps your requirements and creates a new result. The original report and trial records are retained.",
+          )}
+        </p>
+      </details>
     </section>
   );
 }

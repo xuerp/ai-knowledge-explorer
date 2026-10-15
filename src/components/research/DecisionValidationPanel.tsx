@@ -101,15 +101,7 @@ export function DecisionValidationPanel({
     };
   }, [research.id, token]);
   useEffect(() => {
-    onRecordsChange?.(
-      saved?.items.some(
-        (item) =>
-          !!item.result.trim() ||
-          item.status !== "pending" ||
-          (item.measurements &&
-            Object.values(item.measurements).some((value) => value != null && value !== "")),
-      ) ?? false,
-    );
+    onRecordsChange?.(!!saved?.items.length);
   }, [onRecordsChange, saved]);
   const currentSaved =
     saved && JSON.stringify(saved.items) === JSON.stringify(items) ? saved : null;
@@ -191,8 +183,8 @@ export function DecisionValidationPanel({
       aria-label={t("验证计划与实际结果", "Validation plan and actual results")}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <PanelHeading className="decision-validation__title">
-          {t("准备试用与记录结果", "Prepare a trial and record results")}
+        <PanelHeading className="decision-validation__title" tabIndex={-1}>
+          {t("试用与我的记录", "My trial and results")}
         </PanelHeading>
         <a
           href={decisionResumePath(research.decisionContext)}
@@ -203,8 +195,8 @@ export function DecisionValidationPanel({
       </div>
       <p>
         {t(
-          "用同一批业务样本核验候选。记录属于当前账户，不会自动成为公开事实；重新分析会保留原记录。",
-          "Validate candidates with the same business samples. Notes belong to your account and do not become public facts. Reanalysis preserves the original record.",
+          "先把任务复制到所选产品中执行，用过以后再记录结果。记录仅当前账户可见。",
+          "Copy the task into your chosen product, then return to record actual results. Notes are private to your account.",
         )}
       </p>
       {stale && (
@@ -301,7 +293,7 @@ export function DecisionValidationPanel({
               </Button>
             )}
           </div>
-          <div className="decision-validation__review">
+          <div className="decision-validation__review" hidden={!reviewReading && !hasActualResults}>
             {reviewReading ? (
               <>
                 {reviewReading.conclusion && (
@@ -395,14 +387,14 @@ export function DecisionValidationPanel({
                   </details>
                 )}
               </>
-            ) : (
+            ) : hasActualResults ? (
               <p>
                 {t(
-                  "保存后复核记录完整度与比较口径；未保存的修改不沿用旧复核。",
-                  "Save to review completeness and comparison bases. Unsaved changes do not reuse an earlier review.",
+                  "保存后更新判断；当前修改尚未参与分析。",
+                  "Save to update advice; draft changes are not yet used.",
                 )}
               </p>
-            )}
+            ) : null}
             {review?.candidates.some((row) =>
               row.checks.some((check) => check.reason === "missing"),
             ) && (

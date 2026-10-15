@@ -21,7 +21,7 @@ export function decisionTrialKit(
   const conditions = research.decision.conditions.filter(
     (condition) => condition !== `任务：${task}` && condition !== `Task: ${task}`,
   );
-  const prompt = [
+  const fullPrompt = [
     t(
       "这是一次产品选型试测。请按下面的使用目标处理我附带的实际材料，返回实际交付；不要回答选哪个产品，也不要虚构测试成绩。仅使用我提供的材料，不补造缺失信息。",
       "This is a product selection trial. Process the actual materials I attach for the goal below and return the deliverable. Do not recommend a product or invent test scores. Use only provided materials without inventing missing information.",
@@ -39,6 +39,33 @@ export function decisionTrialKit(
       "Return the actual deliverable and identify unsupported or unfinished parts.",
     ),
   ].join("\n\n");
+  const coding = research.decisionContext?.taskType === "coding-product";
+  const starterInputs = coding
+    ? t(
+        "先选一个真实报错或一项小功能，提供相关文件、复现步骤和运行／验收命令。先试一项即可；完整对比方案可按需查看。",
+        "Start with one real bug or a small feature. Supply related files, reproduction steps and run/test commands. The full comparison protocol is optional.",
+      )
+    : protocol.sample;
+  const prompt = coding
+    ? [
+        t(
+          "请在我提供的代码中完成一项小任务：修复一个报错，或实现我明确指定的一项简单功能。本轮只做这一项。",
+          "Complete one small task in the code I provide: fix one bug or implement one explicitly requested small feature. Do only that task.",
+        ),
+        t(
+          "我会附上相关文件、问题描述／复现步骤和验收要求。材料不够时先问我，不要猜测缺少的代码。",
+          "I will supply related files, a problem description/reproduction steps and acceptance criteria. Ask for missing inputs instead of guessing code.",
+        ),
+        t(
+          "先复现问题并说明修改计划，再做尽量小的改动，保留无关功能和已有测试。",
+          "Reproduce the problem, explain the change, then make a minimal fix while preserving unrelated behavior and existing tests.",
+        ),
+        t(
+          "完成后给出：改了什么、实际运行的测试命令和结果、尚未完成的部分。不能运行测试就明确说明，不要把未运行写成通过。",
+          "Report what changed, the test commands actually run and their results, and unfinished work. If tests cannot run, say so; do not report unrun tests as passed.",
+        ),
+      ].join("\n\n")
+    : fullPrompt;
   const section = (title: string, rows: string[]) =>
     `## ${title}\n\n${rows.map((row) => `- ${row}`).join("\n")}`;
   const markdown = [
@@ -51,7 +78,7 @@ export function decisionTrialKit(
     `${t("本轮候选", "Selected candidates")}: ${selected.map(entityName).join("、")}`,
     section(t("任务与选型条件", "Task and selection conditions"), [task, ...conditions]),
     section(t("先准备材料", "Prepare inputs"), [
-      protocol.sample,
+      starterInputs,
       t(
         "提供你有权使用的实际样本，先人工标注合格答案/结果。此包没有虚构业务样本。",
         "Provide actual samples you are permitted to use, with manually labeled accepted answers/results. This kit contains no invented business samples.",
@@ -62,7 +89,10 @@ export function decisionTrialKit(
       ),
     ]),
     `## ${t("带到现有入口的任务提示", "Task prompt for your existing interface")}\n\n${prompt}`,
-    section(t("执行与核对", "Execute and check"), protocol.procedure),
+    section(t("完整对比方案（可选）", "Full comparison protocol (optional)"), [
+      protocol.sample,
+      ...protocol.procedure,
+    ]),
     section(t("合格标准", "Acceptance criteria"), protocol.acceptance),
     section(t("保留真实结果", "Retain actual results"), [
       ...protocol.metrics,
@@ -76,7 +106,19 @@ export function decisionTrialKit(
       ),
     ]),
   ].join("\n\n");
-  return { prompt, markdown, protocol };
+  const escape = (value: string) =>
+    value.replace(
+      /[&<>"']/g,
+      (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!,
+    );
+  const list = (rows: string[]) =>
+    `<ul>${rows.map((row) => `<li>${escape(row)}</li>`).join("")}</ul>`;
+  // One source protocol, with an explicitly styled offline reading/print format.
+  // The plain Markdown export remains available for editors that support it.
+  const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>${escape(t("试用任务说明", "Trial task instructions"))}</title><style>
+  *{box-sizing:border-box}body{font:15px/1.7 system-ui,"Microsoft YaHei",sans-serif;color:#182235;background:#f6f7f9;margin:0;padding:28px}main{max-width:960px;margin:auto;background:white;padding:32px;border:1px solid #dfe3e9}h1{font-size:25px;line-height:1.4;margin:0 0 12px}h2{font-size:18px;line-height:1.5;margin:26px 0 8px}p{margin:8px 0}ul{padding-left:22px}li+li{margin-top:6px}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:#f1f4f8;border:1px solid #dfe3e9}.note{color:#526076;font-size:13px}.meta{overflow-wrap:anywhere}@media(max-width:600px){body{padding:12px}main{padding:20px}h1{font-size:22px}}@media print{@page{margin:18mm}body{padding:0;background:white}main{padding:0;border:0;max-width:none}h2{break-after:avoid}pre{background:white}li{break-inside:avoid}}
+  </style></head><body><main><h1>${escape(t("试用任务说明", "Trial task instructions"))}</h1><p class="note">${escape(t("供你带到现有产品中执行；这份说明不包含已完成的测试或成绩。", "Instructions to execute in your existing product, without completed tests or scores."))}</p><p><strong>${escape(t("本轮产品", "Products"))}：</strong>${escape(selected.map(entityName).join("、"))}</p><h2>${escape(t("使用目标", "Usage goal"))}</h2><p>${escape(task)}</p>${list(conditions)}<h2>${escape(t("先准备材料", "Prepare inputs"))}</h2><p>${escape(starterInputs)}</p><h2>${escape(t("复制到产品中的任务提示", "Task prompt to copy into your product"))}</h2><pre>${escape(prompt)}</pre><h2>${escape(t("完整对比方案与验收标准（可选）", "Full comparison protocol and acceptance criteria (optional)"))}</h2><p>${escape(protocol.sample)}</p>${list([...protocol.procedure, ...protocol.acceptance])}<h2>${escape(t("用过以后", "After your trial"))}</h2><p>${escape(t("回到原分析，选择“记录实际结果”，填写并保存。没有执行的项目保留待验证。", "Return to the analysis, select Record actual results, fill in and save. Untested checks stay pending."))}</p><p class="note meta">${escape(t("对应分析", "Research"))}: ${escape(research.id)}</p></main></body></html>`;
+  return { prompt, markdown, html, protocol, starterInputs };
 }
 
 export function requestableEvidenceCandidates(research: ResearchResult) {

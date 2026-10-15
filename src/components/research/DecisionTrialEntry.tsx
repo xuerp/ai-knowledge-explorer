@@ -30,15 +30,15 @@ export function DecisionTrialEntry({
 }) {
   const { t } = useApp();
   const [selected, setSelected] = useState("");
-  const [expanded, setExpanded] = useState(
-    () => !groupValidationItems(items).some((row) => row.recorded),
+  const [step, setStep] = useState<"prepare" | "record">(() =>
+    groupValidationItems(items).some((row) => row.recorded) ? "record" : "prepare",
   );
   const requestedId = requestedCandidate?.id;
   const requestedNonce = requestedCandidate?.nonce;
   useEffect(() => {
     if (!requestedId) return;
     setSelected(requestedId);
-    setExpanded(true);
+    setStep("prepare");
   }, [requestedId, requestedNonce]);
   const groups = groupValidationItems(items).filter(
     (group) =>
@@ -68,69 +68,72 @@ export function DecisionTrialEntry({
     ["scope", t("使用的样本及合格标准", "Samples and acceptance criteria")],
   ] as const;
   return (
-    <details
-      className="decision-trial-entry"
-      open={expanded}
-      onToggle={(event) => setExpanded(event.currentTarget.open)}
-    >
-      <summary>
-        {quality
-          ? t("准备任务，再记录试用结果", "Prepare the task, then record results")
-          : t("填写资格核验记录", "Record qualification checks")}
-      </summary>
-      <p>
-        {quality
-          ? t(
-              "先把任务带到你已有的模型入口执行。试用结束后，展开下方填写实际结果；没有试用过可以先保存计划。",
-              "Run the task in your existing model interface first. After the trial, expand the form below to record actual results. You can save the plan before testing.",
-            )
-          : t(
-              "先记录实际入口和必要条件的核对依据。这里没有业务效果测试，保存也不会把未知公开资格变成通过。",
-              "Record evidence for interfaces and requirements. These are not task tests; saving cannot promote unknown public eligibility.",
-            )}
-      </p>
-      <label>
-        {t("当前填写的候选", "Candidate being recorded")}
-        <select value={group.candidateId!} onChange={(event) => setSelected(event.target.value)}>
-          {groups.map((row) => (
-            <option key={row.candidateId} value={row.candidateId!}>
-              {entityName(row.candidateId!)}
-            </option>
-          ))}
-        </select>
-      </label>
-      {quality && group.candidateId && (
-        <DecisionTrialKit
-          research={research}
-          candidateId={group.candidateId}
-          entityName={entityName}
-        />
-      )}
-      {quality?.suggestedProtocol && (
-        <details className="decision-secondary-details">
-          <summary>
-            {t("查看建议样本与合格标准", "Inspect suggested samples and acceptance criteria")}
-          </summary>
-          <p>{quality.suggestedProtocol.sample}</p>
-          <ul>
-            {quality.suggestedProtocol.acceptance.map((line) => (
-              <li key={line}>{line}</li>
+    <section className="decision-trial-entry">
+      <div
+        className="decision-trial-entry__steps"
+        role="group"
+        aria-label={t("试用步骤", "Trial steps")}
+      >
+        {quality && (
+          <Button
+            type="button"
+            variant={step === "prepare" ? "default" : "outline"}
+            aria-pressed={step === "prepare"}
+            onClick={() => setStep("prepare")}
+          >
+            {t("准备试用任务", "Prepare trial task")}
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant={step === "record" || !quality ? "default" : "outline"}
+          aria-pressed={step === "record" || !quality}
+          onClick={() => setStep("record")}
+        >
+          {t("记录实际结果", "Record actual results")}
+        </Button>
+      </div>
+      {groups.length > 1 ? (
+        <label>
+          {t("当前产品", "Current product")}
+          <select value={group.candidateId!} onChange={(event) => setSelected(event.target.value)}>
+            {groups.map((row) => (
+              <option key={row.candidateId} value={row.candidateId!}>
+                {entityName(row.candidateId!)}
+              </option>
             ))}
-          </ul>
+          </select>
+        </label>
+      ) : (
+        <p className="decision-trial-entry__product">
+          {t("当前产品：", "Current product: ")}
+          <strong>{entityName(group.candidateId!)}</strong>
+        </p>
+      )}
+      <div hidden={!!quality && step !== "prepare"}>
+        {quality && group.candidateId && (
+          <DecisionTrialKit
+            research={research}
+            candidateId={group.candidateId}
+            entityName={entityName}
+          />
+        )}
+      </div>
+      <section className="decision-trial-entry__results" hidden={!!quality && step !== "record"}>
+        <h4>
+          {quality
+            ? t("记录这次实际试用", "Record this trial")
+            : t("核对入口与使用条件", "Verify access and conditions")}
+        </h4>
+        <aside className="decision-note">
+          <span>{t("填写说明", "How to fill this in")}</span>
           <p>
             {t(
-              "这是尚未执行的建议，实际采用的口径由你填写。",
-              "This suggestion has not been executed; record the conditions you actually use.",
+              "只填写你已经执行的结果。尚未运行的项目保留“待验证”，保存不会自动标记通过。",
+              "Record only work you have executed. Leave untested checks pending; saving does not mark them passed.",
             )}
           </p>
-        </details>
-      )}
-      <details className="decision-trial-entry__results" open={quality ? undefined : true}>
-        <summary>
-          {quality
-            ? t("已经试用过？填写实际结果", "Finished your trial? Record actual results")
-            : t("填写入口与必要条件", "Record interface and required conditions")}
-        </summary>
+        </aside>
         <div className="decision-trial-entry__fields">
           {fields.map(([key, label]) => (
             <label key={key}>
@@ -218,6 +221,7 @@ export function DecisionTrialEntry({
               <textarea
                 rows={3}
                 maxLength={3000}
+                aria-label={t("实际结果与依据", "Actual result and evidence")}
                 value={item.result}
                 onChange={(event) => onChange(item.id, { result: event.target.value })}
               />
@@ -274,7 +278,7 @@ export function DecisionTrialEntry({
             "Use Save results and update advice below. Full records support timing, cost and different conditions.",
           )}
         </p>
-      </details>
-    </details>
+      </section>
+    </section>
   );
 }
