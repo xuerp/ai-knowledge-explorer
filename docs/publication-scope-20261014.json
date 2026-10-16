@@ -1324,7 +1324,7 @@
     },
     {
       "path": "tests/knowledge-browse.test.mjs",
-      "sha256": "66541720f1434ef6513d04f12f072409f00ead4f0fc6fe9016f70f57651c2b26",
+      "sha256": "2125577b4de8f78a700bc536705544ef87b14872e2062610ca57249f4cf63191",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {

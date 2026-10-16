@@ -93,7 +93,12 @@ test("工具及组织分类完整覆盖目录，Agent 不再漏出分类", () =>
     snapshot.entities.filter(
       (entity) => !entity.familyId && CATEGORY_TYPES.ecosystem.includes(entity.type),
     ).length,
-    17,
+    18,
+  );
+  assert.ok(
+    snapshot.entities.some(
+      (entity) => entity.id === "e-dify" && CATEGORY_TYPES.ecosystem.includes(entity.type),
+    ),
   );
 });
 
