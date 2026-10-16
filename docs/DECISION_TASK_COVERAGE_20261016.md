@@ -46,6 +46,8 @@ Dify 六条来源的完整候选、字段、短摘录哈希及采集失败回执
 
 不以测试数量、来源数量、HTTP 200 或局部界面成功宣布整个决策助手全部完成。
 
+发布检查另外拦截了锁定依赖新报告的 [TanStack Start 反射型 XSS 漏洞](https://github.com/advisories/GHSA-qx66-fv34-fjm8)。按维护者修复版本升级 React Start 至 1.168.60、server-core 至 1.169.39，并对齐 Router / 插件补丁版本和错误边界类型；保留安全审计门槛，未忽略告警。升级后实际 523 包依赖审计无检出，最终发布还必须通过完整 Quality 和版本核对。
+
 ## 本地实际验证结果
 
 原始公开快照为 261 个对象、456 条事实、676 条来源，其中 444 条通过当前门槛。预算题和严格条件题的改善使用同一份快照，没有预先添加新资料。完整前后结果见本地 `artifacts/decision-task-coverage-20261016/before-after-summary.json`，真实本地 HTTP、保存重开和界面凭据分别见同目录 `api-verified.json`、`ui-verified.json`、`ui-geometry.json`。没有读取或更改原用户账户，没有付费模型请求。
