@@ -548,6 +548,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "bun.lock",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "739b5deabe766052e32812c117b42332c6649661a45d7ee37835f2d4acaafb80"
+    },
+    {
       "path": "docs/ACCOUNT_LOGIN_20261015.md",
       "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
       "sha256": "d3414c73a1d5b0d40652c1f46d1a0773d97eea0e3c984fce85ef27b39f9c115f"
@@ -595,7 +600,7 @@
     {
       "path": "docs/DECISION_TASK_COVERAGE_20261016.md",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "df8455931f85c35d4b48910ee9b2973fe5da2f7b0c60e03f9d39cd9f0c7bfbf2"
+      "sha256": "455a49545e408c46838b8081a665729bdd982eba5bc34f21b8a25e621691d971"
     },
     {
       "path": "docs/README.md",
@@ -644,7 +649,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "70ba30863d5f60730cbf4fb73de29727156f41422368393c438d59c3f18ea8e5",
+      "sha256": "cf50a9aedbb22c230bcc5aded4742c2118606291cb9d3866c703f28c0fc41dd1",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1083,6 +1088,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "src/routes/__root.tsx",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "d322e19492fd15330d6ba4270451bd4450773b1cd584145a1e35357836e98b97"
+    },
+    {
       "path": "src/routes/account.tsx",
       "sha256": "18070fca168dad70b243ff5a91af33544ac387161f410d24472288dc46f86d66",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -1388,7 +1398,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 277,
+  "publicFileCount": 279,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-16",
