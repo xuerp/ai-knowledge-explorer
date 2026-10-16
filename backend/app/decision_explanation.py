@@ -40,6 +40,46 @@ def cost_choice(
         return None, []
     rates = {}
     bases = set()
+    budget = context.budget
+    # Condition-bearing quotes may be compared only under their explicitly
+    # supported workload/scope. Compare whole intervals, never just low tiers.
+    if (
+        budget.mode == "range"
+        and budget.cost_scope == "standard-token-only"
+        and budget.period == "month"
+        and budget.monthly_input_tokens is not None
+        and budget.monthly_output_tokens is not None
+        and budget.channel
+        and budget.currency
+    ):
+        scoped = {}
+        for entity_id in eligible:
+            prices = [
+                (claim, price, bounds)
+                for claim in claims_by_entity.get(entity_id, [])
+                if (price := api_price_value(claim)) is not None
+                and price["channel"] == budget.channel
+                and price["currency"] == budget.currency
+                and (bounds := token_quote_bounds(price, context)) is not None
+            ]
+            if len(prices) != 1:
+                return None, []
+            claim, price, bounds = prices[0]
+            bases.add((price["currency"], price["channel"], price["unit"]))
+            scoped[entity_id] = (bounds, claim.id)
+        if len(bases) != 1:
+            return None, []
+        winners = [
+            key
+            for key, (bounds, _) in scoped.items()
+            if all(
+                bounds[1] < other[0][0] for other_key, other in scoped.items() if key != other_key
+            )
+        ]
+        return (
+            winners[0] if len(winners) == 1 else None,
+            [item[1] for item in scoped.values()] if len(winners) == 1 else [],
+        )
     for entity_id in eligible:
         prices = [
             (claim, price)
@@ -283,7 +323,8 @@ def explain_decision(
     validation = [row.entity_id for row in candidates if row.eligibility in {"eligible", "unknown"}]
     primary = result.recommendation.primary_entity_id
     if primary and (
-        primary not in eligible
+        not scenario.required_features
+        or primary not in eligible
         or len(eligible) != 1
         or (
             scenario.required_features
@@ -307,14 +348,39 @@ def explain_decision(
     if winner and result.status != "conflict":
         primary = winner
         basis = "comparable-cost"
+        estimates = []
+        for row in candidates:
+            if row.entity_id not in business_eligible:
+                continue
+            for claim in claims_by_entity.get(row.entity_id, []):
+                if claim.id not in cost_claims or (price := api_price_value(claim)) is None:
+                    continue
+                if (bounds := token_quote_bounds(price, context)) is not None:
+                    amount = (
+                        f"{bounds[0]:g}"
+                        if bounds[0] == bounds[1]
+                        else f"{bounds[0]:g}–{bounds[1]:g}"
+                    )
+                    estimates.append(f"{name(row.entity_id)} {amount} {price['currency']}")
+        cost_finding = (
+            "在相同币种、渠道和单位下，此候选的指定工作量 API 费用更低，或输入和输出单价均不高于其他候选。总成本与任务效果仍须验证。"
+            if language == "zh"
+            else "At the same currency, channel and unit, this candidate has lower API fees for the stated workload, or both rates are no higher than the alternatives. Total cost and task results still need validation."
+        )
+        if estimates and context.budget.period == "month":
+            cost_finding = (
+                "按所填月用量估算："
+                + "；".join(estimates)
+                + "。仅含指定渠道 Standard 未缓存模型 token，不含工具、缓存和税费；这不是实际账单或效果排名。"
+                if language == "zh"
+                else "Estimated monthly workload: "
+                + "; ".join(estimates)
+                + ". Only the specified channel's Standard uncached model tokens; excludes tools, cache and taxes. This is not a bill or a quality ranking."
+            )
         reasons.append(
             DecisionTradeoff(
                 dimension="api-price",
-                finding=(
-                    "在相同币种、渠道和单位下，此候选的指定工作量 API 费用更低，或输入和输出单价均不高于其他候选。总成本与任务效果仍须验证。"
-                    if language == "zh"
-                    else "At the same currency, channel and unit, this candidate has lower API fees for the stated workload, or both rates are no higher than the alternatives. Total cost and task results still need validation."
-                ),
+                finding=cost_finding,
                 claim_ids=cost_claims,
             )
         )
@@ -498,6 +564,27 @@ def explain_decision(
                 if language == "zh"
                 else " " + plan.actions[0].title + "."
             )
+        if scenario.id == "unspecified" and candidates:
+            constraints = []
+            if context.deployment == "on-device":
+                constraints.append("完全离线" if language == "zh" else "fully offline")
+            if context.minimum_context_tokens:
+                constraints.append(f"≥{context.minimum_context_tokens:,} token")
+            if context.commercial_use_required:
+                constraints.append("允许商用" if language == "zh" else "commercial use")
+            reasons = list(dict.fromkeys(reason for row in candidates for reason in row.reasons))
+            if constraints:
+                guidance = (
+                    f"已保留必要条件：{'、'.join(constraints)}。当前目录未形成可采用的建议。"
+                    + ("核验结果：" + "；".join(reasons[:3]) + "。" if reasons else "")
+                    + "请再说明合同要做摘要、条款核对还是信息抽取；不会自动放宽必要条件。"
+                    if language == "zh"
+                    else f"Mandatory conditions retained: {', '.join(constraints)}. The current catalog does not establish an adoption recommendation. "
+                    + "; ".join(reasons[:3])
+                    + ". Specify the business output; mandatory conditions will not be relaxed."
+                )
+        elif scenario.id == "unspecified" and not candidates and plan.actions:
+            guidance = plan.actions[0].instruction
         if context.priority == "cost" and not winner and set(business_eligible) != set(eligible):
             guidance += (
                 " 必要业务功能仍有缺口，不能仅凭价格指定成本主选。"
@@ -534,6 +621,39 @@ def explain_decision(
                 if language == "zh"
                 else f"Validate {primary_name} first. Current citations cover required features; actual business results require the trial below."
             )
+            if scenario.id == "knowledge-workspace":
+                guidance = (
+                    f"可先用 {primary_name} 搭建小规模文档问答试点：导入少量授权 PDF / Word，连接知识库并启用引用。它是需要配置模型的应用平台；引用正确、无依据拒答及终端用户逐文档权限仍需实测，工作区成员权限不能替代这些验证。"
+                    if language == "zh"
+                    else f"Pilot a small document Q&A workspace with {primary_name}: import a few authorized PDF / Word files, connect the knowledge base and enable citations. This application platform requires model configuration. Test citation accuracy, abstention and per-document end-user access; workspace permissions do not establish those results."
+                )
+            if recommendation.basis == "comparable-cost":
+                cost_reason = next(
+                    (
+                        reason.finding
+                        for reason in recommendation.reasons
+                        if reason.dimension == "api-price"
+                    ),
+                    "",
+                )
+                guidance = (
+                    f"按已填写的原厂渠道、工作量和费用范围，优先试用 {primary_name}。{cost_reason}"
+                    if language == "zh"
+                    else f"For the stated original-provider channel, workload and cost scope, trial {primary_name} first. {cost_reason}"
+                )
+            if (
+                scenario.id == "coding-workspace"
+                and len(plan.trial_candidate_ids) == 1
+                and any(
+                    phrase in context.task
+                    for phrase in ("目前只有", "现有入口", "已经在用", "currently only")
+                )
+            ):
+                guidance = (
+                    f"先用你已有入口的 {primary_name} 完成一个小修复并运行测试，暂不急着更换工具。现有资料支持编辑和工具工作流，但没有证明换工具更好；确认这一个任务的实际补丁、测试和费用后再决定。"
+                    if language == "zh"
+                    else f"Start with one small fix and test using your existing {primary_name} access. There is no evidence here that switching improves results; inspect the actual patch, tests and charges before deciding."
+                )
             if recommendation.alternative_entity_ids:
                 alternative_names = [name(key) for key in recommendation.alternative_entity_ids]
                 guidance += (

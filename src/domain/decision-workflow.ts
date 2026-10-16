@@ -53,6 +53,7 @@ export function decisionScenario(context: DecisionContext, lang: "zh" | "en") {
         (
           {
             "coding-product": "coding-workspace",
+            "knowledge-product": "knowledge-workspace",
             "agent-development": "agent-orchestration",
           } as Record<string, string>
         )[context.taskType ?? ""],
@@ -142,7 +143,15 @@ export function interpretDecisionTask(context: DecisionContext): DecisionContext
     if ("suggestedTaskType" in scene) result.taskType = scene.suggestedTaskType;
   }
   if (context.deployment === "undecided") {
-    if (
+    const offline = text
+      .split(/[，,。；;.!]/)
+      .some(
+        (clause) =>
+          /(?:必须|要求).{0,8}离线|完全离线运行|fully offline|air.gapped/i.test(clause) &&
+          !/不要求|不需要|无需|不用|not required|no need/i.test(clause),
+      );
+    if (offline) result.deployment = "on-device";
+    else if (
       /(?<!无需|不要|不需要)私有部署|(?<!无需|不要|不需要)本地部署|(?<!no )private deployment|on[- ]premises/i.test(
         text,
       )
@@ -171,8 +180,8 @@ export function interpretDecisionTask(context: DecisionContext): DecisionContext
   )
     result.inputModalities.push("image");
   if (
-    /商用许可|可商用|commercial use required/i.test(text) &&
-    !/不需要商用|无需商用|非商用|non-commercial|no commercial use/i.test(text)
+    /商用许可|可商用|允许商用|commercial use required/i.test(text) &&
+    !/不需要商用|无需商用|不要求商用|非商用|不允许商用|non-commercial|no commercial use/i.test(text)
   )
     result.commercialUseRequired = true;
   const monthly = text.match(
@@ -195,6 +204,11 @@ export function interpretDecisionTask(context: DecisionContext): DecisionContext
         channel: result.budget.channel ?? "",
       };
   }
+  if (
+    (!result.taskType || result.taskType === "unspecified") &&
+    result.minimumContextTokens !== undefined
+  )
+    result.taskType = "model-api";
   return result;
 }
 

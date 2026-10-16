@@ -20,10 +20,10 @@ def test_missing_facts_stay_missing_and_audit_never_mutates_or_calls_a_model():
     original = snapshot.model_dump_json()
     report = audit.evaluate(snapshot)
     assert report["paidCalls"] == 0 and report["privateRecordsRead"] is False
-    assert len(report["cases"]) == 12
-    assert len({case["id"] for case in report["cases"]}) == 12
+    assert len(report["cases"]) == 13
+    assert len({case["id"] for case in report["cases"]}) == 13
     assert all(not case["trialCandidateIds"] for case in report["cases"])
-    assert len(report["blockedCases"]) == 12
+    assert len(report["blockedCases"]) == 13
     assert all(case["state"] != "ready-to-validate" for case in report["cases"])
     assert {item["workKind"] for item in report["backlog"]} <= {
         "source-curation",

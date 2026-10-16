@@ -13,7 +13,8 @@ def test_every_non_model_has_distinct_sourced_reference_sections():
     snapshot = KnowledgeRepository(SEED).load_seed()
     sources = {s.id: s for s in snapshot.evidence}
     references = [e for e in snapshot.entities if e.type != "model"]
-    assert len(references) == 32
+    assert len(references) == 33
+    assert any(entity.id == "e-dify" for entity in references)
     for entity in references:
         sections = entity.knowledge.sections
         assert len(sections) >= 3, entity.id

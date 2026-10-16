@@ -144,9 +144,13 @@ function AskPage() {
     setOutputTokens(sharedSearch.get("outputTokens") ?? "");
     const sharedTaskType = sharedSearch.get("taskType");
     if (
-      ["model-api", "coding-product", "agent-development", "unspecified"].includes(
-        sharedTaskType ?? "",
-      )
+      [
+        "model-api",
+        "coding-product",
+        "knowledge-product",
+        "agent-development",
+        "unspecified",
+      ].includes(sharedTaskType ?? "")
     )
       setTaskType(sharedTaskType as NonNullable<DecisionContext["taskType"]>);
     const sharedDeployment = sharedSearch.get("deployment");
@@ -251,9 +255,11 @@ function AskPage() {
       ? ["model", "api", "application", "tool", "agent", "framework"]
       : taskType === "model-api"
         ? ["model", "api"]
-        : taskType === "coding-product"
-          ? ["application", "tool", "agent"]
-          : ["framework", "agent"];
+        : taskType === "knowledge-product"
+          ? ["application", "tool", "framework"]
+          : taskType === "coding-product"
+            ? ["application", "tool", "agent"]
+            : ["framework", "agent"];
   const selectableCandidates = (snapshot?.entities ?? []).filter(
     (entity) =>
       candidateTypes.includes(entity.type) &&
@@ -671,6 +677,7 @@ function AskPage() {
                   {t("描述你的任务", "Describe your task")}
                 </span>
                 <textarea
+                  disabled={!draftRestored || busy}
                   value={task}
                   onChange={(e) => setTask(e.target.value)}
                   rows={3}
@@ -839,6 +846,10 @@ function AskPage() {
                         ["unspecified", t("按业务用途识别", "Infer from business use")],
                         ["model-api", t("模型 API", "Model API")],
                         ["coding-product", t("编码产品", "Coding product")],
+                        [
+                          "knowledge-product",
+                          t("知识库应用与平台", "Knowledge application / platform"),
+                        ],
                         ["agent-development", t("Agent 开发", "Agent development")],
                       ]}
                     />
@@ -1092,7 +1103,7 @@ function AskPage() {
               </details>
               <div className="decision-example-actions">
                 {!preparedDecision && (
-                  <Button type="submit" className="ml-auto" disabled={busy}>
+                  <Button type="submit" className="ml-auto" disabled={!draftRestored || busy}>
                     <Send className="h-4 w-4" />{" "}
                     {busy
                       ? t("检索中…", "Researching…")
@@ -1161,6 +1172,10 @@ function AskPage() {
                           {
                             "model-api": t("模型 API", "Model API"),
                             "coding-product": t("编码产品", "Coding product"),
+                            "knowledge-product": t(
+                              "知识库应用与平台",
+                              "Knowledge application / platform",
+                            ),
                             "agent-development": t("Agent 开发", "Agent development"),
                             unspecified: t("未指定", "Unspecified"),
                           }[taskType]

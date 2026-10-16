@@ -365,6 +365,7 @@ def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionCo
     types = {
         "model-api": {"model", "api"},
         "coding-product": {"application", "tool", "agent"},
+        "knowledge-product": {"application", "tool", "framework"},
         "agent-development": {"framework", "agent"},
         "unspecified": {entity.type},
     }
@@ -378,13 +379,28 @@ def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionCo
         )
     ):
         failures.append("unavailable-version")
-    if context.deployment != "undecided" and not any(
-        (claim.predicate == "deployment" and claim.object_or_value == context.deployment)
-        or (
-            context.workflow_version == 2
-            and explicit_spec_fields(claim).get("deployment") == context.deployment
+    offline_required = any(
+        re.search(
+            r"(?:必须|要求).{0,8}离线|完全离线运行|fully offline|air.gapped", clause, re.IGNORECASE
         )
+        and not re.search(r"不要求|不需要|无需|不用|not required|no need", clause, re.IGNORECASE)
+        for clause in re.split(r"[，,。；;.!]", context.task)
+    )
+    offline_verified = any(
+        claim.predicate == "deployment" and claim.object_or_value == "fully-offline"
         for claim in claims
+    )
+    if (offline_required and not offline_verified) or (
+        context.deployment != "undecided"
+        and not any(
+            (claim.predicate == "deployment" and claim.object_or_value == context.deployment)
+            or (offline_verified and context.deployment == "on-device")
+            or (
+                context.workflow_version == 2
+                and explicit_spec_fields(claim).get("deployment") == context.deployment
+            )
+            for claim in claims
+        )
     ):
         failures.append("deployment-unverified")
     if context.region and not any(

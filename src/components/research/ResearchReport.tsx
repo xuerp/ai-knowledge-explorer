@@ -160,9 +160,11 @@ export function ResearchReport({
             <span className="chip">
               {research?.decision && decisionPresentation(research, lang).allExcluded
                 ? t("无符合条件的候选", "No eligible candidate")
-                : answer.status === "ready"
-                  ? t("分析已生成", "Analysis generated")
-                  : t("证据不足", "Insufficient evidence")}
+                : research?.decision?.plan?.state === "needs-input"
+                  ? t("待确认任务与条件", "Task and conditions need clarification")
+                  : answer.status === "ready"
+                    ? t("分析已生成", "Analysis generated")
+                    : t("证据不足", "Insufficient evidence")}
             </span>
           </div>
           <h1 className="research-report__question">{pick(answer.question, lang)}</h1>

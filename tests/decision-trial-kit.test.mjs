@@ -69,6 +69,20 @@ test("unknown, excluded, conflicting, stale and out-of-scope candidates cannot o
   assert.equal(decisionTrialKit(research, ["a"], String, "zh"), null);
 });
 
+test("knowledge platform trial separates setup from the chatbot prompt and retains verification boundaries", () => {
+  const research = fixture();
+  research.decision.scenario.id = "knowledge-workspace";
+  const kit = decisionTrialKit(research, ["a"], () => "Dify", "zh");
+  assert.match(kit.starterInputs, /数据去向.*PDF.*Chatbot.*启用引用/);
+  assert.match(kit.prompt, /当前已连接的知识库/);
+  assert.match(kit.prompt, /明确说不知道/);
+  assert.match(kit.prompt, /不能|不要把这些指令/);
+  assert.doesNotMatch(kit.prompt, /不要回答选哪个产品|本轮选择回答模型/);
+  assert.match(kit.html, /PDF/);
+  assert.match(kit.markdown, /不同权限账户.*维护成本/);
+  assert.equal(research.decision.plan.trial.executed, false);
+});
+
 test("source requests separate missing facts from actual business tests and input clarifications", () => {
   const research = fixture();
   research.decision.candidates = [

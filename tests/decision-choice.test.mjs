@@ -17,6 +17,27 @@ const {
 } = await vite.ssrLoadModule("/src/domain/decision-choice.ts");
 test.after(() => vite.close());
 
+test("a scoped cost primary is shown first without changing stored candidate order", () => {
+  const input = {
+    decision: {
+      scenario: { requiredFeatures: ["structured-output"] },
+      recommendation: { basis: "comparable-cost", primaryEntityId: "b" },
+      plan: { state: "ready-to-validate", trialCandidateIds: ["a", "b"] },
+      candidates: ["a", "b"].map((entityId) => ({
+        entityId,
+        eligibility: "eligible",
+        strengths: [{ dimension: "structured-output", finding: "Synthetic source", claimIds: [] }],
+      })),
+    },
+  };
+  const before = structuredClone(input);
+  assert.deepEqual(
+    decisionChoices(input).map((row) => row.entityId),
+    ["b", "a"],
+  );
+  assert.deepEqual(input, before);
+});
+
 test("repeated visible statements share one row and retain every dimension, citation and original qualification", () => {
   const input = structuredClone(research);
   const candidate = input.decision.candidates.find((row) => row.entityId === "qualified");

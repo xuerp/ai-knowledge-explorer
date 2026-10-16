@@ -18,7 +18,7 @@ from .schemas import (
 )
 
 LABELS = {
-    "product-entry": ("编码产品使用入口", "Coding product entry points"),
+    "product-entry": ("产品使用入口", "Product entry points"),
     "workflow-qualification": ("产品适用条件", "Product qualifications"),
     "task-quality": ("任务效果（同口径测试）", "Task quality (comparable tests)"),
     "speed": ("速度（同口径测试）", "Speed (comparable tests)"),

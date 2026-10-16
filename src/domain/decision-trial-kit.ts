@@ -40,12 +40,18 @@ export function decisionTrialKit(
     ),
   ].join("\n\n");
   const coding = research.decisionContext?.taskType === "coding-product";
+  const knowledgeWorkspace = research.decision.scenario?.id === "knowledge-workspace";
   const starterInputs = coding
     ? t(
         "先选一个真实报错或一项小功能，提供相关文件、复现步骤和运行／验收命令。先试一项即可；完整对比方案可按需查看。",
         "Start with one real bug or a small feature. Supply related files, reproduction steps and run/test commands. The full comparison protocol is optional.",
       )
-    : protocol.sample;
+    : knowledgeWorkspace
+      ? t(
+          "先确认模型和嵌入服务的数据去向，再在所选平台用少量授权 PDF / Word 建立知识库、接入 Chatbot 并启用引用。准备有答案、无答案、矛盾内容各类问题；下面的提示用于配置后的问答入口。另用不同权限账户检查越权访问，并记录维护成本。",
+          "Confirm model and embedding data destinations, build a small knowledge base with authorized PDF / Word files, connect a Chatbot and enable citations. Prepare answerable, unanswerable and contradictory questions. Use the prompt below in that configured chatbot. Separately test unauthorized access with different accounts and record maintenance costs.",
+        )
+      : protocol.sample;
   const prompt = coding
     ? [
         t(
@@ -65,7 +71,22 @@ export function decisionTrialKit(
           "Report what changed, the test commands actually run and their results, and unfinished work. If tests cannot run, say so; do not report unrun tests as passed.",
         ),
       ].join("\n\n")
-    : fullPrompt;
+    : knowledgeWorkspace
+      ? [
+          t(
+            "请仅根据当前已连接的知识库回答我接下来给出的问题。每个结论标明支持它的原文出处，不编造引用。",
+            "Answer my next questions using only the connected knowledge base. Cite the supporting original passage for each conclusion; do not invent citations.",
+          ),
+          t(
+            "没有足够依据时明确说不知道；资料互相矛盾或过期时指出对应原文，不自行补造结论。不返回当前用户无权访问的内容。",
+            "Say you do not know when evidence is insufficient. Identify conflicting or outdated passages without inventing conclusions. Do not return content the current user cannot access.",
+          ),
+          t(
+            "我会提供实际问题，并人工核对回答、引用、拒答和权限。不要把这些指令当成引用准确或权限隔离已通过的证明。",
+            "I will provide actual questions and manually verify answers, citations, abstention and permissions. These instructions are not proof of citation accuracy or access isolation.",
+          ),
+        ].join("\n\n")
+      : fullPrompt;
   const section = (title: string, rows: string[]) =>
     `## ${title}\n\n${rows.map((row) => `- ${row}`).join("\n")}`;
   const markdown = [

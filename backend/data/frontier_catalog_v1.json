@@ -84,6 +84,66 @@
       ],
       "datePolicy": "Source publication dates and fact effective dates remain unknown. Categorical claims use human verification freshness; original API quote expires after seven days from observation.",
       "scope": "Original OpenAI API deployment and Standard uncached text pricing; Codex CLI installed local tool execution. Not CCSub prices, account access or measured task outcomes."
+    },
+    "decisionTaskIntake20261016": {
+      "reviewedAt": "2026-10-16T04:55:55.236879",
+      "reviewPackageSha256": "029c4f19587aa07da9961fe1d4a83dabfb27c85a8ddcf1e9e12a8fb54f112fd0",
+      "method": "Actual human consent, six individual existing review API approvals, approved public export; isolated operator database.",
+      "captureQualification": "Official pages opened through web tool; short excerpt snapshots. Formal SafeHttpFetcher receipts preserved separately; failed capture is not bypassed or labelled successful. Publication and effective dates remain unknown.",
+      "claimIds": [
+        "claim-task-material-78be1a71a2cdaaa60b48",
+        "claim-task-material-938aa6cce6a6f0d4d8be",
+        "claim-task-material-c25138d8ffe6d07c69d5",
+        "claim-task-material-c2b2a07df4f360a14db4",
+        "claim-task-material-d0a58103ebe8431b7fe3",
+        "claim-task-material-e7d7d58f79302d9302a8"
+      ],
+      "entityIds": ["e-dify"],
+      "scope": "Local and existing staging, conditional document QA pilot eligibility only. No measured quality, end-user document isolation, fully offline guarantee or price.",
+      "publicationRecords": [
+        {
+          "id": 6,
+          "reviewJobId": "task-material-938aa6cce6a6f0d4d8be",
+          "claimId": "claim-task-material-938aa6cce6a6f0d4d8be",
+          "publishedAt": "2026-10-16T04:55:55.236879",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 5,
+          "reviewJobId": "task-material-c2b2a07df4f360a14db4",
+          "claimId": "claim-task-material-c2b2a07df4f360a14db4",
+          "publishedAt": "2026-10-16T04:55:55.228746",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 4,
+          "reviewJobId": "task-material-78be1a71a2cdaaa60b48",
+          "claimId": "claim-task-material-78be1a71a2cdaaa60b48",
+          "publishedAt": "2026-10-16T04:55:55.221578",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 3,
+          "reviewJobId": "task-material-c25138d8ffe6d07c69d5",
+          "claimId": "claim-task-material-c25138d8ffe6d07c69d5",
+          "publishedAt": "2026-10-16T04:55:55.214581",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 2,
+          "reviewJobId": "task-material-d0a58103ebe8431b7fe3",
+          "claimId": "claim-task-material-d0a58103ebe8431b7fe3",
+          "publishedAt": "2026-10-16T04:55:55.206556",
+          "actor": "legacy-admin@local"
+        },
+        {
+          "id": 1,
+          "reviewJobId": "task-material-e7d7d58f79302d9302a8",
+          "claimId": "claim-task-material-e7d7d58f79302d9302a8",
+          "publishedAt": "2026-10-16T04:55:55.191323",
+          "actor": "legacy-admin@local"
+        }
+      ]
     }
   },
   "entities": [
@@ -31317,6 +31377,219 @@
           }
         ]
       }
+    },
+    {
+      "id": "e-dify",
+      "type": "application",
+      "slug": "dify",
+      "name": {
+        "zh": "Dify",
+        "en": "Dify"
+      },
+      "summary": {
+        "zh": "知识库检索和问答应用搭建平台；具体功能与边界见审核资料。",
+        "en": "A platform for knowledge retrieval and document-answer applications; see reviewed sources for feature scope."
+      },
+      "vendor": "LangGenius",
+      "origin": null,
+      "status": "active",
+      "tags": ["knowledge ingestion", "knowledge retrieval"],
+      "latestVersion": null,
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-16T02:51:38.149262+00:00",
+      "aliases": ["Dify"],
+      "familyId": null,
+      "release": null,
+      "specs": null,
+      "capabilities": null,
+      "metrics": null,
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Dify 是配置知识库检索与问答应用的平台，提供网页工作区。",
+            "en": "Dify is a platform for configuring knowledge retrieval and answer applications through a web workspace."
+          },
+          {
+            "zh": "文档导入、检索和引用需要配合具体模型服务配置；平台功能说明不能代替中文业务样本上的实际验证。",
+            "en": "Document ingestion, retrieval and citations require model-service configuration; documented platform features do not replace tests on actual Chinese business samples."
+          }
+        ],
+        "significance": {
+          "zh": "将文档导入、检索配置和回答应用放在同一平台中评估，适合先做有限试点；不能把底层模型能力直接当成整套知识库效果。",
+          "en": "Evaluate ingestion, retrieval configuration and answer applications as a platform in a limited pilot; model capabilities do not establish complete workflow quality."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "PDF 与 Word 导入",
+              "en": "PDF and Word ingestion"
+            },
+            "description": {
+              "zh": "官方教程列出 PDF、DOCX 等导入格式；扫描件、中文解析和文档结构须单独验证。",
+              "en": "The official guide lists PDF and DOCX ingestion; validate scans, Chinese extraction and document structure separately."
+            },
+            "sourceIds": ["source-task-material-e7d7d58f79302d9302a8"]
+          },
+          {
+            "title": {
+              "zh": "检索与引用配置",
+              "en": "Retrieval and citation setup"
+            },
+            "description": {
+              "zh": "配置分块、索引与检索，Chatbot 连接知识库后可启用引用展示；引用是否正确、没有依据是否拒答仍须验证。",
+              "en": "Configure chunking, indexing and retrieval; knowledge-connected Chatbots can enable citations, whose correctness and abstention require validation."
+            },
+            "sourceIds": [
+              "source-task-material-78be1a71a2cdaaa60b48",
+              "source-task-material-d0a58103ebe8431b7fe3"
+            ]
+          },
+          {
+            "title": {
+              "zh": "工作区权限边界",
+              "en": "Workspace permission scope"
+            },
+            "description": {
+              "zh": "知识库设置控制工作区成员访问；不能将其直接当成发布后用户逐文档授权。",
+              "en": "Knowledge settings control workspace-member access; they do not establish per-document authorization for published-app users."
+            },
+            "sourceIds": ["source-task-material-c25138d8ffe6d07c69d5"]
+          },
+          {
+            "title": {
+              "zh": "自托管与维护",
+              "en": "Self-hosting and maintenance"
+            },
+            "description": {
+              "zh": "官方提供 Docker Compose 自托管流程；模型与嵌入服务的数据去向和维护费用仍须独立核对。",
+              "en": "Docker Compose self-hosting is documented; assess model and embedding data destinations and maintenance costs separately."
+            },
+            "sourceIds": ["source-task-material-c2b2a07df4f360a14db4"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "公司文档问答试点",
+              "en": "Company document QA pilot"
+            },
+            "description": {
+              "zh": "先以少量授权文档搭建问答流程，检查答案能否对应原文。",
+              "en": "Pilot a small authorized document collection and check answer-to-source agreement."
+            }
+          },
+          {
+            "title": {
+              "zh": "PDF / Word 导入验证",
+              "en": "PDF and Word import validation"
+            },
+            "description": {
+              "zh": "用实际文件核对解析、分块与可检索内容，先保留失败样本。",
+              "en": "Check extraction, chunking and retrievable content with actual files, retaining failures."
+            }
+          },
+          {
+            "title": {
+              "zh": "权限与引用检查",
+              "en": "Permission and citation checks"
+            },
+            "description": {
+              "zh": "在试点中分别检查成员访问、越权问题、引用正确性和无依据问题。",
+              "en": "Separately test member access, unauthorized requests, citation correctness and unanswerable questions."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "没有本项目中文问答、引用正确率或拒答率的实测成绩，不能判定优于其他平台。",
+            "en": "No project measurements of Chinese answering, citation accuracy or abstention establish superiority."
+          },
+          {
+            "zh": "工作区权限不等于终端用户逐文档隔离；自托管不等于模型也在本地或完全离线，账户套餐和完整费用仍需核对。",
+            "en": "Workspace permissions are not per-document end-user isolation; self-hosting does not prove local models or full offline operation. Verify account plans and complete costs."
+          }
+        ],
+        "officialUrl": "https://dify.ai",
+        "sections": [
+          {
+            "id": "document-workflow",
+            "title": {
+              "zh": "文档导入与问答流程",
+              "en": "Document ingestion and answering"
+            },
+            "summary": {
+              "zh": "Dify 是配置知识库检索与问答应用的平台，提供网页工作区。",
+              "en": "Dify is a platform for configuring knowledge retrieval and answer applications through a web workspace."
+            },
+            "items": [
+              {
+                "zh": "官方教程列出 PDF、DOCX 等导入格式；扫描件、中文解析和文档结构须单独验证。",
+                "en": "The official guide lists PDF and DOCX ingestion; validate scans, Chinese extraction and document structure separately."
+              },
+              {
+                "zh": "配置分块、索引与检索，Chatbot 连接知识库后可启用引用展示；引用是否正确、没有依据是否拒答仍须验证。",
+                "en": "Configure chunking, indexing and retrieval; knowledge-connected Chatbots can enable citations, whose correctness and abstention require validation."
+              }
+            ],
+            "sourceIds": [
+              "source-task-material-e7d7d58f79302d9302a8",
+              "source-task-material-78be1a71a2cdaaa60b48",
+              "source-task-material-d0a58103ebe8431b7fe3"
+            ]
+          },
+          {
+            "id": "citation-and-access",
+            "title": {
+              "zh": "引用与访问的验证边界",
+              "en": "Citation and access verification"
+            },
+            "summary": {
+              "zh": "知识库设置控制工作区成员访问；不能将其直接当成发布后用户逐文档授权。",
+              "en": "Knowledge settings control workspace-member access; they do not establish per-document authorization for published-app users."
+            },
+            "items": [
+              {
+                "zh": "配置分块、索引与检索，Chatbot 连接知识库后可启用引用展示；引用是否正确、没有依据是否拒答仍须验证。",
+                "en": "Configure chunking, indexing and retrieval; knowledge-connected Chatbots can enable citations, whose correctness and abstention require validation."
+              },
+              {
+                "zh": "没有本项目中文问答、引用正确率或拒答率的实测成绩，不能判定优于其他平台。",
+                "en": "No project measurements of Chinese answering, citation accuracy or abstention establish superiority."
+              }
+            ],
+            "sourceIds": [
+              "source-task-material-78be1a71a2cdaaa60b48",
+              "source-task-material-d0a58103ebe8431b7fe3",
+              "source-task-material-c25138d8ffe6d07c69d5"
+            ]
+          },
+          {
+            "id": "deployment-and-maintenance",
+            "title": {
+              "zh": "部署与维护",
+              "en": "Deployment and maintenance"
+            },
+            "summary": {
+              "zh": "官方提供 Docker Compose 自托管流程；模型与嵌入服务的数据去向和维护费用仍须独立核对。",
+              "en": "Docker Compose self-hosting is documented; assess model and embedding data destinations and maintenance costs separately."
+            },
+            "items": [
+              {
+                "zh": "文档导入、检索和引用需要配合具体模型服务配置；平台功能说明不能代替中文业务样本上的实际验证。",
+                "en": "Document ingestion, retrieval and citations require model-service configuration; documented platform features do not replace tests on actual Chinese business samples."
+              },
+              {
+                "zh": "工作区权限不等于终端用户逐文档隔离；自托管不等于模型也在本地或完全离线，账户套餐和完整费用仍需核对。",
+                "en": "Workspace permissions are not per-document end-user isolation; self-hosting does not prove local models or full offline operation. Verify account plans and complete costs."
+              }
+            ],
+            "sourceIds": [
+              "source-task-material-c2b2a07df4f360a14db4",
+              "source-task-material-c25138d8ffe6d07c69d5"
+            ]
+          }
+        ]
+      }
     }
   ],
   "evidence": [
@@ -38826,6 +39099,108 @@
       "type": "official",
       "supportsClaimIds": null,
       "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-e7d7d58f79302d9302a8",
+      "title": {
+        "zh": "Dify knowledge beginner guide",
+        "en": "Dify knowledge beginner guide"
+      },
+      "url": "https://dify.ai/blog/create-knowledge-in-dify-for-beginners",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.191323",
+      "sourceExcerpt": "These are the supported file types: PDF, DOCX, DOC",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-d0a58103ebe8431b7fe3",
+      "title": {
+        "zh": "Dify knowledge integration and citations",
+        "en": "Dify knowledge integration and citations"
+      },
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/integrate-knowledge-within-application",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.206556",
+      "sourceExcerpt": "Enable Citation and Attribution in Add Features",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-c25138d8ffe6d07c69d5",
+      "title": {
+        "zh": "Dify knowledge permissions",
+        "en": "Dify knowledge permissions"
+      },
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/manage-knowledge/introduction",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.214581",
+      "sourceExcerpt": "Defines which workspace members can access the knowledge base.",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-78be1a71a2cdaaa60b48",
+      "title": {
+        "zh": "Dify knowledge creation and retrieval",
+        "en": "Dify knowledge creation and retrieval"
+      },
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/create-knowledge/introduction",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.221578",
+      "sourceExcerpt": "Configure the chunk settings and preview the chunking results.",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-c2b2a07df4f360a14db4",
+      "title": {
+        "zh": "Dify self-host Docker Compose",
+        "en": "Dify self-host Docker Compose"
+      },
+      "url": "https://docs.dify.ai/en/self-host/deploy/quick-start/docker-compose",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.228746",
+      "sourceExcerpt": "Start the containers:",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "source-task-material-938aa6cce6a6f0d4d8be",
+      "title": {
+        "zh": "Dify knowledge web workspace",
+        "en": "Dify knowledge web workspace"
+      },
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/create-knowledge/introduction",
+      "publisher": "Dify",
+      "publishedAt": "",
+      "collectedAt": "2026-10-16T02:31:16.508169+00:00",
+      "verifiedAt": "2026-10-16T04:55:55.236879",
+      "sourceExcerpt": "Click Knowledge > Create > Create a ready-to-use knowledge base",
+      "originalLanguage": null,
+      "type": "official",
+      "supportsClaimIds": null,
+      "contradictsClaimIds": null
     }
   ],
   "claims": [
@@ -44126,6 +44501,114 @@
       "validFrom": null,
       "validTo": null,
       "observedAt": "2026-10-15T13:39:39.711406+00:00"
+    },
+    {
+      "id": "claim-task-material-e7d7d58f79302d9302a8",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify 知识库官方教程说明可导入 PDF、DOCX 等文档并分块索引。中文、扫描件解析准确性仍需用自己的样本验证；支持导入不等于回答准确。",
+        "en": "Dify documents PDF and DOCX knowledge ingestion and indexing; Chinese and scanned-document accuracy require sample validation.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-e7d7d58f79302d9302a8"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "workflow-feature",
+      "objectOrValue": "knowledge-ingestion",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "claim-task-material-d0a58103ebe8431b7fe3",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify 官方文档说明 Chatbot 接入知识库后可启用 Citation and Attribution。必须自行配置检索与模型；有引用开关不保证引用正确或无依据时必然拒答，也不代表所有应用模式都相同。",
+        "en": "Dify documents enabling citation and attribution for a knowledge-connected Chatbot; setup, citation accuracy and abstention require validation, and other app modes are not established.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-d0a58103ebe8431b7fe3"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "workflow-feature",
+      "objectOrValue": "source-citations",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "claim-task-material-c25138d8ffe6d07c69d5",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify 知识库设置可限定哪些工作区成员访问该知识库。这是工作区成员权限，不证明发布后终端用户的逐文档隔离、SSO 或所有套餐具备同等权限；企业试点仍须做越权检查。",
+        "en": "Dify knowledge settings control workspace-member access, not proven per-document end-user authorization, SSO or identical plan entitlements; test unauthorized access before a company pilot.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-c25138d8ffe6d07c69d5"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "workflow-feature",
+      "objectOrValue": "workspace-permissions",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "claim-task-material-78be1a71a2cdaaa60b48",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify 官方知识库流程包括文档分块、索引和检索配置，并可连接到应用。它是应用搭建平台，需要配置生成与嵌入服务；不是独立模型，也不是上传文档即可保证可上线的成品问答系统。",
+        "en": "Dify provides configurable chunking, indexing and retrieval for applications; it is an application-building platform requiring model/provider setup, not an independently measured or deployment-ready answer system.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-78be1a71a2cdaaa60b48"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "workflow-feature",
+      "objectOrValue": "knowledge-retrieval",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "claim-task-material-c2b2a07df4f360a14db4",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify Community Edition 官方支持 Docker Compose 自托管，需要部署和维护多项服务及依赖。自托管平台不代表模型或嵌入服务也在本地，不能据此认定完全离线、全部数据不出网或维护成本已知。",
+        "en": "Dify documents Docker Compose self-hosting with multiple services and dependencies; platform self-hosting does not establish local models, offline operation, no egress or known maintenance cost.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-c2b2a07df4f360a14db4"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "deployment",
+      "objectOrValue": "private",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "claim-task-material-938aa6cce6a6f0d4d8be",
+      "entityId": "e-dify",
+      "text": {
+        "zh": "Dify 通过网页工作区创建知识库和应用；仍需选择 Cloud 或自托管入口并配置模型服务，具体账户、套餐和费用须另外确认。",
+        "en": "Dify offers a web workspace for knowledge bases and applications; choose Cloud or self-hosted access and configure providers, account, plan and cost separately.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["source-task-material-938aa6cce6a6f0d4d8be"],
+      "updatedAt": "2026-10-16",
+      "subject": null,
+      "predicate": "product-entry",
+      "objectOrValue": "[\"web\"]",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-16T02:31:16.508169+00:00"
     }
   ],
   "relations": [

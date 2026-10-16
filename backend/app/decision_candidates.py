@@ -27,6 +27,7 @@ CATALOG = json.loads(
 TYPES = {
     "model-api": {"model", "api"},
     "coding-product": {"application", "tool", "agent"},
+    "knowledge-product": {"application", "tool", "framework"},
     "agent-development": {"framework"},
 }
 
@@ -49,6 +50,7 @@ def interpret_scenario(context: DecisionContext, language: str) -> DecisionScena
         default = {
             "coding-product": "coding-workspace",
             "agent-development": "agent-orchestration",
+            "knowledge-product": "knowledge-workspace",
         }.get(context.task_type)
         row = next((row for row in CATALOG["scenarios"] if row["id"] == default), None)
     if row is None:
@@ -187,8 +189,32 @@ def discover_candidates(
             explicit=True,
         )
     scenario = interpret_scenario(context, language)
-    named = LexicalRagRetriever.expand_entity_scope(
-        snapshot.entities, LexicalRagRetriever.resolve_mentions(snapshot.entities, context.task)
+    mentions = LexicalRagRetriever.resolve_mentions(snapshot.entities, context.task)
+    companies = [
+        entity for entity in snapshot.entities if entity.id in mentions and entity.type == "company"
+    ]
+    # A provider name defines a catalog search scope, never a feature or an
+    # eligibility fact. A concrete product mention stays narrower than its vendor.
+    product_mentions = mentions - {entity.id for entity in companies}
+    mentioned_parents = {
+        entity.family_id for entity in snapshot.entities if entity.id in product_mentions
+    }
+    product_mentions -= mentioned_parents
+    named = LexicalRagRetriever.expand_entity_scope(snapshot.entities, product_mentions)
+    vendor_terms = {
+        term.casefold().strip()
+        for company in companies
+        for term in [company.name.en, company.name.zh, *(company.aliases or [])]
+        if len(term.strip()) >= 2
+    }
+    constraint_audit = (
+        scenario.id == "unspecified"
+        and context.task_type == "model-api"
+        and (
+            context.minimum_context_tokens is not None
+            or context.deployment != "undecided"
+            or context.commercial_use_required
+        )
     )
     types = TYPES.get(context.task_type)
     if types is None and scenario.id != "unspecified":
@@ -214,6 +240,12 @@ def discover_candidates(
         hint = entity.summary.zh + " " + entity.summary.en + " " + " ".join(entity.tags)
         if named:
             relevant = entity.id in named or entity.family_id in named
+        elif companies:
+            relevant = any(contains(entity.vendor or "", term) for term in vendor_terms)
+        elif constraint_audit:
+            # The use/output may still need clarification, but explicit hard
+            # constraints must be audited now rather than disappearing entirely.
+            relevant = True
         else:
             # Reviewed workflow facts can describe newer capabilities absent
             # from the catalog summary. Otherwise even reviewed source refreshes
@@ -233,18 +265,17 @@ def discover_candidates(
             if "text-generation" in scenario.required_features and entity.type == "model":
                 # General text use must not pick TTS, voice-only, image-generation
                 # or embedding products merely because they accept text inputs.
-                specialized = re.search(
-                    r"text.to.speech|speech reasoning|full.duplex voice|语音合成|语音推理|实时语音|文本转换为自然语音|text.to.image|image generation|图像生成|embedding model|嵌入模型",
-                    hint,
-                    re.IGNORECASE,
-                )
-                relevant = not specialized
-            if entity.type == "model" and re.search(
-                r"text.to.speech|speech reasoning|full.duplex voice|语音合成|语音推理|实时语音|文本转换为自然语音|text.to.image|image generation|图像生成|embedding model|嵌入模型",
-                hint,
+                relevant = True
+        if (
+            scenario.id != "unspecified"
+            and entity.type == "model"
+            and re.search(
+                r"\bTTS\b|text.to.speech|speech reasoning|full.duplex voice|语音合成|语音推理|实时语音|文本转换为自然语音|text.to.image|image generation|图像生成|embedding model|嵌入模型",
+                hint + " " + entity.name.zh + " " + entity.name.en,
                 re.IGNORECASE,
-            ):
-                relevant = False
+            )
+        ):
+            relevant = False
         if relevant:
             pool.append(entity)
     # Qualification is checked over the complete relevant pool before the bounded
