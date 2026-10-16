@@ -14,7 +14,7 @@
     },
     {
       "path": ".github/workflows/quality.yml",
-      "sha256": "9aacab90d8ad935e4f00b9219499153e89c8651078aa3aff7b176cd57b762b8d",
+      "sha256": "6e026695eb2d4858407b2dc17a33ba45a07dc7546aff247f7b51e22f5d2f6abb",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -69,17 +69,17 @@
     },
     {
       "path": "backend/app/decision_candidates.py",
-      "sha256": "74e24c8b599408c113c3cd94803ca9397c4dbcf38db311a356dd90ef6bbd4b1b",
+      "sha256": "1c2f4f6bc16da5b3f3ee27a663fc590e334647f316c4dcfc1899f9e436a92b9f",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/decision_comparison.py",
-      "sha256": "7c5aecb45aa2f66e7d0f8b2fc519d9c79f3df7170c118c11e7f16477721e1c6d",
+      "sha256": "74957ed4d239dcd7b1608f510aa2a6274af09b9211daeb5f78a000b64695dd8b",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/decision_constraints.py",
-      "sha256": "c32476fe983e5db2d23f4cf6d97f05f650e6874850163f39898ef3fbdd39c811",
+      "sha256": "813b45d2d875be500f73f8872e5e9281299222df5560794becc19402b02d5be7",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -89,12 +89,12 @@
     },
     {
       "path": "backend/app/decision_explanation.py",
-      "sha256": "01a8b775827557b25064e28292878d5857e2132b1334281514c61afd91666570",
+      "sha256": "fbbe809cfe679f30a6e7e11804818fbb1933ea4e207655cd9d509a8aa8931b85",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/decision_facts.py",
-      "sha256": "7237f88b3df5f31fb83ef1543c893805e77ae5046492522cc2b9467b277bdf8a",
+      "sha256": "e3fcaa7aaeb06da72eceb86340d0089fd0e1f18bf4bc11d49717f8743dd61959",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -109,7 +109,7 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "875ba71b406660e0ee4d99ec524d642f6000c123a6eef7186ac0d4feec070efb",
+      "sha256": "3918c56aad95f842d73d1a5b76fc8889625e01590287283471ec981d6012d444",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -199,7 +199,7 @@
     },
     {
       "path": "backend/app/schemas.py",
-      "sha256": "9e14ded9dd4f8ee215fbd03ca71a2b3e4946993e65bad6cbd98bb3658615c7a9",
+      "sha256": "90764537ac3ad1f29abf31c510fc7642d30316dde891188357461a84e8f349a2",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -223,13 +223,18 @@
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
+      "path": "backend/data/decision_acceptance_tasks.v1.json",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "f7372fad7fd023b887a70f9c73aa08c4744fa30e5fc1af4d093f7109baeeae84"
+    },
+    {
       "path": "backend/data/decision_scenarios.v1.json",
-      "sha256": "fca068f486ba564f3e41486414bcfc7db73ec7719cb9d128e43a4897968d9d2c",
+      "sha256": "0856de3ea5a9cfdfed2f6b9457f8756e83ce6e9b587e8e9eb6d0adbf41cbe507",
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
       "path": "backend/data/frontier_catalog_v1.json",
-      "sha256": "2c6af2e46049a485131ecb09d5d8fed9ec6936ad7d68a00bf4edd00276e5a184",
+      "sha256": "2a5e2908d187d01bb8176bb73f517807d680beb6ca756c6325cac532ff011611",
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
@@ -330,7 +335,7 @@
     {
       "path": "backend/tests/test_decision_coverage_audit.py",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "54ef278e5a027ecfe1c1a7515bffb3f1326e06f04a2481462eb812d2d1fb2cb6"
+      "sha256": "5a5690239e8eb360503bda2eda0f808cebaa97ac66f09f6a9b999569d52ce612"
     },
     {
       "path": "backend/tests/test_decision_deployment_observation.py",
@@ -391,6 +396,11 @@
       "path": "backend/tests/test_decision_semantic_12h.py",
       "sha256": "2465bb6822acb471daa74ab0c76b0156ce6bc42ccac2b5dc1c206c3d0b42c529",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
+    },
+    {
+      "path": "backend/tests/test_decision_task_acceptance.py",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "1bad200b8272297b4be8f63c8471ccb9ed97128d847f849aa0a1f0f8f14c7946"
     },
     {
       "path": "backend/tests/test_decision_trial_runner.py",
@@ -489,7 +499,7 @@
     },
     {
       "path": "backend/tests/test_reference_dossiers.py",
-      "sha256": "650ef20aa5abff55f2dd443fe6b4503723a6831b1ddcb5b89f7281277eabcffe",
+      "sha256": "5f676551b4073530fc95bf3025121761a46e40bd62476e82cdc4482c1b8fddb5",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -569,7 +579,7 @@
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "7faf623d7bba671e45a29de7b92c4116084085831bc9b42e25d8dc9620de7b44",
+      "sha256": "733929eb9d5cc4c51c847d005720a8d00e373a4c319b42b5186a566fbc19397f",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -583,8 +593,13 @@
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
+      "path": "docs/DECISION_TASK_COVERAGE_20261016.md",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "df8455931f85c35d4b48910ee9b2973fe5da2f7b0c60e03f9d39cd9f0c7bfbf2"
+    },
+    {
       "path": "docs/README.md",
-      "sha256": "328ae475fe5273f9ee535aaaeef07387d39e2d6949d0c6db3f082e6be5d10c44",
+      "sha256": "f5b38b90b79826df92f43ce85203732833e782b317570e6ab20de3899a123896",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -641,6 +656,11 @@
       "path": "scripts/audit_decision_coverage.py",
       "reviewBasis": "Individually reviewed decision evidence coverage, deterministic approved-feature hierarchy, freshness gates, maintenance audit, regression tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
       "sha256": "b1cf89e67ab57b916b09f8d46824d64e61971729266e13f5ea5a16c13161c476"
+    },
+    {
+      "path": "scripts/audit_decision_tasks.py",
+      "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "4af98c6d9a149fd1ebb12199b62c9adaa6924ff898042a341ff05f854e28fc72"
     },
     {
       "path": "scripts/check-coding-benchmark.mjs",
@@ -769,12 +789,12 @@
     },
     {
       "path": "src/components/research/DecisionBrief.tsx",
-      "sha256": "f0ca4fdedc2a2b16830c761cc17b8a128440448ae0712e147fb022ad55934981",
+      "sha256": "721758698acc47674f432c5975b42c6a66d58fb283ba29d3ae796b763f05cf9b",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/components/research/DecisionChoice.tsx",
-      "sha256": "ed7db1a5046e1784e30baba075d49de6d2f8b5e4bea6d386d79a714ea91948c9",
+      "sha256": "62c524b9ade31f253ea997f00b4cda9e23052931e4c4515e5211d48bb2a787f6",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -814,7 +834,7 @@
     },
     {
       "path": "src/components/research/ResearchReport.tsx",
-      "sha256": "95e448bb6d6cb2ea2747d232235cec9856b956a655eb4a1a6b86f7eeb5a70002",
+      "sha256": "50603831d667fdeb9b99c38a29c63d7a4279ec6ea1cecb1b9b425b5727aa0324",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -894,12 +914,12 @@
     },
     {
       "path": "src/domain/decision-choice.ts",
-      "sha256": "eabe9b6a1e05f17df0bc8013dd047a83f329ebac16653b325ddf93be9b55fe62",
+      "sha256": "3703bf8d72cf86d25cc8746e7de19980a2f15330237aa1d6d858006337ff81a8",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/domain/decision-examples.ts",
-      "sha256": "0b731dbe14c9e16cbd412103c187a25aebe9ca01e496d928e4bd295ac858fd26",
+      "sha256": "9a2cdf5050c3432e6b4ee66024e5e5cde2cb0d735cf19aeccea0021af48fb238",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -924,12 +944,12 @@
     },
     {
       "path": "src/domain/decision-report-html.ts",
-      "sha256": "f508d005e534d471cfd3fc6543c4e463af17fd7c25b04e0eb5f01d8e5a4c9493",
+      "sha256": "45e39503a261d28e6c08dfee044215ba0e2ac66a639e273af9155eab78b826c2",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "d407d59055015891b33b8bf388b374232b0a4c5df4fe67f7b090ed507d3562d4",
+      "sha256": "071b711467fe3e31de8e468b82442184b4bc732f76bab8d74dd10a0d69be7085",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -944,12 +964,12 @@
     },
     {
       "path": "src/domain/decision-verdict.ts",
-      "sha256": "02cca0ee3fa8ca4df2b6c839f69919f07c2ea6586d9dacfd1edb1600d4890f24",
+      "sha256": "dcb5bd88876801e7b62cbfa1c64d68019119958c13b34c5a663c4d583ef4edd4",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/domain/decision-workflow.ts",
-      "sha256": "4ad0a613efde1ff92510590c24467059f6fa1c04bb8096311f4d73446518550b",
+      "sha256": "212936a4fee219db1411644d6bb12b79544034f04bfac44e991895f9060acd10",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1074,7 +1094,7 @@
     },
     {
       "path": "src/routes/ask.tsx",
-      "sha256": "b0b156f819110572373f70c6702ae043931c320fae47d50c34ecb9085a8094b3",
+      "sha256": "be65ea7b8f3d6de08c38f5f4bd3195541732b5ee9ead696cbc3730b3943add85",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1184,7 +1204,7 @@
     },
     {
       "path": "src/services/user-api.ts",
-      "sha256": "5ff41e11cde16907a67bc789764cebe9841cd59102d843f0dd1498154cccc46a",
+      "sha256": "89b0360a5fbbd0f94a9473d90ed8e29e894998f7b96ac07ce771c48e4a2f1bcb",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1229,7 +1249,7 @@
     },
     {
       "path": "tests/decision-choice.test.mjs",
-      "sha256": "a08cfede6f13563c1421d8d5f497c3ed6fdf163dcb904482ddfe1bc9c07b832d",
+      "sha256": "d6588fe85a31f4ffb78b7757e48f1101c6d2218c44b251c91715729cc5691b01",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1264,7 +1284,7 @@
     },
     {
       "path": "tests/decision-trial-kit.test.mjs",
-      "sha256": "31074678b38d617686df2a987384680b6881755125030f246637df9a9acf9fea",
+      "sha256": "870189cb7ff33b0ec4ac187d4c350165e3db916e3686ea47e5e6f12cdbe261a1",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1274,12 +1294,12 @@
     },
     {
       "path": "tests/decision-verdict.test.mjs",
-      "sha256": "b40ff94ef481e231b6081cc9353597f7c3a97bc9df4fe7583248356fc5357b9d",
+      "sha256": "c605647ac34acbe167c16dda76b101ee778fbd570de9595ab0c19367bb0a06f1",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
       "path": "tests/decision-workflow.test.mjs",
-      "sha256": "6712bf252c72c63e426832a3e0b6ff0e1f5079f538274952329c54071534d0de",
+      "sha256": "b69183c23e3341dc417085a35225e40df12b4099e517f75d54991ac7c3f24f16",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1368,9 +1388,9 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 273,
+  "publicFileCount": 277,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
-  "lastVerifiedOn": "2026-10-15",
+  "lastVerifiedOn": "2026-10-16",
   "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }

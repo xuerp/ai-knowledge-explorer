@@ -1020,9 +1020,9 @@ class DecisionContext(CamelModel):
     exclusions: list[str] = Field(default_factory=list, max_length=20)
     candidate_entity_ids: list[str] = Field(default_factory=list, max_length=20)
     notes: str | None = Field(default=None, max_length=1000)
-    task_type: Literal["model-api", "coding-product", "agent-development", "unspecified"] = (
-        "unspecified"
-    )
+    task_type: Literal[
+        "model-api", "coding-product", "knowledge-product", "agent-development", "unspecified"
+    ] = "unspecified"
     region: str | None = Field(default=None, max_length=100)
 
     @field_validator("exclusions")

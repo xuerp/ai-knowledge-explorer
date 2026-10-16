@@ -86,6 +86,11 @@ export function decisionChoices(research: ResearchResult) {
     rows.filter((row) => !trial.has(row.entityId) && !explicit.has(row.entityId) && complete(row)),
     rows.filter((row) => !trial.has(row.entityId) && !explicit.has(row.entityId) && !complete(row)),
   ];
+  const primary =
+    decision?.recommendation?.basis === "comparable-cost"
+      ? decision.recommendation.primaryEntityId
+      : undefined;
+  buckets[0].sort((a, b) => Number(b.entityId === primary) - Number(a.entityId === primary));
   return buckets.flat().map((row) => ({
     ...row,
     ready: trial.has(row.entityId),
@@ -101,7 +106,18 @@ export function decisionChoices(research: ResearchResult) {
       ),
     estimatedCost: (row.strengths ?? []).find((finding) => finding.dimension === "api-price"),
     known: choiceFindings(
-      (row.strengths ?? []).filter((finding) => required.includes(finding.dimension)).slice(0, 2),
+      (row.strengths ?? [])
+        .filter((finding) => required.includes(finding.dimension))
+        .sort((a, b) => {
+          if (decision?.scenario?.id !== "knowledge-workspace") return 0;
+          const priority = ["knowledge-ingestion", "source-citations", "workspace-permissions"];
+          const rank = (dimension: string) => {
+            const index = priority.indexOf(dimension);
+            return index < 0 ? priority.length : index;
+          };
+          return rank(a.dimension) - rank(b.dimension);
+        })
+        .slice(0, 2),
     ),
     missing: [
       ...new Set(

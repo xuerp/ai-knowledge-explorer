@@ -12,6 +12,7 @@ import { DecisionChoice } from "./DecisionChoice";
 import { DecisionEvidenceRequests } from "./DecisionEvidenceRequests";
 import { decisionVerdict } from "@/domain/decision-verdict";
 import { Button } from "@/components/ui/button";
+import { decisionResumePath } from "@/domain/decision-workflow";
 
 export function DecisionBrief({
   research,
@@ -121,6 +122,17 @@ export function DecisionBrief({
             <strong>{t("下一步：", "Next: ")}</strong>
             {verdict.next}
           </p>
+          {verdict.action === "edit" &&
+            research.decisionContext &&
+            decision.plan?.state !== "needs-evidence" && (
+              <Button asChild>
+                <Link to={decisionResumePath(research.decisionContext)}>
+                  {decision.plan?.state === "needs-input"
+                    ? t("补充任务描述", "Clarify my task")
+                    : t("返回任务条件", "Return to task conditions")}
+                </Link>
+              </Button>
+            )}
           {verdict.source === "private" && validationContent && (
             <Button
               variant="outline"
@@ -210,7 +222,7 @@ export function DecisionBrief({
             : undefined
         }
       />
-      {validationContent && !hasTrialCandidates && (
+      {validationContent && !hasTrialCandidates && decision.plan?.state !== "needs-input" && (
         <DecisionEvidenceRequests
           key={`evidence-${research.id}`}
           research={research}
@@ -220,6 +232,13 @@ export function DecisionBrief({
       {workspace}
       <details className="decision-audit">
         <summary>{t("筛选依据与其他候选", "Screening details and other candidates")}</summary>
+        {validationContent && decision.plan?.state === "needs-input" && (
+          <DecisionEvidenceRequests
+            key={`evidence-${research.id}`}
+            research={research}
+            entityName={entityName}
+          />
+        )}
         {validationContent && hasTrialCandidates && (
           <div className="decision-maintenance">
             <p>

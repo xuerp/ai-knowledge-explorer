@@ -80,6 +80,7 @@ export function decisionReportHtml(
               {
                 "model-api": t("模型 API", "Model API"),
                 "coding-product": t("编码产品", "Coding product"),
+                "knowledge-product": t("知识库应用与平台", "Knowledge application / platform"),
                 "agent-development": t("Agent 开发", "Agent development"),
                 unspecified: t("按业务用途识别", "Infer from business use"),
               }[context.taskType ?? "unspecified"],

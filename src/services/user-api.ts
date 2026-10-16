@@ -43,7 +43,8 @@ export interface DecisionContext {
   commercialUseRequired?: boolean;
   serviceAccess?: { channel: string; tier: "paid" | "free" | "unknown"; region?: string };
   task: string;
-  taskType?: "model-api" | "coding-product" | "agent-development" | "unspecified";
+  taskType?:
+    "model-api" | "coding-product" | "knowledge-product" | "agent-development" | "unspecified";
   region?: string;
   priority: "quality" | "cost" | "speed" | "privacy" | "control" | "balanced";
   budget: {

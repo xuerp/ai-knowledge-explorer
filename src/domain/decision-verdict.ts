@@ -185,9 +185,15 @@ export function decisionVerdict(
           )
       : state === "needs-evidence"
         ? t("还不能确定哪款符合你的全部要求", "Fit with all your requirements is not established")
-        : presentation.headline,
+        : state === "needs-input" && decision?.scenario?.id === "unspecified"
+          ? ready.length || decision.candidates?.length
+            ? t("必要条件尚未同时核验", "Mandatory conditions are not jointly verified")
+            : t("先选一件具体工作", "Choose one concrete task first")
+          : presentation.headline,
     summary: ready.length
-      ? primary && decision?.recommendation.basis === "comparable-cost"
+      ? primary &&
+        decision &&
+        (decision.recommendation.basis === "comparable-cost" || ready.length === 1)
         ? decision.recommendation.summary
         : t(
             "这些候选的必要功能与使用条件有资料支持。选你能使用的产品，先验证是否满足自己的任务标准。",
@@ -199,10 +205,16 @@ export function decisionVerdict(
             `This analysis has incomplete evidence for ${missing || "required conditions"}. Documented features remain comparable; missing evidence does not mean unsupported.`,
           )
         : presentation.summary,
-    boundary: t(
-      "这里依据公开资料筛选试用资格，尚未证明你的业务效果或产品间优劣。",
-      "Public sources establish trial eligibility; they do not prove task quality or superiority.",
-    ),
+    boundary:
+      state === "needs-input" && !decision?.candidates?.length
+        ? t(
+            "当前先明确需求，尚未进行候选筛选或产品测试。",
+            "Clarify the task first; no candidate screening or product test has been completed.",
+          )
+        : t(
+            "这里依据公开资料筛选试用资格，尚未证明你的业务效果或产品间优劣。",
+            "Public sources establish trial eligibility; they do not prove task quality or superiority.",
+          ),
     next: ready.length
       ? t(
           "先选一个你能使用的候选，查看试用任务；使用后再回来记录结果。有多个入口时再比较。",
@@ -213,7 +225,14 @@ export function decisionVerdict(
             "先在下方“缺项资料”提交补充请求；已有请求可检查补齐进度。资料齐备后，保留原要求重新分析。",
             "Request missing evidence below, or check progress on an existing request. Reanalyze with your original requirements when evidence is ready.",
           )
-        : (decision?.plan?.actions[0]?.instruction ?? presentation.action),
+        : state === "needs-input" &&
+            decision?.scenario?.id === "unspecified" &&
+            !decision.candidates?.length
+          ? t(
+              "在任务描述里补一句：我先做____，材料是____，希望得到____。",
+              "Add one sentence to your task: first I want to ____, using ____, to produce ____.",
+            )
+          : (decision?.plan?.actions[0]?.instruction ?? presentation.action),
     action: ready.length ? ("choose" as const) : ("edit" as const),
     reasons,
   };

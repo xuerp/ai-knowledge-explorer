@@ -47,6 +47,12 @@ def normalized_facts(claim: Claim) -> list[DecisionFact]:
         add("context", int(value))
     elif predicate in {"context-window", "context"} and (capacity := tokens(value)):
         add("context", capacity)
+    elif predicate in {"has-max-context", "has-context-window"}:
+        # Preserve exact reviewed version capacities in the ingestion schema.
+        # A default window, family description or 'up to' range is different.
+        raw = re.sub(r"[- ]tokens?\s+context\s+window$", "", value, flags=re.IGNORECASE)
+        if capacity := tokens(raw):
+            add("context", capacity)
     elif predicate == "official-model-specification":
         parts = [part.strip() for part in value.split(";")]
         capacities = [part[8:] for part in parts[1:] if part.startswith("context=")]

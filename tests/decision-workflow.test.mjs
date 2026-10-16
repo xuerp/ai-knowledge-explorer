@@ -32,6 +32,49 @@ const context = {
   commercialUseRequired: false,
 };
 
+test("knowledge application selection differs from choosing its underlying model", () => {
+  const task = "公司内部知识库问答，中文 PDF 和 Word，引用原文，权限控制";
+  const product = interpretDecisionTask({ ...context, task, taskType: "unspecified" });
+  assert.equal(product.taskType, "knowledge-product");
+  assert.equal(decisionScenario(product, "zh").id, "knowledge-workspace");
+  assert.ok(decisionScenario(product, "zh").requiredFeatures.includes("workspace-permissions"));
+  assert.equal(
+    decisionScenario({ ...product, taskType: "model-api" }, "zh").id,
+    "knowledge-assistant",
+  );
+  const link = new URL(decisionResumePath(product), "http://localhost");
+  assert.equal(link.searchParams.get("taskType"), "knowledge-product");
+});
+
+test("strict offline contract wording preserves every decisive form condition", () => {
+  const strict = interpretDecisionTask({
+    ...context,
+    task: "我要处理公司保密合同，禁止把原文发送到外部云服务，必须完全离线运行，至少支持 200 万 token 上下文，允许商用。请严格保留这些必要条件，不要为了推荐而自动放宽。",
+    taskType: "unspecified",
+    minimumContextTokens: undefined,
+  });
+  assert.equal(strict.taskType, "model-api");
+  assert.equal(strict.deployment, "on-device");
+  assert.equal(strict.minimumContextTokens, 2000000);
+  assert.equal(strict.commercialUseRequired, true);
+  const optional = interpretDecisionTask({
+    ...context,
+    task: "文档问答，不需要完全离线运行，不要求商用",
+    taskType: "unspecified",
+  });
+  assert.equal(optional.deployment, "undecided");
+  assert.equal(optional.commercialUseRequired, false);
+});
+
+test("batch extraction is recognized before generic customer-service dialogue", () => {
+  const scene = decisionScenario(
+    { ...context, task: "批量提取客服工单中的问题类型、产品名称和紧急程度" },
+    "zh",
+  );
+  assert.equal(scene.id, "document-extraction");
+  assert.ok(scene.requiredFeatures.includes("structured-output"));
+});
+
 test("a gateway service cannot silently use a different supplier's budget channel", () => {
   const scoped = {
     ...context,

@@ -85,6 +85,33 @@ test("public trial eligibility names candidates without converting verification 
   assert.match(view.boundary, /尚未证明.*业务效果/);
   assert.doesNotMatch(view.headline, /最佳|本批建议/);
 });
+
+test("a sole qualified existing product retains the server's task-specific next decision", () => {
+  const row = structuredClone(research);
+  row.decision.plan.trialCandidateIds = ["a"];
+  row.decision.recommendation.summary = "先用已有入口完成小修复，暂不急着换工具；没有跨产品实测。";
+  const view = decisionVerdict(row, null, name, "zh");
+  assert.equal(view.summary, row.decision.recommendation.summary);
+  assert.equal(view.source, "public");
+  assert.doesNotMatch(view.headline, /最佳|本批建议/);
+});
+
+test("task clarification is not described as missing market evidence or repeated as the next step", () => {
+  const row = structuredClone(research);
+  row.decision.scenario = { id: "unspecified", requiredFeatures: [] };
+  row.decision.plan = {
+    state: "needs-input",
+    trialCandidateIds: [],
+    actions: [{ kind: "clarify", instruction: "先选一件事" }],
+  };
+  row.decision.candidates = [];
+  row.decision.recommendation.summary = "先从 Excel、资料和周报中选一件。";
+  const view = decisionVerdict(row, null, name, "zh");
+  assert.equal(view.headline, "先选一件具体工作");
+  assert.notEqual(view.summary, view.next);
+  assert.match(view.next, /在任务描述里补一句/);
+  assert.match(view.boundary, /尚未进行候选筛选/);
+});
 test("saved matching measurements produce a scoped primary verdict, with real values and source boundary", () => {
   const record = validation();
   const before = structuredClone(record);

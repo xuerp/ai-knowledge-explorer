@@ -30,11 +30,11 @@ export const decisionStarters: DecisionExample[] = [
     id: "knowledge",
     label: { zh: "知识库与文档问答", en: "Knowledge and document QA" },
     task: {
-      zh: "为知识库与文档问答选择模型，需要回答准确并提供可核对的出处。",
-      en: "Choose a model for knowledge base document questions, with accurate answers and checkable citations.",
+      zh: "我要让 AI 回答 PDF 和 Word 文档里的问题，标明出处，找不到依据就明确说不知道。先选适合小规模试点的知识库平台。",
+      en: "Choose a knowledge base platform to answer PDF and Word document questions with checkable citations and explicit abstention. Start with a small pilot.",
     },
     conditions: {
-      taskType: "model-api",
+      taskType: "knowledge-product",
       priority: "quality",
       deployment: "undecided",
       budget: { mode: "unknown" },

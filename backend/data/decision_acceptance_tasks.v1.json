@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "basis": "Original six assistant-proposed user acceptance tasks, recovered unchanged; structured context is part of each test input, never claimed automatic extraction. Expected trials are public-source eligibility, not business measurements.",
+  "cases": [
+    {
+      "id": "task-1",
+      "title": "新手使用现有编码产品",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我是 Python 初学者，想给现有项目修复报错、增加简单功能并运行测试。目前只有 Claude Code 的 IDE 入口，通过 CCSub 按量付费。请建议我先怎么做，并说明现在是否有必要更换工具。",
+        "priority": "quality",
+        "deployment": "undecided",
+        "budget": {
+          "mode": "unknown"
+        },
+        "taskType": "coding-product"
+      },
+      "expected": {
+        "kind": "qualified-trial",
+        "required": ["e-claude-code"]
+      }
+    },
+    {
+      "id": "task-2",
+      "title": "中文简历与岗位固定 JSON",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我要做一个求职助手：从中文简历中提取工作经历、技能和教育背景，再与岗位要求匹配，输出固定 JSON 字段。目前只处理文本，优先考虑准确性，预算暂不确定，接受云 API。",
+        "priority": "quality",
+        "deployment": "cloud-api",
+        "budget": {
+          "mode": "unknown"
+        },
+        "taskType": "model-api",
+        "inputModalities": ["text"]
+      },
+      "expected": {
+        "kind": "qualified-trial",
+        "required": ["e-gemini-3-1-pro", "e-gemini-3-8-flash", "e-gpt-61-sol"]
+      }
+    },
+    {
+      "id": "task-3",
+      "title": "Google 原厂批量抽取月预算",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我要批量提取客服工单中的问题类型、产品名称和紧急程度。预计每月输入 1000 万 token、输出 200 万 token，接受 Google 原厂付费 API，服务使用地区为新加坡。每月未缓存 token 费用上限 150 美元，不包含工具、缓存和税费。",
+        "priority": "cost",
+        "deployment": "cloud-api",
+        "budget": {
+          "mode": "range",
+          "max": 150,
+          "currency": "USD",
+          "channel": "Google Gemini Developer API",
+          "costScope": "standard-token-only",
+          "period": "month",
+          "monthlyInputTokens": 10000000,
+          "monthlyOutputTokens": 2000000
+        },
+        "taskType": "model-api",
+        "inputModalities": ["text"],
+        "serviceAccess": {
+          "channel": "Google Gemini Developer API",
+          "tier": "paid",
+          "region": "SG"
+        }
+      },
+      "expected": {
+        "kind": "scoped-cost",
+        "primary": "e-gemini-3-8-flash",
+        "required": ["e-gemini-3-1-pro", "e-gemini-3-8-flash"]
+      }
+    },
+    {
+      "id": "task-4",
+      "title": "企业 PDF Word 知识库问答",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我要做公司内部知识库问答，材料是中文 PDF 和 Word 文档。回答必须引用原文，找不到依据时明确说不知道。希望先做小规模试点，重点考虑引用准确性、权限控制和维护成本，部署方式暂不确定。",
+        "priority": "quality",
+        "deployment": "undecided",
+        "budget": {
+          "mode": "unknown"
+        },
+        "taskType": "unspecified"
+      },
+      "expected": {
+        "kind": "qualified-trial",
+        "required": ["e-dify"]
+      }
+    },
+    {
+      "id": "task-5",
+      "title": "严格离线保密合同",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我要处理公司保密合同，禁止把原文发送到外部云服务，必须完全离线运行，至少支持 200 万 token 上下文，允许商用。请严格保留这些必要条件，不要为了推荐而自动放宽。",
+        "priority": "privacy",
+        "deployment": "on-device",
+        "budget": {
+          "mode": "unknown"
+        },
+        "taskType": "model-api",
+        "minimumContextTokens": 2000000,
+        "commercialUseRequired": true
+      },
+      "expected": {
+        "kind": "strict-constraints",
+        "required": []
+      }
+    },
+    {
+      "id": "task-6",
+      "title": "办公新手需求澄清",
+      "context": {
+        "workflowVersion": 2,
+        "task": "我想用 AI 提高工作效率，但不知道该选什么。我主要处理 Excel、整理资料、写周报，几乎不会编程，也不清楚模型和 AI 应用有什么区别。",
+        "priority": "balanced",
+        "deployment": "undecided",
+        "budget": {
+          "mode": "unknown"
+        },
+        "taskType": "unspecified"
+      },
+      "expected": {
+        "kind": "clarification",
+        "required": []
+      }
+    }
+  ]
+}

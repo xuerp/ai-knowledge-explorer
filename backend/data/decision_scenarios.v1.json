@@ -2,6 +2,38 @@
   "version": 1,
   "scenarios": [
     {
+      "id": "knowledge-workspace",
+      "name": {
+        "zh": "文档问答应用与知识库平台",
+        "en": "Document QA application and knowledge platform"
+      },
+      "patterns": [
+        "知识库",
+        "文档问答",
+        "企业问答",
+        "检索增强",
+        "RAG",
+        "knowledge base",
+        "document question",
+        "retrieval augmented"
+      ],
+      "taskType": "knowledge-product",
+      "features": ["knowledge-ingestion", "knowledge-retrieval", "source-citations"],
+      "optionalFeatures": ["workspace-permissions"],
+      "checks": {
+        "zh": [
+          "先用少量授权文档搭建试点，核对原文引用与无依据拒答",
+          "工作区成员权限不等于终端用户逐文档隔离，单独验证越权访问",
+          "核对模型、嵌入服务的数据去向以及部署维护成本"
+        ],
+        "en": [
+          "Pilot a small authorized document set; verify citations and abstention",
+          "Workspace membership is not per-document end-user isolation; test unauthorized access",
+          "Check model and embedding data destinations and deployment maintenance cost"
+        ]
+      }
+    },
+    {
       "id": "knowledge-assistant",
       "name": {
         "zh": "知识库与文档问答",
@@ -143,6 +175,10 @@
       "patterns": [
         "信息抽取",
         "文档提取",
+        "批量提取",
+        "提取固定字段",
+        "字段抽取",
+        "extract fields",
         "发票",
         "OCR",
         "document extraction",
@@ -187,6 +223,22 @@
     }
   ],
   "features": {
+    "knowledge-ingestion": {
+      "name": { "zh": "文档导入与解析", "en": "Document ingestion" },
+      "patterns": ["知识库文档导入", "knowledge ingestion"]
+    },
+    "knowledge-retrieval": {
+      "name": { "zh": "知识库检索与应用接入", "en": "Knowledge retrieval and app integration" },
+      "patterns": ["知识库检索", "knowledge retrieval"]
+    },
+    "source-citations": {
+      "name": { "zh": "回答引用与来源展示", "en": "Answer citations and sources" },
+      "patterns": ["原文引用", "citation and attribution"]
+    },
+    "workspace-permissions": {
+      "name": { "zh": "工作区成员访问控制", "en": "Workspace-member access control" },
+      "patterns": ["权限控制", "成员权限", "访问控制", "access control", "workspace permissions"]
+    },
     "file-editing": {
       "name": { "zh": "编辑仓库文件", "en": "Edit repository files" },
       "supersedes": ["code-editing"],
@@ -298,7 +350,20 @@
         "zh": "文档处理用途",
         "en": "Document processing use"
       },
-      "patterns": ["文档解析", "文档抽取", "文档理解", "图像输入", "图片输入", "document input", "document processing", "document understanding", "document extraction", "image input", "PDF", "OCR"]
+      "patterns": [
+        "文档解析",
+        "文档抽取",
+        "文档理解",
+        "图像输入",
+        "图片输入",
+        "document input",
+        "document processing",
+        "document understanding",
+        "document extraction",
+        "image input",
+        "PDF",
+        "OCR"
+      ]
     },
     "persistent-state": {
       "name": {

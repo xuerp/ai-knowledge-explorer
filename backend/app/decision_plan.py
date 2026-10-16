@@ -238,12 +238,15 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 actions=actions,
             )
     if rows and active and result.scenario.id == "unspecified":
+        contract = "合同" in context.task or "contract" in context.task.casefold()
         add(
             "clarify-business",
             "clarify",
             t("说明要用候选完成的具体任务", "Specify the actual task for these candidates"),
             t(
-                "已指定的产品和规格可以比较；请补充业务输入、期望输出与合格标准，例如代码修复、文档问答或信息抽取。",
+                "在原任务中补充合同需要做摘要、条款核对还是信息抽取，以及希望得到的成品；离线、容量和商用必要条件继续保留。"
+                if contract
+                else "已指定的产品和规格可以比较；请补充业务输入、期望输出与合格标准，例如代码修复、文档问答或信息抽取。",
                 "Selected products and specifications can be compared; add business inputs, expected outputs and acceptance criteria, such as code fixes, document answers or extraction.",
             ),
             t(
@@ -254,17 +257,26 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
         )
     if not rows:
         unknown = result.scenario.id == "unspecified"
+        office = unknown and any(
+            word in context.task.casefold() for word in ("excel", "周报", "spreadsheet")
+        )
         add(
             "clarify-scope",
             "clarify" if unknown else "source",
             t(
-                "明确业务输入与输出" if unknown else "补充相关候选与当前来源",
+                "先选一件最想完成的工作"
+                if office
+                else "明确业务输入与输出"
+                if unknown
+                else "补充相关候选与当前来源",
                 "Specify business inputs and outputs"
                 if unknown
                 else "Add relevant candidates and current sources",
             ),
             t(
-                "说明输入、期望输出和合格标准，再选择对象类型或指定候选。"
+                "先从整理一张 Excel 表、汇总一份资料、写一篇周报中选一件。说明现在怎么做、最费时间的一步，以及希望得到的成品；不必先理解模型或 API。"
+                if office
+                else "说明输入、期望输出和合格标准，再选择对象类型或指定候选。"
                 if unknown
                 else "本次范围没有相关且有当前引用的候选；指定具体产品版本，补充可审核的来源后重新分析。",
                 "Specify inputs, expected outputs and acceptance, then choose a selection type or candidates."
@@ -425,10 +437,21 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 claims=row.claim_ids,
             )
     trial = None
-    protocol = PROTOCOLS.get(result.scenario.id)
+    protocol = PROTOCOLS.get(
+        "knowledge-assistant" if result.scenario.id == "knowledge-workspace" else result.scenario.id
+    )
     if active and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
-        if (
+        if result.scenario.id == "knowledge-workspace":
+            procedure = t(
+                "先确认模型和嵌入服务的数据去向，再用少量授权 PDF / Word 文档创建知识库并接入 Chatbot，启用引用展示；固定文档、切分和检索配置，保留检索片段与最终答案。自托管平台不代表模型也在本地。",
+                "Confirm where model and embedding services send data, create a knowledge base from a few authorized PDF / Word documents, connect it to a Chatbot and enable citations. Fix document, chunking and retrieval settings; retain retrieved passages and final answers. Self-hosting the platform does not make its models local.",
+            )
+            metrics += t(
+                " 同时记录模型、嵌入、部署维护及人工校对成本。",
+                " Also record model, embedding, hosting, maintenance and human review costs.",
+            )
+        elif (
             result.scenario.id == "knowledge-assistant"
             and "retrieval" not in result.scenario.required_features
         ):

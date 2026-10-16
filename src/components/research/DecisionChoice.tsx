@@ -39,6 +39,8 @@ export function DecisionChoice({
   const [comparing, setComparing] = useState(false);
   const inFlight = useRef(false);
   const [error, setError] = useState("");
+  const state = research.decision?.plan?.state;
+  if (state && !["ready-to-validate", "needs-evidence"].includes(state)) return null;
   const { shown, more } = decisionVisibleChoices(research);
   const comparisonRows = decisionComparisonRows(research, selected);
   const canCompare = selected.length >= 2;
