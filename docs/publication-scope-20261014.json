@@ -29,7 +29,7 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "82cb1e8669ae1b3ed3f96729715dc04ac53cda100c136f272914d4795c68d643",
+      "sha256": "7e196b432e32c8c22f83ab2cda0d9fe84629b7ff71692c54e12282dd4c394f17",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -400,7 +400,7 @@
     {
       "path": "backend/tests/test_decision_task_acceptance.py",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "1bad200b8272297b4be8f63c8471ccb9ed97128d847f849aa0a1f0f8f14c7946"
+      "sha256": "72ced4a4c03782513f536f07e6359e4454fb18f4ec4176fff59425b8d8575455"
     },
     {
       "path": "backend/tests/test_decision_trial_runner.py",
@@ -560,7 +560,7 @@
     {
       "path": "docs/AUTOMATIC_API_TRIALS.md",
       "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "9bf1cb937f0394efcd739277b23566d29e809935de3b6adb785017ffa37b7390"
+      "sha256": "98edc8e979164d486c3308c08c031312511fe7553ac08192b52b5bfdf3fe6096"
     },
     {
       "path": "docs/CORE_MODEL_COVERAGE.md",
@@ -583,8 +583,13 @@
       "sha256": "7287eabf5eb9e486382f48e90f36d5fda0f3dc2ecb10338cf3d1b52dbed98b74"
     },
     {
+      "path": "docs/DECISION_GENERAL_USE_20261016.md",
+      "reviewBasis": "General-audience decision acceptance, optional channel scoping, user-labeled sample form, tab-only draft recovery, unchanged local runner contract and synthetic engineering regression. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "18fda1403d9f032e44c3eeafe65c2f9ad5dcb8590a70d605979352e08edc4a82"
+    },
+    {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "733929eb9d5cc4c51c847d005720a8d00e373a4c319b42b5186a566fbc19397f",
+      "sha256": "83b5649849781b3bf8c3ecf1edebd7ac4fba224139e668034f7818ba7184a116",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -604,7 +609,7 @@
     },
     {
       "path": "docs/README.md",
-      "sha256": "f5b38b90b79826df92f43ce85203732833e782b317570e6ab20de3899a123896",
+      "sha256": "5c40db6ece74fc26933981cf5246bfca01277c8b6f89bc7ad637e967942e0b3c",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -790,7 +795,7 @@
     {
       "path": "src/components/research/DecisionApiTrial.tsx",
       "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
-      "sha256": "9b99eb414962772c59b418c36d1673c5944a5bbc6f3619f3272ed98a1da949a2"
+      "sha256": "e6897497d37f76c43bfd647bcabf3f02df30acb1cbb50ea710333b85baf13816"
     },
     {
       "path": "src/components/research/DecisionBrief.tsx",
@@ -833,6 +838,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "src/components/research/DecisionTrialSamples.tsx",
+      "reviewBasis": "General-audience decision acceptance, optional channel scoping, user-labeled sample form, tab-only draft recovery, unchanged local runner contract and synthetic engineering regression. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "9a3606f334dc1f91ea736b40f0bd90d737095943695bbd97ff858e55d3dd19cf"
+    },
+    {
       "path": "src/components/research/DecisionValidationPanel.tsx",
       "sha256": "c37ca14d7d445ccba80aa1d9d2df9737a4c985107f4d3c1a92ca50daff856ce4",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -849,7 +859,7 @@
     },
     {
       "path": "src/components/research/decision-choice.css",
-      "sha256": "b19f260a7f165d37d415b05190666366c9114c447a66c6cf3bbd81354f1f6142",
+      "sha256": "aa96fde0b7da5271c3a6774aa1e30664faf35acfa8f07fbf4c6c1b042fb03737",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -956,6 +966,11 @@
       "path": "src/domain/decision-trial-kit.ts",
       "sha256": "071b711467fe3e31de8e468b82442184b4bc732f76bab8d74dd10a0d69be7085",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/domain/decision-trial-samples.ts",
+      "reviewBasis": "General-audience decision acceptance, optional channel scoping, user-labeled sample form, tab-only draft recovery, unchanged local runner contract and synthetic engineering regression. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "11de5d1e2787de5ac87f97f07c46ce9c8d2b4ade21b44457573136d58b99baba"
     },
     {
       "path": "src/domain/decision-validation-review.ts",
@@ -1190,7 +1205,7 @@
     {
       "path": "src/services/auth-session.ts",
       "reviewBasis": "Opt-in remembered login, revocable session metadata, accessible password controls, regression checks or current public acceptance notes. No actual credentials, account data, runtime databases, browser profiles or screenshots.",
-      "sha256": "4d7f051f280bbc6fedc6dc6ba41ff3e24f2df736be3497fbf2a4618cf4f527f3"
+      "sha256": "f38addda73138c3c5f3120a36e089c0e5c0509101fac00a1b54c08c93d953dfc"
     },
     {
       "path": "src/services/entry-request-types.ts",
@@ -1298,6 +1313,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "tests/decision-trial-samples.test.mjs",
+      "reviewBasis": "General-audience decision acceptance, optional channel scoping, user-labeled sample form, tab-only draft recovery, unchanged local runner contract and synthetic engineering regression. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
+      "sha256": "05c155ab8ddbec9307fdf1c185857d1bf6f2fabe2e043f3a8ea3639be48c3acb"
+    },
+    {
       "path": "tests/decision-validation-view.test.mjs",
       "sha256": "d1497612836ad3d35fb20d2b91ee34d7e6e65d64ec5221179f72465ae26e6c67",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -1398,7 +1418,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 279,
+  "publicFileCount": 283,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-16",

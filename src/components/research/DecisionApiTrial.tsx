@@ -1,5 +1,15 @@
 import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DecisionTrialSamples } from "./DecisionTrialSamples";
+import {
+  emptyTrialSample,
+  trialSampleJSON,
+  TrialSampleInputError,
+  trialDraftKey,
+  parseTrialDraft,
+} from "@/domain/decision-trial-samples";
+import { readAuthToken } from "@/services/auth-session";
+import { decisionTrialKit } from "@/domain/decision-trial-kit";
 import { useApp } from "@/lib/app-state";
 import type { DecisionValidationItem, ResearchResult } from "@/services/user-api";
 import {
@@ -24,7 +34,20 @@ export function DecisionApiTrial({
   const inputId = useId();
   const ids = apiTrialCandidates(research, items);
   const [samples, setSamples] = useState("");
-  const [instruction, setInstruction] = useState(research.decisionContext?.task ?? "");
+  const [sampleMode, setSampleMode] = useState<"form" | "json">("form");
+  const [sampleDrafts, setSampleDrafts] = useState(() => [emptyTrialSample("sample-1")]);
+  const [draftLoaded, setDraftLoaded] = useState("");
+  const [draftAvailable, setDraftAvailable] = useState(true);
+  const draftKey = trialDraftKey(readAuthToken(), research.id);
+  const task = research.decisionContext?.task ?? "";
+  const defaultInstruction =
+    decisionTrialKit(
+      research,
+      (research.decision?.plan?.trialCandidateIds ?? []).slice(0, 3),
+      entityName,
+      lang,
+    )?.prompt ?? task;
+  const [instruction, setInstruction] = useState(defaultInstruction);
   const [minimum, setMinimum] = useState("");
   const [ceiling, setCeiling] = useState("");
   const [currency, setCurrency] = useState<"USD" | "CNY">("USD");
@@ -42,7 +65,75 @@ export function DecisionApiTrial({
     setImported(null);
     setReplace(false);
     setMessage("");
-  }, [research.id]);
+    setSamples("");
+    setSampleDrafts([emptyTrialSample("sample-1")]);
+    setSampleMode("form");
+    setInstruction(defaultInstruction);
+    setMinimum("");
+    setCeiling("");
+    setCurrency("USD");
+    try {
+      const saved = draftKey ? parseTrialDraft(sessionStorage.getItem(draftKey), task) : null;
+      if (saved) {
+        setSamples(saved.samples);
+        setSampleMode(saved.sampleMode);
+        setSampleDrafts(saved.sampleDrafts);
+        setInstruction(saved.instruction);
+        setMinimum(saved.minimum);
+        setCeiling(saved.ceiling);
+        setCurrency(saved.currency);
+      }
+      setDraftAvailable(Boolean(draftKey));
+    } catch {
+      setDraftAvailable(false);
+    }
+    setDraftLoaded(draftKey || "memory");
+  }, [research.id, task, draftKey, defaultInstruction]);
+  useEffect(() => {
+    if (
+      !draftKey ||
+      draftLoaded !== draftKey ||
+      draftKey !== trialDraftKey(readAuthToken(), research.id)
+    )
+      return;
+    try {
+      const draft = JSON.stringify({
+        task,
+        samples,
+        sampleMode,
+        sampleDrafts,
+        instruction,
+        minimum,
+        ceiling,
+        currency,
+      });
+      if (!parseTrialDraft(draft, task)) {
+        setDraftAvailable(false);
+        return;
+      }
+      sessionStorage.setItem(draftKey, draft);
+      setDraftAvailable(true);
+    } catch {
+      setDraftAvailable(false);
+    }
+  }, [
+    research.id,
+    draftKey,
+    draftLoaded,
+    task,
+    samples,
+    sampleMode,
+    sampleDrafts,
+    instruction,
+    minimum,
+    ceiling,
+    currency,
+  ]);
+  const candidateKey = ids.join("|");
+  useEffect(() => {
+    setFile(null);
+    setMessage("");
+  }, [samples, sampleDrafts, sampleMode, instruction, minimum, ceiling, currency, candidateKey]);
   if (!ids.length) return null;
   return (
     <details className="decision-api-trial decision-secondary-details">
@@ -59,101 +150,148 @@ export function DecisionApiTrial({
         {t("本批候选", "Candidates in this batch")}: {ids.map(entityName).join("、")}
       </p>
       <h4>{t("准备你自己的样本和标准", "Prepare your samples and acceptance criteria")}</h4>
-      <label>
-        {t("给模型的处理要求", "Processing instruction")}
-        <textarea
-          rows={3}
-          maxLength={5000}
-          value={instruction}
-          onChange={(e) => setInstruction(e.target.value)}
-        />
-      </label>
-      <label>
-        {t("实际样本 JSON", "Actual samples as JSON")}
-        <textarea
-          rows={5}
-          maxLength={500000}
-          value={samples}
-          onChange={(e) => setSamples(e.target.value)}
-          placeholder={
-            '[{"id":"样本编号","input":"你有权使用的实际输入","expected":{"字段":"你标注的正确值"}}]'
-          }
-        />
-      </label>
       <p className="decision-choice__hint">
-        {t(
-          "先标注正确结果。逐个样本严格核对 JSON 全部字段与值；不会让模型自己给自己打分。不要放入密码、密钥或无权发送的材料。",
-          "Label expected results first. Every JSON field and value is checked exactly; models do not grade themselves. Exclude passwords, keys and material you cannot transmit.",
-        )}
+        {draftAvailable
+          ? t(
+              "草稿保留在当前标签页，刷新可恢复，退出登录会清除。下载运行文件可另行保存。",
+              "Drafts stay in this tab and survive refresh; signing out clears them. Download the plan to keep a separate copy.",
+            )
+          : t(
+              "当前浏览器无法暂存草稿，请下载运行文件保存。",
+              "This browser cannot retain drafts; download the plan to keep a copy.",
+            )}
       </p>
-      <div className="decision-api-trial__limits">
-        <label>
-          {t("最少合格样本数", "Minimum passing samples")}
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={minimum}
-            onChange={(e) => setMinimum(e.target.value)}
-          />
-        </label>
-        <label>
-          {t("本批预计费用上限", "Estimated cost ceiling for this batch")}
-          <input
-            type="number"
-            min={0.01}
-            step="any"
-            value={ceiling}
-            onChange={(e) => setCeiling(e.target.value)}
-          />
-        </label>
-        <label>
-          {t("计费币种", "Billing currency")}
-          <select value={currency} onChange={(e) => setCurrency(e.target.value as "USD" | "CNY")}>
-            <option value="USD">USD</option>
-            <option value="CNY">CNY</option>
-          </select>
-        </label>
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          try {
-            const plan = apiTrialPlan(research, ids, {
-              samples,
-              instruction,
-              minimum: Number(minimum),
-              ceiling: Number(ceiling),
-              currency,
-            });
-            const name = `${research.id}-api-trial.json`;
-            const url = URL.createObjectURL(
-              new Blob([JSON.stringify(plan, null, 2)], { type: "application/json" }),
-            );
-            setFile({ url, name });
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = name;
-            link.click();
-            setMessage(
-              t(
-                "运行文件已准备。下一步在本地配置你能使用的 API 入口，并先预览请求与费用。",
-                "Plan prepared. Configure your available API interfaces locally, then preview requests and estimated costs.",
-              ),
-            );
-          } catch {
-            setMessage(
-              t(
-                "请检查样本 JSON、唯一编号、正确答案、合格数量和正数费用上限；尚未发起调用。",
-                "Check sample JSON, unique ids, expected answers, passing count and a positive cost ceiling. No call was sent.",
-              ),
-            );
-          }
-        }}
+      <fieldset
+        disabled={draftLoaded !== (draftKey || "memory")}
+        className="decision-api-trial__editor"
       >
-        {t("下载自动试测文件", "Download automatic trial plan")}
-      </Button>
+        <label>
+          {t("给模型的处理要求", "Processing instruction")}
+          <textarea
+            aria-label={t("给模型的处理要求", "Processing instruction")}
+            rows={3}
+            maxLength={5000}
+            value={instruction}
+            onChange={(e) => setInstruction(e.target.value)}
+          />
+        </label>
+        <div
+          role="group"
+          aria-label={t("样本填写方式", "Sample input method")}
+          className="decision-api-trial__modes"
+        >
+          <Button
+            type="button"
+            variant={sampleMode === "form" ? "default" : "outline"}
+            aria-pressed={sampleMode === "form"}
+            onClick={() => setSampleMode("form")}
+          >
+            {t("逐条填写", "Fill samples individually")}
+          </Button>
+          <Button
+            type="button"
+            variant={sampleMode === "json" ? "default" : "outline"}
+            aria-pressed={sampleMode === "json"}
+            onClick={() => setSampleMode("json")}
+          >
+            {t("粘贴 JSON", "Paste JSON")}
+          </Button>
+        </div>
+        <div hidden={sampleMode !== "form"}>
+          <DecisionTrialSamples samples={sampleDrafts} onChange={setSampleDrafts} />
+        </div>
+        <div hidden={sampleMode !== "json"}>
+          <label>
+            {t("实际样本 JSON", "Actual samples as JSON")}
+            <textarea
+              aria-label={t("实际样本 JSON", "Actual samples as JSON")}
+              rows={5}
+              maxLength={500000}
+              value={samples}
+              onChange={(e) => setSamples(e.target.value)}
+              placeholder={
+                '[{"id":"样本编号","input":"实际输入材料","expected":{"字段":"正确值"}}]'
+              }
+            />
+          </label>
+        </div>
+        <p className="decision-choice__hint">
+          {t(
+            "先标注正确结果。逐个样本严格核对 JSON 全部字段与值；不会让模型自己给自己打分。不要放入密码、密钥或无权发送的材料。",
+            "Label expected results first. Every JSON field and value is checked exactly; models do not grade themselves. Exclude passwords, keys and material you cannot transmit.",
+          )}
+        </p>
+        <div className="decision-api-trial__limits">
+          <label>
+            {t("最少合格样本数", "Minimum passing samples")}
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={minimum}
+              onChange={(e) => setMinimum(e.target.value)}
+            />
+          </label>
+          <label>
+            {t("本批预计费用上限", "Estimated cost ceiling for this batch")}
+            <input
+              type="number"
+              min={0.01}
+              step="any"
+              value={ceiling}
+              onChange={(e) => setCeiling(e.target.value)}
+            />
+          </label>
+          <label>
+            {t("计费币种", "Billing currency")}
+            <select value={currency} onChange={(e) => setCurrency(e.target.value as "USD" | "CNY")}>
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </label>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            try {
+              const plan = apiTrialPlan(research, ids, {
+                samples: sampleMode === "form" ? trialSampleJSON(sampleDrafts, lang) : samples,
+                instruction,
+                minimum: Number(minimum),
+                ceiling: Number(ceiling),
+                currency,
+              });
+              const name = `${research.id}-api-trial.json`;
+              const url = URL.createObjectURL(
+                new Blob([JSON.stringify(plan, null, 2)], { type: "application/json" }),
+              );
+              setFile({ url, name });
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = name;
+              link.click();
+              setMessage(
+                t(
+                  "运行文件已准备。下一步在本地配置你能使用的 API 入口，并先预览请求与费用。",
+                  "Plan prepared. Configure your available API interfaces locally, then preview requests and estimated costs.",
+                ),
+              );
+            } catch (reason) {
+              setMessage(
+                reason instanceof TrialSampleInputError
+                  ? reason.message
+                  : t(
+                      "请检查样本 JSON、唯一编号、正确答案、合格数量和正数费用上限；尚未发起调用。",
+                      "Check sample JSON, unique ids, expected answers, passing count and a positive cost ceiling. No call was sent.",
+                    ),
+              );
+            }
+          }}
+        >
+          {t("下载自动试测文件", "Download automatic trial plan")}
+        </Button>
+      </fieldset>
       {file && (
         <a className="decision-api-trial__download" href={file.url} download={file.name}>
           {t("再次下载运行文件", "Download plan again")}

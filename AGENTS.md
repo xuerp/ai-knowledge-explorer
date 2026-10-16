@@ -33,6 +33,9 @@
 
 ## First-use Decision Assistant Contract
 
+- General-audience requirement reaffirmed 2026-10-16: a user's personal provider, gateway, subscription or available account is a condition of that user's analysis, never a global product completion gate. Do not wait on CCSub or any other optional channel to improve or deliver the common workflow. Apply channel-specific price, license and privacy checks only when the user selects that channel or makes the relevant condition necessary; preserve unknowns within that scope.
+- Validate the common workflow with provider-neutral tasks as well as explicitly scoped cases. A second product account is needed for an actual cross-product comparison, not for using or finishing the single-product workflow. Preserve private historical measurements without treating one user's setup as the public product default.
+
 - User requirement reaffirmed 2026-10-14: a new user must understand the recommendation and next action from the interface without a long external explanation. Do not substitute a help article or more disclaimers for a usable flow.
 - Keep the ordinary flow focused on a useful qualified suggestion, its task-relevant reasons, and one clear next action. Separate choosing candidates, preparing an external trial, and recording actual results. Do not expose an empty results form before explaining where the trial happens.
 - Public-source maintenance and evidence audits are secondary. Other candidates' missing sources must not look like required work for the selected qualified candidate. When no candidate qualifies, show the actual blocking requirement and its recovery path prominently.
