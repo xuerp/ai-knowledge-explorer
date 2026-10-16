@@ -111,6 +111,42 @@ def test_product_and_underlying_model_are_distinct_routes():
 
 
 @pytest.mark.parametrize(
+    "task_type,task,required",
+    [
+        ("coding-product", "为现有仓库选择可以编辑文件并运行测试的编码工具", "e-claude-code"),
+        ("model-api", "为中文简历抽取选择模型，输出固定 JSON 字段", "e-gpt-61-sol"),
+        ("knowledge-product", "为 PDF 文档问答选择知识库平台，回答须引用原文", "e-dify"),
+    ],
+)
+def test_general_tasks_do_not_inherit_a_personal_channel_or_require_a_second_account(
+    catalog, task_type, task, required
+):
+    from app.engagement import EngagementService
+
+    context = DecisionContext(
+        workflow_version=2,
+        task=task,
+        task_type=task_type,
+        priority="quality",
+        deployment="undecided",
+    )
+    current = current_claims(catalog.claims, catalog)
+    by_entity = defaultdict(list)
+    for claim in current:
+        by_entity[claim.entity_id].append(claim)
+    ids, _ = discover_candidates(context, catalog, by_entity, "zh")
+    decision = EngagementService._build_decision(
+        context, [claim for claim in current if claim.entity_id in ids], ids, catalog, "zh"
+    )
+    assert required in decision.plan.trial_candidate_ids
+    assert decision.plan.state == "ready-to-validate"
+    assert not context.budget.channel
+    assert not decision.missing_inputs
+    assert "CCSub" not in decision.recommendation.summary
+    assert not any("CCSub" in action.instruction for action in decision.plan.actions)
+
+
+@pytest.mark.parametrize(
     "task", ["保密合同必须完全离线运行", "不需要图像输入，保密合同必须完全离线运行"]
 )
 def test_local_deployment_does_not_establish_fully_offline_execution(catalog, task):

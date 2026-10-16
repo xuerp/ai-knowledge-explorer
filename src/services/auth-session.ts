@@ -51,6 +51,15 @@ export function clearAuthToken(): void {
       // Clearing either storage must still work when the other is blocked.
     }
   }
+  try {
+    const storage = window.sessionStorage;
+    for (let index = storage.length - 1; index >= 0; index -= 1) {
+      const key = storage.key(index);
+      if (key?.startsWith("ai-radar-api-trial-draft-v1:")) storage.removeItem(key);
+    }
+  } catch {
+    // Draft storage may be restricted independently of authentication.
+  }
 }
 
 export function expireAuthSession(): void {
