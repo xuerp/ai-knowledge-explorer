@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "basis": "New engineering acceptance prompts frozen before fixes. These are authored test requests, not recruited-user observations or business performance scores. No new product facts or paid calls.",
+  "cases": [
+    {
+      "id": "platform-plain",
+      "task": "公司规章都在 PDF 和 Word，想让同事直接提问，回答带原文页码，找不到就说不知道。我不会搭系统。",
+      "scenario": "knowledge-workspace",
+      "kind": "qualified",
+      "type": "knowledge-product"
+    },
+    {
+      "id": "platform-site",
+      "task": "给团队的内部手册做一个能查出处的问答网站，能上传文档。先小范围用。",
+      "scenario": "knowledge-workspace",
+      "kind": "qualified",
+      "type": "knowledge-product"
+    },
+    {
+      "id": "qa-existing-retrieval",
+      "task": "检索我已经做了，只缺一个通过 API 根据检索片段回答问题的模型，不要再推荐整套平台。",
+      "scenario": "knowledge-assistant",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "qa-model-only",
+      "task": "RAG 应用的检索服务已有，需要换回答用的底层模型，接受云 API。",
+      "scenario": "knowledge-assistant",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "career-fields",
+      "task": "把候选人的工作经历、技能和学历整理成固定 JSON，再和招聘要求对照。选择模型 API。",
+      "scenario": "career-assistant",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "career-paraphrase",
+      "task": "中文履历比对职位说明，缺失经历别编造，用哪个底层模型？",
+      "scenario": "career-assistant",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "coding-failed-test",
+      "features": ["file-editing", "test-execution"],
+      "task": "仓库里一个测试红了，想找个能直接改文件并重新跑测试的工具，不想自己接 API。",
+      "scenario": "coding-workspace",
+      "kind": "qualified",
+      "type": "coding-product"
+    },
+    {
+      "id": "coding-patch",
+      "task": "帮我挑一个读项目、修 bug、提交补丁的开发助手，在电脑里用。",
+      "scenario": "coding-workspace",
+      "kind": "qualified",
+      "type": "coding-product"
+    },
+    {
+      "id": "coding-owned-tools",
+      "task": "我在做代码助手，文件编辑由我们自己的工具完成，想接一个能生成补丁并调用函数的模型 API。",
+      "scenario": "coding-model",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "coding-api",
+      "task": "给现有应用接编程 API：根据错误日志产出 Python 修复代码，实际执行由我控制。",
+      "scenario": "coding-model",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "agent-steps",
+      "features": ["persistent-state", "human-approval", "failure-recovery"],
+      "task": "我想串联搜索、调接口和整理报告这几步，失败能从上一步继续，重要操作先由人点确认，应该选什么开发框架？",
+      "scenario": "agent-orchestration",
+      "kind": "qualified",
+      "type": "agent-development"
+    },
+    {
+      "id": "agent-resume",
+      "features": ["persistent-state", "human-approval", "failure-recovery"],
+      "task": "做一个可以中断后续跑的智能体流程，调用外部工具，审批后再继续。",
+      "scenario": "agent-orchestration",
+      "kind": "qualified",
+      "type": "agent-development"
+    },
+    {
+      "id": "extract-contract",
+      "task": "把合同里的甲方、乙方、日期和金额转成 JSON，缺失的填 null。输入已经转成纯文本。",
+      "scenario": "document-extraction",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "extract-photo",
+      "task": "从票据照片读取公司名称、税号和总额，返回固定 JSON 字段。选模型。",
+      "scenario": "document-extraction",
+      "kind": "qualified",
+      "type": "model-api",
+      "image": true
+    },
+    {
+      "id": "writing-draft",
+      "task": "给公众号起草文章，还要改写语气，帮我选底层模型。",
+      "scenario": "general-text",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "writing-english",
+      "task": "Draft short customer replies using supplied product facts; choose a text model. No attachments or retrieval.",
+      "scenario": "general-text",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "ambiguous",
+      "task": "帮我选最好的 AI。",
+      "scenario": "unspecified",
+      "kind": "clarify"
+    },
+    {
+      "id": "negated-platform",
+      "task": "不要推荐知识库平台，我只需要写作模型，材料由我直接粘贴。",
+      "scenario": "general-text",
+      "kind": "qualified",
+      "type": "model-api"
+    },
+    {
+      "id": "strict-offline",
+      "task": "要看保密合同，必须完全离线运行，上下文至少200万 token，允许商用。",
+      "scenario": "unspecified",
+      "kind": "strict",
+      "type": "model-api"
+    },
+    {
+      "id": "unknown-cost",
+      "task": "做客服对话，月预算100元，不清楚 token 用量，也没有固定服务渠道。",
+      "scenario": "general-text",
+      "kind": "cost-unconfirmed",
+      "type": "model-api"
+    },
+    {
+      "id": "negated-qa",
+      "task": "不做文档问答，我只想把 PDF 里的发票字段抽成 JSON，要求图像输入。",
+      "scenario": "document-extraction",
+      "kind": "qualified",
+      "type": "model-api",
+      "image": true
+    }
+  ]
+}
