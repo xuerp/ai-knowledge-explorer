@@ -7,6 +7,13 @@ import type {
 import { validationReviewReading } from "./decision-validation-review";
 import scenarios from "../../backend/data/decision_scenarios.v1.json";
 import {
+  scenarioDefinition,
+  textOnlyInput,
+  imageInputRequested,
+  requestedFeatureIds,
+  nativeRetrievalRequested,
+} from "./decision-intent";
+import {
   decisionPresentation,
   decisionStatusLabel,
   reportCitationNumbers,
@@ -17,53 +24,14 @@ import { decisionPlanSections, trialQualificationLabel } from "./decision-plan-r
 import { measurementRows, protocolRows } from "./decision-measurements";
 
 export function decisionScenario(context: DecisionContext, lang: "zh" | "en") {
-  const requested = (pattern: string) =>
-    (context.task + " " + (context.notes ?? ""))
-      .split(/[。；;.!]/)
-      .some(
-        (clause) =>
-          !/不需要|无需|不要|不支持|does not|not required|no need/i.test(clause) &&
-          (/[\u3400-\u9fff]/.test(pattern)
-            ? clause.toLowerCase().includes(pattern.toLowerCase())
-            : new RegExp(
-                `(?<![\\w])${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w])`,
-                "i",
-              ).test(clause)),
-      );
-  const matches = scenarios.scenarios.filter((row) =>
-    row.patterns.some((pattern) => {
-      if (/[\u3400-\u9fff]/.test(pattern))
-        return context.task.toLowerCase().includes(pattern.toLowerCase());
-      return new RegExp(
-        `(?<![\\w])${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w])`,
-        "i",
-      ).test(context.task);
-    }),
-  );
-  const row =
-    matches.find(
-      (item) =>
-        !context.taskType ||
-        context.taskType === "unspecified" ||
-        item.taskType === context.taskType,
-    ) ??
-    scenarios.scenarios.find(
-      (item) =>
-        item.id ===
-        (
-          {
-            "coding-product": "coding-workspace",
-            "knowledge-product": "knowledge-workspace",
-            "agent-development": "agent-orchestration",
-          } as Record<string, string>
-        )[context.taskType ?? ""],
-    );
+  const requested = requestedFeatureIds(context.task + " " + (context.notes ?? ""));
+  const row = scenarioDefinition(context);
   const required = row
     ? [
         ...new Set([
           ...row.features,
           ...("optionalFeatures" in row ? (row.optionalFeatures ?? []) : []).filter((key) =>
-            scenarios.features[key as keyof typeof scenarios.features].patterns.some(requested),
+            requested.includes(key),
           ),
         ]),
       ]
@@ -74,11 +42,24 @@ export function decisionScenario(context: DecisionContext, lang: "zh" | "en") {
       return "supersedes" in feature ? feature.supersedes : [];
     }),
   );
+  if (
+    row?.id === "knowledge-assistant" &&
+    nativeRetrievalRequested(context.task + " " + (context.notes ?? ""))
+  )
+    required.push("retrieval");
   return row
     ? {
         id: row.id,
         name: row.name[lang],
-        requiredFeatures: required.filter((key) => !superseded.has(key)),
+        requiredFeatures: required.filter(
+          (key) =>
+            !superseded.has(key) &&
+            !(
+              row.id === "document-extraction" &&
+              key === "document-input" &&
+              textOnlyInput(context.task)
+            ),
+        ),
         clarificationChecks: row.checks[lang],
         suggestedTaskType: row.taskType as NonNullable<DecisionContext["taskType"]>,
       }
@@ -174,7 +155,7 @@ export function interpretDecisionTask(context: DecisionContext): DecisionContext
       result.minimumContextTokens = tokens;
   }
   if (
-    /支持(?:图片|图像)(?:输入)?|图像输入|image input|accept images/i.test(text) &&
+    imageInputRequested(text) &&
     !/不(?:需要|支持)(?:图片|图像)|no image input/i.test(text) &&
     !result.inputModalities.includes("image")
   )

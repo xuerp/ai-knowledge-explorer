@@ -19,6 +19,7 @@
 - `RELEASE_SYNC_20261014.md`：此次源码、公开资料与公网版本同步的范围、验证及回滚点。
 - `DECISION_PRODUCT_ACCEPTANCE.md`：决策助手的产品完成标准及未解决边界。
 - `DECISION_GENERAL_USE_20261016.md`：面向通用用户的完成边界、按需渠道约束、样本表单和草稿恢复验收。
+- `DECISION_FIRST_USE_ACCEPTANCE_20261016.md`：21 个自然问法的前后对照、共享识别规则、具体要求核验及首次访问到保存重开的实际验收。
 - `DECISION_TASK_COVERAGE_20261016.md`：六道完整原题、实际资料缺口、既有来源复用、Dify 审核启用和条件建议的验收。
 - `DECISION_FIRST_USE_20261014.md`：首次使用路径、实际界面验证及自动实测的能力边界。
 - `AUTOMATIC_API_TRIALS.md`：本地批量 API 试测、费用预览、执行确认和私人结果回填。

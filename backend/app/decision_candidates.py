@@ -5,11 +5,16 @@ description, never independently measured task quality or a performance score.
 No global search fallback or evidence count determines candidate relevance.
 """
 
-import json
 import re
-from pathlib import Path
 
 from .decision_constraints import constraint_failures
+from .decision_intent import (
+    CATALOG,
+    native_retrieval_requested,
+    requested_feature_ids,
+    scenario_definition,
+    text_only_input,
+)
 from .rag import LexicalRagRetriever
 from .schemas import (
     Claim,
@@ -21,9 +26,6 @@ from .schemas import (
     KnowledgeSnapshot,
 )
 
-CATALOG = json.loads(
-    (Path(__file__).resolve().parents[1] / "data/decision_scenarios.v1.json").read_text("utf-8")
-)
 TYPES = {
     "model-api": {"model", "api"},
     "coding-product": {"application", "tool", "agent"},
@@ -39,20 +41,7 @@ def contains(text: str, term: str) -> bool:
 
 
 def interpret_scenario(context: DecisionContext, language: str) -> DecisionScenario:
-    matches = [
-        row
-        for row in CATALOG["scenarios"]
-        if any(contains(context.task, pattern) for pattern in row["patterns"])
-    ]
-    compatible = [row for row in matches if context.task_type in {"unspecified", row["taskType"]}]
-    row = next(iter(compatible), None)
-    if row is None:
-        default = {
-            "coding-product": "coding-workspace",
-            "agent-development": "agent-orchestration",
-            "knowledge-product": "knowledge-workspace",
-        }.get(context.task_type)
-        row = next((row for row in CATALOG["scenarios"] if row["id"] == default), None)
+    row = scenario_definition(context)
     if row is None:
         return DecisionScenario(
             name="待明确业务用途" if language == "zh" else "Business use needs clarification",
@@ -69,15 +58,15 @@ def interpret_scenario(context: DecisionContext, language: str) -> DecisionScena
                 *(
                     key
                     for key in row.get("optionalFeatures", [])
-                    if key in feature_ids(context.task + " " + (context.notes or ""))
+                    if key in requested_feature_ids(context.task + " " + (context.notes or ""))
                 ),
             ]
         )
     )
-    if row["id"] == "knowledge-assistant" and re.search(
-        r"(?:自带|内置|原生).{0,8}(?:检索|知识库|文件搜索)|(?:built.in|native).{0,12}(?:retrieval|file search|knowledge base)",
-        context.task + " " + (context.notes or ""),
-        re.IGNORECASE,
+    if row["id"] == "document-extraction" and text_only_input(context.task):
+        required = [key for key in required if key != "document-input"]
+    if row["id"] == "knowledge-assistant" and native_retrieval_requested(
+        context.task + " " + (context.notes or "")
     ):
         required.append("retrieval")
     superseded = {

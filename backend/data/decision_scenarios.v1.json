@@ -1,5 +1,13 @@
 {
   "version": 1,
+  "interpretation": {
+    "nativeRetrieval": "(?:自带|内置|原生).{0,8}(?:检索|知识库|文件搜索)|(?:built.in|native).{0,12}(?:retrieval|file search|knowledge base)",
+    "clauseSeparator": "[，,。；;!?！？\\n]+",
+    "negativeClause": "^(?:我(?:们)?|本次)?\\s*(?:不要|不做|不需要|无需|不想|不用|不考虑|no\\b|not required\\b|do not\\b|don't\\b)|\\b(?:not required|not needed|not available|unsupported)\\b|(?:不需要|无需|不支持)$",
+    "modelScope": "底层模型|回答用的.{0,8}模型|(?:编程|代码|文本|写作)模型|模型\\s*API|(?:选择|选个|选一个|选|接入|换).{0,12}模型|(?:通过|接|接入|接受).{0,6}(?:云\\s*)?API|\\b(?:model API|coding API|text model|language model)\\b",
+    "imageInput": "(?:票据|发票|文档|合同).{0,8}(?:照片|图片|扫描件)|(?:图片|照片|扫描件).{0,12}(?:输入|读取|识别|提取)|(?:支持|要求)(?:图片|图像)(?:输入)?|图像输入|image input|accept images",
+    "textOnly": "(?:已(?:经)?转成|只处理|仅处理|输入(?:是|为)?|输入材料(?:是|为)?).{0,6}(?:纯文本|文本)|text.only|plain text input"
+  },
   "scenarios": [
     {
       "id": "knowledge-workspace",
@@ -18,6 +26,12 @@
         "retrieval augmented"
       ],
       "taskType": "knowledge-product",
+      "scopeAlternatives": { "model-api": "knowledge-assistant" },
+      "intentPatterns": [
+        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|回答|查出处)",
+        "(?:检索片段|检索结果|retrieved passages).{0,100}(?:回答|生成答案|answer)",
+        "问答网站"
+      ],
       "features": ["knowledge-ingestion", "knowledge-retrieval", "source-citations"],
       "optionalFeatures": ["workspace-permissions"],
       "checks": {
@@ -50,6 +64,11 @@
         "retrieval augmented"
       ],
       "taskType": "model-api",
+      "intentPatterns": [
+        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|回答|查出处)",
+        "(?:检索片段|检索结果|retrieved passages).{0,100}(?:回答|生成答案|answer)",
+        "问答网站"
+      ],
       "features": ["text-generation"],
       "checks": {
         "zh": ["用真实文档检查答案与出处是否一致", "明确文档是否允许发送到外部服务"],
@@ -66,6 +85,7 @@
         "en": "Career document and job matching assistant"
       },
       "patterns": ["求职", "简历", "岗位匹配", "resume", "job search", "career assistant"],
+      "intentPatterns": ["履历|职位说明|招聘要求|候选人.{0,12}(?:工作经历|技能|学历)"],
       "taskType": "model-api",
       "features": ["text-generation", "structured-output"],
       "checks": {
@@ -97,6 +117,10 @@
         "coding workspace"
       ],
       "taskType": "coding-product",
+      "scopeAlternatives": { "model-api": "coding-model" },
+      "intentPatterns": [
+        "(?:直接)?改文件|跑测试|修\\s*bug|提交补丁|读项目|开发助手|仓库.{0,40}(?:测试|修复|修改)"
+      ],
       "features": ["code-editing", "tool-use"],
       "optionalFeatures": ["file-editing", "test-execution"],
       "checks": {
@@ -109,6 +133,7 @@
     },
     {
       "id": "coding-model",
+      "intentPatterns": ["生成补丁|产出.{0,20}(?:代码|补丁)|编程\\s*API|代码助手"],
       "name": {
         "zh": "代码生成与软件工程模型",
         "en": "Coding and software engineering model"
@@ -133,6 +158,11 @@
     },
     {
       "id": "agent-orchestration",
+      "intentPatterns": [
+        "串联.{0,40}(?:搜索|接口|工具)",
+        "(?:智能体|agent).{0,20}(?:流程|工作流)",
+        "(?:流程|工作流).{0,40}(?:中断|恢复|审批)"
+      ],
       "name": {
         "zh": "Agent 应用编排",
         "en": "Agent application orchestration"
@@ -168,6 +198,10 @@
     },
     {
       "id": "document-extraction",
+      "intentPatterns": [
+        "(?:合同|发票|票据|工单|文档|表格|文件).{0,100}(?:JSON|字段)",
+        "(?:提取|抽取|读取|抽成|转成).{0,50}(?:JSON|固定字段)"
+      ],
       "name": {
         "zh": "文档信息抽取",
         "en": "Document information extraction"
@@ -197,6 +231,7 @@
     },
     {
       "id": "general-text",
+      "intentPatterns": ["起草|改写|润色|撰写|\\bdraft\\b|\\brewrite\\b|customer replies"],
       "name": {
         "zh": "文本生成与对话",
         "en": "Text generation and conversation"
@@ -240,6 +275,7 @@
       "patterns": ["权限控制", "成员权限", "访问控制", "access control", "workspace permissions"]
     },
     "file-editing": {
+      "requestPatterns": ["改文件|提交补丁|修改源文件"],
       "name": { "zh": "编辑仓库文件", "en": "Edit repository files" },
       "supersedes": ["code-editing"],
       "patterns": [
@@ -252,6 +288,7 @@
       ]
     },
     "test-execution": {
+      "requestPatterns": ["跑测试|重跑测试|执行测试"],
       "name": { "zh": "运行测试", "en": "Run tests" },
       "supersedes": ["tool-use"],
       "patterns": [
@@ -366,6 +403,7 @@
       ]
     },
     "persistent-state": {
+      "requestPatterns": ["中断后.{0,12}(?:续跑|继续)|从上一步继续"],
       "name": {
         "zh": "持久状态与长运行",
         "en": "Persistent state and long-running work"
@@ -381,6 +419,7 @@
       ]
     },
     "human-approval": {
+      "requestPatterns": ["人(?:工)?(?:点)?确认|审批后|审批再|人工审核"],
       "name": {
         "zh": "人工审批",
         "en": "Human approval"
@@ -394,6 +433,7 @@
       ]
     },
     "failure-recovery": {
+      "requestPatterns": ["中断后.{0,12}(?:续跑|继续)|从上一步继续"],
       "name": {
         "zh": "中断与失败恢复",
         "en": "Interruption and failure recovery"
