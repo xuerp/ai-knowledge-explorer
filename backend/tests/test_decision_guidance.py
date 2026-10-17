@@ -205,6 +205,18 @@ def test_unknown_budget_answer_stops_questions_and_keeps_requirements(api):
     assert revised["decisionContext"]["budget"]["max"] == 100
 
 
+def test_functional_route_keeps_cited_features_without_claiming_budget_fit(api):
+    original = create(api, "为编程选择模型 API，每月不超过100元")
+    revised = answer(api, original, "functional-route").json()
+    guidance = revised["decision"]["guidance"]
+    assert guidance["clarification"] is None
+    assert guidance["recommendation"]["primaryEntityId"] is None
+    assert guidance["recommendation"]["reasons"]
+    assert all(reason["claimIds"] for reason in guidance["recommendation"]["reasons"])
+    assert "尚不能证明候选满足预算" in guidance["recommendation"]["summary"]
+    assert revised["decisionContext"]["budget"]["max"] == 100
+
+
 def test_unrecognized_subtask_is_retained(api):
     result = create(api, "我想做文档问答；同时整理办公室设备的维护排班")
     assert "整理办公室设备的维护排班" in result["decision"]["guidance"]["tasks"]

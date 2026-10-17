@@ -105,7 +105,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "e838980cef3a1085c767a48a9a8b335b71a8c80f8d2471d68796617859c6ada3"
+      "sha256": "faf60c5ef84494e2543eccd04cf283dd0d9c60b8d711ed761235149fa7a9a7fb"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -390,7 +390,7 @@
     {
       "path": "backend/tests/test_decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "10954efaa6231563ebd5a2cadfa0335bdfb43a1fe9ac176aa226cefa1da4e563"
+      "sha256": "2f62a6b5fcb7b240420a18488e3b2580d5952adf0d2a3c0cbe3e625bdaef3c64"
     },
     {
       "path": "backend/tests/test_decision_input_projection.py",
@@ -645,7 +645,7 @@
     {
       "path": "docs/DECISION_REASSESSMENT_EXECUTION_20261016.md",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "4fead5432d26a1875efa7f2eebffe7dd4449aed610eedede4ac3e4799802a626"
+      "sha256": "a405f7a223e5048a5d09847ae7e7f17bc1bf9dbd0e7651c13daa4bf6e096a239"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
