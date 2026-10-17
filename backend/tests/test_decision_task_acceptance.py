@@ -13,8 +13,9 @@ from app.decision_candidates import discover_candidates, interpret_scenario
 from app.decision_constraints import constraint_failures, current_claims
 from app.decision_explanation import cost_choice
 from app.decision_facts import normalized_facts
+from app.decision_guidance import build_guidance
 from app.repository import KnowledgeRepository
-from app.schemas import DecisionContext
+from app.schemas import DecisionContext, DecisionResult
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(
@@ -88,6 +89,14 @@ def test_six_original_tasks_keep_existing_evidence_and_hard_constraints(catalog)
     assert "维护" in trial["metrics"][0]
     assert "15 USD" in cases["task-3"]["summary"]
     assert "44–76 USD" in cases["task-3"]["summary"]
+    cost_guidance = build_guidance(
+        DecisionResult.model_validate(cases["task-3"]["decision"]),
+        DecisionContext.model_validate(cases["task-3"]["context"]),
+        catalog,
+        "zh",
+    )
+    assert cost_guidance.recommendation.summary == cases["task-3"]["summary"]
+    assert cost_guidance.recommendation.primary_entity_id == "e-gemini-3-8-flash"
     assert cases["task-5"]["decision"]["candidates"]
     assert "完全离线" in cases["task-5"]["summary"]
     assert "不必先理解模型" in cases["task-6"]["summary"]

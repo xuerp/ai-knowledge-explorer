@@ -37,6 +37,8 @@ export interface UserNotification {
 }
 
 export interface DecisionContext {
+  intentAnswers?: DecisionIntentAnswer[];
+  parentResearchId?: string;
   workflowVersion?: 1 | 2;
   minimumContextTokens?: number;
   inputModalities?: Array<"text" | "image" | "audio" | "video">;
@@ -65,7 +67,73 @@ export interface DecisionContext {
   notes?: string;
 }
 
+export interface DecisionIntentAnswer {
+  questionId: string;
+  optionId?: string | null;
+  text?: string | null;
+}
+
+export interface DecisionGuidance {
+  schemaVersion: 1;
+  outcome: "advice" | "clarify" | "conditional" | "unsupported" | "blocked";
+  intent: Array<{
+    field: string;
+    value: string;
+    source: "user-input" | "user-choice" | "assumption";
+  }>;
+  tasks: string[];
+  answered: DecisionIntentAnswer[];
+  clarification?: {
+    id: string;
+    reason: string;
+    question: string;
+    options: Array<{
+      id: string;
+      label: string;
+      description: string;
+      task?: string;
+      taskType?: string;
+    }>;
+  } | null;
+  recommendation: {
+    headline: string;
+    summary: string;
+    entityIds: string[];
+    primaryEntityId?: string | null;
+    reasons: Array<{ dimension: string; finding: string; claimIds: string[] }>;
+    tradeoff?: string | null;
+    premises: string[];
+  };
+  unknowns: Array<{
+    candidateId?: string | null;
+    requirement: string;
+    kind:
+      | "not-recorded"
+      | "not-retrieved"
+      | "not-structured"
+      | "not-current"
+      | "conflicting"
+      | "scope-mismatch"
+      | "needs-input"
+      | "not-tested";
+    decisive: boolean;
+    detail: string;
+    affects: string;
+    recovery: string;
+    claimIds: string[];
+    checkedAt: string;
+  }>;
+  nextAction: {
+    kind: "answer" | "start" | "compare" | "edit" | "routes";
+    label: string;
+    targetIds: string[];
+    location: "this-page" | "selected-product";
+    instruction: string;
+  };
+}
+
 export interface DecisionResult {
+  guidance?: DecisionGuidance | null;
   plan?: {
     state:
       | "needs-input"
@@ -164,6 +232,8 @@ export interface DecisionResult {
 }
 
 export interface ResearchRequest {
+  parentResearchId?: string;
+  clarificationAnswer?: DecisionIntentAnswer;
   question: string;
   language: "zh" | "en";
   decisionContext?: DecisionContext;

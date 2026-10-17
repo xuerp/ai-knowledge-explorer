@@ -151,6 +151,18 @@ export function decisionVerdict(
       reasons: [],
     };
   }
+  if (decision?.guidance) {
+    const guidance = decision.guidance;
+    return {
+      source: "public" as const,
+      headline: guidance.recommendation.headline,
+      summary: guidance.recommendation.summary,
+      boundary: guidance.recommendation.premises.join(" "),
+      next: guidance.nextAction.instruction,
+      action: guidance.nextAction.kind === "edit" ? ("edit" as const) : ("choose" as const),
+      reasons: guidance.recommendation.reasons,
+    };
+  }
   const ready = decisionChoices(research).filter((candidate) => candidate.ready);
   const primary = ready.find(
     (candidate) => candidate.entityId === decision?.recommendation.primaryEntityId,

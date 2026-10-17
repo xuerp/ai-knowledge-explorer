@@ -21,13 +21,12 @@ import {
 } from "@/services/user-api";
 import { DecisionBrief } from "@/components/research/DecisionBrief";
 import { DecisionGuide } from "@/components/research/DecisionGuide";
-import { describedPriority } from "@/domain/decision-presentation";
+import { describedPriority, guidanceStatusLabel } from "@/domain/decision-presentation";
 import {
   decisionFingerprint,
   matchesDecisionFingerprint,
   decisionInputConflicts,
   interpretDecisionTask,
-  decisionScenario,
   decisionResumePath,
 } from "@/domain/decision-workflow";
 import { DecisionValidationPanel } from "@/components/research/DecisionValidationPanel";
@@ -95,10 +94,7 @@ function AskPage() {
     NonNullable<DecisionContext["inputModalities"]>
   >([]);
   const [commercialUse, setCommercialUse] = useState(false);
-  const [preparedDecision, setPreparedDecision] = useState<{
-    context: DecisionContext;
-    fingerprint: string;
-  } | null>(null);
+  const [revisionParent, setRevisionParent] = useState<string | undefined>();
   const [research, setResearch] = useState<ResearchResult | null>(null);
   const [error, setError] = useState("");
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -124,6 +120,7 @@ function AskPage() {
       }
     }
     const sharedSearch = new URLSearchParams(draftSearch);
+    setRevisionParent(sharedSearch.get("parentResearchId") ?? undefined);
     const sharedTask = sharedSearch.get("task")?.trim();
     if (sharedTask) {
       setTask(sharedTask);
@@ -187,6 +184,7 @@ function AskPage() {
       window.sessionStorage.setItem(
         "ai-radar-decision-draft-v1",
         buildAskResumePath({
+          parentResearchId: revisionParent,
           task,
           priority,
           budgetMode,
@@ -217,6 +215,7 @@ function AskPage() {
     }
   }, [
     draftRestored,
+    revisionParent,
     task,
     priority,
     budgetMode,
@@ -312,7 +311,6 @@ function AskPage() {
       : {}),
   };
   const currentFingerprint = decisionFingerprint(currentContext);
-  const scenario = decisionScenario(preparedDecision?.context ?? currentContext, lang);
   const appliedLimits = [
     deployment !== "undecided"
       ? {
@@ -365,7 +363,7 @@ function AskPage() {
     !!currentContext.minimumContextTokens &&
     described.minimumContextTokens !== currentContext.minimumContextTokens;
   useEffect(() => {
-    if (!draftRestored || !token || research) return;
+    if (!draftRestored || !token || research || revisionParent) return;
     let cancelled = false;
     try {
       const stored = JSON.parse(
@@ -377,11 +375,6 @@ function AskPage() {
           .then((value) => {
             if (cancelled) return;
             setResearch(value);
-            if (value.decisionContext)
-              setPreparedDecision({
-                context: value.decisionContext,
-                fingerprint: decisionFingerprint(value.decisionContext),
-              });
             if (typeof stored.scroll === "number")
               window.requestAnimationFrame(() => window.scrollTo({ top: stored.scroll }));
           })
@@ -395,7 +388,7 @@ function AskPage() {
     return () => {
       cancelled = true;
     };
-  }, [draftRestored, token, currentFingerprint, research]);
+  }, [draftRestored, token, currentFingerprint, research, revisionParent]);
   function rememberResultScroll() {
     try {
       const stored = JSON.parse(
@@ -410,11 +403,6 @@ function AskPage() {
       /* Storage is optional. */
     }
   }
-  useEffect(() => {
-    if (preparedDecision && preparedDecision.fingerprint !== currentFingerprint)
-      setPreparedDecision(null);
-  }, [preparedDecision, currentFingerprint]);
-
   const submitResearch = async () => {
     if (submissionInFlight.current) return;
     const normalizedTask = task.trim();
@@ -474,7 +462,6 @@ function AskPage() {
               "The task and structured constraints disagree. Align deployment, context or budget before confirming.",
             ),
       );
-      setPreparedDecision(null);
       return;
     }
     const question = composeDecisionQuestion(decisionContext, lang);
@@ -485,21 +472,6 @@ function AskPage() {
           "The task, exclusions, and notes are too long. Keep the combined request under 2,000 characters.",
         ),
       );
-      return;
-    }
-    if (!preparedDecision || preparedDecision.fingerprint !== currentFingerprint) {
-      const interpreted = interpretDecisionTask(decisionContext);
-      setDeployment(interpreted.deployment);
-      if (interpreted.taskType) setTaskType(interpreted.taskType);
-      setBudgetMode(interpreted.budget.mode);
-      if (interpreted.budget.max !== undefined) setBudgetMaximum(String(interpreted.budget.max));
-      if (interpreted.budget.currency) setCurrency(interpreted.budget.currency);
-      if (interpreted.minimumContextTokens !== undefined)
-        setMinimumContext(String(interpreted.minimumContextTokens));
-      setInputModalities(interpreted.inputModalities ?? []);
-      setCommercialUse(Boolean(interpreted.commercialUseRequired));
-      setPreparedDecision({ context: interpreted, fingerprint: decisionFingerprint(interpreted) });
-      setError("");
       return;
     }
     if (!token) {
@@ -535,7 +507,20 @@ function AskPage() {
     setError("");
     setSessionExpired(false);
     try {
-      const result = await userApi.research(token, { question, language: lang, decisionContext });
+      const parentId = research?.id ?? revisionParent;
+      const parent = parentId ? await userApi.researchDetail(token, parentId) : null;
+      const result = await userApi.research(token, {
+        question,
+        language: lang,
+        parentResearchId: parentId,
+        decisionContext: {
+          ...decisionContext,
+          intentAnswers:
+            parent?.decisionContext?.task === decisionContext.task
+              ? parent.decisionContext.intentAnswers
+              : [],
+        },
+      });
       setResearch(result);
       try {
         window.sessionStorage.setItem(
@@ -585,7 +570,6 @@ function AskPage() {
     setExclusions("");
     setNotes("");
     setCandidateEntityIds([]);
-    setPreparedDecision(null);
     setError("");
   };
 
@@ -646,7 +630,8 @@ function AskPage() {
                 e.preventDefault();
                 void submitResearch();
               }}
-              className="ask-form paper-card flex flex-col gap-3 p-5"
+              hidden={!!research}
+              className={`ask-form paper-card flex-col gap-3 p-5 ${research ? "hidden" : "flex"}`}
             >
               <section
                 className="decision-start"
@@ -655,8 +640,8 @@ function AskPage() {
                 <h2>{t("你想用 AI 做什么？", "What do you want AI to do?")}</h2>
                 <p>
                   {t(
-                    "选一个场景开始，也可以直接写下你的任务。先看可用选项，再用实际任务验证。",
-                    "Start with a scenario or describe your task. Find usable options, then validate them on your work.",
+                    "选一个场景开始，也可以直接写下你的任务。得到建议和开始使用的方法。",
+                    "Start with a scenario or describe your task. Get advice and a way to start.",
                   )}
                 </p>
                 <div className="decision-start__scenarios">
@@ -1102,235 +1087,19 @@ function AskPage() {
                 <DecisionGuide kind="inputs" />
               </details>
               <div className="decision-example-actions">
-                {!preparedDecision && (
-                  <Button type="submit" className="ml-auto" disabled={!draftRestored || busy}>
-                    <Send className="h-4 w-4" />{" "}
-                    {busy
-                      ? t("检索中…", "Researching…")
-                      : !preparedDecision
-                        ? t("下一步：核对任务", "Next: review your task")
-                        : token
-                          ? t("生成决策建议", "Generate recommendation")
-                          : t("体验预置研究", "Run preset research")}
-                  </Button>
-                )}
-              </div>
-              {preparedDecision && (
-                <section
-                  className="decision-confirmation"
-                  aria-label={t("确认本次决策条件", "Confirm decision conditions")}
-                >
-                  <h2>{t("按这个任务帮你筛选", "Find options for this task")}</h2>
+                <Button type="submit" disabled={!draftRestored || busy}>
+                  <Send className="h-4 w-4" />{" "}
+                  {busy ? t("分析中…", "Analyzing…") : t("帮我选择", "Help me choose")}
+                </Button>
+                {!token && (
                   <p>
                     {t(
-                      "请核对下面的任务。需要改变限制，可以展开上方“限制与偏好”；不确定的条件不会替你假设。",
-                      "Check the task below. Open Limits and preferences to change requirements. Uncertain limits are not assumed.",
+                      "分析和保存个人任务需要登录，输入会保留。",
+                      "Sign in to analyze and save a personal task; your input is retained.",
                     )}
                   </p>
-                  <p className="decision-confirmation__task">{preparedDecision.context.task}</p>
-                  <p>
-                    {t("将查找：", "Find: ")}
-                    {scenario.name} · {t("优先关注：", "Focus: ")}
-                    {
-                      {
-                        balanced: t("综合平衡", "Balanced"),
-                        quality: t("任务效果", "Task quality"),
-                        cost: t("费用", "Cost"),
-                        speed: t("速度", "Speed"),
-                        privacy: t("隐私", "Privacy"),
-                        control: t("可控性", "Control"),
-                      }[priority]
-                    }
-                  </p>
-                  {appliedLimits.length ? (
-                    <p className="decision-confirmation__limits">
-                      <strong>{t("必须满足：", "Required: ")}</strong>
-                      {appliedLimits.join(" · ")}
-                    </p>
-                  ) : (
-                    <p>
-                      {t(
-                        "未指定部署、费用或容量门槛，先按用途查找。",
-                        "No hosting, price or capacity gate is set; start with the task.",
-                      )}
-                    </p>
-                  )}
-                  <details className="decision-confirmation__details">
-                    <summary>
-                      {t("查看已识别的全部条件", "Inspect all recognized conditions")}
-                    </summary>
-                    <dl>
-                      <dt>{t("任务", "Task")}</dt>
-                      <dd>{preparedDecision.context.task}</dd>
-                      <dt>{t("业务场景", "Business scenario")}</dt>
-                      <dd>{scenario.name}</dd>
-                      <dt>{t("验证重点", "Validation focus")}</dt>
-                      <dd>{scenario.clarificationChecks.join("；")}</dd>
-                      <dt>{t("选型任务与优先项", "Selection and priority")}</dt>
-                      <dd>
-                        {
-                          {
-                            "model-api": t("模型 API", "Model API"),
-                            "coding-product": t("编码产品", "Coding product"),
-                            "knowledge-product": t(
-                              "知识库应用与平台",
-                              "Knowledge application / platform",
-                            ),
-                            "agent-development": t("Agent 开发", "Agent development"),
-                            unspecified: t("未指定", "Unspecified"),
-                          }[taskType]
-                        }{" "}
-                        ·{" "}
-                        {
-                          {
-                            balanced: t("综合平衡", "Balanced"),
-                            quality: t("效果质量", "Quality"),
-                            cost: t("成本", "Cost"),
-                            speed: t("速度", "Speed"),
-                            privacy: t("隐私", "Privacy"),
-                            control: t("可控性", "Control"),
-                          }[priority]
-                        }
-                      </dd>
-                      <dt>{t("部署", "Deployment")}</dt>
-                      <dd>
-                        {
-                          {
-                            undecided: t("暂不确定", "Undecided"),
-                            "cloud-api": t("云 API", "Cloud API"),
-                            private: t("私有部署", "Private"),
-                            "on-device": t("端侧", "On-device"),
-                            hybrid: t("混合", "Hybrid"),
-                          }[deployment]
-                        }
-                      </dd>
-                      {region && (
-                        <>
-                          <dt>{t("部署地区", "Hosting region")}</dt>
-                          <dd>{region}</dd>
-                        </>
-                      )}
-                      {commercialUse && (
-                        <>
-                          <dt>{t("商用许可", "Commercial use")}</dt>
-                          <dd>{t("必须有核验证据", "Verified permission required")}</dd>
-                          {serviceChannel && (
-                            <>
-                              <dt>{t("实际服务范围", "Actual service scope")}</dt>
-                              <dd>
-                                {serviceChannel} ·{" "}
-                                {serviceTier === "paid"
-                                  ? t("付费服务", "Paid service")
-                                  : serviceTier === "free"
-                                    ? t("免费服务", "Free service")
-                                    : t("账户层级未确认", "Tier unconfirmed")}{" "}
-                                · {serviceRegion || t("使用国家未确认", "Country unconfirmed")}
-                              </dd>
-                            </>
-                          )}
-                        </>
-                      )}
-                      {exclusions && (
-                        <>
-                          <dt>{t("排除条件", "Exclusions")}</dt>
-                          <dd>{exclusions}</dd>
-                        </>
-                      )}
-                      <dt>{t("预算", "Budget")}</dt>
-                      <dd>
-                        {budgetMode === "range"
-                          ? `${currency} ${budgetMaximum || t("未指定上限", "No ceiling")} / ${t("月", "month")}`
-                          : t("未指定硬上限", "No hard ceiling")}
-                      </dd>
-                      {budgetMode === "range" && (
-                        <>
-                          <dt>{t("核算范围", "Cost scope")}</dt>
-                          <dd>
-                            {costScope === "standard-token-only"
-                              ? t("仅 Standard 模型 token 费用", "Standard model tokens only")
-                              : t("全部费用", "All costs")}
-                          </dd>
-                        </>
-                      )}
-                      <dt>{t("上下文与输入", "Context and input")}</dt>
-                      <dd>
-                        {minimumContext
-                          ? `≥ ${minimumContext} token`
-                          : t("未限定上下文", "No context minimum")}{" "}
-                        ·{" "}
-                        {inputModalities
-                          .map(
-                            (value) =>
-                              ({
-                                text: t("文本", "Text"),
-                                image: t("图像", "Image"),
-                                audio: t("音频", "Audio"),
-                                video: t("视频", "Video"),
-                              })[value],
-                          )
-                          .join("、") || t("未限定模态", "No modality requirement")}
-                      </dd>
-                      <dt>{t("候选范围", "Candidate scope")}</dt>
-                      <dd>
-                        {candidateEntityIds.length
-                          ? candidateEntityIds
-                              .map((id) => {
-                                const entity = snapshot?.entities.find((item) => item.id === id);
-                                return entity ? pick(entity.name, lang) : id;
-                              })
-                              .join(" · ")
-                          : t(
-                              "核验全目录相关范围，最多展示 20 个具体候选；结果会说明范围，不代表性能排名",
-                              "Check the relevant catalog scope and show up to 20 concrete candidates; the report explains the scope without a performance ranking",
-                            )}
-                      </dd>
-                      {budgetMode === "range" && (!channel || !inputTokens || !outputTokens) && (
-                        <>
-                          <dt>{t("待补充", "Missing inputs")}</dt>
-                          <dd>
-                            {t(
-                              "计费渠道与月输入/输出工作量须齐全，才能核验预算。",
-                              "Billing channel and monthly input/output workload are needed to verify budget.",
-                            )}
-                          </dd>
-                        </>
-                      )}
-                    </dl>
-                  </details>
-                  {notes && (
-                    <p>
-                      {t("补充说明", "Additional notes")}: {notes}
-                    </p>
-                  )}
-                  {!token && (
-                    <p>
-                      {t(
-                        "登录后获取这份任务的候选清单，并保存你的选型与试用记录。",
-                        "Sign in to find candidates for this task and save your selection and trial records.",
-                      )}
-                    </p>
-                  )}
-                  <div className="decision-confirmation__actions">
-                    {!token ? (
-                      <Button asChild>
-                        <Link
-                          to="/account"
-                          search={{ returnTo: decisionResumePath(preparedDecision.context) }}
-                        >
-                          {t("登录并获取候选", "Sign in and find candidates")}
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button type="submit" disabled={busy}>
-                        <Send className="h-4 w-4" />
-                        {busy
-                          ? t("检索中…", "Researching…")
-                          : t("查看适合的候选", "Find suitable options")}
-                      </Button>
-                    )}
-                  </div>
-                </section>
-              )}
+                )}
+              </div>
               {busy && (
                 <p role="status">
                   {t(
@@ -1350,6 +1119,7 @@ function AskPage() {
                       to="/account"
                       search={{
                         returnTo: buildAskResumePath({
+                          parentResearchId: revisionParent,
                           task,
                           priority,
                           budgetMode,
@@ -1398,7 +1168,8 @@ function AskPage() {
                     rememberResultScroll();
                 }}
               >
-                {research.decisionContext &&
+                {!research.decision?.guidance &&
+                  research.decisionContext &&
                   decisionFingerprint(research.decisionContext) !== currentFingerprint && (
                     <p role="status" className="ask-result__notice">
                       {t(
@@ -1414,17 +1185,19 @@ function AskPage() {
                       className="ask-result__state"
                       data-state={research.decision?.status ?? research.status}
                     >
-                      {!token
-                        ? t("预置资料", "Preset evidence")
-                        : research.decision?.status === "conflict"
-                          ? t("需核对冲突", "Review conflicts")
-                          : research.decision?.status === "ready"
-                            ? t("可继续验证", "Ready for validation")
-                            : research.decision?.candidates?.every(
-                                  (candidate) => candidate.eligibility === "excluded",
-                                ) && research.decision.candidates.length
-                              ? t("全部候选不符合硬条件", "All candidates are excluded")
-                              : t("适配条件待核验", "Fit needs verification")}
+                      {research.decision?.guidance
+                        ? guidanceStatusLabel(research.decision.guidance.outcome, lang)
+                        : !token
+                          ? t("预置资料", "Preset evidence")
+                          : research.decision?.status === "conflict"
+                            ? t("需核对冲突", "Review conflicts")
+                            : research.decision?.status === "ready"
+                              ? t("可继续验证", "Ready for validation")
+                              : research.decision?.candidates?.every(
+                                    (candidate) => candidate.eligibility === "excluded",
+                                  ) && research.decision.candidates.length
+                                ? t("全部候选不符合硬条件", "All candidates are excluded")
+                                : t("适配条件待核验", "Fit needs verification")}
                     </span>
                   </div>
                   {!research.decision && <p className="ask-result__summary">{research.summary}</p>}
@@ -1441,6 +1214,17 @@ function AskPage() {
                 {research.decision && (
                   <DecisionBrief
                     research={research}
+                    onRevision={(result) => {
+                      setResearch(result);
+                      try {
+                        window.sessionStorage.setItem(
+                          "ai-radar-decision-result-v1",
+                          JSON.stringify({ id: result.id, fingerprint: currentFingerprint }),
+                        );
+                      } catch {
+                        /* Optional storage. */
+                      }
+                    }}
                     validationContent={
                       token && (
                         <DecisionValidationPanel
@@ -1604,6 +1388,7 @@ function AskPage() {
 }
 
 function buildAskResumePath(input: {
+  parentResearchId?: string;
   task: string;
   priority: DecisionContext["priority"];
   budgetMode: DecisionContext["budget"]["mode"];
@@ -1642,6 +1427,7 @@ function buildAskResumePath(input: {
     taskType: input.taskType,
   });
   if (input.budgetMinimum) search.set("budgetMin", input.budgetMinimum);
+  if (input.parentResearchId) search.set("parentResearchId", input.parentResearchId);
   if (input.budgetMaximum) search.set("budgetMax", input.budgetMaximum);
   if (input.exclusions) search.set("exclusions", input.exclusions);
   if (input.notes) search.set("notes", input.notes);

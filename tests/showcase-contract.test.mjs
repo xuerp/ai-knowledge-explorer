@@ -123,7 +123,8 @@ test("未登录访客可以运行预置研究且证据不足时明确拒答", as
   assert.doesNotMatch(route, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
   assert.match(route, /AI 决策助手/);
   assert.match(route, /任务、预算与部署限制/);
-  assert.match(route, /体验预置研究/);
+  assert.match(route, /帮我选择/);
+  assert.match(route, /这是预置问题的历史资料，不会应用你修改的选型条件/);
   assert.match(adapter, /research-demo-gpt-claude/);
   assert.match(adapter, /research-demo-deepseek-cost/);
   assert.match(adapter, /research-demo-mcp-integrations/);

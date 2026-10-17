@@ -83,6 +83,11 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
+      "path": "backend/app/decision_dialogue.py",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "854dc5d2676339fb230cda4b9eab86bcacde2dca232cae311c0cd5ac40a8410e"
+    },
+    {
       "path": "backend/app/decision_evidence_requests.py",
       "sha256": "53f6d5a41d08be858f2e148330a213fe335d0bc28eac651ca24e5c2f5f19b1d3",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
@@ -96,6 +101,11 @@
       "path": "backend/app/decision_facts.py",
       "sha256": "e3fcaa7aaeb06da72eceb86340d0089fd0e1f18bf4bc11d49717f8743dd61959",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_guidance.py",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "e838980cef3a1085c767a48a9a8b335b71a8c80f8d2471d68796617859c6ada3"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -139,7 +149,7 @@
     },
     {
       "path": "backend/app/engagement.py",
-      "sha256": "a5e08b6f561620edde2910d168ca292887583f2f7393354d62f39bce4e9306bb",
+      "sha256": "8c5f8f8feeefd1dae5dab5b3f4bcd7ce5c81922b3b89e622606d93fba7c0cb0c",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -189,7 +199,7 @@
     },
     {
       "path": "backend/app/research_report.py",
-      "sha256": "defa3bb89766f3a0e47122415182898dc46d148bfd1b28ac3bcfeb8426a13f55",
+      "sha256": "2b16912db68c8c3a3bafc27af63d3e8b1dbf148ba3a272bcdd8e7b4a56d8d346",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -204,7 +214,7 @@
     },
     {
       "path": "backend/app/schemas.py",
-      "sha256": "90764537ac3ad1f29abf31c510fc7642d30316dde891188357461a84e8f349a2",
+      "sha256": "18f110b4607e8af4775a60ba86e2167fd7b667140d2d3d6b241ab6f23b33f477",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -238,8 +248,13 @@
       "sha256": "da95cfeb372c8c807f1a82938ef0e351268adba41a3c9a9ddf35a572d591e111"
     },
     {
+      "path": "backend/data/decision_guidance_holdout.v1.json",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "7bff12975dfff20ab484ac23c16c4ed75ce32b6ee94b90f8057f39ee1d238b68"
+    },
+    {
       "path": "backend/data/decision_scenarios.v1.json",
-      "sha256": "909760f70fa365e94fd4955d20b535daf3b3766b79fa3247082baea6d7a349e6",
+      "sha256": "568616e261ae247f3c5b65032c2b8ae31f82397873a5aa8a310cbd02d9aca48f",
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
@@ -373,6 +388,11 @@
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
+      "path": "backend/tests/test_decision_guidance.py",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "10954efaa6231563ebd5a2cadfa0335bdfb43a1fe9ac176aa226cefa1da4e563"
+    },
+    {
       "path": "backend/tests/test_decision_input_projection.py",
       "sha256": "c5449a2345d3a7537264dab05bd80ead0ebb43e2e325f935e4d95a3350bd7693",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -415,7 +435,7 @@
     {
       "path": "backend/tests/test_decision_task_acceptance.py",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "72ced4a4c03782513f536f07e6359e4454fb18f4ec4176fff59425b8d8575455"
+      "sha256": "5309f78d5a8d86df5f95ed233c24da58fe3d65a1700bbbd95cdd9188f2d0dfb8"
     },
     {
       "path": "backend/tests/test_decision_trial_runner.py",
@@ -608,14 +628,24 @@
       "sha256": "18fda1403d9f032e44c3eeafe65c2f9ad5dcb8590a70d605979352e08edc4a82"
     },
     {
+      "path": "docs/DECISION_MODULE_REASSESSMENT_SPEC_20261016.md",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "8122d15cb035bf6207ce9a25702f25e0a4c03461c24079933c72bc426eba1051"
+    },
+    {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
-      "sha256": "5e8af3d10c69c7c13efd58d1704725ec3aaf989fdb2da888ad3101e8363e4129",
+      "sha256": "99f07d822c26017b7788857a971fa541ca5b9e1f0829e254b7fe4ecdd13117fb",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
       "path": "docs/DECISION_PRODUCT_PROGRESS_20261014.md",
       "sha256": "006339efa97b1bbedb760021a537e00ea9c39c911b2300ba74d1c5baf52c54ca",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
+    },
+    {
+      "path": "docs/DECISION_REASSESSMENT_EXECUTION_20261016.md",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "4fead5432d26a1875efa7f2eebffe7dd4449aed610eedede4ac3e4799802a626"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -629,7 +659,7 @@
     },
     {
       "path": "docs/README.md",
-      "sha256": "67bc6f06ef5e59221684706504ac59d2aa9a536d39b3443dd0f110ebfd758aad",
+      "sha256": "b2084a8a10b1d0c7061215ce1959d4b6d63b802b500d9d3bcc9362423120f666",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
     },
     {
@@ -829,7 +859,7 @@
     },
     {
       "path": "src/components/research/DecisionBrief.tsx",
-      "sha256": "721758698acc47674f432c5975b42c6a66d58fb283ba29d3ae796b763f05cf9b",
+      "sha256": "eddd19818dadad06a3e4bcb7d9f87ddaf8fdd37a44ba719490da987b4ad99cd5",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -841,6 +871,11 @@
       "path": "src/components/research/DecisionEvidenceRequests.tsx",
       "sha256": "bb3854088c1c330d8fb72858a747491ae4b5edc402763497ba58c862bd1cbb45",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/DecisionGuidanceView.tsx",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "caf6909277d44b1db8ead11c8d7d9ff44c8b2fd113a64b8de8fd45576cc72164"
     },
     {
       "path": "src/components/research/DecisionGuide.tsx",
@@ -879,7 +914,7 @@
     },
     {
       "path": "src/components/research/ResearchReport.tsx",
-      "sha256": "50603831d667fdeb9b99c38a29c63d7a4279ec6ea1cecb1b9b425b5727aa0324",
+      "sha256": "b4ea7c92f962ba8ed98da404bd1df2f4708a5df183275cdd1ab7b9c808848ef0",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -891,6 +926,11 @@
       "path": "src/components/research/decision-choice.css",
       "sha256": "aa96fde0b7da5271c3a6774aa1e30664faf35acfa8f07fbf4c6c1b042fb03737",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "src/components/research/decision-guidance.css",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "925dda89b64ad45f337d71f4ea3268b59920ac464e4627cf70d4cd40269b2c7a"
     },
     {
       "path": "src/data/catalog-changes.d.mts",
@@ -959,7 +999,7 @@
     },
     {
       "path": "src/domain/decision-choice.ts",
-      "sha256": "3703bf8d72cf86d25cc8746e7de19980a2f15330237aa1d6d858006337ff81a8",
+      "sha256": "ec861bdcf714583b0abc8e6b345c4d046d466979606d7c35e7717c366d2c6758",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -984,7 +1024,7 @@
     },
     {
       "path": "src/domain/decision-presentation.ts",
-      "sha256": "8fd9fae2a54a44492c5d56b33ed98db7fb348f020240d162ac856ece157a4e13",
+      "sha256": "0dca9f27c20afa59a75afa491325c831c0ab91d2c4cec7a6ccd1c6a12ff225fa",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -994,12 +1034,12 @@
     },
     {
       "path": "src/domain/decision-report-html.ts",
-      "sha256": "45e39503a261d28e6c08dfee044215ba0e2ac66a639e273af9155eab78b826c2",
+      "sha256": "eec67ab689b1cde8e1ec3e4d1e33c55408c4a2c369178de325497d18e5c37fc3",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "071b711467fe3e31de8e468b82442184b4bc732f76bab8d74dd10a0d69be7085",
+      "sha256": "875a25c9304779a1b81dfe6017f2c8117df3c968c7e4f0275e076bc82d6f6726",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1019,12 +1059,12 @@
     },
     {
       "path": "src/domain/decision-verdict.ts",
-      "sha256": "dcb5bd88876801e7b62cbfa1c64d68019119958c13b34c5a663c4d583ef4edd4",
+      "sha256": "9c17b317955badb8bbab70cb474b698038acabf4f3d2877bee368918350e64fe",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "src/domain/decision-workflow.ts",
-      "sha256": "1eebafea29c43465eba1c6ef718b90f52927f224b794299c54dfd13b34cfc8af",
+      "sha256": "14dc2ea1ec447e7992b99a5912f9fbbffcc6963222778c9ba23926ce1bc7b82d",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1154,7 +1194,7 @@
     },
     {
       "path": "src/routes/ask.tsx",
-      "sha256": "be65ea7b8f3d6de08c38f5f4bd3195541732b5ee9ead696cbc3730b3943add85",
+      "sha256": "26e8f491c404cb5e29bbcb5f1bc65b5e0e7860420be75b24e67e41e39ba24ce1",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1214,7 +1254,7 @@
     },
     {
       "path": "src/routes/research.$id.tsx",
-      "sha256": "7fd908e19156592b22b470f3fc43d46b960e0d857e222c383bd77b9e31272e55",
+      "sha256": "007e000a8adc7119dffdd52a726c2c774a0aad62e82f6f64161b714e1618fdc1",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1264,7 +1304,7 @@
     },
     {
       "path": "src/services/user-api.ts",
-      "sha256": "89b0360a5fbbd0f94a9473d90ed8e29e894998f7b96ac07ce771c48e4a2f1bcb",
+      "sha256": "f05124a572fa439392c3d2432638e0cebce70f528f523ba364f9298eedf85510",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1326,6 +1366,11 @@
       "path": "tests/decision-first-use.test.mjs",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
       "sha256": "083e4e329b7ef43538cbbddf3259dc7e24fb9f506893071094f3aeadcc398a73"
+    },
+    {
+      "path": "tests/decision-guidance.test.mjs",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "7a2d27393efd1b919a38d8868dffc7f5f37668276bb5d98565dd469a966a32e6"
     },
     {
       "path": "tests/decision-layout.test.mjs",
@@ -1439,7 +1484,7 @@
     },
     {
       "path": "tests/showcase-contract.test.mjs",
-      "sha256": "a95318b9b97f6ba73f3b65c58866b699cdc80a28f00df1d32fc46efa5182b6ee",
+      "sha256": "23c546aee7f4835dfa6cb62f97cb52cb559a3eb15fb407573cf5c0adc96100b0",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1458,9 +1503,9 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 291,
+  "publicFileCount": 300,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
-  "lastVerifiedOn": "2026-10-16",
+  "lastVerifiedOn": "2026-10-17",
   "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }

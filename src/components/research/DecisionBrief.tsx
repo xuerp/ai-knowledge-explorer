@@ -9,6 +9,7 @@ import { compactFindings, decisionReading } from "@/domain/decision-reading";
 import { DecisionPlan } from "./DecisionPlan";
 import { planDimensionName, trialQualificationLabel } from "@/domain/decision-plan-reading";
 import { DecisionChoice } from "./DecisionChoice";
+import { DecisionGuidanceView } from "./DecisionGuidanceView";
 import { DecisionEvidenceRequests } from "./DecisionEvidenceRequests";
 import { decisionVerdict } from "@/domain/decision-verdict";
 import { Button } from "@/components/ui/button";
@@ -20,12 +21,14 @@ export function DecisionBrief({
   isComparable = () => true,
   outcomeLevel = 3,
   validationContent,
+  onRevision,
 }: {
   research: ResearchResult;
   entityName: (id: string) => string;
   isComparable?: (id: string) => boolean;
   outcomeLevel?: 2 | 3;
   validationContent?: ReactNode;
+  onRevision?: (result: ResearchResult) => void;
 }) {
   const { t, lang } = useApp();
   const [expandedCandidates, setExpandedCandidates] = useState(false);
@@ -111,127 +114,167 @@ export function DecisionBrief({
       lang={lang === "zh" ? "zh-CN" : "en"}
       aria-label={t("结构化决策说明", "Decision brief")}
     >
-      <div className="decision-brief__recommendation">
-        <div
-          className="decision-outcome"
-          data-outcome={presentation.allExcluded ? "excluded" : decision.status}
-        >
-          <OutcomeHeading className="decision-outcome__headline">{verdict.headline}</OutcomeHeading>
-          <p className="decision-outcome__summary">{verdict.summary}</p>
-          <p className="decision-verdict__next">
-            <strong>{t("下一步：", "Next: ")}</strong>
-            {verdict.next}
-          </p>
-          {verdict.action === "edit" &&
-            research.decisionContext &&
-            decision.plan?.state !== "needs-evidence" && (
-              <Button asChild>
-                <Link to={decisionResumePath(research.decisionContext)}>
-                  {decision.plan?.state === "needs-input"
-                    ? t("补充任务描述", "Clarify my task")
-                    : t("返回任务条件", "Return to task conditions")}
-                </Link>
-              </Button>
-            )}
-          {verdict.source === "private" && validationContent && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                setTrialRequest({ ids: [], nonce: Date.now() });
-                requestAnimationFrame(() => {
-                  workspaceRef.current?.scrollIntoView({ block: "start" });
-                  workspaceRef.current
-                    ?.querySelector<HTMLElement>(".decision-validation__title")
-                    ?.focus();
-                });
-              }}
-            >
-              {t("查看或补齐我的试用记录", "Inspect or complete my trial records")}
-            </Button>
-          )}
-          {validationFirst && !validation && (
-            <p role="status" className="decision-choice__hint">
-              {t(
-                "试用记录有修改或正在读取，当前不沿用旧实测判断；保存后更新。",
-                "Trial notes are changing or loading. Earlier findings are not reused; save to update.",
-              )}
-            </p>
-          )}
-          <div className="decision-screening">
-            {decision.candidates?.length ? (
-              <p className="decision-outcome__counts">
-                {t(
-                  `可试用 ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · 排除 ${presentation.counts.excluded} · 待核验 ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · 冲突 ${presentation.counts.conflict}`,
-                  `Ready for a business trial ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · excluded ${presentation.counts.excluded} · awaiting verification ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · conflicting ${presentation.counts.conflict}`,
-                )}
-              </p>
-            ) : null}
-          </div>
-          <aside className="decision-note" aria-label={t("结论适用范围", "Scope of this advice")}>
-            <span>{t("说明", "Note")}</span>
-            <p>{verdict.boundary}</p>
-          </aside>
-        </div>
-        {!!decision.missingInputs?.length && (
-          <p role="status">
-            {t("请补齐以下条件后重新分析：", "Complete these conditions and reanalyze: ")}
-            {decision.missingInputs
-              .map(
-                (key) =>
-                  ({
-                    "budget-ceiling": t("预算上限", "Budget ceiling"),
-                    "budget-currency": t("币种", "Currency"),
-                    "billing-channel": t("计费渠道", "Billing channel"),
-                    "matching-service-channel": t(
-                      "一致的实际服务与计费渠道",
-                      "Matching actual service and billing channels",
-                    ),
-                    "monthly-input-tokens": t("月输入 token", "Monthly input tokens"),
-                    "monthly-output-tokens": t("月输出 token", "Monthly output tokens"),
-                  })[key] ?? key,
-              )
-              .join("、")}
-          </p>
-        )}
-        {decision.scenario && (
-          <p className="decision-comparison__note">
-            {t("业务场景：", "Business scenario: ")}
-            {decision.scenario.name}
-          </p>
-        )}
-      </div>
-      <DecisionChoice
-        key={research.id}
-        research={research}
-        entityName={entityName}
-        isComparable={isComparable}
-        testedFindings={
-          verdict.source === "private" ? validation?.review?.conclusion?.findings : undefined
-        }
-        onTrial={
-          validationContent
-            ? (ids) => {
-                setTrialRequest({ ids, nonce: Date.now() });
-                requestAnimationFrame(() => {
-                  workspaceRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-                  workspaceRef.current
-                    ?.querySelector<HTMLElement>(".decision-validation__title")
-                    ?.focus({ preventScroll: true });
-                });
-              }
-            : undefined
-        }
-      />
-      {validationContent && !hasTrialCandidates && decision.plan?.state !== "needs-input" && (
-        <DecisionEvidenceRequests
-          key={`evidence-${research.id}`}
+      {decision.guidance ? (
+        <DecisionGuidanceView
+          key={research.id}
           research={research}
           entityName={entityName}
+          isComparable={isComparable}
+          onRevision={onRevision}
+          privateAdvice={verdict.source === "private" ? verdict : undefined}
+          onTrial={
+            validationContent
+              ? (ids) => {
+                  setTrialRequest({ ids, nonce: Date.now() });
+                  requestAnimationFrame(() => {
+                    workspaceRef.current?.scrollIntoView({ block: "start" });
+                    workspaceRef.current
+                      ?.querySelector<HTMLElement>(".decision-validation__title")
+                      ?.focus();
+                  });
+                }
+              : undefined
+          }
+        />
+      ) : (
+        <div className="decision-brief__recommendation">
+          <p className="decision-comparison__note">
+            {t(
+              "这是兼容版本的历史建议，可修改条件重新分析。",
+              "This is a legacy recommendation; edit the requirements to reanalyze.",
+            )}
+          </p>
+          <div
+            className="decision-outcome"
+            data-outcome={presentation.allExcluded ? "excluded" : decision.status}
+          >
+            <OutcomeHeading className="decision-outcome__headline">
+              {verdict.headline}
+            </OutcomeHeading>
+            <p className="decision-outcome__summary">{verdict.summary}</p>
+            <p className="decision-verdict__next">
+              <strong>{t("下一步：", "Next: ")}</strong>
+              {verdict.next}
+            </p>
+            {verdict.action === "edit" &&
+              research.decisionContext &&
+              decision.plan?.state !== "needs-evidence" && (
+                <Button asChild>
+                  <Link to={decisionResumePath(research.decisionContext)}>
+                    {decision.plan?.state === "needs-input"
+                      ? t("补充任务描述", "Clarify my task")
+                      : t("返回任务条件", "Return to task conditions")}
+                  </Link>
+                </Button>
+              )}
+            {verdict.source === "private" && validationContent && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setTrialRequest({ ids: [], nonce: Date.now() });
+                  requestAnimationFrame(() => {
+                    workspaceRef.current?.scrollIntoView({ block: "start" });
+                    workspaceRef.current
+                      ?.querySelector<HTMLElement>(".decision-validation__title")
+                      ?.focus();
+                  });
+                }}
+              >
+                {t("查看或补齐我的试用记录", "Inspect or complete my trial records")}
+              </Button>
+            )}
+            {validationFirst && !validation && (
+              <p role="status" className="decision-choice__hint">
+                {t(
+                  "试用记录有修改或正在读取，当前不沿用旧实测判断；保存后更新。",
+                  "Trial notes are changing or loading. Earlier findings are not reused; save to update.",
+                )}
+              </p>
+            )}
+            <div className="decision-screening">
+              {decision.candidates?.length ? (
+                <p className="decision-outcome__counts">
+                  {t(
+                    `可试用 ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · 排除 ${presentation.counts.excluded} · 待核验 ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · 冲突 ${presentation.counts.conflict}`,
+                    `Ready for a business trial ${decision.plan?.trialCandidateIds.length ?? presentation.counts.eligible} · excluded ${presentation.counts.excluded} · awaiting verification ${presentation.counts.unknown + (decision.plan ? presentation.counts.eligible - decision.plan.trialCandidateIds.length : 0)} · conflicting ${presentation.counts.conflict}`,
+                  )}
+                </p>
+              ) : null}
+            </div>
+            <aside className="decision-note" aria-label={t("结论适用范围", "Scope of this advice")}>
+              <span>{t("说明", "Note")}</span>
+              <p>{verdict.boundary}</p>
+            </aside>
+          </div>
+          {!!decision.missingInputs?.length && (
+            <p role="status">
+              {t("请补齐以下条件后重新分析：", "Complete these conditions and reanalyze: ")}
+              {decision.missingInputs
+                .map(
+                  (key) =>
+                    ({
+                      "budget-ceiling": t("预算上限", "Budget ceiling"),
+                      "budget-currency": t("币种", "Currency"),
+                      "billing-channel": t("计费渠道", "Billing channel"),
+                      "matching-service-channel": t(
+                        "一致的实际服务与计费渠道",
+                        "Matching actual service and billing channels",
+                      ),
+                      "monthly-input-tokens": t("月输入 token", "Monthly input tokens"),
+                      "monthly-output-tokens": t("月输出 token", "Monthly output tokens"),
+                    })[key] ?? key,
+                )
+                .join("、")}
+            </p>
+          )}
+          {decision.scenario && (
+            <p className="decision-comparison__note">
+              {t("业务场景：", "Business scenario: ")}
+              {decision.scenario.name}
+            </p>
+          )}
+        </div>
+      )}
+      {!decision.guidance && (
+        <DecisionChoice
+          key={research.id}
+          research={research}
+          entityName={entityName}
+          isComparable={isComparable}
+          testedFindings={
+            verdict.source === "private" ? validation?.review?.conclusion?.findings : undefined
+          }
+          onTrial={
+            validationContent
+              ? (ids) => {
+                  setTrialRequest({ ids, nonce: Date.now() });
+                  requestAnimationFrame(() => {
+                    workspaceRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+                    workspaceRef.current
+                      ?.querySelector<HTMLElement>(".decision-validation__title")
+                      ?.focus({ preventScroll: true });
+                  });
+                }
+              : undefined
+          }
         />
       )}
+      {!decision.guidance &&
+        validationContent &&
+        !hasTrialCandidates &&
+        decision.plan?.state !== "needs-input" && (
+          <DecisionEvidenceRequests
+            key={`evidence-${research.id}`}
+            research={research}
+            entityName={entityName}
+          />
+        )}
       {workspace}
       <details className="decision-audit">
         <summary>{t("筛选依据与其他候选", "Screening details and other candidates")}</summary>
+        {decision.guidance && validationContent && !hasTrialCandidates && (
+          <DecisionEvidenceRequests research={research} entityName={entityName} />
+        )}
         {validationContent && decision.plan?.state === "needs-input" && (
           <DecisionEvidenceRequests
             key={`evidence-${research.id}`}

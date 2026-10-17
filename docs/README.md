@@ -16,6 +16,9 @@
 
 ## 当前执行文档
 
+- `DECISION_MODULE_REASSESSMENT_SPEC_20261016.md`：最新用户要求的决策助手全模块重估与整改规格，包含定位、状态合同、UI、完整操作和逐项验收；实施状态单独记录，不继承历史完成声明。
+- `DECISION_REASSESSMENT_EXECUTION_20261016.md`：本轮服务端建议、原页澄清、修订、导出和 P01–P20 工程验收；区分本地证据、发布门禁与真实业务效果。
+
 - `RELEASE_SYNC_20261014.md`：此次源码、公开资料与公网版本同步的范围、验证及回滚点。
 - `DECISION_PRODUCT_ACCEPTANCE.md`：决策助手的产品完成标准及未解决边界。
 - `DECISION_GENERAL_USE_20261016.md`：面向通用用户的完成边界、按需渠道约束、样本表单和草稿恢复验收。
