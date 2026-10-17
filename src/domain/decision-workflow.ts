@@ -202,6 +202,7 @@ export function decisionResumePath(context: DecisionContext): string {
     budget: context.budget.mode,
   });
   const fields = {
+    parentResearchId: context.parentResearchId,
     budgetMin: context.budget.min,
     budgetMax: context.budget.max,
     currency: context.budget.currency,
@@ -372,7 +373,7 @@ export function decisionMarkdown(
     ),
   ];
   const planSections = decisionPlanSections(
-    decision.plan,
+    decision.guidance ? undefined : decision.plan,
     entityName,
     /[\u3400-\u9fff]/.test(decision.recommendation.summary) ? "zh" : "en",
   );
@@ -385,6 +386,20 @@ export function decisionMarkdown(
       ...section.lines.map((line) => `- ${line}`),
     ]),
   );
+  if (decision.guidance) {
+    const guidance = decision.guidance;
+    lines.splice(
+      2,
+      0,
+      guidance.recommendation.headline,
+      ...guidance.recommendation.reasons.map(
+        (reason) => `- ${reason.finding}${cite(reason.claimIds)}`,
+      ),
+      guidance.recommendation.tradeoff ?? "",
+      guidance.nextAction.instruction,
+      ...guidance.recommendation.premises,
+    );
+  }
   if (reading.commonGaps.length)
     lines.push(
       "",

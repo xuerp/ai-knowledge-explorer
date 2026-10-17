@@ -39,7 +39,9 @@ export function decisionTrialKit(
       "Return the actual deliverable and identify unsupported or unfinished parts.",
     ),
   ].join("\n\n");
-  const coding = research.decisionContext?.taskType === "coding-product";
+  const coding =
+    research.decision.scenario?.id === "coding-workspace" ||
+    research.decisionContext?.taskType === "coding-product";
   const knowledgeWorkspace = research.decision.scenario?.id === "knowledge-workspace";
   const starterInputs = coding
     ? t(

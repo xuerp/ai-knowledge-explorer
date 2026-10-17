@@ -26,7 +26,9 @@
         "retrieval augmented"
       ],
       "taskType": "knowledge-product",
-      "scopeAlternatives": { "model-api": "knowledge-assistant" },
+      "scopeAlternatives": {
+        "model-api": "knowledge-assistant"
+      },
       "intentPatterns": [
         "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|回答|查出处)",
         "(?:检索片段|检索结果|retrieved passages).{0,100}(?:回答|生成答案|answer)",
@@ -114,10 +116,13 @@
         "coding product",
         "coding assistant",
         "code editor",
-        "coding workspace"
+        "coding workspace",
+        "为编程选择"
       ],
       "taskType": "coding-product",
-      "scopeAlternatives": { "model-api": "coding-model" },
+      "scopeAlternatives": {
+        "model-api": "coding-model"
+      },
       "intentPatterns": [
         "(?:直接)?改文件|跑测试|修\\s*bug|提交补丁|读项目|开发助手|仓库.{0,40}(?:测试|修复|修改)"
       ],
@@ -231,7 +236,9 @@
     },
     {
       "id": "general-text",
-      "intentPatterns": ["起草|改写|润色|撰写|\\bdraft\\b|\\brewrite\\b|customer replies"],
+      "intentPatterns": [
+        "起草|改写|润色|撰写|写(?:一篇|个|一封)?(?:文章|报告|邮件|总结)|\\bdraft\\b|\\brewrite\\b|customer replies|摘要|总结|summariz"
+      ],
       "name": {
         "zh": "文本生成与对话",
         "en": "Text generation and conversation"
@@ -259,24 +266,39 @@
   ],
   "features": {
     "knowledge-ingestion": {
-      "name": { "zh": "文档导入与解析", "en": "Document ingestion" },
+      "name": {
+        "zh": "文档导入与解析",
+        "en": "Document ingestion"
+      },
       "patterns": ["知识库文档导入", "knowledge ingestion"]
     },
     "knowledge-retrieval": {
-      "name": { "zh": "知识库检索与应用接入", "en": "Knowledge retrieval and app integration" },
+      "name": {
+        "zh": "知识库检索与应用接入",
+        "en": "Knowledge retrieval and app integration"
+      },
       "patterns": ["知识库检索", "knowledge retrieval"]
     },
     "source-citations": {
-      "name": { "zh": "回答引用与来源展示", "en": "Answer citations and sources" },
+      "name": {
+        "zh": "回答引用与来源展示",
+        "en": "Answer citations and sources"
+      },
       "patterns": ["原文引用", "citation and attribution"]
     },
     "workspace-permissions": {
-      "name": { "zh": "工作区成员访问控制", "en": "Workspace-member access control" },
+      "name": {
+        "zh": "工作区成员访问控制",
+        "en": "Workspace-member access control"
+      },
       "patterns": ["权限控制", "成员权限", "访问控制", "access control", "workspace permissions"]
     },
     "file-editing": {
       "requestPatterns": ["改文件|提交补丁|修改源文件"],
-      "name": { "zh": "编辑仓库文件", "en": "Edit repository files" },
+      "name": {
+        "zh": "编辑仓库文件",
+        "en": "Edit repository files"
+      },
       "supersedes": ["code-editing"],
       "patterns": [
         "编辑文件",
@@ -289,7 +311,10 @@
     },
     "test-execution": {
       "requestPatterns": ["跑测试|重跑测试|执行测试"],
-      "name": { "zh": "运行测试", "en": "Run tests" },
+      "name": {
+        "zh": "运行测试",
+        "en": "Run tests"
+      },
       "supersedes": ["tool-use"],
       "patterns": [
         "运行测试",

@@ -170,6 +170,7 @@ export async function refreshDecision(
       language === "zh" ? "请先填写选型任务和条件。" : "Set the task and conditions first.",
     );
   return submit(token, {
+    parentResearchId: research.id,
     question: research.decisionContext.task,
     language,
     decisionContext: { ...structuredClone(research.decisionContext), workflowVersion: 2 },

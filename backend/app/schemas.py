@@ -1005,6 +1005,12 @@ class DecisionServiceAccess(CamelModel):
         return value.strip() if isinstance(value, str) else value
 
 
+class DecisionIntentAnswer(CamelModel):
+    question_id: str = Field(min_length=1, max_length=100)
+    option_id: str | None = Field(default=None, max_length=100)
+    text: str | None = Field(default=None, max_length=500)
+
+
 class DecisionContext(CamelModel):
     workflow_version: Literal[1, 2] = 1
     minimum_context_tokens: int | None = Field(default=None, ge=1, le=100_000_000, strict=True)
@@ -1024,6 +1030,8 @@ class DecisionContext(CamelModel):
         "model-api", "coding-product", "knowledge-product", "agent-development", "unspecified"
     ] = "unspecified"
     region: str | None = Field(default=None, max_length=100)
+    intent_answers: list[DecisionIntentAnswer] = Field(default_factory=list, max_length=4)
+    parent_research_id: str | None = Field(default=None, max_length=128)
 
     @field_validator("exclusions")
     @classmethod
@@ -1046,6 +1054,80 @@ class ResearchCreate(CamelModel):
     question: str = Field(min_length=5, max_length=2000)
     language: Literal["zh", "en"] = "zh"
     decision_context: DecisionContext | None = None
+    parent_research_id: str | None = Field(default=None, max_length=128)
+    clarification_answer: DecisionIntentAnswer | None = None
+
+
+class DecisionIntentField(CamelModel):
+    field: str
+    value: str
+    source: Literal["user-input", "user-choice", "assumption"]
+
+
+class DecisionClarificationOption(CamelModel):
+    id: str
+    label: str
+    description: str
+    task: str | None = None
+    task_type: str | None = None
+
+
+class DecisionClarification(CamelModel):
+    id: str
+    reason: str
+    question: str
+    options: list[DecisionClarificationOption]
+
+
+class DecisionGuidanceRecommendation(CamelModel):
+    headline: str
+    summary: str
+    entity_ids: list[str] = Field(default_factory=list)
+    primary_entity_id: str | None = None
+    reasons: list[DecisionTradeoff] = Field(default_factory=list)
+    tradeoff: str | None = None
+    premises: list[str] = Field(default_factory=list)
+
+
+class DecisionGuidanceUnknown(CamelModel):
+    candidate_id: str | None = None
+    requirement: str
+    kind: Literal[
+        "not-recorded",
+        "not-retrieved",
+        "not-structured",
+        "not-current",
+        "conflicting",
+        "scope-mismatch",
+        "needs-input",
+        "not-tested",
+    ]
+    decisive: bool
+    detail: str
+    affects: str
+    recovery: str
+    claim_ids: list[str] = Field(default_factory=list)
+    checked_at: datetime
+
+
+class DecisionNextAction(CamelModel):
+    kind: Literal["answer", "start", "compare", "edit", "routes"]
+    label: str
+    target_ids: list[str] = Field(default_factory=list)
+    location: Literal["this-page", "selected-product"]
+    instruction: str
+
+
+class DecisionGuidance(CamelModel):
+    schema_version: Literal[1] = 1
+    outcome: Literal["advice", "clarify", "conditional", "unsupported", "blocked"]
+    intent: list[DecisionIntentField]
+    tasks: list[str]
+    answered: list[DecisionIntentAnswer] = Field(default_factory=list)
+    clarification: DecisionClarification | None = None
+    recommendation: DecisionGuidanceRecommendation
+    unknowns: list[DecisionGuidanceUnknown] = Field(default_factory=list)
+    next_action: DecisionNextAction
 
 
 class ResearchCitation(CamelModel):
@@ -1425,6 +1507,7 @@ class DecisionPlan(CamelModel):
 
 
 class DecisionResult(CamelModel):
+    guidance: DecisionGuidance | None = None
     scenario: DecisionScenario = Field(default_factory=DecisionScenario)
     scope: DecisionScope = Field(default_factory=DecisionScope)
     candidates: list[DecisionCandidate] = Field(default_factory=list)

@@ -1,5 +1,16 @@
 import type { DecisionContext, ResearchResult } from "@/services/user-api";
 
+export function guidanceStatusLabel(outcome: string, lang: "zh" | "en") {
+  const labels: Record<string, [string, string]> = {
+    advice: ["建议已生成", "Advice ready"],
+    clarify: ["等待你的选择", "Awaiting your choice"],
+    conditional: ["有前提的路线", "Conditional route"],
+    unsupported: ["暂未覆盖", "Outside current scope"],
+    blocked: ["必要条件未满足", "Required conditions not met"],
+  };
+  return labels[outcome]?.[lang === "zh" ? 0 : 1] ?? outcome;
+}
+
 export function decisionStatusLabel(key: string, lang: "zh" | "en") {
   const labels: Record<string, [string, string]> = {
     eligible: ["可继续验证", "Ready for validation"],
@@ -59,6 +70,14 @@ export function decisionPresentation(research: ResearchResult, lang: "zh" | "en"
   candidates.forEach((candidate) => counts[candidate.eligibility]++);
   const allExcluded = candidates.length > 0 && counts.excluded === candidates.length;
   const reasons = [...new Set(candidates.flatMap((item) => item.reasons))];
+  if (decision?.guidance)
+    return {
+      counts,
+      allExcluded,
+      headline: decision.guidance.recommendation.headline,
+      summary: decision.guidance.recommendation.summary,
+      action: decision.guidance.nextAction.instruction,
+    };
   return {
     counts,
     allExcluded,

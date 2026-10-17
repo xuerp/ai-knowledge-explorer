@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "purpose": "Authored engineering holdout prompts frozen before acceptance; not an independent human study. Expectations must not be changed to hide failures.",
+  "cases": [
+    { "id": "h01", "task": "每天处理很多杂事，想让AI帮我省点时间", "expected": "clarify" },
+    { "id": "h02", "task": "我需要一个求职助手来帮忙", "expected": "clarify" },
+    { "id": "h03", "task": "同事想对内部PDF手册提问并查出处", "expected": "direct" },
+    { "id": "h04", "task": "我需要编码工具修复代码、编辑文件并运行测试", "expected": "direct" },
+    {
+      "id": "h05",
+      "task": "目前只有Claude Code，想修改仓库文件并运行测试，有必要换吗",
+      "expected": "direct"
+    },
+    { "id": "h06", "task": "想写作；同时想给团队做文档问答", "expected": "clarify" },
+    { "id": "h07", "task": "生成视频，制作产品演示短片", "expected": "unsupported" },
+    { "id": "h08", "task": "帮我润色一封给客户的邮件，不能编造事实", "expected": "direct" },
+    { "id": "h09", "task": "为代码生成挑选模型 API，每月最多50美元", "expected": "clarify" },
+    {
+      "id": "h10",
+      "task": "需要完全离线做文档摘要，上下文至少200万 token，允许商用",
+      "expected": "no-primary"
+    },
+    { "id": "h11", "task": "选择Agent开发框架，需要失败恢复和人工审批", "expected": "direct" },
+    { "id": "h12", "task": "从发票扫描件提取字段，输出JSON，选择模型API", "expected": "direct" }
+  ]
+}

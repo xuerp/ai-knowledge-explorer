@@ -72,11 +72,50 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
         return " ".join(f"[{number}]" for number in numbers)
 
     decision = research.decision
-    summary = decision.recommendation.summary if decision else research.summary
+    guidance = decision.guidance if decision else None
+    summary = (
+        guidance.recommendation.summary
+        if guidance
+        else decision.recommendation.summary
+        if decision
+        else research.summary
+    )
     candidates = decision.candidates if decision else []
-    if candidates and all(item.eligibility == "excluded" for item in candidates):
+    if not guidance and candidates and all(item.eligibility == "excluded" for item in candidates):
         summary = t("没有符合本次硬条件的候选。", "No candidate meets the selected constraints.")
     sections = [Section(t("结论与建议", "Conclusion and recommendation"), [summary])]
+    if guidance:
+        sections[0].paragraphs.insert(0, guidance.recommendation.headline)
+        reasons = [
+            reason.finding + " " + refs(reason.claim_ids)
+            for reason in guidance.recommendation.reasons
+        ]
+        if reasons:
+            sections.append(Section(t("建议依据", "Why this fits"), reasons))
+        if guidance.recommendation.tradeoff:
+            sections.append(
+                Section(t("主要取舍", "Main tradeoff"), [guidance.recommendation.tradeoff])
+            )
+        sections.append(
+            Section(
+                t("下一步", "Next step"),
+                [guidance.next_action.instruction, *guidance.recommendation.premises],
+            )
+        )
+        if guidance.clarification:
+            sections.append(
+                Section(
+                    guidance.clarification.question,
+                    [
+                        option.label + ": " + option.description
+                        for option in guidance.clarification.options
+                    ],
+                )
+            )
+        if len(guidance.tasks) > 1:
+            sections.append(
+                Section(t("原题中的全部工作", "All jobs in the request"), guidance.tasks)
+            )
     sections[0].paragraphs.append(
         t(
             "资料引用不等于业务实测。功能描述可用于缩小验证范围，不能证明效果排名。",
@@ -101,7 +140,7 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
             sections.append(
                 Section(t("按本次工作量估算费用", "Cost estimate for this workload"), estimates)
             )
-        if decision.plan:
+        if decision.plan and not guidance:
             plan = decision.plan
             sections.append(
                 Section(t("当前能决定什么", "What can be decided now"), [plan.can_decide])
@@ -486,10 +525,15 @@ def report_pdf(report: Report) -> bytes:
             continue
         opening = [para(section.title, subheading if section.level > 2 else heading)]
         opening.extend(para(text) for text in section.paragraphs)
+        # Keep a table's introduction with its first row, including when a
+        # top-level section has an explanatory paragraph after its heading.
+        if section.rows:
+            for paragraph in opening:
+                paragraph.keepWithNext = True
         # An empty subsection opener must remain a Paragraph so its
         # keepWithNext joins the following table. Wrapping the lone heading in
         # KeepTogether otherwise hides that flag and can orphan its parent.
-        if section.level > 2 and len(opening) > 1:
+        if section.level > 2 and len(opening) > 1 and not section.rows:
             story.append(KeepTogether(opening))
         else:
             story.extend(opening)

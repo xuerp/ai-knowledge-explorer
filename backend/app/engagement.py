@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import re
 from datetime import UTC, datetime
-from uuid import uuid4
+from uuid import NAMESPACE_URL, uuid4, uuid5
 from zoneinfo import ZoneInfo
 
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -21,7 +22,9 @@ from .database import (
 from .decision_candidates import discover_candidates
 from .decision_comparison import build_comparisons
 from .decision_constraints import constraint_failures, current_claims, date_value
+from .decision_dialogue import analysis_context, interpret_answer, normalize_context
 from .decision_explanation import explain_decision
+from .decision_guidance import build_guidance
 from .decision_workflow import REASONS, candidate_dispositions, conflicting_entities, missing_inputs
 from .rag import HybridRagRetriever, LexicalRagRetriever, RagRetriever, grounded_retrieval_citations
 from .schemas import (
@@ -98,6 +101,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
                     ),
                     "workflow_state": "insufficient-evidence",
                     "plan": None,
+                    "guidance": None,
                     "risks": [],
                     "recommendation": DecisionRecommendation(summary=updates["summary"]),
                     "next_checks": [updates["summary"]],
@@ -108,6 +112,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         and result.decision
         and result.decision_context
         and result.decision_context.workflow_version == 2
+        and result.decision.guidance is None
     ):
         # Refresh presentation from the SAME saved, current citations. Keep the
         # original constraints, eligibility, scope and timestamp; never persist.
@@ -251,6 +256,69 @@ class EngagementService:
         payload: ResearchCreate,
         snapshot: KnowledgeSnapshot,
     ) -> ResearchView:
+        context = payload.decision_context
+        if payload.parent_research_id:
+            parent = self.get_research(session, payload.parent_research_id, user_id=user_id)
+            if not parent or not parent.decision_context:
+                raise HTTPException(404, "Research not found.")
+            if payload.clarification_answer:
+                answer = interpret_answer(payload.clarification_answer)
+                question = (
+                    parent.decision.guidance.clarification
+                    if parent.decision and parent.decision.guidance
+                    else None
+                )
+                if not question or answer.question_id != question.id:
+                    raise HTTPException(
+                        409, "This clarification does not belong to the selected revision."
+                    )
+                if answer.option_id and answer.option_id not in {
+                    "unknown",
+                    *(option.id for option in question.options),
+                }:
+                    raise HTTPException(422, "Unknown clarification option.")
+                if not answer.option_id and not (answer.text or "").strip():
+                    raise HTTPException(422, "Choose an option or enter an answer.")
+                context = parent.decision_context.model_copy(deep=True)
+                context.intent_answers.append(answer)
+            elif context is None:
+                raise HTTPException(422, "Revised requirements are required.")
+            elif context.task != parent.decision_context.task:
+                context = context.model_copy(update={"intent_answers": []})
+            elif context.intent_answers != parent.decision_context.intent_answers:
+                raise HTTPException(422, "Clarification history must match the parent revision.")
+            context = context.model_copy(update={"parent_research_id": parent.id})
+        elif payload.clarification_answer or (
+            context and (context.intent_answers or context.parent_research_id)
+        ):
+            raise HTTPException(
+                422, "A saved parent revision is required for clarification history."
+            )
+        if context and context.workflow_version == 2:
+            try:
+                context = normalize_context(context)
+            except ValueError as error:
+                raise HTTPException(422, str(error)) from error
+        payload = payload.model_copy(update={"decision_context": context})
+        revision_id = (
+            str(
+                uuid5(
+                    NAMESPACE_URL,
+                    user_id
+                    + ":"
+                    + payload.parent_research_id
+                    + ":"
+                    + payload.language
+                    + ":"
+                    + context.model_dump_json(),
+                )
+            )
+            if payload.parent_research_id and payload.clarification_answer
+            else str(uuid4())
+        )
+        previous = session.get(ResearchRecord, revision_id)
+        if previous:
+            return self._research_view(previous)
         workflow_v2 = bool(
             payload.decision_context and payload.decision_context.workflow_version == 2
         )
@@ -280,7 +348,7 @@ class EngagementService:
             for claim in current:
                 current_by_entity.setdefault(claim.entity_id, []).append(claim)
             requested, decision_scope = discover_candidates(
-                decision_context, snapshot, current_by_entity, payload.language
+                analysis_context(decision_context), snapshot, current_by_entity, payload.language
             )
             decision_context = decision_context.model_copy(
                 update={"candidate_entity_ids": requested}
@@ -321,7 +389,15 @@ class EngagementService:
         if decision:
             if workflow_v2:
                 decision.scope = decision_scope
-            summary = decision.recommendation.summary
+            if workflow_v2:
+                decision.guidance = build_guidance(
+                    decision, payload.decision_context, snapshot, payload.language
+                )
+            summary = (
+                decision.guidance.recommendation.summary
+                if decision.guidance
+                else decision.recommendation.summary
+            )
             if decision.status != "ready":
                 status = "failed" if decision.status == "failed" else "insufficient-evidence"
         steps = [
@@ -346,7 +422,7 @@ class EngagementService:
             ),
         ]
         row = ResearchRecord(
-            id=str(uuid4()),
+            id=revision_id,
             user_id=user_id,
             question=payload.question,
             summary=summary,
@@ -372,7 +448,14 @@ class EngagementService:
             created_at=datetime.now(UTC),
         )
         session.add(row)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            existing = session.get(ResearchRecord, revision_id)
+            if existing is None:
+                raise
+            return self._research_view(existing)
         return self._research_view(row)
 
     @staticmethod
@@ -385,6 +468,7 @@ class EngagementService:
     ) -> DecisionResult | None:
         if context is None:
             return None
+        context = analysis_context(context)
 
         relevant_entities = (
             set(matched_entity_ids)

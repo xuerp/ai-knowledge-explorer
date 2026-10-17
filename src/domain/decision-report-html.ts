@@ -64,12 +64,29 @@ export function decisionReportHtml(
     `<header><h1>${e(t("私人决策与验证报告", "Private decision and validation report"))}</h1><p>${e(saved ? t("已保存验证记录", "Saved validation notes") : t("包含尚未保存的验证草稿", "Includes unsaved validation draft"))}</p><p>${e(t("用户笔记属于私人记录，不是已核验公开事实。", "User notes are private records, not verified public facts."))}</p></header>`,
     ...privateConclusion,
     `<h2>${e(t("公开资料分析与任务条件", "Public evidence and task conditions"))}</h2><p>${e(research.decisionContext?.task ?? research.question)}</p><p><strong>${e(presentation.headline)}</strong></p><p>${e(presentation.summary)}</p><p>${e(presentation.action)}</p>`,
+    ...(decision?.guidance
+      ? [
+          ...decision.guidance.recommendation.reasons.map(
+            (reason) =>
+              `<p><strong>${e(reason.dimension)}</strong>：${e(reason.finding)}${citation(reason.claimIds)}</p>`,
+          ),
+          ...(decision.guidance.recommendation.tradeoff
+            ? [`<p>${e(decision.guidance.recommendation.tradeoff)}</p>`]
+            : []),
+          list(decision.guidance.recommendation.premises),
+          ...(decision.guidance.clarification
+            ? [
+                `<h3>${e(decision.guidance.clarification.question)}</h3><p>${e(decision.guidance.clarification.reason)}</p>${list(decision.guidance.clarification.options.map((option) => `${option.label}：${option.description}`))}`,
+              ]
+            : []),
+        ]
+      : []),
     table([
       [t("研究记录", "Research ID"), research.id],
       [t("核验时间", "Evaluated at"), decision?.asOf ?? research.createdAt],
     ]),
     `<h2>${e(t("分析采用的条件", "Applied conditions"))}</h2>${list(decision?.conditions ?? [])}`,
-    ...decisionPlanSections(decision?.plan, entityName, lang).map(
+    ...decisionPlanSections(decision?.guidance ? undefined : decision?.plan, entityName, lang).map(
       (section) => `<h3>${e(section.title)}</h3>${list(section.lines)}`,
     ),
     ...(context

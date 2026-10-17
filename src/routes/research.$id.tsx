@@ -169,7 +169,7 @@ function ResearchRecordPage() {
         <ResearchReport
           answer={liveAnswer}
           snapshot={snapshotQuery.data}
-          dataMode="live"
+          dataMode={snapshotQuery.data.meta.mode}
           publishedSlug={liveResearch.publishedSlug}
           research={liveResearch}
           decisionContent={

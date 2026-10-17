@@ -21,7 +21,7 @@ import { userApi } from "@/services/user-api";
 import { readAuthToken } from "@/services/auth-session";
 import { AuthSessionExpiredError, accountErrorMessage } from "@/services/auth-errors";
 import { ReportExportError } from "@/services/report-export";
-import { decisionPresentation } from "@/domain/decision-presentation";
+import { decisionPresentation, guidanceStatusLabel } from "@/domain/decision-presentation";
 import { selectResearchEvidence } from "@/domain/research-evidence";
 import { getClaimDisplayDate } from "@/domain/claim-display";
 import type { ResearchResult } from "@/services/user-api";
@@ -158,13 +158,15 @@ export function ResearchReport({
             )}
             {dataMode === "demo" && <DemoBadge />}
             <span className="chip">
-              {research?.decision && decisionPresentation(research, lang).allExcluded
-                ? t("无符合条件的候选", "No eligible candidate")
-                : research?.decision?.plan?.state === "needs-input"
-                  ? t("待确认任务与条件", "Task and conditions need clarification")
-                  : answer.status === "ready"
-                    ? t("分析已生成", "Analysis generated")
-                    : t("证据不足", "Insufficient evidence")}
+              {research?.decision?.guidance
+                ? guidanceStatusLabel(research.decision.guidance.outcome, lang)
+                : research?.decision && decisionPresentation(research, lang).allExcluded
+                  ? t("无符合条件的候选", "No eligible candidate")
+                  : research?.decision?.plan?.state === "needs-input"
+                    ? t("待确认任务与条件", "Task and conditions need clarification")
+                    : answer.status === "ready"
+                      ? t("分析已生成", "Analysis generated")
+                      : t("证据不足", "Insufficient evidence")}
             </span>
           </div>
           <h1 className="research-report__question">{pick(answer.question, lang)}</h1>
