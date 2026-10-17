@@ -281,6 +281,28 @@ def build_guidance(result, context, snapshot, language):
             "保留当前要求，查看具体缺口与可成立的局部判断；资料维护在依据详情中按需查看。",
             "Keep the requirements and inspect specific gaps and bounded findings; maintenance is optional in evidence details.",
         )
+        # Partial feature evidence remains useful, but does not qualify a
+        # candidate against the user's unchanged budget or other hard gates.
+        reasons = [
+            DecisionTradeoff(
+                dimension=strength.dimension,
+                finding=f"{name(row.entity_id)}：{strength.finding}",
+                claim_ids=strength.claim_ids,
+            )
+            for row in rows.values()
+            if row.eligibility != "excluded"
+            for strength in row.strengths[:1]
+            if strength.claim_ids
+        ][:3]
+        if any(answer.option_id == "functional-route" for answer in context.intent_answers):
+            summary = (
+                t(
+                    "可以先依据下列已核验功能缩小接入路线；这些局部依据尚不能证明候选满足预算。原预算上限和其他必要条件保持不变，费用结论仍未确认。",
+                    "Use the documented features below to narrow the integration route. Partial feature evidence does not establish budget fit. Your budget ceiling and other requirements remain unchanged; cost remains unverified.",
+                )
+                if reasons
+                else summary
+            )
     if all_excluded:
         outcome, kind, label = (
             "blocked",
