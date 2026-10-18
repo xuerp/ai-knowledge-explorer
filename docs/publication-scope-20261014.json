@@ -149,7 +149,7 @@
     },
     {
       "path": "backend/app/engagement.py",
-      "sha256": "d2dd4c636f3b491c8c5287e37d611210c4b4b3bc3e5ad038fb2f6a79ff905319",
+      "sha256": "3ac85148aeef759fe3d36572f7789f01f524f7ab6f2650140c9c5ae725b737c6",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -610,7 +610,7 @@
     {
       "path": "docs/DECISION_ACCEPTANCE_20261018.md",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "d5b10510c693b3d792fc593f50644e78044c1100b9dc1e35f217b7e3090f6765"
+      "sha256": "b2579e17ee833a3f5c4f28aaefea5f84dcce746bfe6fb5310e219475b8320168"
     },
     {
       "path": "docs/DECISION_EVIDENCE_COVERAGE_20261015.md",

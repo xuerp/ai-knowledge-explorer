@@ -83,6 +83,12 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
             or (date_value(claim.valid_to) is not None and date_value(claim.valid_to) > today)
         )
     )
+    saved_groups: dict[str, list[Claim]] = {}
+    for citation in result.citations:
+        if citation.claim.entity_id:
+            saved_groups.setdefault(citation.claim.entity_id, []).append(citation.claim)
+    # A conflict already present in the saved evidence is not a publication change.
+    conflicts -= conflicting_entities(saved_groups, result.decision_context)
     states = {}
     for claim_id in result.claim_ids:
         if claim_id not in public:
@@ -90,7 +96,11 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         elif (
             claim_id not in saved
             or saved[claim_id] != public_citations[claim_id]
-            or (result.decision is not None and public[claim_id].entity_id in conflicts)
+            or (
+                result.decision is not None
+                and result.decision.status != "conflict"
+                and public[claim_id].entity_id in conflicts
+            )
         ):
             states[claim_id] = "updated"
         else:
