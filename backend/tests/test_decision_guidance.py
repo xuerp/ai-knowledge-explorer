@@ -239,3 +239,63 @@ def test_structured_choice_cannot_silently_weaken_raw_offline_requirement(api):
     )
     assert response.status_code == 422
     assert "离线" in response.json()["detail"]
+
+
+def test_reopened_guidance_and_export_follow_source_correction_and_recovery(api, monkeypatch):
+    """A real v2 saved record, with isolated publication failure injection."""
+    from app.database import ResearchRecord
+
+    client, owner, _ = api
+    original = create(api, "同事想对内部PDF手册提问并查出处")
+    assert original["decision"]["guidance"] is not None
+    assert original["claimIds"]
+    research_id = original["id"]
+    database = client.app.state.database
+    repository = client.app.state.repository
+    with database.session() as session:
+        baseline = repository.public_snapshot(session)
+        before = dict(session.get(ResearchRecord, research_id).__dict__)
+        before.pop("_sa_instance_state")
+    damaged = baseline.model_copy(deep=True)
+    source_id = original["citations"][0]["evidence"][0]["id"]
+    next(
+        item for item in damaged.evidence if item.id == source_id
+    ).source_excerpt = "Corrected source."
+    monkeypatch.setattr(repository, "public_snapshot", lambda session: damaged)
+    reopened = client.get("/api/v2/research/" + research_id, headers=owner)
+    assert reopened.status_code == 200
+    assert reopened.json()["status"] == "insufficient-evidence"
+    assert reopened.json()["decision"]["guidance"] is None
+    report = client.get(f"/api/v2/research/{research_id}/report?format=md", headers=owner)
+    assert report.status_code == 200
+    assert "重新运行核验" in report.text
+    monkeypatch.setattr(repository, "public_snapshot", lambda session: baseline)
+    recovered = client.get("/api/v2/research/" + research_id, headers=owner).json()
+    assert recovered["decision"]["guidance"] == original["decision"]["guidance"]
+    with database.session() as session:
+        after = dict(session.get(ResearchRecord, research_id).__dict__)
+        after.pop("_sa_instance_state")
+    assert after == before
+
+
+def test_additional_frozen_acceptance_phrasings(api):
+    import json
+
+    cases = json.loads(
+        (Path(__file__).resolve().parents[1] / "data/decision_acceptance_20261018.json").read_text(
+            "utf-8"
+        )
+    )["cases"]
+    for case in cases:
+        result = create(api, case["task"])
+        guidance = result["decision"]["guidance"]
+        assert result["decisionContext"]["task"] == case["task"]
+        assert guidance["recommendation"]["summary"]
+        assert guidance["nextAction"]["instruction"]
+        if case["expected"] == "direct":
+            assert guidance["clarification"] is None, case["id"]
+            assert guidance["outcome"] in {"advice", "conditional"}, case["id"]
+        elif case["expected"] == "clarify":
+            assert guidance["outcome"] == "clarify", case["id"]
+        else:
+            assert guidance["recommendation"]["primaryEntityId"] is None, case["id"]

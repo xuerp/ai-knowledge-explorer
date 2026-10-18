@@ -249,3 +249,91 @@ def test_collection_date_cannot_replace_missing_fact_or_source_date():
     fact.valid_from = None
     snapshot.evidence[0].published_at = ""
     assert current_claims([fact], snapshot) == []
+
+
+@pytest.mark.parametrize(
+    "change", ["new-conflict", "new-price", "source-correction", "expired", "removed"]
+)
+def test_saved_advice_invalidates_and_recovers_without_rewriting_history(change):
+    snapshot, entity, fact, context = fixture()
+    decision = EngagementService._build_decision(context, [fact], [entity.id], snapshot, "en")
+    assert decision.recommendation.primary_entity_id == entity.id
+    saved = ResearchView(
+        id="history-recovery-drill",
+        question=context.task,
+        summary="Saved advice",
+        claim_ids=[fact.id],
+        steps=[],
+        status="ready",
+        decision=decision,
+        decision_context=context,
+        citations=[
+            ResearchCitation(
+                claim=fact.model_copy(deep=True),
+                evidence=[snapshot.evidence[0].model_copy(deep=True)],
+            )
+        ],
+        created_at="2026-10-06T00:00:00Z",
+    )
+    before = saved.model_dump_json()
+    changed = snapshot.model_copy(deep=True)
+    if change == "new-conflict":
+        changed.claims.append(
+            fact.model_copy(update={"id": "new-conflict", "confidence": "conflict"}, deep=True)
+        )
+    elif change == "new-price":
+        changed.claims.append(
+            fact.model_copy(
+                update={
+                    "id": "new-price",
+                    "object_or_value": fact.object_or_value.replace('"input": 2', '"input": 20'),
+                },
+                deep=True,
+            )
+        )
+    elif change == "source-correction":
+        changed.evidence[0].source_excerpt = "Corrected source no longer supports the saved terms."
+    elif change == "expired":
+        changed.claims[0].valid_to = "2000-01-01"
+    else:
+        changed.claims = []
+    visible = revalidate_research(saved, changed)
+    assert visible.status == "insufficient-evidence"
+    assert visible.decision.recommendation.primary_entity_id is None
+    assert visible.decision.guidance is None
+    assert visible.decision.plan is None
+    assert not visible.claim_ids
+    assert saved.model_dump_json() == before
+    recovered = revalidate_research(saved, snapshot)
+    assert recovered.status == "ready"
+    assert recovered.decision.recommendation.primary_entity_id == entity.id
+    assert saved.model_dump_json() == before
+
+
+@pytest.mark.parametrize("unrelated", [True, False])
+def test_unrelated_or_expired_conflict_does_not_invalidate_saved_advice(unrelated):
+    snapshot, entity, fact, context = fixture()
+    snapshot.claims.append(
+        fact.model_copy(
+            update={"id": "old-conflict", "confidence": "conflict", "valid_to": "2000-01-01"},
+            deep=True,
+        )
+    )
+    if unrelated:
+        snapshot.claims[-1].entity_id = "another-entity"
+        snapshot.claims[-1].valid_to = None
+    decision = EngagementService._build_decision(context, [fact], [entity.id], snapshot, "en")
+    assert decision.recommendation.primary_entity_id == entity.id
+    saved = ResearchView(
+        id="unrelated-conflict",
+        question=context.task,
+        summary="Saved advice",
+        claim_ids=[fact.id],
+        steps=[],
+        status="ready",
+        decision=decision,
+        decision_context=context,
+        citations=[ResearchCitation(claim=fact, evidence=[snapshot.evidence[0]])],
+        created_at="2026-10-06T00:00:00Z",
+    )
+    assert revalidate_research(saved, snapshot).status == "ready"
