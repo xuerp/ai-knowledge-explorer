@@ -238,6 +238,8 @@ def build_guidance(result, context, snapshot, language):
     }.get(result.scenario.id)
     if starter:
         instruction = t(*starter)
+    if result.scenario.id == "coding-workspace" and result.plan and result.plan.trial:
+        instruction = " ".join(result.plan.trial.procedure)
     outcome = "advice" if ready else "conditional"
     tradeoff = None
     if ready and not primary:

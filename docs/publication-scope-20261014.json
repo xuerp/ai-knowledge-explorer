@@ -105,7 +105,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "fca032cb81bffdf484dc066eb26aa70f7baea3a6325da16d8f7dbb81ce672456"
+      "sha256": "86629f6faef6280a45ae3b98de310677ad29889c626e9a5c9b27d4dac5838572"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -405,7 +405,7 @@
     {
       "path": "backend/tests/test_decision_fresh_tasks.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "b93a2a31f824b5bd293da28cd77b3867e2e6152561005474485dc2da0a042cdf"
+      "sha256": "0c2c2532382bcc4d5af7121d9bdbb9751477135615be14cf40ac4708e0354b3d"
     },
     {
       "path": "backend/tests/test_decision_full.py",

@@ -50,6 +50,8 @@ def test_frozen_fresh_tasks(api, case):  # noqa: F811 -- imported pytest fixture
         assert "半小时" in "".join(trial["procedure"])
         assert "三题" not in trial["sample"]
         assert case["task"] in trial["sample"]
+        assert "半小时" in guidance["nextAction"]["instruction"]
+        assert guidance["nextAction"]["instruction"] == " ".join(trial["procedure"])
 
 
 HOLDOUT = json.loads(
