@@ -1,5 +1,26 @@
 {
   "version": 1,
+  "semanticRules": [
+    {
+      "scenario": "coding-workspace",
+      "all": [
+        "代码|仓库|项目|接口|函数|单元测试|pytest|repository|codebase|function|unit test",
+        "修改|改(?:一个|个|动|代码)|修复|调试|运行|执行|补丁|fix|edit|debug|run|implement"
+      ]
+    },
+    {
+      "scenario": "coding-model",
+      "all": ["代码|编程|code|coding", "补全|生成|completion|generate"]
+    },
+    {
+      "scenario": "document-extraction",
+      "all": [
+        "邮件|工单|合同|文档|文件|票据|表格|记录|email|ticket|document|record",
+        "JSON|字段|订单号|结构化|列名|fields|structured|columns",
+        "整理|提取|抽取|转成|变成|输出|分类|extract|convert|classify|output"
+      ]
+    }
+  ],
   "interpretation": {
     "nativeRetrieval": "(?:自带|内置|原生).{0,8}(?:检索|知识库|文件搜索)|(?:built.in|native).{0,12}(?:retrieval|file search|knowledge base)",
     "clauseSeparator": "[，,。；;!?！？\\n]+",

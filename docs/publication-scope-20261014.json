@@ -79,13 +79,13 @@
     },
     {
       "path": "backend/app/decision_constraints.py",
-      "sha256": "813b45d2d875be500f73f8872e5e9281299222df5560794becc19402b02d5be7",
+      "sha256": "b73bd725f334ea521d26a8404ec002dc10c7ee8ecd29034ead75420addd96fb3",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/decision_dialogue.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "854dc5d2676339fb230cda4b9eab86bcacde2dca232cae311c0cd5ac40a8410e"
+      "sha256": "2ee9e22b15b1a1a21612c723478d4ae03b35965093517cd9031b2288e4414297"
     },
     {
       "path": "backend/app/decision_evidence_requests.py",
@@ -105,7 +105,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "faf60c5ef84494e2543eccd04cf283dd0d9c60b8d711ed761235149fa7a9a7fb"
+      "sha256": "fca032cb81bffdf484dc066eb26aa70f7baea3a6325da16d8f7dbb81ce672456"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -115,7 +115,7 @@
     {
       "path": "backend/app/decision_intent.py",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "f337049d4ac00aa20a95b7c00e9d9410e4df1f235f887e31e37353619ad7f2cd"
+      "sha256": "4fc001562238737b9d2dd830f84d72204229e3fb37b7f84a3dc89b818903eb0c"
     },
     {
       "path": "backend/app/decision_licenses.py",
@@ -124,8 +124,13 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "3918c56aad95f842d73d1a5b76fc8889625e01590287283471ec981d6012d444",
+      "sha256": "df63d06f73f582f2901a102bddf68c3f92ca85860a031930e3e9c7d2498500a9",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
+    },
+    {
+      "path": "backend/app/decision_task.py",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "4b974a7703aff9ff59b0611b37fc9c70f95db459b1b8dd0ef91892861450d3e0"
     },
     {
       "path": "backend/app/decision_trial_runner.py",
@@ -253,13 +258,23 @@
       "sha256": "da95cfeb372c8c807f1a82938ef0e351268adba41a3c9a9ddf35a572d591e111"
     },
     {
+      "path": "backend/data/decision_fresh_tasks_20261019.json",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "e1819f16cfd2457787e5559a8c476158cbf1a48550f77d2a3aea67b5e806b9e5"
+    },
+    {
       "path": "backend/data/decision_guidance_holdout.v1.json",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
       "sha256": "7bff12975dfff20ab484ac23c16c4ed75ce32b6ee94b90f8057f39ee1d238b68"
     },
     {
+      "path": "backend/data/decision_holdout_20261019.json",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "e85c01cf5e1a0239482ad55f63172e4725f25634e14d50ab74650defb5071318"
+    },
+    {
       "path": "backend/data/decision_scenarios.v1.json",
-      "sha256": "082d1a1c3c8723e8a0a6e6739274adcc986bee9f3188e709a1a9655253d9d2c5",
+      "sha256": "9dee9c755bba06deb3512408b33c3869feb0ff79fb3d8f5bd47b3c24b5aa6e87",
       "reviewBasis": "Versioned public model/scenario/quality data. KnowledgeSnapshot validation and fresh-database equivalence checked; no account or research tables."
     },
     {
@@ -386,6 +401,11 @@
       "path": "backend/tests/test_decision_first_use.py",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
       "sha256": "228d20df96e4345f19578b843ae81612b50ce67a19cfc0a627fc2db4a8002bca"
+    },
+    {
+      "path": "backend/tests/test_decision_fresh_tasks.py",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "b93a2a31f824b5bd293da28cd77b3867e2e6152561005474485dc2da0a042cdf"
     },
     {
       "path": "backend/tests/test_decision_full.py",
@@ -631,6 +651,11 @@
       "path": "docs/DECISION_FOLLOWUP_20261015.md",
       "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
       "sha256": "7287eabf5eb9e486382f48e90f36d5fda0f3dc2ecb10338cf3d1b52dbed98b74"
+    },
+    {
+      "path": "docs/DECISION_FRESH_TASK_REMEDIATION_20261019.md",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "fbe9b04345ebe89da38f30daf0227f492be66919f6c87dd2c865ae5858093e89"
     },
     {
       "path": "docs/DECISION_GENERAL_USE_20261016.md",
@@ -1020,7 +1045,7 @@
     {
       "path": "src/domain/decision-intent.ts",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "b704a9e71d1689f1d2d36242c74232f308268f4cb28183da79159b1850e8d888"
+      "sha256": "aa501feb4ab0efd4e8370a6c5ab6c104b1e4111af473a7025ac7a132748f7cfe"
     },
     {
       "path": "src/domain/decision-measurements.ts",
@@ -1049,7 +1074,7 @@
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "875a25c9304779a1b81dfe6017f2c8117df3c968c7e4f0275e076bc82d6f6726",
+      "sha256": "19ff6b51da01a419203d1198405bbae1e1c84c46fb2a8b4289895b4053f801ea",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1378,6 +1403,11 @@
       "sha256": "083e4e329b7ef43538cbbddf3259dc7e24fb9f506893071094f3aeadcc398a73"
     },
     {
+      "path": "tests/decision-fresh-tasks.test.mjs",
+      "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
+      "sha256": "4a12a014f12ffd49e9da625c692770c91362ac97861e7d3cf4547830c8a3d214"
+    },
+    {
       "path": "tests/decision-guidance.test.mjs",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
       "sha256": "7a2d27393efd1b919a38d8868dffc7f5f37668276bb5d98565dd469a966a32e6"
@@ -1513,9 +1543,9 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 302,
+  "publicFileCount": 308,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
-  "lastVerifiedOn": "2026-10-18",
+  "lastVerifiedOn": "2026-10-19",
   "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }

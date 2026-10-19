@@ -4,6 +4,7 @@ import re
 
 from .decision_dialogue import clarification_for, unsupported_task
 from .decision_intent import CATALOG
+from .decision_task import daily_workload, understand_task
 from .schemas import (
     DecisionClarification,
     DecisionClarificationOption,
@@ -57,6 +58,35 @@ def build_guidance(result, context, snapshot, language):
                 ),
             ],
         )
+    if (
+        question
+        and question.id == "cost-basis"
+        and daily_workload(context.task)
+        and not any(answer.question_id == "monthly-days" for answer in context.intent_answers)
+        and any(key.startswith("monthly-") for key in result.missing_inputs)
+    ):
+        question = DecisionClarification(
+            id="monthly-days",
+            question=t(
+                "每月按多少个运行日核算这笔预算？",
+                "How many active days per month should this budget cover?",
+            ),
+            reason=t(
+                "已保留每天调用量、每次输入输出和预算上限。只需确认月运行日；不会默认汇率或把未知费用当免费。",
+                "Daily calls, per-call tokens and budget are retained. Confirm active days; exchange rates and unknown costs will not be assumed.",
+            ),
+            options=[
+                DecisionClarificationOption(
+                    id=f"days-{days}",
+                    label=t(f"按 {days} 天核算", f"Use {days} days"),
+                    description=t(
+                        "这是你选择的工作量口径，不代表费用已通过。",
+                        "This selects workload assumptions, not a verified cost.",
+                    ),
+                )
+                for days in (22, 30)
+            ],
+        )
     intent = [DecisionIntentField(field="goal", value=context.task, source="user-input")]
     intent.extend(
         DecisionIntentField(
@@ -77,11 +107,16 @@ def build_guidance(result, context, snapshot, language):
         )
         for answer in context.intent_answers
     )
-    materials = re.findall(
-        r"PDF|Word|DOCX|简历|合同|代码|发票|扫描件|文档|resume|repository|invoice",
-        context.task,
-        re.IGNORECASE,
+    task = understand_task(context.task)
+    materials = task.materials
+    intent.extend(
+        DecisionIntentField(field="constraint", value=limit, source="user-input")
+        for limit in task.limits
     )
+    if task.time_limit:
+        intent.append(
+            DecisionIntentField(field="time-limit", value=task.time_limit, source="user-input")
+        )
     if materials:
         intent.append(
             DecisionIntentField(

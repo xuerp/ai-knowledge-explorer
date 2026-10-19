@@ -4,6 +4,7 @@ Uses the same candidate dispositions/gaps as the recommendation, without
 network calls, guessed product facts, implicit approval or evidence-count ranking.
 """
 
+from .decision_task import understand_task
 from .schemas import DecisionAction, DecisionContext, DecisionPlan, DecisionResult, DecisionTrial
 
 # Method guidance only, never a claimed benchmark or an automatic invocation.
@@ -442,6 +443,23 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
     )
     if active and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
+        task = understand_task(context.task)
+        if result.scenario.id == "coding-workspace":
+            sample = t(
+                "只验证本次指定的一项仓库任务：" + task.goal,
+                "Validate only this requested repository task: " + task.goal,
+            )
+            procedure = t(
+                "使用独立工作副本，先复现问题并确认修改方案，再进行最小改动；不追加新功能或重构任务。",
+                "Use an isolated working copy, reproduce the issue and confirm the plan before a minimal change; do not add feature or refactoring tasks.",
+            )
+            if task.time_limit:
+                procedure += t(
+                    f" 本轮总时间上限为 {task.time_limit}；到时停止并记录未完成项，不将超时或未运行测试记为通过。",
+                    f" Stop at the requested limit ({task.time_limit}) and record unfinished work; timeouts or unrun tests are not passes.",
+                )
+        if task.limits:
+            check += t(" 原始限制：", " Original constraints: ") + "；".join(task.limits)
         if result.scenario.id == "knowledge-workspace":
             procedure = t(
                 "先确认模型和嵌入服务的数据去向，再用少量授权 PDF / Word 文档创建知识库并接入 Chatbot，启用引用展示；固定文档、切分和检索配置，保留检索片段与最终答案。自托管平台不代表模型也在本地。",

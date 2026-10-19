@@ -28,6 +28,11 @@ def contains(text, term):
 
 def scenario_definition(context):
     text = positive_task_text(context.task)
+    semantic_matches = {
+        rule["scenario"]
+        for rule in CATALOG.get("semanticRules", [])
+        if all(re.search(pattern, text, re.IGNORECASE) for pattern in rule["all"])
+    }
     scope = (
         context.task_type
         if context.task_type != "unspecified"
@@ -42,7 +47,9 @@ def scenario_definition(context):
         CATALOG["scenarios"],
         key=lambda row: (
             -(
-                2
+                3
+                if row["id"] in semantic_matches
+                else 2
                 if any(
                     re.search(pattern, text, re.IGNORECASE)
                     for pattern in row.get("intentPatterns", [])
@@ -54,8 +61,12 @@ def scenario_definition(context):
         ),
     )
     for row in ranked:
-        matches = any(contains(text, pattern) for pattern in row["patterns"]) or any(
-            re.search(pattern, text, re.IGNORECASE) for pattern in row.get("intentPatterns", [])
+        matches = (
+            row["id"] in semantic_matches
+            or any(contains(text, pattern) for pattern in row["patterns"])
+            or any(
+                re.search(pattern, text, re.IGNORECASE) for pattern in row.get("intentPatterns", [])
+            )
         )
         if not matches:
             continue

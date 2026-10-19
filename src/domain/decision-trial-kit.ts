@@ -56,6 +56,7 @@ export function decisionTrialKit(
       : protocol.sample;
   const prompt = coding
     ? [
+        `${t("执行范围与时间限制", "Execution scope and time limit")}:\n${protocol.procedure.join("\n")}`,
         t(
           "请在我提供的代码中完成一项小任务：修复一个报错，或实现我明确指定的一项简单功能。本轮只做这一项。",
           "Complete one small task in the code I provide: fix one bug or implement one explicitly requested small feature. Do only that task.",
