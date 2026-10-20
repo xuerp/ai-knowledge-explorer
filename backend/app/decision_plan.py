@@ -500,13 +500,23 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 )
                 + context.task
             )
-            procedure = t(
+            access_procedure = t(
                 "在现有平台的隔离测试空间保留指定样本，先列出“用户/部门 × 文档 × 生效版本”的允许与拒绝矩阵。旧版留档与当前检索范围分开；用不同权限身份分别提问，保存实际检索片段和回答，不以提示词代替权限控制。",
                 "Use an isolated test space in the existing platform and the requested samples. Define an allow/deny matrix of users/departments, documents and effective versions. Separate archived versions from current retrieval; query under different identities and retain retrieved passages and answers. Prompts are not access controls.",
             )
+            existing_platform = re.search(
+                r"已有|已经|现有|正在用|在用|不迁移|不.{0,5}搬家|already|existing|currently",
+                context.task,
+                re.IGNORECASE,
+            )
+            # An existing deployment starts with its decisive access/version
+            # checks. A new workspace still needs setup and citation display.
+            procedure = (
+                access_procedure if existing_platform else procedure + " " + access_procedure
+            )
             check = t(
-                "核对跨部门请求是否拒绝、当前问题是否引用生效版本、旧版是否仅按授权历史查询访问；配置或权限能力缺失时记录阻塞，不能先判通过。",
-                "Check cross-department denials, current answers citing effective versions, and authorized historical access to archives. Record missing configuration or permission capabilities as blockers, not passes.",
+                "用无权访问的文档核对跨部门请求是否拒绝、当前问题是否引用生效版本、旧版是否仅按授权历史查询访问；配置或权限能力缺失时记录阻塞，不能先判通过。",
+                "Use unauthorized documents to check cross-department denials, current answers citing effective versions, and authorized historical access to archives. Record missing configuration or permission capabilities as blockers, not passes.",
             )
         # Apply original requirements after selecting the method, so replacing a
         # procedure cannot silently remove the user's restrictions.

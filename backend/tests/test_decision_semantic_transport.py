@@ -76,7 +76,12 @@ def test_truncated_output_closes_adapter_even_if_json_looks_complete():
         lambda request: httpx.Response(
             200,
             json={
-                "usage": {"total_tokens": 100},
+                "usage": {
+                    "total_tokens": 100,
+                    "prompt_tokens": 20,
+                    "completion_tokens": 80,
+                    "completion_tokens_details": {"reasoning_tokens": 70},
+                },
                 "choices": [{"finish_reason": "length", "message": {"content": "{}"}}],
             },
         )
@@ -91,3 +96,6 @@ def test_truncated_output_closes_adapter_even_if_json_looks_complete():
     with pytest.raises(ValueError, match="finish"):
         interpreter.interpret(REQUEST)
     assert interpreter.blocked and interpreter.calls == 1 and interpreter.total_tokens == 100
+    assert interpreter.last_exchange["reasoningTokens"] == 70
+    assert interpreter.last_exchange["contentCharacters"] == 2
+    assert interpreter.last_content is None

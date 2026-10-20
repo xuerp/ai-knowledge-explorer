@@ -104,13 +104,26 @@ class ChatTaskInterpreter:
             with self.lock:
                 self.total_tokens += total
             self.last_exchange["totalTokens"] = total
+            for source, target in (
+                ("prompt_tokens", "promptTokens"),
+                ("completion_tokens", "completionTokens"),
+            ):
+                if type(usage.get(source)) is int:
+                    self.last_exchange[target] = usage[source]
+            details = usage.get("completion_tokens_details")
+            reasoning = details.get("reasoning_tokens") if isinstance(details, dict) else None
+            if type(reasoning) is int:
+                self.last_exchange["reasoningTokens"] = reasoning
+            content = body["choices"][0]["message"]["content"]
+            self.last_exchange["contentCharacters"] = (
+                len(content) if isinstance(content, str) else 0
+            )
             finish = body["choices"][0].get("finish_reason")
             self.last_exchange["finishReason"] = (
                 finish if finish in {"stop", "length", "content_filter", "tool_calls"} else "other"
             )
             if finish != "stop":
                 raise ValueError("The structured response did not finish normally.")
-            content = body["choices"][0]["message"]["content"]
             if not isinstance(content, str) or len(content) > 20000:
                 raise ValueError("Invalid structured response.")
             self.last_content = content
