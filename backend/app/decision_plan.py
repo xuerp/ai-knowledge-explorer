@@ -4,7 +4,11 @@ Uses the same candidate dispositions/gaps as the recommendation, without
 network calls, guessed product facts, implicit approval or evidence-count ranking.
 """
 
-from .decision_task import understand_task
+import re
+
+from .decision_intent import task_workflow
+from .decision_semantics import context_meaning
+from .decision_task import understand_context
 from .schemas import DecisionAction, DecisionContext, DecisionPlan, DecisionResult, DecisionTrial
 
 # Method guidance only, never a claimed benchmark or an automatic invocation.
@@ -443,7 +447,7 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
     )
     if active and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
-        task = understand_task(context.task)
+        task = understand_context(context)
         if result.scenario.id == "coding-workspace":
             sample = t(
                 "只验证本次指定的一项仓库任务：" + task.goal,
@@ -476,6 +480,42 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
             procedure = t(
                 "本轮选择回答模型。固定同一批检索片段及出处后比较生成；检索召回、引用与权限链路另行核验。要求候选自带检索时，应明确加入该必要功能后重新分析。",
                 "This trial selects an answering model. Fix retrieved excerpts and sources before comparing generation; verify retrieval recall, citations and permissions separately. If built-in retrieval is required, explicitly add that requirement and reanalyze.",
+            )
+        workflow = task_workflow(context.task, context_meaning(context))
+        if workflow and workflow["scenario"]:
+            sample = (
+                t("按原题限定的材料与样本执行：", "Use the requested materials and sample: ")
+                + context.task
+            )
+            procedure, check = [step[index] for step in workflow["steps"]]
+            metrics = workflow["metrics"][index]
+            acceptance = workflow["acceptance"][index]
+        if result.scenario.id == "knowledge-workspace" and re.search(
+            r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+        ):
+            sample = (
+                t(
+                    "按原题的文档、部门与版本范围建立验证样本：",
+                    "Use the requested documents, departments and versions: ",
+                )
+                + context.task
+            )
+            procedure = t(
+                "在现有平台的隔离测试空间保留指定样本，先列出“用户/部门 × 文档 × 生效版本”的允许与拒绝矩阵。旧版留档与当前检索范围分开；用不同权限身份分别提问，保存实际检索片段和回答，不以提示词代替权限控制。",
+                "Use an isolated test space in the existing platform and the requested samples. Define an allow/deny matrix of users/departments, documents and effective versions. Separate archived versions from current retrieval; query under different identities and retain retrieved passages and answers. Prompts are not access controls.",
+            )
+            check = t(
+                "核对跨部门请求是否拒绝、当前问题是否引用生效版本、旧版是否仅按授权历史查询访问；配置或权限能力缺失时记录阻塞，不能先判通过。",
+                "Check cross-department denials, current answers citing effective versions, and authorized historical access to archives. Record missing configuration or permission capabilities as blockers, not passes.",
+            )
+        # Apply original requirements after selecting the method, so replacing a
+        # procedure cannot silently remove the user's restrictions.
+        if task.limits and workflow:
+            check += t(" 原始限制：", " Original constraints: ") + "；".join(task.limits)
+        if task.time_limit and result.scenario.id != "coding-workspace":
+            check += t(
+                f" 到 {task.time_limit} 停止，记录未完成项。",
+                f" Stop at {task.time_limit} and record unfinished work.",
             )
         metric_rows = [metrics]
         accept_rows = [acceptance]

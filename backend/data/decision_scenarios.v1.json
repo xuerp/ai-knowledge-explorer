@@ -24,7 +24,10 @@
   "interpretation": {
     "nativeRetrieval": "(?:自带|内置|原生).{0,8}(?:检索|知识库|文件搜索)|(?:built.in|native).{0,12}(?:retrieval|file search|knowledge base)",
     "clauseSeparator": "[，,。；;!?！？\\n]+",
-    "negativeClause": "^(?:我(?:们)?|本次)?\\s*(?:不要|不做|不需要|无需|不想|不用|不考虑|no\\b|not required\\b|do not\\b|don't\\b)|\\b(?:not required|not needed|not available|unsupported)\\b|(?:不需要|无需|不支持)$",
+    "contrastSeparator": "但是|不过|然而|但|\\bbut\\b|\\bhowever\\b|(?=只有|仅有)",
+    "scopeBoundary": "(?=没有|无权|不需要|不要求|不要|不能|不得|不允许|\\bwithout\\s|\\bno\\s)",
+    "conditionAssertion": "(?:版权|所有权|知识产权|使用权|权属).*(?:归我|归我们|归本公司|属于我|属于我们|由我拥有)$|^(?:I|we)\\s+(?:own|have the rights to).*(?:copyright|rights|materials|assets)$",
+    "negativeClause": "^(?:(?:我(?:们)?|本次|也|但|并且|并|还|而且)\\s*)*(?:不要|不做|不需要|无需|不想|不用|不考虑|不提取|不执行|不修改|不接|不自动|不会|不懂|不能|不得|不允许|没有|无权|no\\b|not required\\b|do not\\b|don't\\b|cannot\\b|can't\\b|without\\b)|\\b(?:not required|not needed|not available|unsupported)\\b|(?:不需要|无需|不支持)$",
     "modelScope": "底层模型|回答用的.{0,8}模型|(?:编程|代码|文本|写作)模型|模型\\s*API|(?:选择|选个|选一个|选|接入|换).{0,12}模型|(?:通过|接|接入|接受).{0,6}(?:云\\s*)?API|\\b(?:model API|coding API|text model|language model)\\b",
     "imageInput": "(?:票据|发票|文档|合同).{0,8}(?:照片|图片|扫描件)|(?:图片|照片|扫描件).{0,12}(?:输入|读取|识别|提取)|(?:支持|要求)(?:图片|图像)(?:输入)?|图像输入|image input|accept images",
     "textOnly": "(?:已(?:经)?转成|只处理|仅处理|输入(?:是|为)?|输入材料(?:是|为)?).{0,6}(?:纯文本|文本)|text.only|plain text input"

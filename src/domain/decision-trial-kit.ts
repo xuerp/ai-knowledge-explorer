@@ -76,6 +76,7 @@ export function decisionTrialKit(
       ].join("\n\n")
     : knowledgeWorkspace
       ? [
+          `${t("本次验证范围与步骤", "Scope and procedure for this trial")}:\n${protocol.sample}\n${protocol.procedure.join("\n")}`,
           t(
             "请仅根据当前已连接的知识库回答我接下来给出的问题。每个结论标明支持它的原文出处，不编造引用。",
             "Answer my next questions using only the connected knowledge base. Cite the supporting original passage for each conclusion; do not invent citations.",

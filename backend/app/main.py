@@ -215,7 +215,9 @@ def review_decision_note(decision: ReviewDecision | ReviewBatchDecision) -> str 
     return decision.reason_note or decision.reason
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, *, task_interpreter=None) -> FastAPI:
+    from .decision_semantics import TaskMeaningService
+
     app_settings = settings or Settings.from_env()
     database = Database(app_settings.database_url)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
@@ -277,6 +279,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     engagement = EngagementService(
         rag_retriever,
         CitedAnswerService(enabled=app_settings.rag_generation_enabled),
+        task_meaning_service=TaskMeaningService(task_interpreter),
     )
     extraction = StructuredExtractionService(
         app_settings.extraction_api_url,

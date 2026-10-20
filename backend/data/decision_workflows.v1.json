@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "workflows": [
+    {
+      "id": "translation",
+      "match": ["翻译|译成|翻成|中译|英译|translate|translation"],
+      "scenario": "general-text",
+      "name": ["翻译与原文对照", "Translation with source comparison"],
+      "route": [
+        "先用能接受原文和术语表的现有文本入口做逐句对照，再人工核对固定译法、数字和警告；实际文件格式是否可直接导入需要先确认。",
+        "Use an existing text interface that accepts the source and glossary for sentence-aligned translation, then check fixed terms, numbers and warnings. Verify actual file-format access first."
+      ],
+      "steps": [
+        [
+          "沿用原题指定的材料范围与术语表，先整理原文、固定译法和不能改动的内容；不扩大样本。",
+          "Keep the requested sample and glossary; identify the source, fixed terminology and protected content without expanding scope."
+        ],
+        [
+          "逐句并排给出原文与译文；标出不确定译法，人工核对数字、单位、术语和警告，发现改变原意则退回修订。",
+          "Align each source sentence with its translation; mark uncertain terms and check numbers, units, terminology and warnings for meaning changes."
+        ]
+      ],
+      "metrics": [
+        "术语一致性、数字与警告保真、遗漏与误译、人工修订量。",
+        "Terminology consistency, number and warning fidelity, omissions, mistranslations and human corrections."
+      ],
+      "acceptance": [
+        "不能编造原文内容；固定术语、数字和安全警告发生改变时不得判为通过。",
+        "Do not invent source content; changes to fixed terms, numbers or safety warnings fail acceptance."
+      ]
+    },
+    {
+      "id": "classification",
+      "match": ["分类|判断是否|升级给人工|分流|classif|triage"],
+      "scenario": "general-text",
+      "name": ["分类与人工分流", "Classification and human routing"],
+      "route": [
+        "建议先走文本分类与人工升级路线。用已标注样本分别统计召回、漏报和误报，优先控制你最不能接受的错误；先完成离线验证，再考虑接入自动处理。",
+        "Start with text classification and human escalation. Use labeled samples to count recall, false negatives and false positives, prioritizing the costliest error; complete offline validation before automation."
+      ],
+      "steps": [
+        [
+          "使用原题指定的已标注样本，先确定类别、需要人工处理的情况及哪类错误代价更高；将调试样本与验收样本分开。",
+          "Use the requested labeled samples; define classes, escalation conditions and costly error types, separating tuning from acceptance samples."
+        ],
+        [
+          "逐条输出类别、依据和待确认项，与人工标注比较；不能只看总体准确率，分别统计漏报和误报，歧义交人工确认。",
+          "Return a class, rationale and uncertainties per item; compare with labels, count false negatives and false positives separately, and route ambiguity to a human."
+        ]
+      ],
+      "metrics": [
+        "各类别召回率、精确率、漏报和误报数量；优先检查用户指定的高代价错误。",
+        "Per-class recall and precision, false negatives and false positives; prioritize the user's costly error type."
+      ],
+      "acceptance": [
+        "先按业务风险确定漏报与误报门槛；保留失败样本，不将分类建议当成自动回复或已执行操作。",
+        "Set false-negative and false-positive limits from business risk; retain failures and do not treat labels as replies or executed actions."
+      ]
+    },
+    {
+      "id": "query-analysis",
+      "match": ["SQL|EXPLAIN|查询计划|query plan", "解释|分析|慢|性能|explain|analy|slow"],
+      "scenario": "general-text",
+      "name": ["查询计划静态分析", "Static query-plan analysis"],
+      "route": [
+        "先走脱敏 SQL 与已有计划的静态分析路线，无需连接数据库。疑似瓶颈和修改建议保留为待核验假设，不能把解释当成实测提速。",
+        "Start with static analysis of redacted SQL and existing plans without connecting a database. Keep suspected bottlenecks and changes as hypotheses, not measured speedups."
+      ],
+      "steps": [
+        [
+          "仅提供获准使用的脱敏查询文本和已有执行计划，在文本分析入口说明目标；无需连接数据库或授予执行权限。",
+          "Supply only authorized redacted query text and an existing plan to a text-analysis interface; no database connection or execution permission is needed."
+        ],
+        [
+          "逐项引用计划节点说明疑似瓶颈，分开已知事实与假设；给出待人工核对的问题，不自动执行查询、建索引或修改数据库。",
+          "Cite plan nodes for suspected bottlenecks, separate facts from hypotheses, and list questions for review without executing queries, creating indexes or changing the database."
+        ]
+      ],
+      "metrics": [
+        "计划节点引用正确性、推断可追溯性、遗漏条件；性能改善保持未实测。",
+        "Correct plan-node references, traceable reasoning and missing conditions; performance gains remain unmeasured."
+      ],
+      "acceptance": [
+        "不得把静态分析当成实测提速；执行或变更建议必须另行审核。",
+        "Static analysis is not a measured speedup; execution and changes require separate review."
+      ]
+    },
+    {
+      "id": "table-normalization",
+      "match": ["Excel|表格|报价表|spreadsheet", "统一|归一|换算|对比|normaliz|convert|compar"],
+      "scenario": "general-text",
+      "name": ["表格归一化与核对", "Table normalization and checking"],
+      "route": [
+        "先用电子表格保留原值与换算公式，文本助手辅助字段映射和公式草案。用人工提供的汇率、包装数量等参数复算，缺失报价和参数保持待确认。",
+        "Keep original values and conversion formulas in a spreadsheet, using a text assistant for mappings and formula drafts. Recalculate with supplied rates and package sizes; keep missing prices or parameters unconfirmed."
+      ],
+      "steps": [
+        [
+          "保留原始表格，按原题限定的样本建立字段映射，明确币种、计价单位和换算来源；汇率等外部参数由用户提供。",
+          "Preserve source tables and map columns for the requested sample, recording currencies, units and conversion sources; external rates must be supplied by the user."
+        ],
+        [
+          "先让文本助手提出映射和公式，再在电子表格中逐项核算；保留原值、公式、来源与结果，缺失报价或换算参数留空并标明原因。",
+          "Ask a text assistant for mappings and formulas, then verify them in a spreadsheet; retain originals, formulas, sources and results, marking missing prices or conversion parameters."
+        ]
+      ],
+      "metrics": [
+        "字段映射正确性、单位与币种一致性、公式复算一致性、缺失值保留。",
+        "Mapping correctness, unit and currency consistency, recalculation agreement and missing-value preservation."
+      ],
+      "acceptance": [
+        "文本能力不等于可直接读写 Excel；先核验文件入口，不能猜汇率、补报价或用语言模型计算替代公式核算。",
+        "Text capability does not prove Excel file access; verify the interface and never invent rates or quotes or replace formula checking with model arithmetic."
+      ]
+    },
+    {
+      "id": "audio-transcription",
+      "match": [
+        "录音|音频|audio|recording",
+        "说话人|转写|时间戳|待办|纪要|transcri|speaker|minutes"
+      ],
+      "scenario": null,
+      "name": ["音频转写与说话人区分", "Audio transcription and speaker attribution"],
+      "route": [
+        "选音频转写与说话人区分工具，再整理带原文时间点的待办；不能上传时只考虑在公司机器上运行的路线。当前资料尚不能指定满足全部限制的具体产品。",
+        "Use audio transcription with speaker attribution, then derive actions linked to recording timestamps. When uploads are prohibited, restrict the route to company-machine processing. Current evidence does not establish a specific qualifying product."
+      ],
+      "steps": [
+        [
+          "先核验音频输入、说话人区分、时间戳及本地运行能力；数据不能上传时不得改用云端入口。在允许的处理环境中取一小段含多位说话人的录音，对照原音核对转写、说话人与时间点，再按原题要求处理全部范围。听不清、负责人或期限不明确时标记待确认，不补造。",
+          "Verify audio input, speaker attribution, timestamps and local execution; do not use cloud input when uploads are prohibited. In the allowed environment, check a short multi-speaker segment against the recording before processing the full requested scope. Mark inaudible speech, unknown owners and deadlines instead of inventing them."
+        ]
+      ],
+      "metrics": [
+        "转写错误、说话人混淆、时间戳偏差、虚构待办。",
+        "Transcription errors, speaker confusion, timestamp errors and invented actions."
+      ],
+      "acceptance": [
+        "未核验数据去向前不提交录音；负责人和决议必须由录音支持。",
+        "Do not submit recordings before verifying data destinations; recordings must support owners and decisions."
+      ]
+    },
+    {
+      "id": "image-editing",
+      "match": ["照片|图片|图像|photo|image", "换成|换背景|更换|背景|编辑|edit|background"],
+      "scenario": null,
+      "name": ["图像编辑", "Image editing"],
+      "route": [
+        "优先选择能锁定商品主体、只替换背景的蒙版编辑或抠图合成路线。主体颜色、商标和比例必须保留时，先保留原商品像素再合成背景，避免整图重生成；当前资料不能指定已满足这些限制的具体产品。",
+        "Prefer masked background editing or cutout compositing that locks the product foreground. When color, marks and proportions must remain unchanged, preserve original product pixels and compose a background instead of regenerating the whole image. Current evidence does not establish a specific qualifying product."
+      ],
+      "steps": [
+        [
+          "按原题限定的样本范围试做：保护商品主体蒙版，只处理背景；将结果与原图叠加检查轮廓、颜色、商标和长宽比例。发现主体变化就退回修订；保留原图与合成结果供人工确认，不保证完全不变形或无版权风险。",
+          "Use the requested sample scope: protect the product mask and edit only the background. Overlay the result on the original to inspect outlines, color, marks and aspect ratio. Reject foreground changes, keep both versions for human review and do not guarantee zero distortion or copyright risk."
+        ]
+      ],
+      "metrics": [
+        "主体保真、编辑区域外变化、颜色和比例偏差。",
+        "Subject fidelity, changes outside the edit area, color and proportion deviations."
+      ],
+      "acceptance": [
+        "不能用文本工具替代图像编辑能力证明。",
+        "Text capability is not evidence of image-editing capability."
+      ]
+    },
+    {
+      "id": "visual-review",
+      "match": ["截图|screenshot", "检查|审查|找出|对比度|标签|review|contrast|accessibility"],
+      "scenario": null,
+      "name": ["截图视觉审查", "Screenshot review"],
+      "route": [
+        "先用具备图片输入的视觉审查路线做初筛，输出问题位置、可见依据和修改建议；截图只能形成待验证清单。当前没有具体工具的完整适用性依据，也不能据此给无障碍认证结论。",
+        "Start with an image-input visual-review route, returning locations, visible evidence and suggested fixes as a checklist for verification. Current evidence does not establish a specific tool's full fit or justify accessibility certification."
+      ],
+      "steps": [
+        [
+          "先核验入口能读取截图，再按原题的截图数量与时间范围逐张检查；每项写明截图编号、位置、疑似问题和可见依据，按影响排序。标签是否关联、键盘操作和读屏表现列入需要实际页面验证的清单；没有仓库也能完成截图初筛，但不得猜测源码或宣称认证通过。",
+          "Verify screenshot input, then inspect the requested images within the stated time. List image number, location, suspected issue and visible evidence, ordered by impact. Mark label associations, keyboard and screen-reader behavior for actual-page verification. Screenshot triage needs no repository access, but must not invent source code or certification."
+        ]
+      ],
+      "metrics": [
+        "可见问题定位、误报、明确无法从截图判断的检查项。",
+        "Visible-issue localization, false positives and explicit limits of screenshot-only checks."
+      ],
+      "acceptance": [
+        "不要求不存在的仓库访问权，不从截图宣称无障碍认证通过。",
+        "Do not require unavailable repository access or claim accessibility certification from screenshots."
+      ]
+    }
+  ]
+}

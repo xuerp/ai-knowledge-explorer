@@ -1,9 +1,11 @@
 """Extract task constraints once; observations never become supplier facts."""
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from .decision_intent import positive_task_text
+from .decision_clauses import clauses as parse_clauses
+from .decision_intent import CATALOG, positive_task_text
+from .decision_semantics import context_meaning
 
 NUMBER = r"(?:\d+(?:\.\d+)?|[零〇一二两三四五六七八九十百千万]+)"
 
@@ -45,7 +47,7 @@ class TaskUnderstanding:
 
 
 def understand_task(task: str) -> TaskUnderstanding:
-    clauses = re.split(r"[，,。；;!?！？\n]", task)
+    clauses = parse_clauses(task, CATALOG["interpretation"])
     # An inability is not an input material. Keep the remaining text intact.
     material_text = re.sub(
         r"(?:不(?:会|懂|用|需要|想)|无需).{0,4}(?:写|编写|处理)?代码|(?:cannot|can't|don't)\s+(?:write\s+)?code",
@@ -63,27 +65,39 @@ def understand_task(task: str) -> TaskUnderstanding:
         )
     )
     limits = tuple(
-        part.strip()
+        part.text
         for part in clauses
-        if re.search(
+        if part.prohibited
+        or re.search(
             r"不能|不要|不得|不想|不允许|不传|不.*传出去|只|最多|预算|断网|离线|内存|显卡|确认|审批|must|only|offline|budget",
-            part,
+            part.text,
             re.IGNORECASE,
         )
     )
+    duration = rf"(?:半(?:个)?小时|{NUMBER}\s*(?:分钟|小时)|\d+\s*(?:minutes?|hours?))"
+    # A recording's length is not a deadline. Require an execution/time-budget
+    # relationship, rather than selecting the first duration in the request.
     time = re.search(
-        rf"半(?:个)?小时|{NUMBER}\s*(?:分钟|小时)|\d+\s*(?:minutes?|hours?)", task, re.IGNORECASE
+        rf"(?:限时|最多用|用时|耗时|花|给出|设计一个|在|within|in)\s*({duration})"
+        rf"|({duration})\s*(?:内|能|完成|试用|验证|测试|为限|时间|time limit)",
+        task,
+        re.IGNORECASE,
     )
     positive = positive_task_text(task)
+    deployment_text = " ".join(
+        part.text
+        for part in clauses
+        if not re.search(r"不需要|不要求|无需|no need|not required", part.text, re.IGNORECASE)
+    )
     return TaskUnderstanding(
         goal=task,
         materials=materials,
         limits=limits,
-        time_limit=time[0] if time else None,
+        time_limit=next((value for value in time.groups() if value), None) if time else None,
         offline=bool(
             re.search(
-                r"完全(?:离线|断网)|(?:全程|必须|要求).{0,8}(?:离线|断网)|一个字都不能传出去|fully offline|air.gapped",
-                positive,
+                r"完全(?:离线|断网)|(?:全程|必须|要求).{0,8}(?:离线|断网)|一个字都不能传出去|只能在.{0,12}(?:机器|本机|本地)|不能上传|不得上传|禁止上传|fully offline|air.gapped|must stay local|no cloud",
+                deployment_text,
                 re.IGNORECASE,
             )
         ),
@@ -94,4 +108,24 @@ def understand_task(task: str) -> TaskUnderstanding:
                 re.IGNORECASE,
             )
         ),
+    )
+
+
+def understand_context(context) -> TaskUnderstanding:
+    deterministic = understand_task(context.task)
+    meaning = context_meaning(context)
+    if meaning is None:
+        return deterministic
+    materials = tuple(item.quote for item in meaning.items if item.role == "material")
+    constraints = tuple(
+        item.quote
+        for item in meaning.items
+        if item.role in {"condition", "prohibition", "sample", "unavailable-material"}
+    )
+    deadlines = [item.quote for item in meaning.items if item.role == "deadline"]
+    return replace(
+        deterministic,
+        materials=materials,
+        limits=tuple(dict.fromkeys((*deterministic.limits, *constraints))),
+        time_limit=deterministic.time_limit or (deadlines[0] if len(deadlines) == 1 else None),
     )

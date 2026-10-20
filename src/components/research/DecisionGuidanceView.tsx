@@ -62,6 +62,13 @@ export function DecisionGuidanceView({
     )
     .slice(0, 3);
   const question = guidance.clarification;
+  const relevantUnknowns = guidance.unknowns.filter(
+    (item) =>
+      !item.candidateId ||
+      advice.entityIds.includes(item.candidateId) ||
+      (research.decision?.scope?.explicit &&
+        research.decisionContext?.candidateEntityIds.includes(item.candidateId)),
+  );
   const draftKey = `ai-radar-clarification:${research.id}`;
   useEffect(() => {
     try {
@@ -106,7 +113,8 @@ export function DecisionGuidanceView({
     }
   }
   const task = research.decisionContext?.task ?? research.question;
-  const prompt = `${task}\n\n${guidance.nextAction.instruction}`;
+  const prompt =
+    guidance.nextAction.executionPrompt ?? `${task}\n\n${guidance.nextAction.instruction}`;
   const editPath = research.decisionContext
     ? decisionResumePath({ ...research.decisionContext, parentResearchId: research.id })
     : "/ask";
@@ -286,7 +294,9 @@ export function DecisionGuidanceView({
             <h4>
               {guidance.nextAction.kind === "start"
                 ? t("从这里开始", "Start here")
-                : t("会影响选择的差异", "Differences that affect this choice")}
+                : guidance.nextAction.kind === "compare"
+                  ? t("会影响选择的差异", "Differences that affect this choice")
+                  : t("范围与下一步", "Scope and next step")}
             </h4>
             <p>{guidance.nextAction.instruction}</p>
             {guidance.nextAction.kind === "start" && (
@@ -374,11 +384,11 @@ export function DecisionGuidanceView({
                 ))}
               </div>
             )}
-            {!!guidance.unknowns.length && guidance.outcome !== "advice" && (
+            {!!relevantUnknowns.length && guidance.outcome !== "advice" && (
               <ul>
                 {[
                   ...new Set(
-                    guidance.unknowns.filter((row) => row.decisive).map((row) => row.detail),
+                    relevantUnknowns.filter((row) => row.decisive).map((row) => row.detail),
                   ),
                 ]
                   .slice(0, 5)
@@ -388,31 +398,33 @@ export function DecisionGuidanceView({
               </ul>
             )}
           </div>
-          {onTrial && guidance.outcome === "advice" && (
-            <details className="decision-guidance__optional">
-              <summary>
-                {t("验证是否适合我 / 记录使用结果", "Validate fit / record actual results")}
-              </summary>
-              <p>
-                {t(
-                  "可选：执行一个实际任务后记录结果。下载操作说明不会替你执行。",
-                  "Optional: record results after doing an actual task. Downloading instructions does not execute it.",
+          {onTrial &&
+            (guidance.outcome === "advice" ||
+              (guidance.outcome === "conditional" && advice.entityIds.length > 0)) && (
+              <details className="decision-guidance__optional">
+                <summary>
+                  {t("验证是否适合我 / 记录使用结果", "Validate fit / record actual results")}
+                </summary>
+                <p>
+                  {t(
+                    "可选：执行一个实际任务后记录结果。下载操作说明不会替你执行。",
+                    "Optional: record results after doing an actual task. Downloading instructions does not execute it.",
+                  )}
+                </p>
+                {advice.primaryEntityId ? (
+                  <Button variant="outline" onClick={() => onTrial([advice.primaryEntityId!])}>
+                    {t("准备验证任务", "Prepare a validation task")}
+                  </Button>
+                ) : (
+                  <DecisionChoice
+                    research={research}
+                    entityName={entityName}
+                    isComparable={isComparable}
+                    onTrial={onTrial}
+                  />
                 )}
-              </p>
-              {advice.primaryEntityId ? (
-                <Button variant="outline" onClick={() => onTrial([advice.primaryEntityId!])}>
-                  {t("准备验证任务", "Prepare a validation task")}
-                </Button>
-              ) : (
-                <DecisionChoice
-                  research={research}
-                  entityName={entityName}
-                  isComparable={isComparable}
-                  onTrial={onTrial}
-                />
-              )}
-            </details>
-          )}
+              </details>
+            )}
           <aside className="decision-guidance__boundary">
             {advice.premises.map((line) => (
               <p key={line}>{line}</p>

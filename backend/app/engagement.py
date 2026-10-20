@@ -25,6 +25,8 @@ from .decision_constraints import constraint_failures, current_claims, date_valu
 from .decision_dialogue import analysis_context, interpret_answer, normalize_context
 from .decision_explanation import explain_decision
 from .decision_guidance import build_guidance
+from .decision_resolution import reconcile_resolution
+from .decision_semantics import TaskMeaningService, meaning_source
 from .decision_workflow import REASONS, candidate_dispositions, conflicting_entities, missing_inputs
 from .rag import HybridRagRetriever, LexicalRagRetriever, RagRetriever, grounded_retrieval_citations
 from .schemas import (
@@ -167,7 +169,10 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         refreshed = explain_decision(base, result.decision_context, groups, snapshot, language)
         updates["decision"] = refreshed
         updates["summary"] = refreshed.recommendation.summary
-    return result.model_copy(update=updates)
+    updated = result.model_copy(update=updates)
+    if updated.decision:
+        updated.decision = reconcile_resolution(updated.decision)
+    return updated
 
 
 class EngagementService:
@@ -175,9 +180,11 @@ class EngagementService:
         self,
         retriever: RagRetriever | None = None,
         answer_service: CitedAnswerService | None = None,
+        task_meaning_service: TaskMeaningService | None = None,
     ):
         self.retriever = retriever or LexicalRagRetriever()
         self.answer_service = answer_service or CitedAnswerService()
+        self.task_meaning_service = task_meaning_service or TaskMeaningService()
 
     def follow(
         self,
@@ -328,6 +335,9 @@ class EngagementService:
                 422, "A saved parent revision is required for clarification history."
             )
         if context and context.workflow_version == 2:
+            # A client-supplied interpretation is never trusted. Recompute with
+            # the server-owned service; persist the validated receipt for replay.
+            context = context.model_copy(update={"task_meaning": None})
             try:
                 context = normalize_context(context)
             except ValueError as error:
@@ -352,6 +362,15 @@ class EngagementService:
         previous = session.get(ResearchRecord, revision_id)
         if previous:
             return self._research_view(previous)
+        if context and context.workflow_version == 2:
+            # Parse only a new revision. A provider's nondeterministic wording
+            # must not change revision identity or trigger duplicate paid work.
+            context = context.model_copy(
+                update={
+                    "task_meaning": self.task_meaning_service.understand(meaning_source(context))
+                }
+            )
+            payload = payload.model_copy(update={"decision_context": context})
         workflow_v2 = bool(
             payload.decision_context and payload.decision_context.workflow_version == 2
         )
@@ -425,6 +444,9 @@ class EngagementService:
             if workflow_v2:
                 decision.guidance = build_guidance(
                     decision, payload.decision_context, snapshot, payload.language
+                )
+                decision = reconcile_resolution(
+                    decision, payload.decision_context, payload.language
                 )
             summary = (
                 decision.guidance.recommendation.summary

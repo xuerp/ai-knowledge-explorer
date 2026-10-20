@@ -2,9 +2,10 @@
 
 import re
 
-from .decision_dialogue import clarification_for, unsupported_task
-from .decision_intent import CATALOG
-from .decision_task import daily_workload, understand_task
+from .decision_dialogue import clarification_for, task_descriptions, unsupported_task
+from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_semantics import context_meaning
+from .decision_task import daily_workload, understand_context
 from .schemas import (
     DecisionClarification,
     DecisionClarificationOption,
@@ -107,7 +108,7 @@ def build_guidance(result, context, snapshot, language):
         )
         for answer in context.intent_answers
     )
-    task = understand_task(context.task)
+    task = understand_context(context)
     materials = task.materials
     intent.extend(
         DecisionIntentField(field="constraint", value=limit, source="user-input")
@@ -286,6 +287,18 @@ def build_guidance(result, context, snapshot, language):
                 "这是需要配置模型与知识库的应用平台；自托管平台不代表模型也在本地。",
                 "This platform needs model and knowledge-base configuration; self-hosting the platform does not make its model local.",
             )
+            if re.search(
+                r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+            ):
+                outcome = "conditional"
+                headline = t(
+                    f"先在 {name(primary)} 验证权限与生效版本",
+                    f"Verify access and effective versions in {name(primary)} first",
+                )
+                summary = t(
+                    f"可以沿用现有 {name(primary)} 做隔离试点。当前资料支持文档导入与检索，但不能据此确认你要求的逐文档访问隔离和版本生效控制已经满足；先用指定的虚构样本核验这两项门槛，通过前不接入真实受限文档。",
+                    f"Use the existing {name(primary)} for an isolated pilot. Document import and retrieval evidence does not establish the requested document-level access isolation or version controls. Verify both gates with the requested fictional samples before connecting restricted documents.",
+                )
         elif result.scenario.id in {
             "coding-model",
             "knowledge-assistant",
@@ -389,6 +402,24 @@ def build_guidance(result, context, snapshot, language):
             "这是一条有前提的使用路线，尚未确认具体工具满足所有条件。",
             "This is a conditional route, not confirmation that a specific tool meets every requirement.",
         )
+    workflow = task_workflow(context.task, context_meaning(context))
+    if (
+        result.plan
+        and result.plan.trial
+        and not question
+        and not all_excluded
+        and (workflow or primary)
+    ):
+        # The main action and exports must describe the same executable plan.
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看上手步骤", "See how to start")
+        if workflow:
+            outcome, primary, ready, reasons = "conditional", None, [], []
+            headline = (
+                t("先按这条路线小范围验证：", "Start with a bounded route: ")
+                + workflow["name"][int(language == "en")]
+            )
+            summary = workflow["route"][int(language == "en")]
     if unsupported_task(context):
         outcome, primary, ready, reasons = "unsupported", None, [], []
         headline = t(
@@ -402,6 +433,40 @@ def build_guidance(result, context, snapshot, language):
         instruction = t(
             "如果你的工作还包含文案、资料整理或代码开发，可以单独为这些部分分析；原任务仍未完成选型。",
             "If the job also includes writing, document organization or coding, those parts can be evaluated separately; selection for the original task remains unresolved.",
+        )
+        if workflow:
+            headline = (
+                t(
+                    "已识别任务，当前缺少对应工具依据：",
+                    "Task identified; tool evidence is missing: ",
+                )
+                + workflow["name"][int(language == "en")]
+            )
+            index = int(language == "en")
+            summary = workflow.get("route", workflow["steps"][0])[index]
+            instruction = " ".join(step[index] for step in workflow["steps"])
+            instruction += t(" 重点检查：", " Check: ") + workflow["metrics"][index]
+            instruction += " " + workflow["acceptance"][index]
+    receipt = context.task_meaning
+    if (
+        receipt
+        and receipt.status in {"failed", "invalid"}
+        and not workflow
+        and scenario_definition(context) is None
+    ):
+        # A parser outage is not an ambiguity in the user's task. Never silently
+        # turn provider failure into a request to repeat a complete description.
+        question = None
+        outcome, primary, ready, reasons = "blocked", None, [], []
+        headline = t("本次需求解析未完成", "Task interpretation did not complete")
+        summary = t(
+            "原题与条件已保留，当前不能确认选型路线；没有生成可采用的建议。",
+            "Your task and conditions are retained; a reliable selection route was not established.",
+        )
+        kind, label = "routes", t("保留任务后重试", "Retain the task and retry")
+        instruction = t(
+            "稍后重新分析；无需为系统解析失败重新编写需求。",
+            "Reanalyze later; you do not need to rewrite the task because parsing failed.",
         )
     if question:
         outcome, primary, ready, reasons = "clarify", None, [], []
@@ -417,16 +482,7 @@ def build_guidance(result, context, snapshot, language):
     return DecisionGuidance(
         outcome=outcome,
         intent=intent,
-        tasks=[
-            part.strip()
-            for part in re.split(
-                r"[；;\n]|同时|还要|还想|也想|以及|\band also\b",
-                context.task,
-                flags=re.IGNORECASE,
-            )
-            if part.strip()
-        ]
-        or [context.task],
+        tasks=task_descriptions(context),
         answered=context.intent_answers,
         clarification=question,
         recommendation=DecisionGuidanceRecommendation(

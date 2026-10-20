@@ -2,7 +2,9 @@
 
 import re
 
-from .decision_intent import CATALOG, scenario_definition
+from .decision_clauses import clauses
+from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_semantics import context_meaning
 from .decision_task import NUMBER, daily_workload, number, understand_task
 from .schemas import DecisionClarification, DecisionClarificationOption, DecisionContext
 
@@ -27,6 +29,12 @@ def interpret_answer(answer):
 
 
 def unsupported_task(context: DecisionContext) -> bool:
+    meaning = context_meaning(context)
+    if meaning is not None and meaning.state != "ambiguous" and meaning.scenario is None:
+        return True
+    workflow = task_workflow(context.task, meaning)
+    if workflow and workflow["scenario"] is None:
+        return True
     return understand_task(context.task).unsupported_media or (
         bool(
             re.search(
@@ -194,7 +202,25 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
     return result
 
 
+def task_descriptions(context: DecisionContext) -> list[str]:
+    """Keep unrecognized goals visible without presenting prohibitions as jobs."""
+    if context_meaning(context) or task_workflow(context.task):
+        return [context.task]
+    parts = re.split(
+        r"[；;\n]|同时|还要|还想|也想|以及|\band also\b", context.task, flags=re.IGNORECASE
+    )
+    return [
+        part.strip()
+        for part in parts
+        if part.strip()
+        and any(not clause.prohibited for clause in clauses(part, CATALOG["interpretation"]))
+    ] or [context.task]
+
+
 def task_parts(context: DecisionContext) -> list[tuple[str, dict]]:
+    if context_meaning(context) or task_workflow(context.task):
+        row = scenario_definition(context)
+        return [(context.task, row)] if row else []
     parts = re.split(
         r"[；;\n]|同时|还要|还想|也想|以及|\band also\b", context.task, flags=re.IGNORECASE
     )
@@ -208,6 +234,10 @@ def task_parts(context: DecisionContext) -> list[tuple[str, dict]]:
 
 def analysis_context(context: DecisionContext) -> DecisionContext:
     result = context.model_copy(deep=True)
+    if context_meaning(context) is not None:
+        # The server interpretation already includes notes and validated answer
+        # history. Prefixing lexical labels would invalidate its source digest.
+        return result
     for answer in context.intent_answers:
         if answer.option_id in {row["id"] for row in CATALOG["scenarios"]}:
             row = next(row for row in CATALOG["scenarios"] if row["id"] == answer.option_id)
@@ -242,6 +272,17 @@ def clarification_for(context: DecisionContext, language: str) -> DecisionClarif
     answered = {answer.question_id for answer in context.intent_answers}
     if unsupported_task(context):
         return None
+    meaning = context_meaning(context)
+    if meaning is not None and meaning.state == "ambiguous" and not context.intent_answers:
+        return DecisionClarification(
+            id="semantic-choice",
+            reason=t(
+                "这项选择会改变处理路线，原有条件继续保留。",
+                "This choice changes the route; original conditions remain.",
+            ),
+            question=meaning.ambiguity,
+            options=[],
+        )
     # An uncertain answer is an answer: show bounded routes instead of asking again.
     if any(answer.option_id == "unknown" for answer in context.intent_answers):
         return None
