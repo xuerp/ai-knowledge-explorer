@@ -76,7 +76,7 @@ export function ResearchReport({
     snapshot.claims,
     snapshot.evidence,
   );
-  const shareId = dataMode === "demo" ? answer.id : publishedSlug;
+  const shareId = publishedSlug || (!research && dataMode === "demo" ? answer.id : undefined);
   const sourceIndex = new Map(sources.map((source, index) => [source.id, index + 1]));
   const evidenceById = new Map(sources.map((source) => [source.id, source]));
 

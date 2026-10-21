@@ -750,7 +750,7 @@
     {
       "path": "docs/DECISION_REBUILD_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "2e7888136997dfb2c5dd40b0b424646343abeef1ad2e728af070f4afd2113c4b"
+      "sha256": "eae0dc1e5af2ece06f93c12bbcea17fad4332cff5c585c141ae1cede13f3b4e7"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -1019,7 +1019,7 @@
     },
     {
       "path": "src/components/research/ResearchReport.tsx",
-      "sha256": "941c0cb1cb71281704d335f41348f4d11ed393713036a6ff931734ce23105691",
+      "sha256": "24fc5e62806e44ec1fcd9f699a1484f8b0ed101a580855b0096df7e6c276f0c7",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
