@@ -72,6 +72,10 @@ test("unknown, excluded, conflicting, stale and out-of-scope candidates cannot o
 test("knowledge platform trial separates setup from the chatbot prompt and retains verification boundaries", () => {
   const research = fixture();
   research.decision.scenario.id = "knowledge-workspace";
+  research.decision.plan.trial.procedure = [
+    "先确认模型和嵌入服务的数据去向，用授权 PDF 接入 Chatbot 并启用引用。",
+    "用不同权限账户核对回答、引用和拒答，记录维护成本。",
+  ];
   const kit = decisionTrialKit(research, ["a"], () => "Dify", "zh");
   assert.match(kit.starterInputs, /数据去向.*PDF.*Chatbot.*启用引用/);
   assert.match(kit.prompt, /当前已连接的知识库/);
@@ -81,6 +85,24 @@ test("knowledge platform trial separates setup from the chatbot prompt and retai
   assert.match(kit.html, /PDF/);
   assert.match(kit.markdown, /不同权限账户.*维护成本/);
   assert.equal(research.decision.plan.trial.executed, false);
+});
+
+test("an existing workspace uses the server's acceptance step without inventing setup or migration", () => {
+  const research = fixture();
+  research.decision.scenario.id = "knowledge-workspace";
+  research.decisionContext.task = "验收已有知识库服务，不新建平台，不请求生产登录";
+  research.decision.plan.trial.sample = research.decisionContext.task;
+  research.decision.plan.trial.procedure = [
+    "在获准的现有服务测试空间准备身份与样本，建立允许、禁止及无答案矩阵。",
+    "逐身份核对引用、生效版本和拒答；不请求生产登录。",
+  ];
+  const kit = decisionTrialKit(research, ["a"], () => "Existing fixture", "zh");
+  assert.equal(kit.starterInputs, research.decision.plan.trial.procedure[0]);
+  assert.match(kit.prompt, /不请求生产登录/);
+  assert.match(kit.markdown, /允许、禁止及无答案矩阵/);
+  assert.match(kit.html, /允许、禁止及无答案矩阵/);
+  assert.doesNotMatch(kit.starterInputs, /建立知识库|接入 Chatbot|迁移/);
+  assert.equal(kit.protocol.executed, false);
 });
 
 test("source requests separate missing facts from actual business tests and input clarifications", () => {

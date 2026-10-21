@@ -49,10 +49,7 @@ export function decisionTrialKit(
         "Start with one real bug or a small feature. Supply related files, reproduction steps and run/test commands. The full comparison protocol is optional.",
       )
     : knowledgeWorkspace
-      ? t(
-          "先确认模型和嵌入服务的数据去向，再在所选平台用少量授权 PDF / Word 建立知识库、接入 Chatbot 并启用引用。准备有答案、无答案、矛盾内容各类问题；下面的提示用于配置后的问答入口。另用不同权限账户检查越权访问，并记录维护成本。",
-          "Confirm model and embedding data destinations, build a small knowledge base with authorized PDF / Word files, connect a Chatbot and enable citations. Prepare answerable, unanswerable and contradictory questions. Use the prompt below in that configured chatbot. Separately test unauthorized access with different accounts and record maintenance costs.",
-        )
+      ? protocol.procedure[0] || protocol.sample
       : protocol.sample;
   const prompt = coding
     ? [

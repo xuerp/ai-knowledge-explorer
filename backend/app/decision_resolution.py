@@ -61,6 +61,10 @@ def reconcile_resolution(decision, context=None, language="zh"):
                 "alternative_entity_ids": guidance.recommendation.entity_ids,
                 "validation_entity_ids": [],
                 "summary": guidance.recommendation.summary,
+                "reasons": guidance.recommendation.reasons,
+                "basis": decision.recommendation.basis
+                if guidance.recommendation.primary_entity_id
+                else "comparison-only",
             }
         )
     if guidance.next_action.kind == "start" and decision.plan and decision.plan.trial and context:

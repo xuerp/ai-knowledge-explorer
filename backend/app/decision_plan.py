@@ -9,6 +9,7 @@ import re
 from .decision_intent import task_workflow
 from .decision_semantics import context_meaning
 from .decision_task import understand_context
+from .decision_tool_context import tool_context
 from .schemas import DecisionAction, DecisionContext, DecisionPlan, DecisionResult, DecisionTrial
 
 # Method guidance only, never a claimed benchmark or an automatic invocation.
@@ -170,11 +171,17 @@ PROTOCOLS = {
 }
 
 
-def build_plan(result: DecisionResult, context: DecisionContext, language: str) -> DecisionPlan:
+def build_plan(
+    result: DecisionResult, context: DecisionContext, language: str, snapshot=None
+) -> DecisionPlan:
     index = int(language == "en")
     t = lambda zh, en: (zh, en)[index]
     rows = result.candidates
     active = [row for row in rows if row.eligibility != "excluded"]
+    reuse_workspace = (
+        result.scenario.id == "knowledge-workspace"
+        and tool_context(context, snapshot.entities if snapshot else ()).reuse
+    )
     features = set(result.scenario.required_features)
     qualified = [
         row.entity_id
@@ -445,7 +452,7 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
     protocol = PROTOCOLS.get(
         "knowledge-assistant" if result.scenario.id == "knowledge-workspace" else result.scenario.id
     )
-    if active and protocol:
+    if (active or reuse_workspace) and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
         task = understand_context(context)
         if result.scenario.id == "coding-workspace":
@@ -462,8 +469,6 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                     f" 本轮总时间上限为 {task.time_limit}；到时停止并记录未完成项，不将超时或未运行测试记为通过。",
                     f" Stop at the requested limit ({task.time_limit}) and record unfinished work; timeouts or unrun tests are not passes.",
                 )
-        if task.limits:
-            check += t(" 原始限制：", " Original constraints: ") + "；".join(task.limits)
         if result.scenario.id == "knowledge-workspace":
             procedure = t(
                 "先确认模型和嵌入服务的数据去向，再用少量授权 PDF / Word 文档创建知识库并接入 Chatbot，启用引用展示；固定文档、切分和检索配置，保留检索片段与最终答案。自托管平台不代表模型也在本地。",
@@ -473,6 +478,11 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 " 同时记录模型、嵌入、部署维护及人工校对成本。",
                 " Also record model, embedding, hosting, maintenance and human review costs.",
             )
+            if reuse_workspace:
+                procedure = t(
+                    "确认所述服务的获准测试入口，在隔离环境准备原题范围内的材料、问题及人工预期；记录实际文档范围和配置，保留检索片段及最终回答。不要求重建平台或新建知识库；入口或必要能力缺失时先记录待整改。",
+                    "Confirm an authorized test interface for the described service. In isolation, prepare the requested materials, questions and human expectations; record document scope and configuration, retaining retrieved passages and answers. Do not require a new platform or knowledge base; record missing access or required capabilities for remediation.",
+                )
         elif (
             result.scenario.id == "knowledge-assistant"
             and "retrieval" not in result.scenario.required_features
@@ -490,8 +500,10 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
             procedure, check = [step[index] for step in workflow["steps"]]
             metrics = workflow["metrics"][index]
             acceptance = workflow["acceptance"][index]
-        if result.scenario.id == "knowledge-workspace" and re.search(
-            r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+        if result.scenario.id == "knowledge-workspace" and (
+            re.search(
+                r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+            )
         ):
             sample = (
                 t(
@@ -501,26 +513,19 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 + context.task
             )
             access_procedure = t(
-                "在现有平台的隔离测试空间保留指定样本，先列出“用户/部门 × 文档 × 生效版本”的允许与拒绝矩阵。旧版留档与当前检索范围分开；用不同权限身份分别提问，保存实际检索片段和回答，不以提示词代替权限控制。",
-                "Use an isolated test space in the existing platform and the requested samples. Define an allow/deny matrix of users/departments, documents and effective versions. Separate archived versions from current retrieval; query under different identities and retain retrieved passages and answers. Prompts are not access controls.",
-            )
-            existing_platform = re.search(
-                r"已有|已经|现有|正在用|在用|不迁移|不.{0,5}搬家|already|existing|currently",
-                context.task,
-                re.IGNORECASE,
+                "在获准的隔离测试环境准备原题指定的身份与样本，先列出“用户/岗位/部门 × 文档 × 生效版本”矩阵。为每种身份安排允许访问、禁止访问和无答案三类问题，人工写明预期依据及应答或拒答。旧版留档与当前检索范围分开；缺少测试空间或权限能力时记录阻塞，不以提示词代替权限控制。",
+                "Prepare the requested identities and samples in an authorized isolated test environment. Define a users/roles/departments × documents × effective versions matrix. For each identity, prepare allowed, denied and unanswerable questions with human reference evidence and expected answers or abstention. Separate archives from current retrieval; record missing test-space or access capabilities as blockers. Prompts are not access controls.",
             )
             # An existing deployment starts with its decisive access/version
             # checks. A new workspace still needs setup and citation display.
-            procedure = (
-                access_procedure if existing_platform else procedure + " " + access_procedure
-            )
+            procedure = access_procedure if reuse_workspace else procedure + " " + access_procedure
             check = t(
-                "用无权访问的文档核对跨部门请求是否拒绝、当前问题是否引用生效版本、旧版是否仅按授权历史查询访问；配置或权限能力缺失时记录阻塞，不能先判通过。",
-                "Use unauthorized documents to check cross-department denials, current answers citing effective versions, and authorized historical access to archives. Record missing configuration or permission capabilities as blockers, not passes.",
+                "按矩阵逐身份执行并保存提问、实际检索片段与回答：允许项核对原文引用和生效版本，禁止项用无权访问的身份检查拒绝及无越权披露，无答案项应明确不知道且不编造引用。旧版仅按授权历史查询访问；错误或能力缺失保留待整改，不能先判通过。",
+                "Run the matrix under each identity and retain questions, retrieved passages and answers. Check allowed cases against source citations and effective versions, denied cases under unauthorized identities for refusal without leaks, and unanswerable cases for explicit uncertainty without invented citations. Access archives only through authorized historical queries; retain failures and missing capabilities for remediation, not passes.",
             )
         # Apply original requirements after selecting the method, so replacing a
         # procedure cannot silently remove the user's restrictions.
-        if task.limits and workflow:
+        if task.limits:
             check += t(" 原始限制：", " Original constraints: ") + "；".join(task.limits)
         if task.time_limit and result.scenario.id != "coding-workspace":
             check += t(

@@ -104,7 +104,7 @@
     },
     {
       "path": "backend/app/decision_explanation.py",
-      "sha256": "fbbe809cfe679f30a6e7e11804818fbb1933ea4e207655cd9d509a8aa8931b85",
+      "sha256": "d015ccdbb8b9a6dbd51fda92aaf0bcd110eb79fef90b43d8fef15b412f4a6618",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -115,7 +115,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "b0e1704cacdd2d13e3dbef89829f7ec396d701cfbc5a0a5f27ba216721f0d3a8"
+      "sha256": "07fc41163a4d5d7eacf2c40280c8e54b3fdc4db18d97edf15626234085eb723d"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -134,13 +134,13 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "518f48c6fa38bdf79f5884f877340e5d74324d4cf339754bd48f4fe554db8a40",
+      "sha256": "2f6722821f3b1f612276a889704f11060b16fcf7d69ef0764ee94237b53b6c82",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
       "path": "backend/app/decision_resolution.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "e35a2a93f82be401276f6ad7c8809f6043eb33e3f6f5ce2f1ccc942b65fc5675"
+      "sha256": "ff1aa0e226533c89fb52e302d1b9a00b592054621a8b9926fa68930cb864e02b"
     },
     {
       "path": "backend/app/decision_runtime.py",
@@ -166,6 +166,11 @@
       "path": "backend/app/decision_time.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
       "sha256": "b3bd674f482a0f99fb16ba014afee9e1a2ee648aa6a28b335e1b847a3ef86828"
+    },
+    {
+      "path": "backend/app/decision_tool_context.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "1586824aa8594321d495cba56d4df5e738af6639c379f7056744887139d2a940"
     },
     {
       "path": "backend/app/decision_trial_runner.py",
@@ -558,6 +563,11 @@
       "sha256": "37896b55fabe858380e30e9889e08b30c3f2c30c438c28397d330665c95c6c6f"
     },
     {
+      "path": "backend/tests/test_decision_tool_context.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "1efeba4b6798db0cc737fd1f722f343e14cd46e9466d9629d2de2e8b5d3d0336"
+    },
+    {
       "path": "backend/tests/test_decision_trial_runner.py",
       "reviewBasis": "Individually reviewed local API trial application, synthetic contract tests or current public documentation; no credentials, raw supplier replies, actual private inputs, account transcripts or runtime database.",
       "sha256": "4814e968ad696272ec9ed2a9cb3440e99bf30cdf790b9d1d3a63420abb10f6e4"
@@ -733,6 +743,11 @@
       "sha256": "da97f89350e34ca964780c127f17515397bcd87aca78edd8971fcc15524c7381"
     },
     {
+      "path": "docs/DECISION_EXISTING_TOOL_REMEDIATION_20261021.md",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "321a26e9beae520fcefed3c0a1e1fcdb2ccbe1fa6c1898e2de70e3db6767551e"
+    },
+    {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
       "sha256": "78c53ee710c71743484d9d9b4c5c5781e1677a47dd7f54873f8e08f429f3372b",
       "reviewBasis": "Individually reviewed public product documentation or explicitly synthetic test/public-source ledger; no raw execution log, account transcript or supplier receipt."
@@ -790,12 +805,12 @@
     {
       "path": "docs/DECISION_REBUILD_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "13ba8197ee30549197db71d5b15ab2c305486c9b48693ee9c2447ae9857a9399"
+      "sha256": "8410e3bcc32482d73c069c342f62b028d17df9eb9a3d67c67e080bd3c0f1e793"
     },
     {
       "path": "docs/DECISION_RUNTIME_ENABLEMENT_20261021.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "b4f77beac1680839fa03bb8290915ba3215db58c15068fb20eea6e53b3bde83f"
+      "sha256": "2ded80cd017305d874e37fab1427560d18773ac7e6f9f8167a88bc0e47d1ddc9"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -1194,7 +1209,7 @@
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "021757eec0d2f3141bb34e5fd2428b534ca7005384c79d09059f915c4da7ffdd",
+      "sha256": "a822d344d974adefe192479df25ec27e9ae6e0ee0dd41e58df3c4369f6cd6ae5",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1554,7 +1569,7 @@
     },
     {
       "path": "tests/decision-trial-kit.test.mjs",
-      "sha256": "ae6e1f35856f3cd2d5eb0dcc583fb7afe6f32d7d384f3ff2697069bf71d0a479",
+      "sha256": "6d5854f6214a1f5882ed3cef935141a3413606c0e6167ed453f726d263d4f522",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1663,7 +1678,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 332,
+  "publicFileCount": 335,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-21",
