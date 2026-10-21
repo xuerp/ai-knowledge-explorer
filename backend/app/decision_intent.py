@@ -23,7 +23,8 @@ def task_workflow(text, meaning=None):
     matches = [
         row
         for row in WORKFLOWS
-        if all(re.search(pattern, positive, re.IGNORECASE) for pattern in row["match"])
+        if row["match"]
+        and all(re.search(pattern, positive, re.IGNORECASE) for pattern in row["match"])
         and not (
             row["id"] == "classification"
             and re.search(r"提取|抽取|字段|JSON|extract|fields", positive, re.IGNORECASE)

@@ -53,6 +53,15 @@ def test_optional_offline_is_not_mandatory():
     assert not understand_task("分析文档，不需要完全离线").offline
 
 
+def test_data_must_not_leave_named_device_is_a_deployment_boundary():
+    task = "整理访谈原话，素材不得离开这台断网电脑，不用润色"
+    context = DecisionContext(task=task, priority="balanced", deployment="undecided")
+    assert normalize_context(context).deployment == "on-device"
+    assert not understand_task("我有这台断网电脑，但也可以用云端处理公开材料").offline
+    with pytest.raises(ValueError, match="云服务"):
+        normalize_context(context.model_copy(update={"deployment": "cloud-api"}))
+
+
 def test_positive_and_unavailable_material_can_share_one_sentence():
     parsed = understand_task("读取现有代码仓库但没有文档；不要改接口")
     assert "代码" in parsed.materials and "仓库" in parsed.materials

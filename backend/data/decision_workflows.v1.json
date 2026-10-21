@@ -2,6 +2,34 @@
   "version": 1,
   "workflows": [
     {
+      "id": "source-comparison",
+      "match": [],
+      "scenario": "general-text",
+      "name": ["资料对照与冲突保留", "Source comparison and conflict preservation"],
+      "route": [
+        "先用能读取获准材料的文本对照路线，把同一事项的原文、位置和版本并列，交由你指定的人员确认冲突；不需要先搭建完整知识库，也不由助手裁定未知事实。",
+        "Use a text-comparison route that can read authorized materials. Align source passages, locations and versions for the named human reviewer; a full knowledge base is not a prerequisite, and the assistant must not decide unknown facts."
+      ],
+      "steps": [
+        [
+          "沿用原题的材料和核对范围，逐项并列每份材料的原文、页码或可定位位置，以及明确标注的版本或日期；没有版本信息就标记未知，不从文件顺序猜新旧。",
+          "Keep the requested material and comparison scope. Align exact passages, page numbers or locatable positions, and explicitly stated versions or dates. Mark absent version metadata unknown; file order does not establish recency."
+        ],
+        [
+          "分开一致项、冲突项与缺失信息，给出原文依据和待核验问题；保留相互冲突的值，交给指定人员决定，不生成所谓正确值或擅自合并。",
+          "Separate agreement, conflict and missing information, with source evidence and verification questions. Preserve conflicting values for the designated reviewer; do not invent a correct value or silently merge them."
+        ]
+      ],
+      "metrics": [
+        "原文与位置可追溯率、冲突遗漏、错误合并和无依据裁决。",
+        "Source/location traceability, missed conflicts, incorrect merges and unsupported judgments."
+      ],
+      "acceptance": [
+        "每个冲突必须保留双方依据；缺失版本保持未知，未经指定人员确认不得判定正确值。",
+        "Keep evidence from both sides of each conflict; unknown versions remain unknown, and the designated reviewer decides the correct value."
+      ]
+    },
+    {
       "id": "translation",
       "match": ["翻译|译成|翻成|中译|英译|translate|translation"],
       "scenario": "general-text",
@@ -122,8 +150,8 @@
       "scenario": null,
       "name": ["音频转写与说话人区分", "Audio transcription and speaker attribution"],
       "route": [
-        "选音频转写与说话人区分工具，再整理带原文时间点的待办；不能上传时只考虑在公司机器上运行的路线。当前资料尚不能指定满足全部限制的具体产品。",
-        "Use audio transcription with speaker attribution, then derive actions linked to recording timestamps. When uploads are prohibited, restrict the route to company-machine processing. Current evidence does not establish a specific qualifying product."
+        "先选音频转写与说话人区分路线，按原题保留逐字内容、听不清标记及时间点；只有原题需要时再整理决议或待办。不能上传时只考虑获准机器上的本地处理；当前资料尚不能指定满足全部限制的具体产品。",
+        "Use audio transcription with speaker attribution, preserving requested verbatim speech, inaudible markers and timestamps. Derive decisions or actions only when requested. Restrict processing to the authorized machine when uploads are prohibited; current evidence does not establish a specific qualifying product."
       ],
       "steps": [
         [
@@ -132,8 +160,8 @@
         ]
       ],
       "metrics": [
-        "转写错误、说话人混淆、时间戳偏差、虚构待办。",
-        "Transcription errors, speaker confusion, timestamp errors and invented actions."
+        "转写错误、说话人混淆、时间戳偏差和无原文支持的新增内容。",
+        "Transcription errors, speaker confusion, timestamp errors and content unsupported by the recording."
       ],
       "acceptance": [
         "未核验数据去向前不提交录音；负责人和决议必须由录音支持。",

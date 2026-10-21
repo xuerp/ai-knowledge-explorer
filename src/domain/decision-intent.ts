@@ -32,6 +32,7 @@ export function scenarioDefinition(context: Pick<DecisionContext, "task" | "task
   const text = positiveTaskText(context.task);
   const methods = workflows.workflows.filter(
     (row) =>
+      row.match.length > 0 &&
       row.match.every((pattern) => new RegExp(pattern, "i").test(text)) &&
       !(row.id === "classification" && /提取|抽取|字段|JSON|extract|fields/i.test(text)),
   );

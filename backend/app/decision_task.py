@@ -96,7 +96,7 @@ def understand_task(task: str) -> TaskUnderstanding:
         time_limit=next((value for value in time.groups() if value), None) if time else None,
         offline=bool(
             re.search(
-                r"完全(?:离线|断网)|(?:全程|必须|要求).{0,8}(?:离线|断网)|一个字都不能传出去|只能在.{0,12}(?:机器|本机|本地)|不能上传|不得上传|禁止上传|fully offline|air.gapped|must stay local|no cloud",
+                r"完全(?:离线|断网)|(?:全程|必须|要求).{0,8}(?:离线|断网)|一个字都不能传出去|只能在.{0,12}(?:机器|本机|本地)|(?:不得|不能|禁止).{0,6}(?:离开|传出).{0,8}(?:本机|本地|这台|当前设备)|不能上传|不得上传|禁止上传|fully offline|air.gapped|must stay local|no cloud|(?:must not|cannot) leave (?:this|the local).{0,12}(?:computer|device|machine)",
                 deployment_text,
                 re.IGNORECASE,
             )

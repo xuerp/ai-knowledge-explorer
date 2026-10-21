@@ -120,7 +120,7 @@
     {
       "path": "backend/app/decision_intent.py",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "09754f4c7bf75be34dd0f869138aaf70a8479a893699e77839aaac6b83ff770b"
+      "sha256": "1efaae5bd71f58e0e3348700b3273f1813e8ebaf5327e6e6ce62ecd447d345c9"
     },
     {
       "path": "backend/app/decision_licenses.py",
@@ -135,22 +135,22 @@
     {
       "path": "backend/app/decision_resolution.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "c5fffcfbfded4e4c95324e1ec729968083cb8a6946432ab939cb08a2878383b8"
+      "sha256": "eb16fb319e3d65b89e1471053ccd4b5a44b7d57d3c4b0e0929e82893e68000fe"
     },
     {
       "path": "backend/app/decision_semantic_transport.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "b89c5168d2e71f581ebf441d64467d937ba1414f5cf573aab224e96b272423e9"
+      "sha256": "edd6ec62975913424a74ce22672a6bfc9e39eb7be13930d375c961a567e870a0"
     },
     {
       "path": "backend/app/decision_semantics.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "b67cae35c226f8696e87728067064f51050bee5a9d9ef48dca7435a4dfc3e72b"
+      "sha256": "19bdb1ddce78108a5531a12e17981c08d4aa3258a430da6f8a6093dd8433aba4"
     },
     {
       "path": "backend/app/decision_task.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "4b86876be1e32877dbb676047923b8f7f771cbf56515a605d6be2e9a64064b36"
+      "sha256": "19bfa26d9cc0c3bfa35d78d73332a57e0c42eec0f54bc2b696af13da589bada4"
     },
     {
       "path": "backend/app/decision_trial_runner.py",
@@ -305,7 +305,7 @@
     {
       "path": "backend/data/decision_workflows.v1.json",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "8f6e0127980a2c1228ad727efab8381efa4b321fcf3a843a2a74b68d4bdf829b"
+      "sha256": "cd8070ab1a2d11b19c257aeca943c9c81d64b4f8d36b90cccfe0ecd52adca941"
     },
     {
       "path": "backend/data/frontier_catalog_v1.json",
@@ -360,7 +360,7 @@
     {
       "path": "backend/scripts/evaluate_decision_semantics.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "134355df10a6238d137c9e6b92eaef40f25d77df7910c7cf05a972c89bfda5cf"
+      "sha256": "8f6eb967fbfa012c6afb4704f513567a75499c1195820a7c3bea18539df47dad"
     },
     {
       "path": "backend/scripts/observe_official_36h.py",
@@ -400,7 +400,7 @@
     {
       "path": "backend/tests/test_decision_clause_contract.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "3eb587b47acb15192725ceb8a6be3f3f94a48719b3ec3019783d7e189a4fcd1d"
+      "sha256": "7a2e4478bf93b9cb6bc377dc3e2b6b48f117ad5df91764becc63db4f4f021c23"
     },
     {
       "path": "backend/tests/test_decision_comparison_36h.py",
@@ -505,17 +505,17 @@
     {
       "path": "backend/tests/test_decision_semantic_api.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "a892dd2936fa54dc2e348ad1f0b6ec609834ffa6c2cfb2baaf9424995cb70761"
+      "sha256": "3f7008be0073d8d330f89684ac02db4b66865db6bbe7be31621056a8e15eb8c4"
     },
     {
       "path": "backend/tests/test_decision_semantic_transport.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "66720cfd7bd23ce83201d3bf6f04c66931a095a8047c6557472f6eb7b383f676"
+      "sha256": "447d7c87fc696f598648ea13789de8d812923d30cfbbee584ba1fec317f553b7"
     },
     {
       "path": "backend/tests/test_decision_semantics.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "c6a43f78f30b254259c734181a1a5aae233ce754891d6f873109b7fe331cfb8f"
+      "sha256": "782fbfa48228dc91612e2bb8e62d6cd09fb055412f61a21914d66bdf2ad065f2"
     },
     {
       "path": "backend/tests/test_decision_task_acceptance.py",
@@ -750,7 +750,7 @@
     {
       "path": "docs/DECISION_REBUILD_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "374e98c06b0935f42c205b75da571dd00c1926e9ba9a307804ca36e0b17a895c"
+      "sha256": "8f707ddb7122b0ea3664fa03ea7ba870bc290371676282ff265303a9863b7d6e"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -1115,7 +1115,7 @@
     {
       "path": "src/domain/decision-intent.ts",
       "reviewBasis": "Shared task interpretation, authored 21-case acceptance, scoped request requirements and first-visit engineering checks. Existing reviewed product facts are unchanged. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "0ec0093dcccb1389662b13710ffff1d06a3de2d369176b277a4df4c75ee4cc88"
+      "sha256": "cdf67c383054b40a3dda05eb53e6560898706d0ba938acff431735514adb5b55"
     },
     {
       "path": "src/domain/decision-measurements.ts",

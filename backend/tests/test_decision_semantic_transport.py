@@ -71,6 +71,33 @@ def test_remote_plaintext_endpoint_rejected():
         )
 
 
+def test_explicit_nonreasoning_profile_preserves_model_and_token_budget():
+    requests = []
+
+    def handle(request):
+        requests.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "usage": {"total_tokens": 30},
+                "choices": [{"finish_reason": "stop", "message": {"content": "{}"}}],
+            },
+        )
+
+    interpreter = ChatTaskInterpreter(
+        endpoint="https://example.test/chat/completions",
+        api_key="fake",
+        model="explicit-lightweight-model",
+        max_calls=1,
+        reasoning_effort="none",
+        transport=httpx.MockTransport(handle),
+    )
+    assert interpreter.interpret(REQUEST) == "{}"
+    assert requests[0]["model"] == "explicit-lightweight-model"
+    assert requests[0]["reasoning_effort"] == "none"
+    assert requests[0]["max_completion_tokens"] == 4096
+
+
 def test_truncated_output_closes_adapter_even_if_json_looks_complete():
     transport = httpx.MockTransport(
         lambda request: httpx.Response(
@@ -98,4 +125,32 @@ def test_truncated_output_closes_adapter_even_if_json_looks_complete():
     assert interpreter.blocked and interpreter.calls == 1 and interpreter.total_tokens == 100
     assert interpreter.last_exchange["reasoningTokens"] == 70
     assert interpreter.last_exchange["contentCharacters"] == 2
+    assert interpreter.last_content is None
+
+
+def test_nonreasoning_profile_rejects_contradictory_provider_usage():
+    interpreter = ChatTaskInterpreter(
+        endpoint="https://example.test/chat/completions",
+        api_key="fake",
+        model="fake",
+        max_calls=2,
+        reasoning_effort="none",
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(
+                200,
+                json={
+                    "model": "returned-model",
+                    "usage": {
+                        "total_tokens": 100,
+                        "completion_tokens_details": {"reasoning_tokens": 80},
+                    },
+                    "choices": [{"finish_reason": "stop", "message": {"content": "{}"}}],
+                },
+            )
+        ),
+    )
+    with pytest.raises(ValueError, match="nonreasoning"):
+        interpreter.interpret(REQUEST)
+    assert interpreter.calls == 1 and interpreter.blocked
+    assert interpreter.last_exchange["returnedModel"] == "returned-model"
     assert interpreter.last_content is None

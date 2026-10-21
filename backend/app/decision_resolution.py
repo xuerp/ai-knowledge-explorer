@@ -14,11 +14,9 @@ def reconcile_resolution(decision, context=None, language="zh"):
         decision.plan = DecisionPlan(
             state=state,
             can_decide=guidance.recommendation.summary,
-            actions=[
-                action
-                for action in (decision.plan.actions if decision.plan else [])
-                if action.kind not in {"test", "source", "reconcile"}
-            ],
+            # The current guidance owns clarification/recovery. Earlier generic
+            # "explain your task" actions must not survive a parser failure.
+            actions=[],
             trial_candidate_ids=[],
             trial=None,
         )

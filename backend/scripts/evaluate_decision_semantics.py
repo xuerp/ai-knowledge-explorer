@@ -26,6 +26,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--max-calls", type=int, required=True)
     parser.add_argument("--prior-receipt", type=Path, action="append", default=[])
+    parser.add_argument("--reasoning-effort", choices=("none", "low"), default="low")
     args = parser.parse_args()
     if not 1 <= args.max_calls <= 8:
         parser.error("This frozen evaluation permits at most eight interpretation calls.")
@@ -57,6 +58,7 @@ def main():
         api_key=os.environ[keys[1]],
         model=os.environ[keys[2]],
         max_calls=args.max_calls,
+        reasoning_effort=args.reasoning_effort,
         response_timeout_seconds=int(os.getenv("DECISION_EVAL_TIMEOUT_SECONDS", "30")),
     )
     settings = Settings(

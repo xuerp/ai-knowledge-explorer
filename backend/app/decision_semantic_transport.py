@@ -22,6 +22,7 @@ class ChatTaskInterpreter:
         model: str,
         max_calls: int,
         response_timeout_seconds: int = 30,
+        reasoning_effort: str = "low",
         transport=None,
     ):
         parsed = urlsplit(endpoint)
@@ -36,6 +37,9 @@ class ChatTaskInterpreter:
             raise ValueError("A model and bounded evaluation call budget are required.")
         if not 1 <= response_timeout_seconds <= 90:
             raise ValueError("The response timeout must stay within 1..90 seconds.")
+        if reasoning_effort not in {"none", "low"}:
+            raise ValueError("Use an explicitly supported bounded parser reasoning mode.")
+        self.reasoning_effort = reasoning_effort
         self.response_timeout_seconds = response_timeout_seconds
         self.endpoint, self.api_key, self.model = endpoint, api_key, model
         self.max_calls = max_calls
@@ -83,7 +87,7 @@ class ChatTaskInterpreter:
                             },
                         ],
                         "max_completion_tokens": 4096,
-                        "reasoning_effort": "low",
+                        "reasoning_effort": self.reasoning_effort,
                         "response_format": {
                             "type": "json_schema",
                             "json_schema": {
@@ -97,6 +101,9 @@ class ChatTaskInterpreter:
                 self.last_exchange["httpStatus"] = response.status_code
                 response.raise_for_status()
                 body = response.json()
+            returned_model = body.get("model")
+            if isinstance(returned_model, str):
+                self.last_exchange["returnedModel"] = returned_model[:120]
             usage = body.get("usage", {})
             total = usage.get("total_tokens")
             if type(total) is not int or total <= 0:
@@ -114,6 +121,8 @@ class ChatTaskInterpreter:
             reasoning = details.get("reasoning_tokens") if isinstance(details, dict) else None
             if type(reasoning) is int:
                 self.last_exchange["reasoningTokens"] = reasoning
+            if self.reasoning_effort == "none" and type(reasoning) is int and reasoning > 0:
+                raise ValueError("The provider did not honor nonreasoning mode.")
             content = body["choices"][0]["message"]["content"]
             self.last_exchange["contentCharacters"] = (
                 len(content) if isinstance(content, str) else 0

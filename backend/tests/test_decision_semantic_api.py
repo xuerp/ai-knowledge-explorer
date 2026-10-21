@@ -102,3 +102,69 @@ def test_interpretation_runs_in_real_api_and_revision_retry_does_not_call_again(
             == result["decisionContext"]["taskMeaning"]
         )
         assert saved.json()["decision"]["guidance"] == result["decision"]["guidance"]
+
+
+def test_source_comparison_is_a_semantic_route_without_keyword_fallback(tmp_path):
+    from app.decision_intent import task_workflow
+
+    task = "并列两份手册的参数与原句，版本未知时留空，不要替工程师决定正确值"
+    assert task_workflow(task) is None
+
+    class CompareInterpreter:
+        def interpret(self, request):
+            return json.dumps(
+                {
+                    "version": 2,
+                    "source_sha256": request["source_sha256"],
+                    "state": "understood",
+                    "route": "source-comparison",
+                    "ambiguity": None,
+                    "items": [{"quote": "并列两份手册的参数与原句", "role": "goal"}],
+                },
+                ensure_ascii=False,
+            )
+
+    settings = Settings(
+        database_url=f"sqlite:///{tmp_path / 'compare.db'}",
+        seed_snapshot_path=Path(__file__).resolve().parents[1] / "data/demo_snapshot.json",
+        admin_token=None,
+        cors_origins=(),
+        environment="test",
+        jwt_secret="comparison-isolated-secret-at-least-32",
+        rag_generation_enabled=False,
+        embedding_provider="none",
+    )
+    with TestClient(create_app(settings, task_interpreter=CompareInterpreter())) as client:
+        auth = client.post(
+            "/api/v2/auth/register",
+            json={
+                "email": "comparison@example.com",
+                "password": "comparison test-only password",
+            },
+        )
+        headers = {"Authorization": "Bearer " + auth.json()["accessToken"]}
+        result = client.post(
+            "/api/v2/research",
+            headers=headers,
+            json={
+                "question": task,
+                "language": "zh",
+                "decisionContext": {
+                    "workflowVersion": 2,
+                    "task": task,
+                    "priority": "balanced",
+                    "deployment": "undecided",
+                },
+            },
+        ).json()
+        guidance = result["decision"]["guidance"]
+        assert guidance["outcome"] == "conditional"
+        assert "资料对照" in guidance["recommendation"]["headline"]
+        prompt = guidance["nextAction"]["executionPrompt"]
+        assert all(
+            value in prompt
+            for value in ["不从文件顺序猜新旧", "保留相互冲突的值", "不要替工程师决定正确值"]
+        )
+        assert result["decision"]["plan"]["trialCandidateIds"] == []
+        reopened = client.get("/api/v2/research/" + result["id"], headers=headers).json()
+        assert reopened["decision"]["guidance"] == guidance

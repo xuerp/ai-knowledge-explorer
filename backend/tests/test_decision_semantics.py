@@ -219,3 +219,19 @@ def test_exact_compatibility_envelope_still_checks_inner_payload():
     del payload["content"]["price"]
     payload["unexpected"] = True
     assert TaskMeaningService(FakeInterpreter(payload)).understand(TASK).status == "invalid"
+
+
+def test_single_catalog_route_resolves_pair_without_model_owned_duplication():
+    old = proposal()
+    packet = {key: value for key, value in old.items() if key not in {"method", "scenario"}}
+    packet.update(version=2, route="translation")
+    receipt = TaskMeaningService(FakeInterpreter(packet)).understand(TASK)
+    assert receipt.status == "validated"
+    assert receipt.meaning.method == "translation"
+    assert receipt.meaning.scenario == "general-text"
+    assert "catalog-route-resolution" in receipt.normalizations
+    packet["route"] = "invented-route"
+    assert TaskMeaningService(FakeInterpreter(packet)).understand(TASK).status == "invalid"
+    packet["route"] = "translation"
+    packet["scenario"] = "knowledge-workspace"
+    assert TaskMeaningService(FakeInterpreter(packet)).understand(TASK).status == "invalid"
