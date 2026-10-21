@@ -227,8 +227,11 @@ class TaskMeaningService:
     def __init__(self, interpreter: TaskInterpreter | None = None):
         self.interpreter = interpreter
 
-    def understand(self, task: str) -> TaskMeaningReceipt:
+    def understand(self, task: str, *, owner_id: str | None = None) -> TaskMeaningReceipt:
         if self.interpreter is None:
+            return TaskMeaningReceipt(status="unavailable")
+        allows_user = getattr(self.interpreter, "allows_user", None)
+        if allows_user and not allows_user(owner_id):
             return TaskMeaningReceipt(status="unavailable")
         from .decision_intent import CATALOG, WORKFLOWS
 

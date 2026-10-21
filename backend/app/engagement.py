@@ -367,7 +367,9 @@ class EngagementService:
             # must not change revision identity or trigger duplicate paid work.
             context = context.model_copy(
                 update={
-                    "task_meaning": self.task_meaning_service.understand(meaning_source(context))
+                    "task_meaning": self.task_meaning_service.understand(
+                        meaning_source(context), owner_id=user_id
+                    )
                 }
             )
             payload = payload.model_copy(update={"decision_context": context})
