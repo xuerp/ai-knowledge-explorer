@@ -14,7 +14,7 @@
     },
     {
       "path": ".github/workflows/quality.yml",
-      "sha256": "6e026695eb2d4858407b2dc17a33ba45a07dc7546aff247f7b51e22f5d2f6abb",
+      "sha256": "714028d9cfde05785d5e0a4c815b12d1fe3cb902f3cb07c57db52c00222f6f00",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "path": "backend/Dockerfile",
-      "sha256": "e6b24bdfcd1127592e6fe87413896784482ac8ea64838a766d363d5e0503c663",
+      "sha256": "41c41273dcf1204928bd9ecd8c305db439d814f3ebcb2ca68651e44569693ce6",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -135,7 +135,7 @@
     {
       "path": "backend/app/decision_resolution.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "eb16fb319e3d65b89e1471053ccd4b5a44b7d57d3c4b0e0929e82893e68000fe"
+      "sha256": "e35a2a93f82be401276f6ad7c8809f6043eb33e3f6f5ce2f1ccc942b65fc5675"
     },
     {
       "path": "backend/app/decision_semantic_transport.py",
@@ -534,7 +534,7 @@
     },
     {
       "path": "backend/tests/test_decision_workflow.py",
-      "sha256": "ce51e9a4fa2a2466f8c590b1890341ef73fc00d19e15514b577626d40744b686",
+      "sha256": "1169afa6df05be098aa042c8c79f3ef707fd7152f9b84363e824ae8efe9eb4d3",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -670,7 +670,7 @@
     {
       "path": "bun.lock",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
-      "sha256": "739b5deabe766052e32812c117b42332c6649661a45d7ee37835f2d4acaafb80"
+      "sha256": "313f6b20be0ba0c6b97687e0af6de03491a52f2dc868ae66877c5712245a5391"
     },
     {
       "path": "docs/ACCOUNT_LOGIN_20261015.md",
@@ -750,7 +750,7 @@
     {
       "path": "docs/DECISION_REBUILD_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "8f707ddb7122b0ea3664fa03ea7ba870bc290371676282ff265303a9863b7d6e"
+      "sha256": "2e7888136997dfb2c5dd40b0b424646343abeef1ad2e728af070f4afd2113c4b"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -809,7 +809,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "cf50a9aedbb22c230bcc5aded4742c2118606291cb9d3866c703f28c0fc41dd1",
+      "sha256": "9f181823d309fe8ee88465c4bcc7d3ea342d7724940b50f633882fed61c7be96",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1616,6 +1616,6 @@
   "publicFileCount": 322,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
-  "lastVerifiedOn": "2026-10-20",
+  "lastVerifiedOn": "2026-10-21",
   "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }

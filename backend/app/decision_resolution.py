@@ -1,6 +1,6 @@
 """Reconcile every derived surface with the final decision, not an earlier plan."""
 
-from .schemas import DecisionPlan
+from .schemas import DecisionAction, DecisionPlan
 
 
 def reconcile_resolution(decision, context=None, language="zh"):
@@ -11,12 +11,24 @@ def reconcile_resolution(decision, context=None, language="zh"):
         guidance.outcome
     )
     if state:
+        actions = []
+        if guidance.outcome == "clarify" and guidance.clarification:
+            question = guidance.clarification
+            actions = [
+                DecisionAction(
+                    id="answer-" + question.id,
+                    kind="clarify",
+                    title=question.question,
+                    instruction=guidance.next_action.instruction,
+                    unlocks=question.reason,
+                )
+            ]
         decision.plan = DecisionPlan(
             state=state,
             can_decide=guidance.recommendation.summary,
             # The current guidance owns clarification/recovery. Earlier generic
             # "explain your task" actions must not survive a parser failure.
-            actions=[],
+            actions=actions,
             trial_candidate_ids=[],
             trial=None,
         )
