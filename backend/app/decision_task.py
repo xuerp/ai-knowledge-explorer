@@ -5,7 +5,8 @@ from dataclasses import dataclass, replace
 
 from .decision_clauses import clauses as parse_clauses
 from .decision_intent import CATALOG, positive_task_text
-from .decision_semantics import context_meaning
+from .decision_semantics import context_meaning, meaning_source
+from .decision_time import deadline_from_quote, execution_bounds
 
 NUMBER = r"(?:\d+(?:\.\d+)?|[零〇一二两三四五六七八九十百千万]+)"
 
@@ -68,21 +69,17 @@ def understand_task(task: str) -> TaskUnderstanding:
         part.text
         for part in clauses
         if part.prohibited
+        # Retention is deliberately broader than lexical goal exclusion.
+        # Unknown negated operations must survive even if the verb is absent
+        # from the catalog; a negative adjective must not erase its goal.
+        or re.search(r"[不未没无]|\b(?:no|not|never|without)\b", part.text, re.IGNORECASE)
         or re.search(
             r"不能|不要|不得|不想|不允许|不传|不.*传出去|只|最多|预算|断网|离线|内存|显卡|确认|审批|must|only|offline|budget",
             part.text,
             re.IGNORECASE,
         )
     )
-    duration = rf"(?:半(?:个)?小时|{NUMBER}\s*(?:分钟|小时)|\d+\s*(?:minutes?|hours?))"
-    # A recording's length is not a deadline. Require an execution/time-budget
-    # relationship, rather than selecting the first duration in the request.
-    time = re.search(
-        rf"(?:限时|最多用|用时|耗时|花|给出|设计一个|在|within|in)\s*({duration})"
-        rf"|({duration})\s*(?:内|能|完成|试用|验证|测试|为限|时间|time limit)",
-        task,
-        re.IGNORECASE,
-    )
+    deadlines = execution_bounds(task)
     positive = positive_task_text(task)
     deployment_text = " ".join(
         part.text
@@ -93,7 +90,7 @@ def understand_task(task: str) -> TaskUnderstanding:
         goal=task,
         materials=materials,
         limits=limits,
-        time_limit=next((value for value in time.groups() if value), None) if time else None,
+        time_limit=deadlines[0].value if deadlines else None,
         offline=bool(
             re.search(
                 r"完全(?:离线|断网)|(?:全程|必须|要求).{0,8}(?:离线|断网)|一个字都不能传出去|只能在.{0,12}(?:机器|本机|本地)|(?:不得|不能|禁止).{0,6}(?:离开|传出).{0,8}(?:本机|本地|这台|当前设备)|不能上传|不得上传|禁止上传|fully offline|air.gapped|must stay local|no cloud|(?:must not|cannot) leave (?:this|the local).{0,12}(?:computer|device|machine)",
@@ -122,7 +119,12 @@ def understand_context(context) -> TaskUnderstanding:
         for item in meaning.items
         if item.role in {"condition", "prohibition", "sample", "unavailable-material"}
     )
-    deadlines = [item.quote for item in meaning.items if item.role == "deadline"]
+    deadlines = [
+        value
+        for item in meaning.items
+        if item.role == "deadline"
+        and (value := deadline_from_quote(item.quote, meaning_source(context)))
+    ]
     return replace(
         deterministic,
         materials=materials,

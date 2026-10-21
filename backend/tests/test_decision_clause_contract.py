@@ -77,3 +77,15 @@ def test_available_material_after_absence_is_retained():
     parsed = understand_task("我没有代码仓库只有 PDF 文档")
     assert "代码" not in parsed.materials and "仓库" not in parsed.materials
     assert "PDF" in parsed.materials and "文档" in parsed.materials
+
+
+@pytest.mark.parametrize(
+    "restriction", ["不连接业务系统", "不联系客户", "不启用摄像头", "原始样本不登记到外部平台"]
+)
+def test_unlisted_negated_operations_are_retained_without_a_verb_catalog(restriction):
+    assert restriction in understand_task("核对一张合成库存表；" + restriction).limits
+
+
+def test_retaining_negative_wording_does_not_erase_a_positive_goal():
+    task = "不合格品的投诉需要分类"
+    assert task in positive_task_text(task)

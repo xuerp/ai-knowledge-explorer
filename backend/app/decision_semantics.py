@@ -12,6 +12,8 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .decision_time import deadline_from_quote
+
 
 class SourceItem(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
@@ -118,14 +120,10 @@ def validate_meaning(raw: str, task: str) -> TaskMeaning:
             and item.role in {"goal", "output", "material"}
         ):
             raise ValueError("A negative clause cannot become a positive task or material.")
-        if item.role == "deadline" and "内" not in item.quote:
-            quoted = re.escape(item.quote)
-            if re.search(
-                quoted + r"(?:的)?(?:录音|视频|音频|影片|recording|video|audio)",
-                task,
-                re.IGNORECASE,
-            ):
-                raise ValueError("A media duration cannot become an execution deadline.")
+        if item.role == "deadline" and deadline_from_quote(item.quote, task) is None:
+            raise ValueError(
+                "A deadline needs a grounded execution bound, not only a source quote."
+            )
     preserved = [
         item.quote
         for item in meaning.items
@@ -191,6 +189,11 @@ def normalize_proposal(raw: str, task: str) -> tuple[str, list[str]]:
     items = []
     for item in proposal.items:
         role = item.role
+        if role == "deadline" and deadline_from_quote(item.quote, task) is None:
+            # Preserve the original request as a condition, but do not promote
+            # urgency, availability, metadata or media length to a stop timer.
+            role = "condition"
+            events.append("unverified-deadline-role")
         if role == "material" and re.search(
             CATALOG["interpretation"]["conditionAssertion"], item.quote, re.IGNORECASE
         ):

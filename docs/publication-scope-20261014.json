@@ -155,12 +155,17 @@
     {
       "path": "backend/app/decision_semantics.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "7de672e9aa804bbea655f06053f89c98b50c44a256d3eabd941b3d300fcde5b8"
+      "sha256": "1b3b078718c9f6c0224eea78b4a4b0b44a3f597e5daf832de4749c092348c9ee"
     },
     {
       "path": "backend/app/decision_task.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "19bfa26d9cc0c3bfa35d78d73332a57e0c42eec0f54bc2b696af13da589bada4"
+      "sha256": "0637ffc9aba0bbd992c074dd94adc2fce546668dc117580e76ac9451a335a61f"
+    },
+    {
+      "path": "backend/app/decision_time.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "b3bd674f482a0f99fb16ba014afee9e1a2ee648aa6a28b335e1b847a3ef86828"
     },
     {
       "path": "backend/app/decision_trial_runner.py",
@@ -415,7 +420,7 @@
     {
       "path": "backend/tests/test_decision_clause_contract.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "7a2e4478bf93b9cb6bc377dc3e2b6b48f117ad5df91764becc63db4f4f021c23"
+      "sha256": "cedc204c0901e42f0116db9c7d5f04a4f4d561ed864b4da827081b3456a555d2"
     },
     {
       "path": "backend/tests/test_decision_comparison_36h.py",
@@ -525,7 +530,7 @@
     {
       "path": "backend/tests/test_decision_semantic_api.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "3f7008be0073d8d330f89684ac02db4b66865db6bbe7be31621056a8e15eb8c4"
+      "sha256": "4e1aa80a3424f5c2cd6fcf9db334991fcc52cd0039688b9f1fb46331b95a4992"
     },
     {
       "path": "backend/tests/test_decision_semantic_transport.py",
@@ -541,6 +546,11 @@
       "path": "backend/tests/test_decision_task_acceptance.py",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
       "sha256": "5309f78d5a8d86df5f95ed233c24da58fe3d65a1700bbbd95cdd9188f2d0dfb8"
+    },
+    {
+      "path": "backend/tests/test_decision_time.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "37896b55fabe858380e30e9889e08b30c3f2c30c438c28397d330665c95c6c6f"
     },
     {
       "path": "backend/tests/test_decision_trial_runner.py",
@@ -770,12 +780,12 @@
     {
       "path": "docs/DECISION_REBUILD_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "b6bba31d313d60882496a022a4974b28728fa34470f7080c28195eddf2ff5e83"
+      "sha256": "6b4a210a446c59d5c20b3354ed34e10997550ff63a61a23a9dffc2531a7de0a8"
     },
     {
       "path": "docs/DECISION_RUNTIME_ENABLEMENT_20261021.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "b35f770c97083e356b9095be00dbf4732be4f96f865886d871a894faa5a2a73e"
+      "sha256": "c4b7a86f5415aec9e109a0d6613c9168077e0885e15113c346ddd70381068ccb"
     },
     {
       "path": "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json",
@@ -786,6 +796,11 @@
       "path": "docs/DECISION_TASK_COVERAGE_20261016.md",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
       "sha256": "3592f41b547e423ddb11df061cb77a74c4d97c4c64d3feb4a210e0c42bc5a17b"
+    },
+    {
+      "path": "docs/DECISION_TIME_ROLE_REMEDIATION_20261021.md",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "77f8ce3af4086a55f88fc6bab90063812e654d2bc1622ee23deab9084eb0596a"
     },
     {
       "path": "docs/README.md",
@@ -1638,7 +1653,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 327,
+  "publicFileCount": 330,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-21",

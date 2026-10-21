@@ -168,3 +168,80 @@ def test_source_comparison_is_a_semantic_route_without_keyword_fallback(tmp_path
         assert result["decision"]["plan"]["trialCandidateIds"] == []
         reopened = client.get("/api/v2/research/" + result["id"], headers=headers).json()
         assert reopened["decision"]["guidance"] == guidance
+
+
+def test_unverified_deadline_does_not_reach_saved_steps_or_report(tmp_path):
+    import re
+
+    task = "核对一张合成库存表；马上开始；不连接业务系统"
+
+    class IncorrectTimeRole:
+        def interpret(self, request):
+            return json.dumps(
+                {
+                    "version": 2,
+                    "source_sha256": request["source_sha256"],
+                    "state": "understood",
+                    "route": "table-normalization",
+                    "ambiguity": None,
+                    "items": [
+                        {"quote": "核对一张合成库存表", "role": "goal"},
+                        {"quote": "马上开始", "role": "deadline"},
+                    ],
+                },
+                ensure_ascii=False,
+            )
+
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'time-api.db').as_posix()}",
+        seed_snapshot_path=Path(__file__).parents[1] / "data/demo_snapshot.json",
+        admin_token=None,
+        cors_origins=(),
+        environment="test",
+        jwt_secret="time-api-isolated-secret-at-least-32",
+        rag_generation_enabled=False,
+        embedding_provider="none",
+    )
+    with TestClient(create_app(settings, task_interpreter=IncorrectTimeRole())) as client:
+        auth = client.post(
+            "/api/v2/auth/register",
+            json={"email": "time-api@example.com", "password": "time-api-test-only-password"},
+        )
+        auth.raise_for_status()
+        headers = {"Authorization": "Bearer " + auth.json()["accessToken"]}
+        response = client.post(
+            "/api/v2/research",
+            headers=headers,
+            json={
+                "question": task,
+                "language": "zh",
+                "decisionContext": {
+                    "workflowVersion": 2,
+                    "task": task,
+                    "priority": "balanced",
+                    "deployment": "undecided",
+                },
+            },
+        )
+        response.raise_for_status()
+        result = response.json()
+        assert result["decisionContext"]["taskMeaning"]["status"] == "validated"
+        assert (
+            "unverified-deadline-role" in result["decisionContext"]["taskMeaning"]["normalizations"]
+        )
+        guidance = result["decision"]["guidance"]
+        assert guidance["outcome"] == "conditional"
+        assert not any(item["field"] == "time-limit" for item in guidance["intent"])
+        instruction = guidance["nextAction"]["instruction"]
+        assert "到 马上开始 停止" not in instruction and "不连接业务系统" in instruction
+        assert instruction == " ".join(result["decision"]["plan"]["trial"]["procedure"])
+        prompt = guidance["nextAction"]["executionPrompt"]
+        assert task in prompt and "到 马上开始 停止" not in prompt
+        reopened = client.get("/api/v2/research/" + result["id"], headers=headers)
+        reopened.raise_for_status()
+        assert reopened.json()["decision"]["guidance"] == guidance
+        md = client.get(
+            "/api/v2/research/" + result["id"] + "/report?format=md&language=zh", headers=headers
+        )
+        md.raise_for_status()
+        assert re.sub(r"\s+", " ", prompt) in re.sub(r"\s+", " ", md.text)
