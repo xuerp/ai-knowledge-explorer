@@ -44,27 +44,21 @@ export function decisionTrialKit(
     research.decisionContext?.taskType === "coding-product";
   const knowledgeWorkspace = research.decision.scenario?.id === "knowledge-workspace";
   const starterInputs = coding
-    ? t(
-        "先选一个真实报错或一项小功能，提供相关文件、复现步骤和运行／验收命令。先试一项即可；完整对比方案可按需查看。",
-        "Start with one real bug or a small feature. Supply related files, reproduction steps and run/test commands. The full comparison protocol is optional.",
-      )
+    ? `${protocol.procedure[0] || protocol.sample} ${t("先从本次限定的任务开始；完整对比方案可按需查看。", "Start with the task defined for this trial; the full comparison protocol is optional.")}`
     : knowledgeWorkspace
       ? protocol.procedure[0] || protocol.sample
       : protocol.sample;
   const prompt = coding
     ? [
+        `${t("本次任务", "Task for this trial")}:\n${protocol.sample}`,
         `${t("执行范围与时间限制", "Execution scope and time limit")}:\n${protocol.procedure.join("\n")}`,
-        t(
-          "请在我提供的代码中完成一项小任务：修复一个报错，或实现我明确指定的一项简单功能。本轮只做这一项。",
-          "Complete one small task in the code I provide: fix one bug or implement one explicitly requested small feature. Do only that task.",
-        ),
         t(
           "我会附上相关文件、问题描述／复现步骤和验收要求。材料不够时先问我，不要猜测缺少的代码。",
           "I will supply related files, a problem description/reproduction steps and acceptance criteria. Ask for missing inputs instead of guessing code.",
         ),
         t(
-          "先复现问题并说明修改计划，再做尽量小的改动，保留无关功能和已有测试。",
-          "Reproduce the problem, explain the change, then make a minimal fix while preserving unrelated behavior and existing tests.",
+          "仅执行本次任务明确允许的操作，保留只读、隐私和访问限制；不追加修改、功能或重构。",
+          "Perform only operations explicitly allowed for this task, preserving read-only, privacy and access restrictions; do not add changes, features or refactoring.",
         ),
         t(
           "完成后给出：改了什么、实际运行的测试命令和结果、尚未完成的部分。不能运行测试就明确说明，不要把未运行写成通过。",

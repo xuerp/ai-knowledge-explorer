@@ -148,8 +148,8 @@ PROTOCOLS = {
     ),
     "general-text": (
         (
-            "按原题范围准备同一组获准使用的请求，可用真实或合成样本；先确认接受标准，包含正常、歧义、无资料和边界请求。",
-            "Prepare identical authorized requests within the stated scope, using real or synthetic samples. Define acceptance criteria first, including ordinary, ambiguous, unsupported and edge requests.",
+            "仅使用原题允许的材料与样本类型，保留隐私和访问限制；先确认接受标准，在允许范围内检查正常、歧义、无资料和边界请求。",
+            "Use only materials and sample types permitted by the task, preserving privacy and access restrictions. Define acceptance criteria first and check ordinary, ambiguous, unsupported and edge requests within the permitted scope.",
         ),
         (
             "固定模型、提示词和可用资料，匿名混排候选答案。",
@@ -461,8 +461,16 @@ def build_plan(
                 "Validate only this requested repository task: " + task.goal,
             )
             procedure = t(
-                "使用独立工作副本，先复现问题并确认修改方案，再进行最小改动；不追加新功能或重构任务。",
-                "Use an isolated working copy, reproduce the issue and confirm the plan before a minimal change; do not add feature or refactoring tasks.",
+                "使用独立工作副本，先检查原题相关材料并说明拟执行操作。仅在原题明确允许时修改文件或运行会改变状态的命令；只读任务仅输出分析与依据。不追加新功能或重构任务。",
+                "Use an isolated working copy, inspect the requested materials and explain the proposed operations. Modify files or run state-changing commands only when explicitly allowed by the task; read-only tasks return analysis and evidence only. Do not add feature or refactoring tasks.",
+            )
+            check = t(
+                "保留实际交付、引用文件位置及操作记录；涉及代码改动时保存补丁、实际测试命令和退出码，并独立核对验收。只读审查不要求生成补丁；无法运行的检查保持未测，不编造结果。",
+                "Retain actual deliverables, cited file locations and operation records. For code changes, retain patches, actual test commands and exit codes, and independently verify acceptance. Read-only reviews do not require a patch; checks that cannot run remain untested, without invented results.",
+            )
+            acceptance = t(
+                "交付符合原题及操作边界；代码改动不得破坏原测试。未交付、未运行的必要检查或人工补写不可记作自主通过。",
+                "Deliver the requested result within its operation boundaries; code changes must not regress existing tests. Missing deliverables, unrun required checks or human-written fixes do not count as autonomous success.",
             )
             if task.time_limit:
                 procedure += t(
@@ -555,6 +563,8 @@ def build_plan(
                     "Verify data destinations, access permissions and deployment boundaries before sending sensitive samples.",
                 )
             )
+        if context.task not in sample:
+            sample = t("本次任务：", "Task for this trial: ") + context.task + "\n" + sample
         trial = DecisionTrial(
             sample=sample, procedure=[procedure, check], metrics=metric_rows, acceptance=accept_rows
         )

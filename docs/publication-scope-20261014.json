@@ -134,7 +134,7 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "2f6722821f3b1f612276a889704f11060b16fcf7d69ef0764ee94237b53b6c82",
+      "sha256": "49cf93572db66ed5886e0f302ac5197addf87a7af740729ac46d47c9c22731a3",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -513,6 +513,11 @@
       "sha256": "cc7094ea36a7d1a1b890b4d07273c396f2f11d6452d53c517662546e94ea638c"
     },
     {
+      "path": "backend/tests/test_decision_operation_scope.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "a360c4d1d7bae814f13f26a1cedfc46b1f6527fc11b2b55a1c617379fcabb72a"
+    },
+    {
       "path": "backend/tests/test_decision_plan.py",
       "sha256": "5558ae700ca32195fe7d0f42e946cd00646d6fc49d9b9dcf0871e256f0569bed",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -745,7 +750,7 @@
     {
       "path": "docs/DECISION_EXISTING_TOOL_REMEDIATION_20261021.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "793a940de0094f516e0d3cb529c77d513fc882bea8b6f176d29ad5b903623328"
+      "sha256": "38f737f44db5584b3255aeece6327f595243ad66d5c1ea23571764d9ca9c73d9"
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
@@ -1209,7 +1214,7 @@
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "ffd154c8ea09e14e72eb62775a6f4462aba7ee49005abd7cf1906aa404705361",
+      "sha256": "c42f5b193a8a719e4b082311f1a98360c972e29a0cbe84ad053efb0e7e1abc0d",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1569,7 +1574,7 @@
     },
     {
       "path": "tests/decision-trial-kit.test.mjs",
-      "sha256": "65c7b341f934a7d90d635cae4adcbaf75bbd73fde3ce9aeca7679b90ba074cd7",
+      "sha256": "b4d61e9652e619bf2f752a14e61bdfdb7f637d7659a5ccb02aa72d9ec42e8665",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
@@ -1678,7 +1683,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 335,
+  "publicFileCount": 336,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-21",
