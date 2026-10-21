@@ -23,8 +23,8 @@ export function decisionTrialKit(
   );
   const fullPrompt = [
     t(
-      "这是一次产品选型试测。请按下面的使用目标处理我附带的实际材料，返回实际交付；不要回答选哪个产品，也不要虚构测试成绩。仅使用我提供的材料，不补造缺失信息。",
-      "This is a product selection trial. Process the actual materials I attach for the goal below and return the deliverable. Do not recommend a product or invent test scores. Use only provided materials without inventing missing information.",
+      "这是一次产品选型试测。请按下面的使用目标处理我提供的材料，返回实际交付；不要回答选哪个产品，也不要虚构测试成绩。样本可以是真实或合成的，沿用使用目标指定的范围，不补造缺失信息。",
+      "This is a product selection trial. Process the materials I provide for the goal below and return the deliverable. Do not recommend a product or invent test scores. Samples may be real or synthetic; keep the goal's specified scope without inventing missing information.",
     ),
     `${t("我的使用目标", "My usage goal")}: ${task}`,
     `${t("选型条件（保留使用边界，不据此声称测试通过）", "Selection conditions (retain scope; do not claim a test passed)")}:\n${conditions.join("\n")}`,
@@ -93,6 +93,17 @@ export function decisionTrialKit(
       : fullPrompt;
   const section = (title: string, rows: string[]) =>
     `## ${title}\n\n${rows.map((row) => `- ${row}`).join("\n")}`;
+  const inputPreparation = [
+    starterInputs,
+    t(
+      "按原题范围准备获准使用的样本，可用真实或合成材料。需要参考答案时，先核对已有人工参考；没有则先建立，歧义保留待确认，不以候选自己的输出作为参考答案。",
+      "Prepare authorized real or synthetic samples within the requested scope. When reference answers are needed, verify existing human references or establish them first, leaving ambiguity unconfirmed. Candidate outputs cannot serve as their own reference answers.",
+    ),
+    t(
+      "先写下具体入口、版本、配置、样本总数和最低合格标准；费用上限由你确定。",
+      "Record the interface, version, configuration, sample count and minimum acceptance criteria first; decide your spending limit.",
+    ),
+  ];
   const markdown = [
     `# ${t("我的选型试用任务包", "My selection trial kit")}`,
     t(
@@ -102,17 +113,7 @@ export function decisionTrialKit(
     `${t("对应分析", "Research")}: ${research.id}`,
     `${t("本轮候选", "Selected candidates")}: ${selected.map(entityName).join("、")}`,
     section(t("任务与选型条件", "Task and selection conditions"), [task, ...conditions]),
-    section(t("先准备材料", "Prepare inputs"), [
-      starterInputs,
-      t(
-        "提供你有权使用的实际样本，先人工标注合格答案/结果。此包没有虚构业务样本。",
-        "Provide actual samples you are permitted to use, with manually labeled accepted answers/results. This kit contains no invented business samples.",
-      ),
-      t(
-        "先写下具体入口、版本、配置、样本总数和最低合格标准；费用上限由你确定。",
-        "Record the interface, version, configuration, sample count and minimum acceptance criteria first; decide your spending limit.",
-      ),
-    ]),
+    section(t("先准备材料", "Prepare inputs"), inputPreparation),
     `## ${t("带到现有入口的任务提示", "Task prompt for your existing interface")}\n\n${prompt}`,
     section(t("完整对比方案（可选）", "Full comparison protocol (optional)"), [
       protocol.sample,
@@ -142,7 +143,7 @@ export function decisionTrialKit(
   // The plain Markdown export remains available for editors that support it.
   const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>${escape(t("试用任务说明", "Trial task instructions"))}</title><style>
   *{box-sizing:border-box}body{font:15px/1.7 system-ui,"Microsoft YaHei",sans-serif;color:#182235;background:#f6f7f9;margin:0;padding:28px}main{max-width:960px;margin:auto;background:white;padding:32px;border:1px solid #dfe3e9}h1{font-size:25px;line-height:1.4;margin:0 0 12px}h2{font-size:18px;line-height:1.5;margin:26px 0 8px}p{margin:8px 0}ul{padding-left:22px}li+li{margin-top:6px}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:#f1f4f8;border:1px solid #dfe3e9}.note{color:#526076;font-size:13px}.meta{overflow-wrap:anywhere}@media(max-width:600px){body{padding:12px}main{padding:20px}h1{font-size:22px}}@media print{@page{margin:18mm}body{padding:0;background:white}main{padding:0;border:0;max-width:none}h2{break-after:avoid}pre{background:white}li{break-inside:avoid}}
-  </style></head><body><main><h1>${escape(t("试用任务说明", "Trial task instructions"))}</h1><p class="note">${escape(t("供你带到现有产品中执行；这份说明不包含已完成的测试或成绩。", "Instructions to execute in your existing product, without completed tests or scores."))}</p><p><strong>${escape(t("本轮产品", "Products"))}：</strong>${escape(selected.map(entityName).join("、"))}</p><h2>${escape(t("使用目标", "Usage goal"))}</h2><p>${escape(task)}</p>${list(conditions)}<h2>${escape(t("先准备材料", "Prepare inputs"))}</h2><p>${escape(starterInputs)}</p><h2>${escape(t("复制到产品中的任务提示", "Task prompt to copy into your product"))}</h2><pre>${escape(prompt)}</pre><h2>${escape(t("完整对比方案与验收标准（可选）", "Full comparison protocol and acceptance criteria (optional)"))}</h2><p>${escape(protocol.sample)}</p>${list([...protocol.procedure, ...protocol.acceptance])}<h2>${escape(t("用过以后", "After your trial"))}</h2><p>${escape(t("回到原分析，选择“记录实际结果”，填写并保存。没有执行的项目保留待验证。", "Return to the analysis, select Record actual results, fill in and save. Untested checks stay pending."))}</p><p class="note meta">${escape(t("对应分析", "Research"))}: ${escape(research.id)}</p></main></body></html>`;
+  </style></head><body><main><h1>${escape(t("试用任务说明", "Trial task instructions"))}</h1><p class="note">${escape(t("供你带到现有产品中执行；这份说明不包含已完成的测试或成绩。", "Instructions to execute in your existing product, without completed tests or scores."))}</p><p><strong>${escape(t("本轮产品", "Products"))}：</strong>${escape(selected.map(entityName).join("、"))}</p><h2>${escape(t("使用目标", "Usage goal"))}</h2><p>${escape(task)}</p>${list(conditions)}<h2>${escape(t("先准备材料", "Prepare inputs"))}</h2>${list(inputPreparation)}<h2>${escape(t("复制到产品中的任务提示", "Task prompt to copy into your product"))}</h2><pre>${escape(prompt)}</pre><h2>${escape(t("完整对比方案与验收标准（可选）", "Full comparison protocol and acceptance criteria (optional)"))}</h2><p>${escape(protocol.sample)}</p>${list([...protocol.procedure, ...protocol.acceptance])}<h2>${escape(t("用过以后", "After your trial"))}</h2><p>${escape(t("回到原分析，选择“记录实际结果”，填写并保存。没有执行的项目保留待验证。", "Return to the analysis, select Record actual results, fill in and save. Untested checks stay pending."))}</p><p class="note meta">${escape(t("对应分析", "Research"))}: ${escape(research.id)}</p></main></body></html>`;
   return { prompt, markdown, html, protocol, starterInputs };
 }
 

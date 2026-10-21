@@ -147,8 +147,8 @@ PROTOCOLS = {
     ),
     "general-text": (
         (
-            "同一组真实请求与预先标注的接受标准，包含正常、歧义、无资料和边界请求。",
-            "Use identical real requests with predefined acceptance criteria, including ordinary, ambiguous, unsupported and edge requests.",
+            "按原题范围准备同一组获准使用的请求，可用真实或合成样本；先确认接受标准，包含正常、歧义、无资料和边界请求。",
+            "Prepare identical authorized requests within the stated scope, using real or synthetic samples. Define acceptance criteria first, including ordinary, ambiguous, unsupported and edge requests.",
         ),
         (
             "固定模型、提示词和可用资料，匿名混排候选答案。",

@@ -168,6 +168,31 @@ test("formatted trial instructions remain offline, escape user content and share
   assert.equal(research.decision.plan.trial.executed, false);
 });
 
+test("trial exports accept synthetic inputs and prepare missing human references before scoring", () => {
+  const research = fixture();
+  research.decisionContext.task = "仅用合成通知试分类，没有人工参考答案";
+  research.decision.plan.trial.sample = research.decisionContext.task;
+  for (const lang of ["zh", "en"]) {
+    const kit = decisionTrialKit(research, ["a"], () => "Candidate A", lang);
+    assert.ok(kit.markdown.includes(research.decisionContext.task));
+    assert.ok(kit.html.includes(research.decisionContext.task));
+    if (lang === "zh") {
+      assert.match(kit.markdown, /可用真实或合成材料/);
+      assert.match(kit.markdown, /没有则先建立/);
+      assert.match(kit.html, /没有则先建立/);
+      assert.match(kit.markdown, /不以候选自己的输出作为参考答案/);
+      assert.doesNotMatch(kit.markdown, /提供你有权使用的实际样本/);
+    } else {
+      assert.match(kit.markdown, /real or synthetic samples/);
+      assert.match(kit.markdown, /establish them first/);
+      assert.match(kit.html, /establish them first/);
+      assert.match(kit.markdown, /cannot serve as their own reference/);
+    }
+    assert.ok(kit.markdown.includes(kit.prompt));
+    assert.equal(kit.protocol.executed, false);
+  }
+});
+
 test("coding quick start is one actual task while full comparison stays optional", () => {
   const research = fixture();
   research.decisionContext.taskType = "coding-product";
