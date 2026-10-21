@@ -23,8 +23,8 @@ export function decisionTrialKit(
   );
   const fullPrompt = [
     t(
-      "这是一次产品选型试测。请按下面的使用目标处理我提供的材料，返回实际交付；不要回答选哪个产品，也不要虚构测试成绩。样本可以是真实或合成的，沿用使用目标指定的范围，不补造缺失信息。",
-      "This is a product selection trial. Process the materials I provide for the goal below and return the deliverable. Do not recommend a product or invent test scores. Samples may be real or synthetic; keep the goal's specified scope without inventing missing information.",
+      "这是一次产品选型试测。请按下面的使用目标处理我提供的材料，返回实际交付；不要回答选哪个产品，也不要虚构测试成绩。仅使用原题允许的材料，保留其样本类型、隐私和访问限制，不补造缺失信息。",
+      "This is a product selection trial. Process the materials I provide for the goal below and return the deliverable. Do not recommend a product or invent test scores. Use only materials permitted by the task, preserving its sample type, privacy and access restrictions without inventing missing information.",
     ),
     `${t("我的使用目标", "My usage goal")}: ${task}`,
     `${t("选型条件（保留使用边界，不据此声称测试通过）", "Selection conditions (retain scope; do not claim a test passed)")}:\n${conditions.join("\n")}`,
@@ -93,8 +93,8 @@ export function decisionTrialKit(
   const inputPreparation = [
     starterInputs,
     t(
-      "按原题范围准备获准使用的样本，可用真实或合成材料。需要参考答案时，先核对已有人工参考；没有则先建立，歧义保留待确认，不以候选自己的输出作为参考答案。",
-      "Prepare authorized real or synthetic samples within the requested scope. When reference answers are needed, verify existing human references or establish them first, leaving ambiguity unconfirmed. Candidate outputs cannot serve as their own reference answers.",
+      "仅准备原题允许的样本，保留其样本类型、隐私和访问限制。需要参考答案时，先核对已有人工参考；没有则先建立，歧义保留待确认，不以候选自己的输出作为参考答案。",
+      "Prepare only samples permitted by the task, preserving its sample type, privacy and access restrictions. When reference answers are needed, verify existing human references or establish them first, leaving ambiguity unconfirmed. Candidate outputs cannot serve as their own reference answers.",
     ),
     t(
       "先写下具体入口、版本、配置、样本总数和最低合格标准；费用上限由你确定。",

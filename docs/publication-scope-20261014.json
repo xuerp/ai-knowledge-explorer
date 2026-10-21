@@ -745,7 +745,7 @@
     {
       "path": "docs/DECISION_EXISTING_TOOL_REMEDIATION_20261021.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "321a26e9beae520fcefed3c0a1e1fcdb2ccbe1fa6c1898e2de70e3db6767551e"
+      "sha256": "793a940de0094f516e0d3cb529c77d513fc882bea8b6f176d29ad5b903623328"
     },
     {
       "path": "docs/DECISION_FIRST_USE_20261014.md",
@@ -1209,7 +1209,7 @@
     },
     {
       "path": "src/domain/decision-trial-kit.ts",
-      "sha256": "a822d344d974adefe192479df25ec27e9ae6e0ee0dd41e58df3c4369f6cd6ae5",
+      "sha256": "ffd154c8ea09e14e72eb62775a6f4462aba7ee49005abd7cf1906aa404705361",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -1569,7 +1569,7 @@
     },
     {
       "path": "tests/decision-trial-kit.test.mjs",
-      "sha256": "6d5854f6214a1f5882ed3cef935141a3413606c0e6167ed453f726d263d4f522",
+      "sha256": "65c7b341f934a7d90d635cae4adcbaf75bbd73fde3ce9aeca7679b90ba074cd7",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
     },
     {
