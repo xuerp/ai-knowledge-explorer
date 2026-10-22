@@ -160,7 +160,7 @@
     {
       "path": "backend/app/decision_stages.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "96c706c7566ed66d74c4f6dc85a97d3caa1433c2bdc7e43842bb7eee4513ba0f"
+      "sha256": "22de617ac77086dc54eb8509749224a33ca8f14d22074dc5f8753fe2fd516705"
     },
     {
       "path": "backend/app/decision_task.py",
@@ -570,7 +570,7 @@
     {
       "path": "backend/tests/test_decision_stages.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "45300cdc0813fe91c99dd10b50a86657c46f1e541a34750fffc5fc6436375eec"
+      "sha256": "e3b30b5e4c68537d68f66a3a495a150f521e99b5346f67a58f44067fc02deea6"
     },
     {
       "path": "backend/tests/test_decision_task_acceptance.py",
@@ -815,7 +815,7 @@
     {
       "path": "docs/DECISION_ORDERED_OUTPUTS_REMEDIATION_20261022.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
-      "sha256": "7f0c20603c1fd94885f2ecf3398efd662eec59b323e2b4a89e5279678a23935f"
+      "sha256": "b9bde6999a0d925a4fc0540e2f03c01e0738da69e509d04eae3a1a8693834260"
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",

@@ -91,6 +91,8 @@ def test_explicit_stages_are_separate_executable_and_not_a_product_qualification
     [
         ("不要先修改文件，然后执行发布。", "goal", "understood"),
         ("Never first upload records, then send emails.", "goal", "understood"),
+        ("如果先翻译，然后分类。", "goal", "understood"),
+        ("We previously first translated, then summarized.", "goal", "understood"),
         ("先翻译，然后分类。", "prohibition", "understood"),
         ("先翻译，然后分类。", "unavailable-material", "understood"),
         ("先翻译，然后分类。", "condition", "understood"),
@@ -139,8 +141,9 @@ def test_repository_phases_keep_the_dedicated_coding_protocol():
 
 
 @pytest.mark.parametrize("language", ["zh", "en"])
-def test_actual_api_saves_reopens_and_exports_every_stage(tmp_path, language):
-    task = "先把十五条合成质检备注分到四组，再基于分组整理有编号依据的交接说明。仅用合成备注，不发给外部人员，无法证明的原因写未知。"
+@pytest.mark.parametrize("use_interpreter", [True, False])
+def test_actual_api_saves_reopens_and_exports_every_stage(tmp_path, language, use_interpreter):
+    task = "先把十五条合成质检备注分类到四组，再基于分组整理有编号依据的交接说明。仅用合成备注，不发给外部人员，无法证明的原因写未知。"
 
     class Interpreter:
         calls = 0
@@ -170,7 +173,9 @@ def test_actual_api_saves_reopens_and_exports_every_stage(tmp_path, language):
         rag_generation_enabled=False,
         embedding_provider="none",
     )
-    with TestClient(create_app(settings, task_interpreter=interpreter)) as client:
+    with TestClient(
+        create_app(settings, task_interpreter=interpreter if use_interpreter else None)
+    ) as client:
         auth = client.post(
             "/api/v2/auth/register",
             json={"email": "stages@example.com", "password": "isolated-stages-test-password"},
@@ -193,10 +198,12 @@ def test_actual_api_saves_reopens_and_exports_every_stage(tmp_path, language):
         )
         assert response.status_code == 200, response.text
         value = response.json()
-        assert value["decisionContext"]["taskMeaning"]["status"] == "validated"
+        assert value["decisionContext"]["taskMeaning"]["status"] == (
+            "validated" if use_interpreter else "unavailable"
+        )
         guidance = value["decision"]["guidance"]
         assert "交接说明" in guidance["recommendation"]["summary"]
-        assert "分到四组" in guidance["recommendation"]["summary"]
+        assert "分类到四组" in guidance["recommendation"]["summary"]
         assert guidance["outcome"] == "conditional"
         assert len(value["decision"]["plan"]["trial"]["procedure"]) > 2
         prompt = guidance["nextAction"]["executionPrompt"]
@@ -209,4 +216,34 @@ def test_actual_api_saves_reopens_and_exports_every_stage(tmp_path, language):
         )
         assert report.status_code == 200
         assert re.sub(r"\s+", " ", prompt) in re.sub(r"\s+", " ", report.text)
-    assert interpreter.calls == 1
+    assert interpreter.calls == int(use_interpreter)
+
+
+@pytest.mark.parametrize("status", [None, "unavailable", "failed", "invalid"])
+def test_model_off_sequence_keeps_explicit_order_without_bypassing_parser_errors(status):
+    ctx = context("先分类合成留言，再按分类结果整理有编号依据的概要。")
+    ctx.task_meaning = TaskMeaningReceipt(status=status) if status else None
+    assert len(ordered_task_stages(ctx)) == (0 if status in {"failed", "invalid"} else 2)
+
+
+def test_stale_validated_meaning_cannot_unlock_the_default_path():
+    ctx = context("先分类合成留言，再按分类结果整理有编号依据的概要。")
+    ctx.task_meaning.meaning.source_sha256 = "0" * 64
+    assert ordered_task_stages(ctx) == ()
+
+
+def test_concise_primary_goal_does_not_erase_explicit_second_source_output():
+    task = "先把合成留言分类，再按分类结果整理有编号依据的概要。"
+    ctx = context(task)
+    ctx.task_meaning.meaning.items = [SourceItem(role="goal", quote="把合成留言分类")]
+    assert ordered_task_stages(ctx) == ("先把合成留言分类", "再按分类结果整理有编号依据的概要")
+
+
+def test_source_conditions_are_not_promoted_to_an_extra_goal():
+    task = "把留言分类。条件是先经人工许可，再使用隔离材料。"
+    ctx = context(task)
+    ctx.task_meaning.meaning.items = [
+        SourceItem(role="goal", quote="把留言分类"),
+        SourceItem(role="condition", quote="条件是先经人工许可，再使用隔离材料"),
+    ]
+    assert ordered_task_stages(ctx) == ()

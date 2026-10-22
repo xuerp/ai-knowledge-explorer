@@ -1,7 +1,8 @@
 """Retain explicitly ordered goals without guessing another method or product.
 
-This is a source grammar over validated goal excerpts, not semantic inference
-from topic keywords. Sequence is not proof of a data dependency or capability.
+This uses validated goal excerpts, or positive source clauses for a recognized
+text method when interpretation is unavailable. Sequence is not proof of a
+data dependency or capability, and a parser failure never unlocks this path.
 """
 
 import re
@@ -27,17 +28,49 @@ def ordered_task_stages(context) -> tuple[str, ...]:
     method name. Parallel goals and unmarked prose retain the existing path;
     this helper never invents their order.
     """
-    meaning = context_meaning(context)
-    if meaning is None or meaning.state != "understood" or meaning.scenario != "general-text":
-        return ()
-    sequences = []
     from .decision_clauses import clauses
-    from .decision_intent import CATALOG
+    from .decision_intent import CATALOG, task_workflow
 
-    positive = [item.quote for item in meaning.items if item.role in {"goal", "output"}]
-    regions = [item.quote for item in meaning.items if item.role == "goal"]
+    meaning = context_meaning(context)
     source = meaning_source(context)
-    if len(positive) > 1 and all(source.count(quote) == 1 for quote in positive):
+    if meaning is not None:
+        if meaning.state != "understood" or meaning.scenario != "general-text":
+            return ()
+        positive = [item.quote for item in meaning.items if item.role in {"goal", "output"}]
+        regions = [item.quote for item in meaning.items if item.role == "goal"]
+        if not regions:
+            return ()
+        if meaning.method:
+            # A concise interpreter must not erase an explicit second output.
+            # Add source clauses for a known text method, respecting its
+            # explicit non-goal roles; no new method or facts are inferred.
+            non_goals = [
+                item.quote for item in meaning.items if item.role not in {"goal", "output"}
+            ]
+            positive.extend(
+                part.text
+                for part in clauses(context.task, CATALOG["interpretation"])
+                if not part.prohibited and not any(part.text in quote for quote in non_goals)
+            )
+            regions.append(context.task)
+    else:
+        receipt = getattr(context, "task_meaning", None)
+        if receipt and receipt.status != "unavailable":
+            return ()
+        workflow = task_workflow(context.task)
+        if not workflow or workflow["scenario"] != "general-text":
+            return ()
+        # The ordinary, model-off path still retains explicitly written order.
+        # It does not infer an unrecognized method or pretend semantic parsing
+        # ran. The same clause roles exclude negative actions from stage input.
+        positive = [
+            part.text
+            for part in clauses(context.task, CATALOG["interpretation"])
+            if not part.prohibited
+        ]
+        regions = [context.task]
+    sequences = []
+    if meaning and len(positive) > 1 and all(source.count(quote) == 1 for quote in positive):
         # Concise parser excerpts may separate the goal and its second output,
         # or omit the first/then markers. Inspect their source paragraph, while
         # requiring each resulting stage to include a grounded positive item.
@@ -54,7 +87,7 @@ def ordered_task_stages(context) -> tuple[str, ...]:
         # provider assigned the whole sentence a goal role.
         preceding = re.split(r"[，,。.!?；;：:]", text[: first.start("step")])[-1]
         if re.search(
-            r"不要|不能|不得|禁止|勿|别|\b(?:never|not|cannot|can't|don't)\b",
+            r"不要|不能|不得|禁止|勿|别|如果|假如|一旦|之前|曾经|已经|过去|原先|\b(?:never|not|cannot|can't|don't|if|previously|already)\b",
             preceding,
             re.IGNORECASE,
         ) or any(part.prohibited for part in clauses(preceding, CATALOG["interpretation"])):
