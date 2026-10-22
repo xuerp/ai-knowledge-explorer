@@ -5,6 +5,7 @@ import re
 from .decision_dialogue import clarification_for, task_descriptions, unsupported_task
 from .decision_intent import CATALOG, scenario_definition, task_workflow
 from .decision_semantics import context_meaning
+from .decision_stages import ordered_task_stages
 from .decision_task import daily_workload, understand_context
 from .decision_tool_context import tool_context
 from .schemas import (
@@ -482,6 +483,30 @@ def build_guidance(result, context, snapshot, language):
         )
         instruction = " ".join(result.plan.trial.procedure)
         kind, label = "start", t("查看上手步骤", "See how to start")
+    stages = ordered_task_stages(context)
+    if (
+        stages
+        and result.plan
+        and result.plan.trial
+        and outcome in {"advice", "conditional"}
+        and not question
+        and not all_excluded
+    ):
+        # One catalog method cannot establish qualification for the entire
+        # requested chain. Retain each explicit goal while keeping the route
+        # conditional and refusing to invent a full-workflow product winner.
+        outcome, primary, ready, reasons = "conditional", None, [], []
+        headline = t(
+            f"按原题顺序完成这 {len(stages)} 步",
+            f"Complete the requested {len(stages)} stages in order",
+        )
+        summary = " → ".join(f"{i}. {quote}" for i, quote in enumerate(stages, 1))
+        tradeoff = t(
+            "各步交付都保留。当前资料只支持已识别的主方法，尚未核验一个具体工具能完成整条链路；先在现有入口确认各步所需能力，缺项保留阻塞及恢复要求。",
+            "Every stage's deliverable is retained. Evidence for the identified primary method does not verify one product for the whole chain. Confirm each required capability in your existing interface; retain gaps and recovery requirements.",
+        )
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看分步任务", "See the staged task")
     if unsupported_task(context):
         outcome, primary, ready, reasons = "unsupported", None, [], []
         headline = t(

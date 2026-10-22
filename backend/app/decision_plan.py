@@ -8,6 +8,7 @@ import re
 
 from .decision_intent import task_workflow
 from .decision_semantics import context_meaning
+from .decision_stages import ordered_task_stages, retain_ordered_trial
 from .decision_task import understand_context
 from .decision_tool_context import tool_context
 from .schemas import DecisionAction, DecisionContext, DecisionPlan, DecisionResult, DecisionTrial
@@ -568,6 +569,7 @@ def build_plan(
         trial = DecisionTrial(
             sample=sample, procedure=[procedure, check], metrics=metric_rows, acceptance=accept_rows
         )
+        trial = retain_ordered_trial(trial, ordered_task_stages(context), language)
         if qualified:
             add(
                 "business-trial",

@@ -115,7 +115,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "131f91e9528fadc2c47157127aaa299b9f69fc28a63aeac30afa4ccb3d286dee"
+      "sha256": "6ed6fe1e75025d8cb7c9be9e20644ae3050ebae5d8ee06d86d691317a17e2ff4"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -134,7 +134,7 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "7606960c8674667027297c2f9608bc53bbc18dd094d967988cadebb3617b5288",
+      "sha256": "8f419f0b6c721040b3d8d2bbd1ddaac8b39ba8e1a66a5f1ff106f775f74ad2a2",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -156,6 +156,11 @@
       "path": "backend/app/decision_semantics.py",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
       "sha256": "1b3b078718c9f6c0224eea78b4a4b0b44a3f597e5daf832de4749c092348c9ee"
+    },
+    {
+      "path": "backend/app/decision_stages.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "96c706c7566ed66d74c4f6dc85a97d3caa1433c2bdc7e43842bb7eee4513ba0f"
     },
     {
       "path": "backend/app/decision_task.py",
@@ -563,6 +568,11 @@
       "sha256": "782fbfa48228dc91612e2bb8e62d6cd09fb055412f61a21914d66bdf2ad065f2"
     },
     {
+      "path": "backend/tests/test_decision_stages.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "45300cdc0813fe91c99dd10b50a86657c46f1e541a34750fffc5fc6436375eec"
+    },
+    {
       "path": "backend/tests/test_decision_task_acceptance.py",
       "reviewBasis": "Six original public acceptance tasks, reviewed official Dify source facts, scenario and scoped-cost logic, derived knowledge entry, first-use workflow and regression evidence. No private records, credentials, runtime databases, paid-call receipts or raw consent transcripts.",
       "sha256": "5309f78d5a8d86df5f95ed233c24da58fe3d65a1700bbbd95cdd9188f2d0dfb8"
@@ -801,6 +811,11 @@
       "path": "docs/DECISION_NOVEL_TASK_TEST_20261020.md",
       "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
       "sha256": "a2b0f2a6e7ab41a759e524d1ec201f9e359dd39a1b5390326a81310ed17a70ff"
+    },
+    {
+      "path": "docs/DECISION_ORDERED_OUTPUTS_REMEDIATION_20261022.md",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "7f0c20603c1fd94885f2ecf3398efd662eec59b323e2b4a89e5279678a23935f"
     },
     {
       "path": "docs/DECISION_PRODUCT_ACCEPTANCE.md",
@@ -1693,7 +1708,7 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 338,
+  "publicFileCount": 341,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
   "lastVerifiedOn": "2026-10-22",
