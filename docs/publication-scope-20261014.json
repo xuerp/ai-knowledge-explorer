@@ -115,7 +115,7 @@
     {
       "path": "backend/app/decision_guidance.py",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
-      "sha256": "07fc41163a4d5d7eacf2c40280c8e54b3fdc4db18d97edf15626234085eb723d"
+      "sha256": "131f91e9528fadc2c47157127aaa299b9f69fc28a63aeac30afa4ccb3d286dee"
     },
     {
       "path": "backend/app/decision_intake.py",
@@ -134,7 +134,7 @@
     },
     {
       "path": "backend/app/decision_plan.py",
-      "sha256": "49cf93572db66ed5886e0f302ac5197addf87a7af740729ac46d47c9c22731a3",
+      "sha256": "7606960c8674667027297c2f9608bc53bbc18dd094d967988cadebb3617b5288",
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     },
     {
@@ -453,6 +453,11 @@
       "sha256": "9c76095e4afe4b567f082acaadeade667a6f9b9d77f4620d605143e8ea48f87b"
     },
     {
+      "path": "backend/tests/test_decision_equal_options.py",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "e47e6ef2e26de407c3c9a9df6808eae315dbc9228da46ce82fdfb8b3a886d4ee"
+    },
+    {
       "path": "backend/tests/test_decision_evidence_requests.py",
       "sha256": "ea4b38fe10413f3726befe6aa8901f8faed7a55f6a5042534a4f8fec3429780c",
       "reviewBasis": "Application test source with synthetic fixtures; dummy authentication values stay in test code and are not account records."
@@ -741,6 +746,11 @@
       "path": "docs/DECISION_ACCEPTANCE_20261018.md",
       "reviewBasis": "Versioned decision advice, bounded clarification, preserved requirements and private revision boundaries, consistent exports and scoped engineering acceptance. No private records, credentials or new supplier facts.",
       "sha256": "b2579e17ee833a3f5c4f28aaefea5f84dcce746bfe6fb5310e219475b8320168"
+    },
+    {
+      "path": "docs/DECISION_EQUAL_OPTIONS_REMEDIATION_20261021.md",
+      "reviewBasis": "Decision task roles and source validation, final advice reconciliation, consistent copy/report output, synthetic acceptance fixtures and explicitly bounded operator evaluation. No credentials, private records or automatic provider activation.",
+      "sha256": "988546076bcb9be23ce5c0a17cf43c21bf6368a29cbe457342b00663b40eb0f5"
     },
     {
       "path": "docs/DECISION_EVIDENCE_COVERAGE_20261015.md",
@@ -1683,9 +1693,9 @@
       "reviewBasis": "Application/build/config source. Credentials are environment references, not actual values; excludes local environments and runtime artifacts."
     }
   ],
-  "publicFileCount": 336,
+  "publicFileCount": 338,
   "historicalConsentAndAccountExecutorRemoved": true,
   "hashBasis": "SHA-256 of the actual published Git blob bytes, before platform checkout conversion",
-  "lastVerifiedOn": "2026-10-21",
+  "lastVerifiedOn": "2026-10-22",
   "removedObsoleteLockfile": "pnpm-lock.yaml; actual Bun graph patched and independently audited, not merely removed to hide alerts"
 }

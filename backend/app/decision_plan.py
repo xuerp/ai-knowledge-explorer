@@ -461,8 +461,8 @@ def build_plan(
                 "Validate only this requested repository task: " + task.goal,
             )
             procedure = t(
-                "使用独立工作副本，先检查原题相关材料并说明拟执行操作。仅在原题明确允许时修改文件或运行会改变状态的命令；只读任务仅输出分析与依据。不追加新功能或重构任务。",
-                "Use an isolated working copy, inspect the requested materials and explain the proposed operations. Modify files or run state-changing commands only when explicitly allowed by the task; read-only tasks return analysis and evidence only. Do not add feature or refactoring tasks.",
+                "使用独立工作副本，先按原题要求复现问题或完成静态检查，展示依据并说明拟执行操作。仅在原题明确允许时做所需最小修改或运行会改变状态的命令；只读任务仅输出分析与依据。不追加新功能或重构任务。",
+                "Use an isolated working copy. First reproduce the issue or perform the static review required by the task, show the evidence and explain the proposed operations. Make the required minimal changes or run state-changing commands only when explicitly allowed by the task; read-only tasks return analysis and evidence only. Do not add feature or refactoring tasks.",
             )
             check = t(
                 "保留实际交付、引用文件位置及操作记录；涉及代码改动时保存补丁、实际测试命令和退出码，并独立核对验收。只读审查不要求生成补丁；无法运行的检查保持未测，不编造结果。",

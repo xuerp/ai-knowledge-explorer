@@ -260,11 +260,27 @@ def build_guidance(result, context, snapshot, language):
             )
             for feature in result.scenario.required_features[:3]
         ]
-        kind, label = "compare", t("比较使用方式与限制", "Compare interfaces and limits")
-        instruction = t(
-            "查看下面的已知差异；有现成入口时可先从该方案开始，尚未核验的条件仍保留。",
-            "Inspect the documented differences below. An existing interface can reduce setup; unverified conditions remain unknown.",
-        )
+        if result.plan and result.plan.trial:
+            # A tie in product evidence does not block the user's actual task.
+            # Keep every qualified option and avoid inventing a winner, while
+            # making the same scoped protocol available before product choice.
+            headline = t("先按本次任务做小范围验证", "Start with a bounded trial of your task")
+            summary = t(
+                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先确认其中一个你能使用的入口，再执行下方任务；无需逐个比较或测试才能开始。",
+                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Confirm one interface you can use, then follow the task below; comparing or testing every option is not required to start.",
+            )
+            tradeoff = t(
+                "现有差异证据不足以指定唯一优先方案；实际任务效果和你的账户可用性尚未核验。候选差异可在依据详情中按需查看。",
+                "Available differences do not establish one preferred option; task results and your account access are unverified. Candidate differences remain available in the optional evidence details.",
+            )
+            kind, label = "start", t("查看上手步骤", "See how to start")
+            instruction = " ".join(result.plan.trial.procedure)
+        else:
+            kind, label = "compare", t("比较使用方式与限制", "Compare interfaces and limits")
+            instruction = t(
+                "查看下面的已知差异；有现成入口时可先从该方案开始，尚未核验的条件仍保留。",
+                "Inspect the documented differences below. An existing interface can reduce setup; unverified conditions remain unknown.",
+            )
     elif primary:
         summary = t(
             f"先用 {name(primary)} 处理本次的{result.scenario.name}任务。现有资料覆盖必要功能。",
