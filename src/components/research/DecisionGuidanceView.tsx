@@ -115,6 +115,16 @@ export function DecisionGuidanceView({
   const task = research.decisionContext?.task ?? research.question;
   const prompt =
     guidance.nextAction.executionPrompt ?? `${task}\n\n${guidance.nextAction.instruction}`;
+  const procedure = research.decision?.plan?.trial?.procedure ?? [];
+  const normalizeWhitespace = (text: string) => text.replace(/\s+/g, " ").trim();
+  // Only reuse the structured steps when they contain exactly this instruction.
+  // Older records and non-trial actions may carry a different next action.
+  const instructionParagraphs =
+    procedure.length > 0 &&
+    normalizeWhitespace(procedure.join(" ")) ===
+      normalizeWhitespace(guidance.nextAction.instruction)
+      ? procedure
+      : guidance.nextAction.instruction.split(/\n+/).filter((text) => text.trim());
   const editPath = research.decisionContext
     ? decisionResumePath({ ...research.decisionContext, parentResearchId: research.id })
     : "/ask";
@@ -298,7 +308,25 @@ export function DecisionGuidanceView({
                   ? t("会影响选择的差异", "Differences that affect this choice")
                   : t("范围与下一步", "Scope and next step")}
             </h4>
-            <p>{guidance.nextAction.instruction}</p>
+            <div className="decision-guidance__instructions">
+              {instructionParagraphs.map((paragraph, index) => {
+                const stepHeading = paragraph.match(
+                  /^(?:第\s*\d+\s*步[：:]|Step\s+\d+[:.]).*?[。\n]/i,
+                )?.[0];
+                return (
+                  <p key={index}>
+                    {stepHeading ? (
+                      <>
+                        <strong className="decision-guidance__step-title">{stepHeading}</strong>
+                        {paragraph.slice(stepHeading.length)}
+                      </>
+                    ) : (
+                      paragraph
+                    )}
+                  </p>
+                );
+              })}
+            </div>
             {guidance.nextAction.kind === "start" && (
               <>
                 <p>

@@ -97,6 +97,15 @@
 .decision-guidance__action-area > * + * {
   margin-top: 12px;
 }
+.decision-guidance__instructions {
+  display: grid;
+  gap: 16px;
+}
+.decision-guidance__step-title {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 650;
+}
 .decision-guidance summary {
   cursor: pointer;
   color: var(--color-signal);
