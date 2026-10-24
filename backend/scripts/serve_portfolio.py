@@ -1,4 +1,4 @@
-"""Local real-source walkthrough. Does not enable paid services or public writes."""
+"""Local full-catalog preview. Does not enable paid services or public writes."""
 
 import hashlib
 import secrets
@@ -18,7 +18,7 @@ secret_path = OUTPUT / "session-secret.txt"
 if not secret_path.exists():
     secret_path.write_text(secrets.token_urlsafe(48), encoding="utf-8")
 
-snapshot_path = ROOT / "docs/portfolio/real-data/snapshot.json"
+snapshot_path = ROOT / "backend/data/demo_snapshot.json"
 snapshot_version = hashlib.sha256(snapshot_path.read_bytes()).hexdigest()[:16]
 settings = Settings(
     database_url="sqlite:///" + (OUTPUT / f"research-{snapshot_version}.db").as_posix(),
