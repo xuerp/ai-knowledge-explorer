@@ -1,3 +1,5 @@
+> 历史材料：本文数字与结论仅适用于原记录版本。当前作品集入口见 [2026-10-24 项目说明](portfolio/CASE_STUDY.md) 与 [当前验证记录](portfolio/VALIDATION.md)，不要将历史评测用于当前简历成绩。
+
 # AI Radar 作品集案例
 
 ## 项目摘要

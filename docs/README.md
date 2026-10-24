@@ -1,5 +1,9 @@
 # AI Radar 文档索引
 
+当前作品集入口：[项目案例](portfolio/CASE_STUDY.md) · [真实资料](portfolio/real-data/README.md) · [运行步骤](portfolio/WALKTHROUGH.md) · [验证记录](portfolio/VALIDATION.md) · [简历材料](portfolio/RESUME.md)
+
+作品集与生产验收范围分别记录，历史评测不代表当前状态。
+
 ## 文档权威顺序
 
 发生冲突时按以下顺序判断：

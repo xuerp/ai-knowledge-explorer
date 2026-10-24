@@ -1,0 +1,30 @@
+[
+  {
+    "id": "dify",
+    "url": "https://github.com/langgenius/dify/blob/b535806c4acd03f3970dedc99537e1c1928034ce/README.md",
+    "rawUrl": "https://raw.githubusercontent.com/langgenius/dify/b535806c4acd03f3970dedc99537e1c1928034ce/README.md",
+    "commit": "b535806c4acd03f3970dedc99537e1c1928034ce",
+    "sha256": "3c7fe487f1e89e6faec52f5421c71e749c1cecc3486725be3e03fb3fbb62e484",
+    "checkedAt": "2026-10-24T10:38:53.749568+00:00",
+    "publishedAt": null,
+    "excerpts": [
+      "The easiest way to start the Dify server is through",
+      "Build and test powerful AI workflows on a visual canvas",
+      "Extensive RAG capabilities that cover everything from document ingestion to retrieval"
+    ]
+  },
+  {
+    "id": "langchain",
+    "url": "https://github.com/langchain-ai/langchain/blob/b15a385cb1aa4507b86a3ba1e6430748b0c4ae4b/README.md",
+    "rawUrl": "https://raw.githubusercontent.com/langchain-ai/langchain/b15a385cb1aa4507b86a3ba1e6430748b0c4ae4b/README.md",
+    "commit": "b15a385cb1aa4507b86a3ba1e6430748b0c4ae4b",
+    "sha256": "9e6d706b38215c6979ef398ba72181b0f9099b8150f317c4c221877456c2dc2e",
+    "checkedAt": "2026-10-24T10:38:53.749568+00:00",
+    "publishedAt": null,
+    "excerpts": [
+      "LangChain is a framework for building agents and LLM-powered applications.",
+      "a standard interface for models, embeddings, vector stores, and more.",
+      "the LangChain framework can be used standalone"
+    ]
+  }
+]

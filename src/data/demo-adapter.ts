@@ -1,4 +1,5 @@
 import type { KnowledgeSnapshot } from "@/domain/types";
+import verifiedPortfolioSnapshot from "../../docs/portfolio/real-data/snapshot.json";
 import catalogExtension from "../../backend/data/catalog_extension.json";
 import frontierCatalog from "../../backend/data/frontier_catalog_v1.json";
 import { applyCatalogOverlays } from "./catalog-overlay.mjs";
@@ -192,8 +193,7 @@ export const BASE_DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
   ],
 };
 
-export const DEMO_KNOWLEDGE_SNAPSHOT = applyCatalogOverlays(
-  BASE_DEMO_KNOWLEDGE_SNAPSHOT,
-  catalogExtension,
-  frontierCatalog,
-);
+export const DEMO_KNOWLEDGE_SNAPSHOT =
+  import.meta.env.VITE_PORTFOLIO_REAL_DATA === "true"
+    ? (verifiedPortfolioSnapshot as KnowledgeSnapshot)
+    : applyCatalogOverlays(BASE_DEMO_KNOWLEDGE_SNAPSHOT, catalogExtension, frontierCatalog);
