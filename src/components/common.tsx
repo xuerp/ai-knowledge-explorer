@@ -5,6 +5,7 @@ import { CONFIDENCE_LABELS, ENTITY_TYPE_LABELS } from "@/domain/labels";
 import type { Confidence, DataMode, Entity, Source } from "@/domain/types";
 import { Link } from "@tanstack/react-router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SourceExcerpt } from "@/components/research/SourceExcerpt";
 
 export function DemoBadge({
   className = "",
@@ -150,38 +151,45 @@ export function EntityChip({ entity }: { entity: Entity }) {
 export function SourceRow({ source: src }: { source: Source }) {
   const { lang, t } = useApp();
   return (
-    <a
-      href={src.url}
-      target="_blank"
-      rel="noreferrer"
-      className="flex items-start gap-3 py-2 px-3 rounded-md hover:bg-accent/60 transition-colors group"
-    >
-      <div className="chip shrink-0 mt-0.5">{src.publisher}</div>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm text-foreground group-hover:text-signal truncate">
-          {pick(src.title, lang)}
-        </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3">
-          <span>
-            {src.publishedAt
-              ? `${t("发布", "Published")} ${src.publishedAt.slice(0, 10)}`
-              : t("发布日期待核实", "Publication date not verified")}
-          </span>
-          <span>
-            {t("采集", "Collected")} {src.collectedAt.slice(0, 10)}
-          </span>
-          {src.verifiedAt && (
+    <div className="min-w-0">
+      <a
+        href={src.url}
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-start gap-3 py-2 px-3 rounded-md hover:bg-accent/60 transition-colors group"
+      >
+        <div className="chip shrink-0 mt-0.5">{src.publisher}</div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm text-foreground group-hover:text-signal [overflow-wrap:anywhere]">
+            {pick(src.title, lang)}
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3">
             <span>
-              {t("核验", "Verified")}{" "}
-              <time dateTime={src.verifiedAt} title={src.verifiedAt}>
-                {src.verifiedAt.slice(0, 10)}
-              </time>
+              {src.publishedAt
+                ? `${t("发布", "Published")} ${src.publishedAt.slice(0, 10)}`
+                : t("发布日期待核实", "Publication date not verified")}
             </span>
-          )}
+            <span>
+              {t("采集", "Collected")} {src.collectedAt.slice(0, 10)}
+            </span>
+            {src.verifiedAt && (
+              <span>
+                {t("核验", "Verified")}{" "}
+                <time dateTime={src.verifiedAt} title={src.verifiedAt}>
+                  {src.verifiedAt.slice(0, 10)}
+                </time>
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />
-    </a>
+        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1" />
+      </a>
+      {src.sourceExcerpt?.trim() && (
+        <div className="px-3 pb-2">
+          <SourceExcerpt source={src} lang={lang} />
+        </div>
+      )}
+    </div>
   );
 }
 

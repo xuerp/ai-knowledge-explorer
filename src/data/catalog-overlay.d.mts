@@ -5,3 +5,5 @@ export function applyCatalogOverlays(
   extension: object,
   frontier: object,
 ): KnowledgeSnapshot;
+
+export function publicCatalogSnapshot(catalog: KnowledgeSnapshot): KnowledgeSnapshot;

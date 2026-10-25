@@ -345,6 +345,10 @@ class KnowledgeRepository:
                             timeline.append(item)
                         else:
                             timeline[index] = merge_dict(timeline[index], item)
+            # Editorial navigation prompts are not popularity statistics or user answers.
+            prompt_path = Path(__file__).resolve().parents[2] / "product/research-prompts.v1.json"
+            if prompt_path.exists():
+                payload["researchQuestions"] = json.loads(prompt_path.read_text(encoding="utf-8"))
             self._seed = KnowledgeSnapshot.model_validate(payload)
             changes = {change.id: change for change in self._seed.changes}
             changes.update({change.id: change for change in catalog_changes(self._seed)})
@@ -1074,6 +1078,11 @@ class KnowledgeRepository:
         )
         snapshot.review_candidates = []
         snapshot.sync_runs = []
+        # User-owned activity belongs to authenticated endpoints, not public seeds.
+        snapshot.following = []
+        snapshot.interest_profile = []
+        snapshot.research_answers = []
+        snapshot.notifications = []
         snapshot.meta.mode = self.data_mode
         snapshot.meta.freshness = "cached" if self.data_mode == "demo" else "fresh"
         snapshot.meta.retrieved_at = datetime.now(UTC).isoformat()

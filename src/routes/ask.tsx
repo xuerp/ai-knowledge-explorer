@@ -6,7 +6,7 @@ import { WorkspaceHeader, DemoBadge } from "@/components/common";
 import { useApp, pick } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
 import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
-import type { Evidence, ResearchAnswer } from "@/domain/types";
+import type { Evidence } from "@/domain/types";
 import { SourceExcerpt } from "@/components/research/SourceExcerpt";
 import { selectResearchEvidence } from "@/domain/research-evidence";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -66,7 +66,6 @@ function AskPage() {
     : knowledgeRepository.mode === "demo"
       ? DEMO_KNOWLEDGE_SNAPSHOT
       : null;
-  const showcaseAnswers = snapshot?.researchAnswers ?? [];
   const [token, setToken] = useState("");
   const [task, setTask] = useState("");
   const [priority, setPriority] = useState<DecisionContext["priority"]>("balanced");
@@ -475,29 +474,21 @@ function AskPage() {
       return;
     }
     if (!token) {
-      const showcaseAnswer = showcaseAnswers.find(
-        (answer) => pick(answer.question, lang) === normalizedTask,
+      setResearch(null);
+      setSessionExpired(true);
+      setError(
+        t(
+          "请登录后按你的需求生成研究；当前未提交请求，输入会在登录后恢复。",
+          "Sign in to research your requirements. No request was submitted; your inputs will resume after login.",
+        ),
       );
-      if (!showcaseAnswer) {
-        setResearch(null);
-        setSessionExpired(true);
-        setError(
-          t(
-            "请登录后核验自定义业务与条件；当前未提交实际研究，输入会在登录后恢复。",
-            "Sign in to evaluate this custom scenario and its constraints. No research was submitted; your inputs will resume after login.",
-          ),
-        );
-        return;
-      }
-      setError("");
-      setResearch(toShowcaseResearch(showcaseAnswer, lang, decisionContext));
       return;
     }
     if (!userApi.configured) {
       setError(
         t(
-          "真实研究服务当前未配置；仍可退出登录体验公开快照中的预置问题。",
-          "Live research is not configured; sign out to try preset questions from the public snapshot.",
+          "研究服务当前未配置。你的输入已保留，请配置后重试。",
+          "Research is not configured. Your inputs are preserved; configure the service and retry.",
         ),
       );
       return;
@@ -1459,65 +1450,6 @@ function composeDecisionQuestion(context: DecisionContext, lang: "zh" | "en") {
   return lang === "zh"
     ? `${context.task}\n优先级：${context.priority}；预算：${context.budget.mode}；部署：${context.deployment}；排除：${exclusions}${context.notes ? `；补充：${context.notes}` : ""}`
     : `${context.task}\nPriority: ${context.priority}; budget: ${context.budget.mode}; deployment: ${context.deployment}; exclusions: ${exclusions}${context.notes ? `; notes: ${context.notes}` : ""}`;
-}
-
-function toShowcaseResearch(
-  answer: ResearchAnswer,
-  lang: "zh" | "en",
-  context?: DecisionContext,
-): ResearchResult {
-  return {
-    id: answer.id,
-    question: pick(answer.question, lang),
-    summary: pick(answer.summary, lang),
-    claimIds: answer.claimIds,
-    steps: answer.steps,
-    status: answer.status,
-    retrievalMode: "lexical",
-    answerMode: "extractive",
-    retrievalDiagnostics: {
-      candidateCount: answer.claimIds.length,
-      returnedCount: answer.claimIds.length,
-      filteredCount: 0,
-      elapsedMs: 0,
-      matchedEntityIds: [],
-      fallbackReason: "demo-snapshot",
-      generationFallbackReason: "generation-disabled",
-    },
-    ...(context
-      ? {
-          decision: {
-            status: answer.status === "ready" ? "ready" : "insufficient-evidence",
-            asOf: answer.generatedAt,
-            recommendation: {
-              alternativeEntityIds: [],
-              summary: pick(answer.summary, lang),
-            },
-            conditions: [
-              `${lang === "zh" ? "预置问题" : "Preset question"}: ${pick(answer.question, lang)}`,
-            ],
-            tradeoffs: [],
-            risks: [
-              {
-                state: "inferred" as const,
-                detail:
-                  lang === "zh"
-                    ? "公开研究仅覆盖预置问题与快照证据。"
-                    : "Public research covers only preset questions and snapshot evidence.",
-                claimIds: answer.claimIds,
-              },
-            ],
-            nextChecks: [
-              lang === "zh"
-                ? "登录后使用实时研究服务，并用真实样本进行 PoC。"
-                : "Sign in for live research and run a proof of concept on representative samples.",
-            ],
-            claimIds: answer.claimIds,
-          },
-        }
-      : {}),
-    createdAt: answer.generatedAt,
-  };
 }
 
 function DecisionSelect({

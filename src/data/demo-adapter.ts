@@ -1,7 +1,8 @@
 import type { KnowledgeSnapshot } from "@/domain/types";
+import researchPrompts from "../../product/research-prompts.v1.json";
 import catalogExtension from "../../backend/data/catalog_extension.json";
 import frontierCatalog from "../../backend/data/frontier_catalog_v1.json";
-import { applyCatalogOverlays } from "./catalog-overlay.mjs";
+import { applyCatalogOverlays, publicCatalogSnapshot } from "./catalog-overlay.mjs";
 import {
   CLAIMS,
   ENTITIES,
@@ -46,20 +47,7 @@ export const BASE_DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
     { id: "multimodal", label: { zh: "多模态", en: "Multimodal" }, score: 45 },
     { id: "china", label: { zh: "中国生态", en: "Chinese ecosystem" }, score: 60 },
   ],
-  researchQuestions: [
-    {
-      zh: "GPT-5 与 Claude 4.5 在代码任务上谁更强？",
-      en: "GPT-5 vs Claude 4.5 on code — which is better?",
-    },
-    {
-      zh: "DeepSeek R2 真的比 GPT-5 便宜 10 倍吗？",
-      en: "Is DeepSeek R2 really 10× cheaper than GPT-5?",
-    },
-    {
-      zh: "MCP 协议目前有哪些已知集成？",
-      en: "Which integrations does MCP have today?",
-    },
-  ],
+  researchQuestions: researchPrompts,
   researchAnswers: [
     {
       id: "research-demo-gpt-claude",
@@ -192,8 +180,6 @@ export const BASE_DEMO_KNOWLEDGE_SNAPSHOT: KnowledgeSnapshot = {
   ],
 };
 
-export const DEMO_KNOWLEDGE_SNAPSHOT = applyCatalogOverlays(
-  BASE_DEMO_KNOWLEDGE_SNAPSHOT,
-  catalogExtension,
-  frontierCatalog,
+export const DEMO_KNOWLEDGE_SNAPSHOT = publicCatalogSnapshot(
+  applyCatalogOverlays(BASE_DEMO_KNOWLEDGE_SNAPSHOT, catalogExtension, frontierCatalog),
 );

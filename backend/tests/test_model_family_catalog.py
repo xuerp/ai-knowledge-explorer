@@ -155,6 +155,18 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     assert len(expected) == 259
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
+        for key in (
+            "following",
+            "interestProfile",
+            "researchAnswers",
+            "notifications",
+            "reviewCandidates",
+            "syncRuns",
+        ):
+            assert snapshot[key] == [], key
+        assert len(snapshot["entities"]) == len(seed.entities)
+        assert len(snapshot["evidence"]) == len(seed.evidence)
+        assert snapshot["researchQuestions"]
         changes = snapshot["changes"]
         assert changes == [item.model_dump(mode="json", by_alias=True) for item in expected]
         assert changes[0]["date"] == "2026-10-06"
@@ -301,3 +313,15 @@ def test_catalog_refresh_corrects_old_seed_dates_and_protects_admin_edits(tmp_pa
         session.commit()
         KnowledgeRepository(seed_path).seed_catalog(session)
         assert json.loads(relation.payload_json)["confidence"] == "inferred"
+
+
+def test_gemini_video_limit_uses_direct_current_source_instead_of_unqualified_hours():
+    snapshot = KnowledgeRepository(SEED).load_seed()
+    claim = next(item for item in snapshot.claims if item.id == "c-gemini-video")
+    assert "2-hour" not in claim.text.en
+    assert "10 videos per request" in claim.text.en
+    source = next(item for item in snapshot.evidence if item.id == claim.source_ids[0])
+    assert source.url.startswith("https://ai.google.dev/gemini-api/docs/video-understanding")
+    assert "maximum of 10 videos per request" in source.source_excerpt
+    assert source.verified_at == "2026-10-25"
+    assert not source.published_at
