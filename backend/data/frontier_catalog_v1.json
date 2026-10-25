@@ -31594,6 +31594,21 @@
   ],
   "evidence": [
     {
+      "id": "s-google-video-understanding-20261025",
+      "title": {
+        "zh": "Gemini API 视频理解：输入限制",
+        "en": "Gemini API video understanding: input limits"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/video-understanding?hl=en",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-10-25",
+      "verifiedAt": "2026-10-25",
+      "sourceExcerpt": "For Gemini 2.5 and later models, you can upload a maximum of 10 videos per request.",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
       "id": "s-openai-gpt6-astra-model",
       "title": {
         "zh": "GPT-6 Astra API 模型文档",
@@ -35826,7 +35841,7 @@
         "zh": "GPT-4o · 官方规格与计费资料",
         "en": "GPT-4o · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35841,7 +35856,7 @@
         "zh": "GPT-4.5 Preview · 官方规格与计费资料",
         "en": "GPT-4.5 Preview · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35856,7 +35871,7 @@
         "zh": "GPT Image 2.5 Sunburst · 官方规格与计费资料",
         "en": "GPT Image 2.5 Sunburst · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35871,7 +35886,7 @@
         "zh": "GPT Live 1 · 官方规格与计费资料",
         "en": "GPT Live 1 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-live-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-live-1.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35886,7 +35901,7 @@
         "zh": "GPT Realtime 2.1 · 官方规格与计费资料",
         "en": "GPT Realtime 2.1 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35901,7 +35916,7 @@
         "zh": "GPT-4o Mini TTS · 官方规格与计费资料",
         "en": "GPT-4o Mini TTS · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35916,7 +35931,7 @@
         "zh": "GPT Transcribe · 官方规格与计费资料",
         "en": "GPT Transcribe · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-transcribe",
+      "url": "https://developers.openai.com/api/docs/models/gpt-transcribe.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35931,7 +35946,7 @@
         "zh": "GPT-4.1 · 官方规格与计费资料",
         "en": "GPT-4.1 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4.1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35946,7 +35961,7 @@
         "zh": "GPT-4.1 mini · 官方规格与计费资料",
         "en": "GPT-4.1 mini · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-mini.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35961,7 +35976,7 @@
         "zh": "GPT-4.1 nano · 官方规格与计费资料",
         "en": "GPT-4.1 nano · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35976,7 +35991,7 @@
         "zh": "GPT-4o mini · 官方规格与计费资料",
         "en": "GPT-4o mini · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -35991,7 +36006,7 @@
         "zh": "GPT-5 mini · 官方规格与计费资料",
         "en": "GPT-5 mini · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5-mini.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36006,7 +36021,7 @@
         "zh": "GPT-5 nano · 官方规格与计费资料",
         "en": "GPT-5 nano · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5-nano.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36021,7 +36036,7 @@
         "zh": "GPT-5.1 · 官方规格与计费资料",
         "en": "GPT-5.1 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36036,7 +36051,7 @@
         "zh": "GPT-5.1 Instant · 官方规格与计费资料",
         "en": "GPT-5.1 Instant · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.1-chat-latest",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.1-chat-latest.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36051,7 +36066,7 @@
         "zh": "GPT-5.2 · 官方规格与计费资料",
         "en": "GPT-5.2 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.2",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36066,7 +36081,7 @@
         "zh": "GPT-5.2 Pro · 官方规格与计费资料",
         "en": "GPT-5.2 Pro · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36081,7 +36096,7 @@
         "zh": "GPT-5.2 Instant · 官方规格与计费资料",
         "en": "GPT-5.2 Instant · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36096,7 +36111,7 @@
         "zh": "GPT-5.3 Instant · 官方规格与计费资料",
         "en": "GPT-5.3 Instant · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-chat-latest",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-chat-latest.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36111,7 +36126,7 @@
         "zh": "GPT-5.3 Codex · 官方规格与计费资料",
         "en": "GPT-5.3 Codex · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36126,7 +36141,7 @@
         "zh": "GPT-5.4 · 官方规格与计费资料",
         "en": "GPT-5.4 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.4",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36141,7 +36156,7 @@
         "zh": "GPT-5.4 Pro · 官方规格与计费资料",
         "en": "GPT-5.4 Pro · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36156,7 +36171,7 @@
         "zh": "GPT-5.4 mini · 官方规格与计费资料",
         "en": "GPT-5.4 mini · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36171,7 +36186,7 @@
         "zh": "GPT-5.4 nano · 官方规格与计费资料",
         "en": "GPT-5.4 nano · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-nano.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36186,7 +36201,7 @@
         "zh": "GPT Image 1.5 · 官方规格与计费资料",
         "en": "GPT Image 1.5 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36201,7 +36216,7 @@
         "zh": "GPT Image 1 · 官方规格与计费资料",
         "en": "GPT Image 1 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-image-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36216,7 +36231,7 @@
         "zh": "GPT Image 2 · 官方规格与计费资料",
         "en": "GPT Image 2 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-image-2",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36231,7 +36246,7 @@
         "zh": "openai-pricing · 官方规格与计费资料",
         "en": "openai-pricing · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/pricing",
+      "url": "https://developers.openai.com/api/docs/pricing.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36246,7 +36261,7 @@
         "zh": "GPT Realtime · 官方规格与计费资料",
         "en": "GPT Realtime · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-realtime",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36261,7 +36276,7 @@
         "zh": "GPT Realtime 1.5 · 官方规格与计费资料",
         "en": "GPT Realtime 1.5 · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-1.5",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-1.5.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36276,7 +36291,7 @@
         "zh": "GPT-4o Transcribe · 官方规格与计费资料",
         "en": "GPT-4o Transcribe · official specifications and billing"
       },
-      "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
       "publisher": "OpenAI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36291,7 +36306,7 @@
         "zh": "Claude Sonnet 4.5 · 官方规格与计费资料",
         "en": "Claude Sonnet 4.5 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36306,7 +36321,7 @@
         "zh": "Claude Opus 4.5 · 官方规格与计费资料",
         "en": "Claude Opus 4.5 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36321,7 +36336,7 @@
         "zh": "Claude Opus 4.6 · 官方规格与计费资料",
         "en": "Claude Opus 4.6 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36336,7 +36351,7 @@
         "zh": "Claude Opus 4.7 · 官方规格与计费资料",
         "en": "Claude Opus 4.7 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/opus-4-7/overview",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-7/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36351,7 +36366,7 @@
         "zh": "Claude Opus 4.8 · 官方规格与计费资料",
         "en": "Claude Opus 4.8 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/opus-4-8/overview",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-8/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36366,7 +36381,7 @@
         "zh": "Claude Opus 5 · 官方规格与计费资料",
         "en": "Claude Opus 5 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/opus-5/overview",
+      "url": "https://platform.claude.com/docs/en/models/opus-5/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36381,7 +36396,7 @@
         "zh": "Claude Sonnet 4.6 · 官方规格与计费资料",
         "en": "Claude Sonnet 4.6 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36396,7 +36411,7 @@
         "zh": "Claude Sonnet 5 · 官方规格与计费资料",
         "en": "Claude Sonnet 5 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36411,7 +36426,7 @@
         "zh": "Claude Fable 5 · 官方规格与计费资料",
         "en": "Claude Fable 5 · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/models/fable-5/overview",
+      "url": "https://platform.claude.com/docs/en/models/fable-5/overview.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36441,7 +36456,7 @@
         "zh": "Claude 上下文窗口 · 官方规格与计费资料",
         "en": "claude-context · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -36501,7 +36516,7 @@
         "zh": "Claude API 定价 · 官方规格与计费资料",
         "en": "claude-pricing · official specifications and billing"
       },
-      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing.md",
       "publisher": "Anthropic",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37011,7 +37026,7 @@
         "zh": "qwen3 · 官方规格与计费资料",
         "en": "qwen3 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37026,7 +37041,7 @@
         "zh": "qwen-next · 官方规格与计费资料",
         "en": "qwen-next · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37041,7 +37056,7 @@
         "zh": "qwen-coder-next · 官方规格与计费资料",
         "en": "qwen-coder-next · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37071,7 +37086,7 @@
         "zh": "qwen25 · 官方规格与计费资料",
         "en": "qwen25 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37086,7 +37101,7 @@
         "zh": "qwen36 · 官方规格与计费资料",
         "en": "qwen36 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen3.6-27B/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen3.6-27B/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37101,7 +37116,7 @@
         "zh": "qwen-coder25 · 官方规格与计费资料",
         "en": "qwen-coder25 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37116,7 +37131,7 @@
         "zh": "qwen-omni25 · 官方规格与计费资料",
         "en": "qwen-omni25 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen2.5-Omni-7B/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Omni-7B/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37131,7 +37146,7 @@
         "zh": "qwen-omni3 · 官方规格与计费资料",
         "en": "qwen-omni3 · official specifications and billing"
       },
-      "url": "https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct/raw/main/README",
+      "url": "https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct/raw/main/README.md",
       "publisher": "Qwen",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37176,7 +37191,7 @@
         "zh": "kimi-k25-card · 官方规格与计费资料",
         "en": "kimi-k25-card · official specifications and billing"
       },
-      "url": "https://huggingface.co/moonshotai/Kimi-K2.5/raw/main/README",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2.5/raw/main/README.md",
       "publisher": "Moonshot AI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37191,7 +37206,7 @@
         "zh": "Kimi API 型号与生命周期 · 官方规格与计费资料",
         "en": "kimi-models-md · official specifications and billing"
       },
-      "url": "https://platform.kimi.com/docs/models",
+      "url": "https://platform.kimi.com/docs/models.md",
       "publisher": "Moonshot AI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37206,7 +37221,7 @@
         "zh": "kimi-k2-card · 官方规格与计费资料",
         "en": "kimi-k2-card · official specifications and billing"
       },
-      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct/raw/main/README",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct/raw/main/README.md",
       "publisher": "Moonshot AI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37221,7 +37236,7 @@
         "zh": "kimi-k2-thinking-card · 官方规格与计费资料",
         "en": "kimi-k2-thinking-card · official specifications and billing"
       },
-      "url": "https://huggingface.co/moonshotai/Kimi-K2-Thinking/raw/main/README",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Thinking/raw/main/README.md",
       "publisher": "Moonshot AI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37236,7 +37251,7 @@
         "zh": "kimi-k2-0905-card · 官方规格与计费资料",
         "en": "kimi-k2-0905-card · official specifications and billing"
       },
-      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905/raw/main/README",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905/raw/main/README.md",
       "publisher": "Moonshot AI",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37296,7 +37311,7 @@
         "zh": "ernie-45-open · 官方规格与计费资料",
         "en": "ernie-45-open · official specifications and billing"
       },
-      "url": "https://raw.githubusercontent.com/PaddlePaddle/ERNIE/develop/README",
+      "url": "https://raw.githubusercontent.com/PaddlePaddle/ERNIE/develop/README.md",
       "publisher": "PaddlePaddle",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37341,7 +37356,7 @@
         "zh": "deepseek-v3-card · 官方规格与计费资料",
         "en": "deepseek-v3-card · official specifications and billing"
       },
-      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3/main/README",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3/main/README.md",
       "publisher": "DeepSeek",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37371,7 +37386,7 @@
         "zh": "deepseek-r1-card · 官方规格与计费资料",
         "en": "deepseek-r1-card · official specifications and billing"
       },
-      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-R1/main/README",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-R1/main/README.md",
       "publisher": "DeepSeek",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37386,7 +37401,7 @@
         "zh": "deepseek-v2-card · 官方规格与计费资料",
         "en": "deepseek-v2-card · official specifications and billing"
       },
-      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V2/main/README",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V2/main/README.md",
       "publisher": "DeepSeek",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -37416,7 +37431,7 @@
         "zh": "deepseek-v31-card · 官方规格与计费资料",
         "en": "deepseek-v31-card · official specifications and billing"
       },
-      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1/raw/main/README",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1/raw/main/README.md",
       "publisher": "DeepSeek",
       "publishedAt": "",
       "collectedAt": "2026-10-05",
@@ -43598,13 +43613,14 @@
       "id": "c-gemini-video",
       "entityId": "e-gemini-25-pro",
       "text": {
-        "zh": "Gemini 2.5 Pro 原生支持 2 小时长视频输入。",
-        "en": "Gemini 2.5 Pro natively supports up to 2-hour video inputs.",
-        "technical": null
+        "zh": "Gemini 2.5 Pro 支持视频输入；Gemini 2.5 及更高版本单次请求最多上传 10 个视频。视频时长需结合上下文窗口和媒体分辨率核对。",
+        "en": "Gemini 2.5 Pro supports video input; Gemini 2.5 and later allow up to 10 videos per request. Check duration limits against context size and media resolution."
       },
       "confidence": "verified",
-      "sourceIds": ["s-google-gemini"],
-      "updatedAt": "2026-07-05",
+      "sourceIds": [
+        "s-google-video-understanding-20261025"
+      ],
+      "updatedAt": "2026-10-25",
       "subject": null,
       "predicate": null,
       "objectOrValue": null,

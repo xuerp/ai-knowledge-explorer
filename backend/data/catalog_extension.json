@@ -387,8 +387,10 @@
       "publisher": "Mistral AI",
       "publishedAt": "",
       "collectedAt": "2026-10-03",
-      "verifiedAt": "2026-10-03",
-      "type": "official"
+      "verifiedAt": "2026-10-25",
+      "type": "official",
+      "sourceExcerpt": "GAModified MITv26.04",
+      "originalLanguage": "en"
     },
     {
       "id": "s-mistral-medium35-release",
@@ -400,8 +402,10 @@
       "publisher": "Mistral AI",
       "publishedAt": "2026-05-22",
       "collectedAt": "2026-10-03",
-      "verifiedAt": "2026-10-03",
-      "type": "official"
+      "verifiedAt": "2026-10-25",
+      "type": "official",
+      "sourceExcerpt": "Mistral Medium 3.5 is our first flagship merged model, available in public preview.",
+      "originalLanguage": "en"
     },
     {
       "id": "s-grok-catalog",
@@ -4836,24 +4840,97 @@
     },
     {
       "id": "e-mistral-medium-3-5",
-      "slug": "mistral-medium-3-5",
       "type": "model",
+      "slug": "mistral-medium-3-5",
       "name": {
         "zh": "Mistral Medium 3.5",
         "en": "Mistral Medium 3.5"
       },
-      "vendor": "Mistral AI",
       "summary": {
         "zh": "Mistral Medium 3.5 是 128B 多模态模型，当前官方模型卡标为 GA，提供 256K 上下文与修改版 MIT 开放权重。",
         "en": "Mistral Medium 3.5 is a 128B multimodal model currently marked GA, with 256K context and Modified MIT weights."
       },
+      "vendor": "Mistral AI",
       "origin": {
         "zh": "法国",
         "en": "France"
       },
       "status": "active",
-      "tags": ["LLM", "推理", "代码", "开放权重"],
-      "lastUpdatedAt": "2026-10-03",
+      "tags": [
+        "LLM",
+        "推理",
+        "代码",
+        "开放权重"
+      ],
+      "latestVersion": null,
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-25",
+      "aliases": null,
+      "familyId": "e-mistral",
+      "release": {
+        "generation": "3.5",
+        "variant": "base",
+        "releaseId": "mistral-medium-3-5",
+        "apiModelIds": [
+          "mistral-medium-3-5"
+        ],
+        "stage": "stable",
+        "productLine": {
+          "id": "mistral-medium",
+          "name": {
+            "zh": "Mistral Medium",
+            "en": "Mistral Medium"
+          },
+          "positioning": {
+            "zh": "128B 多模态模型，面向长程编程与生产力任务。发布公告曾标为 public preview；2026-10-25 核对的当前官方模型卡标为 GA。",
+            "en": "A 128B multimodal model for long-horizon coding and productivity. The launch announcement said public preview; the current official card checked on 2026-10-25 says GA."
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": null,
+        "retirementNotBefore": null,
+        "lastVerifiedAt": "2026-10-25",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Mistral AI",
+            "modelId": "mistral-medium-3-5",
+            "url": "https://mistral.ai/"
+          },
+          {
+            "type": "open-weights",
+            "provider": "Mistral AI",
+            "modelId": null,
+            "url": "https://huggingface.co/mistralai"
+          }
+        ]
+      },
+      "specs": {
+        "contextWindow": "256K tokens",
+        "inputPrice": "USD $1.50 / 1M tokens（官方 API，2026-10-03 核对）",
+        "outputPrice": "USD $7.50 / 1M tokens（官方 API，2026-10-03 核对）",
+        "modalities": "文本 / 图像",
+        "toolUse": "工具调用；由接入产品控制执行",
+        "availability": "官方 API；开放权重条件见直接资料"
+      },
+      "capabilities": [
+        {
+          "zh": "128B 稠密架构，256K 上下文，可配置推理力度。",
+          "en": "128B dense architecture, 256K context and configurable reasoning effort.",
+          "confidence": "verified"
+        },
+        {
+          "zh": "发布公告列出 Vibe 和 Le Chat；产品套餐与模型 API 分开核对。",
+          "en": "The announcement lists Vibe and Le Chat; product plans and model APIs are separate.",
+          "confidence": "verified"
+        },
+        {
+          "zh": "公告描述开放权重使用修改版 MIT 许可，采用前核对许可证。",
+          "en": "The announcement describes open weights under a modified MIT license; review its terms before adoption.",
+          "confidence": "verified"
+        }
+      ],
+      "metrics": null,
       "knowledge": {
         "introduction": [
           {
@@ -4875,7 +4952,10 @@
               "zh": "128B 稠密架构，256K 上下文，可配置推理力度。",
               "en": "128B dense architecture, 256K context and configurable reasoning effort."
             },
-            "sourceIds": ["s-mistral-medium35-release", "s-mistral-medium35"]
+            "sourceIds": [
+              "s-mistral-medium35-release",
+              "s-mistral-medium35"
+            ]
           },
           {
             "title": {
@@ -4886,7 +4966,9 @@
               "zh": "发布公告列出 Vibe 和 Le Chat；产品套餐与模型 API 分开核对。",
               "en": "The announcement lists Vibe and Le Chat; product plans and model APIs are separate."
             },
-            "sourceIds": ["s-mistral-medium35-release"]
+            "sourceIds": [
+              "s-mistral-medium35-release"
+            ]
           },
           {
             "title": {
@@ -4897,7 +4979,23 @@
               "zh": "公告描述开放权重使用修改版 MIT 许可，采用前核对许可证。",
               "en": "The announcement describes open weights under a modified MIT license; review its terms before adoption."
             },
-            "sourceIds": ["s-mistral-medium35-release"]
+            "sourceIds": [
+              "s-mistral-medium35-release"
+            ]
+          },
+          {
+            "title": {
+              "zh": "当前状态与历史公告",
+              "en": "Current status and launch history"
+            },
+            "description": {
+              "zh": "128B 多模态模型，面向长程编程与生产力任务。发布公告曾标为 public preview；2026-10-25 核对的当前官方模型卡标为 GA。",
+              "en": "A 128B multimodal model for long-horizon coding and productivity. The launch announcement said public preview; the current official card checked on 2026-10-25 says GA."
+            },
+            "sourceIds": [
+              "s-mistral-medium35",
+              "s-mistral-medium35-release"
+            ]
           }
         ],
         "useCases": [
@@ -4938,66 +5036,7 @@
         ],
         "officialUrl": "https://docs.mistral.ai/models/mistral-medium-3-5-26-04",
         "sections": []
-      },
-      "familyId": "e-mistral",
-      "release": {
-        "generation": "3.5",
-        "variant": "preview",
-        "releaseId": "mistral-medium-3-5",
-        "apiModelIds": ["mistral-medium-3-5"],
-        "stage": "stable",
-        "catalogCurrent": true,
-        "lastVerifiedAt": "2026-10-03",
-        "productLine": {
-          "id": "mistral-medium",
-          "name": {
-            "zh": "Mistral Medium",
-            "en": "Mistral Medium"
-          },
-          "positioning": {
-            "zh": "Mistral Medium 3.5 是面向长程编程与生产力任务的 128B 稠密模型，发布公告记录为 public preview。",
-            "en": "Mistral Medium 3.5 is a 128B dense model for long-horizon coding and productivity, announced in public preview."
-          }
-        },
-        "accessChannels": [
-          {
-            "type": "official-api",
-            "provider": "Mistral AI",
-            "url": "https://mistral.ai/",
-            "modelId": "mistral-medium-3-5"
-          },
-          {
-            "type": "open-weights",
-            "provider": "Mistral AI",
-            "url": "https://huggingface.co/mistralai"
-          }
-        ]
-      },
-      "specs": {
-        "contextWindow": "256K tokens",
-        "modalities": "文本 / 图像",
-        "toolUse": "工具调用；由接入产品控制执行",
-        "availability": "官方 API；开放权重条件见直接资料",
-        "inputPrice": "USD $1.50 / 1M tokens（官方 API，2026-10-03 核对）",
-        "outputPrice": "USD $7.50 / 1M tokens（官方 API，2026-10-03 核对）"
-      },
-      "capabilities": [
-        {
-          "zh": "128B 稠密架构，256K 上下文，可配置推理力度。",
-          "en": "128B dense architecture, 256K context and configurable reasoning effort.",
-          "confidence": "verified"
-        },
-        {
-          "zh": "发布公告列出 Vibe 和 Le Chat；产品套餐与模型 API 分开核对。",
-          "en": "The announcement lists Vibe and Le Chat; product plans and model APIs are separate.",
-          "confidence": "verified"
-        },
-        {
-          "zh": "公告描述开放权重使用修改版 MIT 许可，采用前核对许可证。",
-          "en": "The announcement describes open weights under a modified MIT license; review its terms before adoption.",
-          "confidence": "verified"
-        }
-      ]
+      }
     },
     {
       "id": "e-glm-5-1",

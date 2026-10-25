@@ -274,7 +274,10 @@ function LandingPage() {
 
         <section className="landing-compact__section is-muted">
           <div className="landing-compact__container">
-            <SectionHeading title={t("热门研究问题", "Popular research questions")} centered />
+            <SectionHeading
+              title={t("从一个研究问题开始", "Start with a research question")}
+              centered
+            />
             <div className="landing-compact__questions">
               {researchQuestions.map((question) => {
                 const text = lang === "zh" ? question.zh : question.en;
@@ -284,7 +287,10 @@ function LandingPage() {
                     <span>
                       <strong>{text}</strong>
                       <small>
-                        {t("带着完整约束进入决策研究", "Continue with full decision constraints")}
+                        {t(
+                          "问题示例，点击后按你的需求修改",
+                          "Suggested question — adapt it to your needs",
+                        )}
                       </small>
                     </span>
                     <ArrowRight aria-hidden="true" />

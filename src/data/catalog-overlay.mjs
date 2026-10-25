@@ -72,3 +72,20 @@ export function applyCatalogOverlays(baseline, extension, frontier) {
   }
   return snapshot;
 }
+
+export function publicCatalogSnapshot(catalog) {
+  const snapshot = structuredClone(catalog);
+  // Public knowledge is not a record of a visitor's activity. Real activity is
+  // loaded from account APIs or explicit local preferences, never seed fixtures.
+  for (const key of [
+    "following",
+    "interestProfile",
+    "researchAnswers",
+    "notifications",
+    "reviewCandidates",
+    "syncRuns",
+  ]) {
+    snapshot[key] = [];
+  }
+  return snapshot;
+}

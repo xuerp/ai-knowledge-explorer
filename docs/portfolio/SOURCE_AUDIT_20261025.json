@@ -1,0 +1,4806 @@
+{
+  "checkedDate": "2026-10-25",
+  "compiledDate": "2026-10-26",
+  "scope": "Local full catalog; retrieval and literal excerpt checks are not semantic fact verification. No production writes or model calls.",
+  "counts": {
+    "entities": 262,
+    "claims": 462,
+    "evidence": 683,
+    "changes": 259
+  },
+  "sourceRecordRetrieval": {
+    "fetch-failed": 107,
+    "retrieved": 575,
+    "retrieved-in-browser": 1
+  },
+  "excerptChecks": {
+    "not-checked": 107,
+    "missing": 66,
+    "exact-normalized-match": 266,
+    "not-found-in-current-text": 244
+  },
+  "repairedUrlRecords": 60,
+  "sources": [
+    {
+      "sourceId": "s-openai-gpt5",
+      "url": "https://openai.com/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-anthropic-claude",
+      "url": "https://www.anthropic.com/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-r2",
+      "url": "https://arxiv.org/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-community-rumor",
+      "url": "https://news.ycombinator.com/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-swebench",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini",
+      "url": "https://deepmind.google/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-models",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-platform",
+      "url": "https://platform.kimi.ai/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-news",
+      "url": "https://www.moonshot.ai/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed-2",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed-18",
+      "url": "https://seed.bytedance.com/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-51",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-50",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie5.0/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-45",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-about",
+      "url": "https://openai.com/our-structure/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-anthropic-company",
+      "url": "https://www.anthropic.com/company",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-langchain-overview",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mmlu-pro-paper",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-transformer-paper",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mcp-architecture",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-cursor-docs",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-codex",
+      "url": "https://openai.com/index/introducing-codex/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-anthropic-claude-code",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-cli",
+      "url": "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-cli-open-source-ai-agent/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-manus-docs",
+      "url": "https://manus.im/docs/introduction/welcome",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-devin-intro",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-langgraph-overview",
+      "url": "https://langchain-ai.github.io/langgraph/index.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-autogen-install",
+      "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-crewai-docs",
+      "url": "https://docs.crewai.com/index",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-agents-sdk",
+      "url": "https://openai.github.io/openai-agents-python/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-codex-mcp",
+      "url": "https://developers.openai.com/codex/mcp/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-anthropic-claude-code-mcp",
+      "url": "https://code.claude.com/docs/en/mcp",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-agents-sdk-mcp",
+      "url": "https://openai.github.io/openai-agents-python/mcp/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-workbuddy-overview",
+      "url": "https://www.workbuddy.cn/docs/workbuddy/Overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-traecode-overview",
+      "url": "https://docs.trae.cn/ide_what-is-trae-code",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-traework-overview",
+      "url": "https://docs.trae.cn/work_what-is-trae-work",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-glm53-docs",
+      "url": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-glm-official-repo",
+      "url": "https://github.com/zai-org/GLM-5/blob/main/README_zh.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hy4-announcement",
+      "url": "https://www.tencent.com/tencent-releases-and-open-sources-tencent-hy4-preview/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-glm5-release",
+      "url": "https://z.ai/blog/glm-5",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-glm53-release",
+      "url": "https://z.ai/blog/glm-5.3",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hy3-release",
+      "url": "https://www.tencent.com/tencent-hunyuan-officially-releases-hy3-advancing-agent-capabilities-and-deeper-product-integration/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hy3-repo",
+      "url": "https://github.com/Tencent-Hunyuan/Hy3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-code-current",
+      "url": "https://code.claude.com/docs/en/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-trae-permissions",
+      "url": "https://docs.trae.cn/ide_permission-and-approval",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-workbuddy-models",
+      "url": "https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Model",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax-m3-release",
+      "url": "https://www.minimax.io/blog/minimax-m3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax-m3-repo",
+      "url": "https://github.com/MiniMax-AI/MiniMax-M3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax-models",
+      "url": "https://platform.minimax.io/docs/guides/models-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mistral-small4",
+      "url": "https://docs.mistral.ai/models/mistral-small-4-0-26-03",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mistral-medium35",
+      "url": "https://docs.mistral.ai/models/mistral-medium-3-5-26-04",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mistral-medium35-release",
+      "url": "https://mistral.ai/news/vibe-remote-agents-mistral-medium-3-5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-catalog",
+      "url": "https://docs.x.ai/developers/models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-release-notes",
+      "url": "https://docs.x.ai/developers/release-notes",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-chat",
+      "url": "https://x.ai/grok",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-build",
+      "url": "https://x.ai/build",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-5-release",
+      "url": "https://x.ai/news/grok-4-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-5-card",
+      "url": "https://docs.x.ai/developers/models/grok-4.5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-6-release",
+      "url": "https://x.ai/news/grok-4-6",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-6-card",
+      "url": "https://docs.x.ai/developers/models/grok-4.6",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-7-release",
+      "url": "https://x.ai/news/grok-4-7",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-grok-4-7-card",
+      "url": "https://docs.x.ai/developers/models/grok-4.7",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-gpt6-astra-model",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-anthropic-fable-5-1",
+      "url": "https://platform.claude.com/docs/en/models/fable-5-1/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-1-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-8-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-5-flash-lite",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-model-catalog-2026-09-29",
+      "url": "https://ai.google.dev/gemini-api/docs/models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-8-live",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-omni-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-omni-flash",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-5-flash-model",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-6-flash-model",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-3-7-flash-model",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-robotics-er-16-model",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-robotics-er-15-model",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.5-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-release-notes-2026-09-30",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-gemini-deprecations-2026-09-30",
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-v4-pro",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-max",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-max",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-k3-official",
+      "url": "https://www.kimi.com/en/blog/kimi-k3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-catalog-20261001",
+      "url": "https://developers.openai.com/api/docs/models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-changelog-20261001",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-openai-lifecycle-20261001",
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-catalog-20261001",
+      "url": "https://platform.claude.com/docs/en/models/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-lifecycle-20261001",
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-changelog-20261001",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-catalog-20261001",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-catalog-20261001",
+      "url": "https://help.aliyun.com/zh/model-studio/models",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-catalog-20261001",
+      "url": "https://platform.kimi.com/docs/models",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-pricing-20261001",
+      "url": "https://platform.kimi.com/docs/pricing/chat",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed-catalog-20261001",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-model-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed-plan-limits-20261001",
+      "url": "https://docs.volcengine.com/docs/ark/agent-plan-enterprise-openclaw?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed-price-20261001",
+      "url": "https://docs.volcengine.com/docs/ark/model-pricing?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-catalog-20261001",
+      "url": "https://cloud.baidu.com/product-s/qianfan_home",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-6-astra-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-6.1-sol-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-6-sol-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-6-luna-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt5-launch-reviewed",
+      "url": "https://openai.com/index/introducing-gpt-5/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-4o-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-image-2-5-sunburst-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-live-1-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-live-1",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-realtime-2-1-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-4o-mini-tts-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-transcribe-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-transcribe",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-fable-5-1-20261001",
+      "url": "https://platform.claude.com/docs/en/models/fable-5-1/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-opus-5-5-20261001",
+      "url": "https://platform.claude.com/docs/en/models/opus-5-5/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-sonnet-5-5-20261001",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-haiku-4-5-20261001",
+      "url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-v3-weights-20261001",
+      "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-r1-weights-20261001",
+      "url": "https://github.com/deepseek-ai/DeepSeek-R1",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-max-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-max",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-7-plus-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-7-plus",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-flash-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-coder-plus-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-coder-plus",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-omni-flash-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-omni-flash",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-27b-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-27b",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-8-2-4t-a95b-20261001",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-2-4t-a95b",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-2-5-max-20261001",
+      "url": "https://qwenlm.github.io/blog/qwen2.5-max/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-qwen-3-max-20261001",
+      "url": "https://help.aliyun.com/zh/model-studio/models",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-k3-20261001",
+      "url": "https://platform.kimi.com/docs/guide/kimi-k3-quickstart",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-k2-6-20261001",
+      "url": "https://platform.kimi.com/docs/guide/kimi-k2-6-quickstart",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-k2-7-code-20261001",
+      "url": "https://platform.kimi.com/docs/guide/kimi-k2-7-code-quickstart",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-kimi-k2-7-code-highspeed-20261001",
+      "url": "https://platform.kimi.com/docs/guide/kimi-k2-7-code-quickstart",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed18-review-20261001",
+      "url": "https://seed.bytedance.com/en/blog/official-release-of-seed1-8-a-generalized-agentic-model",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed20-review-20261001",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-5-1-20261001",
+      "url": "https://ernie.baidu.com/blog/posts/ernie-5.1-0508-release/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-4-5-20261001",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-ernie-weight-models-reviewed",
+      "url": "https://github.com/PaddlePaddle/ERNIE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-deepseek-history-reviewed",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-seed21-launch-reviewed",
+      "url": "https://seed.bytedance.com/en/blog/seed2-1-officially-released-advancing-ai-productivity",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-t-gpt-1-history-reviewed",
+      "url": "https://openai.com/index/language-unsupervised/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-t-gpt-2-history-reviewed",
+      "url": "https://openai.com/index/language-models-are-few-shot-learners/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-t-gpt-3-history-reviewed",
+      "url": "https://openai.com/index/chatgpt/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-t-gpt-4-history-reviewed",
+      "url": "https://openai.com/index/gpt-4-research/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-claude-first-reviewed",
+      "url": "https://www.anthropic.com/news/introducing-claude",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-6-1-sol-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-6-sol-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-6-terra-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-6-luna-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-5-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-gpt-5-5-pro-20261001",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.5-pro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-3",
+      "url": "https://www.anthropic.com/news/claude-3-family",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-4",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-41",
+      "url": "https://www.anthropic.com/news/claude-opus-4-1",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-45",
+      "url": "https://www.anthropic.com/news/claude-opus-4-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-46",
+      "url": "https://www.anthropic.com/news/claude-opus-4-6",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-47",
+      "url": "https://www.anthropic.com/news/claude-opus-4-7",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-48",
+      "url": "https://www.anthropic.com/news/claude-opus-4-8",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-opus-5",
+      "url": "https://www.anthropic.com/news/claude-opus-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-sonnet-3",
+      "url": "https://www.anthropic.com/news/claude-3-family",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-sonnet-35-v2",
+      "url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-sonnet-37",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-sonnet-46",
+      "url": "https://www.anthropic.com/news/claude-sonnet-4-6",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-sonnet-5",
+      "url": "https://www.anthropic.com/news/claude-sonnet-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-haiku-3",
+      "url": "https://www.anthropic.com/news/claude-3-haiku",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-haiku-35",
+      "url": "https://aws.amazon.com/about-aws/whats-new/2024/11/anthropics-claude-3-5-haiku-model-amazon-bedrock/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-claude-fable-5",
+      "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-41",
+      "url": "https://openai.com/index/gpt-4-1/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-41-mini",
+      "url": "https://openai.com/index/gpt-4-1/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-41-nano",
+      "url": "https://openai.com/index/gpt-4-1/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-4o-mini",
+      "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-5-mini",
+      "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-5-nano",
+      "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-51",
+      "url": "https://openai.com/index/gpt-5-1-for-developers/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-51-instant",
+      "url": "https://openai.com/index/gpt-5-1-for-developers/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-52",
+      "url": "https://openai.com/index/introducing-gpt-5-2/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-52-pro",
+      "url": "https://openai.com/index/introducing-gpt-5-2/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-52-instant",
+      "url": "https://openai.com/index/introducing-gpt-5-2/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-53-instant",
+      "url": "https://openai.com/index/gpt-5-3-instant/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-53-codex",
+      "url": "https://openai.com/index/introducing-gpt-5-3-codex/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-54",
+      "url": "https://openai.com/index/introducing-gpt-5-4/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-54-pro",
+      "url": "https://openai.com/index/introducing-gpt-5-4/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-54-mini",
+      "url": "https://openai.com/index/introducing-gpt-5-4-mini-and-nano/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-54-nano",
+      "url": "https://openai.com/index/introducing-gpt-5-4-mini-and-nano/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-image-15",
+      "url": "https://openai.com/index/new-chatgpt-images-is-here/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v2-0517",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v25",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v25-1210",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v3-0324",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v31",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v31-terminus",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v32-exp",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v32",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v32-speciale",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-r1-0528",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v4-pro-preview",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v4-flash-preview",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-deepseek-v4-flash-vision-exp",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-deepseek-v41-flash",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-deepseek-v4-flash",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-25-72b",
+      "url": "https://qwenlm.github.io/blog/qwen2.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-235b",
+      "url": "https://qwenlm.github.io/blog/qwen3/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-next",
+      "url": "https://qwen.ai/blog?id=qwen3-next",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-35-397b",
+      "url": "https://qwen.ai/blog?id=qwen3.5",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-36-27b",
+      "url": "https://qwen.ai/blog?id=qwen3.6-27b",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-37-max",
+      "url": "https://qwen.ai/blog?id=qwen3.7",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-36-max-preview",
+      "url": "https://qwen.ai/blog?id=qwen3.6-max-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-plus",
+      "url": "https://help.aliyun.com/zh/model-studio/newly-released-models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-35-plus",
+      "url": "https://qwen.ai/blog?id=qwen3.5",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-36-plus",
+      "url": "https://help.aliyun.com/zh/model-studio/qwen3-6-plus",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-flash",
+      "url": "https://help.aliyun.com/zh/model-studio/newly-released-models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-25-coder-32b",
+      "url": "https://qwenlm.github.io/blog/qwen2.5-coder-family/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-coder-next",
+      "url": "https://qwen.ai/blog?id=qwen3-coder-next",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-25-omni",
+      "url": "https://qwenlm.github.io/blog/qwen2.5-omni/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-qwen-3-max",
+      "url": "https://qwen.ai/blog?id=72071a922385147be2ca81cdfaa50035db6e85d0",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-kimi-k3",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-kimi-k26",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-kimi-k25",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-kimi-k2-thinking",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-kimi-k2",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-kimi-k2-0905",
+      "url": "https://www.kimi.com/en/blog/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-doubao-seed15-pro",
+      "url": "https://seed.bytedance.com/en/seed_model_portfolio",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-doubao-seed16",
+      "url": "https://seed.bytedance.com/en/seed1_6/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-doubao-seed20-lite",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-doubao-seed20-code",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-doubao-seed20-lite-0428",
+      "url": "https://seed.bytedance.com/en/seed2",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-doubao-seed20-mini",
+      "url": "https://seed.bytedance.com/en/blog/seed-2-0-official-launch",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-40",
+      "url": "https://cloud.baidu.com/news/news_295beaa1-1f7f-4b64-958c-0bd07cb3d0aa",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-45-api",
+      "url": "https://home.baidu.com/home/index/news_detail/id/18020",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-x1",
+      "url": "https://home.baidu.com/home/index/news_detail/id/18020",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-x1-turbo",
+      "url": "https://home.baidu.com/home/index/news_detail/id/18025",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-x11-generation",
+      "url": "https://cloud.baidu.com/news/news_be587481-094d-41b4-a69f-c798d1938bc3",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-45-turbo-launch",
+      "url": "https://home.baidu.com/home/index/news_detail/id/18025",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-ernie-45-03b",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-ernie-45-21b-a3b",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-ernie-45-vl-28b-a3b",
+      "url": "https://ernie.baidu.com/blog/zh/posts/ernie4.5/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-google-changelog",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-10-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-15-pro-ga",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-15-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-15-flash-002",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-pro-exp",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-pro-preview-0506",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-pro-preview-0605",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-3-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-3-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-31-flash-lite-preview",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-20-live",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-live-0520",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-live-0923",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-25-image-preview",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-3-image-preview",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gemini-31-image-preview",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-31-flash-live",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-31-flash-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-31-flash-lite-image",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-omni-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-35-transcribe",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-deep-research",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-deep-research-max",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-robotics-er-2",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gemini-15-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-image-1",
+      "url": "https://openai.com/index/image-generation-api/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-image-2",
+      "url": "https://openai.com/index/introducing-chatgpt-images-2-0/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-realtime-1",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-realtime-15",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-date-gpt-4o-mini-tts",
+      "url": "https://openai.com/index/introducing-our-next-generation-audio-models/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-gpt-4o-transcribe",
+      "url": "https://openai.com/index/introducing-our-next-generation-audio-models/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-3-omni",
+      "url": "https://github.com/QwenLM/Qwen3-Omni",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-qwen-35-flash",
+      "url": "https://help.aliyun.com/zh/model-studio/qwen3-5-flash",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-ernie-40-turbo",
+      "url": "https://qianfan.cloud.baidu.com/qianfandev/topic/361310",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-history-google-lifecycle",
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-astra-ultrafast",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-image-encoding-fix",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-56-price-reduction",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-sonnet45-retirement-notice",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-sonnet55-compatibility",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-refusal-billing",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-sonnet5-standard-pricing",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-25-access-restriction",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-agentic-video",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-35-computer-use",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-31-streaming-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-cache-diagnostics-ga",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-fast-long-context",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-sol-promotional-price",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-fast-priority-replacement",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-assistants-api-shutdown",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-container-minute-billing",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-bedrock-responses",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gpt-web-search-images",
+      "url": "https://developers.openai.com/api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-cache-diagnostics-ga",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-46-context-ga",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-old-context-beta-retired",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-haiku3-retired",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-automatic-cache",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-claude-bedrock-self-serve",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gemini-sampling-deprecated",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gemini20-shutdown",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gemini-file-search-images",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gemini-webhooks",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-gemini31-lite-preview-shutdown",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-v4-flash-alias-retirement",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-pro-service-extended",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-peak-offpeak-effective",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-responses-effort",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-disk-cache",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-json-function-fim",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-r1-0528-benchmark",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-deepseek-v3-0324-benchmark",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-qwen-model-studio-regions",
+      "url": "https://help.aliyun.com/zh/model-studio/model-release-notes",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-qwen-responses-background",
+      "url": "https://help.aliyun.com/zh/model-studio/model-release-notes",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-qwen-compatible-interfaces",
+      "url": "https://help.aliyun.com/zh/model-studio/model-release-notes",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-qwen-ptu-long-input-cache",
+      "url": "https://help.aliyun.com/zh/model-studio/model-release-notes",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k25-api-retired",
+      "url": "https://platform.kimi.com/docs/models",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k2-preview-api-retired",
+      "url": "https://platform.kimi.com/docs/models",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k2-turbo-price-cut",
+      "url": "https://forum.moonshot.ai/t/an-update-on-new-k2-models-and-new-pricing/104",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k25-ark-vision",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-feature-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k3-ark-coding",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-model-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-kimi-k2-turbo-speed",
+      "url": "https://forum.moonshot.ai/t/kimi-k2-turbo-preview-got-speed-boost-again/74",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao21-ark-coding",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-model-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao-legacy-eos-notice",
+      "url": "https://docs.volcengine.com/docs/ark/model-deprecation-notice?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao-ark-schema-compatibility",
+      "url": "https://docs.volcengine.com/docs/ark/api-schema-upgrade-notice?lang=en",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao21-turbo-coding",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-model-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao20-pro-lite-coding",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-feature-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-doubao20-code-coding",
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-feature-release?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-ernie-speed-lite-tiny-free",
+      "url": "https://cloud.baidu.com/news/notice_c7a145b9-5c99-4870-939f-e09ba506aab3",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-ernie40-35-price-reduction",
+      "url": "https://cloud.baidu.com/news/news_bcd448b8-4739-47a4-8429-ab06eb40ba53",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-ernie40-turbo-finetuning",
+      "url": "https://cloud.baidu.com/news/news_0ede03b0-731a-4dd6-a892-c2846ab16e5b",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-change-ernie40-system-memory",
+      "url": "https://cloud.baidu.com/doc/qianfan/s/Kmh4stnjp",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-reference-cognition-20261002",
+      "url": "https://cognition.com/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-reference-crewai-company-20261002",
+      "url": "https://crewai.com/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-reference-google-20261002",
+      "url": "https://ai.google/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-reference-manus-company-20261002",
+      "url": "https://manus.im/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-reference-microsoft-20261002",
+      "url": "https://www.microsoft.com/en-us/ai",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "missing",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-codex-cli-reference-20261002",
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-4o",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-45",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-image-2-5-sunburst",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-live-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-live-1.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-realtime-2-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-4o-mini-tts",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-transcribe",
+      "url": "https://developers.openai.com/api/docs/models/gpt-transcribe.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-41",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-41-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-mini.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-41-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-4o-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-5-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5-mini.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-5-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5-nano.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-51",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-51-instant",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.1-chat-latest.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-52",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-52-pro",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-52-instant",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-53-instant",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-chat-latest.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-53-codex",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-54",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-54-pro",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-54-mini",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-54-nano",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-nano.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-image-15",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-image-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-image-2",
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-openai-pricing",
+      "url": "https://developers.openai.com/api/docs/pricing.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-realtime-1",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-realtime-15",
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-1.5.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gpt-4o-transcribe",
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-45",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-opus-45",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-opus-46",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-opus-47",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-7/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-opus-48",
+      "url": "https://platform.claude.com/docs/en/models/opus-4-8/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-opus-5",
+      "url": "https://platform.claude.com/docs/en/models/opus-5/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-sonnet-46",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-sonnet-5",
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-claude-fable-5",
+      "url": "https://platform.claude.com/docs/en/models/fable-5/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude3",
+      "url": "https://www.anthropic.com/news/claude-3-family",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude-context",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude35",
+      "url": "https://www.anthropic.com/news/claude-3-5-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude37",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude35-v2",
+      "url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude-pricing",
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude4-news",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-claude41-news",
+      "url": "https://www.anthropic.com/news/claude-opus-4-1",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-gemini-pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-35-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-36-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-37-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-flash-lite",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-lite",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-lite",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-38-live",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-38-live-thinking",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live-extended-thinking",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-35-live-translate",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-live-translate-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-live",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-gemini-changelog",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-flash-live",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-native-audio-preview-12-2025",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-38-flash-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash-tts",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-38-flash-lite-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash-lite-tts",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-tts-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-flash-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-preview-tts",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-pro-tts",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro-preview-tts",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-image",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-lite-image",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-3-pro-image",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-image",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-flash-image",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-gemini-embedding",
+      "url": "https://ai.google.dev/gemini-api/docs/embeddings",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-robotics-er-2",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-2-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-3-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-3-flash",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3-flash-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-31-flash-lite-preview",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-pricing",
+      "url": "https://help.aliyun.com/zh/model-studio/model-pricing",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-models",
+      "url": "https://help.aliyun.com/zh/model-studio/text-generation-model",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-plus-model",
+      "url": "https://help.aliyun.com/zh/model-studio/qwen-plus",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-flash",
+      "url": "https://help.aliyun.com/zh/model-studio/qwen3-5-flash",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen3",
+      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-next",
+      "url": "https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-coder-next",
+      "url": "https://huggingface.co/Qwen/Qwen3-Coder-Next/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen38omni",
+      "url": "https://help.aliyun.com/en/model-studio/qwen3-8-omni-flash",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen25",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen36",
+      "url": "https://huggingface.co/Qwen/Qwen3.6-27B/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-coder25",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-omni25",
+      "url": "https://huggingface.co/Qwen/Qwen2.5-Omni-7B/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-omni3",
+      "url": "https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-qwen-releases",
+      "url": "https://help.aliyun.com/zh/model-studio/newly-released-models",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-pricing-md",
+      "url": "https://platform.kimi.com/docs/pricing/chat",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-k25-card",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2.5/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-models-md",
+      "url": "https://platform.kimi.com/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-k2-card",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-k2-thinking-card",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Thinking/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-k2-0905-card",
+      "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-doubao-pricing-old",
+      "url": "https://docs.volcengine.com/docs/ark/model-pricing?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-doubao-models",
+      "url": "https://docs.volcengine.com/docs/ark/model-list?lang=zh",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-doubao18-pricing-text",
+      "url": "https://docs.volcengine.com/docs/StreamingComputingFlinkVersion/AImodelbilling?lang=zh",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-ernie-45-open",
+      "url": "https://raw.githubusercontent.com/PaddlePaddle/ERNIE/develop/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-ernie-api-models",
+      "url": "https://cloud.baidu.com/doc/qianfan-api/s/Dmba8k71y",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-news1226",
+      "url": "https://api-docs.deepseek.com/news/news1226/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v3-card",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-news250120",
+      "url": "https://api-docs.deepseek.com/news/news250120/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-r1-card",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-R1/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v2-card",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V2/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-news260424",
+      "url": "https://api-docs.deepseek.com/news/news260424/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v31-card",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1/raw/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v25-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V2.5/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v25-1210-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V2.5-1210/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v3-0324-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3-0324/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-v32-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.2/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-speciale-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Speciale/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-r1-0528-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1-0528/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-terminus-config",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1-Terminus/raw/main/config.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-news260910",
+      "url": "https://api-docs.deepseek.com/news/news260910/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-deepseek-pricing",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-gemini-embedding-launch",
+      "url": "https://developers.googleblog.com/en/gemini-embedding-available-gemini-api/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-gemini-agents",
+      "url": "https://ai.google.dev/gemini-api/docs/deep-research",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-ernie-x1-price",
+      "url": "https://cloud.baidu.com/ask/10595",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-25-pro",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro?authuser=2",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-e-gemini-35-transcribe",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-transcribe",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-ernie40-turbo-news",
+      "url": "https://cloud.baidu.com/news/news_bcd448b8-4739-47a4-8429-ab06eb40ba53",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-kimi-code-releases",
+      "url": "https://www.kimi.com/code/docs/en/kimi-code/whats-new.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-specs-grok47-release",
+      "url": "https://x.ai/news/grok-4-7",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mistral12h-large4-1",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-mistral12h-large3-1",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-0",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-2",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-3",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-4",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-5",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large4-6",
+      "url": "https://docs.mistral.ai/models/mistral-large-4-0",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-0",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-2",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-3",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-4",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-5",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-6",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified-s-mistral12h-large3-7",
+      "url": "https://docs.mistral.ai/models/mistral-large-3-25-12",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-part-of-0",
+      "url": "https://www.minimax.io/news/minimax-m27-en",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-part-of-1",
+      "url": "https://platform.minimax.io/docs/guides/models-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-release-0",
+      "url": "https://www.minimax.io/news/minimax-m27-en",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-access-0",
+      "url": "https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-licensed-under-0",
+      "url": "https://github.com/MiniMax-AI/MiniMax-M2.7/blob/main/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m27-workflow-feature-0",
+      "url": "https://www.minimax.io/news/minimax-m27-en",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-part-of-0",
+      "url": "https://www.minimax.io/blog/minimax-m25",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-part-of-1",
+      "url": "https://platform.minimax.io/docs/guides/models-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-release-0",
+      "url": "https://www.minimax.io/blog/minimax-m25",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-access-0",
+      "url": "https://www.minimax.io/blog/minimax-m25",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-access-1",
+      "url": "https://platform.minimax.io/docs/guides/models-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-minimax12h-m25-workflow-feature-0",
+      "url": "https://www.minimax.io/blog/minimax-m25",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-part-of-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-release-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-release-1",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-access-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-architecture-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-context-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-licensed-under-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-a13b-licensed-under-1",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-part-of-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-access-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-architecture-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-context-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-licensed-under-0",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/a728865b7398d1e18e9fb35a9894e4a4b9516a8a/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-hunyuan12h-revision-licensed-under-1",
+      "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/a728865b7398d1e18e9fb35a9894e4a4b9516a8a/LICENSE",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-claude-code-ga-20250522-real-loop",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-opus4-reviewed-ai-1",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-opus4-reviewed-ai-2",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-opus4-reviewed-ai-3",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "reviewed36h-evidence-03b73513934b953a16d8",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepSeek-V3/e975062c42acae4df5a36c6d348e302021f7a185/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "reviewed36h-evidence-96d5e2a63a286408be2a",
+      "url": "https://raw.githubusercontent.com/google-gemini/gemini-cli/4e81f48646602e3b55d5e0776001e2fa062301a0/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified36h-evidence-sonnet4-score",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified36h-evidence-sonnet4-mode",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "qualified36h-evidence-sonnet4-method",
+      "url": "https://www.anthropic.com/news/claude-4",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-371acf426c426a0e46b6",
+      "url": "https://code.claude.com/docs/en/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-6433d0e977c7fafec8cd",
+      "url": "https://code.claude.com/docs/en/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-5bd997bec0d0265e9a78",
+      "url": "https://code.claude.com/docs/en/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-00e5c87c4312d6ffd7e8",
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-1bb6be40dc2657d7714c",
+      "url": "https://geminicli.com/docs/tools/file-system/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-872a5cee64515b172236",
+      "url": "https://geminicli.com/docs/tools/shell/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-fe09a05e822bf7eed9e4",
+      "url": "https://geminicli.com/docs/tools/file-system/",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-22997ae7cbf1ab9a263f",
+      "url": "https://docs.devin.ai/essential-guidelines/when-to-use-devin",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-5e6bae8fd96c70a9de9b",
+      "url": "https://docs.devin.ai/essential-guidelines/when-to-use-devin",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-f1d77773de0159abcb39",
+      "url": "https://x.ai/news/grok-build-open-source",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-570d69814fc520473418",
+      "url": "https://x.ai/news/grok-build-open-source",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-76e211acf7924a6831a2",
+      "url": "https://www.trae.ai/blog/trae_work_0609",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-b08b54070a128e9ccdd5",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-401a4828fffdc61df5d8",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-d34f770c0119c0299cb3",
+      "url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-a64ce5b249b303f9838e",
+      "url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-3f7d7b3afd3082903991",
+      "url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-e59b949bfbdb7085e237",
+      "url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-128032f73ad388163f6d",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-95c841189dbb17b9542a",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-a449b195f6e9145db81a",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-8a99d364d7bf0049b871",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-15344e51baa16b929522",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-f8926064378c1616cb30",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-eb6cdb4c602343faf112",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-ffe97cc8ce8a3c58404f",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-856279c0cb15a0202b56",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-8c83c4e8f16ec5d7ea0c",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "decision-commercial-terms",
+      "url": "https://ai.google.dev/gemini-api/terms",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "decision-commercial-regions",
+      "url": "https://ai.google.dev/gemini-api/docs/available-regions",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-critical-ddc2ad5233ddc684adce",
+      "url": "https://openai.com/index/introducing-gpt-6-1-sol/",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-critical-6c55a8f834e483e65551",
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-critical-5f95bed01477c104cb41",
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "retrievalStatus": "fetch-failed",
+      "excerptStatus": "not-checked",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-e7d7d58f79302d9302a8",
+      "url": "https://dify.ai/blog/create-knowledge-in-dify-for-beginners",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-d0a58103ebe8431b7fe3",
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/integrate-knowledge-within-application",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-c25138d8ffe6d07c69d5",
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/manage-knowledge/introduction",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-78be1a71a2cdaaa60b48",
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/create-knowledge/introduction",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-c2b2a07df4f360a14db4",
+      "url": "https://docs.dify.ai/en/self-host/deploy/quick-start/docker-compose",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "source-task-material-938aa6cce6a6f0d4d8be",
+      "url": "https://docs.dify.ai/en/cloud/use-dify/knowledge/create-knowledge/introduction",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-3fb24f7932813cc521ea",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-84517a69ce97fbd4c9a5",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-86ea22da4205a423d56f",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-2adeb8d2598427fd6edb",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d4a02f6adca902598771",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-643635a0776812883698",
+      "url": "https://platform.kimi.ai",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6e50550960d62e36c5a0",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-bc35a841d0e3ccc3529b",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-97067b61d339c7ba9b11",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-21399fd0bb288259b43b",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-28fcfd19ccddc7866cb1",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-74d421ba1cd4766d79c8",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f0903927231c6e160a2f",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9b3c19e22e97060d95c0",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-b0b807cfd36c1bf471b0",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-8a35df216c87709ce1ff",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5b94391fd4f16f0c008d",
+      "url": "https://developers.openai.com/api/docs/models.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-8b36e8d61351044a4f02",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-98273c45ce8d696b624d",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-8c0e3d0fa7225ec563b5",
+      "url": "https://www.anthropic.com/company",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-c9f238b981914d889820",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5a31cdc442fddf9e232f",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1821ce4afc254c4753ab",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-4a1ebb8f3f92395d3da1",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-436fbc19bd711397dbd6",
+      "url": "https://www.anthropic.com/company",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9c14c64cfeb047b9945a",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-41615274e49bcafaa42b",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-59bed5964254cce42b30",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-540413843ff545bfc468",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-49987dea6ebb627ef301",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-cb7004d663b2a78f4000",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-0277843b105bdc24d6e0",
+      "url": "https://www.anthropic.com/company",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-417d947b17923a7013dd",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-0efa60844636c45fd50e",
+      "url": "https://www.anthropic.com/company",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1fb51657cd6a70a756b2",
+      "url": "https://langchain-ai.github.io/langgraph/index.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f0c99fd944a614d9513e",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f037678ba4840ade151a",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5b0beb72ee5957a5a295",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-bf95758b913ad9491992",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-2e3535c08c4a7d6a0d07",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-a62ac2bd2f57d0d8b32f",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-50fabf33bc68da03bc81",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5679d701df70be9285f1",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d1fec0c7e172e755f382",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-cfd3ed41e15d58e04317",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-c7b51e84727929c4600e",
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-09cf906ce067f509db88",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-072ac9d41daa407d0423",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-bef7c67d4ccf7d39840f",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-05c64c02f73f4a23022f",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d653d0d3372e6df94040",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-c19ef12024d54855d21c",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-fe24e1eb9fcf83ab078a",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9266b4f92a2883530698",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6d2fdc4b161f3fc31213",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1ca696390c84e4ec93d0",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-c15027091a3d57922024",
+      "url": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9ff929450ae6107ea8c3",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-56e49e9c2eb067356427",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-047c316a3f865b4a4196",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-549fe7c102ba1b5978ba",
+      "url": "https://platform.kimi.ai",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-40ad28900a9d0211f2bc",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-0074031a960cd0c91240",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-03a69530d9396a25ad9b",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f7da75f04d623e637e41",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5829b478521b49a6cb14",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-115815a2356b71033b34",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-06907c9815067f0e0cdc",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-303d172d0546d392f377",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-757340cc6d5b78febf09",
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6da339feb80f6646b8b5",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5d0da0802769dbf4fcf5",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-3b0237b17a2b6312cda3",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-b569cd39928a57207222",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-845e93126e35ffc9e5f7",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-a70ac67827b7e607a0ac",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6c6ee08e002ff66ec6e8",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-623cedd542df63184802",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-cf151153ee9a1c923560",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-157ed371093974a0a950",
+      "url": "https://platform.kimi.ai",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-27489b7a4396cd5c0217",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-97757d3dcd99bb0368a7",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-10c7df0c56f2e1d9cce0",
+      "url": "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/master/data/info_for_leaderboard.json",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-4f549e0771db986106cc",
+      "url": "https://docs.devin.ai/get-started/devin-intro",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d410ddbf80a0ceb47cfb",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-19b574860a7ac666b7e3",
+      "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9d003b80e963a13573a3",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-22195501468a1d924213",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-86d5b71037edc75de319",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-92a12c910604a41cbba1",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9126d607ce60c9861365",
+      "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-54173b7c1f419463ec41",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-336b00df0aee6e4abfe4",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-ddd421bdac4f71810dc6",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-28b3d44a1c22b49a44c1",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-34e6cc0b74ae79994342",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-8f4fb8e8feb9ae16bfcb",
+      "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f3011b3d554349fc249d",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1cf00d0470aa2dd47239",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6b1955371a61a38633e8",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5654352f1de8f9b8549a",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-530c0634510d2357246e",
+      "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-aad72c1b79057e943c20",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-08cee61e6d46079c814d",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-94bfb69d6369db1c5454",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-04b322eb93e393a0db50",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-59302f45979175bba195",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-455276d3ed9e9030e0fb",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-5bddd4dba720fe49a69b",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-00848b0aefe3e1bb373c",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d0399fe7ffaa0e10ba11",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-ce370b2ecd6f183c8442",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "not-found-in-current-text",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-ed346a807789bf303d22",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-ab21f806bade8f856476",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1fff4d8b52f8aaa663f5",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-392d91df8b807c7b8444",
+      "url": "https://docs.langchain.com/oss/python/langchain/overview",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-241ae9b54153529b32f2",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-4ba85312ac331f361fcc",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-bc1d7bf98199dae06a54",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-f07d56331cb21f101062",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-c1fe1f4e37d516f6f21f",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-dbdc99592bf4e87a4f29",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-fe35ceb32ce33204362d",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-135dac3232b4a99c9910",
+      "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-7051b8b487398f6f82ef",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-322ca7c2878eeb2f2df7",
+      "url": "https://cursor.com/docs",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-3db47ba640060b2f6c3c",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-1a484e64c5807acbddf6",
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-8803b944d95a8e749e32",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-9b4605d937066863920e",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-a6c47d6a0828f01ec707",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-122fcba89c1ea7b5ed5f",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6d04bbc8146784d867b8",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-a76523f7984a6540d686",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-53aee4d40f968cefa4da",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-fa4841bd7887179e08c9",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-0dd99b4547044999f00b",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-cabd2503b6278f55607a",
+      "url": "https://arxiv.org/abs/2406.01574",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-3a87a01a170c5f4836b0",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-6d196b6cdacf34a72701",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "evidence-d4ca81c7c5857a864bf7",
+      "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "retrievalStatus": "retrieved",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    },
+    {
+      "sourceId": "s-google-video-understanding-20261025",
+      "url": "https://ai.google.dev/gemini-api/docs/video-understanding?hl=en",
+      "retrievalStatus": "retrieved-in-browser",
+      "excerptStatus": "exact-normalized-match",
+      "factsAutomaticallyVerified": false
+    }
+  ]
+}

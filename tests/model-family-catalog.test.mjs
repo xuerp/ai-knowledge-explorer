@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createServer } from "vite";
-import { applyCatalogOverlays } from "../src/data/catalog-overlay.mjs";
+import { applyCatalogOverlays, publicCatalogSnapshot } from "../src/data/catalog-overlay.mjs";
 
 const [baseline, extension, frontier, manifest] = await Promise.all(
   [
@@ -251,7 +251,7 @@ test("actual demo adapter composes overlays while its exportable baseline stays 
     "/src/data/demo-adapter.ts",
   );
   assert.deepEqual(BASE_DEMO_KNOWLEDGE_SNAPSHOT, baseline);
-  assert.deepEqual(DEMO_KNOWLEDGE_SNAPSHOT, snapshot);
+  assert.deepEqual(DEMO_KNOWLEDGE_SNAPSHOT, publicCatalogSnapshot(snapshot));
 });
 
 test("current representatives use reviewed identity even when release dates are unknown", () => {
