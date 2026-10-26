@@ -31594,6 +31594,24 @@
   ],
   "evidence": [
     {
+      "id": "s-change-gemini-sampling-guide-20261026",
+      "title": {
+        "zh": "Gemini 3.6 Flash 与 3.5 Flash-Lite 参数迁移指南",
+        "en": "Gemini 3.6 Flash and 3.5 Flash-Lite parameter migration"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.6#api-changes-and-parameter-updates",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-10-26",
+      "verifiedAt": "2026-10-26",
+      "originalLanguage": "en",
+      "type": "official",
+      "sourceExcerpt": "temperature, top_p, and top_k are deprecated and ignored.",
+      "supportsClaimIds": [
+        "c-change-gemini-sampling-deprecated"
+      ]
+    },
+    {
       "id": "s-google-video-understanding-20261025",
       "title": {
         "zh": "Gemini API 视频理解：输入限制",
@@ -35240,7 +35258,7 @@
       "publishedAt": "2026-07-21",
       "collectedAt": "2026-10-02",
       "verifiedAt": "2026-10-02",
-      "sourceExcerpt": "2026-07-21: Latest model guidance deprecates these sampling parameters. Scope: Latest Gemini 3.x, not every historical model.",
+      "sourceExcerpt": "The sampling parameters temperature, top_p and top_k are now deprecated.",
       "originalLanguage": "en",
       "type": "official",
       "supportsClaimIds": ["c-change-gemini-sampling-deprecated"]
@@ -42540,17 +42558,17 @@
       "id": "c-change-gemini-sampling-deprecated",
       "entityId": "e-gemini",
       "text": {
-        "zh": "最新模型指南弃用以上采样参数。 适用范围：最新 Gemini 3.x 系列；不外推到全部旧版本。",
-        "en": "Latest model guidance deprecates these sampling parameters. Scope: Latest Gemini 3.x, not every historical model."
+        "zh": "temperature、top_p、top_k 从 Gemini 3.6 Flash 和 3.5 Flash-Lite 起弃用；这两款型号忽略这些参数，后续型号可能返回错误。",
+        "en": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
       },
       "confidence": "verified",
-      "sourceIds": ["s-change-gemini-sampling-deprecated"],
+      "sourceIds": ["s-change-gemini-sampling-deprecated", "s-change-gemini-sampling-guide-20261026"],
       "updatedAt": "2026-10-02",
       "observedAt": "2026-10-02",
       "validFrom": "2026-07-21",
       "predicate": "scheduled-for-retirement-on",
       "subject": "e-gemini",
-      "objectOrValue": "Latest model guidance deprecates these sampling parameters."
+      "objectOrValue": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
     },
     {
       "id": "c-change-gemini20-shutdown",
@@ -47324,34 +47342,34 @@
           "en": "Gemini sampling parameters deprecated"
         },
         "summary": {
-          "zh": "最新模型指南弃用以上采样参数。 适用范围：最新 Gemini 3.x 系列；不外推到全部旧版本。",
-          "en": "Latest model guidance deprecates these sampling parameters. Scope: Latest Gemini 3.x, not every historical model."
+          "zh": "temperature、top_p、top_k 从 Gemini 3.6 Flash 和 3.5 Flash-Lite 起弃用；这两款型号忽略这些参数，后续型号可能返回错误。",
+          "en": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
         },
         "kind": "deprecation",
         "changeKind": "deprecated",
         "detail": {
           "description": {
-            "zh": "最新模型指南弃用以上采样参数。 适用范围：最新 Gemini 3.x 系列；不外推到全部旧版本。",
-            "en": "Latest model guidance deprecates these sampling parameters. Scope: Latest Gemini 3.x, not every historical model."
+            "zh": "temperature、top_p、top_k 从 Gemini 3.6 Flash 和 3.5 Flash-Lite 起弃用；这两款型号忽略这些参数，后续型号可能返回错误。",
+            "en": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
           },
           "before": {
             "zh": "使用 temperature、top_p、top_k 调整采样。",
             "en": "Sampling configured with temperature/top_p/top_k."
           },
           "after": {
-            "zh": "最新模型指南弃用以上采样参数。",
-            "en": "Latest model guidance deprecates these sampling parameters."
+            "zh": "temperature、top_p、top_k 从 Gemini 3.6 Flash 和 3.5 Flash-Lite 起弃用；这两款型号忽略这些参数，后续型号可能返回错误。",
+            "en": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
           },
           "affected": {
-            "zh": "最新 Gemini 3.x 系列；不外推到全部旧版本。",
-            "en": "Latest Gemini 3.x, not every historical model."
+            "zh": "Gemini 3.6 Flash、3.5 Flash-Lite 及其后续型号；不外推到全部旧版本。",
+            "en": "Gemini 3.6 Flash, 3.5 Flash-Lite and later models; not every older version."
           },
           "action": {
             "zh": "逐型号检查兼容参数，不直接复用旧配置。",
             "en": "Check each model before reusing old settings."
           }
         },
-        "sourceIds": ["s-change-gemini-sampling-deprecated"],
+        "sourceIds": ["s-change-gemini-sampling-deprecated", "s-change-gemini-sampling-guide-20261026"],
         "confidence": "verified"
       },
       {
