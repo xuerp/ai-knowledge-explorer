@@ -31607,6 +31607,7 @@
       "originalLanguage": "en",
       "type": "official",
       "sourceExcerpt": "temperature, top_p, and top_k are deprecated and ignored.",
+      "sourceExcerptKind": "quote",
       "supportsClaimIds": [
         "c-change-gemini-sampling-deprecated"
       ]
@@ -34299,8 +34300,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-10-pro"]
     },
     {
@@ -34315,8 +34317,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 1.5 Pro 001 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-15-pro-ga"]
     },
     {
@@ -34331,8 +34334,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 1.5 Flash 001 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-15-flash"]
     },
     {
@@ -34347,8 +34351,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 1.5 Flash 002 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-15-flash-002"]
     },
     {
@@ -34363,8 +34368,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Pro Experimental 0325 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-pro-exp"]
     },
     {
@@ -34379,8 +34385,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Pro Preview 0506 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-pro-preview-0506"]
     },
     {
@@ -34395,8 +34402,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Pro Preview 0605 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-pro-preview-0605"]
     },
     {
@@ -34411,8 +34419,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 3 Pro Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-3-pro"]
     },
     {
@@ -34427,8 +34436,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 3 Flash Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-3-flash"]
     },
     {
@@ -34443,8 +34453,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 3.1 Flash-Lite Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-31-flash-lite-preview"]
     },
     {
@@ -34459,8 +34470,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.0 Flash Live 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-20-live"]
     },
     {
@@ -34475,8 +34487,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Flash Native Audio 0520 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-live-0520"]
     },
     {
@@ -34491,8 +34504,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Flash Native Audio 0923 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-live-0923"]
     },
     {
@@ -34507,8 +34521,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 2.5 Flash Image Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-25-image-preview"]
     },
     {
@@ -34523,8 +34538,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 3 Pro Image Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-3-image-preview"]
     },
     {
@@ -34539,8 +34555,9 @@
       "collectedAt": "2026-10-01",
       "verifiedAt": "2026-10-01",
       "type": "official",
-      "originalLanguage": "en",
+      "originalLanguage": "zh",
       "sourceExcerpt": "Gemini 3.1 Flash Image Preview 的公开版本发布，保留该产品线的真实迭代记录。",
+      "sourceExcerptKind": "summary",
       "supportsClaimIds": ["c-history-gemini-31-image-preview"]
     },
     {
@@ -35259,6 +35276,7 @@
       "collectedAt": "2026-10-02",
       "verifiedAt": "2026-10-02",
       "sourceExcerpt": "The sampling parameters temperature, top_p and top_k are now deprecated.",
+      "sourceExcerptKind": "quote",
       "originalLanguage": "en",
       "type": "official",
       "supportsClaimIds": ["c-change-gemini-sampling-deprecated"]

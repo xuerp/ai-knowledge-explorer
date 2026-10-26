@@ -31,6 +31,7 @@ export interface Evidence {
   collectedAt: string;
   verifiedAt?: string;
   sourceExcerpt?: string;
+  sourceExcerptKind?: "quote" | "summary" | "unclassified";
   originalLanguage?: Lang;
   type: "official" | "paper" | "news" | "community" | "benchmark";
   supportsClaimIds?: string[];

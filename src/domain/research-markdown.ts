@@ -38,7 +38,19 @@ export function createMarkdown(
       `${index + 1}. [${source.title[lang]}](${source.url}) — ${source.publisher}, ${source.publishedAt || "Source date unavailable"}`,
     );
     if (source.sourceExcerpt?.trim()) {
-      lines.push("", ...source.sourceExcerpt.split("\n").map((line) => `> ${line}`), "");
+      const isQuote = source.sourceExcerptKind === "quote";
+      const label = isQuote
+        ? "Source excerpt"
+        : source.sourceExcerptKind === "summary"
+          ? "Editorial summary (not a quotation)"
+          : "Source text (quotation status unverified)";
+      lines.push(
+        "",
+        `${label}:`,
+        "",
+        ...source.sourceExcerpt.split("\n").map((line) => (isQuote ? `> ${line}` : line)),
+        "",
+      );
     } else {
       lines.push("", "Source excerpt unavailable.", "");
     }
