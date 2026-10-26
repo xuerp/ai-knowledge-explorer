@@ -1,0 +1,14 @@
+{
+  "frozenBeforeImplementation": true,
+  "purpose": "Authored independent synthetic engineering cases; not independent human research or supplier execution",
+  "cases": [
+    {"id":"H01","task":"用现有对话工具把八份调研摘录先归纳主题，再生成带摘录编号的行动清单；不补造频次。","required":["归纳主题","行动清单","摘录编号","不补造频次"],"reuse":true},
+    {"id":"H02","task":"选择一个用于员工报销政策问答的应用，材料是扫描 PDF；需要原文定位，缺证据拒答，各岗位只能访问获准文件。","scenario":"knowledge-workspace","required":["扫描","拒答","获准"]},
+    {"id":"H03","task":"只静态核对这段 SQL 的删除风险，在已有聊天工具中审阅；不连接服务，不执行语句，不写文件。","method":"query-analysis","required":["SQL","不执行语句","不写文件"],"reuse":true},
+    {"id":"H04","task":"用现有工具对支持工单分类并整理月度异常摘要；只供人工参考，不发送回复。","required":["分类","月度异常摘要","不发送回复"],"reuse":true},
+    {"id":"H05","task":"在现有开发助手里处理一个页面排序 bug，先记录复现，再修改相关组件，最后运行测试；保留其他未提交文件，不部署。","scenario":"coding-workspace","required":["复现","修改相关组件","运行测试","未提交文件","不部署"],"reuse":true},
+    {"id":"H06","task":"对照已有两种知识问答平台的使用限制，没有同口径实测，不指定效果冠军；预算未知。","required":["实测","预算未知"],"noWinner":true},
+    {"id":"H07","task":"我有一批合同但还不确定处理什么，必须断网。","clarify":true},
+    {"id":"H08","task":"先生成商品视频，再给视频配音；素材不得上传。","unsupported":true,"required":["不得上传"]}
+  ]
+}

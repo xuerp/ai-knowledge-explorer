@@ -4,16 +4,38 @@ import json
 import re
 from pathlib import Path
 
+from .decision_clauses import clauses
+from .decision_semantics import context_meaning
+
 CATALOG = json.loads(
     (Path(__file__).resolve().parents[1] / "data/decision_scenarios.v1.json").read_text("utf-8")
 )
+WORKFLOWS = json.loads(
+    (Path(__file__).resolve().parents[1] / "data/decision_workflows.v1.json").read_text("utf-8")
+)["workflows"]
+
+
+def task_workflow(text, meaning=None):
+    """Method selection only; these descriptions never prove vendor features."""
+    if meaning is not None:
+        return next((row for row in WORKFLOWS if row["id"] == meaning.method), None)
+    positive = positive_task_text(text)
+    matches = [
+        row
+        for row in WORKFLOWS
+        if row["match"]
+        and all(re.search(pattern, positive, re.IGNORECASE) for pattern in row["match"])
+        and not (
+            row["id"] == "classification"
+            and re.search(r"提取|抽取|字段|JSON|extract|fields", positive, re.IGNORECASE)
+        )
+    ]
+    return matches[0] if len(matches) == 1 else None
 
 
 def positive_task_text(text):
     return " ".join(
-        clause.strip()
-        for clause in re.split(CATALOG["interpretation"]["clauseSeparator"], text)
-        if not re.search(CATALOG["interpretation"]["negativeClause"], clause.strip(), re.IGNORECASE)
+        clause.text for clause in clauses(text, CATALOG["interpretation"]) if not clause.prohibited
     )
 
 
@@ -28,6 +50,19 @@ def contains(text, term):
 
 def scenario_definition(context):
     text = positive_task_text(context.task)
+    meaning = context_meaning(context)
+    if meaning is not None:
+        return next((row for row in CATALOG["scenarios"] if row["id"] == meaning.scenario), None)
+    workflow = task_workflow(context.task)
+    if workflow:
+        return next(
+            (row for row in CATALOG["scenarios"] if row["id"] == workflow["scenario"]), None
+        )
+    semantic_matches = {
+        rule["scenario"]
+        for rule in CATALOG.get("semanticRules", [])
+        if all(re.search(pattern, text, re.IGNORECASE) for pattern in rule["all"])
+    }
     scope = (
         context.task_type
         if context.task_type != "unspecified"
@@ -42,7 +77,9 @@ def scenario_definition(context):
         CATALOG["scenarios"],
         key=lambda row: (
             -(
-                2
+                3
+                if row["id"] in semantic_matches
+                else 2
                 if any(
                     re.search(pattern, text, re.IGNORECASE)
                     for pattern in row.get("intentPatterns", [])
@@ -54,8 +91,12 @@ def scenario_definition(context):
         ),
     )
     for row in ranked:
-        matches = any(contains(text, pattern) for pattern in row["patterns"]) or any(
-            re.search(pattern, text, re.IGNORECASE) for pattern in row.get("intentPatterns", [])
+        matches = (
+            row["id"] in semantic_matches
+            or any(contains(text, pattern) for pattern in row["patterns"])
+            or any(
+                re.search(pattern, text, re.IGNORECASE) for pattern in row.get("intentPatterns", [])
+            )
         )
         if not matches:
             continue
@@ -69,6 +110,13 @@ def scenario_definition(context):
         "knowledge-product": "knowledge-workspace",
         "agent-development": "agent-orchestration",
     }.get(scope)
+    if fallback is None and scope is None:
+        from .decision_stages import source_ordered_stages
+
+        # An explicitly supplied sequence can receive a conditional execution
+        # plan without claiming a known method or a qualified product.
+        if source_ordered_stages(context.task):
+            fallback = "general-text"
     return next((row for row in CATALOG["scenarios"] if row["id"] == fallback), None)
 
 

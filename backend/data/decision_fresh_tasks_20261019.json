@@ -1,0 +1,45 @@
+{
+  "scope": "Fresh exploratory prompts, frozen before submitting; not provider execution",
+  "cases": [
+    {
+      "id": "R1",
+      "task": "我们三个人维护一个 Python 老项目，想找个助手先读懂目录，改一个接口，再运行 pytest。不要一上来重构整个仓库，改代码前让我确认方案。推荐先试哪个，第一步做什么？",
+      "check": "Recognize coding product workflow, plan approval and bounded change; actionable qualified trial."
+    },
+    {
+      "id": "R2",
+      "task": "行政同事不会写代码，手上有六十份公司规章 PDF 和 Word，想做个能回答年假、报销问题的小助手。每个答案要指出原文位置，找不到就说不知道。我们先用脱敏文件试一下，怎么选？",
+      "check": "Recognize document QA with citations and refusal; recommend usable platform trial rather than generic coding."
+    },
+    {
+      "id": "R3",
+      "task": "一台没有独立显卡的 8GB 内存笔记本，要完全断网处理客户合同，文件一个字都不能传出去。希望达到最强云端模型的水平，还要永久免费。你直接给我一个确定能满足的选择。",
+      "check": "Do not guarantee unsupported performance, free cost, or recommend cloud under strict offline constraint."
+    },
+    {
+      "id": "R4",
+      "task": "我要把每周收到的两千封售后邮件整理成订单号、问题分类和是否需要人工处理的 JSON，接到现有 Python 服务里。邮件已经脱敏；先只测试二十条，不要替我真的调用供应商。该选模型 API 还是现成应用？",
+      "check": "Recognize structured extraction and API workflow; do not execute supplier or claim evaluation performed."
+    },
+    {
+      "id": "R5",
+      "task": "我想用 AI 提高效率，你觉得哪个最好？",
+      "check": "Ask one useful clarification rather than invent task or universal best."
+    },
+    {
+      "id": "R6",
+      "task": "给我找一个工具，把手机拍的十秒产品视频变成四十秒广告，保留同一个人物的脸和中文配音，还要保证能商用。最好现在就直接推荐最稳的。",
+      "check": "Handle out-of-scope audiovisual request or evidence gaps honestly; no unsupported licensing guarantees."
+    },
+    {
+      "id": "R7",
+      "task": "我们每天调用一万次，每次输入四千 token、输出八百 token，只比较原厂 API，不用任何代理。每月预算最多人民币五百元，想挑一个做代码补全的模型。哪个能确定不超预算？",
+      "check": "Respect workload/currency/budget; no unsupported affordable claim or undisclosed exchange rate."
+    },
+    {
+      "id": "R8",
+      "task": "我已经在用 Claude Code，不想再注册第二家。帮我设计一个半小时能做完的验证：修复仓库里一个失败的单元测试，记录改了哪些文件和测试结果。别把你的建议当作已经跑过的成绩。",
+      "check": "Honor one-product condition and provide bounded external trial; no fabricated measurements or forced comparison."
+    }
+  ]
+}

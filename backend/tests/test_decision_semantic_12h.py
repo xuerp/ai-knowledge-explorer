@@ -30,7 +30,7 @@ def stored_research_hash(client, research_id):
 @pytest.mark.parametrize("case", FREEZE["cases"], ids=lambda case: case["id"])
 def test_frozen_semantic_api_lifecycle(tmp_path, case):
     assert hashlib.sha256(FREEZE_PATH.read_bytes()).hexdigest() == FREEZE_SHA
-    seed_path = ROOT / "backend/data/demo_snapshot.json"
+    seed_path = ROOT / "backend/tests/fixtures/decision_seed_20261007.json"
     assert hashlib.sha256(seed_path.read_bytes()).hexdigest() == FREEZE["seedSha256"]
     seed = json.loads(seed_path.read_text(encoding="utf-8"))
     for key in ("claims", "evidence", "changes", "reviewCandidates", "syncRuns"):

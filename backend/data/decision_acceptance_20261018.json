@@ -1,0 +1,23 @@
+{
+  "purpose": "Additional authored engineering phrasings frozen before execution; not independent human research.",
+  "cases": [
+    {
+      "id": "a01",
+      "task": "团队积累了一堆PDF手册，希望新人问问题时能找到原文依据",
+      "expected": "direct"
+    },
+    { "id": "a02", "task": "想找个帮手润色客户邮件，原文的数字和事实不能变", "expected": "direct" },
+    { "id": "a03", "task": "有个求职助手的想法，但还没确定怎么做", "expected": "clarify" },
+    { "id": "a04", "task": "想让AI接手一些杂活，暂时说不清具体哪些", "expected": "clarify" },
+    {
+      "id": "a05",
+      "task": "我需要完全离线做文档摘要，上下文至少300万token",
+      "expected": "no-primary"
+    },
+    {
+      "id": "a06",
+      "task": "选择Agent开发框架，要有人审批，也要能从失败处恢复",
+      "expected": "direct"
+    }
+  ]
+}

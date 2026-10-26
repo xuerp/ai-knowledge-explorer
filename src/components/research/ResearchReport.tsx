@@ -76,7 +76,7 @@ export function ResearchReport({
     snapshot.claims,
     snapshot.evidence,
   );
-  const shareId = dataMode === "demo" ? answer.id : publishedSlug;
+  const shareId = publishedSlug || (!research && dataMode === "demo" ? answer.id : undefined);
   const sourceIndex = new Map(sources.map((source, index) => [source.id, index + 1]));
   const evidenceById = new Map(sources.map((source) => [source.id, source]));
 
@@ -176,10 +176,13 @@ export function ResearchReport({
               {t("生成时间", "Generated")} {formatTimestamp(answer.generatedAt, lang)}
             </span>
             <span>
-              {t(
-                `${claims.length} 条结论 · ${sources.length} 条来源引用`,
-                `${claims.length} claims · ${sources.length} source references`,
-              )}
+              {research?.decision?.guidance &&
+              !research.decision.guidance.recommendation.entityIds.length
+                ? t("本次未指定具体产品", "No specific product selected")
+                : t(
+                    `参考资料：${claims.length} 条事实 · ${sources.length} 个来源`,
+                    `Reference material: ${claims.length} facts · ${sources.length} sources`,
+                  )}
             </span>
             <span>
               {dataMode === "demo"

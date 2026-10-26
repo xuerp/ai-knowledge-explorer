@@ -317,6 +317,11 @@ def test_private_poc_roundtrip_owner_isolation_revision_and_no_public_leak(tmp_p
         assert data["decision"]["plan"]["state"] == "needs-input"
         assert data["decision"]["plan"]["trialCandidateIds"] == []
         assert data["decision"]["plan"]["actions"][0]["unlocks"]
+        guidance = data["decision"]["guidance"]
+        action = data["decision"]["plan"]["actions"][0]
+        assert action["title"] == guidance["clarification"]["question"]
+        assert action["instruction"] == guidance["nextAction"]["instruction"]
+        assert action["unlocks"] == guidance["clarification"]["reason"]
         route = f"/api/v2/research/{data['id']}/validation"
         preflight = client.options(
             route,

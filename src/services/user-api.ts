@@ -124,6 +124,7 @@ export interface DecisionGuidance {
     checkedAt: string;
   }>;
   nextAction: {
+    executionPrompt?: string | null;
     kind: "answer" | "start" | "compare" | "edit" | "routes";
     label: string;
     targetIds: string[];

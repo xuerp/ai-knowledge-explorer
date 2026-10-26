@@ -2,7 +2,10 @@
 
 import re
 
-from .decision_intent import CATALOG, scenario_definition
+from .decision_clauses import clauses
+from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_semantics import context_meaning
+from .decision_task import NUMBER, daily_workload, number, understand_task
 from .schemas import DecisionClarification, DecisionClarificationOption, DecisionContext
 
 
@@ -26,7 +29,13 @@ def interpret_answer(answer):
 
 
 def unsupported_task(context: DecisionContext) -> bool:
-    return (
+    meaning = context_meaning(context)
+    if meaning is not None and meaning.state != "ambiguous" and meaning.scenario is None:
+        return True
+    workflow = task_workflow(context.task, meaning)
+    if workflow and workflow["scenario"] is None:
+        return True
+    return understand_task(context.task).unsupported_media or (
         bool(
             re.search(
                 r"生成视频|制作视频|生成图片|画图|三维建模|3D建模|语音合成|generate (?:video|images)|text.to.speech",
@@ -42,6 +51,11 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
     """Extract explicit requirements; never weaken a structured requirement."""
     result = context.model_copy(deep=True)
     text = context.task + " " + " ".join(answer.text or "" for answer in context.intent_answers)
+    understanding = understand_task(text)
+    if understanding.offline:
+        if result.deployment in {"cloud-api", "hybrid"}:
+            raise ValueError("原题要求离线或断网，但部署选项包含云服务。请统一条件后继续。")
+        result.deployment = "on-device"
     clauses = [
         part
         for part in re.split(r"[，,。；;.!]", text)
@@ -126,10 +140,87 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
             )
     if result.task_type == "unspecified" and result.minimum_context_tokens:
         result.task_type = "model-api"
+    amount = re.search(
+        rf"(?:每月|月预算)(?:预算)?\s*(?:最多|不超过|上限)?\s*(人民币|美元|CNY|USD|[¥￥$])?\s*({NUMBER})\s*(元|美元|CNY|USD)?",
+        text,
+        re.IGNORECASE,
+    )
+    if amount:
+        currency_text = (amount[1] or "") + (amount[3] or "")
+        currency = (
+            "USD"
+            if re.search(r"美元|USD|\$", currency_text, re.IGNORECASE)
+            else "CNY"
+            if re.search(r"人民币|元|CNY|¥|￥", currency_text, re.IGNORECASE)
+            else None
+        )
+        if currency:
+            ceiling = number(amount[2])
+            if result.budget.mode == "range" and (
+                (result.budget.max is not None and result.budget.max > ceiling)
+                or (result.budget.currency and result.budget.currency != currency)
+                or result.budget.period != "month"
+            ):
+                raise ValueError("预算选项与原题的月上限或币种不一致，请统一条件后继续。")
+            result.budget = result.budget.model_copy(
+                update={
+                    "mode": "range",
+                    "max": min(result.budget.max, ceiling)
+                    if result.budget.max is not None
+                    else ceiling,
+                    "currency": currency,
+                    "period": "month",
+                }
+            )
+    if (
+        re.search(r"原厂\s*API|官方\s*API|first.party API", text, re.IGNORECASE)
+        and not result.budget.channel
+    ):
+        result.budget.channel = "official"
+    # A daily workload does not imply a billing month's active day count.
+    # Leave monthly totals unknown so the existing cost clarification asks for them.
+    per_request = re.search(rf"每次输入\s*({NUMBER})\s*token", text, re.IGNORECASE)
+    if per_request and result.budget.maximum_input_tokens_per_request is None:
+        result.budget.maximum_input_tokens_per_request = int(number(per_request[1]))
+    workload = daily_workload(context.task)
+    if workload:
+        for answer in context.intent_answers:
+            if answer.question_id != "monthly-days":
+                continue
+            days_text = {"days-22": "22", "days-30": "30"}.get(
+                answer.option_id or "", answer.text or ""
+            )
+            days_match = re.fullmatch(rf"\s*({NUMBER})\s*(?:天)?\s*", days_text)
+            if not days_match or not 1 <= number(days_match[1]) <= 31:
+                continue
+            days = number(days_match[1])
+            count, inputs, outputs = workload
+            if result.budget.monthly_input_tokens is None:
+                result.budget.monthly_input_tokens = count * inputs * days
+            if result.budget.monthly_output_tokens is None:
+                result.budget.monthly_output_tokens = count * outputs * days
     return result
 
 
+def task_descriptions(context: DecisionContext) -> list[str]:
+    """Keep unrecognized goals visible without presenting prohibitions as jobs."""
+    if context_meaning(context) or task_workflow(context.task):
+        return [context.task]
+    parts = re.split(
+        r"[；;\n]|同时|还要|还想|也想|以及|\band also\b", context.task, flags=re.IGNORECASE
+    )
+    return [
+        part.strip()
+        for part in parts
+        if part.strip()
+        and any(not clause.prohibited for clause in clauses(part, CATALOG["interpretation"]))
+    ] or [context.task]
+
+
 def task_parts(context: DecisionContext) -> list[tuple[str, dict]]:
+    if context_meaning(context) or task_workflow(context.task):
+        row = scenario_definition(context)
+        return [(context.task, row)] if row else []
     parts = re.split(
         r"[；;\n]|同时|还要|还想|也想|以及|\band also\b", context.task, flags=re.IGNORECASE
     )
@@ -143,6 +234,10 @@ def task_parts(context: DecisionContext) -> list[tuple[str, dict]]:
 
 def analysis_context(context: DecisionContext) -> DecisionContext:
     result = context.model_copy(deep=True)
+    if context_meaning(context) is not None:
+        # The server interpretation already includes notes and validated answer
+        # history. Prefixing lexical labels would invalidate its source digest.
+        return result
     for answer in context.intent_answers:
         if answer.option_id in {row["id"] for row in CATALOG["scenarios"]}:
             row = next(row for row in CATALOG["scenarios"] if row["id"] == answer.option_id)
@@ -177,6 +272,17 @@ def clarification_for(context: DecisionContext, language: str) -> DecisionClarif
     answered = {answer.question_id for answer in context.intent_answers}
     if unsupported_task(context):
         return None
+    meaning = context_meaning(context)
+    if meaning is not None and meaning.state == "ambiguous" and not context.intent_answers:
+        return DecisionClarification(
+            id="semantic-choice",
+            reason=t(
+                "这项选择会改变处理路线，原有条件继续保留。",
+                "This choice changes the route; original conditions remain.",
+            ),
+            question=meaning.ambiguity,
+            options=[],
+        )
     # An uncertain answer is an answer: show bounded routes instead of asking again.
     if any(answer.option_id == "unknown" for answer in context.intent_answers):
         return None
@@ -243,6 +349,36 @@ def clarification_for(context: DecisionContext, language: str) -> DecisionClarif
             ],
         )
     if scenario_definition(analysis_context(context)) is None and "work-direction" not in answered:
+        if re.search(r"合同|contract", text, re.IGNORECASE):
+            return DecisionClarification(
+                id="work-direction",
+                reason=t(
+                    "已识别合同材料；离线、硬件和费用要求会保留，但尚不清楚要对合同做什么。",
+                    "Contract material is identified; deployment, hardware and cost constraints remain. The required operation is unclear.",
+                ),
+                question=t(
+                    "你要查询合同条款，还是提取合同字段？",
+                    "Do you want to query clauses or extract contract fields?",
+                ),
+                options=[
+                    DecisionClarificationOption(
+                        id="knowledge-workspace",
+                        label=t("查询条款并引用原文", "Query clauses with citations"),
+                        description=t(
+                            "保留原有硬条件后核验文档问答。",
+                            "Evaluate document QA under the original constraints.",
+                        ),
+                    ),
+                    DecisionClarificationOption(
+                        id="document-extraction",
+                        label=t("提取金额、日期等字段", "Extract amounts and dates"),
+                        description=t(
+                            "保留原有硬条件后核验结构化抽取。",
+                            "Evaluate extraction under the original constraints.",
+                        ),
+                    ),
+                ],
+            )
         labels = [
             (
                 "knowledge-workspace",

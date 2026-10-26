@@ -1,0 +1,120 @@
+{
+  "cases": [
+    {
+      "id": "H01",
+      "task": "找个能调试 Java 项目的助手，先定位一个空指针错误，再修改函数并执行已有测试。",
+      "scenario": "coding-workspace"
+    },
+    {
+      "id": "H02",
+      "task": "我只想修改仓库里的登录接口，先确认计划再动手，最后运行测试，不做其他功能。",
+      "scenario": "coding-workspace"
+    },
+    {
+      "id": "H03",
+      "task": "Need an assistant to debug my codebase and run unit tests, without rewriting the application.",
+      "scenario": "coding-workspace"
+    },
+    {
+      "id": "H04",
+      "task": "维护一个 Rust 项目，帮我选能修复函数并执行测试的开发工具。",
+      "scenario": "coding-workspace"
+    },
+    {
+      "id": "H05",
+      "task": "需要原厂 API 生成代码补全，先不要替我调用。",
+      "scenario": "coding-model"
+    },
+    {
+      "id": "H06",
+      "task": "Choose a model API for code completion in our editor.",
+      "scenario": "coding-model"
+    },
+    {
+      "id": "H07",
+      "task": "把公司的 Word 手册做成问答，回答时给原文出处，缺内容就拒答。",
+      "scenario": "knowledge-workspace"
+    },
+    {
+      "id": "H08",
+      "task": "不会写代码，想让 PDF 操作规章可以提问并查找原文依据。",
+      "scenario": "knowledge-workspace",
+      "noCodeMaterial": true
+    },
+    {
+      "id": "H09",
+      "task": "文档问答系统先用一份脱敏的报销制度，核对答案和原文。",
+      "scenario": "knowledge-workspace"
+    },
+    {
+      "id": "H10",
+      "task": "Build a document question answering knowledge base with citations for staff manuals.",
+      "scenario": "knowledge-workspace"
+    },
+    {
+      "id": "H11",
+      "task": "把客服邮件分类后输出 JSON 字段，包括问题类型和订单号，接入已有服务。",
+      "scenario": "document-extraction"
+    },
+    {
+      "id": "H12",
+      "task": "整理维修记录，提取日期、设备号这些字段，输出结构化结果。",
+      "scenario": "document-extraction"
+    },
+    {
+      "id": "H13",
+      "task": "Extract structured fields from support tickets into JSON for my backend.",
+      "scenario": "document-extraction"
+    },
+    {
+      "id": "H14",
+      "task": "文档里的订单号转成 JSON，无法判断的字段留空，不要自动填造。",
+      "scenario": "document-extraction"
+    },
+    {
+      "id": "H15",
+      "task": "必须全程断网查询合同条款，机器只有8GB内存，不允许传数据。",
+      "offline": true
+    },
+    { "id": "H16", "task": "完全断网的电脑上用知识库查制度，先不要建议云服务。", "offline": true },
+    {
+      "id": "H17",
+      "task": "Need fully offline document question answering; no cloud API is allowed.",
+      "offline": true
+    },
+    {
+      "id": "H18",
+      "task": "每月预算最多人民币三百元，原厂 API 做代码生成，工作量还没统计。",
+      "scenario": "coding-model",
+      "budget": 300
+    },
+    {
+      "id": "H19",
+      "task": "每月最多200美元，想用模型 API 做代码补全，不能保证调用量。",
+      "scenario": "coding-model",
+      "budget": 200
+    },
+    {
+      "id": "H20",
+      "task": "月预算上限人民币两千元，原厂 API 做代码生成；先明确费用缺项。",
+      "scenario": "coding-model",
+      "budget": 2000
+    },
+    {
+      "id": "H21",
+      "task": "请推荐能剪辑产品视频并延长镜头、保持人物一致的工具。",
+      "outcome": "unsupported"
+    },
+    {
+      "id": "H22",
+      "task": "I need a tool to extend a product video and generate video scenes with the same actor.",
+      "outcome": "unsupported"
+    },
+    { "id": "H23", "task": "我不知道具体要做什么，想看看 AI 能帮我什么。", "outcome": "clarify" },
+    {
+      "id": "H24",
+      "task": "Which AI should I choose to become more productive?",
+      "outcome": "clarify"
+    }
+  ]
+}

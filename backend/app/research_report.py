@@ -40,7 +40,15 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
         entity = next((item for item in snapshot.entities if item.id == key), None)
         return getattr(entity.name, language) if entity else key
 
-    citations = [item for item in research.citations if item.claim.id in research.claim_ids]
+    decision = research.decision
+    guidance = decision.guidance if decision else None
+    focused = set(guidance.recommendation.entity_ids) if guidance else None
+    citations = [
+        item
+        for item in research.citations
+        if item.claim.id in research.claim_ids
+        and (focused is None or item.claim.entity_id in focused)
+    ]
     sources, indexes, source_keys, aliases = {}, {}, {}, {}
     for item in citations:
         for source in item.evidence:
@@ -80,7 +88,11 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
         if decision
         else research.summary
     )
-    candidates = decision.candidates if decision else []
+    candidates = (
+        [row for row in decision.candidates if focused is None or row.entity_id in focused]
+        if decision
+        else []
+    )
     if not guidance and candidates and all(item.eligibility == "excluded" for item in candidates):
         summary = t("没有符合本次硬条件的候选。", "No candidate meets the selected constraints.")
     sections = [Section(t("结论与建议", "Conclusion and recommendation"), [summary])]
@@ -96,10 +108,19 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
             sections.append(
                 Section(t("主要取舍", "Main tradeoff"), [guidance.recommendation.tradeoff])
             )
+        instruction = guidance.next_action.instruction
+        execution_prompt = guidance.next_action.execution_prompt
+        # Include the full instructions once when the copyable task already
+        # contains them. Whitespace differs between the inline and copy views.
+        if execution_prompt and "".join(instruction.split()) in "".join(execution_prompt.split()):
+            instruction = t(
+                "将下方执行说明与允许使用的材料交给所选工具，并核对实际交付。",
+                "Give the instructions below and the permitted materials to your chosen tool, then check its actual deliverables.",
+            )
         sections.append(
             Section(
                 t("下一步", "Next step"),
-                [guidance.next_action.instruction, *guidance.recommendation.premises],
+                [instruction, *guidance.recommendation.premises],
             )
         )
         if guidance.clarification:
@@ -110,6 +131,13 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
                         option.label + ": " + option.description
                         for option in guidance.clarification.options
                     ],
+                )
+            )
+        if guidance.next_action.execution_prompt:
+            sections.append(
+                Section(
+                    t("可复制的执行说明（尚未执行）", "Copyable task instructions (not executed)"),
+                    guidance.next_action.execution_prompt.split("\n\n"),
                 )
             )
         if len(guidance.tasks) > 1:
@@ -196,8 +224,19 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
                         level=3,
                     )
                 )
+        comparisons = [
+            row.model_copy(
+                update={
+                    "cells": [
+                        cell for cell in row.cells if focused is None or cell.entity_id in focused
+                    ]
+                }
+            )
+            for row in decision.comparisons
+        ]
         comparisons = sorted(
-            decision.comparisons, key=lambda row: not row.id.startswith("feature-")
+            [row for row in comparisons if row.cells],
+            key=lambda row: not row.id.startswith("feature-"),
         )
         used_claims = set()
         if comparisons:
@@ -327,11 +366,14 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
         sections.append(
             Section(t("本次条件与范围", "Conditions and scope"), list(dict.fromkeys(conditions)))
         )
-        if decision.scope:
-            sections[-1].paragraphs.append(
-                t("本报告涉及：", "Candidates in scope: ")
-                + "、".join(name(row.entity_id) for row in candidates)
+        if decision.scope and candidates:
+            scope_line = t("本报告涉及：", "Candidates in scope: ") + "、".join(
+                name(row.entity_id) for row in candidates
             )
+            if sections[-1].paragraphs:
+                sections[-1].paragraphs[-1] += "；" + scope_line
+            else:
+                sections[-1].paragraphs.append(scope_line)
             if decision.scope.omitted_entity_ids:
                 sections[-1].paragraphs.append(
                     t("未展示：", "Not shown: ")
@@ -375,22 +417,23 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
                 ],
             )
         )
-    sections.append(
-        Section(
-            t("来源", "Sources"),
-            [
-                f"[{indexes[key]}] {getattr(source.title, language)} — {source.publisher}\n"
-                + t("资料日期：", "Source date: ")
-                + (source.published_at or t("未明确", "Unknown"))
-                + t("；核验日期：", "; Verified: ")
-                + (source.verified_at[:10] if source.verified_at else t("未明确", "Unknown"))
-                + "\n"
-                + source.url
-                for key in indexes
-                for source in [sources[key]]
-            ],
+    if indexes:
+        sections.append(
+            Section(
+                t("来源", "Sources"),
+                [
+                    f"[{indexes[key]}] {getattr(source.title, language)} — {source.publisher}\n"
+                    + t("资料日期：", "Source date: ")
+                    + (source.published_at or t("未明确", "Unknown"))
+                    + t("；核验日期：", "; Verified: ")
+                    + (source.verified_at[:10] if source.verified_at else t("未明确", "Unknown"))
+                    + "\n"
+                    + source.url
+                    for key in indexes
+                    for source in [sources[key]]
+                ],
+            )
         )
-    )
     sections.append(
         Section(
             t("报告边界", "Report bounds"),
