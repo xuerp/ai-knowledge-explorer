@@ -25,6 +25,8 @@ from .decision_constraints import constraint_failures, current_claims, date_valu
 from .decision_dialogue import analysis_context, interpret_answer, normalize_context
 from .decision_explanation import explain_decision
 from .decision_guidance import build_guidance
+from .decision_resolution import reconcile_resolution
+from .decision_semantics import TaskMeaningService, meaning_source
 from .decision_workflow import REASONS, candidate_dispositions, conflicting_entities, missing_inputs
 from .rag import HybridRagRetriever, LexicalRagRetriever, RagRetriever, grounded_retrieval_citations
 from .schemas import (
@@ -49,7 +51,8 @@ from .schemas import (
 
 def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> ResearchView:
     """Reconcile saved advice against current publication, without rewriting history."""
-    public = {item.claim.id: item.claim for item in grounded_retrieval_citations(snapshot)}
+    public_citations = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
+    public = {key: item.claim for key, item in public_citations.items()}
     today = datetime.now(UTC).date()
     public = {
         key: claim
@@ -64,11 +67,43 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         )
     }
     saved = {citation.claim.id: citation for citation in result.citations}
+    groups: dict[str, list[Claim]] = {}
+    for claim in public.values():
+        if claim.entity_id:
+            groups.setdefault(claim.entity_id, []).append(claim)
+    conflicts = conflicting_entities(groups, result.decision_context)
+    conflicts.update(
+        claim.entity_id
+        for claim in snapshot.claims
+        if claim.confidence == "conflict"
+        and (
+            not claim.valid_from
+            or (date_value(claim.valid_from) is not None and date_value(claim.valid_from) <= today)
+        )
+        and (
+            not claim.valid_to
+            or (date_value(claim.valid_to) is not None and date_value(claim.valid_to) > today)
+        )
+    )
+    saved_groups: dict[str, list[Claim]] = {}
+    for citation in result.citations:
+        if citation.claim.entity_id:
+            saved_groups.setdefault(citation.claim.entity_id, []).append(citation.claim)
+    # A conflict already present in the saved evidence is not a publication change.
+    conflicts -= conflicting_entities(saved_groups, result.decision_context)
     states = {}
     for claim_id in result.claim_ids:
         if claim_id not in public:
             states[claim_id] = "unavailable"
-        elif claim_id not in saved or saved[claim_id].claim != public[claim_id]:
+        elif (
+            claim_id not in saved
+            or saved[claim_id] != public_citations[claim_id]
+            or (
+                result.decision is not None
+                and result.decision.status != "conflict"
+                and public[claim_id].entity_id in conflicts
+            )
+        ):
             states[claim_id] = "updated"
         else:
             states[claim_id] = "current"
@@ -83,7 +118,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
     if stale:
         updates["status"] = "insufficient-evidence"
         updates["summary"] = (
-            "历史引用已更新或不可用，请重新运行核验。 / Historical citations changed or are unavailable; run again."
+            "历史引用已更新、不可用或出现冲突，请重新运行核验。 / Historical citations changed, are unavailable or now conflict; run again."
         )
         if result.decision:
             updates["decision"] = result.decision.model_copy(
@@ -134,7 +169,10 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         refreshed = explain_decision(base, result.decision_context, groups, snapshot, language)
         updates["decision"] = refreshed
         updates["summary"] = refreshed.recommendation.summary
-    return result.model_copy(update=updates)
+    updated = result.model_copy(update=updates)
+    if updated.decision:
+        updated.decision = reconcile_resolution(updated.decision)
+    return updated
 
 
 class EngagementService:
@@ -142,9 +180,11 @@ class EngagementService:
         self,
         retriever: RagRetriever | None = None,
         answer_service: CitedAnswerService | None = None,
+        task_meaning_service: TaskMeaningService | None = None,
     ):
         self.retriever = retriever or LexicalRagRetriever()
         self.answer_service = answer_service or CitedAnswerService()
+        self.task_meaning_service = task_meaning_service or TaskMeaningService()
 
     def follow(
         self,
@@ -295,6 +335,9 @@ class EngagementService:
                 422, "A saved parent revision is required for clarification history."
             )
         if context and context.workflow_version == 2:
+            # A client-supplied interpretation is never trusted. Recompute with
+            # the server-owned service; persist the validated receipt for replay.
+            context = context.model_copy(update={"task_meaning": None})
             try:
                 context = normalize_context(context)
             except ValueError as error:
@@ -319,6 +362,17 @@ class EngagementService:
         previous = session.get(ResearchRecord, revision_id)
         if previous:
             return self._research_view(previous)
+        if context and context.workflow_version == 2:
+            # Parse only a new revision. A provider's nondeterministic wording
+            # must not change revision identity or trigger duplicate paid work.
+            context = context.model_copy(
+                update={
+                    "task_meaning": self.task_meaning_service.understand(
+                        meaning_source(context), owner_id=user_id
+                    )
+                }
+            )
+            payload = payload.model_copy(update={"decision_context": context})
         workflow_v2 = bool(
             payload.decision_context and payload.decision_context.workflow_version == 2
         )
@@ -392,6 +446,9 @@ class EngagementService:
             if workflow_v2:
                 decision.guidance = build_guidance(
                     decision, payload.decision_context, snapshot, payload.language
+                )
+                decision = reconcile_resolution(
+                    decision, payload.decision_context, payload.language
                 )
             summary = (
                 decision.guidance.recommendation.summary

@@ -1,9 +1,20 @@
 import catalog from "../../backend/data/decision_scenarios.v1.json";
+import workflows from "../../backend/data/decision_workflows.v1.json";
 import type { DecisionContext } from "@/services/user-api";
 
 export function positiveTaskText(text: string) {
   return text
-    .split(new RegExp(catalog.interpretation.clauseSeparator))
+    .split(
+      new RegExp(
+        `${catalog.interpretation.clauseSeparator}|${catalog.interpretation.contrastSeparator}`,
+        "i",
+      ),
+    )
+    .flatMap((clause) =>
+      new RegExp(catalog.interpretation.negativeClause, "i").test(clause.trim())
+        ? [clause]
+        : clause.split(new RegExp(catalog.interpretation.scopeBoundary, "i")),
+    )
     .map((clause) => clause.trim())
     .filter((clause) => !new RegExp(catalog.interpretation.negativeClause, "i").test(clause))
     .join(" ");
@@ -19,6 +30,18 @@ const contains = (text: string, term: string) =>
 /** A bounded shared taxonomy, not a claim of unrestricted language understanding. */
 export function scenarioDefinition(context: Pick<DecisionContext, "task" | "taskType">) {
   const text = positiveTaskText(context.task);
+  const methods = workflows.workflows.filter(
+    (row) =>
+      row.match.length > 0 &&
+      row.match.every((pattern) => new RegExp(pattern, "i").test(text)) &&
+      !(row.id === "classification" && /提取|抽取|字段|JSON|extract|fields/i.test(text)),
+  );
+  if (methods.length === 1) return catalog.scenarios.find((row) => row.id === methods[0].scenario);
+  const semanticMatches = new Set(
+    catalog.semanticRules
+      .filter((rule) => rule.all.every((pattern) => new RegExp(pattern, "i").test(text)))
+      .map((rule) => rule.scenario),
+  );
   const scope =
     context.taskType && context.taskType !== "unspecified"
       ? context.taskType
@@ -29,11 +52,13 @@ export function scenarioDefinition(context: Pick<DecisionContext, "task" | "task
   const ranked = catalog.scenarios
     .map((row) => ({
       row,
-      strength: row.intentPatterns.some((pattern) => new RegExp(pattern, "i").test(text))
-        ? 2
-        : row.patterns.some((pattern) => contains(text, pattern))
-          ? 1
-          : 0,
+      strength: semanticMatches.has(row.id)
+        ? 3
+        : row.intentPatterns.some((pattern) => new RegExp(pattern, "i").test(text))
+          ? 2
+          : row.patterns.some((pattern) => contains(text, pattern))
+            ? 1
+            : 0,
     }))
     .filter((item) => item.strength)
     .sort((a, b) => b.strength - a.strength);

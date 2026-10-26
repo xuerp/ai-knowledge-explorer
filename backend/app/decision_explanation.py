@@ -6,6 +6,7 @@ from .decision_candidates import CATALOG, described_features, interpret_scenario
 from .decision_constraints import api_price_value, date_value, token_quote_bounds
 from .decision_licenses import commercial_scope_missing
 from .decision_plan import build_plan
+from .decision_tool_context import tool_context
 from .schemas import (
     Claim,
     DecisionComparison,
@@ -552,7 +553,7 @@ def explain_decision(
             ),
         }
     )
-    plan = build_plan(explained, context, language)
+    plan = build_plan(explained, context, language, snapshot)
     recommendation = explained.recommendation
     if plan.state != "ready-to-validate":
         # API consumers and exports must not repeat the earlier hard-condition
@@ -644,10 +645,7 @@ def explain_decision(
             if (
                 scenario.id == "coding-workspace"
                 and len(plan.trial_candidate_ids) == 1
-                and any(
-                    phrase in context.task
-                    for phrase in ("目前只有", "现有入口", "已经在用", "currently only")
-                )
+                and primary in tool_context(context, snapshot.entities).entity_ids
             ):
                 guidance = (
                     f"先用你已有入口的 {primary_name} 完成一个小修复并运行测试，暂不急着更换工具。现有资料支持编辑和工具工作流，但没有证明换工具更好；确认这一个任务的实际补丁、测试和费用后再决定。"

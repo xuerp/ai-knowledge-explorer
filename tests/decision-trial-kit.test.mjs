@@ -72,6 +72,10 @@ test("unknown, excluded, conflicting, stale and out-of-scope candidates cannot o
 test("knowledge platform trial separates setup from the chatbot prompt and retains verification boundaries", () => {
   const research = fixture();
   research.decision.scenario.id = "knowledge-workspace";
+  research.decision.plan.trial.procedure = [
+    "先确认模型和嵌入服务的数据去向，用授权 PDF 接入 Chatbot 并启用引用。",
+    "用不同权限账户核对回答、引用和拒答，记录维护成本。",
+  ];
   const kit = decisionTrialKit(research, ["a"], () => "Dify", "zh");
   assert.match(kit.starterInputs, /数据去向.*PDF.*Chatbot.*启用引用/);
   assert.match(kit.prompt, /当前已连接的知识库/);
@@ -81,6 +85,24 @@ test("knowledge platform trial separates setup from the chatbot prompt and retai
   assert.match(kit.html, /PDF/);
   assert.match(kit.markdown, /不同权限账户.*维护成本/);
   assert.equal(research.decision.plan.trial.executed, false);
+});
+
+test("an existing workspace uses the server's acceptance step without inventing setup or migration", () => {
+  const research = fixture();
+  research.decision.scenario.id = "knowledge-workspace";
+  research.decisionContext.task = "验收已有知识库服务，不新建平台，不请求生产登录";
+  research.decision.plan.trial.sample = research.decisionContext.task;
+  research.decision.plan.trial.procedure = [
+    "在获准的现有服务测试空间准备身份与样本，建立允许、禁止及无答案矩阵。",
+    "逐身份核对引用、生效版本和拒答；不请求生产登录。",
+  ];
+  const kit = decisionTrialKit(research, ["a"], () => "Existing fixture", "zh");
+  assert.equal(kit.starterInputs, research.decision.plan.trial.procedure[0]);
+  assert.match(kit.prompt, /不请求生产登录/);
+  assert.match(kit.markdown, /允许、禁止及无答案矩阵/);
+  assert.match(kit.html, /允许、禁止及无答案矩阵/);
+  assert.doesNotMatch(kit.starterInputs, /建立知识库|接入 Chatbot|迁移/);
+  assert.equal(kit.protocol.executed, false);
 });
 
 test("source requests separate missing facts from actual business tests and input clarifications", () => {
@@ -168,16 +190,75 @@ test("formatted trial instructions remain offline, escape user content and share
   assert.equal(research.decision.plan.trial.executed, false);
 });
 
+test("trial exports preserve restricted inputs and prepare missing human references before scoring", () => {
+  const research = fixture();
+  research.decisionContext.task = "仅用合成通知试分类，没有人工参考答案";
+  research.decision.plan.trial.sample = research.decisionContext.task;
+  for (const lang of ["zh", "en"]) {
+    const kit = decisionTrialKit(research, ["a"], () => "Candidate A", lang);
+    assert.ok(kit.markdown.includes(research.decisionContext.task));
+    assert.ok(kit.html.includes(research.decisionContext.task));
+    if (lang === "zh") {
+      assert.match(kit.markdown, /仅准备原题允许的样本/);
+      assert.match(kit.prompt, /保留其样本类型、隐私和访问限制/);
+      assert.match(kit.markdown, /没有则先建立/);
+      assert.match(kit.html, /没有则先建立/);
+      assert.match(kit.markdown, /不以候选自己的输出作为参考答案/);
+      assert.doesNotMatch(kit.markdown, /提供你有权使用的实际样本/);
+    } else {
+      assert.match(kit.markdown, /Prepare only samples permitted by the task/);
+      assert.match(kit.prompt, /preserving its sample type, privacy and access restrictions/);
+      assert.match(kit.markdown, /establish them first/);
+      assert.match(kit.html, /establish them first/);
+      assert.match(kit.markdown, /cannot serve as their own reference/);
+    }
+    for (const output of [kit.prompt, kit.markdown, kit.html]) {
+      assert.ok(output.includes(research.decisionContext.task));
+      assert.doesNotMatch(
+        output,
+        /样本可以是真实或合成|可用真实或合成|may be real or synthetic|authorized real or synthetic samples/,
+      );
+    }
+    assert.ok(kit.markdown.includes(kit.prompt));
+    assert.equal(kit.protocol.executed, false);
+  }
+});
+
 test("coding quick start is one actual task while full comparison stays optional", () => {
   const research = fixture();
   research.decisionContext.taskType = "coding-product";
   research.decisionContext.task = "我是初学者，请建议是否换工具";
+  research.decision.plan.trial.sample = "在隔离副本修复指定的一个报错";
+  research.decision.plan.trial.procedure = ["提供相关文件与复现步骤，本轮只做这一项。"];
   const kit = decisionTrialKit(research, ["a"], () => "Claude Code", "zh");
   assert.match(kit.prompt, /本轮只做这一项/);
   assert.match(kit.prompt, /不能运行测试就明确说明/);
   assert.doesNotMatch(kit.prompt, /请建议是否换工具/);
-  assert.match(kit.starterInputs, /先试一项即可/);
+  assert.match(kit.starterInputs, /提供相关文件与复现步骤/);
   assert.match(kit.markdown, /完整对比方案（可选）/);
   assert.match(kit.html, /完整对比方案与验收标准（可选）/);
   assert.equal(research.decision.plan.trial.executed, false);
+});
+
+test("coding trial exports do not turn a read-only review into a code change", () => {
+  const research = fixture();
+  research.decisionContext.taskType = "coding-product";
+  research.decisionContext.task = "只审查一个合成函数，不修改文件，不运行命令";
+  research.decision.plan.trial.sample = research.decisionContext.task;
+  research.decision.plan.trial.procedure = [
+    "先读取获准的合成函数，标明问题位置和依据；不修改文件，不运行命令。",
+  ];
+  for (const lang of ["zh", "en"]) {
+    const kit = decisionTrialKit(research, ["a"], () => "Review fixture", lang);
+    assert.ok(kit.starterInputs.includes(research.decision.plan.trial.procedure[0]));
+    for (const output of [kit.prompt, kit.markdown, kit.html]) {
+      assert.ok(output.includes(research.decisionContext.task));
+      assert.ok(output.includes(research.decision.plan.trial.procedure[0]));
+      assert.doesNotMatch(
+        output,
+        /先选一个真实报错|请在我提供的代码中完成|再做尽量小的改动|fix one bug or implement|then make a minimal fix/,
+      );
+    }
+    assert.equal(kit.protocol.executed, false);
+  }
 });

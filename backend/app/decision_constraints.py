@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 from .decision_facts import fact_values, normalized_facts
 from .decision_licenses import commercial_status, service_billing_mismatch
+from .decision_task import understand_task
 from .schemas import Claim, DecisionContext, Entity, KnowledgeSnapshot
 
 
@@ -379,7 +380,7 @@ def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionCo
         )
     ):
         failures.append("unavailable-version")
-    offline_required = any(
+    offline_required = understand_task(context.task).offline or any(
         re.search(
             r"(?:必须|要求).{0,8}离线|完全离线运行|fully offline|air.gapped", clause, re.IGNORECASE
         )

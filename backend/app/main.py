@@ -168,7 +168,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20261015_0027"
+DATABASE_SCHEMA_REVISION = "20261021_0028"
 SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
@@ -215,9 +215,14 @@ def review_decision_note(decision: ReviewDecision | ReviewBatchDecision) -> str 
     return decision.reason_note or decision.reason
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, *, task_interpreter=None) -> FastAPI:
+    from .decision_runtime import configured_task_interpreter
+    from .decision_semantics import TaskMeaningService
+
     app_settings = settings or Settings.from_env()
     database = Database(app_settings.database_url)
+    if task_interpreter is None:
+        task_interpreter = configured_task_interpreter(app_settings, database)
     repository = KnowledgeRepository(app_settings.seed_snapshot_path, app_settings.data_mode)
     ingestion = IngestionService(app_settings.fetch_allowed_hosts)
     if app_settings.fetch_dns_mode == "https-google":
@@ -277,6 +282,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     engagement = EngagementService(
         rag_retriever,
         CitedAnswerService(enabled=app_settings.rag_generation_enabled),
+        task_meaning_service=TaskMeaningService(task_interpreter),
     )
     extraction = StructuredExtractionService(
         app_settings.extraction_api_url,
@@ -995,6 +1001,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app_settings.worker_id,
             run_limit=recent_limit,
         )
+
+    @app.get("/api/v2/decision-interpretation")
+    def own_decision_interpretation(response: Response, principal: UserDependency):
+        response.headers["Cache-Control"] = "no-store"
+        allows_user = getattr(task_interpreter, "allows_user", None)
+        if not allows_user or not allows_user(principal.subject):
+            return {"enabled": False}
+        diagnostics = task_interpreter.diagnostics()
+        return {
+            key: diagnostics[key]
+            for key in (
+                "enabled",
+                "limitCalls",
+                "usedCalls",
+                "remainingCalls",
+                "blocked",
+                "inFlightOrInterrupted",
+            )
+        }
+
+    @app.get("/api/v2/admin/decision-interpretation")
+    def decision_interpretation_diagnostics(response: Response, _: AdminDependency):
+        response.headers["Cache-Control"] = "no-store"
+        diagnostics = getattr(task_interpreter, "diagnostics", None)
+        return diagnostics() if diagnostics else {"enabled": False}
 
     @app.get(
         "/api/v2/admin/production-readiness",

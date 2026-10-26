@@ -14,6 +14,8 @@ from pydantic import (
 )
 from pydantic.alias_generators import to_camel
 
+from .decision_semantics import TaskMeaningReceipt
+
 
 class CamelModel(BaseModel):
     model_config = ConfigDict(
@@ -1012,6 +1014,7 @@ class DecisionIntentAnswer(CamelModel):
 
 
 class DecisionContext(CamelModel):
+    task_meaning: TaskMeaningReceipt | None = None
     workflow_version: Literal[1, 2] = 1
     minimum_context_tokens: int | None = Field(default=None, ge=1, le=100_000_000, strict=True)
     input_modalities: list[Literal["text", "image", "audio", "video"]] = Field(
@@ -1116,6 +1119,7 @@ class DecisionNextAction(CamelModel):
     target_ids: list[str] = Field(default_factory=list)
     location: Literal["this-page", "selected-product"]
     instruction: str
+    execution_prompt: str | None = None
 
 
 class DecisionGuidance(CamelModel):

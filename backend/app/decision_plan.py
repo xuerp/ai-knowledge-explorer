@@ -4,6 +4,18 @@ Uses the same candidate dispositions/gaps as the recommendation, without
 network calls, guessed product facts, implicit approval or evidence-count ranking.
 """
 
+import re
+
+from .decision_intent import task_workflow
+from .decision_semantics import context_meaning
+from .decision_stages import (
+    ordered_task_stages,
+    parallel_task_deliverables,
+    retain_ordered_trial,
+    retain_parallel_trial,
+)
+from .decision_task import understand_context
+from .decision_tool_context import tool_context
 from .schemas import DecisionAction, DecisionContext, DecisionPlan, DecisionResult, DecisionTrial
 
 # Method guidance only, never a claimed benchmark or an automatic invocation.
@@ -142,16 +154,16 @@ PROTOCOLS = {
     ),
     "general-text": (
         (
-            "同一组真实请求与预先标注的接受标准，包含正常、歧义、无资料和边界请求。",
-            "Use identical real requests with predefined acceptance criteria, including ordinary, ambiguous, unsupported and edge requests.",
+            "仅使用原题允许的材料与样本类型，保留隐私和访问限制；先确认接受标准，在允许范围内检查正常、歧义、无资料和边界请求。",
+            "Use only materials and sample types permitted by the task, preserving privacy and access restrictions. Define acceptance criteria first and check ordinary, ambiguous, unsupported and edge requests within the permitted scope.",
         ),
         (
-            "固定模型、提示词和可用资料，匿名混排候选答案。",
-            "Fix model, prompts and available sources; anonymously mix candidate answers.",
+            "在现有工具中提供允许使用的材料，按原题要求生成交付物；标明材料出处、无法确认的内容和缺失条件。",
+            "Provide the permitted materials in your existing tool and produce the requested deliverables; identify sources, unconfirmed content and missing prerequisites.",
         ),
         (
-            "按事实正确、指令遵守和目标用户可接受性逐条评分，保留失败案例。",
-            "Evaluate factual correctness, instruction following and audience acceptance; retain failures.",
+            "逐项对照原始材料核对事实、输出格式和全部交付要求；无依据的内容保持未知，记录需要人工修订的部分。",
+            "Check facts, output format and every requested deliverable against the original materials; keep unsupported content unknown and record necessary human revisions.",
         ),
         (
             "事实错误率、任务完成率、格式合格率、人工修订量。",
@@ -165,11 +177,16 @@ PROTOCOLS = {
 }
 
 
-def build_plan(result: DecisionResult, context: DecisionContext, language: str) -> DecisionPlan:
+def build_plan(
+    result: DecisionResult, context: DecisionContext, language: str, snapshot=None
+) -> DecisionPlan:
     index = int(language == "en")
     t = lambda zh, en: (zh, en)[index]
     rows = result.candidates
     active = [row for row in rows if row.eligibility != "excluded"]
+    user_tools = tool_context(context, snapshot.entities if snapshot else ())
+    reuse_workspace = result.scenario.id == "knowledge-workspace" and user_tools.reuse
+    source_plan = bool(ordered_task_stages(context) or parallel_task_deliverables(context))
     features = set(result.scenario.required_features)
     qualified = [
         row.entity_id
@@ -440,8 +457,31 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
     protocol = PROTOCOLS.get(
         "knowledge-assistant" if result.scenario.id == "knowledge-workspace" else result.scenario.id
     )
-    if active and protocol:
+    if (active or reuse_workspace or source_plan or user_tools.reuse) and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
+        task = understand_context(context)
+        if result.scenario.id == "coding-workspace":
+            sample = t(
+                "只验证本次指定的一项仓库任务：" + task.goal,
+                "Validate only this requested repository task: " + task.goal,
+            )
+            procedure = t(
+                "使用独立工作副本，先按原题要求复现问题或完成静态检查，展示依据并说明拟执行操作。仅在原题明确允许时做所需最小修改或运行会改变状态的命令；只读任务仅输出分析与依据。不追加新功能或重构任务。",
+                "Use an isolated working copy. First reproduce the issue or perform the static review required by the task, show the evidence and explain the proposed operations. Make the required minimal changes or run state-changing commands only when explicitly allowed by the task; read-only tasks return analysis and evidence only. Do not add feature or refactoring tasks.",
+            )
+            check = t(
+                "保留实际交付、引用文件位置及操作记录；涉及代码改动时保存补丁、实际测试命令和退出码，并独立核对验收。只读审查不要求生成补丁；无法运行的检查保持未测，不编造结果。",
+                "Retain actual deliverables, cited file locations and operation records. For code changes, retain patches, actual test commands and exit codes, and independently verify acceptance. Read-only reviews do not require a patch; checks that cannot run remain untested, without invented results.",
+            )
+            acceptance = t(
+                "交付符合原题及操作边界；代码改动不得破坏原测试。未交付、未运行的必要检查或人工补写不可记作自主通过。",
+                "Deliver the requested result within its operation boundaries; code changes must not regress existing tests. Missing deliverables, unrun required checks or human-written fixes do not count as autonomous success.",
+            )
+            if task.time_limit:
+                procedure += t(
+                    f" 本轮总时间上限为 {task.time_limit}；到时停止并记录未完成项，不将超时或未运行测试记为通过。",
+                    f" Stop at the requested limit ({task.time_limit}) and record unfinished work; timeouts or unrun tests are not passes.",
+                )
         if result.scenario.id == "knowledge-workspace":
             procedure = t(
                 "先确认模型和嵌入服务的数据去向，再用少量授权 PDF / Word 文档创建知识库并接入 Chatbot，启用引用展示；固定文档、切分和检索配置，保留检索片段与最终答案。自托管平台不代表模型也在本地。",
@@ -451,6 +491,11 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                 " 同时记录模型、嵌入、部署维护及人工校对成本。",
                 " Also record model, embedding, hosting, maintenance and human review costs.",
             )
+            if reuse_workspace:
+                procedure = t(
+                    "确认所述服务的获准测试入口，在隔离环境准备原题范围内的材料、问题及人工预期；记录实际文档范围和配置，保留检索片段及最终回答。不要求重建平台或新建知识库；入口或必要能力缺失时先记录待整改。",
+                    "Confirm an authorized test interface for the described service. In isolation, prepare the requested materials, questions and human expectations; record document scope and configuration, retaining retrieved passages and answers. Do not require a new platform or knowledge base; record missing access or required capabilities for remediation.",
+                )
         elif (
             result.scenario.id == "knowledge-assistant"
             and "retrieval" not in result.scenario.required_features
@@ -458,6 +503,63 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
             procedure = t(
                 "本轮选择回答模型。固定同一批检索片段及出处后比较生成；检索召回、引用与权限链路另行核验。要求候选自带检索时，应明确加入该必要功能后重新分析。",
                 "This trial selects an answering model. Fix retrieved excerpts and sources before comparing generation; verify retrieval recall, citations and permissions separately. If built-in retrieval is required, explicitly add that requirement and reanalyze.",
+            )
+        workflow = task_workflow(context.task, context_meaning(context))
+        if workflow and workflow["scenario"]:
+            sample = (
+                t("按原题限定的材料与样本执行：", "Use the requested materials and sample: ")
+                + context.task
+            )
+            procedure, check = [step[index] for step in workflow["steps"]]
+            metrics = workflow["metrics"][index]
+            acceptance = workflow["acceptance"][index]
+        if result.scenario.id == "knowledge-workspace" and (
+            re.search(
+                r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+            )
+        ):
+            sample = (
+                t(
+                    "按原题的文档、部门与版本范围建立验证样本：",
+                    "Use the requested documents, departments and versions: ",
+                )
+                + context.task
+            )
+            access_procedure = t(
+                "在获准的隔离测试环境准备原题指定的身份与样本，先列出“用户/岗位/部门 × 文档 × 生效版本”矩阵。为每种身份安排允许访问、禁止访问和无答案三类问题，人工写明预期依据及应答或拒答。旧版留档与当前检索范围分开；缺少测试空间或权限能力时记录阻塞，不以提示词代替权限控制。",
+                "Prepare the requested identities and samples in an authorized isolated test environment. Define a users/roles/departments × documents × effective versions matrix. For each identity, prepare allowed, denied and unanswerable questions with human reference evidence and expected answers or abstention. Separate archives from current retrieval; record missing test-space or access capabilities as blockers. Prompts are not access controls.",
+            )
+            # An existing deployment starts with its decisive access/version
+            # checks. A new workspace still needs setup and citation display.
+            procedure = access_procedure if reuse_workspace else procedure + " " + access_procedure
+            check = t(
+                "按矩阵逐身份执行并保存提问、实际检索片段与回答：允许项核对原文引用和生效版本，禁止项用无权访问的身份检查拒绝及无越权披露，无答案项应明确不知道且不编造引用。旧版仅按授权历史查询访问；错误或能力缺失保留待整改，不能先判通过。",
+                "Run the matrix under each identity and retain questions, retrieved passages and answers. Check allowed cases against source citations and effective versions, denied cases under unauthorized identities for refusal without leaks, and unanswerable cases for explicit uncertainty without invented citations. Access archives only through authorized historical queries; retain failures and missing capabilities for remediation, not passes.",
+            )
+        if result.scenario.id == "knowledge-workspace" and re.search(
+            r"扫描|OCR|scanned", context.task, re.IGNORECASE
+        ):
+            procedure += t(
+                " 对扫描件先核验 OCR / 图像解析入口，保留原页与页码；抽查识别文字、表格和段落位置后再导入检索。不可读页单列待处理，不用乱码或猜测内容生成答案。",
+                " For scans, verify OCR or image parsing first and retain source pages and page numbers. Spot-check text, tables and passage locations before retrieval ingestion. Isolate unreadable pages rather than answering from corrupted or guessed text.",
+            )
+        if user_tools.comparison:
+            procedure += t(
+                " 如需验证多个候选，使用同一批获准材料、问题与人工预期；分别记录版本、入口和配置，应用与开发框架的配置投入单独列出。",
+                " If validating multiple candidates, use the same authorized inputs, questions and human references. Record version, interface and configuration separately, including setup effort for applications versus frameworks.",
+            )
+            check += t(
+                " 未执行同口径实测前不指定效果冠军；预算未知则保留未知，不编造费用或把未知当免费。",
+                " Do not declare a quality winner before comparable measurements. Keep unknown budgets unknown without inventing charges or assuming free use.",
+            )
+        # Apply original requirements after selecting the method, so replacing a
+        # procedure cannot silently remove the user's restrictions.
+        if task.limits:
+            check += t(" 原始限制：", " Original constraints: ") + "；".join(task.limits)
+        if task.time_limit and result.scenario.id != "coding-workspace":
+            check += t(
+                f" 到 {task.time_limit} 停止，记录未完成项。",
+                f" Stop at {task.time_limit} and record unfinished work.",
             )
         metric_rows = [metrics]
         accept_rows = [acceptance]
@@ -482,9 +584,13 @@ def build_plan(result: DecisionResult, context: DecisionContext, language: str) 
                     "Verify data destinations, access permissions and deployment boundaries before sending sensitive samples.",
                 )
             )
+        if context.task not in sample:
+            sample = t("本次任务：", "Task for this trial: ") + context.task + "\n" + sample
         trial = DecisionTrial(
             sample=sample, procedure=[procedure, check], metrics=metric_rows, acceptance=accept_rows
         )
+        trial = retain_ordered_trial(trial, ordered_task_stages(context), language)
+        trial = retain_parallel_trial(trial, parallel_task_deliverables(context), language)
         if qualified:
             add(
                 "business-trial",

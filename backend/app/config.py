@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
@@ -51,6 +52,13 @@ class Settings:
     extraction_require_json_schema: bool = False
     extraction_require_usage: bool = False
     extraction_contract_state_path: Path | None = None
+    decision_interpretation_enabled: bool = False
+    decision_interpretation_api_url: str | None = None
+    decision_interpretation_api_key: str | None = field(default=None, repr=False)
+    decision_interpretation_model: str | None = None
+    decision_interpretation_budget_id: str | None = None
+    decision_interpretation_max_calls: int = 0
+    decision_interpretation_user_ids: tuple[str, ...] = ()
     auto_extraction_max_snapshots_per_cycle: int = 0
     auto_extraction_max_candidates_per_snapshot: int = 5
     auto_extraction_retry_minutes: int = 360
@@ -89,6 +97,25 @@ class Settings:
     built_at: str | None = None
 
     def __post_init__(self) -> None:
+        if self.decision_interpretation_enabled:
+            if not all(
+                (
+                    self.decision_interpretation_api_url,
+                    self.decision_interpretation_api_key,
+                    self.decision_interpretation_model,
+                    self.decision_interpretation_budget_id,
+                    self.decision_interpretation_user_ids,
+                )
+            ):
+                raise ValueError(
+                    "Task interpretation requires an explicit connection, budget and authorized accounts."
+                )
+            if not 1 <= self.decision_interpretation_max_calls <= 100:
+                raise ValueError("Task interpretation requires a non-renewing 1..100 call budget.")
+            if not re.fullmatch(
+                r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}", self.decision_interpretation_budget_id or ""
+            ):
+                raise ValueError("Invalid task interpretation budget identifier.")
         if self.fetch_dns_mode not in {"system", "https-google"}:
             raise ValueError("AI_RADAR_FETCH_DNS_MODE must be system or https-google.")
         if self.automation_token is not None and len(self.automation_token) < 32:
@@ -233,6 +260,27 @@ class Settings:
             fetch_retry_max_minutes=int(os.getenv("AI_RADAR_FETCH_RETRY_MAX_MINUTES", "360")),
             fetch_lease_minutes=int(os.getenv("AI_RADAR_FETCH_LEASE_MINUTES", "5")),
             extraction_api_url=os.getenv("AI_RADAR_EXTRACTION_API_URL") or None,
+            decision_interpretation_enabled=_extraction_bool(
+                "AI_RADAR_DECISION_INTERPRETATION_ENABLED"
+            ),
+            decision_interpretation_api_url=os.getenv("AI_RADAR_DECISION_INTERPRETATION_API_URL")
+            or None,
+            decision_interpretation_api_key=os.getenv("AI_RADAR_DECISION_INTERPRETATION_API_KEY")
+            or None,
+            decision_interpretation_model=os.getenv("AI_RADAR_DECISION_INTERPRETATION_MODEL")
+            or None,
+            decision_interpretation_budget_id=os.getenv(
+                "AI_RADAR_DECISION_INTERPRETATION_BUDGET_ID"
+            )
+            or None,
+            decision_interpretation_max_calls=int(
+                os.getenv("AI_RADAR_DECISION_INTERPRETATION_MAX_CALLS", "0")
+            ),
+            decision_interpretation_user_ids=tuple(
+                value.strip()
+                for value in os.getenv("AI_RADAR_DECISION_INTERPRETATION_USER_IDS", "").split(",")
+                if value.strip()
+            ),
             extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
             extraction_response_timeout_seconds=int(

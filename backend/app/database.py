@@ -460,6 +460,25 @@ class AutomationRunRecord(Base):
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
+class DecisionInterpretationBudgetRecord(Base):
+    __tablename__ = "decision_interpretation_budgets"
+    __table_args__ = (
+        CheckConstraint(
+            "used_calls >= 0 AND used_calls <= limit_calls", name="ck_decision_budget_calls"
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    profile_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    limit_calls: Mapped[int] = mapped_column(Integer, nullable=False)
+    used_calls: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    known_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    unknown_usage_calls: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    blocked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    active_attempt_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class WorkerStatusRecord(Base):
     __tablename__ = "worker_status"
 

@@ -2,8 +2,12 @@
 
 import re
 
-from .decision_dialogue import clarification_for, unsupported_task
-from .decision_intent import CATALOG
+from .decision_dialogue import clarification_for, task_descriptions, unsupported_task
+from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_semantics import context_meaning
+from .decision_stages import ordered_task_stages, parallel_task_deliverables
+from .decision_task import daily_workload, understand_context
+from .decision_tool_context import tool_context
 from .schemas import (
     DecisionClarification,
     DecisionClarificationOption,
@@ -57,6 +61,35 @@ def build_guidance(result, context, snapshot, language):
                 ),
             ],
         )
+    if (
+        question
+        and question.id == "cost-basis"
+        and daily_workload(context.task)
+        and not any(answer.question_id == "monthly-days" for answer in context.intent_answers)
+        and any(key.startswith("monthly-") for key in result.missing_inputs)
+    ):
+        question = DecisionClarification(
+            id="monthly-days",
+            question=t(
+                "每月按多少个运行日核算这笔预算？",
+                "How many active days per month should this budget cover?",
+            ),
+            reason=t(
+                "已保留每天调用量、每次输入输出和预算上限。只需确认月运行日；不会默认汇率或把未知费用当免费。",
+                "Daily calls, per-call tokens and budget are retained. Confirm active days; exchange rates and unknown costs will not be assumed.",
+            ),
+            options=[
+                DecisionClarificationOption(
+                    id=f"days-{days}",
+                    label=t(f"按 {days} 天核算", f"Use {days} days"),
+                    description=t(
+                        "这是你选择的工作量口径，不代表费用已通过。",
+                        "This selects workload assumptions, not a verified cost.",
+                    ),
+                )
+                for days in (22, 30)
+            ],
+        )
     intent = [DecisionIntentField(field="goal", value=context.task, source="user-input")]
     intent.extend(
         DecisionIntentField(
@@ -77,11 +110,16 @@ def build_guidance(result, context, snapshot, language):
         )
         for answer in context.intent_answers
     )
-    materials = re.findall(
-        r"PDF|Word|DOCX|简历|合同|代码|发票|扫描件|文档|resume|repository|invoice",
-        context.task,
-        re.IGNORECASE,
+    task = understand_context(context)
+    materials = task.materials
+    intent.extend(
+        DecisionIntentField(field="constraint", value=limit, source="user-input")
+        for limit in task.limits
     )
+    if task.time_limit:
+        intent.append(
+            DecisionIntentField(field="time-limit", value=task.time_limit, source="user-input")
+        )
     if materials:
         intent.append(
             DecisionIntentField(
@@ -127,31 +165,23 @@ def build_guidance(result, context, snapshot, language):
         if result.recommendation.primary_entity_id in ready
         else None
     )
-    existing = []
-    if re.search(
-        r"已有|已经|目前|正在用|只有|在用|using|already|currently|have", context.task, re.IGNORECASE
-    ):
-        existing = [
-            key
-            for key in ready
-            if any(
-                len(label) > 1 and label.casefold() in context.task.casefold()
-                for label in [
-                    entities[key].name.zh,
-                    entities[key].name.en,
-                    *(entities[key].aliases or []),
-                ]
-            )
-        ]
-    if len(existing) == 1:
-        primary = existing[0]
-        intent.append(
-            DecisionIntentField(field="existing-tool", value=name(primary), source="user-input")
-        )
+    user_tools = tool_context(context, entities.values())
+    existing = [key for key in ready if key in user_tools.entity_ids]
+    preferred_existing = existing if user_tools.reuse else []
+    intent.extend(
+        DecisionIntentField(field="existing-tool", value=quote, source="user-input")
+        for quote in user_tools.references
+    )
+    intent.extend(
+        DecisionIntentField(field="existing-tool", value=quote, source="assumption")
+        for quote in user_tools.interpreted_references
+    )
+    if len(preferred_existing) == 1:
+        primary = preferred_existing[0]
     reasons = list(result.recommendation.reasons or [])
     if primary and rows[primary].strengths:
         reasons = list(rows[primary].strengths[:2])
-    if len(existing) == 1:
+    if len(preferred_existing) == 1:
         reasons.append(
             DecisionTradeoff(
                 dimension="switching-effort",
@@ -203,6 +233,8 @@ def build_guidance(result, context, snapshot, language):
     }.get(result.scenario.id)
     if starter:
         instruction = t(*starter)
+    if result.scenario.id == "coding-workspace" and result.plan and result.plan.trial:
+        instruction = " ".join(result.plan.trial.procedure)
     outcome = "advice" if ready else "conditional"
     tradeoff = None
     if ready and not primary:
@@ -229,17 +261,33 @@ def build_guidance(result, context, snapshot, language):
             )
             for feature in result.scenario.required_features[:3]
         ]
-        kind, label = "compare", t("比较使用方式与限制", "Compare interfaces and limits")
-        instruction = t(
-            "查看下面的已知差异；有现成入口时可先从该方案开始，尚未核验的条件仍保留。",
-            "Inspect the documented differences below. An existing interface can reduce setup; unverified conditions remain unknown.",
-        )
+        if result.plan and result.plan.trial:
+            # A tie in product evidence does not block the user's actual task.
+            # Keep every qualified option and avoid inventing a winner, while
+            # making the same scoped protocol available before product choice.
+            headline = t("先按本次任务做小范围验证", "Start with a bounded trial of your task")
+            summary = t(
+                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先确认其中一个你能使用的入口，再执行下方任务；无需逐个比较或测试才能开始。",
+                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Confirm one interface you can use, then follow the task below; comparing or testing every option is not required to start.",
+            )
+            tradeoff = t(
+                "现有差异证据不足以指定唯一优先方案；实际任务效果和你的账户可用性尚未核验。候选差异可在依据详情中按需查看。",
+                "Available differences do not establish one preferred option; task results and your account access are unverified. Candidate differences remain available in the optional evidence details.",
+            )
+            kind, label = "start", t("查看上手步骤", "See how to start")
+            instruction = " ".join(result.plan.trial.procedure)
+        else:
+            kind, label = "compare", t("比较使用方式与限制", "Compare interfaces and limits")
+            instruction = t(
+                "查看下面的已知差异；有现成入口时可先从该方案开始，尚未核验的条件仍保留。",
+                "Inspect the documented differences below. An existing interface can reduce setup; unverified conditions remain unknown.",
+            )
     elif primary:
         summary = t(
             f"先用 {name(primary)} 处理本次的{result.scenario.name}任务。现有资料覆盖必要功能。",
             f"Use {name(primary)} for this {result.scenario.name} task. Current evidence covers the required features.",
         )
-        if len(existing) == 1:
+        if len(preferred_existing) == 1:
             summary = t(
                 f"可以先继续用 {name(primary)}，目前没有依据要求你为这件工作换工具。它满足本次已核验的必要条件；遇到明确功能限制或实际任务不通过时，再考虑替换。",
                 f"Continue with {name(primary)} for now. There is no evidence here requiring a switch for this job. It meets verified requirements; reconsider if a concrete feature limit or task failure appears.",
@@ -249,6 +297,23 @@ def build_guidance(result, context, snapshot, language):
                 "这是需要配置模型与知识库的应用平台；自托管平台不代表模型也在本地。",
                 "This platform needs model and knowledge-base configuration; self-hosting the platform does not make its model local.",
             )
+            if re.search(
+                r"权限|部门|旧版|新版|过期|access|department|version", context.task, re.IGNORECASE
+            ):
+                outcome = "conditional"
+                headline = t(
+                    f"先在 {name(primary)} 验证权限与生效版本",
+                    f"Verify access and effective versions in {name(primary)} first",
+                )
+                summary = t(
+                    f"可以先在 {name(primary)} 做隔离试点。当前资料支持文档导入与检索，但不能据此确认你要求的逐文档访问隔离和版本生效控制已经满足；先用指定的虚构样本核验这两项门槛，通过前不接入真实受限文档。",
+                    f"Pilot {name(primary)} in isolation. Document import and retrieval evidence does not establish the requested document-level access isolation or version controls. Verify both gates with the requested fictional samples before connecting restricted documents.",
+                )
+                if primary in existing:
+                    summary = (
+                        t("沿用你已说明的现有平台。", "Reuse the platform you identified. ")
+                        + summary
+                    )
         elif result.scenario.id in {
             "coding-model",
             "knowledge-assistant",
@@ -352,6 +417,190 @@ def build_guidance(result, context, snapshot, language):
             "这是一条有前提的使用路线，尚未确认具体工具满足所有条件。",
             "This is a conditional route, not confirmation that a specific tool meets every requirement.",
         )
+    workflow = task_workflow(context.task, context_meaning(context))
+    if (
+        result.plan
+        and result.plan.trial
+        and not question
+        and not all_excluded
+        and (workflow or primary)
+    ):
+        # The main action and exports must describe the same executable plan.
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看上手步骤", "See how to start")
+        if workflow:
+            outcome, primary, ready, reasons = "conditional", None, [], []
+            headline = (
+                t("先按这条路线小范围验证：", "Start with a bounded route: ")
+                + workflow["name"][int(language == "en")]
+            )
+            summary = workflow["route"][int(language == "en")]
+    if (
+        result.scenario.id == "knowledge-workspace"
+        and user_tools.reuse
+        and not existing
+        and not question
+        and not all_excluded
+        and result.plan
+        and result.plan.trial
+    ):
+        outcome, primary, ready = "conditional", None, []
+        headline = t("先验收你描述的问答服务", "Validate the Q&A service you described first")
+        summary = t(
+            "先确认所述服务的获准测试入口，按原题范围准备材料、问题和人工预期，再执行下方验收步骤；能力缺失记录为待整改，尚不能宣称服务通过验收。",
+            "Confirm an authorized test interface for the described service. Prepare materials, questions and human expectations within the requested scope, then run the acceptance steps below. Record missing capabilities for remediation; the service has not passed acceptance yet.",
+        )
+        reasons = [
+            DecisionTradeoff(
+                dimension="existing-workflow",
+                finding=t(
+                    "按本次要求组织服务验收，不增加更换平台或新建知识库的前提。",
+                    "Organize service acceptance around this request without requiring a platform switch or a new knowledge base.",
+                ),
+                claim_ids=[],
+            )
+        ]
+        unknowns = [
+            DecisionGuidanceUnknown(
+                requirement="existing-service-capabilities",
+                kind="not-tested",
+                decisive=False,
+                detail=t(
+                    "未核验该服务的权限、版本及引用实现。",
+                    "The service's access, version and citation implementation is unverified.",
+                ),
+                affects=t("本服务的验收结论", "Acceptance of this service"),
+                recovery=t(
+                    "按下方矩阵检查并保留实际结果；缺项记录待整改。",
+                    "Run the matrix below, retain actual results and record gaps for remediation.",
+                ),
+                checked_at=result.as_of,
+            )
+        ]
+        tradeoff = t(
+            "现有服务是否满足要求取决于实际验收，不能由其他平台的公开资料代证。",
+            "Other platforms' public documentation cannot establish this service's acceptance.",
+        )
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看上手步骤", "See how to start")
+    if (
+        user_tools.reuse
+        and result.scenario.id in {"general-text", "coding-workspace"}
+        and not preferred_existing
+        and not question
+        and not all_excluded
+        and result.plan
+        and result.plan.trial
+    ):
+        # A request to operate an existing interface is not product selection.
+        # Catalog competitors cannot prove that interface's capabilities.
+        outcome, primary, ready, reasons = "conditional", None, [], []
+        headline = t("先在你现有的工具中完成这项任务", "Start in your existing tool")
+        summary = (
+            workflow["route"][int(language == "en")]
+            if workflow
+            else t(
+                "沿用你指定的入口，按下方原题步骤处理获准材料，逐项保留实际交付与依据；先检查文件输入和操作边界，能力缺失时记录具体阻塞，再考虑更换工具。",
+                "Use your stated interface and the steps below on authorized inputs, retaining each deliverable and source. Check input support and operation boundaries first; record concrete capability gaps before considering a switch.",
+            )
+        )
+        tradeoff = t(
+            "尚未核验你当前入口的能力和账户权限；这份任务说明没有执行，也不代表其他工具更好。",
+            "Your interface's capabilities and account access remain unverified. This task has not run and does not establish another product's superiority.",
+        )
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("复制任务到现有工具", "Copy the task to your existing tool")
+    if (
+        primary
+        and result.scenario.id == "knowledge-workspace"
+        and re.search(r"扫描|OCR|scanned", context.task, re.IGNORECASE)
+    ):
+        outcome = "conditional"
+        headline = t(
+            f"先在 {name(primary)} 验证扫描件与问答边界",
+            f"Verify scans and Q&A boundaries in {name(primary)} first",
+        )
+        summary += t(
+            " 扫描件的 OCR、原页定位与识别正确性尚未实测；先检查下方解析步骤，文档导入能力不能代证扫描件已可用。",
+            " OCR, original-page locations and recognition accuracy remain untested. Follow the parsing checks below; document ingestion alone does not establish scan usability.",
+        )
+        unknowns.append(
+            DecisionGuidanceUnknown(
+                candidate_id=primary,
+                requirement="scan-parsing",
+                kind="not-tested",
+                decisive=True,
+                detail=t(
+                    "扫描件解析及页码对应尚未实测。",
+                    "Scan parsing and page alignment are untested.",
+                ),
+                affects=t("扫描件问答的适用性", "Scan Q&A suitability"),
+                recovery=t(
+                    "核验 OCR 入口，对照原页检查文字与定位；不可读页待处理。",
+                    "Verify OCR and check text and positions against original pages; isolate unreadable pages.",
+                ),
+                checked_at=result.as_of,
+            )
+        )
+    if (
+        user_tools.comparison
+        and not question
+        and not all_excluded
+        and result.plan
+        and result.plan.trial
+    ):
+        outcome, primary = "conditional", None
+        headline = t(
+            "先比较候选的功能与使用条件", "Compare candidate features and usage conditions"
+        )
+        summary = (
+            t(
+                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先核对使用方式、权限与缺项；这些依据不构成性能排名，也不要求逐个实测才能开始。",
+                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Check interfaces, access and gaps first; this is not a performance ranking and testing every candidate is not required to start.",
+            )
+            if ready
+            else t(
+                "按你的任务核对各方案的功能、使用方式和缺项，再用相同材料与验收标准验证；公开功能依据不能证明哪个实际效果更好。",
+                "Compare features, interfaces and gaps against your task, then validate with the same inputs and criteria. Documented features do not establish a real-world quality winner.",
+            )
+        )
+        tradeoff = t(
+            "配置投入、功能依据和实测效果分别记录；预算与未测效果保持未知。",
+            "Record setup effort, documented features and measured outcomes separately; unknown budgets and untested quality stay unknown.",
+        )
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看同口径验证步骤", "See comparable validation steps")
+    stages = ordered_task_stages(context)
+    if (
+        stages
+        and result.plan
+        and result.plan.trial
+        and outcome in {"advice", "conditional"}
+        and not question
+        and not all_excluded
+    ):
+        # One catalog method cannot establish qualification for the entire
+        # requested chain. Retain each explicit goal while keeping the route
+        # conditional and refusing to invent a full-workflow product winner.
+        outcome, primary, ready, reasons = "conditional", None, [], []
+        headline = t(
+            f"按原题顺序完成这 {len(stages)} 步",
+            f"Complete the requested {len(stages)} stages in order",
+        )
+        summary = " → ".join(f"{i}. {quote}" for i, quote in enumerate(stages, 1))
+        tradeoff = t(
+            "步骤来自你的任务要求，尚未实测一个具体工具能完成整条链路。先在现有入口确认各步所需能力；缺少材料或能力时，保留阻塞及恢复要求。",
+            "These steps follow your task requirements; no specific tool has been tested for the entire chain. Confirm each required capability in your existing interface; retain blockers and recovery requirements when materials or capabilities are missing.",
+        )
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看分步任务", "See the staged task")
+    deliverables = parallel_task_deliverables(context)
+    if deliverables and result.plan and result.plan.trial and not question and not all_excluded:
+        outcome, primary, ready, reasons = "conditional", None, [], []
+        headline = t("分别完成原题的全部交付", "Complete every requested deliverable")
+        summary = "；".join(deliverables)
+        instruction = " ".join(result.plan.trial.procedure)
+        kind, label = "start", t("查看完整任务", "See the complete task")
     if unsupported_task(context):
         outcome, primary, ready, reasons = "unsupported", None, [], []
         headline = t(
@@ -365,6 +614,40 @@ def build_guidance(result, context, snapshot, language):
         instruction = t(
             "如果你的工作还包含文案、资料整理或代码开发，可以单独为这些部分分析；原任务仍未完成选型。",
             "If the job also includes writing, document organization or coding, those parts can be evaluated separately; selection for the original task remains unresolved.",
+        )
+        if workflow:
+            headline = (
+                t(
+                    "已识别任务，当前缺少对应工具依据：",
+                    "Task identified; tool evidence is missing: ",
+                )
+                + workflow["name"][int(language == "en")]
+            )
+            index = int(language == "en")
+            summary = workflow.get("route", workflow["steps"][0])[index]
+            instruction = " ".join(step[index] for step in workflow["steps"])
+            instruction += t(" 重点检查：", " Check: ") + workflow["metrics"][index]
+            instruction += " " + workflow["acceptance"][index]
+    receipt = context.task_meaning
+    if (
+        receipt
+        and receipt.status in {"failed", "invalid"}
+        and not workflow
+        and scenario_definition(context) is None
+    ):
+        # A parser outage is not an ambiguity in the user's task. Never silently
+        # turn provider failure into a request to repeat a complete description.
+        question = None
+        outcome, primary, ready, reasons = "blocked", None, [], []
+        headline = t("本次需求解析未完成", "Task interpretation did not complete")
+        summary = t(
+            "原题与条件已保留，当前不能确认选型路线；没有生成可采用的建议。",
+            "Your task and conditions are retained; a reliable selection route was not established.",
+        )
+        kind, label = "routes", t("保留任务后重试", "Retain the task and retry")
+        instruction = t(
+            "稍后重新分析；无需为系统解析失败重新编写需求。",
+            "Reanalyze later; you do not need to rewrite the task because parsing failed.",
         )
     if question:
         outcome, primary, ready, reasons = "clarify", None, [], []
@@ -380,16 +663,7 @@ def build_guidance(result, context, snapshot, language):
     return DecisionGuidance(
         outcome=outcome,
         intent=intent,
-        tasks=[
-            part.strip()
-            for part in re.split(
-                r"[；;\n]|同时|还要|还想|也想|以及|\band also\b",
-                context.task,
-                flags=re.IGNORECASE,
-            )
-            if part.strip()
-        ]
-        or [context.task],
+        tasks=task_descriptions(context),
         answered=context.intent_answers,
         clarification=question,
         recommendation=DecisionGuidanceRecommendation(

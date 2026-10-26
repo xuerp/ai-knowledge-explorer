@@ -1,9 +1,40 @@
 {
   "version": 1,
+  "semanticRules": [
+    {
+      "scenario": "knowledge-workspace",
+      "all": [
+        "问答|回答问题|question.answer",
+        "文档|文件|PDF|Word|知识|document|knowledge"
+      ]
+    },
+    {
+      "scenario": "coding-workspace",
+      "all": [
+        "代码|仓库|项目|接口|函数|单元测试|pytest|前端|组件|编码助手|开发助手|repository|codebase|function|unit test",
+        "修改|改(?:一个|个|动|代码)|修复|调试|运行|执行|补丁|fix|edit|debug|run|implement"
+      ]
+    },
+    {
+      "scenario": "coding-model",
+      "all": ["代码|编程|code|coding", "补全|生成|completion|generate"]
+    },
+    {
+      "scenario": "document-extraction",
+      "all": [
+        "邮件|工单|合同|文档|文件|票据|表格|记录|email|ticket|document|record",
+        "JSON|字段|订单号|结构化|列名|fields|structured|columns",
+        "整理|提取|抽取|转成|变成|输出|分类|extract|convert|classify|output"
+      ]
+    }
+  ],
   "interpretation": {
     "nativeRetrieval": "(?:自带|内置|原生).{0,8}(?:检索|知识库|文件搜索)|(?:built.in|native).{0,12}(?:retrieval|file search|knowledge base)",
     "clauseSeparator": "[，,。；;!?！？\\n]+",
-    "negativeClause": "^(?:我(?:们)?|本次)?\\s*(?:不要|不做|不需要|无需|不想|不用|不考虑|no\\b|not required\\b|do not\\b|don't\\b)|\\b(?:not required|not needed|not available|unsupported)\\b|(?:不需要|无需|不支持)$",
+    "contrastSeparator": "但是|不过|然而|但|\\bbut\\b|\\bhowever\\b|(?=只有|仅有)",
+    "scopeBoundary": "(?=没有|无权|不需要|不要求|不要|不能|不得|不允许|\\bwithout\\s|\\bno\\s)",
+    "conditionAssertion": "(?:版权|所有权|知识产权|使用权|权属).*(?:归我|归我们|归本公司|属于我|属于我们|由我拥有)$|^(?:I|we)\\s+(?:own|have the rights to).*(?:copyright|rights|materials|assets)$",
+    "negativeClause": "^(?:(?:我(?:们)?|本次|也|但|并且|并|还|而且)\\s*)*(?:不要|不做|不需要|无需|不想|不用|不考虑|不提取|不执行|不修改|不接|不自动|不会|不懂|不能|不得|不允许|没有|无权|no\\b|not required\\b|do not\\b|don't\\b|cannot\\b|can't\\b|without\\b)|\\b(?:not required|not needed|not available|unsupported)\\b|(?:不需要|无需|不支持)$",
     "modelScope": "底层模型|回答用的.{0,8}模型|(?:编程|代码|文本|写作)模型|模型\\s*API|(?:选择|选个|选一个|选|接入|换).{0,12}模型|(?:通过|接|接入|接受).{0,6}(?:云\\s*)?API|\\b(?:model API|coding API|text model|language model)\\b",
     "imageInput": "(?:票据|发票|文档|合同).{0,8}(?:照片|图片|扫描件)|(?:图片|照片|扫描件).{0,12}(?:输入|读取|识别|提取)|(?:支持|要求)(?:图片|图像)(?:输入)?|图像输入|image input|accept images",
     "textOnly": "(?:已(?:经)?转成|只处理|仅处理|输入(?:是|为)?|输入材料(?:是|为)?).{0,6}(?:纯文本|文本)|text.only|plain text input"
@@ -30,7 +61,7 @@
         "model-api": "knowledge-assistant"
       },
       "intentPatterns": [
-        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|回答|查出处)",
+        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|问问题|回答|查出处|查找原文|原文依据)",
         "(?:检索片段|检索结果|retrieved passages).{0,100}(?:回答|生成答案|answer)",
         "问答网站"
       ],
@@ -67,7 +98,7 @@
       ],
       "taskType": "model-api",
       "intentPatterns": [
-        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|回答|查出处)",
+        "(?:文档|PDF|Word|手册|规章).{0,100}(?:提问|问答|问问题|回答|查出处|查找原文|原文依据)",
         "(?:检索片段|检索结果|retrieved passages).{0,100}(?:回答|生成答案|answer)",
         "问答网站"
       ],
