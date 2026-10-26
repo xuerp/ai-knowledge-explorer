@@ -1,0 +1,120 @@
+{
+  "reviewedDate": "2026-10-27",
+  "url": "https://ai.google.dev/gemini-api/docs/changelog",
+  "cachedBodySha256": "40c561d62208a242a9578d6c1a1c5040b16123538e93abb1bda94141729c71d0",
+  "scope": "Manual historical date and model identity review; cached source captured 2026-10-25. Does not certify current availability or performance. Generic editorial source text is labelled as summary separately.",
+  "claims": [
+    {
+      "claimId": "c-history-gemini-10-pro",
+      "claimSha256": "616dd98771ea58064c6e54a642b8814b8553c0c9237b5766a449a26e3df2f1b0",
+      "eventDate": "2023-12-13",
+      "status": "needs-api-versus-model-release-scope",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-15-pro-ga",
+      "claimSha256": "e80d18dde44b827f75f2a591d9b1f47ba4ceafd78c95bbe54628a4c7f2f247a1",
+      "eventDate": "2024-05-23",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-15-flash",
+      "claimSha256": "dc9f8cd37a03d288dc3d6d7f342ef22ef957354fa7c486151c2521dcd296b163",
+      "eventDate": "2024-05-23",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-15-flash-002",
+      "claimSha256": "a1be8777722c0c2bc2bb800e128bab955a53478507f93e053e0798d67455f7f2",
+      "eventDate": "2024-09-24",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-pro-exp",
+      "claimSha256": "4239d2b92427d6c246b286e6ce4129274e3cf6bd31bf9289dc81da26c9c6a2d0",
+      "eventDate": "2025-03-25",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-pro-preview-0506",
+      "claimSha256": "eb8e0cb92d53d91ea8984545f3b9d93c4dd9802cd853510abd8022b55e5bbc8a",
+      "eventDate": "2025-05-06",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-pro-preview-0605",
+      "claimSha256": "70142a6f1374fb997f44f4cc53c86fc524224fda3ef09706c8fe97223fd6f9e8",
+      "eventDate": "2025-06-05",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-3-pro",
+      "claimSha256": "0d7013eed229d92669305bdac44fe33d30eb7c6af567582120af3b9640a98789",
+      "eventDate": "2025-11-18",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-3-flash",
+      "claimSha256": "a417a1d1631d10a0e52de4aa74ee9f7b9f5600840da6860be3c1d233df484ab0",
+      "eventDate": "2025-12-17",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-31-flash-lite-preview",
+      "claimSha256": "8b72d0fcf0f993261959c27302c245f649ca104113c9bf3d0fbe9da2928068b7",
+      "eventDate": "2026-03-03",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-20-live",
+      "claimSha256": "0875cd43e3662717670f56e798d3f84113437e874caf37a2e8e929b9d001b0b3",
+      "eventDate": "2025-04-09",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-live-0520",
+      "claimSha256": "d09994eb8ca7c9f530c2d7522a2deb7ad812a4240f5b203027c0732a5b140f73",
+      "eventDate": "2025-05-20",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-live-0923",
+      "claimSha256": "6902b7ddff1edd8aab86b3290cecd20d1a9d63843a49fd4c499fc389191314a4",
+      "eventDate": "2025-09-23",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-25-image-preview",
+      "claimSha256": "82b2879c51181b101a425b88822cf27da1738fd1a8745c1e4a498338fe7492a0",
+      "eventDate": "2025-08-26",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-3-image-preview",
+      "claimSha256": "69afad9666407ab49abd45e004502bcc3af5fd46596f3f09075da080a44e5317",
+      "eventDate": "2025-11-20",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    },
+    {
+      "claimId": "c-history-gemini-31-image-preview",
+      "claimSha256": "1626c1aa79953eec5458fc01a66a44b144a303923639b6aa478930ad9a2f812e",
+      "eventDate": "2026-02-26",
+      "status": "historical-release-supported",
+      "currentAvailabilityVerified": false
+    }
+  ]
+}

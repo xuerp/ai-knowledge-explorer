@@ -44,6 +44,7 @@ const source = {
   url: "https://www.anthropic.com/news/claude-4",
   publishedAt: "2025-05-22",
   sourceExcerpt: excerpt,
+  sourceExcerptKind: "quote",
 };
 
 test("source excerpts remain literal, collapsed by default and safe as text", () => {
@@ -66,6 +67,23 @@ test("missing excerpts are explicit and never replaced by a claim or source titl
   );
   assert.match(html, /原文摘录暂缺/);
   assert.doesNotMatch(html, /<details|72\.7|官方实验条件/);
+});
+
+test("summaries and unclassified legacy text never render as quotations", () => {
+  for (const kind of ["summary", undefined]) {
+    const item = { ...source, sourceExcerptKind: kind, sourceExcerpt: "Editorial explanation" };
+    const html = renderToStaticMarkup(createElement(SourceExcerpt, { source: item, lang: "en" }));
+    assert.doesNotMatch(html, /<blockquote|View source excerpt/);
+    assert.match(html, kind === "summary" ? /not a quotation/ : /quotation status unverified/);
+    const markdown = createMarkdown(
+      { question: { en: "Task" }, summary: { en: "Answer" } },
+      [],
+      [item],
+      "en",
+    );
+    assert.doesNotMatch(markdown, /> Editorial explanation/);
+    assert.match(markdown, /Editorial explanation/);
+  }
 });
 
 test("Markdown preserves source evidence and API provenance rather than claiming demo data", () => {

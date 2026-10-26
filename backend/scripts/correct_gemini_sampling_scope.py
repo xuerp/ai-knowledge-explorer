@@ -35,6 +35,7 @@ SOURCE = {
     "originalLanguage": "en",
     "type": "official",
     "sourceExcerpt": "temperature, top_p, and top_k are deprecated and ignored.",
+    "sourceExcerptKind": "quote",
     "supportsClaimIds": [CLAIM_ID],
 }
 

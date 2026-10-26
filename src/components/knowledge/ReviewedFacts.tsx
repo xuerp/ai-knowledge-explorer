@@ -119,11 +119,6 @@ export function ReviewedFacts({
               {claimSources.map((source) => (
                 <div key={source.id} className="py-1">
                   <SourceRow source={source} />
-                  {source.sourceExcerpt && (
-                    <blockquote className="mx-3 mb-2 border-l-2 border-border pl-3 text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">
-                      {source.sourceExcerpt}
-                    </blockquote>
-                  )}
                 </div>
               ))}
             </div>
