@@ -1,0 +1,62 @@
+{
+  "checkedDate": "2026-10-26",
+  "method": "Manual comparison of existing claim wording, event date and scope with the current official release notes. No automatic promotion or catalog mutation.",
+  "url": "https://ai.google.dev/gemini-api/docs/changelog",
+  "scope": "Historical announcement support only; does not establish current endpoint availability, performance or literal quotation accuracy.",
+  "supportedHistoricalClaims": [
+    {
+      "claimId": "c-change-25-access-restriction",
+      "sectionDate": "2026-09-18",
+      "review": "Legacy access restriction; not a shutdown."
+    },
+    {
+      "claimId": "c-change-agentic-video",
+      "sectionDate": "2026-09-01",
+      "review": "Named Flash variants and both API surfaces match."
+    },
+    {
+      "claimId": "c-change-35-computer-use",
+      "sectionDate": "2026-06-24",
+      "review": "Preview scope includes all three interface environments."
+    },
+    {
+      "claimId": "c-change-31-streaming-tts",
+      "sectionDate": "2026-06-17",
+      "review": "Named TTS preview and both streaming routes match."
+    },
+    {
+      "claimId": "c-change-gemini20-shutdown",
+      "sectionDate": "2026-06-01",
+      "review": "Both 2.0 variants and their 001 endpoints match."
+    },
+    {
+      "claimId": "c-change-gemini-file-search-images",
+      "sectionDate": "2026-05-05",
+      "review": "Embedding model, image retrieval and citation metadata match."
+    },
+    {
+      "claimId": "c-change-gemini-webhooks",
+      "sectionDate": "2026-05-04",
+      "review": "Batch and long-running operation scope matches."
+    },
+    {
+      "claimId": "c-change-gemini31-lite-preview-shutdown",
+      "sectionDate": "2026-05-25",
+      "review": "Preview shutdown and stable replacement match."
+    }
+  ],
+  "followUp": [
+    {
+      "claimId": "c-change-gemini-sampling-deprecated",
+      "sectionDate": "2026-07-21",
+      "status": "corrected-and-locally-verified",
+      "reason": "Named parameters and model scope corrected in Claim, timeline, detail and source references; new official guide evidence added.",
+      "additionalSource": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.6#api-changes-and-parameter-updates"
+    },
+    {
+      "claimId": "claim-1a484e64c5807acbddf6",
+      "status": "corrected-in-local-api-snapshot",
+      "reason": "Both languages now describe the 2025-12-11 historical launch and do not imply current availability. This record is absent from the clean repository catalog."
+    }
+  ]
+}
