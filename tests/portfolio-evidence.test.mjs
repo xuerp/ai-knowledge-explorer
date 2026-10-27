@@ -5,7 +5,7 @@ import test from "node:test";
 const readProjectFile = (relativePath) =>
   readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
 
-test("作品集包含六份已接受且可追溯的架构决策", async () => {
+test("项目包含六份已接受且可追溯的架构决策", async () => {
   const adrs = await Promise.all(
     [
       "0001-why-lexical-before-vector-search.md",
@@ -39,7 +39,7 @@ test("公开材料不回退到过时的演示快照计数", async () => {
   const materials = (
     await Promise.all([
       readProjectFile("docs/PORTFOLIO_CASE_STUDY.md"),
-      readProjectFile("docs/RESUME_AND_INTERVIEW.md"),
+      readProjectFile("README.md"),
     ])
   ).join("\n");
 

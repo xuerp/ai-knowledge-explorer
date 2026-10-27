@@ -1,8 +1,8 @@
 {
   "updatedAt": "2026-10-27",
   "summary": {
-    "zh": "完整项目保留，作品集验收进行中",
-    "en": "Full project retained; portfolio acceptance in progress"
+    "zh": "项目开发与验证进行中",
+    "en": "Project development and validation in progress"
   },
   "boundary": {
     "zh": "以下是项目验收记录，不是当前网站的实时健康状态。代码更新、本地验证与线上部署分别记录。",
@@ -56,8 +56,8 @@
     {
       "name": { "zh": "项目展示与部署", "en": "Presentation and deployment" },
       "implemented": {
-        "zh": "README、项目介绍、简历材料和验证记录。",
-        "en": "README, project introduction, resume material and validation records."
+        "zh": "README、使用说明、项目介绍和验证记录。",
+        "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
         "zh": "修复已分批更新 GitHub；尚未部署到展示网站并完成线上复验。",

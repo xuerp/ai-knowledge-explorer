@@ -24,10 +24,8 @@ const block = [
 ].join("\n");
 let failed = false;
 for (const relative of [
-  "README.md",
   "docs/portfolio/CASE_STUDY.md",
   "docs/portfolio/VALIDATION.md",
-  "docs/portfolio/RESUME.md",
   "docs/portfolio/WALKTHROUGH.md",
 ]) {
   const file = path.join(root, relative);
@@ -48,4 +46,4 @@ for (const relative of [
 }
 if (failed) process.exitCode = 1;
 else
-  console.log("Delivery status synchronized across the project page and five portfolio documents.");
+  console.log("Delivery status synchronized across the project page and three public documents.");

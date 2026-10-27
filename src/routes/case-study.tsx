@@ -33,8 +33,8 @@ function CaseStudyPage() {
             </h2>
             <p className="mt-3 leading-7 text-muted-foreground">
               {t(
-                "AI Radar 把分散的模型公告、能力描述和使用条件整理为动态、知识与关系，帮助用户查变化、看依据，再结合任务开展选型研究。本页面向想了解项目的访客和面试官；日常使用可以直接进入下面的功能。",
-                "AI Radar organizes model announcements, capabilities and usage conditions into updates, knowledge and relationships for task-based research. This introduction is for visitors and interviewers; use the links below to explore the product.",
+                "AI Radar 把分散的模型公告、能力描述和使用条件整理为动态、知识与关系，帮助用户查变化、看依据，再结合任务开展选型研究。下面介绍产品流程与工程设计，也可以直接进入功能开始使用。",
+                "AI Radar organizes model announcements, capabilities and usage conditions into updates, knowledge and relationships for task-based research. Explore the product workflow and engineering below, or follow the links to start using it.",
               )}
             </p>
             <nav
@@ -137,8 +137,8 @@ function CaseStudyPage() {
             <h2 className="text-lg font-semibold">{t("代码与验证记录", "Code and validation")}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {t(
-                "本页进度与 README、作品集文档来自同一份记录。数据数量不等于核验质量，测试通过不等于完整产品已验收。",
-                "This page, README and portfolio documents share one status record. Data volume does not establish quality, and passing tests does not establish full product acceptance.",
+                "本页进度与项目验证文档来自同一份记录。数据数量不等于核验质量，测试通过不等于完整产品已验收。",
+                "This page and the project validation documents share one status record. Data volume does not establish quality, and passing tests does not establish full product acceptance.",
               )}
             </p>
             <div className="mt-4 flex flex-wrap gap-5 text-sm text-primary">
