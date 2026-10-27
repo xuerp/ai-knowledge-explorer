@@ -398,7 +398,7 @@ function LandingPage() {
 
             <nav aria-label={t("资源", "Resources")}>
               <strong>{t("资源", "Resources")}</strong>
-              <Link to="/case-study">{t("案例研究", "Case study")}</Link>
+              <Link to="/case-study">{t("项目介绍", "About project")}</Link>
               <Link to="/quality">{t("数据质量", "Data quality")}</Link>
               <Link to="/admin/review-demo">{t("审核演示", "Review demo")}</Link>
             </nav>

@@ -1,0 +1,68 @@
+{
+  "updatedAt": "2026-10-27",
+  "summary": {
+    "zh": "完整项目保留，作品集验收进行中",
+    "en": "Full project retained; portfolio acceptance in progress"
+  },
+  "boundary": {
+    "zh": "以下是项目验收记录，不是当前网站的实时健康状态。代码更新、本地验证与线上部署分别记录。",
+    "en": "This is an acceptance record, not live site health. Code updates, local verification and deployment are tracked separately."
+  },
+  "modules": [
+    {
+      "name": { "zh": "动态、知识库、家族与图谱", "en": "Updates, knowledge, families and graph" },
+      "implemented": {
+        "zh": "完整浏览、筛选和关联入口保留。",
+        "en": "Browsing, filtering and linked navigation are retained."
+      },
+      "verified": {
+        "zh": "基础浏览与部分跨页操作已测；同版全流程复验未完成。",
+        "en": "Basic browsing and some cross-page flows tested; full same-version acceptance remains open."
+      }
+    },
+    {
+      "name": { "zh": "决策研究与导出", "en": "Research and export" },
+      "implemented": {
+        "zh": "登录、研究保存、修改、历史及报告导出。",
+        "en": "Sign-in, research saving, revision, history and report export."
+      },
+      "verified": {
+        "zh": "本地主流程、桌面/手机报告及 PDF 已复验；不代表所有选型场景通过。",
+        "en": "Local main flow, desktop/mobile reports and PDF rechecked; not all decision scenarios accepted."
+      }
+    },
+    {
+      "name": { "zh": "数据与来源", "en": "Data and sources" },
+      "implemented": {
+        "zh": "事实与证据分离，原文、摘要和未分类文本区分。",
+        "en": "Claims and evidence separated; quotations, summaries and unclassified text distinguished."
+      },
+      "verified": {
+        "zh": "部分链接、条件与引用标记已修复；全量语义、时效与生命周期复核未完成。",
+        "en": "Some links, conditions and citation labels repaired; full semantic, freshness and lifecycle review remains open."
+      }
+    },
+    {
+      "name": { "zh": "采集、审核与通知", "en": "Collection, review and notifications" },
+      "implemented": {
+        "zh": "采集、候选审核、发布与通知模块保留。",
+        "en": "Collection, candidate review, publishing and notification modules retained."
+      },
+      "verified": {
+        "zh": "已有软件回归；持续更新闭环及邮件实际送达尚未验收。",
+        "en": "Software regressions tested; continuous update cycle and actual email delivery not yet accepted."
+      }
+    },
+    {
+      "name": { "zh": "项目展示与部署", "en": "Presentation and deployment" },
+      "implemented": {
+        "zh": "README、项目介绍、简历材料和验证记录。",
+        "en": "README, project introduction, resume material and validation records."
+      },
+      "verified": {
+        "zh": "修复已分批更新 GitHub；尚未部署到展示网站并完成线上复验。",
+        "en": "Fixes published to GitHub in batches; deployment to the showcase site and live acceptance remain open."
+      }
+    }
+  ]
+}
