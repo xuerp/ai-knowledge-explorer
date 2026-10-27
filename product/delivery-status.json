@@ -1,8 +1,8 @@
 {
   "updatedAt": "2026-10-27",
   "summary": {
-    "zh": "项目开发与验证进行中",
-    "en": "Project development and validation in progress"
+    "zh": "内测与整体验收进行中，尚未达到稳定正式版",
+    "en": "Internal testing and full acceptance in progress; not yet a stable release"
   },
   "boundary": {
     "zh": "以下是项目验收记录，不是当前网站的实时健康状态。代码更新、本地验证与线上部署分别记录。",
@@ -10,7 +10,10 @@
   },
   "modules": [
     {
-      "name": { "zh": "动态、知识库、家族与图谱", "en": "Updates, knowledge, families and graph" },
+      "name": {
+        "zh": "动态、知识库、家族与图谱",
+        "en": "Updates, knowledge, families and graph"
+      },
       "implemented": {
         "zh": "完整浏览、筛选和关联入口保留。",
         "en": "Browsing, filtering and linked navigation are retained."
@@ -21,7 +24,10 @@
       }
     },
     {
-      "name": { "zh": "决策研究与导出", "en": "Research and export" },
+      "name": {
+        "zh": "决策研究与导出",
+        "en": "Research and export"
+      },
       "implemented": {
         "zh": "登录、研究保存、修改、历史及报告导出。",
         "en": "Sign-in, research saving, revision, history and report export."
@@ -32,7 +38,10 @@
       }
     },
     {
-      "name": { "zh": "数据与来源", "en": "Data and sources" },
+      "name": {
+        "zh": "数据与来源",
+        "en": "Data and sources"
+      },
       "implemented": {
         "zh": "事实与证据分离，原文、摘要和未分类文本区分。",
         "en": "Claims and evidence separated; quotations, summaries and unclassified text distinguished."
@@ -43,7 +52,10 @@
       }
     },
     {
-      "name": { "zh": "采集、审核与通知", "en": "Collection, review and notifications" },
+      "name": {
+        "zh": "采集、审核与通知",
+        "en": "Collection, review and notifications"
+      },
       "implemented": {
         "zh": "采集、候选审核、发布与通知模块保留。",
         "en": "Collection, candidate review, publishing and notification modules retained."
@@ -54,14 +66,17 @@
       }
     },
     {
-      "name": { "zh": "项目展示与部署", "en": "Presentation and deployment" },
+      "name": {
+        "zh": "项目展示与部署",
+        "en": "Presentation and deployment"
+      },
       "implemented": {
         "zh": "README、使用说明、项目介绍和验证记录。",
         "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
-        "zh": "修复已分批更新 GitHub；尚未部署到展示网站并完成线上复验。",
-        "en": "Fixes published to GitHub in batches; deployment to the showcase site and live acceptance remain open."
+        "zh": "代码已更新 GitHub；2026-10-27 核对线上仍为 97ae9d8，首次后端请求超时、复查恢复，部署同步及线上全流程复验未完成。",
+        "en": "Code updated on GitHub; live build remains 97ae9d8 on 2026-10-27. Initial backend requests timed out and a recheck recovered; deployment alignment and full live acceptance remain open."
       }
     }
   ]
