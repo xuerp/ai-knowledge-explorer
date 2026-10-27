@@ -1,8 +1,8 @@
 # AI Radar 文档索引
 
-当前作品集入口：[项目案例](portfolio/CASE_STUDY.md) · [真实资料](portfolio/real-data/README.md) · [运行步骤](portfolio/WALKTHROUGH.md) · [验证记录](portfolio/VALIDATION.md) · [简历材料](portfolio/RESUME.md)
+当前项目入口：[项目案例](portfolio/CASE_STUDY.md) · [真实资料](portfolio/real-data/README.md) · [运行步骤](portfolio/WALKTHROUGH.md) · [验证记录](portfolio/VALIDATION.md)
 
-作品集与生产验收范围分别记录，历史评测不代表当前状态。
+项目与生产验收范围分别记录，历史评测不代表当前状态。
 
 ## 文档权威顺序
 
@@ -14,7 +14,7 @@
 4. 代码、自动化测试、GitHub Quality 和已部署精确 commit。
 5. `PRODUCTION_RUNBOOK.md`、`STAGING_DEPLOYMENT.md` 和 `ARCHITECTURE.md`。
 6. ADR 与带日期的 eval 报告；它们记录当时证据，不代表当前运行状态。
-7. 产品路线图、作品集和简历材料；它们不能授权运行时写操作。
+7. 产品路线图和项目介绍；它们不能授权运行时写操作。
 
 任何未列入 Git 的临时交接文档都不能作为项目状态源。
 
@@ -43,11 +43,10 @@
 - `RELATION_ONTOLOGY.md`：关系合法取值与证据约束。
 - `FAILURE_SCENARIOS.md`：高风险故障覆盖。
 
-## 设计与作品集材料
+## 设计与项目材料
 
 - `PORTFOLIO_CASE_STUDY.md`
 - `PORTFOLIO_ACCEPTANCE.md`
-- `RESUME_AND_INTERVIEW.md`
 - `DEMO_SCRIPT.md`
 - `ENTITY_ALIAS_NORMALIZATION.md`
 
