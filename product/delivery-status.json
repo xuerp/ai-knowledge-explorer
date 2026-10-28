@@ -75,8 +75,8 @@
         "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
-        "zh": "新网址已启用；前后端完整版本正在统一发布与复验，尚未完成线上整体验收。",
-        "en": "The new address is active; the complete frontend and backend release is being synchronized and rechecked. Full live acceptance remains open."
+        "zh": "新网址已部署完整前后端版本；版本、数据库迁移、CI 与接口冒烟已通过，登录后完整业务流程和数据整体验收仍待完成。",
+        "en": "The complete frontend and backend are deployed at the new address. Release versions, database migration, CI and API smoke checks passed; authenticated end-to-end flows and full data acceptance remain open."
       }
     }
   ]
