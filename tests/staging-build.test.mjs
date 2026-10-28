@@ -24,7 +24,7 @@ test("预发构建确认 Cloudflare 同域代理与 Render 上游", async () => 
     await mkdir(join(root, "server"));
     await writeFile(
       join(root, "public", "app.js"),
-      'const proxy = "https://ai-radar-staging.1966761779.workers.dev/backend";',
+      'const proxy = "https://ai-radar.xue-ai.workers.dev/backend";',
     );
     await writeFile(
       join(root, "server", "ssr.mjs"),
@@ -44,7 +44,7 @@ test("预发构建拒绝只在 Wrangler 配置中声明上游", async () => {
     await mkdir(join(root, "server"));
     await writeFile(
       join(root, "public", "app.js"),
-      'const proxy = "https://ai-radar-staging.1966761779.workers.dev/backend";',
+      'const proxy = "https://ai-radar.xue-ai.workers.dev/backend";',
     );
     await writeFile(
       join(root, "server", "wrangler.staging.json"),

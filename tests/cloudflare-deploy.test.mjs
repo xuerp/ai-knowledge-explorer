@@ -11,7 +11,7 @@ const base = {
 
 test("Cloudflare staging config keeps workers.dev when no domain is selected", () => {
   const result = buildStagingWranglerConfig(base);
-  assert.equal(result.name, "ai-radar-staging");
+  assert.equal(result.name, "ai-radar");
   assert.equal(result.workers_dev, true);
   assert.equal(result.preview_urls, true);
   assert.equal(result.routes, undefined);

@@ -1,6 +1,6 @@
 # AI Radar 项目验收与截图
 
-验收日期：2026-08-21。验收对象为公开预发布地址 <https://ai-radar-staging.1966761779.workers.dev>。
+验收日期：2026-08-21。验收对象为公开预发布地址 <https://ai-radar.xue-ai.workers.dev>。
 
 ## 验收结果
 
