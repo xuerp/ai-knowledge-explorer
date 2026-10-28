@@ -18,6 +18,7 @@ COPY data/catalog_extension.json ./data/catalog_extension.json
 COPY data/frontier_catalog_v1.json ./data/frontier_catalog_v1.json
 COPY data/catalog_legacy_fingerprints.v1.json ./data/catalog_legacy_fingerprints.v1.json
 COPY data/decision_scenarios.v1.json ./data/decision_scenarios.v1.json
+COPY data/decision_workflows.v1.json ./data/decision_workflows.v1.json
 COPY data/entity_aliases_v1.json ./data/entity_aliases_v1.json
 COPY data/golden_questions.json ./data/golden_questions.json
 COPY data/quality_evaluation.json ./data/quality_evaluation.json

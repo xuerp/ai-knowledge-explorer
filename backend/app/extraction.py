@@ -375,16 +375,19 @@ class StructuredExtractionService:
         self._response_format_mode = "json_schema"
         self._contract_failure: str | None = None
         self.contract_state_path = contract_state_path
-        if contract_state_path and contract_state_path.exists():
-            # Fail closed on damaged state; restart is not authorization to retry.
-            try:
-                state = json.loads(contract_state_path.read_text(encoding="utf-8"))
-                self._contract_failure = state.get("reason") or "invalid_contract_state"
-            except (OSError, ValueError, AttributeError):
-                self._contract_failure = "invalid_contract_state"
+        self._refresh_contract_state()
         self._call_metadata: ContextVar[dict[str, Any] | None] = ContextVar(
             "extraction_provider_call", default=None
         )
+
+    def _refresh_contract_state(self) -> None:
+        if self.contract_state_path and self.contract_state_path.exists():
+            # Fail closed on damaged state; restart is not authorization to retry.
+            try:
+                state = json.loads(self.contract_state_path.read_text(encoding="utf-8"))
+                self._contract_failure = state.get("reason") or "invalid_contract_state"
+            except (OSError, ValueError, AttributeError):
+                self._contract_failure = "invalid_contract_state"
 
     def call_metadata(self) -> dict[str, Any] | None:
         metadata = self._call_metadata.get()
@@ -573,6 +576,7 @@ class StructuredExtractionService:
         schema_name: str,
         timeout_seconds: float,
     ) -> tuple[dict[str, Any], str]:
+        self._refresh_contract_state()
         if self._contract_failure:
             self._call_metadata.set(
                 {
@@ -618,6 +622,15 @@ class StructuredExtractionService:
                 remaining_seconds = deadline - perf_counter()
                 if remaining_seconds <= 0:
                     raise httpx.ReadTimeout("Extraction request deadline exceeded.")
+                # Another running instance may have tripped the shared circuit,
+                # including while this instance was waiting to retry.
+                self._refresh_contract_state()
+                if self._contract_failure:
+                    metadata["blockedBy"] = self._contract_failure
+                    raise _ProviderCapabilityError(
+                        "provider_contract_blocked",
+                        "共享停止记录已生效；保留故障回执并经明确复测授权后恢复。",
+                    )
                 metadata["requestCount"] += 1
                 response = client.post(
                     self.api_url or "",

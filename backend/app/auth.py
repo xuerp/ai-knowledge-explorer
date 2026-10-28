@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -21,6 +22,8 @@ class Principal:
     role: Role
     legacy_token: bool = False
     session_id: str | None = None
+    token_fingerprint: str | None = None
+    expires_at: datetime | None = None
 
 
 class AuthService:
@@ -83,6 +86,7 @@ class AuthService:
                 "exp": expires,
                 "iss": "ai-radar",
                 "aud": "ai-radar-web",
+                "jti": str(uuid4()),
                 **({"sid": remembered_session_id} if remembered_session_id else {}),
             },
             self.jwt_secret,
@@ -126,6 +130,8 @@ class AuthService:
                 email=str(payload["email"]),
                 role=role,
                 session_id=payload.get("sid"),
+                token_fingerprint=hashlib.sha256(token.encode("utf-8")).hexdigest(),
+                expires_at=datetime.fromtimestamp(float(payload["exp"]), UTC),
             )
         except (jwt.InvalidTokenError, KeyError):
             return None

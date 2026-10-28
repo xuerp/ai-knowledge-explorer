@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: [Quality]
     types: [completed]
-    branches: [codex/productionize]
+    branches: [main]
 
 permissions:
   contents: read

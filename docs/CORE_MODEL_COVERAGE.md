@@ -8,7 +8,7 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
 | GPT family      | anchor |       40 |            17 |       55 |            3 |           3 |                    40 |                   16 |        51 |               67 |
 | Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               40 |
-| Gemini family   | anchor |       53 |            11 |       60 |            3 |           3 |                    34 |                   33 |        56 |               42 |
+| Gemini family   | anchor |       53 |            11 |       60 |            3 |           3 |                    34 |                   33 |        56 |               43 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
 | Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    7 |        28 |               36 |
 | Kimi            | core   |        8 |             2 |       13 |            3 |           3 |                     8 |                    4 |        11 |               23 |

@@ -13,7 +13,7 @@ def test_staging_blueprint_uses_one_free_api_service() -> None:
     (api,) = blueprint["services"]
     assert api["type"] == "web"
     assert api["plan"] == "free"
-    assert api["branch"] == "codex/productionize"
+    assert api["branch"] == "main"
     assert api["healthCheckPath"] == "/health"
     assert "preDeployCommand" not in api
 

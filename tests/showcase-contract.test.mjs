@@ -94,12 +94,15 @@ test("产品 Case Study 是公开路由并覆盖关键产品决策", async () =>
   ]);
 
   assert.match(route, /createFileRoute\("\/case-study"\)/);
-  assert.match(route, /Candidate \/ Verified Claim/);
-  assert.match(route, /Showcase 与 Live 分开/);
-  assert.match(route, /追踪器 · 高频入口/);
-  assert.match(route, /知识关系 · 可信基础/);
-  assert.match(route, /决策助手 · 核心价值/);
-  assert.match(route, /8–10 个核心模型/);
+  assert.match(route, /<AppShell>/);
+  assert.match(route, /<WorkspaceHeader/);
+  assert.match(route, /delivery-status.json/);
+  assert.match(route, /status.modules.map/);
+  assert.match(route, /项目介绍/);
+  for (const path of ["updates", "knowledge", "graph", "ask"]) {
+    assert.ok(route.includes(`to="/${path}"`));
+  }
+  assert.doesNotMatch(route, /PRODUCT CASE STUDY|8–10 个核心模型/);
   assert.match(root, /og:title", content: "AI Radar · 基于可信变化做出 AI 选择"/);
   assert.match(routeTree, /CaseStudyRoute/);
 });
@@ -112,18 +115,20 @@ test("模型对比提供系列与具体版本两种范围", async () => {
   assert.match(source, /DEMO_KNOWLEDGE_SNAPSHOT\.entities/);
 });
 
-test("未登录访客可以运行预置研究且证据不足时明确拒答", async () => {
+test("未登录访客保留输入并登录后生成真实研究，不用预制答案代替", async () => {
   const [route, adapter] = await Promise.all([
     read("src/routes/ask.tsx"),
     read("src/data/demo-adapter.ts"),
   ]);
 
-  assert.match(route, /showcaseAnswers\.find/);
+  assert.doesNotMatch(route, /showcaseAnswers\.find/);
   assert.match(route, /knowledgeRepository\.mode === "demo" \? DEMO_KNOWLEDGE_SNAPSHOT : null/);
   assert.doesNotMatch(route, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
   assert.match(route, /AI 决策助手/);
   assert.match(route, /任务、预算与部署限制/);
   assert.match(route, /帮我选择/);
+  assert.match(route, /当前未提交请求，输入会在登录后恢复/);
+  assert.match(route, /buildAskResumePath/);
   assert.match(route, /这是预置问题的历史资料，不会应用你修改的选型条件/);
   assert.match(adapter, /research-demo-gpt-claude/);
   assert.match(adapter, /research-demo-deepseek-cost/);

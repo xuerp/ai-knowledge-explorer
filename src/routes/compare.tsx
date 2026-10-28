@@ -125,7 +125,7 @@ function ComparePage() {
       deprecated: t("已弃用", "Deprecated"),
       retired: t("已退役", "Retired"),
       pending: t("待核实", "Not verified"),
-    })[model.release?.stage ?? "stable"];
+    })[model.release?.stage ?? "pending"];
   const choice = (model: Entity, current?: boolean) => {
     const checked = selected.includes(model.id);
     return (
