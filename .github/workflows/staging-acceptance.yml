@@ -30,9 +30,9 @@ jobs:
         env:
           AI_RADAR_EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha }}
           AI_RADAR_STAGING_READY_URL: https://ai-radar-api-staging.onrender.com/ready
-          AI_RADAR_STAGING_VERSION_URL: https://ai-radar-staging.1966761779.workers.dev/version.txt
+          AI_RADAR_STAGING_VERSION_URL: https://ai-radar.xue-ai.workers.dev/version.txt
       - name: Run staging smoke test
         run: npm run smoke:staging
         env:
           AI_RADAR_SMOKE_API_URL: https://ai-radar-api-staging.onrender.com
-          AI_RADAR_SMOKE_FRONTEND_URL: https://ai-radar-staging.1966761779.workers.dev
+          AI_RADAR_SMOKE_FRONTEND_URL: https://ai-radar.xue-ai.workers.dev

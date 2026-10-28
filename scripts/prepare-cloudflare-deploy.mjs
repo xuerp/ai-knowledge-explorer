@@ -9,7 +9,7 @@ const stagingApiUpstreamUrl = "https://ai-radar-api-staging.onrender.com";
 
 export function buildStagingWranglerConfig(
   baseConfig,
-  { workerName = "ai-radar-staging", domain = "" } = {},
+  { workerName = "ai-radar", domain = "" } = {},
 ) {
   const normalizedName = workerName.trim().toLowerCase();
   const normalizedDomain = domain.trim().toLowerCase();

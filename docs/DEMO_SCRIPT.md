@@ -6,7 +6,7 @@
 
 ### 0:00–0:10｜产品是什么
 
-画面：打开 <https://ai-radar-staging.1966761779.workers.dev/>，停留在 Hero 和 Trust Layer。
+画面：打开 <https://ai-radar.xue-ai.workers.dev/>，停留在 Hero 和 Trust Layer。
 
 讲解词：
 

@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 
 export async function verifyStagingBuild(
   outputDirectory = ".output",
-  expectedApiProxy = "https://ai-radar-staging.1966761779.workers.dev/backend",
+  expectedApiProxy = "https://ai-radar.xue-ai.workers.dev/backend",
   expectedApiUpstream = "https://ai-radar-api-staging.onrender.com",
 ) {
   const root = resolve(outputDirectory);

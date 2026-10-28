@@ -75,8 +75,8 @@
         "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
-        "zh": "代码已更新 GitHub；2026-10-27 核对线上仍为 97ae9d8，首次后端请求超时、复查恢复，部署同步及线上全流程复验未完成。",
-        "en": "Code updated on GitHub; live build remains 97ae9d8 on 2026-10-27. Initial backend requests timed out and a recheck recovered; deployment alignment and full live acceptance remain open."
+        "zh": "2026-10-28 迁移网址；前端 823374a 仅含基于 97ae9d8 的地址变更，后端仍为 97ae9d8；最新功能部署同步及线上全流程复验未完成。",
+        "en": "Address migration on 2026-10-28: frontend 823374a contains only address changes on 97ae9d8; backend remains 97ae9d8. Latest feature deployment and full live acceptance remain open."
       }
     }
   ]

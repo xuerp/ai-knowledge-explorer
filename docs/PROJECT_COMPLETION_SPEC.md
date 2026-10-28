@@ -184,7 +184,7 @@ git diff --check
 
 ```powershell
 Invoke-RestMethod https://ai-radar-api-staging.onrender.com/ready
-Invoke-WebRequest https://ai-radar-staging.1966761779.workers.dev/releases/<full-sha>.txt
+Invoke-WebRequest https://ai-radar.xue-ai.workers.dev/releases/<full-sha>.txt
 npm run smoke:staging
 ```
 
