@@ -749,7 +749,7 @@ function DemoFollowingPage() {
                         `本机更新于 ${personalization.updatedAt.slice(0, 10)}`,
                         `Updated on this device ${personalization.updatedAt.slice(0, 10)}`,
                       )
-                    : t("来自示例快照", "From sample snapshot")}
+                    : t("尚未设置 · 仅保存在本机", "Not set · stored on this device")}
                 </p>
               </div>
               <Link

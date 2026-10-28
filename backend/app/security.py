@@ -7,13 +7,17 @@ from typing import Annotated
 from fastapi import Header, HTTPException, Request, status
 
 from .auth import Principal
-from .database import RememberedSessionRecord, UserRecord
+from .database import RememberedSessionRecord, RevokedAccessTokenRecord, UserRecord
 
 
 def _current_account_principal(request: Request, principal: Principal) -> Principal | None:
     with request.app.state.database.session() as session:
         user = session.get(UserRecord, principal.subject)
         if user is None or not user.active:
+            return None
+        if principal.token_fingerprint and session.get(
+            RevokedAccessTokenRecord, principal.token_fingerprint
+        ):
             return None
         if principal.session_id:
             remembered = session.get(RememberedSessionRecord, principal.session_id)
@@ -27,7 +31,12 @@ def _current_account_principal(request: Request, principal: Principal) -> Princi
             ):
                 return None
         return Principal(
-            subject=user.id, email=user.email, role=user.role, session_id=principal.session_id
+            subject=user.id,
+            email=user.email,
+            role=user.role,
+            session_id=principal.session_id,
+            token_fingerprint=principal.token_fingerprint,
+            expires_at=principal.expires_at,
         )
 
 

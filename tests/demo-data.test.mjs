@@ -187,7 +187,8 @@ test("every top-level model family has a useful guide with direct evidence", () 
 test("the demo adapter exposes a complete, explicitly labelled snapshot", () => {
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.meta.mode, "demo");
   assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.researchQuestions.length >= 3);
-  assert.ok(DEMO_KNOWLEDGE_SNAPSHOT.interestProfile.length >= 3);
+  assert.deepEqual(DEMO_KNOWLEDGE_SNAPSHOT.interestProfile, []);
+  assert.deepEqual(DEMO_KNOWLEDGE_SNAPSHOT.researchAnswers, []);
   assert.equal(BASE_DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, ENTITIES.length);
   assert.equal(BASE_DEMO_KNOWLEDGE_SNAPSHOT.graph.edges.length, RELATIONS.length);
   assert.equal(DEMO_KNOWLEDGE_SNAPSHOT.graph.nodes.length, DEMO_KNOWLEDGE_SNAPSHOT.entities.length);

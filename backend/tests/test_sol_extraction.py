@@ -236,6 +236,40 @@ def test_contract_circuit_survives_restart(tmp_path):
     assert "api_key" not in service.contract_state_path.read_text()
 
 
+def test_shared_circuit_blocks_an_already_running_instance(tmp_path):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        body = _body()
+        body.pop("usage")
+        return httpx.Response(200, json=body)
+
+    path = tmp_path / "shared-contract.json"
+    first = _service(handler, contract_state_path=path)
+    already_running = _service(handler, contract_state_path=path)
+    assert first.probe().error_code == "usage_unavailable"
+    assert already_running.probe().error_code == "provider_contract_blocked"
+    assert len(calls) == 1
+    assert already_running.call_metadata()["requestCount"] == 0
+
+
+def test_shared_stop_during_retry_preserves_first_attempt_receipt(tmp_path):
+    calls = []
+    path = tmp_path / "shared-contract.json"
+
+    def handler(request):
+        calls.append(request)
+        path.write_text('{"reason":"usage_unavailable"}', encoding="utf-8")
+        return httpx.Response(503, headers={"Retry-After": "0"})
+
+    service = _service(handler, contract_state_path=path)
+    assert service.probe().error_code == "provider_contract_blocked"
+    assert len(calls) == 1
+    assert service.call_metadata()["requestCount"] == 1
+    assert service.call_metadata()["responses"][0]["status"] == 503
+
+
 @pytest.mark.parametrize(
     "content",
     [

@@ -78,6 +78,15 @@ def test_missing_annotations_and_changed_configuration_keep_old_scores_historica
     assert evaluation.pass_ratio == 1.0
 
 
+def test_excerpt_classification_changes_invalidate_historical_scope(baseline):
+    evaluation, reference, snapshot, settings = baseline
+    payload = snapshot.model_dump(mode="json", by_alias=True)
+    payload["evidence"][0]["sourceExcerptKind"] = "quote"
+    classified = KnowledgeSnapshot.model_validate(payload)
+    assert corpus_fingerprint(classified) != corpus_fingerprint(snapshot)
+    assert assess_evaluation(evaluation, reference, classified, settings).corpus_matches is False
+
+
 @pytest.mark.parametrize("reference", [None, "invalid", {}, {"expectedClaimIdsBySample": [[]]}])
 def test_missing_or_malformed_reference_cannot_claim_applicability(baseline, reference):
     evaluation, _, snapshot, settings = baseline

@@ -306,7 +306,7 @@ function EntityDetail() {
                             )}
                             <small>
                               {version.release?.releasedAt ?? version.firstReleasedAt ?? "—"} ·{" "}
-                              {releaseStageLabel(version.release?.stage ?? "stable", t)}
+                              {releaseStageLabel(version.release?.stage ?? "pending", t)}
                             </small>
                           </Link>
                         ))}
@@ -700,8 +700,8 @@ function EntityDetail() {
                                 <code>{version.release?.releaseId ?? version.slug}</code>
                               </span>
                               <span className="model-family__release-status">
-                                <em className={`is-${version.release?.stage ?? "stable"}`}>
-                                  {releaseStageLabel(version.release?.stage ?? "stable", t)}
+                                <em className={`is-${version.release?.stage ?? "pending"}`}>
+                                  {releaseStageLabel(version.release?.stage ?? "pending", t)}
                                 </em>
                                 {isCurrentProductLineVersion(line, version) && (
                                   <small>{t("当前版本", "Current release")}</small>
@@ -1834,7 +1834,7 @@ function FamilyLineSummary({
                 <div>
                   <dt>{t("版本状态 · 发布", "Stage · released")}</dt>
                   <dd>
-                    {releaseStageLabel(line.latest.release?.stage ?? "stable", t)} ·{" "}
+                    {releaseStageLabel(line.latest.release?.stage ?? "pending", t)} ·{" "}
                     {line.latest.release?.releasedAt ?? line.latest.firstReleasedAt ?? "—"}
                   </dd>
                 </div>
@@ -1859,7 +1859,7 @@ function FamilyLineSummary({
                       <span>{modelDisplayName(version, lang)}</span>
                       <small>
                         {version.release?.releasedAt ?? version.firstReleasedAt ?? "—"} ·{" "}
-                        {releaseStageLabel(version.release?.stage ?? "stable", t)}
+                        {releaseStageLabel(version.release?.stage ?? "pending", t)}
                       </small>
                     </Link>
                   ))}

@@ -35,7 +35,7 @@ export const createDefaultPersonalization = (
   description: "",
   behaviorLearning: false,
   interests,
-  updatedAt: new Date(0).toISOString(),
+  updatedAt: "",
 });
 
 export function readPersonalization(
@@ -50,6 +50,10 @@ export function readPersonalization(
     return {
       ...createDefaultPersonalization(fallbackInterests),
       ...parsed,
+      updatedAt:
+        typeof parsed.updatedAt === "string" && Date.parse(parsed.updatedAt) > 0
+          ? parsed.updatedAt
+          : "",
       selectedEntityIds: Array.isArray(parsed.selectedEntityIds)
         ? parsed.selectedEntityIds.filter((value): value is string => typeof value === "string")
         : [],

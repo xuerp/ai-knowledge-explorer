@@ -27,10 +27,14 @@ test("decision assistant collects task, priority, budget, deployment, and exclus
 });
 
 test("decision output exposes conditions, trade-offs, risks, next checks, and evidence time", () => {
-  for (const field of ["conditions", "tradeoffs", "risks", "nextChecks", "asOf"]) {
+  for (const field of ["conditions", "risks", "nextChecks", "asOf"]) {
     assert.match(userApi, new RegExp(field));
     assert.match(`${askRoute}\n${decisionBrief}`, new RegExp(field));
   }
+  // Trade-offs are consolidated by decisionReading and rendered as extra evidence.
+  assert.match(userApi, /tradeoffs/);
+  assert.match(decisionBrief, /decisionReading\(decision, entityName\)/);
+  assert.match(decisionBrief, /reading.extraEvidence/);
   assert.match(decisionBrief, /decisionPresentation\(research, lang\)/);
   assert.match(decisionBrief, /decisionVerdict\(research, validation, entityName, lang\)/);
   assert.match(decisionBrief, /verdict.headline/);

@@ -256,6 +256,15 @@ class RememberedSessionRecord(Base):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class RevokedAccessTokenRecord(Base):
+    __tablename__ = "revoked_access_tokens"
+
+    fingerprint: Mapped[str] = mapped_column(String(64), primary_key=True)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+
+
 class AuditLogRecord(Base):
     __tablename__ = "audit_log"
 

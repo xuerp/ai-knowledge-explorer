@@ -11,6 +11,11 @@ from .schemas import EvaluationApplicability, EvaluationQualityMetrics, Knowledg
 def corpus_fingerprint(snapshot: KnowledgeSnapshot) -> str:
     # Request timestamps in meta change on every read. Compare the actual corpus instead.
     corpus = snapshot.model_dump(mode="json", by_alias=True, exclude={"meta"})
+    # Legacy snapshots predate excerpt classification. Its unknown default adds
+    # no evidence; preserve their fingerprint, but hash every actual classification.
+    for source in corpus["evidence"]:
+        if source.get("sourceExcerptKind") == "unclassified":
+            source.pop("sourceExcerptKind")
 
     def canonical(value: Any) -> Any:
         if isinstance(value, dict):

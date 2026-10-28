@@ -168,7 +168,7 @@ from .schemas import (
 from .security import require_admin, require_automation, require_reviewer, require_user
 from .worker import run_cycle
 
-DATABASE_SCHEMA_REVISION = "20261021_0028"
+DATABASE_SCHEMA_REVISION = "20261023_0029"
 SERVICE_RELEASE = "2026.09.01-review-observability-v68"
 
 RELATION_CLAIM_PREDICATES = set(RELATION_KINDS)
@@ -459,11 +459,31 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
 
     @app.post("/api/v2/auth/logout", status_code=status.HTTP_204_NO_CONTENT)
     def logout(principal: UserDependency, session: SessionDependency) -> Response:
+        from sqlalchemy import delete
+        from sqlalchemy.dialects.postgresql import insert as postgres_insert
+        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+        from .database import RevokedAccessTokenRecord
+
+        now = datetime.now(UTC)
+        session.execute(
+            delete(RevokedAccessTokenRecord).where(RevokedAccessTokenRecord.expires_at <= now)
+        )
+        if principal.token_fingerprint and principal.expires_at:
+            insert = sqlite_insert if session.bind.dialect.name == "sqlite" else postgres_insert
+            session.execute(
+                insert(RevokedAccessTokenRecord)
+                .values(
+                    fingerprint=principal.token_fingerprint,
+                    expires_at=principal.expires_at,
+                )
+                .on_conflict_do_nothing(index_elements=["fingerprint"])
+            )
         if principal.session_id:
             remembered = session.get(RememberedSessionRecord, principal.session_id)
             if remembered and remembered.user_id == principal.subject:
                 remembered.revoked_at = datetime.now(UTC)
-                session.commit()
+        session.commit()
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @app.post(
