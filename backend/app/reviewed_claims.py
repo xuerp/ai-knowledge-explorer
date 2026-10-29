@@ -29,7 +29,12 @@ def apply_reviewed_claims(snapshot: KnowledgeSnapshot, path: Path) -> None:
             raise ValueError(
                 "A reviewed correction must retain its claim ID and resolve its entity."
             )
-        if after.source_ids != before.source_ids:
-            raise ValueError("A correction cannot silently replace the reviewed evidence.")
+        # A newly cited document is allowed only when its complete reviewed
+        # before-state is guarded too. Existing citations remain as history.
+        guarded_ids = {item.id for item in expected_sources}
+        if not set(before.source_ids) <= set(after.source_ids):
+            raise ValueError("A correction cannot remove the reviewed evidence.")
+        if not set(after.source_ids) <= guarded_ids:
+            raise ValueError("Every corrected citation must have an exact evidence guard.")
         claims[before.id] = after
     snapshot.claims = [claims[item.id] for item in snapshot.claims]

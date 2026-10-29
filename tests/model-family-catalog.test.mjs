@@ -146,7 +146,12 @@ test("all seven peer families have complete, sourced family and release profiles
     assert.ok(new Set(versions.map((item) => item.release?.productLine?.id)).size >= 2);
     for (const version of versions) {
       assert.ok(version.release.productLine.positioning.en, version.id);
-      const verified = enrichedIds.has(version.id) ? "2026-10-05" : "2026-10-01";
+      const refreshed = ["e-gpt-5", "e-gpt-5-mini", "e-gpt-5-nano"].includes(version.id);
+      const verified = refreshed
+        ? "2026-10-29"
+        : enrichedIds.has(version.id)
+          ? "2026-10-05"
+          : "2026-10-01";
       assert.equal(version.release.lastVerifiedAt, verified);
       assert.equal(version.lastUpdatedAt, verified);
       assert.ok(version.specs);
@@ -159,7 +164,14 @@ test("all seven peer families have complete, sourced family and release profiles
         for (const id of point.sourceIds) {
           const source = sources.get(id);
           assert.equal(source?.type, "official", `${version.id}: ${id}`);
-          assert.equal(source.verifiedAt, id.startsWith("s-specs-") ? "2026-10-05" : "2026-10-01");
+          assert.equal(
+            source.verifiedAt,
+            id === "s-openai-deprecations-20261029"
+              ? "2026-10-29"
+              : id.startsWith("s-specs-")
+                ? "2026-10-05"
+                : "2026-10-01",
+          );
           assert.ok(source.sourceExcerpt);
         }
       }

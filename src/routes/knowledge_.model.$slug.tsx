@@ -256,20 +256,22 @@ function EntityDetail() {
             </div>
           </div>
           {recentChange && (
-            <div className="model-detail__change mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-[#f4c767] bg-[#fffbeb] px-4 py-3 text-sm">
+            <div className="model-detail__change mt-6 flex flex-col items-start gap-2 rounded-xl border border-[#f4c767] bg-[#fffbeb] px-4 py-3 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               <span className="font-semibold text-[#b45309]">{t("最近变化", "Latest change")}</span>
-              <span className="min-w-0 flex-1 text-[#92400e]">
+              <span className="w-full min-w-0 text-[#92400e] sm:w-auto sm:flex-1">
                 {pick(recentChange.summary, lang)}
               </span>
-              <time className="font-mono text-[11px] text-[#b45309]">{recentChange.date}</time>
-              {timeline.length > 0 && (
-                <a
-                  href="#family-timeline"
-                  className="text-xs font-medium text-signal hover:underline"
-                >
-                  {t("查看演进节点", "View milestones")} →
-                </a>
-              )}
+              <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                <time className="font-mono text-[11px] text-[#b45309]">{recentChange.date}</time>
+                {timeline.length > 0 && (
+                  <a
+                    href="#family-timeline"
+                    className="text-xs font-medium text-signal hover:underline"
+                  >
+                    {t("查看演进节点", "View milestones")} →
+                  </a>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -1520,7 +1522,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                           {(version.id === entity.id || index === 0) && (
                             <em>
                               {version.id === entity.id
-                                ? t("当前", "Current")
+                                ? t("本页", "This page")
                                 : t("代表", "Representative")}
                             </em>
                           )}

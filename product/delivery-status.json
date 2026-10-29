@@ -47,8 +47,8 @@
         "en": "Claims and evidence separated; quotations, summaries and unclassified text distinguished."
       },
       "verified": {
-        "zh": "部分链接、条件与引用标记已修复；全量语义、时效与生命周期复核未完成。",
-        "en": "Some links, conditions and citation labels repaired; full semantic, freshness and lifecycle review remains open."
+        "zh": "14 条渠道事实及 34 条历史范围、版本归属与来源问题已逐项修正，原记录保留并有软件回归；全量语义、时效与生命周期复核未完成。",
+        "en": "14 channel claims and 34 historical-scope, model-association and source findings corrected with original records retained and software regressions; full semantic, freshness and lifecycle review remains open."
       }
     },
     {

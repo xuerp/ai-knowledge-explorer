@@ -14,8 +14,8 @@ const snapshot = applyCatalogOverlays(baseline, extension, frontier);
 test("reviewed non-release events contain dated evidence, differences and affected scope", () => {
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");
-  assert.equal(events.length, 61);
-  assert.equal(changes.length, 264);
+  assert.equal(events.length, 64);
+  assert.equal(changes.length, 267);
   assert.deepEqual(
     new Set(events.map((item) => item.kind)),
     new Set(["updated", "deprecated", "pricing", "availability", "benchmark"]),
@@ -174,14 +174,14 @@ test("reviewed Mistral cards preserve preview versus GA and leave unverified bil
   }
 });
 
-test("MiniMax M2 intake keeps legacy listing and source-file dates separate from releases", () => {
+test("MiniMax M2 catalog omission does not establish retirement or change release dates", () => {
   const m27 = snapshot.entities.find((item) => item.id === "e-minimax-m2-7");
   const m25 = snapshot.entities.find((item) => item.id === "e-minimax-m2-5");
   assert.equal(m27.release.releasedAt, "2026-03-18");
   assert.equal(m25.release.releasedAt, "2026-02-12");
-  assert.equal(m25.release.catalogCurrent, true);
+  assert.equal(m25.release.catalogCurrent, false);
   assert.notEqual(m25.release.stage, "retired");
-  assert.match(m25.summary.en, /legacy.*retirement/i);
+  assert.match(m25.summary.en, /absent.*shutdown/i);
   for (const entity of [m27, m25]) {
     assert.equal(entity.familyId, "e-minimax");
     assert.equal(entity.specs.inputPrice ?? null, null);
@@ -191,8 +191,11 @@ test("MiniMax M2 intake keeps legacy listing and source-file dates separate from
     for (const claim of snapshot.claims.filter(
       (item) => item.entityId === entity.id && item.predicate !== "release",
     )) {
-      assert.equal(claim.validFrom, null);
-      assert.ok(claim.observedAt.startsWith("2026-10-07T"));
+      assert.equal(
+        claim.validFrom,
+        claim.predicate === "historical-api-access" ? "2026-02-12" : null,
+      );
+      assert.ok(["2026-10-07", "2026-10-29"].includes(claim.observedAt.slice(0, 10)));
     }
   }
   const license = snapshot.claims.find(
