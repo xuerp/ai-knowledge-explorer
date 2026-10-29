@@ -1,4 +1,4 @@
-"""Versioned human corrections for previously published imported claims.
+"""Versioned source-reviewed corrections for previously published imported claims.
 
 The original review job stays available as history. A correction applies only
 to the exact reviewed claim and evidence; later administrator edits win.

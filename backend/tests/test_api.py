@@ -1861,7 +1861,7 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
         "gemini-live": 8,
         "gemini-tts": 5,
         "gemini-transcribe": 1,
-        "gemini-image": 7,
+        "gemini-image": 8,
         "gemini-video": 1,
         "gemini-deep-research": 2,
         "gemini-embedding": 2,
@@ -1878,7 +1878,7 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
     assert gemini_by_id["e-gemini-25-flash-lite"]["status"] == "active"
     assert gemini_by_id["e-gemini-4-pending"]["release"]["stage"] == "stable"
     assert gemini_by_id["e-gemini-4-pending"]["release"]["apiModelIds"] == ["gemini-4-argon"]
-    assert len({item["slug"] for item in gemini_versions.json()}) == 53
+    assert len({item["slug"] for item in gemini_versions.json()}) == 54
     gemini_timeline = client.get("/api/v2/entities/e-gemini/timeline")
     assert gemini_timeline.status_code == 200
     assert {

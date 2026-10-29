@@ -14,8 +14,8 @@ const snapshot = applyCatalogOverlays(baseline, extension, frontier);
 test("reviewed non-release events contain dated evidence, differences and affected scope", () => {
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");
-  assert.equal(events.length, 58);
-  assert.equal(changes.length, 260);
+  assert.equal(events.length, 61);
+  assert.equal(changes.length, 264);
   assert.deepEqual(
     new Set(events.map((item) => item.kind)),
     new Set(["updated", "deprecated", "pricing", "availability", "benchmark"]),
@@ -109,7 +109,7 @@ test("non-release projection fails closed when event facts or supporting claims 
 test("all confirmed releases produce unique, date-exact, sourced changes across thirteen families", () => {
   const changes = catalogReleaseChanges(snapshot);
   const entities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
-  assert.equal(changes.length, 202);
+  assert.equal(changes.length, 203);
   assert.equal(new Set(changes.map((change) => change.entityId)).size, changes.length);
   assert.equal(new Set(changes.map((change) => entities.get(change.entityId).familyId)).size, 13);
   assert.equal(changes[0].date, "2026-10-13");

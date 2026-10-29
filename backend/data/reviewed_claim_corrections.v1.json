@@ -4,7 +4,7 @@
   "corrections": [
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -66,7 +66,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -128,7 +128,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -190,7 +190,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -252,7 +252,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -314,7 +314,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -376,7 +376,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -438,7 +438,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -500,7 +500,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -562,7 +562,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -624,7 +624,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -686,7 +686,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -748,7 +748,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -810,7 +810,7 @@
     },
     {
       "reviewedAt": "2026-10-29",
-      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "reason": "Codex comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
       "sourceUrl": "https://cursor.com/docs",
       "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
       "expectedClaim": {
@@ -870,5 +870,6 @@
         }
       ]
     }
-  ]
+  ],
+  "reviewer": "Codex source comparison; not an independent human audit"
 }
