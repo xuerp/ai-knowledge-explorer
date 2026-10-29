@@ -120,6 +120,10 @@ def test_report_pdf_handles_chinese_long_tables_and_markup_as_plain_text():
     )
     pdf = report_pdf(report)
     assert pdf.startswith(b"%PDF-") and len(pdf) > 3000
+    # Cloud hosts must embed the actual font, not depend on a viewer-specific
+    # substitute for STSong-Light (which distorted mixed Chinese/Latin text).
+    assert b"/FontFile2" in pdf
+    assert b"STSong-Light" not in pdf
     markdown = report_markdown(report)
     assert "编辑文件、运行测试" in markdown and "## 功能比较" in markdown
     assert "| 候选 | 依据 |" in markdown

@@ -489,7 +489,6 @@ def report_pdf(report: Report) -> bytes:
     from reportlab.lib.styles import ParagraphStyle
     from reportlab.lib.units import mm
     from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.cidfonts import UnicodeCIDFont
     from reportlab.pdfbase.ttfonts import TTFont
     from reportlab.platypus import (
         KeepTogether,
@@ -500,16 +499,12 @@ def report_pdf(report: Report) -> bytes:
         TableStyle,
     )
 
-    # Embed a subset of the installed Chinese font on Windows; document remains
-    # portable. Other hosts use the standard Chinese CID font supported by PDF.
+    # Bundle the same openly licensed font on every host. A standard CID name
+    # leaves glyphs and Latin metrics to the reader's installed substitute.
     font = "RadarReportText"
     if font not in pdfmetrics.getRegisteredFontNames():
-        path = Path("C:/Windows/Fonts/simsun.ttc")
-        if path.is_file():
-            pdfmetrics.registerFont(TTFont(font, str(path), subfontIndex=0))
-        else:
-            font = "STSong-Light"
-            pdfmetrics.registerFont(UnicodeCIDFont(font))
+        path = Path(__file__).parent / "assets/fonts/NotoSansSC-Regular.ttf"
+        pdfmetrics.registerFont(TTFont(font, str(path)))
     body = ParagraphStyle(
         "body",
         fontName=font,
