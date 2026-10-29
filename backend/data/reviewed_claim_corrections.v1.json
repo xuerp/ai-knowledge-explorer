@@ -869,6 +869,2574 @@
           "contradictsClaimIds": null
         }
       ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Official May-2025 introduction loads in browser and supports the historic cloud-agent description, but page explicitly labels the launch post outdated; qualify announcement scope before counting as current capability.",
+      "captures": [],
+      "expectedClaim": {
+        "id": "c-codex-agent",
+        "entityId": "e-codex",
+        "text": {
+          "zh": "OpenAI 将 Codex 描述为可在云端隔离环境中处理软件工程任务的 Agent。",
+          "en": "OpenAI describes Codex as an agent that handles software engineering tasks in isolated cloud environments.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-codex"],
+        "updatedAt": "2026-08-02",
+        "subject": "OpenAI Codex",
+        "predicate": "product-type",
+        "objectOrValue": "cloud software engineering agent",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-08-02"
+      },
+      "correctedClaim": {
+        "id": "c-codex-agent",
+        "entityId": "e-codex",
+        "text": {
+          "zh": "OpenAI 在 2025-05-16 的 Codex 发布公告中，将其描述为在云端隔离环境中处理软件工程任务的 Agent。该旧公告已标注过时，不能单独证明当前全部 Codex 产品的运行方式。",
+          "en": "OpenAI’s 2025-05-16 Codex launch post described an agent handling software-engineering tasks in isolated cloud environments. The post is now marked outdated and does not by itself establish how all current Codex products run.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-codex"],
+        "updatedAt": "2026-10-29",
+        "subject": "OpenAI Codex",
+        "predicate": "historical-launch-product-type",
+        "objectOrValue": "cloud software-engineering agent described in the 2025-05-16 launch",
+        "validFrom": "2025-05-16",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-openai-codex",
+          "title": {
+            "zh": "OpenAI：Introducing Codex",
+            "en": "OpenAI: Introducing Codex"
+          },
+          "url": "https://openai.com/index/introducing-codex/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-05-16",
+          "collectedAt": "2026-08-02",
+          "verifiedAt": "2026-08-02",
+          "sourceExcerpt": null,
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Old official URL returns a migration page rather than the claimed content; follow its documented canonical destination.",
+      "captures": [
+        {
+          "url": "https://langchain-ai.github.io/langgraph/index.html",
+          "capturedTextSha256": "e2865aa85f4d050a6ae29f7a02eceae6213b747e0f6e9d2dfeec2f813f614052"
+        },
+        {
+          "url": "https://docs.langchain.com/oss/python/langgraph/overview",
+          "capturedTextSha256": "d5080800410fd1ba9fb1eab998d5436e0d5c390cb70f097a444529302105bc96"
+        }
+      ],
+      "expectedClaim": {
+        "id": "c-langgraph-framework",
+        "entityId": "e-langgraph",
+        "text": {
+          "zh": "LangGraph 是用于构建长运行、有状态 Agent 的低层编排框架和运行时。",
+          "en": "LangGraph is a low-level orchestration framework and runtime for long-running, stateful agents.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-langgraph-overview"],
+        "updatedAt": "2026-08-02",
+        "subject": "LangGraph",
+        "predicate": "product-type",
+        "objectOrValue": "agent orchestration runtime",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-08-02"
+      },
+      "correctedClaim": {
+        "id": "c-langgraph-framework",
+        "entityId": "e-langgraph",
+        "text": {
+          "zh": "LangGraph 官方概览将其定义为构建、管理与部署长运行、有状态 Agent 的低层编排框架和运行时；使用 LangGraph 不要求同时使用 LangChain。",
+          "en": "The official overview defines LangGraph as a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents; using LangChain is optional.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-langgraph-overview", "s-langgraph-overview-20261029"],
+        "updatedAt": "2026-10-29",
+        "subject": "LangGraph",
+        "predicate": "product-type",
+        "objectOrValue": "agent orchestration runtime",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-langgraph-overview",
+          "title": {
+            "zh": "LangGraph 官方概览",
+            "en": "LangGraph overview"
+          },
+          "url": "https://langchain-ai.github.io/langgraph/index.html",
+          "publisher": "LangChain",
+          "publishedAt": "2026-08-02",
+          "collectedAt": "2026-08-02",
+          "verifiedAt": "2026-08-02",
+          "sourceExcerpt": null,
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-langgraph-overview-20261029",
+          "title": {
+            "zh": "LangGraph 官方概览（2026-10-29 核对）",
+            "en": "LangGraph 官方概览（2026-10-29 核对）"
+          },
+          "url": "https://docs.langchain.com/oss/python/langgraph/overview",
+          "publisher": "LangChain",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-29",
+          "sourceExcerpt": "LangGraph is a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents. LangChain is optional.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-langgraph-framework"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Current official documentation states TraeCode and TraeWork have merged into TRAE; reconcile lifecycle and wording across dependent surfaces.",
+      "captures": [
+        {
+          "url": "https://docs.trae.cn/ide_what-is-trae-code",
+          "capturedTextSha256": "c49083fa450da8585ec7488df058af2b3e8ae98b7beb6ae56593925ac495a90b"
+        }
+      ],
+      "expectedClaim": {
+        "id": "c-intake-e-traecode",
+        "entityId": "e-traecode",
+        "text": {
+          "zh": "TraeCode 提供 IDE 与 SOLO 开发模式，以及代码编辑、调试和变更管理。",
+          "en": "TraeCode provides IDE and SOLO development modes, editing, debugging and change management.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-traecode-overview"],
+        "updatedAt": "2026-10-03",
+        "subject": "e-traecode",
+        "predicate": "product-type",
+        "objectOrValue": "TraeCode 提供 IDE 与 SOLO 开发模式，以及代码编辑、调试和变更管理。",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-03"
+      },
+      "correctedClaim": {
+        "id": "c-intake-e-traecode",
+        "entityId": "e-traecode",
+        "text": {
+          "zh": "截至 2026-10-29，原 TraeCode 中国版官方文档已介绍融合 TraeCode 与 TraeWork 的 TRAE：桌面端提供 Agent 与 IDE 窗口，IDE 窗口含 IDE 和 SOLO 模式，并支持网页端、移动端接续任务。",
+          "en": "As of 2026-10-29, the Chinese-edition former TraeCode documentation describes the unified TRAE product combining TraeCode and TraeWork: desktop Agent and IDE windows, IDE and SOLO modes within the IDE window, and web/mobile task continuity.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-traecode-overview"],
+        "updatedAt": "2026-10-29",
+        "subject": "e-traecode",
+        "predicate": "product-migration-status",
+        "objectOrValue": "Chinese-edition docs: TraeCode and TraeWork combined into TRAE; exact migration date not established",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-traecode-overview",
+          "title": {
+            "zh": "TraeCode 官方概述",
+            "en": "TraeCode 官方概述"
+          },
+          "url": "https://docs.trae.cn/ide_what-is-trae-code",
+          "publisher": "TRAE",
+          "publishedAt": "",
+          "collectedAt": "2026-10-03",
+          "verifiedAt": "2026-10-03",
+          "sourceExcerpt": null,
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Current page confirms independent desktop/workbench and three device surfaces but no longer documents the asserted Work/Code/Design modes in retrieved text; inspect archived evidence and current migration notice.",
+      "captures": [
+        {
+          "url": "https://docs.trae.cn/work_what-is-trae-work",
+          "capturedTextSha256": "2e6714ed10f72e86128ce2ca3e9e111ae1ede1ff7b120159423972d1e8452899"
+        }
+      ],
+      "expectedClaim": {
+        "id": "c-intake-e-traework",
+        "entityId": "e-traework",
+        "text": {
+          "zh": "TraeWork 可独立于 TraeCode 运行，提供 Work、Code、Design 模式。",
+          "en": "TraeWork runs independently of TraeCode with Work, Code and Design modes.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-traework-overview"],
+        "updatedAt": "2026-10-03",
+        "subject": "e-traework",
+        "predicate": "product-type",
+        "objectOrValue": "TraeWork 可独立于 TraeCode 运行，提供 Work、Code、Design 模式。",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-03"
+      },
+      "correctedClaim": {
+        "id": "c-intake-e-traework",
+        "entityId": "e-traework",
+        "text": {
+          "zh": "截至 2026-10-29，中国版原 TraeWork 概览仍描述独立桌面、网页和移动入口，同时提示 TraeWork 已升级为 TRAE。当前页面不足以证明旧记录中的 Work、Code、Design 三种模式仍适用。",
+          "en": "As of 2026-10-29, the Chinese-edition former TraeWork overview still describes desktop, web and mobile surfaces and announces its upgrade to TRAE. The current page does not establish continued availability of the previously recorded Work, Code and Design modes.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-traework-overview"],
+        "updatedAt": "2026-10-29",
+        "subject": "e-traework",
+        "predicate": "product-migration-status",
+        "objectOrValue": "Chinese-edition docs: TraeWork upgraded to TRAE; legacy mode availability not established",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-traework-overview",
+          "title": {
+            "zh": "TraeWork 官方概述",
+            "en": "TraeWork 官方概述"
+          },
+          "url": "https://docs.trae.cn/work_what-is-trae-work",
+          "publisher": "TRAE",
+          "publishedAt": "",
+          "collectedAt": "2026-10-03",
+          "verifiedAt": "2026-10-03",
+          "sourceExcerpt": null,
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The current official catalogue contains Gemini 4 Argon. The old negative statement has no original body capture attached to establish the 2026-09-29 absence claim. Retain it only as an unverified historical record; do not assert historical absence from today's page. The actual 2026-10-13 release is separately sourced and published.",
+      "captures": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/models",
+          "capturedTextSha256": "152bc2d19909ae92782b15aab37682f1a7df1019a92b2855d96cf948b56378bb"
+        }
+      ],
+      "expectedClaim": {
+        "id": "c-gemini-4-not-released",
+        "entityId": "e-gemini-4-pending",
+        "text": {
+          "zh": "截至 2026-09-29，Google Gemini API 官方型号目录未列出 Gemini 4，尚无可核验的正式 API 型号和规格。",
+          "en": "As of 2026-09-29, Google's official Gemini API model catalog does not list Gemini 4, and no verifiable production API model or specifications are available.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-google-gemini-model-catalog-2026-09-29"],
+        "updatedAt": "2026-09-29",
+        "subject": "Gemini 4",
+        "predicate": "official-release-status",
+        "objectOrValue": "not-officially-listed-as-of-2026-09-29",
+        "validFrom": null,
+        "validTo": "2026-10-12",
+        "observedAt": "2026-09-29"
+      },
+      "correctedClaim": {
+        "id": "c-gemini-4-not-released",
+        "entityId": "e-gemini-4-pending",
+        "text": {
+          "zh": "历史记录曾声称截至 2026-09-29 Gemini 4 尚未列入官方目录，但未保留当日原文，无法复核这一否定判断。此记录保留为未核验历史；2026-10-13 的 Gemini 4 Argon 正式发布另有官方证据。",
+          "en": "An earlier record asserted that Gemini 4 was absent from the official catalog on 2026-09-29, but no original body capture was retained to verify that negative assertion. It remains an unverified historical record; the 2026-10-13 Gemini 4 Argon release has separate official evidence.",
+          "technical": null
+        },
+        "confidence": "unverified",
+        "sourceIds": ["s-google-gemini-model-catalog-2026-09-29"],
+        "updatedAt": "2026-10-29",
+        "subject": "Gemini 4",
+        "predicate": "unverified-historical-release-status",
+        "objectOrValue": "historical absence assertion lacks original capture",
+        "validFrom": null,
+        "validTo": "2026-10-12",
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-google-gemini-model-catalog-2026-09-29",
+          "title": {
+            "zh": "Gemini API 官方型号目录",
+            "en": "Official Gemini API model catalog"
+          },
+          "url": "https://ai.google.dev/gemini-api/docs/models",
+          "publisher": "Google",
+          "publishedAt": "2026-09-29",
+          "collectedAt": "2026-09-29",
+          "verifiedAt": "2026-09-29",
+          "sourceExcerpt": null,
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["c-gemini-4-not-released"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Current official model page marks GPT-5 deprecated and recommends GPT-6 Astra. Official table announces deprecation 2026-06-11 with shutdown 2026-12-11. Update linked version lifecycle; preserve historical release.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/models/gpt-5",
+          "capturedTextSha256": "7f790911f8812bf9285752e46de54dca82babba199b44a79dd71cf69118f48a2"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        }
+      ],
+      "expectedClaim": {
+        "id": "c-gpt-5-catalog-review",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "前代推理、代码与 Agent 型号；当前文档建议评估更新的 GPT-6。",
+          "en": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-gpt-5-20261001", "s-gpt5-launch-reviewed"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT-5",
+        "predicate": "catalog-review",
+        "objectOrValue": "gpt-5",
+        "validFrom": "2026-10-01",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-gpt-5-catalog-review",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5 是早期推理、编程与 Agent 型号。OpenAI 于 2026-06-11 宣布弃用，计划 2026-12-11 停止 API 服务；当前型号页建议评估 GPT-6 Astra，弃用表的迁移建议为 GPT-5.6 Sol。",
+          "en": "GPT-5 is an earlier reasoning, coding and agent model. OpenAI announced deprecation on 2026-06-11 with API shutdown scheduled for 2026-12-11; the model page suggests GPT-6 Astra, while the deprecation table recommends GPT-5.6 Sol.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": [
+          "s-gpt-5-20261001",
+          "s-gpt5-launch-reviewed",
+          "s-openai-deprecations-20261029"
+        ],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5",
+        "predicate": "catalog-review",
+        "objectOrValue": "gpt-5",
+        "validFrom": "2026-10-01",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-gpt-5-20261001",
+          "title": {
+            "zh": "GPT-5 官方型号文档",
+            "en": "GPT-5 官方型号文档"
+          },
+          "url": "https://developers.openai.com/api/docs/models/gpt-5",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-gpt-5-catalog-review"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-gpt5-launch-reviewed",
+          "title": {
+            "zh": "GPT-5 发布",
+            "en": "GPT-5 发布"
+          },
+          "url": "https://openai.com/index/introducing-gpt-5/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-08-07",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT-5 introduced on August 7, 2025.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-deprecations-20261029",
+          "title": {
+            "zh": "OpenAI API 弃用与下线表（2026-10-29 核对）",
+            "en": "OpenAI API 弃用与下线表（2026-10-29 核对）"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-29",
+          "sourceExcerpt": "June 11, 2026: GPT-5, GPT-5 mini and GPT-5 nano deprecated, with API shutdown on Dec 11, 2026; recommended replacements are GPT-5.6 Sol, Terra and Luna respectively. GPT-5.4-Cyber was deprecated Sep 11 and shut down Oct 1; the table recommends the most capable cyber model available to the user.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-gpt-5-catalog-review",
+            "claim-417d947b17923a7013dd",
+            "claim-5b0beb72ee5957a5a295",
+            "claim-c7b51e84727929c4600e",
+            "c-deprecation-e-gpt-5-20260611",
+            "c-deprecation-e-gpt-5-mini-20260611",
+            "c-deprecation-e-gpt-5-nano-20260611"
+          ],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Family classification is supported by the named first-party model and publisher, but the statement incorrectly says human classification. Correct to editorial/catalog classification without implying an independent human audit.",
+      "captures": [
+        {
+          "url": "https://www.minimax.io/news/minimax-m27-en",
+          "capturedTextSha256": "e961e44e3fa78b07695ead03a1421b8fe786ff09949620a21f6cbc27dd030257"
+        },
+        {
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "capturedTextSha256": "2fa9d67eec33886ba3f9d228e067d9ee0ea73e9f0901ab8bda1f9129c6d64223"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-minimax12h-m27-part-of",
+        "entityId": "e-minimax-m2-7",
+        "text": {
+          "zh": "MiniMax M2.7 登记为MiniMax家族版本；根据厂商发布稿及官方目录人工归类，不解释为公司所有权关系。",
+          "en": "MiniMax M2.7 is classified as a MiniMax family version from its first-party release and catalogue; this is human family classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m27-part-of-0", "s-minimax12h-m27-part-of-1"],
+        "updatedAt": "2026-10-07",
+        "subject": "MiniMax M2.7",
+        "predicate": "part-of",
+        "objectOrValue": "e-minimax",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-07T14:07:41.824206+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-minimax12h-m27-part-of",
+        "entityId": "e-minimax-m2-7",
+        "text": {
+          "zh": "MiniMax M2.7 登记为MiniMax家族版本；根据厂商发布稿及官方目录进行目录编辑归类，不解释为公司所有权关系。",
+          "en": "MiniMax M2.7 is classified as a MiniMax family version from its first-party release and catalogue; this is editorial catalog classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m27-part-of-0", "s-minimax12h-m27-part-of-1"],
+        "updatedAt": "2026-10-29",
+        "subject": "MiniMax M2.7",
+        "predicate": "part-of",
+        "objectOrValue": "e-minimax",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-minimax12h-m27-part-of-0",
+          "title": {
+            "zh": "MiniMax 官方资料 · m27-release",
+            "en": "MiniMax official source · m27-release"
+          },
+          "url": "https://www.minimax.io/news/minimax-m27-en",
+          "publisher": "MiniMax",
+          "publishedAt": "2026-03-18",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:48.689414",
+          "sourceExcerpt": "2026-03-18\nMiniMax M2.7: Early Echoes of Self-Evolution\n\nIn the months following the first release of our M2-series models, we received a large volume of feedback and suggestions from enthusiastic users and developers, which drove us to further accelerate the efficiency of our model iterations. With human productivity already fully unleashed, the natural next step was to initia",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m27-part-of"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-minimax12h-m27-part-of-1",
+          "title": {
+            "zh": "MiniMax 官方资料 · catalog",
+            "en": "MiniMax official source · catalog"
+          },
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "publisher": "MiniMax",
+          "publishedAt": "",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:48.689414",
+          "sourceExcerpt": "[MiniMax-M2.7](/docs/api-reference/text-anthropic-api) | Beginning the journey of recursive self-improvement | • Top real-world engineering <br />• Professional office delivery <br /> •  Character-rich interaction |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m27-part-of"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Family classification is supported by the named first-party model and publisher, but the statement incorrectly says human classification. Correct to editorial/catalog classification without implying an independent human audit.",
+      "captures": [
+        {
+          "url": "https://www.minimax.io/blog/minimax-m25",
+          "capturedTextSha256": "546afa1bbe2f48ceae2bf242ef41093e2c202bff3c5a0713c4b5c8acb8b2d37a"
+        },
+        {
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "capturedTextSha256": "2fa9d67eec33886ba3f9d228e067d9ee0ea73e9f0901ab8bda1f9129c6d64223"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-minimax12h-m25-part-of",
+        "entityId": "e-minimax-m2-5",
+        "text": {
+          "zh": "MiniMax M2.5 登记为MiniMax家族版本；根据厂商发布稿及官方目录人工归类，不解释为公司所有权关系。",
+          "en": "MiniMax M2.5 is classified as a MiniMax family version from its first-party release and catalogue; this is human family classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m25-part-of-0", "s-minimax12h-m25-part-of-1"],
+        "updatedAt": "2026-10-07",
+        "subject": "MiniMax M2.5",
+        "predicate": "part-of",
+        "objectOrValue": "e-minimax",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-07T14:07:41.864783+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-minimax12h-m25-part-of",
+        "entityId": "e-minimax-m2-5",
+        "text": {
+          "zh": "MiniMax M2.5 登记为MiniMax家族版本；根据厂商发布稿及官方目录进行目录编辑归类，不解释为公司所有权关系。",
+          "en": "MiniMax M2.5 is classified as a MiniMax family version from its first-party release and catalogue; this is editorial catalog classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m25-part-of-0", "s-minimax12h-m25-part-of-1"],
+        "updatedAt": "2026-10-29",
+        "subject": "MiniMax M2.5",
+        "predicate": "part-of",
+        "objectOrValue": "e-minimax",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-minimax12h-m25-part-of-0",
+          "title": {
+            "zh": "MiniMax 官方资料 · m25-release",
+            "en": "MiniMax official source · m25-release"
+          },
+          "url": "https://www.minimax.io/blog/minimax-m25",
+          "publisher": "MiniMax",
+          "publishedAt": "2026-02-12",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:52.020754",
+          "sourceExcerpt": "2026-02-12\nM2.5\nModel Release\nAccess API →\nCoding Plan →\nTry Agent Now →\n\n\nToday we're introducing our latest model, MiniMax-M2.5.\n\nExtensively trained with reinforcement learning in hundreds of thousands of complex real-world environments, M2.5 is SOTA in coding, agentic tool use and search, office work, and a range of other economically valuable tasks, boa",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m25-part-of"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-minimax12h-m25-part-of-1",
+          "title": {
+            "zh": "MiniMax 官方资料 · catalog",
+            "en": "MiniMax official source · catalog"
+          },
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "publisher": "MiniMax",
+          "publishedAt": "",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:52.020754",
+          "sourceExcerpt": "<Accordion title=\"Legacy Models\">\n  | **Models**           | **Description**           | **Features**                 |\n  | :- | :- | :- |\n  | [MiniMax-M2.5](/docs/api-reference/text-anthropic-api) | • Optimized for code generation and refactoring | • Peak Performance. Ultimate Value. Master the Complex. |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m25-part-of"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "2026-02-12 release supports historical API access. Current 2026-10-29 model catalogue no longer lists M2.5 or M2.7; only M3/M3.1 language models. Remove current Legacy assertion or qualify the archived capture. Omission alone is not proof of shutdown.",
+      "captures": [
+        {
+          "url": "https://www.minimax.io/blog/minimax-m25",
+          "capturedTextSha256": "546afa1bbe2f48ceae2bf242ef41093e2c202bff3c5a0713c4b5c8acb8b2d37a"
+        },
+        {
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "capturedTextSha256": "2fa9d67eec33886ba3f9d228e067d9ee0ea73e9f0901ab8bda1f9129c6d64223"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-minimax12h-m25-access",
+        "entityId": "e-minimax-m2-5",
+        "text": {
+          "zh": "MiniMax M2.5 发布稿提供官方API入口，当前官方目录将其列于Legacy Models；未据此断言已停止服务。",
+          "en": "MiniMax M2.5's release links official API access and the current catalogue lists it under Legacy Models; this does not establish end of service.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m25-access-0", "s-minimax12h-m25-access-1"],
+        "updatedAt": "2026-10-07",
+        "subject": "MiniMax M2.5",
+        "predicate": "access",
+        "objectOrValue": "Official API link; current catalogue lists Legacy Models, not an asserted EOL",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-07T14:07:41.864783+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-minimax12h-m25-access",
+        "entityId": "e-minimax-m2-5",
+        "text": {
+          "zh": "MiniMax 于 2026-02-12 的 M2.5 发布文章提供了官方 API 入口。2026-10-29 的当前模型目录未列出 M2.5，不能继续断言其位于 Legacy Models；目录缺席也不证明服务已下线。当前账号可用性待核实。",
+          "en": "MiniMax’s 2026-02-12 M2.5 release post linked official API access. The model is absent from the 2026-10-29 current catalog, so a current Legacy Models listing is not established. Absence alone does not prove shutdown; current account access remains unverified.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-minimax12h-m25-access-0", "s-minimax12h-m25-access-1"],
+        "updatedAt": "2026-10-29",
+        "subject": "MiniMax M2.5",
+        "predicate": "historical-api-access",
+        "objectOrValue": "release-linked API access; current availability unknown",
+        "validFrom": "2026-02-12",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-minimax12h-m25-access-0",
+          "title": {
+            "zh": "MiniMax 官方资料 · m25-release",
+            "en": "MiniMax official source · m25-release"
+          },
+          "url": "https://www.minimax.io/blog/minimax-m25",
+          "publisher": "MiniMax",
+          "publishedAt": "2026-02-12",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:53.259387",
+          "sourceExcerpt": "2026-02-12\nM2.5\nModel Release\nAccess API →\nCoding Plan →\nTry Agent Now →\n\n\nToday we're introducing our latest model, MiniMax-M2.5.\n\nExtensively trained with reinforcement learning in hundreds of thousands of complex real-world environments, M2.5 is SOTA in coding, agentic tool use and search, office work, and a range of other economically valuable tasks, boa",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m25-access"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-minimax12h-m25-access-1",
+          "title": {
+            "zh": "MiniMax 官方资料 · catalog",
+            "en": "MiniMax official source · catalog"
+          },
+          "url": "https://platform.minimax.io/docs/guides/models-intro",
+          "publisher": "MiniMax",
+          "publishedAt": "",
+          "collectedAt": "2026-10-07",
+          "verifiedAt": "2026-10-07T14:18:53.259387",
+          "sourceExcerpt": "<Accordion title=\"Legacy Models\">\n  | **Models**           | **Description**           | **Features**                 |\n  | :- | :- | :- |\n  | [MiniMax-M2.5](/docs/api-reference/text-anthropic-api) | • Optimized for code generation and refactoring | • Peak Performance. Ultimate Value. Master the Complex. |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-minimax12h-m25-access"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Family classification is supported by the named first-party model and publisher, but the statement incorrectly says human classification. Correct to editorial/catalog classification without implying an independent human audit.",
+      "captures": [
+        {
+          "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+          "capturedTextSha256": "44afb5ab7ed03b8d3881c7eaa16dc443d3d30eae4f52e3c481421b00b4fd257e"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+          "capturedTextSha256": "44afb5ab7ed03b8d3881c7eaa16dc443d3d30eae4f52e3c481421b00b4fd257e"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-hunyuan12h-a13b-part-of",
+        "entityId": "e-hunyuan-a13b-instruct",
+        "text": {
+          "zh": "Hunyuan-A13B-Instruct登记为腾讯混元家族的A13B历史版本；依据腾讯官方仓库和具名发布清单人工归类，不解释为公司所有权关系。",
+          "en": "Hunyuan-A13B-Instruct is classified as a historical A13B version in Tencent's Hunyuan family from its official repository and named release list; this is human family classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-hunyuan12h-a13b-part-of-0", "s-hunyuan12h-revision-part-of-0"],
+        "updatedAt": "2026-10-08",
+        "subject": "Hunyuan-A13B-Instruct",
+        "predicate": "part-of",
+        "objectOrValue": "e-hunyuan",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-08T07:34:05.811281+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-hunyuan12h-a13b-part-of",
+        "entityId": "e-hunyuan-a13b-instruct",
+        "text": {
+          "zh": "Hunyuan-A13B-Instruct登记为腾讯混元家族的A13B历史版本；依据腾讯官方仓库和具名发布清单进行目录编辑归类，不解释为公司所有权关系。",
+          "en": "Hunyuan-A13B-Instruct is classified as a historical A13B version in Tencent's Hunyuan family from its official repository and named release list; this is editorial catalog classification, not corporate ownership.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-hunyuan12h-a13b-part-of-0", "s-hunyuan12h-revision-part-of-0"],
+        "updatedAt": "2026-10-29",
+        "subject": "Hunyuan-A13B-Instruct",
+        "predicate": "part-of",
+        "objectOrValue": "e-hunyuan",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-hunyuan12h-a13b-part-of-0",
+          "title": {
+            "zh": "腾讯A13B官方资料 · readme",
+            "en": "Tencent A13B official source · readme"
+          },
+          "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/main/README.md",
+          "publisher": "Tencent Hunyuan",
+          "publishedAt": "",
+          "collectedAt": "2026-10-08",
+          "verifiedAt": "2026-10-08T08:30:03.339693",
+          "sourceExcerpt": "* 2025.6.27 We have open-sourced  **Hunyuan-A13B-Pretrain** , **Hunyuan-A13B-Instruct** , **Hunyuan-A13B-Instruct-FP8** , **Hunyuan-A13B-Instruct-GPTQ-Int4** on Hugging Face. In addition, we have released a <a href=\"report/Hunyuan_A13B_Technical_Report.pdf\">technical report </a> and a training and inference operation manual, which provide detailed information about the model’s capabilities as well as the operations for training and inference.\n\n",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["claim-hunyuan12h-a13b-part-of"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-hunyuan12h-revision-part-of-0",
+          "title": {
+            "zh": "腾讯A13B · README.md 文件版本 2025-07-08",
+            "en": "Tencent A13B README.md revision published 2025-07-08"
+          },
+          "url": "https://raw.githubusercontent.com/Tencent-Hunyuan/Hunyuan-A13B/2798f3c8b6a69e0ce93950b0d2417203cf950fa0/README.md",
+          "publisher": "Tencent Hunyuan",
+          "publishedAt": "2025-07-08",
+          "collectedAt": "2026-10-08",
+          "verifiedAt": "2026-10-08T08:30:03.339693",
+          "sourceExcerpt": "* 2025.6.27 We have open-sourced  **Hunyuan-A13B-Pretrain** , **Hunyuan-A13B-Instruct** , **Hunyuan-A13B-Instruct-FP8** , **Hunyuan-A13B-Instruct-GPTQ-Int4** on Hugging Face. In addition, we have released a <a href=\"report/Hunyuan_A13B_Technical_Report.pdf\">technical report </a> and a training and inference operation manual, which provide detailed information about the model’s capabilities as well as the operations for training and inference.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "claim-hunyuan12h-revision-part-of",
+            "claim-hunyuan12h-a13b-part-of"
+          ],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Official model documentation independently confirms API/model identity, but the assigned introduction source was only partially rendered in the browser capture. Add a direct model-page citation; do not infer access for gateways, accounts, countries or commercial terms.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+          "capturedTextSha256": "c46542e2b4f5126c3090adf5993a5feb340709ed385510599691dc9118df15ba"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-decision-critical-ddc2ad5233ddc684adce",
+        "entityId": "e-gpt-61-sol",
+        "text": {
+          "zh": "GPT-6.1 Sol 官方公告明确提供 OpenAI API 型号 gpt-6.1-sol；只说明原厂 API 入口，不证明网关型号、账户可用性、服务国家、数据存储地区或商用合规。",
+          "en": "Official OpenAI API access is documented for gpt-6.1-sol; gateway identity, account access, country, data location and commercial scope are not established.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["source-critical-ddc2ad5233ddc684adce"],
+        "updatedAt": "2026-10-15",
+        "subject": null,
+        "predicate": "deployment",
+        "objectOrValue": "cloud-api",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-15T13:39:39.711406+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-decision-critical-ddc2ad5233ddc684adce",
+        "entityId": "e-gpt-61-sol",
+        "text": {
+          "zh": "OpenAI 官方型号文档记录了 gpt-6.1-sol 的 API 标识和接口能力；这不证明特定网关、账号、国家、数据存放位置或商业使用条件适用。",
+          "en": "OpenAI’s official model documentation establishes the gpt-6.1-sol API identity and documented interfaces; it does not establish access through a particular gateway, account, country, data location or commercial terms.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["source-critical-ddc2ad5233ddc684adce", "s-gpt-6-1-sol-20261001"],
+        "updatedAt": "2026-10-29",
+        "subject": null,
+        "predicate": "deployment",
+        "objectOrValue": "cloud-api",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "source-critical-ddc2ad5233ddc684adce",
+          "title": {
+            "zh": "GPT-6.1 Sol official API availability",
+            "en": "GPT-6.1 Sol official API availability"
+          },
+          "url": "https://openai.com/index/introducing-gpt-6-1-sol/",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-15T13:39:39.711406+00:00",
+          "verifiedAt": "2026-10-15T14:07:48.616958",
+          "sourceExcerpt": "Developers can also access it through the OpenAI API as gpt-6.1-sol.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-gpt-6-1-sol-20261001",
+          "title": {
+            "zh": "GPT-6.1 Sol 官方型号文档",
+            "en": "GPT-6.1 Sol 官方型号文档"
+          },
+          "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT-6.1 Sol: general reasoning, coding and professional work; text/image input.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-gpt-6-1-sol-catalog-review"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "capturedTextSha256": "4da51e32ed56c5ce8467400a41dcdd32493aa445651455be64796a7ad36b53f9"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "capturedTextSha256": "4da51e32ed56c5ce8467400a41dcdd32493aa445651455be64796a7ad36b53f9"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-6e50550960d62e36c5a0",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5-Codex 针对 Codex 中的代理式编码进行了优化。",
+          "en": "GPT-5-Codex is optimized for agentic coding in Codex.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-6e50550960d62e36c5a0", "evidence-bc35a841d0e3ccc3529b"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5-Codex",
+        "predicate": "optimized-for",
+        "objectOrValue": "agentic coding in Codex",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-6e50550960d62e36c5a0",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "OpenAI 模型目录将 GPT-5-Codex 描述为针对 Codex 中的 Agent 编程优化的型号；此处指 GPT-5-Codex，不是基础 GPT-5。",
+          "en": "OpenAI’s model catalog describes GPT-5-Codex as optimized for agentic coding in Codex; the named model is GPT-5-Codex, not base GPT-5.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-6e50550960d62e36c5a0", "evidence-bc35a841d0e3ccc3529b"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5-Codex",
+        "predicate": "named-model-positioning",
+        "objectOrValue": "agentic coding in Codex",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-6e50550960d62e36c5a0",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.127701+00:00",
+          "sourceExcerpt": "- [GPT-5-Codex](/api/docs/models/gpt-5-codex.md): A version of GPT-5 optimized for agentic coding in Codex",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-6e50550960d62e36c5a0"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "evidence-bc35a841d0e3ccc3529b",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.127701+00:00",
+          "sourceExcerpt": "- [GPT-5.1-Codex](/api/docs/models/gpt-5.1-codex.md): A version of GPT-5.1 optimized for agentic coding in Codex.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-6e50550960d62e36c5a0"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "capturedTextSha256": "4da51e32ed56c5ce8467400a41dcdd32493aa445651455be64796a7ad36b53f9"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-97067b61d339c7ba9b11",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.2-Codex 针对长期代理式编码任务进行了优化。",
+          "en": "GPT-5.2-Codex is optimized for long-horizon, agentic coding tasks.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-97067b61d339c7ba9b11"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.2-Codex",
+        "predicate": "optimized-for",
+        "objectOrValue": "long-horizon, agentic coding tasks",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-97067b61d339c7ba9b11",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "OpenAI 模型目录将 GPT-5.2-Codex 描述为针对长周期 Agent 编程任务优化的型号；此处指 GPT-5.2-Codex，不是基础 GPT-5。",
+          "en": "OpenAI’s model catalog describes GPT-5.2-Codex as optimized for long-horizon agentic coding tasks; this refers to GPT-5.2-Codex, not base GPT-5.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-97067b61d339c7ba9b11"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.2-Codex",
+        "predicate": "named-model-positioning",
+        "objectOrValue": "long-horizon, agentic coding tasks",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-97067b61d339c7ba9b11",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.036067+00:00",
+          "sourceExcerpt": "- [GPT-5.2-Codex](/api/docs/models/gpt-5.2-codex.md): Our most intelligent coding model optimized for long-horizon, agentic coding tasks.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-97067b61d339c7ba9b11"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "capturedTextSha256": "4da51e32ed56c5ce8467400a41dcdd32493aa445651455be64796a7ad36b53f9"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-28fcfd19ccddc7866cb1",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.3-Codex 被描述为迄今能力最强的代理式编码模型。",
+          "en": "GPT-5.3-Codex is described as the most capable agentic coding model to date.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-28fcfd19ccddc7866cb1"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.3-Codex",
+        "predicate": "described-as",
+        "objectOrValue": "the most capable agentic coding model to date",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-28fcfd19ccddc7866cb1",
+        "entityId": "e-gpt-53-codex",
+        "text": {
+          "zh": "OpenAI 的 GPT-5.3-Codex 介绍将其定位为发布当时最强的 Agent 编程型号；这是厂商当时的定位，不构成当前性能排名或 AI Radar 实测。",
+          "en": "OpenAI positioned GPT-5.3-Codex as its most capable agentic coding model at introduction; this is historical provider positioning, not a current ranking or an AI Radar measurement.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-28fcfd19ccddc7866cb1"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.3-Codex",
+        "predicate": "historical-provider-positioning",
+        "objectOrValue": "the most capable agentic coding model to date",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-28fcfd19ccddc7866cb1",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:18.951843+00:00",
+          "sourceExcerpt": "- [GPT-5.3-Codex](/api/docs/models/gpt-5.3-codex.md): The most capable agentic coding model to date.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-28fcfd19ccddc7866cb1"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Original 2025-02-24 Sonnet 3.7 announcement can establish historical pricing/access only. Official release notes retire Sonnet 3.7 on 2026-02-19. Correct family association and add historical scope before accepting this as a current fact.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-8b36e8d61351044a4f02",
+        "entityId": "e-claude",
+        "text": {
+          "zh": "Claude 3.7 Sonnet 现已在 Amazon Bedrock 上提供。",
+          "en": "Claude 3.7 Sonnet is now available on Amazon Bedrock.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8b36e8d61351044a4f02"],
+        "updatedAt": "2026-09-16",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "availability",
+        "objectOrValue": "Amazon Bedrock",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-8b36e8d61351044a4f02",
+        "entityId": "e-claude-sonnet-37",
+        "text": {
+          "zh": "Anthropic 在 2025-02-24 的 Claude 3.7 Sonnet 发布公告中说明当时可通过 Amazon Bedrock 使用；这是历史渠道公告，当前渠道可用性需另核实。",
+          "en": "Anthropic’s 2025-02-24 Claude 3.7 Sonnet launch announced availability on Amazon Bedrock at that time; this is historical channel access, and current availability requires a separate check.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8b36e8d61351044a4f02"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "historical-channel-availability",
+        "objectOrValue": "Amazon Bedrock",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-8b36e8d61351044a4f02",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-16T00:56:00.172094+00:00",
+          "sourceExcerpt": "Claude 3.7 Sonnet is now available on all Claude plans—including Free, Pro, Team, and Enterprise—as well as the Claude Developer Platform, Amazon Bedrock, and Google Cloud’s Vertex AI.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8b36e8d61351044a4f02"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "capturedTextSha256": "d72dc610d150609eb2453cfdb94058d2e3e135a2286316c614dbc58a723dcdb3"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-c9f238b981914d889820",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.6 Sol 的价格为每百万输入 tokens 4 美元。",
+          "en": "GPT-5.6 Sol costs $4 per million input tokens.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c9f238b981914d889820"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.6 Sol",
+        "predicate": "has-price",
+        "objectOrValue": "$4 per million input tokens",
+        "validFrom": "2026-08-21",
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-c9f238b981914d889820",
+        "entityId": "e-gpt-56-sol",
+        "text": {
+          "zh": "OpenAI 在 2026-08-21 公告将 GPT-5.6 Sol 的 Standard 未缓存文本输入价格降至每百万 tokens 4 美元，并说明促销至少持续到 2026-11-21；其他处理档位、缓存、工具和网关费用需另核对。",
+          "en": "OpenAI’s 2026-08-21 update announced GPT-5.6 Sol Standard uncached text input at $4 per million tokens, with promotional pricing available at least through 2026-11-21; other tiers, cache, tools and gateway fees require separate checks.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c9f238b981914d889820"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.6 Sol",
+        "predicate": "historical-standard-input-price",
+        "objectOrValue": "USD 4 / 1M uncached text input tokens; promotion at least through 2026-11-21",
+        "validFrom": "2026-08-21",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-c9f238b981914d889820",
+          "title": {
+            "zh": "OpenAI API 更新日志",
+            "en": "OpenAI API 更新日志"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:40.194815+00:00",
+          "sourceExcerpt": "GPT-5.6 Sol now costs $4 per million input tokens and $20 per million output tokens, representing 20% lower input pricing and 33% lower output pricing.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-c9f238b981914d889820"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The 2025-02-24 announcement describes Anthropic internal early tests. The imported claim omits provider/test/historical attribution and must not read as independently measured or universal productivity gain.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-9c14c64cfeb047b9945a",
+        "entityId": "e-claude-code",
+        "text": {
+          "zh": "Claude Code 减少了开发时间和开销。",
+          "en": "Claude Code reduced development time and overhead.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9c14c64cfeb047b9945a"],
+        "updatedAt": "2026-09-14",
+        "subject": "Claude Code",
+        "predicate": "reduced",
+        "objectOrValue": "development time and overhead",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-9c14c64cfeb047b9945a",
+        "entityId": "e-claude-code",
+        "text": {
+          "zh": "Anthropic 在 2025-02-24 的 Claude Code 早期内部测试介绍中称其减少了开发时间和开销；这是厂商的早期测试陈述，不能当作普遍或独立测得的生产率收益。",
+          "en": "Anthropic’s 2025-02-24 account of early internal Claude Code testing reported reduced development time and overhead; this is an early provider report, not a universal or independently measured productivity benefit.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9c14c64cfeb047b9945a"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude Code",
+        "predicate": "historical-provider-internal-test",
+        "objectOrValue": "development time and overhead",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-9c14c64cfeb047b9945a",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.955942+00:00",
+          "sourceExcerpt": "In early testing, Claude Code completed tasks in a single pass that would normally take 45+ minutes of manual work, reducing development time and overhead.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9c14c64cfeb047b9945a"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-417d947b17923a7013dd",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "gpt-5-mini-2025-08-07 的推荐替代项是 gpt-5.6-terra。",
+          "en": "The recommended replacement for gpt-5-mini-2025-08-07 is gpt-5.6-terra.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-417d947b17923a7013dd"],
+        "updatedAt": "2026-09-13",
+        "subject": "gpt-5-mini-2025-08-07",
+        "predicate": "recommended-replacement",
+        "objectOrValue": "gpt-5.6-terra",
+        "validFrom": "2026-06-11",
+        "validTo": "2026-12-11",
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-417d947b17923a7013dd",
+        "entityId": "e-gpt-5-mini",
+        "text": {
+          "zh": "OpenAI 于 2026-06-11 宣布弃用 gpt-5-mini 及其 2025-08-07 快照，计划在 2026-12-11 停止 API 服务；当前弃用表建议迁移到 gpt-5.6-terra。",
+          "en": "OpenAI announced deprecation of gpt-5-mini and its 2025-08-07 snapshot on 2026-06-11, with API shutdown scheduled for 2026-12-11; the current table recommends gpt-5.6-terra.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-417d947b17923a7013dd", "s-openai-deprecations-20261029"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5 mini",
+        "predicate": "recommended-replacement",
+        "objectOrValue": "gpt-5.6-terra",
+        "validFrom": "2026-06-11",
+        "validTo": "2026-12-11",
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-417d947b17923a7013dd",
+          "title": {
+            "zh": "OpenAI 弃用与下线记录",
+            "en": "OpenAI 弃用与下线记录"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:38.892601+00:00",
+          "sourceExcerpt": "| Dec 11, 2026 | `gpt-5-mini-2025-08-07` | `gpt-5.6-terra` |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-417d947b17923a7013dd"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-deprecations-20261029",
+          "title": {
+            "zh": "OpenAI API 弃用与下线表（2026-10-29 核对）",
+            "en": "OpenAI API 弃用与下线表（2026-10-29 核对）"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-29",
+          "sourceExcerpt": "June 11, 2026: GPT-5, GPT-5 mini and GPT-5 nano deprecated, with API shutdown on Dec 11, 2026; recommended replacements are GPT-5.6 Sol, Terra and Luna respectively. GPT-5.4-Cyber was deprecated Sep 11 and shut down Oct 1; the table recommends the most capable cyber model available to the user.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-gpt-5-catalog-review",
+            "claim-417d947b17923a7013dd",
+            "claim-5b0beb72ee5957a5a295",
+            "claim-c7b51e84727929c4600e",
+            "c-deprecation-e-gpt-5-20260611",
+            "c-deprecation-e-gpt-5-mini-20260611",
+            "c-deprecation-e-gpt-5-nano-20260611"
+          ],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Current official GPT-5.4-Cyber shutdown table now recommends the most capable cyber model available to the account, not fixed gpt-5.6-cyber. Preserve the old excerpt as archived provenance and correct the public statement/model association.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-5b0beb72ee5957a5a295",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "文档建议在关闭日期前迁移到 gpt-5.6-cyber。",
+          "en": "The documentation recommends migrating to gpt-5.6-cyber before the shutdown date.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5b0beb72ee5957a5a295"],
+        "updatedAt": "2026-09-13",
+        "subject": "gpt-5.4-cyber",
+        "predicate": "recommended-replacement",
+        "objectOrValue": "gpt-5.6-cyber",
+        "validFrom": null,
+        "validTo": "2026-10-01",
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-5b0beb72ee5957a5a295",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "截至 2026-10-29，OpenAI 的 GPT-5.4-Cyber 下线表建议改用用户可获得的最强 cyber 型号，而非固定指定 gpt-5.6-cyber；原 API 已于 2026-10-01 下线。旧摘录保留作历史依据。",
+          "en": "As of 2026-10-29, OpenAI’s GPT-5.4-Cyber shutdown table recommends the most capable cyber model available to the user, rather than a fixed gpt-5.6-cyber replacement. The original API shut down on 2026-10-01; the earlier excerpt is retained as history.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5b0beb72ee5957a5a295", "s-openai-deprecations-20261029"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.4-Cyber",
+        "predicate": "named-model-retirement-guidance",
+        "objectOrValue": "most capable cyber model available to the user",
+        "validFrom": "2026-10-01",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-5b0beb72ee5957a5a295",
+          "title": {
+            "zh": "OpenAI 弃用与下线记录",
+            "en": "OpenAI 弃用与下线记录"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:39.245439+00:00",
+          "sourceExcerpt": "| Oct 1, 2026 | `gpt-5.4-cyber` | `gpt-5.6-cyber` |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-5b0beb72ee5957a5a295"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-deprecations-20261029",
+          "title": {
+            "zh": "OpenAI API 弃用与下线表（2026-10-29 核对）",
+            "en": "OpenAI API 弃用与下线表（2026-10-29 核对）"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-29",
+          "sourceExcerpt": "June 11, 2026: GPT-5, GPT-5 mini and GPT-5 nano deprecated, with API shutdown on Dec 11, 2026; recommended replacements are GPT-5.6 Sol, Terra and Luna respectively. GPT-5.4-Cyber was deprecated Sep 11 and shut down Oct 1; the table recommends the most capable cyber model available to the user.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-gpt-5-catalog-review",
+            "claim-417d947b17923a7013dd",
+            "claim-5b0beb72ee5957a5a295",
+            "claim-c7b51e84727929c4600e",
+            "c-deprecation-e-gpt-5-20260611",
+            "c-deprecation-e-gpt-5-mini-20260611",
+            "c-deprecation-e-gpt-5-nano-20260611"
+          ],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "capturedTextSha256": "68ab1f391c18296c7e4b5dfec51467a4b2524ea956979d13c7de41cde9edb80c"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-c7b51e84727929c4600e",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "gpt-5.4-cyber 于 2026-09-11 被宣布弃用。",
+          "en": "gpt-5.4-cyber was announced as deprecated on 2026-09-11.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c7b51e84727929c4600e"],
+        "updatedAt": "2026-09-13",
+        "subject": "gpt-5.4-cyber",
+        "predicate": "deprecated-on",
+        "objectOrValue": "2026-09-11",
+        "validFrom": "2026-09-11",
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-c7b51e84727929c4600e",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "OpenAI 于 2026-09-11 宣布弃用 gpt-5.4-cyber，并于 2026-10-01 停止该 API 服务；这不是基础 GPT-5 的下线日期。",
+          "en": "OpenAI announced gpt-5.4-cyber deprecation on 2026-09-11 and shut down that API on 2026-10-01; this is not the shutdown date of base GPT-5.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c7b51e84727929c4600e", "s-openai-deprecations-20261029"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.4-Cyber",
+        "predicate": "named-model-deprecated-on",
+        "objectOrValue": "2026-09-11",
+        "validFrom": "2026-09-11",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-c7b51e84727929c4600e",
+          "title": {
+            "zh": "OpenAI 弃用与下线记录",
+            "en": "OpenAI 弃用与下线记录"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:39.338454+00:00",
+          "sourceExcerpt": "### 2026-09-11: GPT-5.4-Cyber",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-c7b51e84727929c4600e"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-deprecations-20261029",
+          "title": {
+            "zh": "OpenAI API 弃用与下线表（2026-10-29 核对）",
+            "en": "OpenAI API 弃用与下线表（2026-10-29 核对）"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-29",
+          "sourceExcerpt": "June 11, 2026: GPT-5, GPT-5 mini and GPT-5 nano deprecated, with API shutdown on Dec 11, 2026; recommended replacements are GPT-5.6 Sol, Terra and Luna respectively. GPT-5.4-Cyber was deprecated Sep 11 and shut down Oct 1; the table recommends the most capable cyber model available to the user.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-gpt-5-catalog-review",
+            "claim-417d947b17923a7013dd",
+            "claim-5b0beb72ee5957a5a295",
+            "claim-c7b51e84727929c4600e",
+            "c-deprecation-e-gpt-5-20260611",
+            "c-deprecation-e-gpt-5-mini-20260611",
+            "c-deprecation-e-gpt-5-nano-20260611"
+          ],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "capturedTextSha256": "d72dc610d150609eb2453cfdb94058d2e3e135a2286316c614dbc58a723dcdb3"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-9ff929450ae6107ea8c3",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.2 现在运行速度约快 40%。",
+          "en": "GPT-5.2 now runs ~40% faster.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9ff929450ae6107ea8c3"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.2",
+        "predicate": "runs",
+        "objectOrValue": "~40% faster",
+        "validFrom": "2026-02-03",
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-9ff929450ae6107ea8c3",
+        "entityId": "e-gpt-52",
+        "text": {
+          "zh": "OpenAI 在 2026-02-03 的 API 更新中报告，推理服务栈优化使 GPT-5.2 和 GPT-5.2-Codex 运行速度提升约 40%，模型及权重未变；这是厂商服务更新说明，并非 AI Radar 的独立测速。",
+          "en": "OpenAI’s 2026-02-03 API update reported approximately 40% faster GPT-5.2 and GPT-5.2-Codex after inference-stack optimization, with model and weights unchanged; this is a provider service report, not an independent AI Radar speed test.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9ff929450ae6107ea8c3"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.2",
+        "predicate": "historical-provider-api-speed-report",
+        "objectOrValue": "approximately 40% faster in provider API report; weights unchanged",
+        "validFrom": "2026-02-03",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-9ff929450ae6107ea8c3",
+          "title": {
+            "zh": "OpenAI API 更新日志",
+            "en": "OpenAI API 更新日志"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:40.098183+00:00",
+          "sourceExcerpt": "We have optimized our inference stack for API customers and [GPT-5.2](https://platform.openai.com/docs/models/gpt-5.2) and [GPT-5.2-Codex](https://platform.openai.com/docs/models/gpt-5.2-codex) now run ~40% faster.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9ff929450ae6107ea8c3"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The named model is not base GPT-5: assign the exact existing version or an explicitly scoped GPT-family statement where that version is not catalogued. Price claims need Standard uncached/promotion scope; ~40% speed is a provider API inference-stack report, not an AI Radar measurement; old most-capable marketing is not a current ranking.",
+      "captures": [
+        {
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "capturedTextSha256": "d72dc610d150609eb2453cfdb94058d2e3e135a2286316c614dbc58a723dcdb3"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-40ad28900a9d0211f2bc",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.5 支持 1M token 上下文窗口。",
+          "en": "GPT-5.5 supports a 1M token context window.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-40ad28900a9d0211f2bc"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.5",
+        "predicate": "supports",
+        "objectOrValue": "a 1M token context window",
+        "validFrom": "2026-04-24",
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-40ad28900a9d0211f2bc",
+        "entityId": "e-gpt-55",
+        "text": {
+          "zh": "OpenAI 在 2026-04-24 的 API 更新中记录 GPT-5.5 支持 1M tokens 上下文；此处指 GPT-5.5，不是基础 GPT-5。",
+          "en": "OpenAI’s 2026-04-24 API update documents a 1M-token context window for GPT-5.5, not base GPT-5.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-40ad28900a9d0211f2bc"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.5",
+        "predicate": "supports",
+        "objectOrValue": "a 1M token context window",
+        "validFrom": "2026-04-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-40ad28900a9d0211f2bc",
+          "title": {
+            "zh": "OpenAI API 更新日志",
+            "en": "OpenAI API 更新日志"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T11:36:40.125870+00:00",
+          "sourceExcerpt": "GPT-5.5 supports a 1M token context window, image input, structured outputs, function calling, prompt caching, Batch, tool search, built-in computer use, hosted shell, apply patch, Skills, MCP, and web search.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-40ad28900a9d0211f2bc"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The official introduction describes extremely difficult tasks as an expectation/heuristic. The imported excludes statement must not imply a technical enforcement mechanism or measured reliability threshold.",
+      "captures": [
+        {
+          "url": "https://docs.devin.ai/get-started/devin-intro",
+          "capturedTextSha256": "bd999647cf1e0c8412dd49ab824800b7dfa8bdda8d8b55e2c7099b459f608fc1"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-cf151153ee9a1c923560",
+        "entityId": "e-devin",
+        "text": {
+          "zh": "Devin 不处理极其困难的任务。",
+          "en": "Devin excludes extremely difficult tasks.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-cf151153ee9a1c923560"],
+        "updatedAt": "2026-09-14",
+        "subject": "Devin",
+        "predicate": "excludes",
+        "objectOrValue": "extremely difficult tasks",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-cf151153ee9a1c923560",
+        "entityId": "e-devin",
+        "text": {
+          "zh": "Devin 官方介绍将极高难度任务列为能力预期之外，并以人工约三小时可完成的任务作为经验参考；这不是强制技术限制、耗时上限或可靠性测量。",
+          "en": "Devin’s introduction treats extremely difficult tasks as outside its expected capability and gives a roughly three-hour human task as a rule of thumb; this is not an enforced technical limit, time cap or measured reliability threshold.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-cf151153ee9a1c923560"],
+        "updatedAt": "2026-10-29",
+        "subject": "Devin",
+        "predicate": "provider-task-scope-heuristic",
+        "objectOrValue": "provider expectation and rule of thumb, not an enforced threshold",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-cf151153ee9a1c923560",
+          "title": {
+            "zh": "Devin 官方文档：Introducing Devin",
+            "en": "Devin 官方文档：Introducing Devin"
+          },
+          "url": "https://docs.devin.ai/get-started/devin-intro",
+          "publisher": "Cognition",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:16:34.576255+00:00",
+          "sourceExcerpt": "Devin can handle most tasks, excluding extremely difficult tasks.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-cf151153ee9a1c923560"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Original 2025-02-24 Sonnet 3.7 announcement can establish historical pricing/access only. Official release notes retire Sonnet 3.7 on 2026-02-19. Correct family association and add historical scope before accepting this as a current fact.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-54173b7c1f419463ec41",
+        "entityId": "e-claude",
+        "text": {
+          "zh": "Claude 3.7 Sonnet 的输出价格为每百万输出令牌 15 美元。",
+          "en": "Claude 3.7 Sonnet has a price of $15 per million output tokens.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-54173b7c1f419463ec41"],
+        "updatedAt": "2026-09-16",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "output-price",
+        "objectOrValue": "$15 per million output tokens",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-54173b7c1f419463ec41",
+        "entityId": "e-claude-sonnet-37",
+        "text": {
+          "zh": "Anthropic 的 2025-02-24 Claude 3.7 Sonnet 公告标示每百万输出 tokens 15 美元；这是发布时的历史 API 价格，不是当前所有渠道报价。",
+          "en": "Anthropic’s 2025-02-24 Claude 3.7 Sonnet launch listed $15 per million output tokens; this is historical launch API pricing, not a current all-channel quote.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-54173b7c1f419463ec41"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "historical-output-price",
+        "objectOrValue": "$15 per million output tokens",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-54173b7c1f419463ec41",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-16T00:55:26.497614+00:00",
+          "sourceExcerpt": "In both standard and extended thinking modes, Claude 3.7 Sonnet has the same price as its predecessors: $3 per million input tokens and $15 per million output tokens—which includes thinking tokens.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-54173b7c1f419463ec41"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The >=4.51.0 requirement appears under the Transformers path, while the same README supports llama.cpp, MLX, LMStudio and other runtimes. Qualify it as a Transformers integration requirement, not a prerequisite for every Qwen3 runtime.",
+      "captures": [
+        {
+          "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+          "capturedTextSha256": "980ba7caa8d632ba0b20846711fe9643c387b69ccb553dcb25b964d33798c6cd"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-34e6cc0b74ae79994342",
+        "entityId": "e-qwen",
+        "text": {
+          "zh": "运行 Qwen3 需要 transformers>=4.51.0。",
+          "en": "Running Qwen3 requires transformers>=4.51.0.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-34e6cc0b74ae79994342"],
+        "updatedAt": "2026-09-13",
+        "subject": "transformers",
+        "predicate": "requires-version",
+        "objectOrValue": "transformers>=4.51.0",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-34e6cc0b74ae79994342",
+        "entityId": "e-qwen",
+        "text": {
+          "zh": "Qwen3 官方 README 的 Transformers 接入路径要求 transformers>=4.51.0；同页还列出 llama.cpp、MLX、LM Studio 等其他路径，因此该版本要求不适用于所有 Qwen3 运行方式。",
+          "en": "The Qwen3 README requires transformers>=4.51.0 for its Transformers integration path. It also documents llama.cpp, MLX and LM Studio, so this is not a prerequisite for every Qwen3 runtime.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-34e6cc0b74ae79994342"],
+        "updatedAt": "2026-10-29",
+        "subject": "transformers",
+        "predicate": "transformers-integration-requires-version",
+        "objectOrValue": "transformers>=4.51.0 for the Transformers path only",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-34e6cc0b74ae79994342",
+          "title": {
+            "zh": "Qwen 模型版本说明",
+            "en": "Qwen 模型版本说明"
+          },
+          "url": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+          "publisher": "Alibaba Qwen",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.349043+00:00",
+          "sourceExcerpt": "The latest version of `transformers` is recommended and `transformers>=4.51.0` is required.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-34e6cc0b74ae79994342"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Original 2025-02-24 Sonnet 3.7 announcement can establish historical pricing/access only. Official release notes retire Sonnet 3.7 on 2026-02-19. Correct family association and add historical scope before accepting this as a current fact.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-bc1d7bf98199dae06a54",
+        "entityId": "e-claude",
+        "text": {
+          "zh": "Claude 3.7 Sonnet 的输入价格为每百万输入令牌 3 美元。",
+          "en": "Claude 3.7 Sonnet has a price of $3 per million input tokens.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-bc1d7bf98199dae06a54"],
+        "updatedAt": "2026-09-16",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "input-price",
+        "objectOrValue": "$3 per million input tokens",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-bc1d7bf98199dae06a54",
+        "entityId": "e-claude-sonnet-37",
+        "text": {
+          "zh": "Anthropic 的 2025-02-24 Claude 3.7 Sonnet 公告标示每百万输入 tokens 3 美元；这是发布时的历史 API 价格，不是当前所有渠道报价。",
+          "en": "Anthropic’s 2025-02-24 Claude 3.7 Sonnet launch listed $3 per million input tokens; this is historical launch API pricing, not a current all-channel quote.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-bc1d7bf98199dae06a54"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "historical-input-price",
+        "objectOrValue": "$3 per million input tokens",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-bc1d7bf98199dae06a54",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-16T00:55:40.089632+00:00",
+          "sourceExcerpt": "In both standard and extended thinking modes, Claude 3.7 Sonnet has the same price as its predecessors: $3 per million input tokens and $15 per million output tokens—which includes thinking tokens.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-bc1d7bf98199dae06a54"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Original 2025-02-24 Sonnet 3.7 announcement can establish historical pricing/access only. Official release notes retire Sonnet 3.7 on 2026-02-19. Correct family association and add historical scope before accepting this as a current fact.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-fe35ceb32ce33204362d",
+        "entityId": "e-claude",
+        "text": {
+          "zh": "扩展思考模式在除免费 Claude 层级之外的所有界面上提供。",
+          "en": "Extended thinking mode is available on all surfaces except the free Claude tier.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-fe35ceb32ce33204362d"],
+        "updatedAt": "2026-09-16",
+        "subject": "Extended thinking mode",
+        "predicate": "availability",
+        "objectOrValue": "all surfaces except the free Claude tier",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-fe35ceb32ce33204362d",
+        "entityId": "e-claude-sonnet-37",
+        "text": {
+          "zh": "Anthropic 在 2025-02-24 的 Claude 3.7 Sonnet 公告中说明，扩展思考当时适用于免费 Claude 档位以外的入口；这不是当前 Claude 产品各套餐的权限说明。",
+          "en": "Anthropic’s 2025-02-24 Claude 3.7 Sonnet launch stated that extended thinking was available on surfaces other than the free Claude tier at that time; this does not establish current Claude plan permissions.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-fe35ceb32ce33204362d"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "historical-thinking-availability",
+        "objectOrValue": "all surfaces except the free Claude tier",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-fe35ceb32ce33204362d",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-16T00:55:49.692670+00:00",
+          "sourceExcerpt": "Extended thinking mode is available on all surfaces except the free Claude tier.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-fe35ceb32ce33204362d"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Original 2025-02-24 Sonnet 3.7 announcement can establish historical pricing/access only. Official release notes retire Sonnet 3.7 on 2026-02-19. Correct family association and add historical scope before accepting this as a current fact.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-3db47ba640060b2f6c3c",
+        "entityId": "e-claude",
+        "text": {
+          "zh": "Claude 3.7 Sonnet 现已在所有 Claude 计划中提供。",
+          "en": "Claude 3.7 Sonnet is now available on all Claude plans.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3db47ba640060b2f6c3c"],
+        "updatedAt": "2026-09-16",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "availability",
+        "objectOrValue": "all Claude plans",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-3db47ba640060b2f6c3c",
+        "entityId": "e-claude-sonnet-37",
+        "text": {
+          "zh": "Anthropic 在 2025-02-24 宣布 Claude 3.7 Sonnet 当时向所有 Claude 套餐开放；这是一则历史发布公告，不是当前套餐可用性承诺。",
+          "en": "Anthropic announced Claude 3.7 Sonnet availability across Claude plans on 2025-02-24; this is a historical launch announcement, not a current plan-access commitment.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3db47ba640060b2f6c3c"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 3.7 Sonnet",
+        "predicate": "historical-plan-availability",
+        "objectOrValue": "all Claude plans",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-3db47ba640060b2f6c3c",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-16T00:56:13.167405+00:00",
+          "sourceExcerpt": "Claude 3.7 Sonnet is now available on all Claude plans—including Free, Pro, Team, and Enterprise—as well as the Claude Developer Platform, Amazon Bedrock, and Google Cloud’s Vertex AI.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-3db47ba640060b2f6c3c"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The paper reports these findings in its own study, including selected models and 24 prompt styles. Add author/study attribution; do not imply universal accuracy drops, prompt-invariance guarantees, CoT dominance or independently proven removal of all noise.",
+      "captures": [
+        {
+          "url": "https://arxiv.org/abs/2406.01574",
+          "capturedTextSha256": "7a318b34fa6c94e568ca69ebd181fbd2f306e475ea4e8a40b44e335bfb2b16a2"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-8803b944d95a8e749e32",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "与MMLU相比，MMLU-Pro的准确率下降了16%到33%。",
+          "en": "MMLU-Pro shows an accuracy drop of 16% to 33% compared to MMLU.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8803b944d95a8e749e32"],
+        "updatedAt": "2026-09-14",
+        "subject": "MMLU-Pro",
+        "predicate": "has-accuracy-drop-relative-to",
+        "objectOrValue": "16% to 33% compared to MMLU",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-8803b944d95a8e749e32",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro 论文作者在其评估模型与实验设置中报告，相对 MMLU 的准确率下降 16%–33%；这不是所有模型的固定差值，也不是 AI Radar 实测。",
+          "en": "The MMLU-Pro authors report a 16%–33% accuracy drop relative to MMLU for the models and settings in their study; this is not a fixed result for all models or an AI Radar measurement.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8803b944d95a8e749e32"],
+        "updatedAt": "2026-10-29",
+        "subject": "MMLU-Pro",
+        "predicate": "paper-reported-accuracy-change",
+        "objectOrValue": "16% to 33% compared to MMLU",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-8803b944d95a8e749e32",
+          "title": {
+            "zh": "MMLU-Pro 论文",
+            "en": "MMLU-Pro 论文"
+          },
+          "url": "https://arxiv.org/abs/2406.01574",
+          "publisher": "arXiv",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.593556+00:00",
+          "sourceExcerpt": "Our experimental results show that MMLU-Pro not only raises the challenge, causing a significant drop in accuracy by 16% to 33% compared to MMLU but also demonstrates greater stability under varying prompts.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8803b944d95a8e749e32"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The paper reports these findings in its own study, including selected models and 24 prompt styles. Add author/study attribution; do not imply universal accuracy drops, prompt-invariance guarantees, CoT dominance or independently proven removal of all noise.",
+      "captures": [
+        {
+          "url": "https://arxiv.org/abs/2406.01574",
+          "capturedTextSha256": "7a318b34fa6c94e568ca69ebd181fbd2f306e475ea4e8a40b44e335bfb2b16a2"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-a6c47d6a0828f01ec707",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "与直接回答相比，Chain of Thought（CoT）推理在MMLU-Pro上取得了更好的性能。",
+          "en": "Chain of Thought (CoT) reasoning achieved better performance on MMLU-Pro compared to direct answering.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-a6c47d6a0828f01ec707"],
+        "updatedAt": "2026-09-14",
+        "subject": "Chain of Thought (CoT) reasoning",
+        "predicate": "achieves",
+        "objectOrValue": "better performance on MMLU-Pro compared to direct answering",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-a6c47d6a0828f01ec707",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro 论文作者在其研究中观察到，使用思维链推理的模型在 MMLU-Pro 上优于直接回答；该结论限于论文实验，不能保证所有模型与提示都如此。",
+          "en": "The MMLU-Pro authors observed better performance with chain-of-thought reasoning than direct answering in their study; this does not guarantee the same outcome for every model and prompt.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-a6c47d6a0828f01ec707"],
+        "updatedAt": "2026-10-29",
+        "subject": "Chain of Thought (CoT) reasoning",
+        "predicate": "paper-reported-reasoning-result",
+        "objectOrValue": "better performance on MMLU-Pro compared to direct answering",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-a6c47d6a0828f01ec707",
+          "title": {
+            "zh": "MMLU-Pro 论文",
+            "en": "MMLU-Pro 论文"
+          },
+          "url": "https://arxiv.org/abs/2406.01574",
+          "publisher": "arXiv",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.399573+00:00",
+          "sourceExcerpt": "Additionally, we found that models utilizing Chain of Thought (CoT) reasoning achieved better performance on MMLU-Pro compared to direct answering, which is in stark contrast to the findings on the original MMLU, indicating that MMLU-Pro includes more complex reasoning questions.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-a6c47d6a0828f01ec707"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The paper reports these findings in its own study, including selected models and 24 prompt styles. Add author/study attribution; do not imply universal accuracy drops, prompt-invariance guarantees, CoT dominance or independently proven removal of all noise.",
+      "captures": [
+        {
+          "url": "https://arxiv.org/abs/2406.01574",
+          "capturedTextSha256": "7a318b34fa6c94e568ca69ebd181fbd2f306e475ea4e8a40b44e335bfb2b16a2"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-122fcba89c1ea7b5ed5f",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro中模型分数对提示变化的敏感度仅为2%。",
+          "en": "Model-score sensitivity to prompt variations was just 2% in MMLU-Pro.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-122fcba89c1ea7b5ed5f"],
+        "updatedAt": "2026-09-14",
+        "subject": "MMLU-Pro",
+        "predicate": "has-prompt-sensitivity",
+        "objectOrValue": "just 2% in MMLU-Pro",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-122fcba89c1ea7b5ed5f",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro 作者在测试 24 种提示风格时报告，模型分数对提示变化的敏感性从 MMLU 的 4%–5% 降为 MMLU-Pro 的 2%；这不表示分数对任意提示保持不变。",
+          "en": "Testing 24 prompt styles, the MMLU-Pro authors report score sensitivity falling from 4%–5% on MMLU to 2% on MMLU-Pro; this does not establish invariance to arbitrary prompts.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-122fcba89c1ea7b5ed5f"],
+        "updatedAt": "2026-10-29",
+        "subject": "MMLU-Pro",
+        "predicate": "paper-reported-prompt-sensitivity",
+        "objectOrValue": "just 2% in MMLU-Pro",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-122fcba89c1ea7b5ed5f",
+          "title": {
+            "zh": "MMLU-Pro 论文",
+            "en": "MMLU-Pro 论文"
+          },
+          "url": "https://arxiv.org/abs/2406.01574",
+          "publisher": "arXiv",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.479432+00:00",
+          "sourceExcerpt": "With 24 different prompt styles tested, the sensitivity of model scores to prompt variations decreased from 4-5% in MMLU to just 2% in MMLU-Pro.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-122fcba89c1ea7b5ed5f"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The paper reports these findings in its own study, including selected models and 24 prompt styles. Add author/study attribution; do not imply universal accuracy drops, prompt-invariance guarantees, CoT dominance or independently proven removal of all noise.",
+      "captures": [
+        {
+          "url": "https://arxiv.org/abs/2406.01574",
+          "capturedTextSha256": "7a318b34fa6c94e568ca69ebd181fbd2f306e475ea4e8a40b44e335bfb2b16a2"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-a76523f7984a6540d686",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro消除了MMLU中的琐碎和噪声问题。",
+          "en": "MMLU-Pro eliminates the trivial and noisy questions in MMLU.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-a76523f7984a6540d686"],
+        "updatedAt": "2026-09-14",
+        "subject": "MMLU-Pro",
+        "predicate": "eliminates",
+        "objectOrValue": "the trivial and noisy questions in MMLU",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-a76523f7984a6540d686",
+        "entityId": "e-mmlu",
+        "text": {
+          "zh": "MMLU-Pro 作者将移除 MMLU 中简单与噪声问题列为基准构建方法；这是论文作者对整理过程的描述，不是 AI Radar 对全部样本无噪声的独立保证。",
+          "en": "The MMLU-Pro authors describe removing trivial and noisy MMLU questions as part of benchmark construction; this is their methodology description, not an independent AI Radar guarantee that every sample is noise-free.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-a76523f7984a6540d686"],
+        "updatedAt": "2026-10-29",
+        "subject": "MMLU-Pro",
+        "predicate": "paper-described-curation",
+        "objectOrValue": "the trivial and noisy questions in MMLU",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-a76523f7984a6540d686",
+          "title": {
+            "zh": "MMLU-Pro 论文",
+            "en": "MMLU-Pro 论文"
+          },
+          "url": "https://arxiv.org/abs/2406.01574",
+          "publisher": "arXiv",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.682408+00:00",
+          "sourceExcerpt": "Additionally, MMLU-Pro eliminates the trivial and noisy questions in MMLU.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-a76523f7984a6540d686"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "The 2025-02-24 announcement describes Anthropic internal early tests. The imported claim omits provider/test/historical attribution and must not read as independently measured or universal productivity gain.",
+      "captures": [
+        {
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "capturedTextSha256": "ae23e76be6760d5d7e934c57f50b8b645fbaa6a2792c0932b9d6b2ce8c630337"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-3a87a01a170c5f4836b0",
+        "entityId": "e-claude-code",
+        "text": {
+          "zh": "Claude Code 在单次运行中完成了任务。",
+          "en": "Claude Code completed tasks in a single pass.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3a87a01a170c5f4836b0"],
+        "updatedAt": "2026-09-14",
+        "subject": "Claude Code",
+        "predicate": "completed-in",
+        "objectOrValue": "a single pass",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-3a87a01a170c5f4836b0",
+        "entityId": "e-claude-code",
+        "text": {
+          "zh": "Anthropic 在 2025-02-24 的早期测试介绍中称，Claude Code 可一次完成通常需人工 45 分钟以上的部分任务；这不是对所有任务的单次成功承诺或 AI Radar 实测。",
+          "en": "Anthropic’s 2025-02-24 early-testing account reported single-pass completion of tasks normally requiring 45+ minutes of manual work; this is not a single-pass guarantee for all tasks or an AI Radar measurement.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3a87a01a170c5f4836b0"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude Code",
+        "predicate": "historical-provider-internal-test",
+        "objectOrValue": "a single pass",
+        "validFrom": "2025-02-24",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-3a87a01a170c5f4836b0",
+          "title": {
+            "zh": "Anthropic：Claude 3.7 Sonnet and Claude Code",
+            "en": "Anthropic：Claude 3.7 Sonnet and Claude Code"
+          },
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "publisher": "Anthropic",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:48:01.980311+00:00",
+          "sourceExcerpt": "In early testing, Claude Code completed tasks in a single pass that would normally take 45+ minutes of manual work, reducing development time and overhead.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-3a87a01a170c5f4836b0"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read international June-9 announcement and current Chinese official docs separately; prevent a cross-region, cross-date generalization.",
+      "captures": [
+        {
+          "url": "https://www.trae.ai/blog/trae_work_0609",
+          "capturedTextSha256": "c77b149005a7de42bac28b4b4e31350b41616bc40f71ee0709e3911c59983eed"
+        }
+      ],
+      "expectedClaim": {
+        "id": "claim-decision-refresh-4edaf090128d7b4999a9",
+        "entityId": "e-traecode",
+        "text": {
+          "zh": "TRAE 官方公告将 TRAE IDE 定位为编码产品，包含 IDE Mode 和 SOLO Mode；TRAE Work 是独立产品，资料不能混用。",
+          "en": "The official post distinguishes TRAE IDE with IDE and SOLO modes from the separate TRAE Work product; their facts are not interchangeable.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["source-76e211acf7924a6831a2"],
+        "updatedAt": "2026-10-10",
+        "subject": "TraeCode",
+        "predicate": "product-entry",
+        "objectOrValue": "[\"ide\"]",
+        "validFrom": "2026-06-09",
+        "validTo": null,
+        "observedAt": "2026-10-10T14:45:01.388617+00:00"
+      },
+      "correctedClaim": {
+        "id": "claim-decision-refresh-4edaf090128d7b4999a9",
+        "entityId": "e-traecode",
+        "text": {
+          "zh": "TRAE 国际站在 2026-06-09 的发布文章中区分 TRAE IDE（IDE/SOLO）与 TRAE Work（Work/Code）；这是国际站当时的产品介绍，不能用来推断 2026-10-29 中国版入口仍然独立。",
+          "en": "The international TRAE site’s 2026-06-09 announcement distinguished TRAE IDE (IDE/SOLO) from TRAE Work (Work/Code); this is that site’s historical product description and does not establish independent Chinese-edition products on 2026-10-29.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["source-76e211acf7924a6831a2"],
+        "updatedAt": "2026-10-29",
+        "subject": "TraeCode",
+        "predicate": "historical-international-product-entry",
+        "objectOrValue": "international-site product structure announced 2026-06-09; not current Chinese-edition availability",
+        "validFrom": "2026-06-09",
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "source-76e211acf7924a6831a2",
+          "title": {
+            "zh": "trae-products official workflow documentation",
+            "en": "trae-products official workflow documentation"
+          },
+          "url": "https://www.trae.ai/blog/trae_work_0609",
+          "publisher": "TRAE",
+          "publishedAt": "2026-06-09",
+          "collectedAt": "2026-10-10T14:45:01.388617+00:00",
+          "verifiedAt": "2026-10-10T15:40:10.551387",
+          "sourceExcerpt": "TRAE IDE is a professional AI coding tool designed for software developers and engineering teams.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": null,
+          "contradictsClaimIds": null
+        }
+      ]
     }
   ],
   "reviewer": "Codex source comparison; not an independent human audit"

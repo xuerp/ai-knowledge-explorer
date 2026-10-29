@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from app.repository import KnowledgeRepository
 from app.reviewed_claims import apply_reviewed_claims
 from app.schemas import Claim, Evidence
@@ -12,6 +14,8 @@ CORRECTIONS = DATA / "reviewed_claim_corrections.v1.json"
 def reviewed_snapshot():
     snapshot = KnowledgeRepository(DATA / "demo_snapshot.json").load_seed().model_copy(deep=True)
     rows = json.loads(CORRECTIONS.read_text(encoding="utf-8"))["corrections"]
+    reviewed_ids = {row["expectedClaim"]["id"] for row in rows}
+    snapshot.claims = [claim for claim in snapshot.claims if claim.id not in reviewed_ids]
     snapshot.claims.extend(Claim.model_validate(row["expectedClaim"]) for row in rows)
     sources = {source.id: source for source in snapshot.evidence}
     for row in rows:
@@ -46,3 +50,45 @@ def test_future_admin_claim_or_evidence_edits_are_never_overwritten():
     apply_reviewed_claims(snapshot, CORRECTIONS)
     assert claim in snapshot.claims
     assert next(c for c in snapshot.claims if c.id == other.id) == other
+
+
+def test_historical_scope_and_named_models_replace_false_current_family_facts():
+    snapshot = reviewed_snapshot()
+    apply_reviewed_claims(snapshot, CORRECTIONS)
+    claims = {claim.id: claim for claim in snapshot.claims}
+    sonnet = claims["claim-54173b7c1f419463ec41"]
+    assert sonnet.entity_id == "e-claude-sonnet-37"
+    assert sonnet.predicate == "historical-output-price"
+    assert sonnet.valid_from == "2025-02-24"
+    assert "historical" in sonnet.text.en
+    assert claims["claim-40ad28900a9d0211f2bc"].entity_id == "e-gpt-55"
+    assert claims["claim-28fcfd19ccddc7866cb1"].entity_id == "e-gpt-53-codex"
+    assert "provider" in claims["claim-9ff929450ae6107ea8c3"].text.en
+    assert "Transformers integration" in claims["claim-34e6cc0b74ae79994342"].text.en
+    assert "24 prompt styles" in claims["claim-122fcba89c1ea7b5ed5f"].text.en
+    negative = claims["c-gemini-4-not-released"]
+    assert negative.confidence == "unverified" and negative.valid_to == "2026-10-12"
+
+
+def test_added_citation_is_guarded_and_future_source_edits_win():
+    snapshot = reviewed_snapshot()
+    cid = "claim-decision-critical-ddc2ad5233ddc684adce"
+    original = next(claim for claim in snapshot.claims if claim.id == cid).model_copy(deep=True)
+    added = next(source for source in snapshot.evidence if source.id == "s-gpt-6-1-sol-20261001")
+    added.source_excerpt = "A later administrator review changed this evidence."
+    apply_reviewed_claims(snapshot, CORRECTIONS)
+    assert next(claim for claim in snapshot.claims if claim.id == cid) == original
+
+
+@pytest.mark.parametrize("invalid_change", ["remove-original", "unguarded-addition"])
+def test_corrections_reject_evidence_removal_or_unguarded_additions(tmp_path, invalid_change):
+    row = json.loads(CORRECTIONS.read_text(encoding="utf-8"))["corrections"][0]
+    row["correctedClaim"]["sourceIds"] = (
+        []
+        if invalid_change == "remove-original"
+        else [*row["expectedClaim"]["sourceIds"], "unreviewed-source"]
+    )
+    path = tmp_path / "invalid.json"
+    path.write_text(json.dumps({"corrections": [row]}), encoding="utf-8")
+    with pytest.raises(ValueError, match="remove|exact evidence guard"):
+        apply_reviewed_claims(reviewed_snapshot(), path)

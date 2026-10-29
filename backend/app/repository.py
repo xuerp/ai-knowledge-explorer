@@ -379,26 +379,8 @@ class KnowledgeRepository:
 
         known_source_ids = set(session.scalars(select(SourceRecord.id)).all())
         known_source_urls = set(session.scalars(select(SourceRecord.url)).all())
-        for evidence in seed.evidence:
-            normalized_url = evidence.url.rstrip("/")
-            if evidence.id in known_source_ids or normalized_url in known_source_urls:
-                continue
-            session.add(
-                SourceRecord(
-                    id=evidence.id,
-                    url=normalized_url,
-                    title=evidence.title.zh,
-                    publisher=evidence.publisher,
-                    active=True,
-                    fetch_enabled=False,
-                    fetch_interval_minutes=240,
-                    next_fetch_at=None,
-                    created_at=now,
-                )
-            )
-            known_source_ids.add(evidence.id)
-            known_source_urls.add(normalized_url)
-
+        # Stable collector IDs win URL deduplication; adding a public evidence
+        # fragment must not remove a scheduled collector on a fresh database.
         for machine_source in MACHINE_SOURCE_CATALOG:
             normalized_url = str(machine_source["url"]).rstrip("/")
             source_id = str(machine_source["id"])
@@ -418,6 +400,26 @@ class KnowledgeRepository:
                 )
             )
             known_source_ids.add(source_id)
+            known_source_urls.add(normalized_url)
+
+        for evidence in seed.evidence:
+            normalized_url = evidence.url.rstrip("/")
+            if evidence.id in known_source_ids or normalized_url in known_source_urls:
+                continue
+            session.add(
+                SourceRecord(
+                    id=evidence.id,
+                    url=normalized_url,
+                    title=evidence.title.zh,
+                    publisher=evidence.publisher,
+                    active=True,
+                    fetch_enabled=False,
+                    fetch_interval_minutes=240,
+                    next_fetch_at=None,
+                    created_at=now,
+                )
+            )
+            known_source_ids.add(evidence.id)
             known_source_urls.add(normalized_url)
 
         for source_id, canonical_url in CANONICAL_SOURCE_URL_MIGRATIONS.items():
@@ -445,6 +447,18 @@ class KnowledgeRepository:
             placeholder.active = False
             placeholder.fetch_enabled = False
             placeholder.next_fetch_at = None
+
+        # The old LangGraph site is a migration page. Keep its row as history;
+        # the canonical overview is independently seeded under its reviewed ID.
+        legacy_langgraph = session.get(SourceRecord, "s-langgraph-overview")
+        if (
+            legacy_langgraph is not None
+            and legacy_langgraph.url == "https://langchain-ai.github.io/langgraph/index.html"
+            and legacy_langgraph.title == "LangGraph 官方概览"
+        ):
+            legacy_langgraph.active = False
+            legacy_langgraph.fetch_enabled = False
+            legacy_langgraph.next_fetch_at = None
 
         # These are narrow, one-way migrations for locally seeded records. They
         # never overwrite administrator-maintained fields or aliases.

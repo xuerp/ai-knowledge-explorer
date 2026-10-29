@@ -6860,21 +6860,21 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "前代推理、代码与 Agent 型号；当前文档建议评估更新的 GPT-6。",
-        "en": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6."
+        "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+        "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5"],
       "latestVersion": null,
       "firstReleasedAt": "2025-08-07",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "contextWindow": "400,000 context · 128,000 max output tokens",
         "inputPrice": "$1.25 / 1M text tokens",
         "outputPrice": "$10 / 1M text tokens",
         "modalities": "文本与图像输入 · 文本输出",
         "toolUse": null,
-        "availability": "OpenAI"
+        "availability": "已弃用；API 计划于 2026-12-11 停服，账号权限另核对"
       },
       "capabilities": [
         {
@@ -6890,7 +6890,7 @@
         "variant": "GPT-5",
         "releaseId": "gpt-5",
         "apiModelIds": ["gpt-5"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5",
           "name": {
@@ -6904,7 +6904,7 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-08-07",
-        "lastVerifiedAt": "2026-10-01",
+        "lastVerifiedAt": "2026-10-29",
         "accessChannels": [
           {
             "type": "official-api",
@@ -6912,13 +6912,14 @@
             "modelId": "gpt-5",
             "url": "https://developers.openai.com/api/docs/models/gpt-5"
           }
-        ]
+        ],
+        "retirementNotBefore": "2026-12-11"
       },
       "knowledge": {
         "introduction": [
           {
-            "zh": "前代推理、代码与 Agent 型号；当前文档建议评估更新的 GPT-6。",
-            "en": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6."
+            "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+            "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
           }
         ],
         "significance": {
@@ -6936,6 +6937,17 @@
               "en": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6."
             },
             "sourceIds": ["s-gpt-5-20261001"]
+          },
+          {
+            "title": {
+              "zh": "弃用与迁移",
+              "en": "Deprecation and migration"
+            },
+            "description": {
+              "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+              "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+            },
+            "sourceIds": ["s-openai-deprecations-20261029"]
           }
         ],
         "useCases": [
@@ -17179,21 +17191,21 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5 mini：GPT-5 mini 属于该数字代际的 Mini 版本。",
-        "en": "GPT-5 mini is a documented historical release in the GPT-5 line."
+        "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+        "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5"],
       "latestVersion": null,
       "firstReleasedAt": "2025-08-07",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "contextWindow": "400,000 tokens · max output 128,000",
         "inputPrice": "$0.25 / 1M tokens (text)",
         "outputPrice": "$2 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "已弃用；API 计划于 2026-12-11 停服，账号权限另核对"
       },
       "capabilities": [
         {
@@ -17209,7 +17221,7 @@
         "variant": "Mini",
         "releaseId": "gpt-5-mini",
         "apiModelIds": ["gpt-5-mini"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5",
           "name": {
@@ -17223,14 +17235,15 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-08-07",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-29",
+        "accessChannels": [],
+        "retirementNotBefore": "2026-12-11"
       },
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5 mini：GPT-5 mini 属于该数字代际的 Mini 版本。",
-            "en": "GPT-5 mini is a documented historical release in the GPT-5 line."
+            "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+            "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
           }
         ],
         "significance": {
@@ -17259,6 +17272,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-5-mini"]
+          },
+          {
+            "title": {
+              "zh": "弃用与迁移",
+              "en": "Deprecation and migration"
+            },
+            "description": {
+              "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+              "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+            },
+            "sourceIds": ["s-openai-deprecations-20261029"]
           }
         ],
         "useCases": [
@@ -17325,21 +17349,21 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5 nano：GPT-5 nano 属于该数字代际的 Nano 版本。",
-        "en": "GPT-5 nano is a documented historical release in the GPT-5 line."
+        "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+        "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5"],
       "latestVersion": null,
       "firstReleasedAt": "2025-08-07",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "contextWindow": "400,000 tokens · max output 128,000",
         "inputPrice": "$0.05 / 1M tokens (text)",
         "outputPrice": "$0.4 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "已弃用；API 计划于 2026-12-11 停服，账号权限另核对"
       },
       "capabilities": [
         {
@@ -17355,7 +17379,7 @@
         "variant": "Nano",
         "releaseId": "gpt-5-nano",
         "apiModelIds": ["gpt-5-nano"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5",
           "name": {
@@ -17369,14 +17393,15 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-08-07",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-29",
+        "accessChannels": [],
+        "retirementNotBefore": "2026-12-11"
       },
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5 nano：GPT-5 nano 属于该数字代际的 Nano 版本。",
-            "en": "GPT-5 nano is a documented historical release in the GPT-5 line."
+            "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+            "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
           }
         ],
         "significance": {
@@ -17405,6 +17430,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-5-nano"]
+          },
+          {
+            "title": {
+              "zh": "弃用与迁移",
+              "en": "Deprecation and migration"
+            },
+            "description": {
+              "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+              "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+            },
+            "sourceIds": ["s-openai-deprecations-20261029"]
           }
         ],
         "useCases": [
@@ -30659,8 +30695,8 @@
         "en": "MiniMax M2.7"
       },
       "summary": {
-        "zh": "MiniMax M2.7：2026-03-18发布，官方列有API与权重入口；当前权重商用须另获书面授权，价格与实际部署成本未核实。",
-        "en": "MiniMax M2.7: released March 18, 2026 with official API and weight-access references; commercial weight use requires prior written authorization and current price/hosting cost remains unverified."
+        "zh": "MiniMax M2.7 于 2026-03-18 发布，历史资料提供 API 与权重入口；当前 API 目录未列出该版本，权重商用须书面授权，当前账号接入及成本待核实。",
+        "en": "MiniMax M2.7 was released on 2026-03-18 with API and weight references. It is absent from the current API catalog; commercial weight use requires written authorization, and current account access and cost remain unverified."
       },
       "vendor": "MiniMax",
       "origin": {
@@ -30671,7 +30707,7 @@
       "tags": ["LLM", "M2"],
       "latestVersion": null,
       "firstReleasedAt": "2026-03-18",
-      "lastUpdatedAt": "2026-10-07",
+      "lastUpdatedAt": "2026-10-29",
       "aliases": ["MiniMax-M2.7", "M2.7"],
       "familyId": "e-minimax",
       "release": {
@@ -30691,17 +30727,11 @@
             "en": "MiniMax M2 series: check API, workflows, weight licenses and costs per version."
           }
         },
-        "catalogCurrent": true,
+        "catalogCurrent": false,
         "releasedAt": "2026-03-18",
         "retirementNotBefore": null,
         "lastVerifiedAt": "2026-10-07",
         "accessChannels": [
-          {
-            "type": "official-api",
-            "provider": "MiniMax",
-            "modelId": "MiniMax-M2.7",
-            "url": "https://platform.minimax.io/docs/guides/models-intro"
-          },
           {
             "type": "open-weights",
             "provider": "MiniMax",
@@ -30716,15 +30746,15 @@
         "outputPrice": null,
         "modalities": null,
         "toolUse": null,
-        "availability": "官方API / 权重下载（商用须书面授权）"
+        "availability": "历史发布提供 API 入口；当前 API 可用性未核实"
       },
       "capabilities": null,
       "metrics": null,
       "knowledge": {
         "introduction": [
           {
-            "zh": "MiniMax M2.7：2026-03-18发布，官方列有API与权重入口；当前权重商用须另获书面授权，价格与实际部署成本未核实。",
-            "en": "MiniMax M2.7: released March 18, 2026 with official API and weight-access references; commercial weight use requires prior written authorization and current price/hosting cost remains unverified."
+            "zh": "MiniMax M2.7 于 2026-03-18 发布，历史资料提供 API 与权重入口；当前 API 目录未列出该版本，权重商用须书面授权，当前账号接入及成本待核实。",
+            "en": "MiniMax M2.7 was released on 2026-03-18 with API and weight references. It is absent from the current API catalog; commercial weight use requires written authorization, and current account access and cost remain unverified."
           }
         ],
         "significance": {
@@ -30790,8 +30820,8 @@
         "en": "MiniMax M2.5"
       },
       "summary": {
-        "zh": "MiniMax M2.5：2026-02-12发布，当前API目录列于Legacy Models；历史列表不等于已退役，未收录已核实的当前价格或权重许可。",
-        "en": "MiniMax M2.5: released February 12, 2026 and currently listed under Legacy Models in the API catalogue; legacy does not establish retirement, and current pricing/weight-license terms remain unverified here."
+        "zh": "MiniMax M2.5 于 2026-02-12 发布并提供 API 入口；2026-10-29 当前目录未列出，不能继续断言位于 Legacy Models，也不能据此推断已下线。",
+        "en": "MiniMax M2.5 was released on 2026-02-12 with an API link. It is absent from the 2026-10-29 current catalog; neither a current Legacy Models listing nor shutdown is established."
       },
       "vendor": "MiniMax",
       "origin": {
@@ -30802,7 +30832,7 @@
       "tags": ["LLM", "M2"],
       "latestVersion": null,
       "firstReleasedAt": "2026-02-12",
-      "lastUpdatedAt": "2026-10-07",
+      "lastUpdatedAt": "2026-10-29",
       "aliases": ["MiniMax-M2.5", "M2.5"],
       "familyId": "e-minimax",
       "release": {
@@ -30822,18 +30852,11 @@
             "en": "MiniMax M2 series: check API, workflows, weight licenses and costs per version."
           }
         },
-        "catalogCurrent": true,
+        "catalogCurrent": false,
         "releasedAt": "2026-02-12",
         "retirementNotBefore": null,
         "lastVerifiedAt": "2026-10-07",
-        "accessChannels": [
-          {
-            "type": "official-api",
-            "provider": "MiniMax",
-            "modelId": "MiniMax-M2.5",
-            "url": "https://platform.minimax.io/docs/guides/models-intro"
-          }
-        ]
+        "accessChannels": []
       },
       "specs": {
         "contextWindow": null,
@@ -30841,15 +30864,15 @@
         "outputPrice": null,
         "modalities": null,
         "toolUse": null,
-        "availability": "官方API；M2.5列于Legacy Models"
+        "availability": "历史发布提供 API 入口；当前 API 可用性未核实"
       },
       "capabilities": null,
       "metrics": null,
       "knowledge": {
         "introduction": [
           {
-            "zh": "MiniMax M2.5：2026-02-12发布，当前API目录列于Legacy Models；历史列表不等于已退役，未收录已核实的当前价格或权重许可。",
-            "en": "MiniMax M2.5: released February 12, 2026 and currently listed under Legacy Models in the API catalogue; legacy does not establish retirement, and current pricing/weight-license terms remain unverified here."
+            "zh": "MiniMax M2.5 于 2026-02-12 发布并提供 API 入口；2026-10-29 当前目录未列出，不能继续断言位于 Legacy Models，也不能据此推断已下线。",
+            "en": "MiniMax M2.5 was released on 2026-02-12 with an API link. It is absent from the 2026-10-29 current catalog; neither a current Legacy Models listing nor shutdown is established."
           }
         ],
         "significance": {
@@ -30874,8 +30897,8 @@
               "en": "API and legacy catalogue"
             },
             "description": {
-              "zh": "MiniMax M2.5 发布稿提供官方API入口，当前官方目录将其列于Legacy Models；未据此断言已停止服务。",
-              "en": "MiniMax M2.5's release links official API access and the current catalogue lists it under Legacy Models; this does not establish end of service."
+              "zh": "MiniMax 于 2026-02-12 的 M2.5 发布文章提供了官方 API 入口。2026-10-29 的当前模型目录未列出 M2.5，不能继续断言其位于 Legacy Models；目录缺席也不证明服务已下线。当前账号可用性待核实。",
+              "en": "MiniMax’s 2026-02-12 M2.5 release post linked official API access. The model is absent from the 2026-10-29 current catalog, so a current Legacy Models listing is not established. Absence alone does not prove shutdown; current account access remains unverified."
             },
             "sourceIds": ["s-minimax12h-m25-access-0", "s-minimax12h-m25-access-1"]
           },
@@ -30915,8 +30938,8 @@
         "en": "MiniMax"
       },
       "summary": {
-        "zh": "MiniMax模型家族：分别记录M3、M3.1 Flash Preview、M2.7与历史目录M2.5；阶段、入口、权重许可和价格按版本核对。",
-        "en": "MiniMax family: separate M3, M3.1 Flash Preview, M2.7 and legacy-listed M2.5; availability, access, weight licensing and prices are checked per version."
+        "zh": "MiniMax 模型家族：分别记录 M3、M3.1 Flash Preview 及历史 M2.7、M2.5；当前 API 目录未列出这两个 M2 版本，不能据此推断已下线。",
+        "en": "MiniMax family: separate M3, M3.1 Flash Preview and historical M2.7/M2.5 records; the two M2 versions are absent from the current API catalog, which alone does not establish shutdown."
       },
       "vendor": "MiniMax",
       "origin": {
@@ -30927,7 +30950,7 @@
       "tags": ["LLM", "推理", "代码", "开放权重"],
       "latestVersion": "M3 / M3.1 Flash Preview（本轮核验）",
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-07",
+      "lastUpdatedAt": "2026-10-29",
       "aliases": null,
       "familyId": null,
       "release": null,
@@ -30937,8 +30960,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "MiniMax模型家族：分别记录M3、M3.1 Flash Preview、M2.7与历史目录M2.5；阶段、入口、权重许可和价格按版本核对。",
-            "en": "MiniMax family: separate M3, M3.1 Flash Preview, M2.7 and legacy-listed M2.5; availability, access, weight licensing and prices are checked per version."
+            "zh": "MiniMax 模型家族：分别记录 M3、M3.1 Flash Preview 及历史 M2.7、M2.5；当前 API 目录未列出这两个 M2 版本，不能据此推断已下线。",
+            "en": "MiniMax family: separate M3, M3.1 Flash Preview and historical M2.7/M2.5 records; the two M2 versions are absent from the current API catalog, which alone does not establish shutdown."
           }
         ],
         "significance": {
@@ -30985,8 +31008,8 @@
               "en": "M2 licensing and legacy catalogue"
             },
             "description": {
-              "zh": "M2.7权重商用须书面授权；M2.5在Legacy列表，不能把M3参数或许可套到M2版本。",
-              "en": "M2.7 weight commercial use needs written authorization; M2.5 is legacy-listed. M3 parameters or licensing do not apply to M2 versions."
+              "zh": "M2.7 权重商用须书面授权；当前 API 目录未列出 M2.7/M2.5，当前账号接入仍待核实。M3 的参数或许可不能套用到 M2。",
+              "en": "M2.7 commercial weight use requires written authorization. M2.7/M2.5 are absent from the current API catalog and account access remains unverified; M3 parameters and licenses do not apply to M2."
             },
             "sourceIds": ["s-minimax12h-m27-licensed-under-0", "s-minimax12h-m25-access-1"]
           }
@@ -31311,8 +31334,8 @@
         "en": "TraeCode"
       },
       "summary": {
-        "zh": "融合代码编辑、项目理解、运行调试和变更管理的 AI 开发工具，提供 IDE 与 SOLO 两种模式。",
-        "en": "An AI development tool for editing, project understanding, debugging and change management, with IDE and SOLO modes."
+        "zh": "中国版入口：TraeCode 的现有官方入口已升级为融合 TraeCode 与 TraeWork 的 TRAE，提供桌面 Agent/IDE 窗口及网页、移动入口；保留旧名称以便查阅历史。",
+        "en": "Chinese-edition entry: The former TraeCode entry now documents unified TRAE, combining TraeCode and TraeWork with desktop Agent/IDE windows and web/mobile access; the old name is retained for historical navigation."
       },
       "vendor": "TRAE",
       "origin": {
@@ -31323,8 +31346,8 @@
       "tags": ["编程", "IDE", "Agent"],
       "latestVersion": null,
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-03",
-      "aliases": ["Trae", "TRAE IDE"],
+      "lastUpdatedAt": "2026-10-29",
+      "aliases": ["Trae", "TRAE IDE", "TRAE"],
       "familyId": null,
       "release": null,
       "specs": null,
@@ -31333,8 +31356,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "融合代码编辑、项目理解、运行调试和变更管理的 AI 开发工具，提供 IDE 与 SOLO 两种模式。",
-            "en": "An AI development tool for editing, project understanding, debugging and change management, with IDE and SOLO modes."
+            "zh": "中国版入口：TraeCode 的现有官方入口已升级为融合 TraeCode 与 TraeWork 的 TRAE，提供桌面 Agent/IDE 窗口及网页、移动入口；保留旧名称以便查阅历史。",
+            "en": "Chinese-edition entry: The former TraeCode entry now documents unified TRAE, combining TraeCode and TraeWork with desktop Agent/IDE windows and web/mobile access; the old name is retained for historical navigation."
           }
         ],
         "significance": {
@@ -31348,8 +31371,8 @@
               "en": "Development modes"
             },
             "description": {
-              "zh": "IDE 模式保留编辑器工作流；SOLO 模式让智能体规划和推进任务。",
-              "en": "IDE retains editor workflows; SOLO lets agents plan and execute tasks."
+              "zh": "当前 TRAE 桌面端具有 Agent 与 IDE 窗口；IDE 窗口内再分 IDE 与 SOLO 模式。",
+              "en": "Current TRAE desktop has Agent and IDE windows; IDE and SOLO are modes within the IDE window."
             },
             "sourceIds": ["s-traecode-overview"]
           },
@@ -31406,6 +31429,14 @@
           {
             "zh": "AI 生成的代码、命令和变更仍需测试与审查。",
             "en": "Generated code, commands and changes require testing and review."
+          },
+          {
+            "zh": "官方已公告产品融合；旧版界面和模式不可直接当作当前入口，准确迁移日期未核实。",
+            "en": "A product merger is announced; old interfaces and modes do not establish current access, and the exact migration date has not been established."
+          },
+          {
+            "zh": "本页中国版资料与国际站的产品、套餐和模式分别判断；不把一个地区的升级公告套到另一地区。",
+            "en": "Chinese-edition documentation and international-site products, plans and modes are assessed separately; a regional upgrade does not establish changes in another region."
           }
         ],
         "officialUrl": "https://www.trae.cn/",
@@ -31808,6 +31839,339 @@
       },
       "latestVersion": null,
       "metrics": []
+    },
+    {
+      "id": "e-langgraph",
+      "type": "framework",
+      "slug": "langgraph",
+      "name": {
+        "zh": "LangGraph",
+        "en": "LangGraph"
+      },
+      "summary": {
+        "zh": "用于构建、管理和部署长运行、有状态 Agent 的低层编排框架与运行时。",
+        "en": "Low-level orchestration framework and runtime for long-running, stateful agents."
+      },
+      "vendor": "LangChain",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
+      },
+      "status": "active",
+      "tags": ["框架", "编排", "状态机"],
+      "latestVersion": null,
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-29",
+      "aliases": ["Lang Graph"],
+      "familyId": null,
+      "release": null,
+      "specs": null,
+      "capabilities": [
+        {
+          "zh": "持久执行",
+          "en": "Durable execution",
+          "confidence": "verified"
+        },
+        {
+          "zh": "人工介入",
+          "en": "Human-in-the-loop",
+          "confidence": "verified"
+        },
+        {
+          "zh": "状态管理",
+          "en": "State management",
+          "confidence": "verified"
+        }
+      ],
+      "metrics": null,
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "LangGraph 是面向复杂、有状态 Agent 的低层编排框架。",
+            "en": "LangGraph is a low-level orchestration framework for complex, stateful agents."
+          },
+          {
+            "zh": "它可以独立使用，也常与 LangChain 组件配合；应根据是否需要持久执行和精细状态控制选择。",
+            "en": "It can be used standalone or with LangChain components; choose it when durable execution and fine-grained state control matter."
+          }
+        ],
+        "significance": {
+          "zh": "LangGraph 将 Agent 工作流中的状态、恢复和人工介入显式化。",
+          "en": "LangGraph makes agent workflow state, recovery and human intervention explicit."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "低层编排",
+              "en": "Low-level orchestration"
+            },
+            "description": {
+              "zh": "官方概览将其定位为 Agent 编排运行时。",
+              "en": "The official overview positions it as an agent orchestration runtime."
+            },
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          },
+          {
+            "title": {
+              "zh": "持久与状态",
+              "en": "Durability and state"
+            },
+            "description": {
+              "zh": "重点能力包括持久执行、流式处理、人工介入和记忆。",
+              "en": "Highlighted capabilities include durable execution, streaming, human oversight and memory."
+            },
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          },
+          {
+            "title": {
+              "zh": "可独立使用",
+              "en": "Standalone use"
+            },
+            "description": {
+              "zh": "使用 LangGraph 不要求同时采用 LangChain。",
+              "en": "Using LangGraph does not require adopting LangChain."
+            },
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "长流程 Agent",
+              "en": "Long-running agents"
+            },
+            "description": {
+              "zh": "处理可恢复、可暂停的多步骤工作流。",
+              "en": "Handle resumable, pausable multi-step workflows."
+            }
+          },
+          {
+            "title": {
+              "zh": "人工审批",
+              "en": "Human approvals"
+            },
+            "description": {
+              "zh": "在关键状态节点加入人工审核。",
+              "en": "Add human approval at critical state transitions."
+            }
+          },
+          {
+            "title": {
+              "zh": "可观测编排",
+              "en": "Observable orchestration"
+            },
+            "description": {
+              "zh": "查看 Agent 状态与流程路径，辅助调试。",
+              "en": "Inspect agent state and paths to support debugging."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "低层抽象需要团队自行设计状态和错误处理。",
+            "en": "Low-level abstractions require teams to design their own state and error handling."
+          },
+          {
+            "zh": "框架本身不保证底层模型事实正确。",
+            "en": "The framework itself does not guarantee factual correctness from the underlying model."
+          }
+        ],
+        "officialUrl": "https://docs.langchain.com/oss/python/langgraph/overview",
+        "sections": [
+          {
+            "id": "reference-1",
+            "title": {
+              "zh": "状态与编排",
+              "en": "State and orchestration"
+            },
+            "summary": {
+              "zh": "面向有状态、长运行 Agent 的低层编排与运行时。",
+              "en": "A low-level runtime and orchestration layer for stateful, long-running agents."
+            },
+            "items": [
+              {
+                "zh": "先定义共享状态、节点职责和边，再设计执行流。",
+                "en": "Define shared state, node responsibilities and edges before execution flow."
+              },
+              {
+                "zh": "把任务进度与下一步决策显式记录在状态中。",
+                "en": "Record task progress and next-step decisions explicitly in state."
+              }
+            ],
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          },
+          {
+            "id": "reference-2",
+            "title": {
+              "zh": "恢复与人工介入",
+              "en": "Recovery and human intervention"
+            },
+            "summary": {
+              "zh": "运行控制需要结合持久化、恢复和人工介入设计。",
+              "en": "Design execution control around persistence, recovery and human intervention."
+            },
+            "items": [
+              {
+                "zh": "明确中断点、状态存储与失败重试策略。",
+                "en": "Define interruption points, state storage and retries."
+              },
+              {
+                "zh": "恢复执行前核对外部操作是否已经发生，避免重复副作用。",
+                "en": "Check whether external operations already happened before resuming."
+              }
+            ],
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          },
+          {
+            "id": "reference-3",
+            "title": {
+              "zh": "采用场景",
+              "en": "Adoption scenarios"
+            },
+            "summary": {
+              "zh": "适合需要精细控制状态与执行路径的 Agent 系统。",
+              "en": "Suits agents needing explicit state and execution-path control."
+            },
+            "items": [
+              {
+                "zh": "简单一次问答不一定需要图编排；按流程复杂度选择。",
+                "en": "One-shot chat may not need graph orchestration; choose based on workflow complexity."
+              },
+              {
+                "zh": "用中断、恢复和工具失败场景验证系统。",
+                "en": "Validate interruption, recovery and tool-failure scenarios."
+              }
+            ],
+            "sourceIds": ["s-langgraph-overview-20261029"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "e-traework",
+      "type": "application",
+      "slug": "traework",
+      "name": {
+        "zh": "TraeWork",
+        "en": "TraeWork"
+      },
+      "summary": {
+        "zh": "中国版入口：TraeWork 是现已升级为 TRAE 的历史产品入口。旧概览保留桌面、网页、移动和云端任务说明；当前功能应在新版 TRAE 核对。",
+        "en": "Chinese-edition entry: TraeWork is a historical product entry now upgraded to TRAE. Its old overview retains desktop, web, mobile and cloud-task descriptions; current features should be checked in unified TRAE."
+      },
+      "vendor": "TRAE",
+      "origin": {
+        "zh": "国内",
+        "en": "Domestic"
+      },
+      "status": "active",
+      "tags": ["办公", "研究", "Agent"],
+      "latestVersion": null,
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-29",
+      "aliases": null,
+      "familyId": null,
+      "release": null,
+      "specs": null,
+      "capabilities": null,
+      "metrics": null,
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "中国版入口：TraeWork 是现已升级为 TRAE 的历史产品入口。旧概览保留桌面、网页、移动和云端任务说明；当前功能应在新版 TRAE 核对。",
+            "en": "Chinese-edition entry: TraeWork is a historical product entry now upgraded to TRAE. Its old overview retains desktop, web, mobile and cloud-task descriptions; current features should be checked in unified TRAE."
+          }
+        ],
+        "significance": {
+          "zh": "按任务、使用入口和权限范围比较，并查看原始资料。",
+          "en": "Compare task fit, interfaces and permissions using original sources."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "产品迁移",
+              "en": "Product migration"
+            },
+            "description": {
+              "zh": "旧 TraeWork 概览提示已升级为 TRAE；不把两者继续呈现为当前互相独立的产品。",
+              "en": "The old TraeWork overview announces its upgrade to TRAE; they are not presented as currently independent products."
+            },
+            "sourceIds": ["s-traework-overview", "s-traecode-overview"]
+          },
+          {
+            "title": {
+              "zh": "旧版运行说明",
+              "en": "Historical execution surfaces"
+            },
+            "description": {
+              "zh": "旧概览记录桌面、网页、移动入口和云端隔离环境；这是旧产品说明，当前权限与模式需要重新核对。",
+              "en": "The former overview documents desktop, web, mobile and isolated cloud environments; current permissions and modes require a fresh check."
+            },
+            "sourceIds": ["s-traework-overview"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "办公协作",
+              "en": "Office collaboration"
+            },
+            "description": {
+              "zh": "检查文档、数据和演示稿的最终成果。",
+              "en": "Review final documents, data and presentations."
+            }
+          },
+          {
+            "title": {
+              "zh": "跨设备任务",
+              "en": "Cross-device tasks"
+            },
+            "description": {
+              "zh": "从不同入口下发、查看并验收任务。",
+              "en": "Assign, monitor and review tasks across interfaces."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "旧模式说明不能作为新版功能承诺；产品升级也不证明特定账号已经可用。",
+            "en": "Former modes do not promise current features; the upgrade announcement does not establish access for a specific account."
+          },
+          {
+            "zh": "具体迁移日期与旧入口停止服务日期尚未核实，不编造下线事件。",
+            "en": "The exact migration and old-service shutdown dates are not established; no shutdown event is invented."
+          },
+          {
+            "zh": "本页中国版资料与国际站的产品、套餐和模式分别判断；不把一个地区的升级公告套到另一地区。",
+            "en": "Chinese-edition documentation and international-site products, plans and modes are assessed separately; a regional upgrade does not establish changes in another region."
+          }
+        ],
+        "officialUrl": "https://work.trae.cn/",
+        "sections": [
+          {
+            "id": "product-migration",
+            "title": {
+              "zh": "从旧入口迁移",
+              "en": "Migration from the former product"
+            },
+            "summary": {
+              "zh": "官方将 TraeCode 与 TraeWork 融合为 TRAE。",
+              "en": "The vendor has combined TraeCode and TraeWork into TRAE."
+            },
+            "items": [
+              {
+                "zh": "保留旧 ID 与来源，便于查阅历史；不宣称原 Work、Code、Design 模式仍在所有入口提供。",
+                "en": "Old IDs and sources are retained for history; continued Work, Code and Design modes across all interfaces are not established."
+              },
+              {
+                "zh": "在新版入口核对账号、套餐、执行位置、工具权限和数据边界。",
+                "en": "Check the account, plan, execution location, tool permissions and data boundaries in the new interface."
+              }
+            ],
+            "sourceIds": ["s-traecode-overview", "s-traework-overview"]
+          }
+        ]
+      }
     }
   ],
   "evidence": [
@@ -39558,6 +39922,50 @@
       "sourceExcerptKind": "summary",
       "originalLanguage": "en",
       "supportsClaimIds": []
+    },
+    {
+      "id": "s-langgraph-overview-20261029",
+      "title": {
+        "zh": "LangGraph 官方概览（2026-10-29 核对）",
+        "en": "LangGraph 官方概览（2026-10-29 核对）"
+      },
+      "url": "https://docs.langchain.com/oss/python/langgraph/overview",
+      "publisher": "LangChain",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "sourceExcerpt": "LangGraph is a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents. LangChain is optional.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-langgraph-framework"],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-openai-deprecations-20261029",
+      "title": {
+        "zh": "OpenAI API 弃用与下线表（2026-10-29 核对）",
+        "en": "OpenAI API 弃用与下线表（2026-10-29 核对）"
+      },
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "sourceExcerpt": "June 11, 2026: GPT-5, GPT-5 mini and GPT-5 nano deprecated, with API shutdown on Dec 11, 2026; recommended replacements are GPT-5.6 Sol, Terra and Luna respectively. GPT-5.4-Cyber was deprecated Sep 11 and shut down Oct 1; the table recommends the most capable cyber model available to the user.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-gpt-5-catalog-review",
+        "claim-417d947b17923a7013dd",
+        "claim-5b0beb72ee5957a5a295",
+        "claim-c7b51e84727929c4600e",
+        "c-deprecation-e-gpt-5-20260611",
+        "c-deprecation-e-gpt-5-mini-20260611",
+        "c-deprecation-e-gpt-5-nano-20260611"
+      ],
+      "contradictsClaimIds": null
     }
   ],
   "claims": [
@@ -39644,17 +40052,19 @@
       "id": "c-gemini-4-not-released",
       "entityId": "e-gemini-4-pending",
       "text": {
-        "zh": "截至 2026-09-29，Google Gemini API 官方型号目录未列出 Gemini 4，尚无可核验的正式 API 型号和规格。",
-        "en": "As of 2026-09-29, Google's official Gemini API model catalog does not list Gemini 4, and no verifiable production API model or specifications are available."
+        "zh": "历史记录曾声称截至 2026-09-29 Gemini 4 尚未列入官方目录，但未保留当日原文，无法复核这一否定判断。此记录保留为未核验历史；2026-10-13 的 Gemini 4 Argon 正式发布另有官方证据。",
+        "en": "An earlier record asserted that Gemini 4 was absent from the official catalog on 2026-09-29, but no original body capture was retained to verify that negative assertion. It remains an unverified historical record; the 2026-10-13 Gemini 4 Argon release has separate official evidence.",
+        "technical": null
       },
-      "confidence": "verified",
+      "confidence": "unverified",
       "sourceIds": ["s-google-gemini-model-catalog-2026-09-29"],
-      "updatedAt": "2026-09-29",
-      "observedAt": "2026-09-29",
+      "updatedAt": "2026-10-29",
       "subject": "Gemini 4",
-      "predicate": "official-release-status",
-      "objectOrValue": "not-officially-listed-as-of-2026-09-29",
-      "validTo": "2026-10-12"
+      "predicate": "unverified-historical-release-status",
+      "objectOrValue": "historical absence assertion lacks original capture",
+      "validFrom": null,
+      "validTo": "2026-10-12",
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-deepseek-v4-pro-official-specs",
@@ -39779,18 +40189,19 @@
       "id": "c-gpt-5-catalog-review",
       "entityId": "e-gpt-5",
       "text": {
-        "zh": "前代推理、代码与 Agent 型号；当前文档建议评估更新的 GPT-6。",
-        "en": "Previous reasoning, coding and agent model; current docs recommend evaluating GPT-6."
+        "zh": "GPT-5 是早期推理、编程与 Agent 型号。OpenAI 于 2026-06-11 宣布弃用，计划 2026-12-11 停止 API 服务；当前型号页建议评估 GPT-6 Astra，弃用表的迁移建议为 GPT-5.6 Sol。",
+        "en": "GPT-5 is an earlier reasoning, coding and agent model. OpenAI announced deprecation on 2026-06-11 with API shutdown scheduled for 2026-12-11; the model page suggests GPT-6 Astra, while the deprecation table recommends GPT-5.6 Sol.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-gpt-5-20261001", "s-gpt5-launch-reviewed"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2026-10-01",
-      "validTo": null,
+      "sourceIds": ["s-gpt-5-20261001", "s-gpt5-launch-reviewed", "s-openai-deprecations-20261029"],
+      "updatedAt": "2026-10-29",
       "subject": "GPT-5",
       "predicate": "catalog-review",
-      "objectOrValue": "gpt-5"
+      "objectOrValue": "gpt-5",
+      "validFrom": "2026-10-01",
+      "validTo": null,
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-gpt-4o-catalog-review",
@@ -43684,19 +44095,19 @@
       "id": "claim-minimax12h-m27-part-of",
       "entityId": "e-minimax-m2-7",
       "text": {
-        "zh": "MiniMax M2.7 登记为MiniMax家族版本；根据厂商发布稿及官方目录人工归类，不解释为公司所有权关系。",
-        "en": "MiniMax M2.7 is classified as a MiniMax family version from its first-party release and catalogue; this is human family classification, not corporate ownership.",
+        "zh": "MiniMax M2.7 登记为MiniMax家族版本；根据厂商发布稿及官方目录进行目录编辑归类，不解释为公司所有权关系。",
+        "en": "MiniMax M2.7 is classified as a MiniMax family version from its first-party release and catalogue; this is editorial catalog classification, not corporate ownership.",
         "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-minimax12h-m27-part-of-0", "s-minimax12h-m27-part-of-1"],
-      "updatedAt": "2026-10-07",
+      "updatedAt": "2026-10-29",
       "subject": "MiniMax M2.7",
       "predicate": "part-of",
       "objectOrValue": "e-minimax",
       "validFrom": null,
       "validTo": null,
-      "observedAt": "2026-10-07T14:07:41.824206+00:00"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "claim-minimax12h-m27-release",
@@ -43774,19 +44185,19 @@
       "id": "claim-minimax12h-m25-part-of",
       "entityId": "e-minimax-m2-5",
       "text": {
-        "zh": "MiniMax M2.5 登记为MiniMax家族版本；根据厂商发布稿及官方目录人工归类，不解释为公司所有权关系。",
-        "en": "MiniMax M2.5 is classified as a MiniMax family version from its first-party release and catalogue; this is human family classification, not corporate ownership.",
+        "zh": "MiniMax M2.5 登记为MiniMax家族版本；根据厂商发布稿及官方目录进行目录编辑归类，不解释为公司所有权关系。",
+        "en": "MiniMax M2.5 is classified as a MiniMax family version from its first-party release and catalogue; this is editorial catalog classification, not corporate ownership.",
         "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-minimax12h-m25-part-of-0", "s-minimax12h-m25-part-of-1"],
-      "updatedAt": "2026-10-07",
+      "updatedAt": "2026-10-29",
       "subject": "MiniMax M2.5",
       "predicate": "part-of",
       "objectOrValue": "e-minimax",
       "validFrom": null,
       "validTo": null,
-      "observedAt": "2026-10-07T14:07:41.864783+00:00"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "claim-minimax12h-m25-release",
@@ -43810,19 +44221,19 @@
       "id": "claim-minimax12h-m25-access",
       "entityId": "e-minimax-m2-5",
       "text": {
-        "zh": "MiniMax M2.5 发布稿提供官方API入口，当前官方目录将其列于Legacy Models；未据此断言已停止服务。",
-        "en": "MiniMax M2.5's release links official API access and the current catalogue lists it under Legacy Models; this does not establish end of service.",
+        "zh": "MiniMax 于 2026-02-12 的 M2.5 发布文章提供了官方 API 入口。2026-10-29 的当前模型目录未列出 M2.5，不能继续断言其位于 Legacy Models；目录缺席也不证明服务已下线。当前账号可用性待核实。",
+        "en": "MiniMax’s 2026-02-12 M2.5 release post linked official API access. The model is absent from the 2026-10-29 current catalog, so a current Legacy Models listing is not established. Absence alone does not prove shutdown; current account access remains unverified.",
         "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-minimax12h-m25-access-0", "s-minimax12h-m25-access-1"],
-      "updatedAt": "2026-10-07",
+      "updatedAt": "2026-10-29",
       "subject": "MiniMax M2.5",
-      "predicate": "access",
-      "objectOrValue": "Official API link; current catalogue lists Legacy Models, not an asserted EOL",
-      "validFrom": null,
+      "predicate": "historical-api-access",
+      "objectOrValue": "release-linked API access; current availability unknown",
+      "validFrom": "2026-02-12",
       "validTo": null,
-      "observedAt": "2026-10-07T14:07:41.864783+00:00"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "claim-minimax12h-m25-workflow-feature",
@@ -43846,19 +44257,19 @@
       "id": "claim-hunyuan12h-a13b-part-of",
       "entityId": "e-hunyuan-a13b-instruct",
       "text": {
-        "zh": "Hunyuan-A13B-Instruct登记为腾讯混元家族的A13B历史版本；依据腾讯官方仓库和具名发布清单人工归类，不解释为公司所有权关系。",
-        "en": "Hunyuan-A13B-Instruct is classified as a historical A13B version in Tencent's Hunyuan family from its official repository and named release list; this is human family classification, not corporate ownership.",
+        "zh": "Hunyuan-A13B-Instruct登记为腾讯混元家族的A13B历史版本；依据腾讯官方仓库和具名发布清单进行目录编辑归类，不解释为公司所有权关系。",
+        "en": "Hunyuan-A13B-Instruct is classified as a historical A13B version in Tencent's Hunyuan family from its official repository and named release list; this is editorial catalog classification, not corporate ownership.",
         "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-hunyuan12h-a13b-part-of-0", "s-hunyuan12h-revision-part-of-0"],
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-29",
       "subject": "Hunyuan-A13B-Instruct",
       "predicate": "part-of",
       "objectOrValue": "e-hunyuan",
       "validFrom": null,
       "validTo": null,
-      "observedAt": "2026-10-08T07:34:05.811281+00:00"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "claim-hunyuan12h-a13b-release",
@@ -43976,19 +44387,19 @@
       "id": "c-codex-agent",
       "entityId": "e-codex",
       "text": {
-        "zh": "OpenAI 将 Codex 描述为可在云端隔离环境中处理软件工程任务的 Agent。",
-        "en": "OpenAI describes Codex as an agent that handles software engineering tasks in isolated cloud environments.",
+        "zh": "OpenAI 在 2025-05-16 的 Codex 发布公告中，将其描述为在云端隔离环境中处理软件工程任务的 Agent。该旧公告已标注过时，不能单独证明当前全部 Codex 产品的运行方式。",
+        "en": "OpenAI’s 2025-05-16 Codex launch post described an agent handling software-engineering tasks in isolated cloud environments. The post is now marked outdated and does not by itself establish how all current Codex products run.",
         "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-openai-codex"],
-      "updatedAt": "2026-08-02",
+      "updatedAt": "2026-10-29",
       "subject": "OpenAI Codex",
-      "predicate": "product-type",
-      "objectOrValue": "cloud software engineering agent",
-      "validFrom": null,
+      "predicate": "historical-launch-product-type",
+      "objectOrValue": "cloud software-engineering agent described in the 2025-05-16 launch",
+      "validFrom": "2025-05-16",
       "validTo": null,
-      "observedAt": "2026-08-02"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-claude-code-agent",
@@ -44048,19 +44459,19 @@
       "id": "c-langgraph-framework",
       "entityId": "e-langgraph",
       "text": {
-        "zh": "LangGraph 是用于构建长运行、有状态 Agent 的低层编排框架和运行时。",
-        "en": "LangGraph is a low-level orchestration framework and runtime for long-running, stateful agents.",
+        "zh": "LangGraph 官方概览将其定义为构建、管理与部署长运行、有状态 Agent 的低层编排框架和运行时；使用 LangGraph 不要求同时使用 LangChain。",
+        "en": "The official overview defines LangGraph as a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents; using LangChain is optional.",
         "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-langgraph-overview"],
-      "updatedAt": "2026-08-02",
+      "sourceIds": ["s-langgraph-overview", "s-langgraph-overview-20261029"],
+      "updatedAt": "2026-10-29",
       "subject": "LangGraph",
       "predicate": "product-type",
       "objectOrValue": "agent orchestration runtime",
       "validFrom": null,
       "validTo": null,
-      "observedAt": "2026-08-02"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-autogen-framework",
@@ -44812,19 +45223,19 @@
       "id": "claim-decision-critical-ddc2ad5233ddc684adce",
       "entityId": "e-gpt-61-sol",
       "text": {
-        "zh": "GPT-6.1 Sol 官方公告明确提供 OpenAI API 型号 gpt-6.1-sol；只说明原厂 API 入口，不证明网关型号、账户可用性、服务国家、数据存储地区或商用合规。",
-        "en": "Official OpenAI API access is documented for gpt-6.1-sol; gateway identity, account access, country, data location and commercial scope are not established.",
+        "zh": "OpenAI 官方型号文档记录了 gpt-6.1-sol 的 API 标识和接口能力；这不证明特定网关、账号、国家、数据存放位置或商业使用条件适用。",
+        "en": "OpenAI’s official model documentation establishes the gpt-6.1-sol API identity and documented interfaces; it does not establish access through a particular gateway, account, country, data location or commercial terms.",
         "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["source-critical-ddc2ad5233ddc684adce"],
-      "updatedAt": "2026-10-15",
+      "sourceIds": ["source-critical-ddc2ad5233ddc684adce", "s-gpt-6-1-sol-20261001"],
+      "updatedAt": "2026-10-29",
       "subject": null,
       "predicate": "deployment",
       "objectOrValue": "cloud-api",
       "validFrom": null,
       "validTo": null,
-      "observedAt": "2026-10-15T13:39:39.711406+00:00"
+      "observedAt": "2026-10-29"
     },
     {
       "id": "claim-decision-critical-6c55a8f834e483e65551",
@@ -45081,6 +45492,57 @@
       "predicate": "input-output-limits",
       "objectOrValue": "input-131072-output-32768",
       "validFrom": null
+    },
+    {
+      "id": "c-deprecation-e-gpt-5-20260611",
+      "entityId": "e-gpt-5",
+      "text": {
+        "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+        "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-deprecations-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "GPT-5",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "API shutdown scheduled 2026-12-11; recommended replacement GPT-5.6 Sol",
+      "validFrom": "2026-06-11",
+      "validTo": null
+    },
+    {
+      "id": "c-deprecation-e-gpt-5-mini-20260611",
+      "entityId": "e-gpt-5-mini",
+      "text": {
+        "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+        "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-deprecations-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "GPT-5 mini",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "API shutdown scheduled 2026-12-11; recommended replacement GPT-5.6 Terra",
+      "validFrom": "2026-06-11",
+      "validTo": null
+    },
+    {
+      "id": "c-deprecation-e-gpt-5-nano-20260611",
+      "entityId": "e-gpt-5-nano",
+      "text": {
+        "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+        "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-deprecations-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "GPT-5 nano",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "API shutdown scheduled 2026-12-11; recommended replacement GPT-5.6 Luna",
+      "validFrom": "2026-06-11",
+      "validTo": null
     }
   ],
   "relations": [
@@ -50007,6 +50469,126 @@
         },
         "sourceIds": ["s-change-gpt-web-search-images"],
         "confidence": "verified"
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 API 弃用公告",
+          "en": "GPT-5 API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+          "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+            "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+            "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Sol 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Sol or another suitable model before 2026-12-11."
+          }
+        }
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-mini-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 mini API 弃用公告",
+          "en": "GPT-5 mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+          "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5-mini",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+            "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+            "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Terra 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Terra or another suitable model before 2026-12-11."
+          }
+        }
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-nano-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 nano API 弃用公告",
+          "en": "GPT-5 nano API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+          "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5-nano",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+            "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+            "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Luna 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Luna or another suitable model before 2026-12-11."
+          }
+        }
       }
     ],
     "e-gpt-61-sol": [
@@ -50083,6 +50665,46 @@
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-gpt-5"
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 API 弃用公告",
+          "en": "GPT-5 API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+          "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+            "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Sol。",
+            "en": "GPT-5 was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Sol."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Sol 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Sol or another suitable model before 2026-12-11."
+          }
+        }
       }
     ],
     "e-gpt-4o": [
@@ -54796,6 +55418,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-5-mini"],
         "releaseEntityId": "e-gpt-5-mini"
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-mini-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 mini API 弃用公告",
+          "en": "GPT-5 mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+          "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5-mini",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+            "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 mini 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Terra。",
+            "en": "GPT-5 mini was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Terra."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Terra 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Terra or another suitable model before 2026-12-11."
+          }
+        }
       }
     ],
     "e-gpt-5-nano": [
@@ -54815,6 +55477,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-5-nano"],
         "releaseEntityId": "e-gpt-5-nano"
+      },
+      {
+        "id": "t-deprecation-e-gpt-5-nano-20260611",
+        "date": "2026-06-11",
+        "title": {
+          "zh": "GPT-5 nano API 弃用公告",
+          "en": "GPT-5 nano API deprecation announced"
+        },
+        "summary": {
+          "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+          "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+        },
+        "kind": "deprecation",
+        "dateKind": "announcement",
+        "changeKind": "deprecated",
+        "confidence": "verified",
+        "sourceIds": ["s-openai-deprecations-20261029"],
+        "releaseEntityId": "e-gpt-5-nano",
+        "detail": {
+          "description": {
+            "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+            "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+          },
+          "before": {
+            "zh": "原型号先前已正式发布。",
+            "en": "The original model had previously been released."
+          },
+          "after": {
+            "zh": "GPT-5 nano 已于 2026-06-11 宣布弃用，API 计划于 2026-12-11 停服；官方弃用表建议迁移到 GPT-5.6 Luna。",
+            "en": "GPT-5 nano was deprecated on 2026-06-11, with API shutdown scheduled for 2026-12-11; the deprecation table recommends GPT-5.6 Luna."
+          },
+          "affected": {
+            "zh": "使用该型号的 OpenAI API 集成。",
+            "en": "OpenAI API integrations using this model."
+          },
+          "action": {
+            "zh": "核对账号入口与迁移差异，计划在 2026-12-11 前迁移至 GPT-5.6 Luna 或其他适用型号。",
+            "en": "Check account access and migration differences and plan migration to GPT-5.6 Luna or another suitable model before 2026-12-11."
+          }
+        }
       }
     ],
     "e-gpt-51": [

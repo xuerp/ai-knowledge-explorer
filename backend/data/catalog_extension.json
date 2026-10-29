@@ -2630,7 +2630,7 @@
       "tags": ["框架", "编排", "状态机"],
       "latestVersion": null,
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-03",
+      "lastUpdatedAt": "2026-10-29",
       "aliases": ["Lang Graph"],
       "familyId": null,
       "release": null,
@@ -2678,7 +2678,7 @@
               "zh": "官方概览将其定位为 Agent 编排运行时。",
               "en": "The official overview positions it as an agent orchestration runtime."
             },
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           },
           {
             "title": {
@@ -2689,7 +2689,7 @@
               "zh": "重点能力包括持久执行、流式处理、人工介入和记忆。",
               "en": "Highlighted capabilities include durable execution, streaming, human oversight and memory."
             },
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           },
           {
             "title": {
@@ -2700,7 +2700,7 @@
               "zh": "使用 LangGraph 不要求同时采用 LangChain。",
               "en": "Using LangGraph does not require adopting LangChain."
             },
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           }
         ],
         "useCases": [
@@ -2745,7 +2745,7 @@
             "en": "The framework itself does not guarantee factual correctness from the underlying model."
           }
         ],
-        "officialUrl": "https://langchain-ai.github.io/langgraph/index.html",
+        "officialUrl": "https://docs.langchain.com/oss/python/langgraph/overview",
         "sections": [
           {
             "id": "reference-1",
@@ -2767,7 +2767,7 @@
                 "en": "Record task progress and next-step decisions explicitly in state."
               }
             ],
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           },
           {
             "id": "reference-2",
@@ -2789,7 +2789,7 @@
                 "en": "Check whether external operations already happened before resuming."
               }
             ],
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           },
           {
             "id": "reference-3",
@@ -2811,7 +2811,7 @@
                 "en": "Validate interruption, recovery and tool-failure scenarios."
               }
             ],
-            "sourceIds": ["s-langgraph-overview"]
+            "sourceIds": ["s-langgraph-overview-20261029"]
           }
         ]
       }
@@ -3643,8 +3643,8 @@
         "en": "TraeCode"
       },
       "summary": {
-        "zh": "融合代码编辑、项目理解、运行调试和变更管理的 AI 开发工具，提供 IDE 与 SOLO 两种模式。",
-        "en": "An AI development tool for editing, project understanding, debugging and change management, with IDE and SOLO modes."
+        "zh": "中国版入口：TraeCode 的现有官方入口已升级为融合 TraeCode 与 TraeWork 的 TRAE，提供桌面 Agent/IDE 窗口及网页、移动入口；保留旧名称以便查阅历史。",
+        "en": "Chinese-edition entry: The former TraeCode entry now documents unified TRAE, combining TraeCode and TraeWork with desktop Agent/IDE windows and web/mobile access; the old name is retained for historical navigation."
       },
       "vendor": "TRAE",
       "origin": {
@@ -3655,8 +3655,8 @@
       "tags": ["编程", "IDE", "Agent"],
       "latestVersion": null,
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-03",
-      "aliases": ["TRAE", "Trae", "TRAE IDE"],
+      "lastUpdatedAt": "2026-10-29",
+      "aliases": ["Trae", "TRAE IDE", "TRAE"],
       "familyId": null,
       "release": null,
       "specs": null,
@@ -3665,8 +3665,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "融合代码编辑、项目理解、运行调试和变更管理的 AI 开发工具，提供 IDE 与 SOLO 两种模式。",
-            "en": "An AI development tool for editing, project understanding, debugging and change management, with IDE and SOLO modes."
+            "zh": "中国版入口：TraeCode 的现有官方入口已升级为融合 TraeCode 与 TraeWork 的 TRAE，提供桌面 Agent/IDE 窗口及网页、移动入口；保留旧名称以便查阅历史。",
+            "en": "Chinese-edition entry: The former TraeCode entry now documents unified TRAE, combining TraeCode and TraeWork with desktop Agent/IDE windows and web/mobile access; the old name is retained for historical navigation."
           }
         ],
         "significance": {
@@ -3680,8 +3680,8 @@
               "en": "Development modes"
             },
             "description": {
-              "zh": "IDE 模式保留编辑器工作流；SOLO 模式让智能体规划和推进任务。",
-              "en": "IDE retains editor workflows; SOLO lets agents plan and execute tasks."
+              "zh": "当前 TRAE 桌面端具有 Agent 与 IDE 窗口；IDE 窗口内再分 IDE 与 SOLO 模式。",
+              "en": "Current TRAE desktop has Agent and IDE windows; IDE and SOLO are modes within the IDE window."
             },
             "sourceIds": ["s-traecode-overview"]
           },
@@ -3738,6 +3738,14 @@
           {
             "zh": "AI 生成的代码、命令和变更仍需测试与审查。",
             "en": "Generated code, commands and changes require testing and review."
+          },
+          {
+            "zh": "官方已公告产品融合；旧版界面和模式不可直接当作当前入口，准确迁移日期未核实。",
+            "en": "A product merger is announced; old interfaces and modes do not establish current access, and the exact migration date has not been established."
+          },
+          {
+            "zh": "本页中国版资料与国际站的产品、套餐和模式分别判断；不把一个地区的升级公告套到另一地区。",
+            "en": "Chinese-edition documentation and international-site products, plans and modes are assessed separately; a regional upgrade does not establish changes in another region."
           }
         ],
         "officialUrl": "https://www.trae.cn/",
@@ -3820,8 +3828,8 @@
         "en": "TraeWork"
       },
       "summary": {
-        "zh": "面向文档、开发和设计任务的 AI 工作台，提供网页、桌面与移动入口，以及 Work、Code、Design 模式。",
-        "en": "An AI workbench for office, coding and design tasks across web, desktop and mobile interfaces."
+        "zh": "中国版入口：TraeWork 是现已升级为 TRAE 的历史产品入口。旧概览保留桌面、网页、移动和云端任务说明；当前功能应在新版 TRAE 核对。",
+        "en": "Chinese-edition entry: TraeWork is a historical product entry now upgraded to TRAE. Its old overview retains desktop, web, mobile and cloud-task descriptions; current features should be checked in unified TRAE."
       },
       "vendor": "TRAE",
       "origin": {
@@ -3832,7 +3840,7 @@
       "tags": ["办公", "研究", "Agent"],
       "latestVersion": null,
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-03",
+      "lastUpdatedAt": "2026-10-29",
       "aliases": null,
       "familyId": null,
       "release": null,
@@ -3842,8 +3850,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "面向文档、开发和设计任务的 AI 工作台，提供网页、桌面与移动入口，以及 Work、Code、Design 模式。",
-            "en": "An AI workbench for office, coding and design tasks across web, desktop and mobile interfaces."
+            "zh": "中国版入口：TraeWork 是现已升级为 TRAE 的历史产品入口。旧概览保留桌面、网页、移动和云端任务说明；当前功能应在新版 TRAE 核对。",
+            "en": "Chinese-edition entry: TraeWork is a historical product entry now upgraded to TRAE. Its old overview retains desktop, web, mobile and cloud-task descriptions; current features should be checked in unified TRAE."
           }
         ],
         "significance": {
@@ -3853,34 +3861,23 @@
         "keyPoints": [
           {
             "title": {
-              "zh": "任务模式",
-              "en": "Task modes"
+              "zh": "产品迁移",
+              "en": "Product migration"
             },
             "description": {
-              "zh": "Work 处理文档与数据；Code 聚焦编码；Design 面向设计交付。",
-              "en": "Work handles documents and data; Code focuses on coding; Design supports design deliverables."
+              "zh": "旧 TraeWork 概览提示已升级为 TRAE；不把两者继续呈现为当前互相独立的产品。",
+              "en": "The old TraeWork overview announces its upgrade to TRAE; they are not presented as currently independent products."
             },
-            "sourceIds": ["s-traework-overview"]
+            "sourceIds": ["s-traework-overview", "s-traecode-overview"]
           },
           {
             "title": {
-              "zh": "运行方式",
-              "en": "Execution"
+              "zh": "旧版运行说明",
+              "en": "Historical execution surfaces"
             },
             "description": {
-              "zh": "独立于 TraeCode 运行，支持云端隔离环境中的智能体任务。",
-              "en": "Runs independently of TraeCode and supports cloud agents in isolated environments."
-            },
-            "sourceIds": ["s-traework-overview"]
-          },
-          {
-            "title": {
-              "zh": "本地与云端执行",
-              "en": "Local and cloud execution"
-            },
-            "description": {
-              "zh": "TraeWork 独立于 TraeCode；跨设备下发任务与云端执行需要区分。",
-              "en": "TraeWork is separate from TraeCode; distinguish cross-device dispatch from cloud execution."
+              "zh": "旧概览记录桌面、网页、移动入口和云端隔离环境；这是旧产品说明，当前权限与模式需要重新核对。",
+              "en": "The former overview documents desktop, web, mobile and isolated cloud environments; current permissions and modes require a fresh check."
             },
             "sourceIds": ["s-traework-overview"]
           }
@@ -3909,81 +3906,41 @@
         ],
         "limitations": [
           {
-            "zh": "主要按办公与研究用途浏览；Code 模式是能力标签，不另建重复条目。",
-            "en": "Browse primarily under office and research; Code is a capability, not a duplicate entry."
+            "zh": "旧模式说明不能作为新版功能承诺；产品升级也不证明特定账号已经可用。",
+            "en": "Former modes do not promise current features; the upgrade announcement does not establish access for a specific account."
           },
           {
-            "zh": "任务的本地与云端权限、套餐及额度需按当前官方条件核对。",
-            "en": "Verify local/cloud permissions, plans and quotas against current official terms."
+            "zh": "具体迁移日期与旧入口停止服务日期尚未核实，不编造下线事件。",
+            "en": "The exact migration and old-service shutdown dates are not established; no shutdown event is invented."
+          },
+          {
+            "zh": "本页中国版资料与国际站的产品、套餐和模式分别判断；不把一个地区的升级公告套到另一地区。",
+            "en": "Chinese-edition documentation and international-site products, plans and modes are assessed separately; a regional upgrade does not establish changes in another region."
           }
         ],
         "officialUrl": "https://work.trae.cn/",
         "sections": [
           {
-            "id": "reference-1",
+            "id": "product-migration",
             "title": {
-              "zh": "任务模式与交付",
-              "en": "Task modes and outputs"
+              "zh": "从旧入口迁移",
+              "en": "Migration from the former product"
             },
             "summary": {
-              "zh": "Work、Code、Design 对应办公、开发与设计；各入口提供的模式有区别。",
-              "en": "Work, Code and Design cover office, development and design, with interface-specific availability."
+              "zh": "官方将 TraeCode 与 TraeWork 融合为 TRAE。",
+              "en": "The vendor has combined TraeCode and TraeWork into TRAE."
             },
             "items": [
               {
-                "zh": "网页和桌面可使用三种模式；移动入口当前提供 Work 与 Code。",
-                "en": "Web and desktop offer all three modes; mobile currently offers Work and Code."
+                "zh": "保留旧 ID 与来源，便于查阅历史；不宣称原 Work、Code、Design 模式仍在所有入口提供。",
+                "en": "Old IDs and sources are retained for history; continued Work, Code and Design modes across all interfaces are not established."
               },
               {
-                "zh": "以具体文件或预览结果验收任务，记录要求和完成条件。",
-                "en": "Review concrete artifacts or previews and record acceptance criteria."
+                "zh": "在新版入口核对账号、套餐、执行位置、工具权限和数据边界。",
+                "en": "Check the account, plan, execution location, tool permissions and data boundaries in the new interface."
               }
             ],
-            "sourceIds": ["s-traework-overview"]
-          },
-          {
-            "id": "reference-2",
-            "title": {
-              "zh": "本地与云端执行",
-              "en": "Local and cloud execution"
-            },
-            "summary": {
-              "zh": "TraeWork 独立于 TraeCode；跨设备下发任务与云端执行需要区分。",
-              "en": "TraeWork is separate from TraeCode; distinguish cross-device dispatch from cloud execution."
-            },
-            "items": [
-              {
-                "zh": "桌面支持本地与云端任务；移动端可向关联电脑下发任务。",
-                "en": "Desktop supports local and cloud tasks; mobile can dispatch tasks to connected computers."
-              },
-              {
-                "zh": "任务位置影响文件可达范围、连接条件和运行权限。",
-                "en": "Execution location affects file reach, connectivity and permissions."
-              }
-            ],
-            "sourceIds": ["s-traework-overview"]
-          },
-          {
-            "id": "reference-3",
-            "title": {
-              "zh": "额度与选择建议",
-              "en": "Quotas and selection"
-            },
-            "summary": {
-              "zh": "适合比较跨设备办公与任务交付，不能把同名 Code 模式当作同一 IDE。",
-              "en": "Evaluate cross-device productivity and deliverables; its Code mode is not the same IDE product."
-            },
-            "items": [
-              {
-                "zh": "按当前套餐核对积分与并发云端任务；促销额度不当作长期价格。",
-                "en": "Check current credits and cloud concurrency; promotional quotas are not permanent pricing."
-              },
-              {
-                "zh": "先试运行一个明确任务，查看中间进度并验收最终结果。",
-                "en": "Trial a scoped task, inspect progress and review final output."
-              }
-            ],
-            "sourceIds": ["s-traework-overview"]
+            "sourceIds": ["s-traecode-overview", "s-traework-overview"]
           }
         ]
       }
@@ -4856,12 +4813,7 @@
         "en": "France"
       },
       "status": "active",
-      "tags": [
-        "LLM",
-        "推理",
-        "代码",
-        "开放权重"
-      ],
+      "tags": ["LLM", "推理", "代码", "开放权重"],
       "latestVersion": null,
       "firstReleasedAt": null,
       "lastUpdatedAt": "2026-10-25",
@@ -4871,9 +4823,7 @@
         "generation": "3.5",
         "variant": "base",
         "releaseId": "mistral-medium-3-5",
-        "apiModelIds": [
-          "mistral-medium-3-5"
-        ],
+        "apiModelIds": ["mistral-medium-3-5"],
         "stage": "stable",
         "productLine": {
           "id": "mistral-medium",
@@ -4952,10 +4902,7 @@
               "zh": "128B 稠密架构，256K 上下文，可配置推理力度。",
               "en": "128B dense architecture, 256K context and configurable reasoning effort."
             },
-            "sourceIds": [
-              "s-mistral-medium35-release",
-              "s-mistral-medium35"
-            ]
+            "sourceIds": ["s-mistral-medium35-release", "s-mistral-medium35"]
           },
           {
             "title": {
@@ -4966,9 +4913,7 @@
               "zh": "发布公告列出 Vibe 和 Le Chat；产品套餐与模型 API 分开核对。",
               "en": "The announcement lists Vibe and Le Chat; product plans and model APIs are separate."
             },
-            "sourceIds": [
-              "s-mistral-medium35-release"
-            ]
+            "sourceIds": ["s-mistral-medium35-release"]
           },
           {
             "title": {
@@ -4979,9 +4924,7 @@
               "zh": "公告描述开放权重使用修改版 MIT 许可，采用前核对许可证。",
               "en": "The announcement describes open weights under a modified MIT license; review its terms before adoption."
             },
-            "sourceIds": [
-              "s-mistral-medium35-release"
-            ]
+            "sourceIds": ["s-mistral-medium35-release"]
           },
           {
             "title": {
@@ -4992,10 +4935,7 @@
               "zh": "128B 多模态模型，面向长程编程与生产力任务。发布公告曾标为 public preview；2026-10-25 核对的当前官方模型卡标为 GA。",
               "en": "A 128B multimodal model for long-horizon coding and productivity. The launch announcement said public preview; the current official card checked on 2026-10-25 says GA."
             },
-            "sourceIds": [
-              "s-mistral-medium35",
-              "s-mistral-medium35-release"
-            ]
+            "sourceIds": ["s-mistral-medium35", "s-mistral-medium35-release"]
           }
         ],
         "useCases": [
@@ -5892,29 +5832,37 @@
     },
     {
       "id": "e-minimax",
-      "slug": "minimax",
       "type": "model",
+      "slug": "minimax",
       "name": {
         "zh": "MiniMax",
         "en": "MiniMax"
       },
-      "vendor": "MiniMax",
       "summary": {
-        "zh": "MiniMax 模型家族；M3 将原生多模态、百万上下文和工程任务能力组合在同一版本中。",
-        "en": "MiniMax's model family; M3 combines native multimodality, million-token context and engineering workflows."
+        "zh": "MiniMax 模型家族：分别记录 M3、M3.1 Flash Preview 及历史 M2.7、M2.5；当前 API 目录未列出这两个 M2 版本，不能据此推断已下线。",
+        "en": "MiniMax family: separate M3, M3.1 Flash Preview and historical M2.7/M2.5 records; the two M2 versions are absent from the current API catalog, which alone does not establish shutdown."
       },
+      "vendor": "MiniMax",
       "origin": {
         "zh": "中国",
         "en": "China"
       },
       "status": "active",
       "tags": ["LLM", "推理", "代码", "开放权重"],
-      "lastUpdatedAt": "2026-10-03",
+      "latestVersion": "M3 / M3.1 Flash Preview（本轮核验）",
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-29",
+      "aliases": null,
+      "familyId": null,
+      "release": null,
+      "specs": null,
+      "capabilities": null,
+      "metrics": null,
       "knowledge": {
         "introduction": [
           {
-            "zh": "MiniMax 模型家族；M3 将原生多模态、百万上下文和工程任务能力组合在同一版本中。",
-            "en": "MiniMax's model family; M3 combines native multimodality, million-token context and engineering workflows."
+            "zh": "MiniMax 模型家族：分别记录 M3、M3.1 Flash Preview 及历史 M2.7、M2.5；当前 API 目录未列出这两个 M2 版本，不能据此推断已下线。",
+            "en": "MiniMax family: separate M3, M3.1 Flash Preview and historical M2.7/M2.5 records; the two M2 versions are absent from the current API catalog, which alone does not establish shutdown."
           }
         ],
         "significance": {
@@ -5924,36 +5872,47 @@
         "keyPoints": [
           {
             "title": {
-              "zh": "架构",
-              "en": "Architecture"
+              "zh": "M3 · 架构",
+              "en": "M3 · Architecture"
             },
             "description": {
-              "zh": "约 428B 总参数、23B 激活参数，使用 MiniMax Sparse Attention。",
-              "en": "Approximately 428B total and 23B active parameters use MiniMax Sparse Attention."
+              "zh": "MiniMax M3: 约 428B 总参数、23B 激活参数，使用 MiniMax Sparse Attention。",
+              "en": "MiniMax M3: Approximately 428B total and 23B active parameters use MiniMax Sparse Attention."
             },
             "sourceIds": ["s-minimax-m3-repo"]
           },
           {
             "title": {
-              "zh": "推理控制",
-              "en": "Reasoning control"
+              "zh": "M3 · 推理控制",
+              "en": "M3 · Reasoning control"
             },
             "description": {
-              "zh": "官方仓库列出 enabled、adaptive、disabled 三种 thinking 模式。",
-              "en": "The repository documents enabled, adaptive and disabled thinking modes."
+              "zh": "MiniMax M3: 官方仓库列出 enabled、adaptive、disabled 三种 thinking 模式。",
+              "en": "MiniMax M3: The repository documents enabled, adaptive and disabled thinking modes."
             },
             "sourceIds": ["s-minimax-m3-repo"]
           },
           {
             "title": {
-              "zh": "部署",
-              "en": "Deployment"
+              "zh": "M3 · 部署",
+              "en": "M3 · Deployment"
             },
             "description": {
-              "zh": "提供 API 与开放权重，并列出 SGLang、vLLM 等部署资料。",
-              "en": "Offers API and open weights with SGLang and vLLM deployment references."
+              "zh": "MiniMax M3: 提供 API 与开放权重，并列出 SGLang、vLLM 等部署资料。",
+              "en": "MiniMax M3: Offers API and open weights with SGLang and vLLM deployment references."
             },
             "sourceIds": ["s-minimax-m3-repo"]
+          },
+          {
+            "title": {
+              "zh": "M2许可与历史目录",
+              "en": "M2 licensing and legacy catalogue"
+            },
+            "description": {
+              "zh": "M2.7 权重商用须书面授权；当前 API 目录未列出 M2.7/M2.5，当前账号接入仍待核实。M3 的参数或许可不能套用到 M2。",
+              "en": "M2.7 commercial weight use requires written authorization. M2.7/M2.5 are absent from the current API catalog and account access remains unverified; M3 parameters and licenses do not apply to M2."
+            },
+            "sourceIds": ["s-minimax12h-m27-licensed-under-0", "s-minimax12h-m25-access-1"]
           }
         ],
         "useCases": [
@@ -5990,8 +5949,7 @@
         ],
         "officialUrl": "https://www.minimax.io/",
         "sections": []
-      },
-      "latestVersion": "M3 / M3.1 Flash Preview（本轮核验）"
+      }
     },
     {
       "id": "e-mistral",
@@ -8262,17 +8220,21 @@
   "claims": [
     {
       "id": "c-codex-agent",
+      "entityId": "e-codex",
       "text": {
-        "zh": "OpenAI 将 Codex 描述为可在云端隔离环境中处理软件工程任务的 Agent。",
-        "en": "OpenAI describes Codex as an agent that handles software engineering tasks in isolated cloud environments."
+        "zh": "OpenAI 在 2025-05-16 的 Codex 发布公告中，将其描述为在云端隔离环境中处理软件工程任务的 Agent。该旧公告已标注过时，不能单独证明当前全部 Codex 产品的运行方式。",
+        "en": "OpenAI’s 2025-05-16 Codex launch post described an agent handling software-engineering tasks in isolated cloud environments. The post is now marked outdated and does not by itself establish how all current Codex products run.",
+        "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-openai-codex"],
-      "updatedAt": "2026-08-02",
+      "updatedAt": "2026-10-29",
       "subject": "OpenAI Codex",
-      "predicate": "product-type",
-      "objectOrValue": "cloud software engineering agent",
-      "observedAt": "2026-08-02"
+      "predicate": "historical-launch-product-type",
+      "objectOrValue": "cloud software-engineering agent described in the 2025-05-16 launch",
+      "validFrom": "2025-05-16",
+      "validTo": null,
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-claude-code-agent",
@@ -8334,17 +8296,21 @@
     },
     {
       "id": "c-langgraph-framework",
+      "entityId": "e-langgraph",
       "text": {
-        "zh": "LangGraph 是用于构建长运行、有状态 Agent 的低层编排框架和运行时。",
-        "en": "LangGraph is a low-level orchestration framework and runtime for long-running, stateful agents."
+        "zh": "LangGraph 官方概览将其定义为构建、管理与部署长运行、有状态 Agent 的低层编排框架和运行时；使用 LangGraph 不要求同时使用 LangChain。",
+        "en": "The official overview defines LangGraph as a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents; using LangChain is optional.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-langgraph-overview"],
-      "updatedAt": "2026-08-02",
+      "sourceIds": ["s-langgraph-overview", "s-langgraph-overview-20261029"],
+      "updatedAt": "2026-10-29",
       "subject": "LangGraph",
       "predicate": "product-type",
       "objectOrValue": "agent orchestration runtime",
-      "observedAt": "2026-08-02"
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-autogen-framework",
@@ -8408,31 +8374,37 @@
       "id": "c-intake-e-traecode",
       "entityId": "e-traecode",
       "text": {
-        "zh": "TraeCode 提供 IDE 与 SOLO 开发模式，以及代码编辑、调试和变更管理。",
-        "en": "TraeCode provides IDE and SOLO development modes, editing, debugging and change management."
+        "zh": "截至 2026-10-29，原 TraeCode 中国版官方文档已介绍融合 TraeCode 与 TraeWork 的 TRAE：桌面端提供 Agent 与 IDE 窗口，IDE 窗口含 IDE 和 SOLO 模式，并支持网页端、移动端接续任务。",
+        "en": "As of 2026-10-29, the Chinese-edition former TraeCode documentation describes the unified TRAE product combining TraeCode and TraeWork: desktop Agent and IDE windows, IDE and SOLO modes within the IDE window, and web/mobile task continuity.",
+        "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-traecode-overview"],
-      "updatedAt": "2026-10-03",
-      "observedAt": "2026-10-03",
+      "updatedAt": "2026-10-29",
       "subject": "e-traecode",
-      "predicate": "product-type",
-      "objectOrValue": "TraeCode 提供 IDE 与 SOLO 开发模式，以及代码编辑、调试和变更管理。"
+      "predicate": "product-migration-status",
+      "objectOrValue": "Chinese-edition docs: TraeCode and TraeWork combined into TRAE; exact migration date not established",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-intake-e-traework",
       "entityId": "e-traework",
       "text": {
-        "zh": "TraeWork 可独立于 TraeCode 运行，提供 Work、Code、Design 模式。",
-        "en": "TraeWork runs independently of TraeCode with Work, Code and Design modes."
+        "zh": "截至 2026-10-29，中国版原 TraeWork 概览仍描述独立桌面、网页和移动入口，同时提示 TraeWork 已升级为 TRAE。当前页面不足以证明旧记录中的 Work、Code、Design 三种模式仍适用。",
+        "en": "As of 2026-10-29, the Chinese-edition former TraeWork overview still describes desktop, web and mobile surfaces and announces its upgrade to TRAE. The current page does not establish continued availability of the previously recorded Work, Code and Design modes.",
+        "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-traework-overview"],
-      "updatedAt": "2026-10-03",
-      "observedAt": "2026-10-03",
+      "updatedAt": "2026-10-29",
       "subject": "e-traework",
-      "predicate": "product-type",
-      "objectOrValue": "TraeWork 可独立于 TraeCode 运行，提供 Work、Code、Design 模式。"
+      "predicate": "product-migration-status",
+      "objectOrValue": "Chinese-edition docs: TraeWork upgraded to TRAE; legacy mode availability not established",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-29"
     },
     {
       "id": "c-intake-e-glm-5-3",

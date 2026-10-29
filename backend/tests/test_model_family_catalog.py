@@ -23,20 +23,25 @@ ROOT = DATA_DIR.parent.parent
 SEED = DATA_DIR / "demo_snapshot.json"
 
 
-def test_minimax_legacy_listing_does_not_relax_weight_license_or_invent_dates():
+def test_minimax_catalog_omission_does_not_invent_retirement_or_weight_licenses():
     snapshot = KnowledgeRepository(SEED).load_seed()
     entities = {entity.id: entity for entity in snapshot.entities}
     m27, m25 = entities["e-minimax-m2-7"], entities["e-minimax-m2-5"]
     assert m27.release.released_at == "2026-03-18"
     assert m25.release.released_at == "2026-02-12"
-    assert m25.release.catalog_current and m25.release.stage != "retired"
-    assert "legacy" in m25.summary.en and "retirement" in m25.summary.en
+    assert not m25.release.catalog_current and m25.release.stage != "retired"
+    assert "absent" in m25.summary.en and "shutdown" in m25.summary.en
     for entity in (m27, m25):
         assert entity.family_id == "e-minimax" and len(entity.knowledge.key_points) >= 3
         assert entity.specs.input_price is None and entity.specs.output_price is None
         assert entity.specs.context_window is None
         assert all(
-            claim.valid_from is None and claim.observed_at
+            (
+                claim.valid_from == "2026-02-12"
+                if claim.predicate == "historical-api-access"
+                else claim.valid_from is None
+            )
+            and claim.observed_at
             for claim in snapshot.claims
             if claim.entity_id == entity.id and claim.predicate != "release"
         )
@@ -153,7 +158,7 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     expected = catalog_changes(seed)
     # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
     assert len(catalog_release_changes(seed)) == 203
-    assert len(expected) == 264
+    assert len(expected) == 267
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -393,3 +398,51 @@ def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tm
         session.commit()
         KnowledgeRepository(seed_path).seed_catalog(session)
         assert source.active is True
+
+
+def test_langgraph_canonical_source_keeps_history_and_administrator_changes():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository = KnowledgeRepository(SEED)
+        repository.seed_catalog(session)
+        old = session.get(SourceRecord, "s-langgraph-overview")
+        canonical = session.get(SourceRecord, "s-langgraph-overview-20261029")
+        assert old is not None and old.active is False and old.fetch_enabled is False
+        assert canonical.url == "https://docs.langchain.com/oss/python/langgraph/overview"
+        old.title = "Administrator-maintained historical source"
+        old.active = True
+        session.commit()
+        repository.seed_catalog(session)
+        assert old.active is True
+
+
+def test_gpt5_api_deprecation_is_a_planned_shutdown_and_retains_release_history():
+    seed = KnowledgeRepository(SEED).load_seed()
+    entities = {entity.id: entity for entity in seed.entities}
+    changes = catalog_changes(seed)
+    for eid in ("e-gpt-5", "e-gpt-5-mini", "e-gpt-5-nano"):
+        entity = entities[eid]
+        assert entity.release.released_at == "2025-08-07"
+        assert entity.release.stage == "deprecated" and entity.status == "deprecated"
+        assert entity.release.retirement_not_before == "2026-12-11"
+        announcement = [c for c in changes if c.entity_id == eid and c.kind == "deprecated"]
+        assert len(announcement) == 1 and announcement[0].date == "2026-06-11"
+        assert "scheduled" in announcement[0].detail.after.en
+        assert any(c.entity_id == eid and c.kind == "new" for c in changes)
+
+
+def test_trae_chinese_migration_is_scoped_without_erasing_historical_products():
+    seed = KnowledgeRepository(SEED).load_seed()
+    entities = {entity.id: entity for entity in seed.entities}
+    for eid in ("e-traecode", "e-traework"):
+        entity = entities[eid]
+        assert entity.summary.en.startswith("Chinese-edition entry:")
+        assert "TRAE" in entity.summary.en
+        assert any("international" in value.en for value in entity.knowledge.limitations)
+    work = entities["e-traework"]
+    assert not any(
+        "offer all three modes" in value.en
+        for section in work.knowledge.sections
+        for value in section.items
+    )

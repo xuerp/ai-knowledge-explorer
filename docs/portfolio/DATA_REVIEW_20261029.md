@@ -9,14 +9,27 @@
 ## 已逐项修正
 
 - **Gemini Pro 历史日期**：官方日志的 2023-12-13 节点是开发者 API 开放。档案、事实、知识要点和时间线共同明确范围，避免当作 Gemini 首次公众发布日。
-- **Gemini 4 Argon**：对照 Google 当前型号页及 2026-10-13 发布日志，把原待发布条目更新为稳定型号，保留原 ID 与 URL。录入统一输入/输出上限和默认同步输出限制；long decode 的上限单独注明。价格本轮未核实，保持未知。旧的“截至 2026-09-29 未发布”记录保留其历史有效范围。
+- **Gemini 4 Argon**：对照 Google 当前型号页及 2026-10-13 发布日志，把原待发布条目更新为稳定型号，保留原 ID 与 URL。录入统一输入/输出上限和默认同步输出限制；long decode 的上限单独注明。价格本轮未核实，保持未知。旧的“截至 2026-09-29 未发布”记录缺少当日正文留档，改为未核验历史；不能用今天的目录证明过去未发布。
 - **Gemini 十月生命周期**：依据官方日志，3.7 Flash / 3.5 Flash 于 2026-10-08 弃用，旧 API 名自动路由至 3.8 / 3.6；不是请求立即失败。Nano Banana 2 于 2026-10-06 弃用，但官方未公布停止服务日。保留历史条目并新增当日正式发布的 Nano Banana 2.1；家族、型号、事实与动态共享实际发生日期。新型号价格保持未知。
 - **Gemini 3.1 Pro 定价条件**：200K 分档来自官方价格页，型号页仅支撑规格；事实同时关联两项来源，避免用规格页单独证明价格条件。
 - **Cursor 渠道事实**：逐项对照 2026-10-25 保存的官方文档表格，14 条事实增加历史日期和 Cursor 渠道范围；GPT-5 mini、GPT-5.4 mini、GPT-5.4、Gemini 3 Pro 等错误关联得到修正。渠道上下文与优惠不能作为厂商原生 API 的通用规格或当前价格。
 
-Cursor 修正保存在版本化的 `backend/data/reviewed_claim_corrections.v1.json`。公共快照只对完全匹配的原事实及原证据应用逐项修正，后续管理员修改不被覆盖；原审核记录保留。页面、研究和导出共享修正后的公共知识。
+逐项修正保存在版本化的 `backend/data/reviewed_claim_corrections.v1.json`。公共快照只对完全匹配的原事实及原证据应用修正，后续管理员修改不被覆盖；原审核记录保留。新增引用同样必须具有完整证据匹配保护，原引用不被静默删除。页面、研究和导出共享修正后的公共知识。
 
 另对已退役的 Gemini 1.5 Pro 撤回两项未核实演示价格，保留型号与历史规格，并明确 Gemini API 的实际关闭日期。Gemini 2.5 Pro 的旧“演示旗舰”介绍替换为具体型号定位与已公告的访问条件。
+
+## 历史范围与版本归属修正
+
+在 Cursor 14 条修正之外，本批另修正 34 条已收录事实，保留全部 ID、原证据及历史记录。具体改动包括：
+
+- **GPT 型号与生命周期**：把 GPT-5.3-Codex、GPT-5.5、GPT-5.6 Sol、GPT-5 mini 等事实从基础 GPT-5 移到实际型号；尚未独立建档的具名版本放在家族中并明确名称。GPT-5/mini/nano 的 2026-06-11 弃用公告、2026-12-11 计划停服日期同步到型号、事实和家族时间线；不把未来停服当作已发生。GPT-5.4-Cyber 的旧迁移摘录保留为历史，当前建议使用新读取的弃用表。
+- **历史公告与厂商测试**：Sonnet 3.7 的发布价与套餐说明标为 2025-02-24 历史公告，并改挂具体版本；Claude Code 的单次完成和时间收益注明 Anthropic 早期内部测试，GPT-5.2 的约 40% 加速注明 OpenAI API 服务栈优化。均不充当 AI Radar 实测或当前排名。
+- **协议、框架与研究结论**：LangGraph 改用迁移后的官方概览；旧采集入口保留但停用。Qwen3 的 Transformers 版本要求限于该接入路径；MMLU-Pro 的准确率、提示敏感性和思维链结论注明论文作者及实验范围。Devin 的任务难度说明标为厂商经验参考。
+- **地区、产品与当前可用性**：TRAE 中国版文档的融合升级与国际站 2026-06-09 公告分别注明地区和时间，保留 TraeCode/TraeWork 历史入口。MiniMax M2.5/M2.7 当前目录缺席不再表述为当前 Legacy 列表，也不推断已下线；当前账号 API 接入保持未知。家族归类使用“目录编辑归类”，不暗示独立人工审计。
+
+新增公共证据与采集器使用同一网址时，固定采集器 ID 优先初始化，避免新数据库因为网址去重而丢失采集器。自动检查同时覆盖新增引用保护、后续管理员修改、目录迁移及未来停服日期；这些检查不替代逐条内容审核。
+
+主要依据：[OpenAI 弃用表](https://developers.openai.com/api/docs/deprecations.md)、[OpenAI API 日志](https://developers.openai.com/api/docs/changelog.md)、[Sonnet 3.7 历史公告](https://www.anthropic.com/news/claude-3-7-sonnet)、[LangGraph 概览](https://docs.langchain.com/oss/python/langgraph/overview)、[Qwen3 README](https://github.com/QwenLM/Qwen3)、[MMLU-Pro 论文](https://arxiv.org/abs/2406.01574)、[TRAE 中国版概览](https://docs.trae.cn/ide_what-is-trae-code)、[TRAE 国际站旧公告](https://www.trae.ai/blog/trae_work_0609)。部署状态和实际验证单独记录于[项目验证记录](VALIDATION.md)。
 
 ## 图谱旧占位来源撤回
 
