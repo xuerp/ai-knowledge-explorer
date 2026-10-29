@@ -28,6 +28,7 @@ from .entity_aliases import (
     normalize_entity_alias,
 )
 from .quality import resolve_claim_entity_reference
+from .reviewed_claims import apply_reviewed_claims
 from .schemas import (
     ChangeEvent,
     Claim,
@@ -961,6 +962,9 @@ class KnowledgeRepository:
                 else:
                     snapshot.evidence.append(evidence)
                     evidence_ids.add(evidence.id)
+        apply_reviewed_claims(
+            snapshot, self.seed_snapshot_path.with_name("reviewed_claim_corrections.v1.json")
+        )
         active_source_ids = {
             source_id for claim in snapshot.claims for source_id in claim.source_ids
         }

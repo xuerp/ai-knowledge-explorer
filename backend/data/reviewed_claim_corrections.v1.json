@@ -1,0 +1,874 @@
+{
+  "version": 1,
+  "policy": "Exact before-state and evidence guards; no new approvals or deletion. Current administrator edits take precedence.",
+  "corrections": [
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-3fb24f7932813cc521ea",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.4 的长上下文支持 up to 1M tokens。",
+          "en": "GPT-5.4 long context supports up to 1M tokens.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3fb24f7932813cc521ea"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.4",
+        "predicate": "supports-long-context",
+        "objectOrValue": "up to 1M tokens",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-3fb24f7932813cc521ea",
+        "entityId": "e-gpt-54",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5.4 的长上下文支持 up to 1M tokens。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5.4 long context supports up to 1M tokens. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-3fb24f7932813cc521ea"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.4",
+        "predicate": "historical-channel-supports-long-context",
+        "objectOrValue": "up to 1M tokens",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-3fb24f7932813cc521ea",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.842752+00:00",
+          "sourceExcerpt": "| [GPT-5.4](https://developers.openai.com/api/docs/models/gpt-5.4) | OpenAI | 272k | 1M | Agent, Thinking, Images | Hidden by default; Requires Max Mode on legacy request-based plans; Agentic and reasoning capabilities; 90% discount on cached input tokens; Fast mode is 15% faster with 2x pricing; Long context supports up to 1M tokens with 2x input pricing |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-3fb24f7932813cc521ea"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-84517a69ce97fbd4c9a5",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.4 的最大上下文为 1M。",
+          "en": "GPT-5.4 has a max context of 1M.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-84517a69ce97fbd4c9a5"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.4",
+        "predicate": "has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-84517a69ce97fbd4c9a5",
+        "entityId": "e-gpt-54",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5.4 的最大上下文为 1M。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5.4 has a max context of 1M. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-84517a69ce97fbd4c9a5"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.4",
+        "predicate": "historical-channel-has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-84517a69ce97fbd4c9a5",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.909506+00:00",
+          "sourceExcerpt": "| [GPT-5.4](https://developers.openai.com/api/docs/models/gpt-5.4) | OpenAI | 272k | 1M | Agent, Thinking, Images | Hidden by default; Requires Max Mode on legacy request-based plans; Agentic and reasoning capabilities; 90% discount on cached input tokens; Fast mode is 15% faster with 2x pricing; Long context supports up to 1M tokens with 2x input pricing |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-84517a69ce97fbd4c9a5"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-59bed5964254cce42b30",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5 提供的推理努力变体是 gpt-5-high。",
+          "en": "GPT-5 has the available reasoning effort variant gpt-5-high.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-59bed5964254cce42b30"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5",
+        "predicate": "has-reasoning-effort-variant",
+        "objectOrValue": "gpt-5-high",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-59bed5964254cce42b30",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5 提供的推理努力变体是 gpt-5-high。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5 has the available reasoning effort variant gpt-5-high. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-59bed5964254cce42b30"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5",
+        "predicate": "historical-channel-has-reasoning-effort-variant",
+        "objectOrValue": "gpt-5-high",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-59bed5964254cce42b30",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.936745+00:00",
+          "sourceExcerpt": "| [GPT-5](https://openai.com/index/gpt-5/) | OpenAI | 272k | - | Agent, Thinking, Images | Hidden by default; Agentic and reasoning capabilities; Available reasoning effort variant is gpt-5-high |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-59bed5964254cce42b30"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-cb7004d663b2a78f4000",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5 的默认上下文为 272k。",
+          "en": "GPT-5 has a default context of 272k.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-cb7004d663b2a78f4000"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5",
+        "predicate": "has-default-context",
+        "objectOrValue": "272k",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-cb7004d663b2a78f4000",
+        "entityId": "e-gpt-5-mini",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5 mini 的默认上下文为 272k。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5 mini has a default context of 272k. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-cb7004d663b2a78f4000"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5 mini",
+        "predicate": "historical-channel-has-default-context",
+        "objectOrValue": "272k",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-cb7004d663b2a78f4000",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.998858+00:00",
+          "sourceExcerpt": "| [GPT-5 Mini](https://openai.com/index/gpt-5/) | OpenAI | 272k | - | Agent, Thinking, Images | Hidden by default |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-cb7004d663b2a78f4000"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-5679d701df70be9285f1",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5 的提供商是 OpenAI。",
+          "en": "GPT-5's provider is OpenAI.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5679d701df70be9285f1"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5",
+        "predicate": "provider",
+        "objectOrValue": "OpenAI",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-5679d701df70be9285f1",
+        "entityId": "e-gpt-5-mini",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5 mini 的提供商是 OpenAI。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5 mini's provider is OpenAI. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5679d701df70be9285f1"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5 mini",
+        "predicate": "historical-channel-provider",
+        "objectOrValue": "OpenAI",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-5679d701df70be9285f1",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:54.027034+00:00",
+          "sourceExcerpt": "| [GPT-5 Mini](https://openai.com/index/gpt-5/) | OpenAI | 272k | - | Agent, Thinking, Images | Hidden by default |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-5679d701df70be9285f1"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-00848b0aefe3e1bb373c",
+        "entityId": "e-cursor",
+        "text": {
+          "zh": "Grok 4.5 由 Cursor 和 SpaceXAI 联合训练。",
+          "en": "Grok 4.5 is jointly trained by Cursor and SpaceXAI.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-00848b0aefe3e1bb373c"],
+        "updatedAt": "2026-09-13",
+        "subject": "Grok 4.5",
+        "predicate": "jointly-trained-by",
+        "objectOrValue": "Cursor",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-00848b0aefe3e1bb373c",
+        "entityId": "e-grok-4-5",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Grok 4.5 由 Cursor 和 SpaceXAI 联合训练。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Grok 4.5 is jointly trained by Cursor and SpaceXAI. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-00848b0aefe3e1bb373c"],
+        "updatedAt": "2026-10-29",
+        "subject": "Grok 4.5",
+        "predicate": "historical-channel-jointly-trained-by",
+        "objectOrValue": "Cursor",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-00848b0aefe3e1bb373c",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.615894+00:00",
+          "sourceExcerpt": "| Grok 4.5 | Cursor | 256k | - | Agent, Thinking | Jointly trained by Cursor and SpaceXAI |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-00848b0aefe3e1bb373c"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-ab21f806bade8f856476",
+        "entityId": "e-gemini",
+        "text": {
+          "zh": "Gemini 3 Pro 的提供商是 Google。",
+          "en": "Gemini 3 Pro's provider is Google.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-ab21f806bade8f856476"],
+        "updatedAt": "2026-09-13",
+        "subject": "Gemini 3 Pro",
+        "predicate": "provider",
+        "objectOrValue": "Google",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-ab21f806bade8f856476",
+        "entityId": "e-gemini-3-pro",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Gemini 3 Pro 的提供商是 Google。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Gemini 3 Pro's provider is Google. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-ab21f806bade8f856476"],
+        "updatedAt": "2026-10-29",
+        "subject": "Gemini 3 Pro",
+        "predicate": "historical-channel-provider",
+        "objectOrValue": "Google",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-ab21f806bade8f856476",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.645248+00:00",
+          "sourceExcerpt": "| [Gemini 3 Pro](https://ai.google.dev/gemini-api/docs) | Google | 200k | 1M | Agent, Thinking, Images | Hidden by default |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-ab21f806bade8f856476"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-1fff4d8b52f8aaa663f5",
+        "entityId": "e-kimi-k3",
+        "text": {
+          "zh": "Kimi K3 没有 No separate cache-write fee。",
+          "en": "Kimi K3 has No separate cache-write fee.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-1fff4d8b52f8aaa663f5"],
+        "updatedAt": "2026-09-13",
+        "subject": "Kimi K3",
+        "predicate": "cache-write-fee",
+        "objectOrValue": "No separate cache-write fee",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-1fff4d8b52f8aaa663f5",
+        "entityId": "e-kimi-k3",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Kimi K3 没有 No separate cache-write fee。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Kimi K3 has No separate cache-write fee. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-1fff4d8b52f8aaa663f5"],
+        "updatedAt": "2026-10-29",
+        "subject": "Kimi K3",
+        "predicate": "historical-channel-cache-write-fee",
+        "objectOrValue": "No separate cache-write fee",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-1fff4d8b52f8aaa663f5",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.713395+00:00",
+          "sourceExcerpt": "| [Kimi K3](https://www.moonshot.ai) | Moonshot | 200k | 1M | Agent, Thinking, Images | Hidden by default; Requires Max Mode on legacy request-based plans; Up to 1M tokens with extended context at the same per-token rates (no long-context surcharge); No separate cache-write fee |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-1fff4d8b52f8aaa663f5"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-241ae9b54153529b32f2",
+        "entityId": "e-kimi-k3",
+        "text": {
+          "zh": "Kimi K3 的最大上下文为 1M。",
+          "en": "Kimi K3 has a max context of 1M.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-241ae9b54153529b32f2"],
+        "updatedAt": "2026-09-13",
+        "subject": "Kimi K3",
+        "predicate": "has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-241ae9b54153529b32f2",
+        "entityId": "e-kimi-k3",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Kimi K3 的最大上下文为 1M。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Kimi K3 has a max context of 1M. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-241ae9b54153529b32f2"],
+        "updatedAt": "2026-10-29",
+        "subject": "Kimi K3",
+        "predicate": "historical-channel-has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-241ae9b54153529b32f2",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.742398+00:00",
+          "sourceExcerpt": "| [Kimi K3](https://www.moonshot.ai) | Moonshot | 200k | 1M | Agent, Thinking, Images | Hidden by default; Requires Max Mode on legacy request-based plans; Up to 1M tokens with extended context at the same per-token rates (no long-context surcharge); No separate cache-write fee |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-241ae9b54153529b32f2"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-4ba85312ac331f361fcc",
+        "entityId": "e-gpt-5",
+        "text": {
+          "zh": "GPT-5.4 的缓存输入享有 90% discount。",
+          "en": "GPT-5.4 has a 90% discount on cached input tokens.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-4ba85312ac331f361fcc"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-5.4",
+        "predicate": "cached-input-discount",
+        "objectOrValue": "90% discount",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-4ba85312ac331f361fcc",
+        "entityId": "e-gpt-54-mini",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：GPT-5.4 mini 的缓存输入享有 90% discount。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: GPT-5.4 mini has a 90% discount on cached input tokens. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-4ba85312ac331f361fcc"],
+        "updatedAt": "2026-10-29",
+        "subject": "GPT-5.4 mini",
+        "predicate": "historical-channel-cached-input-discount",
+        "objectOrValue": "90% discount",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-4ba85312ac331f361fcc",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:53.813264+00:00",
+          "sourceExcerpt": "| [GPT-5.4 Mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini) | OpenAI | 272k | - | Agent, Thinking, Images | Hidden by default; Smaller, faster variant of GPT-5.4; 90% discount on cached input tokens |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-4ba85312ac331f361fcc"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-f07d56331cb21f101062",
+        "entityId": "e-claude-45",
+        "text": {
+          "zh": "Claude 4.5 Sonnet 的最大上下文为 1M。",
+          "en": "Claude 4.5 Sonnet has a max context of 1M.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-f07d56331cb21f101062"],
+        "updatedAt": "2026-09-13",
+        "subject": "Claude 4.5 Sonnet",
+        "predicate": "has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-f07d56331cb21f101062",
+        "entityId": "e-claude-45",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Claude 4.5 Sonnet 的最大上下文为 1M。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Claude 4.5 Sonnet has a max context of 1M. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-f07d56331cb21f101062"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 4.5 Sonnet",
+        "predicate": "historical-channel-has-max-context",
+        "objectOrValue": "1M",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-f07d56331cb21f101062",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:54.088210+00:00",
+          "sourceExcerpt": "| [Claude 4.5 Sonnet](https://www.anthropic.com/claude/sonnet) | Anthropic | 200k | 1M | Agent, Thinking, Images | Hidden by default; Requires Max Mode on legacy request-based plans; Up to 1M tokens with extended context at the same per-token rates (no long-context surcharge) |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-f07d56331cb21f101062"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-c1fe1f4e37d516f6f21f",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "Claude 4 Sonnet 的能力包括 Agent、Thinking 和 Images。",
+          "en": "Claude 4 Sonnet has Agent, Thinking, and Images capabilities.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c1fe1f4e37d516f6f21f"],
+        "updatedAt": "2026-09-13",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "has-capabilities",
+        "objectOrValue": "Agent, Thinking, Images",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-c1fe1f4e37d516f6f21f",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Claude 4 Sonnet 的能力包括 Agent、Thinking 和 Images。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Claude 4 Sonnet has Agent, Thinking, and Images capabilities. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-c1fe1f4e37d516f6f21f"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "historical-channel-has-capabilities",
+        "objectOrValue": "Agent, Thinking, Images",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-c1fe1f4e37d516f6f21f",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:54.127393+00:00",
+          "sourceExcerpt": "| [Claude 4 Sonnet](https://www.anthropic.com/claude/sonnet) | Anthropic | 200k | - | Agent, Thinking, Images | Hidden by default; Thinking variant counts as 2 requests in legacy pricing |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-c1fe1f4e37d516f6f21f"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-dbdc99592bf4e87a4f29",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "Claude 4 Sonnet 的默认上下文为 200k。",
+          "en": "Claude 4 Sonnet has a default context of 200k.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-dbdc99592bf4e87a4f29"],
+        "updatedAt": "2026-09-13",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "has-default-context",
+        "objectOrValue": "200k",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-dbdc99592bf4e87a4f29",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Claude 4 Sonnet 的默认上下文为 200k。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Claude 4 Sonnet has a default context of 200k. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-dbdc99592bf4e87a4f29"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "historical-channel-has-default-context",
+        "objectOrValue": "200k",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-dbdc99592bf4e87a4f29",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:54.202708+00:00",
+          "sourceExcerpt": "| [Claude 4 Sonnet](https://www.anthropic.com/claude/sonnet) | Anthropic | 200k | - | Agent, Thinking, Images | Hidden by default; Thinking variant counts as 2 requests in legacy pricing |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-dbdc99592bf4e87a4f29"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-29",
+      "reason": "Manual comparison of the table row, model name, provider/channel and snapshot date; preserve historical record while qualifying scope and correcting mismatched model association.",
+      "sourceUrl": "https://cursor.com/docs",
+      "capturedTextSha256": "1f81bdac78a1c1bd98b86186618cfce91ab96bb08559302f284cfad2c3e3d357",
+      "expectedClaim": {
+        "id": "claim-7051b8b487398f6f82ef",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "Claude 4 Sonnet 的提供商是 Anthropic。",
+          "en": "Claude 4 Sonnet's provider is Anthropic.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-7051b8b487398f6f82ef"],
+        "updatedAt": "2026-09-13",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "provider",
+        "objectOrValue": "Anthropic",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-7051b8b487398f6f82ef",
+        "entityId": "e-claude-4",
+        "text": {
+          "zh": "2026-10-25 保存的 Cursor 渠道文档记载：Claude 4 Sonnet 的提供商是 Anthropic。 此记录仅适用于当时的 Cursor 渠道，不代表厂商原生 API 或当前可用性。",
+          "en": "The Cursor-channel documentation captured on 2026-10-25 stated: Claude 4 Sonnet's provider is Anthropic. This is historical Cursor-channel information, not a statement about native provider APIs or current availability.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-7051b8b487398f6f82ef"],
+        "updatedAt": "2026-10-29",
+        "subject": "Claude 4 Sonnet",
+        "predicate": "historical-channel-provider",
+        "objectOrValue": "Anthropic",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-29"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-7051b8b487398f6f82ef",
+          "title": {
+            "zh": "Cursor Agent 官方文档",
+            "en": "Cursor Agent 官方文档"
+          },
+          "url": "https://cursor.com/docs",
+          "publisher": "Cursor",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T12:03:54.231902+00:00",
+          "sourceExcerpt": "| [Claude 4 Sonnet](https://www.anthropic.com/claude/sonnet) | Anthropic | 200k | - | Agent, Thinking, Images | Hidden by default; Thinking variant counts as 2 requests in legacy pricing |",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-7051b8b487398f6f82ef"],
+          "contradictsClaimIds": null
+        }
+      ]
+    }
+  ]
+}
