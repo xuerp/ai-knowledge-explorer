@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.catalog_changes import catalog_changes, catalog_release_changes
 from app.config import Settings
-from app.database import Base, KnowledgeRelationRecord, KnowledgeTimelineRecord
+from app.database import Base, KnowledgeRelationRecord, KnowledgeTimelineRecord, SourceRecord
 from app.entity_aliases import apply_entity_aliases
 from app.main import create_app
 from app.repository import KnowledgeRepository
@@ -347,3 +347,44 @@ def test_gemini_october_lifecycle_preserves_history_and_identifies_replacements(
     assert nano.release.released_at == "2026-10-06"
     assert nano.release.api_model_ids == ["gemini-nano-banana-2.1"]
     assert any(e.entity_id == nano.id and e.kind == "new" for e in changes)
+
+
+def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tmp_path):
+    snapshot = KnowledgeRepository(SEED).load_seed()
+    edges = {edge.id: edge for edge in snapshot.graph.edges}
+    reviewed = {"r1", "r3", "r7", "r8", "r9", "r11", "r19", "r20", "r21", "r30", "r43"}
+    assert reviewed <= edges.keys()
+    assert all("s-openai-gpt5" not in edge.source_ids for edge in edges.values())
+    for edge_id in ("r3", "r7", "r8", "r19", "r20", "r30", "r43"):
+        assert edges[edge_id].confidence == "unverified"
+        assert edges[edge_id].source_ids == []
+    for edge_id in ("r1", "r9", "r11", "r21"):
+        assert edges[edge_id].confidence == "verified" and edges[edge_id].source_ids
+    withdrawn = next(source for source in snapshot.evidence if source.id == "s-openai-gpt5")
+    assert not withdrawn.published_at and not withdrawn.verified_at
+    assert "Withdrawn" in withdrawn.title.en
+    assert not any("s-openai-gpt5" in claim.source_ids for claim in snapshot.claims)
+    openai = next(entity for entity in snapshot.entities if entity.id == "e-openai")
+    assert "s-openai-gpt5" not in openai.model_dump_json()
+
+    seed_path = tmp_path / "demo_snapshot.json"
+    shutil.copyfile(SEED, seed_path)
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        KnowledgeRepository(seed_path).seed_catalog(session)
+        source = session.get(SourceRecord, "s-openai-gpt5")
+        assert source.active is False and source.fetch_enabled is False
+        shutil.copyfile(
+            DATA_DIR / "frontier_catalog_v1.json", tmp_path / "frontier_catalog_v1.json"
+        )
+        repository = KnowledgeRepository(seed_path)
+        repository.seed_catalog(session)
+        migrated = repository.public_snapshot(session)
+        assert reviewed <= {edge.id for edge in migrated.graph.edges}
+        assert all("s-openai-gpt5" not in edge.source_ids for edge in migrated.graph.edges)
+        source.title = "Administrator source title"
+        source.active = True
+        session.commit()
+        KnowledgeRepository(seed_path).seed_catalog(session)
+        assert source.active is True

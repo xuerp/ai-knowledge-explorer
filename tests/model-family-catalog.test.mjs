@@ -25,6 +25,17 @@ const { groupModelProductLines, isCurrentProductLineVersion } = await vite.ssrLo
 );
 test.after(() => vite.close());
 
+test("family latest change includes concrete releases without taking another family's update", async () => {
+  const { latestFamilyChange } = await vite.ssrLoadModule("/src/domain/family-evolution.ts");
+  const changes = [...snapshot.changes].reverse();
+  const before = structuredClone(changes);
+  const latest = latestFamilyChange(changes, "e-gemini", snapshot.entities);
+  assert.equal(latest.entityId, "e-gemini-4-pending");
+  assert.equal(latest.date, "2026-10-13");
+  assert.deepEqual(changes, before);
+  assert.equal(latestFamilyChange(changes, "missing-family", snapshot.entities), undefined);
+});
+
 test("Mistral document links stay concise while all independently reviewed fragments remain intact", async () => {
   const { uniqueSourceLinks } = await vite.ssrLoadModule("/src/domain/source-links.ts");
   const modelIds = new Set(["e-mistral-large-3", "e-mistral-large-4"]);

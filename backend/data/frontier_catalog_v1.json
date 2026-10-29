@@ -155,6 +155,25 @@
       "reviewedAt": "2026-10-29",
       "reviewer": "Codex source comparison",
       "scope": "Official October 6/8 model release and deprecation dates; redirects are not treated as request failures. Prices not verified for Nano Banana 2.1."
+    },
+    "withdrawnDemoSourceReview": {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex source comparison; not an independent human audit",
+      "sourceId": "s-openai-gpt5",
+      "preservedRelationIds": [
+        "r1",
+        "r3",
+        "r7",
+        "r8",
+        "r9",
+        "r11",
+        "r19",
+        "r20",
+        "r21",
+        "r30",
+        "r43"
+      ],
+      "method": "Retain all relation records; verify provider and integration links against actual official documentation and retract unsupported lineage, architecture, benchmark and competition labels. Original records remain in Git history."
     }
   },
   "entities": [
@@ -442,7 +461,23 @@
     {
       "id": "e-gemini",
       "latestVersion": "4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite",
-      "lastUpdatedAt": "2026-10-29"
+      "lastUpdatedAt": "2026-10-29",
+      "knowledge": {
+        "limitations": [
+          {
+            "zh": "不同区域、产品入口和模型档位的可用性与限制可能不同。",
+            "en": "Availability and limits vary by region, product surface and model tier."
+          },
+          {
+            "zh": "多模态回答仍可能误读图表、视频时序或细小视觉信息。",
+            "en": "Multimodal answers can still misread charts, temporal video details or small visual elements."
+          },
+          {
+            "zh": "价格、配额与可用性以具体型号和接入渠道的官方资料为准；尚未核实的条件保持未知。",
+            "en": "Verify prices, quotas and availability for the exact model and access channel; unverified conditions remain unknown."
+          }
+        ]
+      }
     },
     {
       "id": "e-gemini-15-pro",
@@ -28968,7 +29003,7 @@
             ],
             "sourceIds": [
               "s-openai-about",
-              "s-openai-gpt5",
+              "s-gpt5-launch-reviewed",
               "s-openai-codex",
               "s-openai-agents-sdk"
             ]
@@ -28999,7 +29034,7 @@
             ],
             "sourceIds": [
               "s-openai-about",
-              "s-openai-gpt5",
+              "s-gpt5-launch-reviewed",
               "s-openai-codex",
               "s-openai-agents-sdk"
             ]
@@ -29030,14 +29065,14 @@
             ],
             "sourceIds": [
               "s-openai-about",
-              "s-openai-gpt5",
+              "s-gpt5-launch-reviewed",
               "s-openai-codex",
               "s-openai-agents-sdk"
             ]
           }
         ]
       },
-      "lastUpdatedAt": "2026-10-03"
+      "lastUpdatedAt": "2026-10-29"
     },
     {
       "id": "e-swebench",
@@ -39505,6 +39540,23 @@
         "c-lifecycle-e-gemini-31-flash-image-20261029",
         "c-nano-banana21-ga-20261029"
       ]
+    },
+    {
+      "id": "s-openai-gpt5",
+      "title": {
+        "zh": "已撤回的 GPT-5 演示占位来源",
+        "en": "Withdrawn GPT-5 demo placeholder"
+      },
+      "url": "https://openai.com/",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-07-12",
+      "verifiedAt": "",
+      "type": "official",
+      "sourceExcerpt": "Withdrawn on 2026-10-29: this placeholder used an unrelated homepage and fabricated 2026-07-12 publication date. It supports no current claim or graph relation. The actual official GPT-5 release is recorded separately as 2025-08-07.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "supportsClaimIds": []
     }
   ],
   "claims": [
@@ -46664,6 +46716,138 @@
       "kind": "part-of",
       "confidence": "verified",
       "sourceIds": ["s-google-gemini-lifecycle-20261029", "s-google-nano-banana21-model-20261029"]
+    },
+    {
+      "id": "r1",
+      "fromId": "e-gpt",
+      "toId": "e-openai",
+      "kind": "developed-by",
+      "confidence": "verified",
+      "sourceIds": ["s-openai-catalog-20261001"],
+      "label": {
+        "zh": "OpenAI 官方型号目录",
+        "en": "OpenAI official model catalog"
+      }
+    },
+    {
+      "id": "r3",
+      "fromId": "e-gpt",
+      "toId": "e-claude",
+      "kind": "competes-with",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r7",
+      "fromId": "e-gpt",
+      "toId": "e-mmlu",
+      "kind": "benchmarked-on",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r8",
+      "fromId": "e-gpt",
+      "toId": "e-transformer-paper",
+      "kind": "based-on",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r9",
+      "fromId": "e-cursor",
+      "toId": "e-gpt",
+      "kind": "uses",
+      "confidence": "verified",
+      "sourceIds": ["s-cursor-docs"],
+      "label": {
+        "zh": "Cursor 提供部分 GPT 型号入口；受账户与套餐条件限制",
+        "en": "Cursor offers selected GPT models; account and plan conditions apply"
+      }
+    },
+    {
+      "id": "r11",
+      "fromId": "e-langchain",
+      "toId": "e-gpt",
+      "kind": "uses",
+      "confidence": "verified",
+      "sourceIds": ["s-langchain-overview"],
+      "label": {
+        "zh": "LangChain 文档包含 GPT 模型集成示例",
+        "en": "LangChain documents GPT model integration"
+      }
+    },
+    {
+      "id": "r19",
+      "fromId": "e-gpt-45",
+      "toId": "e-gpt-4o",
+      "kind": "successor-of",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r20",
+      "fromId": "e-gpt-5",
+      "toId": "e-gpt-45",
+      "kind": "successor-of",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r21",
+      "fromId": "e-gpt-5",
+      "toId": "e-openai",
+      "kind": "developed-by",
+      "confidence": "verified",
+      "sourceIds": ["s-gpt5-launch-reviewed"],
+      "label": {
+        "zh": "OpenAI 发布 GPT-5（2025-08-07）",
+        "en": "OpenAI released GPT-5 (2025-08-07)"
+      }
+    },
+    {
+      "id": "r30",
+      "fromId": "e-gpt-5",
+      "toId": "e-claude-45",
+      "kind": "competes-with",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
+    },
+    {
+      "id": "r43",
+      "fromId": "e-gpt-5",
+      "toId": "e-gemini-25-pro",
+      "kind": "competes-with",
+      "confidence": "unverified",
+      "sourceIds": [],
+      "label": {
+        "zh": "待核实：原演示来源不支持此关系",
+        "en": "Unverified: the withdrawn demo source did not establish this relation"
+      }
     }
   ],
   "timeline": {
