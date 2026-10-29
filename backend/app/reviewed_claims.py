@@ -26,7 +26,9 @@ def apply_reviewed_claims(snapshot: KnowledgeSnapshot, path: Path) -> None:
         if any(evidence.get(item.id) != item for item in expected_sources):
             continue
         if before.id != after.id or after.entity_id not in entities:
-            raise ValueError("A reviewed correction must retain its claim ID and resolve its entity.")
+            raise ValueError(
+                "A reviewed correction must retain its claim ID and resolve its entity."
+            )
         if after.source_ids != before.source_ids:
             raise ValueError("A correction cannot silently replace the reviewed evidence.")
         claims[before.id] = after
