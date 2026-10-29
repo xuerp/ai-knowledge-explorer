@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-28",
+  "updatedAt": "2026-10-29",
   "summary": {
     "zh": "内测与整体验收进行中，尚未达到稳定正式版",
     "en": "Internal testing and full acceptance in progress; not yet a stable release"
@@ -19,8 +19,8 @@
         "en": "Browsing, filtering and linked navigation are retained."
       },
       "verified": {
-        "zh": "基础浏览与部分跨页操作已测；同版全流程复验未完成。",
-        "en": "Basic browsing and some cross-page flows tested; full same-version acceptance remains open."
+        "zh": "新网址主要页面与筛选、搜索、对比、跨页入口已检查；未据此宣称全部业务场景通过。",
+        "en": "Main pages, filters, search, comparison and linked navigation checked at the new address; this does not establish all business scenarios."
       }
     },
     {
@@ -33,8 +33,8 @@
         "en": "Sign-in, research saving, revision, history and report export."
       },
       "verified": {
-        "zh": "本地主流程、桌面/手机报告及 PDF 已复验；不代表所有选型场景通过。",
-        "en": "Local main flow, desktop/mobile reports and PDF rechecked; not all decision scenarios accepted."
+        "zh": "新网址已验证登录、研究保存、修改保留旧版、重开、Markdown/PDF 下载和手机报告；字体修复正在发布复验。",
+        "en": "Sign-in, saved research, revisions retaining the original, reopening, Markdown/PDF downloads and mobile reports tested online. Font fix is being deployed and rechecked."
       }
     },
     {
@@ -75,8 +75,8 @@
         "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
-        "zh": "新网址已部署完整前后端版本；版本、数据库迁移、CI 与接口冒烟已通过，登录后完整业务流程和数据整体验收仍待完成。",
-        "en": "The complete frontend and backend are deployed at the new address. Release versions, database migration, CI and API smoke checks passed; authenticated end-to-end flows and full data acceptance remain open."
+        "zh": "前后端已统一从 main 发布；README 与页面共用进度记录，当前补齐数据复核与导出修复的发布后验证。",
+        "en": "Frontend and backend now deploy from main. README and pages share the status record; source reviews and export fixes are undergoing release verification."
       }
     }
   ]

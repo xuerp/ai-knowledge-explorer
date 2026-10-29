@@ -144,6 +144,12 @@
           "actor": "legacy-admin@local"
         }
       ]
+    },
+    "geminiArgonReview": {
+      "reviewedAt": "2026-10-29",
+      "entityId": "e-gemini-4-pending",
+      "method": "Manual review of current official model page and dated release notes; historical placeholder claim retained with validity end date.",
+      "pricing": "Not verified; remains unknown."
     }
   },
   "entities": [
@@ -430,8 +436,8 @@
     },
     {
       "id": "e-gemini",
-      "latestVersion": "3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite · 3.1 Pro Preview",
-      "lastUpdatedAt": "2026-10-01"
+      "latestVersion": "4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite",
+      "lastUpdatedAt": "2026-10-29"
     },
     {
       "id": "e-gemini-15-pro",
@@ -5294,13 +5300,13 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "Google 当前公开的 Pro 级复杂推理与多模态型号；仍处于 Preview，Gemini 4 尚未正式发布。",
-        "en": "Google's current public Pro model for complex reasoning and multimodal work; it remains in preview and Gemini 4 is not officially released."
+        "zh": "Google 的 Pro 级复杂推理与多模态预览型号；Gemini 4 Argon 已另设正式版本档案。",
+        "en": "A Pro-tier preview model for complex reasoning and multimodal work; Gemini 4 Argon has a separate stable model record."
       },
       "status": "preview",
       "tags": ["具体版本", "Gemini 3", "Pro", "Preview", "多模态", "Agent"],
       "firstReleasedAt": "2026-02-19",
-      "lastUpdatedAt": "2026-09-29",
+      "lastUpdatedAt": "2026-10-29",
       "release": {
         "generation": "Gemini 3",
         "variant": "3.1 Pro",
@@ -5677,10 +5683,10 @@
       "type": "model",
       "slug": "gemini-4",
       "name": {
-        "zh": "Gemini 4（待发布）",
-        "en": "Gemini 4 (pending)"
+        "zh": "Gemini 4 Argon",
+        "en": "Gemini 4 Argon"
       },
-      "aliases": ["Gemini 4", "Gemini 4 Pro"],
+      "aliases": ["Gemini 4", "Gemini 4 Argon", "gemini-4-argon"],
       "familyId": "e-gemini",
       "vendor": "Google DeepMind",
       "origin": {
@@ -5688,62 +5694,101 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "用户关注的下一代 Gemini 占位记录；截至 2026-09-29，Google 尚未公布正式型号、API ID 或规格。",
-        "en": "A placeholder for the requested next-generation Gemini; as of 2026-09-29 Google has not published an official model, API ID, or specifications."
+        "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+        "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
       },
-      "status": "rumor",
-      "tags": ["待发布", "未核验", "Gemini 4"],
-      "lastUpdatedAt": "2026-09-29",
+      "status": "active",
+      "tags": ["具体版本", "Gemini 4", "推理", "多模态"],
+      "lastUpdatedAt": "2026-10-29",
       "release": {
         "generation": "Gemini 4",
-        "variant": "Unannounced",
-        "releaseId": "gemini-4-pending",
-        "apiModelIds": [],
-        "stage": "pending",
+        "variant": "Argon",
+        "releaseId": "gemini-4-argon",
+        "apiModelIds": ["gemini-4-argon"],
+        "stage": "stable",
         "productLine": {
-          "id": "gemini-pro",
+          "id": "gemini-argon",
           "name": {
-            "zh": "Gemini Pro（暂定）",
-            "en": "Gemini Pro (provisional)"
+            "zh": "Gemini Argon",
+            "en": "Gemini Argon"
           },
           "positioning": {
-            "zh": "用户关注的下一代旗舰占位，尚未得到官方确认",
-            "en": "Placeholder for a requested next-generation flagship; not officially confirmed"
+            "zh": "复杂软件工程、数学科学推理与多步 Agent",
+            "en": "Complex software engineering, mathematical and scientific reasoning, and multi-step agents"
           }
         },
-        "lastVerifiedAt": "2026-09-29",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-29",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Gemini Developer API",
+            "modelId": "gemini-4-argon",
+            "url": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon"
+          }
+        ],
+        "catalogCurrent": true,
+        "releasedAt": "2026-10-13"
       },
       "specs": {
-        "contextWindow": "尚未公布",
-        "inputPrice": "尚未公布",
-        "outputPrice": "尚未公布",
-        "modalities": "尚未公布",
-        "toolUse": "尚未公布",
-        "availability": "尚未正式发布"
+        "contextWindow": "1,048,576 统一输入与输出；默认同步最大输出 65,536，long decode 最高 1,048,576",
+        "inputPrice": null,
+        "outputPrice": null,
+        "modalities": "文本、图像、视频、音频与 PDF 输入；文本输出",
+        "toolUse": "函数调用、结构化输出、代码执行、搜索；Computer Use 为 Preview",
+        "availability": "Gemini API GA · Google AI Studio"
       },
-      "capabilities": [],
+      "capabilities": [
+        {
+          "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+          "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents.",
+          "confidence": "verified"
+        }
+      ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "该条目用于追踪正式发布，不采用社区泄露或推测参数。",
-            "en": "This entry tracks an official release and does not use leaked or speculative specifications."
+            "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+            "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
           }
         ],
         "significance": {
-          "zh": "在官方资料出现前，该型号不会进入决策推荐或正式对比。",
-          "en": "Until official documentation appears, this model is excluded from recommendations and formal comparisons."
+          "zh": "将现有待发布占位更新为官方正式型号",
+          "en": "Replaces the existing pending entry with the official stable model"
         },
-        "keyPoints": [],
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "正式 API 型号",
+              "en": "Stable API model"
+            },
+            "description": {
+              "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+              "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+            },
+            "sourceIds": ["s-google-gemini4-argon-20261029"]
+          },
+          {
+            "title": {
+              "zh": "统一上下文与输出",
+              "en": "Unified context and output"
+            },
+            "description": {
+              "zh": "1,048,576 统一输入与输出；默认同步最大输出 65,536，long decode 最高 1,048,576",
+              "en": "1,048,576 tokens shared by input and output; default synchronous output 65,536, up to 1,048,576 with long decode."
+            },
+            "sourceIds": ["s-google-gemini4-argon-20261029"]
+          }
+        ],
         "useCases": [],
         "limitations": [
           {
-            "zh": "尚无官方型号、价格、上下文或发布日期。",
-            "en": "No official model ID, pricing, context, or release date is available."
+            "zh": "价格本轮未核实；明确缓存不支持，仅支持隐式缓存；Computer Use 仍为预览。",
+            "en": "Pricing was not verified in this review. Explicit caching is unsupported; implicit caching is supported. Computer Use remains preview."
           }
         ],
-        "officialUrl": "https://ai.google.dev/gemini-api/docs/models"
-      }
+        "officialUrl": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon"
+      },
+      "firstReleasedAt": "2026-10-13"
     },
     {
       "id": "e-deepseek-v4-pro",
@@ -24929,14 +24974,14 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "Gemini 1.0 Pro：Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-        "en": "Gemini 1.0 Pro is a documented historical release in the Gemini Pro line."
+        "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+        "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini."
       },
       "status": "deprecated",
       "tags": ["具体版本", "Gemini Pro"],
       "latestVersion": null,
       "firstReleasedAt": "2023-12-13",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "contextWindow": null,
         "inputPrice": null,
@@ -24947,8 +24992,8 @@
       },
       "capabilities": [
         {
-          "zh": "Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-          "en": "Officially documented Gemini 1.0 Pro release.",
+          "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+          "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini.",
           "confidence": "verified"
         }
       ],
@@ -24971,7 +25016,7 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2023-12-13",
-        "lastVerifiedAt": "2026-10-01",
+        "lastVerifiedAt": "2026-10-29",
         "accessChannels": []
       },
       "aliases": ["Gemini 1.0 Pro", "gemini-pro"],
@@ -24979,8 +25024,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "Gemini 1.0 Pro：Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-            "en": "Gemini 1.0 Pro is a documented historical release in the Gemini Pro line."
+            "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+            "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini."
           }
         ],
         "significance": {
@@ -24994,8 +25039,8 @@
               "en": "Release and iteration"
             },
             "description": {
-              "zh": "2023-12-13：Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-              "en": "Official release: 2023-12-13. Gemini 1.0 Pro is a documented historical release in the Gemini Pro line."
+              "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+              "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini."
             },
             "sourceIds": ["s-history-gemini-10-pro"]
           }
@@ -31608,9 +31653,7 @@
       "type": "official",
       "sourceExcerpt": "temperature, top_p, and top_k are deprecated and ignored.",
       "sourceExcerptKind": "quote",
-      "supportsClaimIds": [
-        "c-change-gemini-sampling-deprecated"
-      ]
+      "supportsClaimIds": ["c-change-gemini-sampling-deprecated"]
     },
     {
       "id": "s-google-video-understanding-20261025",
@@ -39252,6 +39295,40 @@
       "type": "official",
       "supportsClaimIds": null,
       "contradictsClaimIds": null
+    },
+    {
+      "id": "s-google-gemini4-argon-20261029",
+      "title": {
+        "zh": "Gemini 4 Argon 官方型号页与发布日志",
+        "en": "Gemini 4 Argon official model page and release notes"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "type": "official",
+      "sourceExcerpt": "Stable: gemini-4-argon; unified context limit 1,048,576; default synchronous output 65,536; long decode up to 1,048,576.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "supportsClaimIds": ["c-gemini4-argon-ga-20261029", "c-gemini4-argon-context-20261029"]
+    },
+    {
+      "id": "s-google-gemini4-release-20261029",
+      "title": {
+        "zh": "Gemini API 官方发布日志：2026-10-13",
+        "en": "Gemini API official release notes: 2026-10-13"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publisher": "Google",
+      "publishedAt": "2026-10-13",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "type": "official",
+      "sourceExcerpt": "Gemini 4 Argon (gemini-4-argon) generally available (GA)",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "supportsClaimIds": ["c-gemini4-argon-ga-20261029"]
     }
   ],
   "claims": [
@@ -39347,7 +39424,8 @@
       "observedAt": "2026-09-29",
       "subject": "Gemini 4",
       "predicate": "official-release-status",
-      "objectOrValue": "not-officially-listed-as-of-2026-09-29"
+      "objectOrValue": "not-officially-listed-as-of-2026-09-29",
+      "validTo": "2026-10-12"
     },
     {
       "id": "c-deepseek-v4-pro-official-specs",
@@ -41768,17 +41846,17 @@
       "id": "c-history-gemini-10-pro",
       "entityId": "e-gemini-10-pro",
       "text": {
-        "zh": "Gemini 1.0 Pro 于 2023-12-13 发布。Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-        "en": "Gemini 1.0 Pro was released on 2023-12-13."
+        "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+        "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini."
       },
       "confidence": "verified",
       "sourceIds": ["s-history-gemini-10-pro"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
       "validFrom": "2023-12-13",
       "validTo": null,
       "subject": "Gemini 1.0 Pro",
-      "predicate": "release",
+      "predicate": "developer-api-availability",
       "objectOrValue": "2023-12-13"
     },
     {
@@ -42580,7 +42658,10 @@
         "en": "temperature, top_p and top_k are deprecated starting with Gemini 3.6 Flash and 3.5 Flash-Lite; these models ignore them, while later generations may reject them."
       },
       "confidence": "verified",
-      "sourceIds": ["s-change-gemini-sampling-deprecated", "s-change-gemini-sampling-guide-20261026"],
+      "sourceIds": [
+        "s-change-gemini-sampling-deprecated",
+        "s-change-gemini-sampling-guide-20261026"
+      ],
       "updatedAt": "2026-10-02",
       "observedAt": "2026-10-02",
       "validFrom": "2026-07-21",
@@ -43653,9 +43734,7 @@
         "en": "Gemini 2.5 Pro supports video input; Gemini 2.5 and later allow up to 10 videos per request. Check duration limits against context size and media resolution."
       },
       "confidence": "verified",
-      "sourceIds": [
-        "s-google-video-understanding-20261025"
-      ],
+      "sourceIds": ["s-google-video-understanding-20261025"],
       "updatedAt": "2026-10-25",
       "subject": null,
       "predicate": null,
@@ -44661,6 +44740,38 @@
       "validFrom": null,
       "validTo": null,
       "observedAt": "2026-10-16T02:31:16.508169+00:00"
+    },
+    {
+      "id": "c-gemini4-argon-ga-20261029",
+      "entityId": "e-gemini-4-pending",
+      "text": {
+        "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+        "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini4-argon-20261029", "s-google-gemini4-release-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini 4 Argon",
+      "predicate": "official-release-status",
+      "objectOrValue": "stable",
+      "validFrom": "2026-10-13"
+    },
+    {
+      "id": "c-gemini4-argon-context-20261029",
+      "entityId": "e-gemini-4-pending",
+      "text": {
+        "zh": "1,048,576 统一输入与输出；默认同步最大输出 65,536，long decode 最高 1,048,576",
+        "en": "1,048,576 tokens shared by input and output; default synchronous output 65,536, up to 1,048,576 with long decode."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini4-argon-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini 4 Argon",
+      "predicate": "context-output-limits",
+      "objectOrValue": "unified-1048576-default-output-65536-long-decode-1048576",
+      "validFrom": null
     }
   ],
   "relations": [
@@ -47387,7 +47498,10 @@
             "en": "Check each model before reusing old settings."
           }
         },
-        "sourceIds": ["s-change-gemini-sampling-deprecated", "s-change-gemini-sampling-guide-20261026"],
+        "sourceIds": [
+          "s-change-gemini-sampling-deprecated",
+          "s-change-gemini-sampling-guide-20261026"
+        ],
         "confidence": "verified"
       },
       {
@@ -47549,6 +47663,23 @@
         },
         "sourceIds": ["s-change-gemini31-lite-preview-shutdown"],
         "confidence": "verified"
+      },
+      {
+        "id": "t-family-gemini4-argon-ga-20261013",
+        "date": "2026-10-13",
+        "title": {
+          "zh": "Gemini 4 Argon 正式发布",
+          "en": "Gemini 4 Argon GA"
+        },
+        "summary": {
+          "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+          "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+        },
+        "kind": "release",
+        "dateKind": "release",
+        "confidence": "verified",
+        "sourceIds": ["s-google-gemini4-release-20261029"],
+        "releaseEntityId": "e-gemini-4-pending"
       }
     ],
     "e-gpt-6-astra": [
@@ -55010,12 +55141,12 @@
         "id": "t-history-gemini-10-pro",
         "date": "2023-12-13",
         "title": {
-          "zh": "Gemini 1.0 Pro 发布",
-          "en": "Gemini 1.0 Pro released"
+          "zh": "Gemini Pro 开放开发者 API",
+          "en": "Gemini Pro developer API availability"
         },
         "summary": {
-          "zh": "Gemini 1.0 Pro 的公开版本发布，保留该产品线的真实迭代记录。",
-          "en": "Gemini 1.0 Pro is a documented historical release in the Gemini Pro line."
+          "zh": "Gemini Pro 于 2023-12-13 向开发者开放 Gemini API；这是 API 开放节点，不是 Gemini 首次公众发布日。",
+          "en": "Gemini Pro became available through the Gemini API on 2023-12-13; this is developer API availability, not the first public announcement of Gemini."
         },
         "kind": "release",
         "dateKind": "release",
@@ -56202,6 +56333,25 @@
         "kind": "release",
         "sourceIds": ["s-hunyuan12h-a13b-release-0", "s-hunyuan12h-a13b-release-1"],
         "confidence": "verified"
+      }
+    ],
+    "e-gemini-4-pending": [
+      {
+        "id": "t-gemini4-argon-ga-20261013",
+        "date": "2026-10-13",
+        "title": {
+          "zh": "Gemini 4 Argon 正式发布",
+          "en": "Gemini 4 Argon GA"
+        },
+        "summary": {
+          "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
+          "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+        },
+        "kind": "release",
+        "dateKind": "release",
+        "confidence": "verified",
+        "sourceIds": ["s-google-gemini4-release-20261029"],
+        "releaseEntityId": "e-gemini-4-pending"
       }
     ]
   },

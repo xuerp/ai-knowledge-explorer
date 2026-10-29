@@ -8,7 +8,7 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
 | GPT family      | anchor |       40 |            17 |       55 |            3 |           3 |                    40 |                   16 |        51 |               67 |
 | Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               40 |
-| Gemini family   | anchor |       53 |            11 |       60 |            3 |           3 |                    34 |                   33 |        56 |               43 |
+| Gemini family   | anchor |       53 |            12 |       61 |            3 |           3 |                    33 |                   34 |        56 |               44 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
 | Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    7 |        28 |               36 |
 | Kimi            | core   |        8 |             2 |       13 |            3 |           3 |                     8 |                    4 |        11 |               23 |
@@ -46,7 +46,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Claude family   | Claude Fable                  |       2 |               2 |                 2 | 2026-06-09 → 2026-09-01 |
 | Claude family   | Claude Opus                   |       9 |               9 |                 9 | 2024-03-04 → 2026-09-22 |
 | Claude family   | Claude Haiku                  |       3 |               3 |                 3 | 2024-03-13 → 2025-10-15 |
-| Gemini family   | Gemini Pro                    |      10 |               9 |                 9 | 2023-12-13 → 2026-02-19 |
+| Gemini family   | Gemini Pro                    |       9 |               9 |                 9 | 2023-12-13 → 2026-02-19 |
 | Gemini family   | Gemini Flash                  |       9 |               9 |                 9 | 2024-05-23 → 2026-09-02 |
 | Gemini family   | Gemini Flash-Lite             |       5 |               5 |                 5 | 2025-02-25 → 2026-07-21 |
 | Gemini family   | Gemini Live                   |       8 |               6 |                 6 | 2025-04-09 → 2026-09-15 |
@@ -57,6 +57,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Gemini family   | Gemini Deep Research          |       2 |               2 |                 2 | 2026-04-21 → 2026-04-21 |
 | Gemini family   | Gemini Embedding              |       2 |               2 |                 2 | 2025-07-14 → 2026-04-22 |
 | Gemini family   | Gemini Robotics ER            |       3 |               3 |                 3 | 2025-09-25 → 2026-07-30 |
+| Gemini family   | Gemini Argon                  |       1 |               1 |                 1 | 2026-10-13 → 2026-10-13 |
 | DeepSeek family | DeepSeek V general            |       9 |               9 |                 9 | 2024-05-17 → 2025-12-01 |
 | DeepSeek family | DeepSeek R                    |       4 |               3 |                 3 | 2025-01-20 → 2025-12-01 |
 | DeepSeek family | DeepSeek Pro                  |       2 |               2 |                 2 | 2026-04-24 → 2026-08-13 |

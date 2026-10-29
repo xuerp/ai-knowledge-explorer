@@ -98,6 +98,11 @@ def test_decision_refuses_to_rank_claims_without_resolved_entities(snapshot: Kno
 
 def test_decision_excludes_pending_models_even_when_the_status_claim_is_verified():
     snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    # Exercise the pending-state contract independently of a model's real
+    # release lifecycle: Gemini 4 Argon is now officially available.
+    pending = next(entity for entity in snapshot.entities if entity.id == "e-gemini-4-pending")
+    pending.release.stage = "pending"
+    pending.status = "rumor"
     result = EngagementService._build_decision(
         context(candidateEntityIds=["e-gemini-4-pending"]),
         [

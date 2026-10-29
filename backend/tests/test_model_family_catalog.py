@@ -150,9 +150,9 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     )
     seed = KnowledgeRepository(SEED).load_seed()
     expected = catalog_changes(seed)
-    # Reviewed prior releases plus the dated historical Hunyuan A13B weights.
-    assert len(catalog_release_changes(seed)) == 201
-    assert len(expected) == 259
+    # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
+    assert len(catalog_release_changes(seed)) == 202
+    assert len(expected) == 260
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -169,7 +169,7 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
         assert snapshot["researchQuestions"]
         changes = snapshot["changes"]
         assert changes == [item.model_dump(mode="json", by_alias=True) for item in expected]
-        assert changes[0]["date"] == "2026-10-06"
+        assert changes[0]["date"] == "2026-10-13"
         for change in changes:
             version = next(
                 item for item in snapshot["entities"] if item["id"] == change["entityId"]
