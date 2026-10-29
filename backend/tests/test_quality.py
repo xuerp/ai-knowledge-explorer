@@ -190,9 +190,20 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.claims_required == 150
     assert report.claims_remaining == max(0, 150 - report.claim_count)
     assert report.claims_with_missing_evidence == []
-    assert report.relations_with_missing_evidence == []
+    # Withdrawn placeholder links remain in the audit denominator. The gate
+    # must report their missing support rather than make the catalog look clean.
+    withdrawn = {"r3", "r7", "r8", "r19", "r20", "r30", "r43"}
+    assert set(report.relations_with_missing_evidence) == withdrawn
+    edges = {edge.id: edge for edge in snapshot.graph.edges}
+    assert all(edges[key].confidence == "unverified" for key in withdrawn)
+    assert all(not edges[key].source_ids for key in withdrawn)
     assert report.timeline_entries_with_missing_evidence == []
-    assert report.evidence_reference_coverage == 1
+    reference_records = (
+        len(snapshot.claims)
+        + len(snapshot.graph.edges)
+        + sum(len(entries) for entries in snapshot.timeline.values())
+    )
+    assert report.evidence_reference_coverage == round(1 - len(withdrawn) / reference_records, 4)
     assert report.official_evidence_ratio >= 0.6
     assert report.reviewed_evidence_ratio >= 0.9
     assert report.fresh_evidence_ratio >= 0.8

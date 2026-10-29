@@ -59,7 +59,9 @@ export function applyCatalogOverlays(baseline, extension, frontier) {
   snapshot.changes = mergeItems(snapshot.changes, catalogChanges(snapshot), true).sort(
     (a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id),
   );
-  const verifiedAt = [
+  const catalogDate = [
+    baseline.meta?.retrievedAt?.slice(0, 10),
+    frontier.meta?.updatedAt,
     extension.meta?.verifiedAt,
     frontier.meta?.verifiedAt,
     frontier.meta?.changeEventsVerifiedAt,
@@ -67,8 +69,8 @@ export function applyCatalogOverlays(baseline, extension, frontier) {
     .filter(Boolean)
     .sort()
     .at(-1);
-  if (verifiedAt) {
-    snapshot.meta.retrievedAt = `${verifiedAt}T00:00:00Z`;
+  if (catalogDate) {
+    snapshot.meta.retrievedAt = `${catalogDate}T00:00:00Z`;
   }
   return snapshot;
 }

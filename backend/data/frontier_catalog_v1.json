@@ -2,7 +2,7 @@
   "meta": {
     "version": "frontier-catalog-v1",
     "verifiedAt": "2026-10-08",
-    "policy": "Official sources only; unknown fields remain unknown.",
+    "policy": "New catalogue facts require first-party sources; unknown fields remain unknown. Withdrawn placeholders remain only as unverified audit records.",
     "reviewScope": "All eight core families: publicly documented major generations and meaningful updates; release chronology and review dates audited 2026-10-01.",
     "changeEventsVerifiedAt": "2026-10-02",
     "ecosystemReferencesVerifiedAt": "2026-10-02",
@@ -10,8 +10,8 @@
       "reviewedAt": "2026-10-07",
       "publicationReceipt": "MISTRAL_FAMILY_PUBLICATION_12H_20261007.json",
       "models": ["e-mistral-large-4", "e-mistral-large-3"],
-      "method": "Formal first-party collection and separate per-candidate human review; no AI extraction.",
-      "classification": "Family membership is an explicit human catalog classification.",
+      "method": "First-party document capture and per-candidate review recorded by Codex; not an independent human audit.",
+      "classification": "Family membership is an explicit editorial catalog classification.",
       "pricePolicy": "Unverified billing interpretations remain unknown; promotional prices are not budget facts.",
       "dateQualificationReceipt": "MISTRAL_FAMILY_DATE_QUALIFICATION_12H_20261007.json"
     },
@@ -19,7 +19,7 @@
       "reviewedAt": "2026-10-07",
       "publicationReceipt": "MINIMAX_FAMILY_PUBLICATION_VERIFIED_12H_20261007.json",
       "models": ["e-minimax-m2-5", "e-minimax-m2-7"],
-      "method": "Manual observed browser capture, manual candidate preparation and separate individual approval; automated preflight failed",
+      "method": "Codex-observed browser capture, candidate preparation and individual review approval; automated preflight failed. Not an independent human audit.",
       "automatedPreflightPassed": false,
       "sourceDatePolicy": "Only release events have validFrom; source file dates stay source dates; current catalogue has no inferred publication date.",
       "pricePolicy": "Historical announcement/promotional prices are not current budget facts."
@@ -27,7 +27,7 @@
     "hunyuanA13bIntake": {
       "publicationReceipt": "HUNYUAN_A13B_PUBLICATION_FINAL_12H_20261008.json",
       "version": "e-hunyuan-a13b-instruct",
-      "method": "Formal source collection and individual human review",
+      "method": "Formal source collection and individual source comparison recorded by Codex; not an independent human audit.",
       "documentDatesUnknown": true,
       "newMissingFactDates": 0,
       "unverifiedPricesAndDeploymentCost": true,
@@ -82,13 +82,13 @@
           "actor": "legacy-admin@local"
         }
       ],
-      "datePolicy": "Source publication dates and fact effective dates remain unknown. Categorical claims use human verification freshness; original API quote expires after seven days from observation.",
+      "datePolicy": "Source publication dates and fact effective dates remain unknown. Categorical claims use recorded source-verification freshness; original API quote expires after seven days from observation.",
       "scope": "Original OpenAI API deployment and Standard uncached text pricing; Codex CLI installed local tool execution. Not CCSub prices, account access or measured task outcomes."
     },
     "decisionTaskIntake20261016": {
       "reviewedAt": "2026-10-16T04:55:55.236879",
       "reviewPackageSha256": "029c4f19587aa07da9961fe1d4a83dabfb27c85a8ddcf1e9e12a8fb54f112fd0",
-      "method": "Actual human consent, six individual existing review API approvals, approved public export; isolated operator database.",
+      "method": "User-authorized work; six individual existing review API approvals carried out by Codex, approved public export, isolated operator database. Not an independent human audit.",
       "captureQualification": "Official pages opened through web tool; short excerpt snapshots. Formal SafeHttpFetcher receipts preserved separately; failed capture is not bypassed or labelled successful. Publication and effective dates remain unknown.",
       "claimIds": [
         "claim-task-material-78be1a71a2cdaaa60b48",
@@ -174,7 +174,8 @@
         "r43"
       ],
       "method": "Retain all relation records; verify provider and integration links against actual official documentation and retract unsupported lineage, architecture, benchmark and competition labels. Original records remain in Git history."
-    }
+    },
+    "updatedAt": "2026-10-29"
   },
   "entities": [
     {
@@ -501,14 +502,14 @@
       "tags": ["具体版本", "Gemini版本", "长上下文", "多模态"],
       "latestVersion": null,
       "firstReleasedAt": "2024-02-15",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "contextWindow": "2M tokens",
-        "inputPrice": "$1.25 / 1M tokens（演示）",
-        "outputPrice": "$5.00 / 1M tokens（演示）",
+        "inputPrice": null,
+        "outputPrice": null,
         "modalities": "文本 · 图像 · 音频 · 视频",
         "toolUse": "函数调用 · 代码执行",
-        "availability": "Gemini API · Vertex AI"
+        "availability": "Gemini API 已于 2025-09-29 关闭；其他渠道须独立核对"
       },
       "capabilities": [
         {
@@ -603,14 +604,14 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "在长上下文基础上增加思考模式、代码和复杂多模态推理，是 Gemini 系列当前演示旗舰版本。",
-        "en": "Adds thinking, coding and complex multimodal reasoning on top of long context; the current demo Gemini flagship."
+        "zh": "Gemini 2.5 系列的 Pro 型号，支持思考、长上下文和多模态输入。Gemini API 已公告对新用户的访问限制，使用前需核对具体账户与渠道。",
+        "en": "The Pro model in Gemini 2.5 supports thinking, long context and multimodal input. Gemini API has announced access restrictions for new users; verify the exact account and channel."
       },
       "status": "active",
       "tags": ["具体版本", "Gemini版本", "推理", "多模态"],
       "latestVersion": null,
       "firstReleasedAt": "2025-03-25",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "specs": {
         "availability": "Gemini Developer API（此前活跃用户）",
         "inputPrice": "$1.25, prompts <= 200k tokens; $2.50, prompts > 200k tokens / 1M tokens",
@@ -706,8 +707,8 @@
         ],
         "introduction": [
           {
-            "zh": "在长上下文基础上增加思考模式、代码和复杂多模态推理，是 Gemini 系列当前演示旗舰版本。",
-            "en": "Adds thinking, coding and complex multimodal reasoning on top of long context; the current demo Gemini flagship."
+            "zh": "Gemini 2.5 系列的 Pro 型号，支持思考、长上下文和多模态输入。Gemini API 已公告对新用户的访问限制，使用前需核对具体账户与渠道。",
+            "en": "The Pro model in Gemini 2.5 supports thinking, long context and multimodal input. Gemini API has announced access restrictions for new users; verify the exact account and channel."
           }
         ],
         "significance": {
@@ -39548,12 +39549,12 @@
         "en": "Withdrawn GPT-5 demo placeholder"
       },
       "url": "https://openai.com/",
-      "publisher": "OpenAI",
+      "publisher": "AI Radar · withdrawn placeholder",
       "publishedAt": "",
-      "collectedAt": "2026-07-12",
+      "collectedAt": "2026-10-29",
       "verifiedAt": "",
-      "type": "official",
-      "sourceExcerpt": "Withdrawn on 2026-10-29: this placeholder used an unrelated homepage and fabricated 2026-07-12 publication date. It supports no current claim or graph relation. The actual official GPT-5 release is recorded separately as 2025-08-07.",
+      "type": "community",
+      "sourceExcerpt": "Withdrawn on 2026-10-29: this placeholder used an unrelated homepage and fabricated 2026-07-12 publication date. It supports no current claim or graph relation. The actual official GPT-5 release is recorded separately as 2025-08-07. The collectedAt date records this withdrawal review, not an original source capture.",
       "sourceExcerptKind": "summary",
       "originalLanguage": "en",
       "supportsClaimIds": []
