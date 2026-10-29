@@ -148,8 +148,13 @@
     "geminiArgonReview": {
       "reviewedAt": "2026-10-29",
       "entityId": "e-gemini-4-pending",
-      "method": "Manual review of current official model page and dated release notes; historical placeholder claim retained with validity end date.",
+      "method": "Codex comparison of the current official model page and dated release notes; historical placeholder claim retained with validity end date.",
       "pricing": "Not verified; remains unknown."
+    },
+    "geminiOctoberLifecycleReview": {
+      "reviewedAt": "2026-10-29",
+      "reviewer": "Codex source comparison",
+      "scope": "Official October 6/8 model release and deprecation dates; redirects are not treated as request failures. Prices not verified for Nano Banana 2.1."
     }
   },
   "entities": [
@@ -884,14 +889,14 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "Gemini 3 系列的通用 Flash 稳定版本，位于 3.8 Flash 之前。",
-        "en": "A stable general-purpose Flash release in the Gemini 3 series, preceding 3.8 Flash."
+        "zh": "Gemini 3.5 Flash：旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+        "en": "Gemini 3.5 Flash: The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
       },
       "specs": {
         "contextWindow": "1,048,576 input · 65,536 output tokens",
         "modalities": "文本 · 图像 · 视频 · 音频 · PDF 输入；文本输出",
         "toolUse": "函数调用 · 代码执行 · 结构化输出 · 搜索 Grounding",
-        "availability": "Gemini Developer API",
+        "availability": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
         "inputPrice": "$1.50 / 1M tokens",
         "outputPrice": "$9.00 / 1M tokens"
       },
@@ -902,16 +907,16 @@
           "confidence": "verified"
         }
       ],
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "Gemini 3", "Flash", "正式版"],
       "firstReleasedAt": "2026-05-19",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "release": {
         "generation": "Gemini 3",
         "variant": "3.5 Flash",
         "releaseId": "gemini-3.5-flash",
         "apiModelIds": ["gemini-3.5-flash"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gemini-flash",
           "name": {
@@ -924,7 +929,7 @@
           }
         },
         "releasedAt": "2026-05-19",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-29",
         "accessChannels": [
           {
             "type": "official-api",
@@ -932,7 +937,8 @@
             "modelId": "gemini-3.5-flash",
             "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash"
           }
-        ]
+        ],
+        "catalogCurrent": false
       },
       "knowledge": {
         "sections": [
@@ -987,6 +993,10 @@
           {
             "zh": "按具体型号和调用渠道核对；价格为 2026-10-05 记录的官方资料快照。使用标准付费层价格，排除 Batch 和缓存折扣；模态、上下文长度及工具费用按官方条件区分。",
             "en": "Gemini Developer API Standard paid tier; includes thinking tokens. Input price: $1.50 | Output price (including thinking tokens): $9.00\nVerified: 2026-10-05"
+          },
+          {
+            "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
           }
         ]
       }
@@ -1135,14 +1145,14 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "Gemini Flash 产品线在 3.8 之前的稳定迭代。",
-        "en": "The stable Gemini Flash iteration immediately before 3.8."
+        "zh": "Gemini 3.7 Flash：旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+        "en": "Gemini 3.7 Flash: The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
       },
       "specs": {
         "contextWindow": "1,048,576 input · 65,536 output tokens",
         "modalities": "文本 · 图像 · 视频 · 音频 · PDF 输入；文本输出",
         "toolUse": "函数调用 · 代码执行 · 结构化输出 · 搜索 Grounding",
-        "availability": "Gemini Developer API",
+        "availability": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
         "inputPrice": "$0.75 · through 2026-12-31 / 1M tokens",
         "outputPrice": "$3.75 · through 2026-12-31 / 1M tokens"
       },
@@ -1158,16 +1168,16 @@
           "confidence": "verified"
         }
       ],
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "Gemini 3", "Flash", "正式版"],
       "firstReleasedAt": "2026-08-13",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "release": {
         "generation": "Gemini 3",
         "variant": "3.7 Flash",
         "releaseId": "gemini-3.7-flash",
         "apiModelIds": ["gemini-3.7-flash"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gemini-flash",
           "name": {
@@ -1180,7 +1190,7 @@
           }
         },
         "releasedAt": "2026-08-13",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-29",
         "accessChannels": [
           {
             "type": "official-api",
@@ -1188,7 +1198,8 @@
             "modelId": "gemini-3.7-flash",
             "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash"
           }
-        ]
+        ],
+        "catalogCurrent": false
       },
       "knowledge": {
         "sections": [
@@ -1243,6 +1254,10 @@
           {
             "zh": "按具体型号和调用渠道核对；价格为 2026-10-05 记录的官方资料快照。使用标准付费层价格，排除 Batch 和缓存折扣；模态、上下文长度及工具费用按官方条件区分。",
             "en": "Gemini Developer API Standard paid tier; includes thinking tokens. Input price: $0.75 through December 31, 2026.$1.50 starting January 1, 2027. | Output price (including thinking tokens): $3.75 through December 31, 2026.$7.50 starting January 1, 2027.\nVerified: 2026-10-05"
+          },
+          {
+            "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
           }
         ]
       }
@@ -3112,12 +3127,12 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "面向高速、大规模图像生成与编辑的 Gemini 原生视觉型号。",
-        "en": "A Gemini-native visual model for fast, high-volume image generation and editing."
+        "zh": "Nano Banana 2 · Gemini 3.1 Flash Image：已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+        "en": "Nano Banana 2 · Gemini 3.1 Flash Image: Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
       },
       "specs": {
         "modalities": "文本 · 图像输入；图像输出",
-        "availability": "Gemini Developer API",
+        "availability": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
         "contextWindow": "131,072 input tokens · max output 32,768",
         "inputPrice": "$0.50 (text/image) / 1M tokens",
         "outputPrice": "$3 (text and thinking) $60.00 (images) / 1M tokens"
@@ -3134,16 +3149,16 @@
           "confidence": "verified"
         }
       ],
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "Gemini 图像生成", "正式版"],
       "firstReleasedAt": "2026-05-28",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-29",
       "release": {
         "generation": "Gemini 3.1",
         "variant": "Flash Image",
         "releaseId": "gemini-3.1-flash-image",
         "apiModelIds": ["gemini-3.1-flash-image"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gemini-image",
           "name": {
@@ -3156,7 +3171,7 @@
           }
         },
         "releasedAt": "2026-05-28",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-29",
         "accessChannels": [
           {
             "type": "official-api",
@@ -3164,7 +3179,8 @@
             "modelId": "gemini-3.1-flash-image",
             "url": "https://ai.google.dev/gemini-api/docs/models"
           }
-        ]
+        ],
+        "catalogCurrent": false
       },
       "knowledge": {
         "sections": [
@@ -3223,6 +3239,10 @@
           {
             "zh": "按具体型号和调用渠道核对；价格为 2026-10-05 记录的官方资料快照。使用标准付费层价格，排除 Batch 和缓存折扣；模态、上下文长度及工具费用按官方条件区分。",
             "en": "Gemini Developer API Standard paid tier; includes thinking tokens. Input price: $0.50 (text/image) | Output price: $3 (text and thinking) $60.00 (images) Equivalent to $0.045 per 0.5K image* $0.067 per 1K image*, $0.101 per 2K image*, and $0.151 per 4K image*.\nVerified: 2026-10-05"
+          },
+          {
+            "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+            "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
           }
         ]
       }
@@ -31635,6 +31655,123 @@
           }
         ]
       }
+    },
+    {
+      "id": "e-gemini-nano-banana-21",
+      "type": "model",
+      "slug": "gemini-nano-banana-2-1",
+      "name": {
+        "zh": "Gemini Nano Banana 2.1",
+        "en": "Gemini Nano Banana 2.1"
+      },
+      "aliases": ["Nano Banana 2.1", "gemini-nano-banana-2.1"],
+      "familyId": "e-gemini",
+      "vendor": "Google DeepMind",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
+      },
+      "summary": {
+        "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+        "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+      },
+      "specs": {
+        "contextWindow": "131,072 输入 · 32,768 输出 tokens",
+        "inputPrice": null,
+        "outputPrice": null,
+        "modalities": "文本、图像、视频与 PDF 输入 · 图像与文本输出",
+        "toolUse": "支持搜索 Grounding；不支持函数调用、代码执行或缓存",
+        "availability": "Gemini API GA · Google AI Studio"
+      },
+      "capabilities": [
+        {
+          "zh": "支持文本、图像、视频与 PDF 输入，输出图像和文本；输入上限 131,072 tokens，输出上限 32,768 tokens。",
+          "en": "Inputs: text, image, video and PDF; outputs: image and text. Input limit: 131,072 tokens; output limit: 32,768 tokens.",
+          "confidence": "verified"
+        }
+      ],
+      "status": "active",
+      "tags": ["具体版本", "Gemini 图像生成", "图像编辑"],
+      "firstReleasedAt": "2026-10-06",
+      "lastUpdatedAt": "2026-10-29",
+      "release": {
+        "generation": "Gemini Nano Banana 2.1",
+        "variant": "Image",
+        "releaseId": "gemini-nano-banana-2.1",
+        "apiModelIds": ["gemini-nano-banana-2.1"],
+        "stage": "stable",
+        "productLine": {
+          "id": "gemini-image",
+          "name": {
+            "zh": "Gemini 图像生成",
+            "en": "Gemini Image"
+          },
+          "positioning": {
+            "zh": "原生图像生成、编辑与专业视觉创作产品线",
+            "en": "Native image generation, editing, and professional visual creation"
+          }
+        },
+        "releasedAt": "2026-10-06",
+        "lastVerifiedAt": "2026-10-29",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Gemini Developer API",
+            "modelId": "gemini-nano-banana-2.1",
+            "url": "https://ai.google.dev/gemini-api/docs/models/gemini-nano-banana-2.1"
+          }
+        ],
+        "catalogCurrent": true
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+            "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+          }
+        ],
+        "significance": {
+          "zh": "独立的图像生成与编辑版本，不作为通用文本模型。",
+          "en": "A dedicated image generation and editing model, not a general text-only model."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "正式型号",
+              "en": "Stable model"
+            },
+            "description": {
+              "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+              "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+            },
+            "sourceIds": [
+              "s-google-gemini-lifecycle-20261029",
+              "s-google-nano-banana21-model-20261029"
+            ]
+          },
+          {
+            "title": {
+              "zh": "输入与输出限制",
+              "en": "Input and output limits"
+            },
+            "description": {
+              "zh": "支持文本、图像、视频与 PDF 输入，输出图像和文本；输入上限 131,072 tokens，输出上限 32,768 tokens。",
+              "en": "Inputs: text, image, video and PDF; outputs: image and text. Input limit: 131,072 tokens; output limit: 32,768 tokens."
+            },
+            "sourceIds": ["s-google-nano-banana21-model-20261029"]
+          }
+        ],
+        "useCases": [],
+        "limitations": [
+          {
+            "zh": "价格本轮未核实。支持 Batch，不支持 Flex、Priority、函数调用、代码执行与缓存。",
+            "en": "Pricing not verified in this review. Batch supported; Flex, Priority, function calling, code execution and caching unsupported."
+          }
+        ],
+        "officialUrl": "https://ai.google.dev/gemini-api/docs/models/gemini-nano-banana-2.1"
+      },
+      "latestVersion": null,
+      "metrics": []
     }
   ],
   "evidence": [
@@ -39329,6 +39466,45 @@
       "sourceExcerptKind": "summary",
       "originalLanguage": "en",
       "supportsClaimIds": ["c-gemini4-argon-ga-20261029"]
+    },
+    {
+      "id": "s-google-nano-banana21-model-20261029",
+      "title": {
+        "zh": "Gemini Nano Banana 2.1 官方型号页",
+        "en": "Gemini Nano Banana 2.1 official model page"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-nano-banana-2.1",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "type": "official",
+      "sourceExcerpt": "Stable model gemini-nano-banana-2.1. Text, Image, Video and PDF inputs; Image and Text outputs. Input token limit 131,072; output token limit 32,768.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "supportsClaimIds": ["c-nano-banana21-ga-20261029", "c-nano-banana21-specs-20261029"]
+    },
+    {
+      "id": "s-google-gemini-lifecycle-20261029",
+      "title": {
+        "zh": "Gemini API 2026 年 10 月发布与弃用日志",
+        "en": "Gemini API October 2026 releases and deprecations"
+      },
+      "url": "https://ai.google.dev/gemini-api/docs/changelog",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-29",
+      "type": "official",
+      "sourceExcerpt": "October 6: Nano Banana 2.1 GA; Gemini 3.1 Flash Image deprecated without a shutdown date. October 8: Gemini 3.7 Flash routes to 3.8 Flash; Gemini 3.5 Flash routes to 3.6 Flash.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "supportsClaimIds": [
+        "c-lifecycle-e-gemini-37-flash-20261029",
+        "c-lifecycle-e-gemini-35-flash-20261029",
+        "c-lifecycle-e-gemini-31-flash-image-20261029",
+        "c-nano-banana21-ga-20261029"
+      ]
     }
   ],
   "claims": [
@@ -39374,7 +39550,7 @@
         "en": "Gemini 3.1 Pro Preview uses the gemini-3.1-pro-preview API ID, supports 1,048,576 input and 65,536 output tokens, and uses different pricing above 200K tokens."
       },
       "confidence": "verified",
-      "sourceIds": ["s-google-gemini-3-1-pro"],
+      "sourceIds": ["s-google-gemini-3-1-pro", "s-specs-gemini-pricing"],
       "updatedAt": "2026-09-29",
       "observedAt": "2026-09-29",
       "subject": "Gemini 3.1 Pro Preview",
@@ -44772,6 +44948,86 @@
       "predicate": "context-output-limits",
       "objectOrValue": "unified-1048576-default-output-65536-long-decode-1048576",
       "validFrom": null
+    },
+    {
+      "id": "c-lifecycle-e-gemini-37-flash-20261029",
+      "entityId": "e-gemini-37-flash",
+      "text": {
+        "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+        "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini 3.7 Flash",
+      "predicate": "deprecated-on",
+      "objectOrValue": "2026-10-08",
+      "validFrom": "2026-10-08"
+    },
+    {
+      "id": "c-lifecycle-e-gemini-35-flash-20261029",
+      "entityId": "e-gemini-35-flash",
+      "text": {
+        "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+        "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini 3.5 Flash",
+      "predicate": "deprecated-on",
+      "objectOrValue": "2026-10-08",
+      "validFrom": "2026-10-08"
+    },
+    {
+      "id": "c-lifecycle-e-gemini-31-flash-image-20261029",
+      "entityId": "e-gemini-31-flash-image",
+      "text": {
+        "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+        "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Nano Banana 2 · Gemini 3.1 Flash Image",
+      "predicate": "deprecated-on",
+      "objectOrValue": "2026-10-06",
+      "validFrom": "2026-10-06"
+    },
+    {
+      "id": "c-nano-banana21-ga-20261029",
+      "entityId": "e-gemini-nano-banana-21",
+      "text": {
+        "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+        "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini-lifecycle-20261029", "s-google-nano-banana21-model-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini Nano Banana 2.1",
+      "predicate": "release",
+      "objectOrValue": "2026-10-06",
+      "validFrom": "2026-10-06"
+    },
+    {
+      "id": "c-nano-banana21-specs-20261029",
+      "entityId": "e-gemini-nano-banana-21",
+      "text": {
+        "zh": "支持文本、图像、视频与 PDF 输入，输出图像和文本；输入上限 131,072 tokens，输出上限 32,768 tokens。",
+        "en": "Inputs: text, image, video and PDF; outputs: image and text. Input limit: 131,072 tokens; output limit: 32,768 tokens."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-google-nano-banana21-model-20261029"],
+      "updatedAt": "2026-10-29",
+      "observedAt": "2026-10-29",
+      "subject": "Gemini Nano Banana 2.1",
+      "predicate": "input-output-limits",
+      "objectOrValue": "input-131072-output-32768",
+      "validFrom": null
     }
   ],
   "relations": [
@@ -46400,6 +46656,14 @@
       ],
       "validFrom": null,
       "validTo": null
+    },
+    {
+      "id": "r-family-nano-banana21",
+      "fromId": "e-gemini-nano-banana-21",
+      "toId": "e-gemini",
+      "kind": "part-of",
+      "confidence": "verified",
+      "sourceIds": ["s-google-gemini-lifecycle-20261029", "s-google-nano-banana21-model-20261029"]
     }
   ],
   "timeline": {
@@ -47680,6 +47944,146 @@
         "confidence": "verified",
         "sourceIds": ["s-google-gemini4-release-20261029"],
         "releaseEntityId": "e-gemini-4-pending"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-37-flash-20261029",
+        "date": "2026-10-08",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-37-flash",
+        "title": {
+          "zh": "Gemini 3.7 Flash 弃用与迁移",
+          "en": "Gemini 3.7 Flash deprecation and migration"
+        },
+        "summary": {
+          "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+          "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-35-flash-20261029",
+        "date": "2026-10-08",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-35-flash",
+        "title": {
+          "zh": "Gemini 3.5 Flash 弃用与迁移",
+          "en": "Gemini 3.5 Flash deprecation and migration"
+        },
+        "summary": {
+          "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+          "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-31-flash-image-20261029",
+        "date": "2026-10-06",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-31-flash-image",
+        "title": {
+          "zh": "Nano Banana 2 · Gemini 3.1 Flash Image 弃用与迁移",
+          "en": "Nano Banana 2 · Gemini 3.1 Flash Image deprecation and migration"
+        },
+        "summary": {
+          "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+          "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+            "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+            "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-nano-banana21-ga-20261006",
+        "date": "2026-10-06",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-nano-banana-21",
+        "title": {
+          "zh": "Gemini Nano Banana 2.1 正式发布",
+          "en": "Gemini Nano Banana 2.1 GA"
+        },
+        "summary": {
+          "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+          "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini-lifecycle-20261029",
+          "s-google-nano-banana21-model-20261029"
+        ],
+        "confidence": "verified"
       }
     ],
     "e-gpt-6-astra": [
@@ -47889,6 +48293,46 @@
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-gemini-35-flash"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-35-flash-20261029",
+        "date": "2026-10-08",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-35-flash",
+        "title": {
+          "zh": "Gemini 3.5 Flash 弃用与迁移",
+          "en": "Gemini 3.5 Flash deprecation and migration"
+        },
+        "summary": {
+          "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+          "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.6 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.6 Flash; update the model ID and review differences."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
       }
     ],
     "e-gemini-36-flash": [
@@ -47927,6 +48371,46 @@
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-gemini-37-flash"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-37-flash-20261029",
+        "date": "2026-10-08",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-37-flash",
+        "title": {
+          "zh": "Gemini 3.7 Flash 弃用与迁移",
+          "en": "Gemini 3.7 Flash deprecation and migration"
+        },
+        "summary": {
+          "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+          "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "旧 API 名称自动路由至 Gemini 3.8 Flash；更新调用型号并检查差异。",
+            "en": "The old API name automatically routes to Gemini 3.8 Flash; update the model ID and review differences."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
       }
     ],
     "e-gemini-20-flash-lite": [
@@ -55899,6 +56383,46 @@
         "sourceIds": ["s-history-google-changelog"],
         "confidence": "verified",
         "releaseEntityId": "e-gemini-31-flash-image"
+      },
+      {
+        "id": "t-lifecycle-e-gemini-31-flash-image-20261029",
+        "date": "2026-10-06",
+        "dateKind": "announcement",
+        "releaseEntityId": "e-gemini-31-flash-image",
+        "title": {
+          "zh": "Nano Banana 2 · Gemini 3.1 Flash Image 弃用与迁移",
+          "en": "Nano Banana 2 · Gemini 3.1 Flash Image deprecation and migration"
+        },
+        "summary": {
+          "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+          "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+        },
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "detail": {
+          "description": {
+            "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+            "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+          },
+          "before": {
+            "zh": "该型号原为正式发布版本。",
+            "en": "This model had a stable release."
+          },
+          "after": {
+            "zh": "已宣布弃用，迁移至 Gemini Nano Banana 2.1；官方未公布关闭日期。",
+            "en": "Deprecated; migrate to Gemini Nano Banana 2.1. No shutdown date was announced."
+          },
+          "affected": {
+            "zh": "仅此具体 API 型号；不表示整个 Gemini 家族下线。",
+            "en": "Only this specific API model; not retirement of the Gemini family."
+          },
+          "action": {
+            "zh": "迁移前核对替代型号、调用参数和费用。",
+            "en": "Verify the replacement model, parameters and billing before migration."
+          }
+        },
+        "sourceIds": ["s-google-gemini-lifecycle-20261029"],
+        "confidence": "verified"
       }
     ],
     "e-gemini-31-flash-lite-image": [
@@ -56352,6 +56876,28 @@
         "confidence": "verified",
         "sourceIds": ["s-google-gemini4-release-20261029"],
         "releaseEntityId": "e-gemini-4-pending"
+      }
+    ],
+    "e-gemini-nano-banana-21": [
+      {
+        "id": "t-nano-banana21-ga-20261006",
+        "date": "2026-10-06",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-nano-banana-21",
+        "title": {
+          "zh": "Gemini Nano Banana 2.1 正式发布",
+          "en": "Gemini Nano Banana 2.1 GA"
+        },
+        "summary": {
+          "zh": "Gemini Nano Banana 2.1 于 2026-10-06 正式发布，API 标识为 gemini-nano-banana-2.1，支持图像生成与对话式编辑。",
+          "en": "Gemini Nano Banana 2.1 reached GA on 2026-10-06 with API ID gemini-nano-banana-2.1 for image generation and conversational editing."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-google-gemini-lifecycle-20261029",
+          "s-google-nano-banana21-model-20261029"
+        ],
+        "confidence": "verified"
       }
     ]
   },

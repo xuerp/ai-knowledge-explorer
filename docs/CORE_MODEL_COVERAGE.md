@@ -8,7 +8,7 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
 | GPT family      | anchor |       40 |            17 |       55 |            3 |           3 |                    40 |                   16 |        51 |               67 |
 | Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               40 |
-| Gemini family   | anchor |       53 |            12 |       61 |            3 |           3 |                    33 |                   34 |        56 |               44 |
+| Gemini family   | anchor |       54 |            12 |       65 |            3 |           3 |                    33 |                   35 |        57 |               46 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
 | Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    7 |        28 |               36 |
 | Kimi            | core   |        8 |             2 |       13 |            3 |           3 |                     8 |                    4 |        11 |               23 |
@@ -52,7 +52,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Gemini family   | Gemini Live                   |       8 |               6 |                 6 | 2025-04-09 → 2026-09-15 |
 | Gemini family   | Gemini TTS                    |       5 |               4 |                 4 | 2025-05-20 → 2026-09-22 |
 | Gemini family   | Gemini Transcribe             |       1 |               1 |                 1 | 2026-08-26 → 2026-08-26 |
-| Gemini family   | Gemini Image                  |       7 |               7 |                 7 | 2025-08-26 → 2026-06-30 |
+| Gemini family   | Gemini Image                  |       8 |               8 |                 8 | 2025-08-26 → 2026-10-06 |
 | Gemini family   | Gemini Video                  |       1 |               1 |                 1 | 2026-08-27 → 2026-08-27 |
 | Gemini family   | Gemini Deep Research          |       2 |               2 |                 2 | 2026-04-21 → 2026-04-21 |
 | Gemini family   | Gemini Embedding              |       2 |               2 |                 2 | 2025-07-14 → 2026-04-22 |

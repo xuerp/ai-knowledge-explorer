@@ -151,8 +151,8 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     seed = KnowledgeRepository(SEED).load_seed()
     expected = catalog_changes(seed)
     # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
-    assert len(catalog_release_changes(seed)) == 202
-    assert len(expected) == 260
+    assert len(catalog_release_changes(seed)) == 203
+    assert len(expected) == 264
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -325,3 +325,25 @@ def test_gemini_video_limit_uses_direct_current_source_instead_of_unqualified_ho
     assert "maximum of 10 videos per request" in source.source_excerpt
     assert source.verified_at == "2026-10-25"
     assert not source.published_at
+
+
+def test_gemini_october_lifecycle_preserves_history_and_identifies_replacements():
+    snapshot = KnowledgeRepository(SEED).load_seed()
+    entities = {entity.id: entity for entity in snapshot.entities}
+    changes = catalog_changes(snapshot)
+    for entity_id, date, replacement in (
+        ("e-gemini-37-flash", "2026-10-08", "Gemini 3.8 Flash"),
+        ("e-gemini-35-flash", "2026-10-08", "Gemini 3.6 Flash"),
+        ("e-gemini-31-flash-image", "2026-10-06", "Gemini Nano Banana 2.1"),
+    ):
+        entity = entities[entity_id]
+        assert entity.status == "deprecated" and entity.release.stage == "deprecated"
+        assert entity.release.catalog_current is False
+        assert replacement in entity.summary.en
+        events = [e for e in changes if e.entity_id == entity_id and e.kind == "deprecated"]
+        assert len(events) == 1 and events[0].date == date
+    nano = entities["e-gemini-nano-banana-21"]
+    assert nano.family_id == "e-gemini" and nano.release.stage == "stable"
+    assert nano.release.released_at == "2026-10-06"
+    assert nano.release.api_model_ids == ["gemini-nano-banana-2.1"]
+    assert any(e.entity_id == nano.id and e.kind == "new" for e in changes)
