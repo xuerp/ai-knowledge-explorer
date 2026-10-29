@@ -432,6 +432,19 @@ class KnowledgeRepository:
             row.last_probe_content_type = None
             row.last_probe_readable_characters = None
 
+        # Retain the original source row for audit history, but never schedule
+        # collection from the withdrawn demo homepage. Administrator edits win.
+        placeholder = session.get(SourceRecord, "s-openai-gpt5")
+        if (
+            placeholder is not None
+            and placeholder.url.rstrip("/") == "https://openai.com"
+            and placeholder.title == "OpenAI 发布 GPT-5（演示）"
+        ):
+            placeholder.title = "已撤回的 GPT-5 演示占位来源"
+            placeholder.active = False
+            placeholder.fetch_enabled = False
+            placeholder.next_fetch_at = None
+
         # These are narrow, one-way migrations for locally seeded records. They
         # never overwrite administrator-maintained fields or aliases.
         legacy_origins = {("美国", "United States"), ("中国", "China")}

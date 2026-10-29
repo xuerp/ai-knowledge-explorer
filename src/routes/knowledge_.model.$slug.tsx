@@ -25,7 +25,7 @@ import {
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import { modelSpecChinese } from "@/domain/model-spec";
 import { uniqueSourceLinks } from "@/domain/source-links";
-import { familyEvolutionEvents } from "@/domain/family-evolution";
+import { familyEvolutionEvents, latestFamilyChange } from "@/domain/family-evolution";
 import {
   getEntitySectionPresentation,
   getVisibleEntitySections,
@@ -125,7 +125,7 @@ function EntityDetail() {
   const timeline = familyEvolutionEvents(allTimeline[e.id] ?? []);
   const hasMetrics = (e.metrics?.length ?? 0) > 0;
   const reviewedClaims = snapshot.claims.filter((claim) => claim.entityId === e.id);
-  const recentChange = snapshot.changes.find((change) => change.entityId === e.id);
+  const recentChange = latestFamilyChange(snapshot.changes, e.id, entities);
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
   const familyId = e.familyId ?? e.id;
   const familyVersions = entities
@@ -1741,7 +1741,7 @@ function releaseStageLabel(
     stable: ["正式版", "Stable"],
     preview: ["预览版本", "Preview"],
     pending: ["待核实", "Not verified"],
-    deprecated: ["停止新增接入", "Deprecated"],
+    deprecated: ["已弃用", "Deprecated"],
     retired: ["已退役", "Retired"],
   };
   return t(labels[stage][0], labels[stage][1]);
