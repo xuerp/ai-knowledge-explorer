@@ -116,7 +116,12 @@ test("all confirmed releases produce unique, date-exact, sourced changes across 
   assert.equal(entities.get(changes[0].entityId).release.releaseId, "gemini-4-argon");
   assert.equal(
     snapshot.meta.retrievedAt.slice(0, 10),
-    [frontier.meta.changeEventsVerifiedAt, frontier.meta.verifiedAt, extension.meta.verifiedAt]
+    [
+      frontier.meta.updatedAt,
+      frontier.meta.changeEventsVerifiedAt,
+      frontier.meta.verifiedAt,
+      extension.meta.verifiedAt,
+    ]
       .filter(Boolean)
       .sort()
       .at(-1),

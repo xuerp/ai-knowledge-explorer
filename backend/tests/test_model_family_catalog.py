@@ -59,7 +59,8 @@ def test_minimax_legacy_listing_does_not_relax_weight_license_or_invent_dates():
 def test_reviewed_intake_keeps_unknown_release_dates_and_family_evidence():
     snapshot = KnowledgeRepository(SEED).load_seed()
     entities = {entity.id: entity for entity in snapshot.entities}
-    assert snapshot.meta.retrieved_at.startswith("2026-10-08")
+    frontier = json.loads((DATA_DIR / "frontier_catalog_v1.json").read_text(encoding="utf-8"))
+    assert snapshot.meta.retrieved_at.startswith(frontier["meta"]["updatedAt"])
     glm = entities["e-glm-5-3"]
     hy = entities["e-hy4-preview"]
     assert glm.family_id == "e-glm" and glm.release.released_at == "2026-08-14"
@@ -347,6 +348,10 @@ def test_gemini_october_lifecycle_preserves_history_and_identifies_replacements(
     assert nano.release.released_at == "2026-10-06"
     assert nano.release.api_model_ids == ["gemini-nano-banana-2.1"]
     assert any(e.entity_id == nano.id and e.kind == "new" for e in changes)
+    retired = entities["e-gemini-15-pro"]
+    assert retired.specs.input_price is None and retired.specs.output_price is None
+    assert "2025-09-29" in retired.specs.availability
+    assert "demo" not in entities["e-gemini-25-pro"].summary.en
 
 
 def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tmp_path):

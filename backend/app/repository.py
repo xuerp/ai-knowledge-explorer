@@ -248,12 +248,13 @@ class KnowledgeRepository:
             frontier_path = self.seed_snapshot_path.with_name("frontier_catalog_v1.json")
             if frontier_path.exists():
                 frontier = json.loads(frontier_path.read_text(encoding="utf-8"))
-                if verified_at := max(
+                if catalog_date := max(
                     payload["meta"].get("retrievedAt", "")[:10],
+                    frontier.get("meta", {}).get("updatedAt", ""),
                     frontier.get("meta", {}).get("verifiedAt", ""),
                     frontier.get("meta", {}).get("changeEventsVerifiedAt", ""),
                 ):
-                    payload["meta"]["retrievedAt"] = f"{verified_at}T00:00:00Z"
+                    payload["meta"]["retrievedAt"] = f"{catalog_date}T00:00:00Z"
                 self._baseline_timeline = {
                     (entry["id"], entity_id): TimelineEntry.model_validate(entry).model_dump(
                         mode="json", by_alias=True

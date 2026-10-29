@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createServer } from "vite";
 
@@ -15,6 +16,7 @@ const {
   knowledgePurpose,
 } = await vite.ssrLoadModule("/src/domain/knowledge-browse.ts");
 const { DEMO_KNOWLEDGE_SNAPSHOT: snapshot } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
+const frontier = JSON.parse(await readFile("backend/data/frontier_catalog_v1.json", "utf8"));
 const { authResponseError, AuthSessionExpiredError } = await vite.ssrLoadModule(
   "/src/services/auth-errors.ts",
 );
@@ -202,7 +204,7 @@ test("新增收录有直接来源，代表版本与未知发布日期分别记�
         event.date === "2026-08-28",
     ),
   );
-  assert.equal(snapshot.meta.retrievedAt.slice(0, 10), "2026-10-08");
+  assert.equal(snapshot.meta.retrievedAt.slice(0, 10), frontier.meta.updatedAt);
 });
 
 test("密码错误、认证服务故障与真实会话过期分别处理", () => {
