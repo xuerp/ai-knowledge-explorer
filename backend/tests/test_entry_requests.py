@@ -102,7 +102,11 @@ def test_fact_search_topic_total_and_cursor_are_applied_before_paging(client):
     needle = claims[0]["text"]["zh"][:8]
     searched = client.get(endpoint, params={"scope": "all", "q": needle}).json()
     assert searched["total"] >= 1
-    assert all(needle in json.dumps(claim, ensure_ascii=False) for claim in searched["items"])
+    # The endpoint explicitly searches case-insensitively, including technical fields.
+    assert all(
+        needle.strip().casefold() in json.dumps(claim, ensure_ascii=False).casefold()
+        for claim in searched["items"]
+    )
     assert (
         client.get(endpoint, params={"scope": "all", "q": "definitely-no-matching-fact"}).json()[
             "total"

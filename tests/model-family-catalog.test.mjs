@@ -36,6 +36,21 @@ test("family latest change includes concrete releases without taking another fam
   assert.equal(latestFamilyChange(changes, "missing-family", snapshot.entities), undefined);
 });
 
+test("deprecated and retired GPT API versions stay browsable without a current badge", () => {
+  const versions = snapshot.entities.filter((entity) => entity.familyId === "e-gpt");
+  const line = groupModelProductLines(versions).find((item) => item.id === "gpt-5-1");
+  assert.deepEqual(
+    new Set(line.versions.map((entity) => entity.id)),
+    new Set(["e-gpt-51", "e-gpt-51-instant"]),
+  );
+  assert.ok(line.versions.every((entity) => !isCurrentProductLineVersion(line, entity)));
+  assert.equal(versions.find((entity) => entity.id === "e-gpt-4o").release.stage, "deprecated");
+  assert.equal(
+    versions.find((entity) => entity.id === "e-gpt-51-instant").release.stage,
+    "retired",
+  );
+});
+
 test("Mistral document links stay concise while all independently reviewed fragments remain intact", async () => {
   const { uniqueSourceLinks } = await vite.ssrLoadModule("/src/domain/source-links.ts");
   const modelIds = new Set(["e-mistral-large-3", "e-mistral-large-4"]);
@@ -147,11 +162,32 @@ test("all seven peer families have complete, sourced family and release profiles
     for (const version of versions) {
       assert.ok(version.release.productLine.positioning.en, version.id);
       const refreshed = ["e-gpt-5", "e-gpt-5-mini", "e-gpt-5-nano"].includes(version.id);
-      const verified = refreshed
-        ? "2026-10-29"
-        : enrichedIds.has(version.id)
-          ? "2026-10-05"
-          : "2026-10-01";
+      const lifecycleRefreshed = [
+        "e-gpt-4o",
+        "e-gpt-4o-mini",
+        "e-gpt-41",
+        "e-gpt-41-mini",
+        "e-gpt-41-nano",
+        "e-gpt-53-codex",
+        "e-gpt-54-nano",
+        "e-gpt-51",
+        "e-gpt-51-instant",
+        "e-gpt-52-instant",
+        "e-gpt-53-instant",
+        "e-gpt-4o-mini-tts",
+        "e-gpt-4o-transcribe",
+        "e-gpt-realtime-1",
+        "e-gpt-image-15",
+        "e-gpt-image-1",
+        "e-gpt-image-2",
+      ].includes(version.id);
+      const verified = lifecycleRefreshed
+        ? "2026-10-30"
+        : refreshed
+          ? "2026-10-29"
+          : enrichedIds.has(version.id)
+            ? "2026-10-05"
+            : "2026-10-01";
       assert.equal(version.release.lastVerifiedAt, verified);
       assert.equal(version.lastUpdatedAt, verified);
       assert.ok(version.specs);
@@ -166,11 +202,17 @@ test("all seven peer families have complete, sourced family and release profiles
           assert.equal(source?.type, "official", `${version.id}: ${id}`);
           assert.equal(
             source.verifiedAt,
-            id === "s-openai-deprecations-20261029"
-              ? "2026-10-29"
-              : id.startsWith("s-specs-")
-                ? "2026-10-05"
-                : "2026-10-01",
+            [
+              "s-openai-api-lifecycle-20261030",
+              "s-openai-api-release-history-20261030",
+              "s-openai-realtime-launch-reviewed-20261030",
+            ].includes(id)
+              ? "2026-10-30"
+              : id === "s-openai-deprecations-20261029"
+                ? "2026-10-29"
+                : id.startsWith("s-specs-")
+                  ? "2026-10-05"
+                  : "2026-10-01",
           );
           assert.ok(source.sourceExcerpt);
         }

@@ -49,5 +49,11 @@
   "prompts": "提示长度",
   "instruct": "非思考",
   "From": "低至",
-  "Audio limit 1 hour per request · 30 minutes with diarization or timestamps": "单次音频最长 1 小时；开启说话人识别或时间戳时为 30 分钟"
+  "Audio limit 1 hour per request · 30 minutes with diarization or timestamps": "单次音频最长 1 小时；开启说话人识别或时间戳时为 30 分钟",
+  "verify other product/account access separately": "其他产品入口与账号权限分别核对",
+  "snapshots scheduled to shut down": "快照计划停服",
+  "snapshot retired": "快照已下线",
+  "scheduled shutdown": "计划停服",
+  "Deprecated API": "API 已弃用",
+  "Original API shut down": "原 API 已下线"
 }
