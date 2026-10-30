@@ -139,8 +139,8 @@ export function ReviewedFacts({
           {expanded
             ? t("检索全部事实与历史依据", "Browse all facts and historical evidence")
             : t(
-                `${claims.length} 条当前事实 · 精选 ${prioritized.length} 条`,
-                `${claims.length} current facts · ${prioritized.length} highlighted`,
+                `${claims.length} 条已收录记录 · 精选 ${prioritized.length} 条`,
+                `${claims.length} catalogued records · ${prioritized.length} highlighted`,
               )}
         </span>
         <button

@@ -68,6 +68,9 @@ def test_historical_scope_and_named_models_replace_false_current_family_facts():
     assert "24 prompt styles" in claims["claim-122fcba89c1ea7b5ed5f"].text.en
     negative = claims["c-gemini-4-not-released"]
     assert negative.confidence == "unverified" and negative.valid_to == "2026-10-12"
+    source = next(e for e in snapshot.evidence if e.id == negative.source_ids[0])
+    assert not source.published_at and not source.verified_at
+    assert "unverified historical" in source.title.en
 
 
 def test_added_citation_is_guarded_and_future_source_edits_win():
@@ -78,6 +81,28 @@ def test_added_citation_is_guarded_and_future_source_edits_win():
     added.source_excerpt = "A later administrator review changed this evidence."
     apply_reviewed_claims(snapshot, CORRECTIONS)
     assert next(claim for claim in snapshot.claims if claim.id == cid) == original
+
+
+def test_missing_archive_correction_preserves_a_later_administrator_capture():
+    snapshot = reviewed_snapshot()
+    cid = "c-gemini-4-not-released"
+    original = next(claim for claim in snapshot.claims if claim.id == cid).model_copy(deep=True)
+    source = next(e for e in snapshot.evidence if e.id == original.source_ids[0])
+    source.source_excerpt = "An administrator has attached the original archived body."
+    reviewed = source.model_copy(deep=True)
+    apply_reviewed_claims(snapshot, CORRECTIONS)
+    assert next(claim for claim in snapshot.claims if claim.id == cid) == original
+    assert next(e for e in snapshot.evidence if e.id == source.id) == reviewed
+
+
+def test_metadata_correction_cannot_substitute_a_source_url(tmp_path):
+    rows = json.loads(CORRECTIONS.read_text(encoding="utf-8"))["corrections"]
+    row = next(r for r in rows if r["expectedClaim"]["id"] == "c-gemini-4-not-released")
+    row["correctedEvidence"][0]["url"] = "https://example.com/unreviewed-replacement"
+    path = tmp_path / "invalid-url.json"
+    path.write_text(json.dumps({"corrections": [row]}), encoding="utf-8")
+    with pytest.raises(ValueError, match="guarded ID and URL"):
+        apply_reviewed_claims(reviewed_snapshot(), path)
 
 
 @pytest.mark.parametrize("invalid_change", ["remove-original", "unguarded-addition"])

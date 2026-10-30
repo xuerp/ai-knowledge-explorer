@@ -175,7 +175,7 @@
       ],
       "method": "Retain all relation records; verify provider and integration links against actual official documentation and retract unsupported lineage, architecture, benchmark and competition labels. Original records remain in Git history."
     },
-    "updatedAt": "2026-10-29"
+    "updatedAt": "2026-10-30"
   },
   "entities": [
     {
@@ -32068,7 +32068,7 @@
       "tags": ["办公", "研究", "Agent"],
       "latestVersion": null,
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-29",
+      "lastUpdatedAt": "2026-10-30",
       "aliases": null,
       "familyId": null,
       "release": null,
@@ -32169,6 +32169,50 @@
               }
             ],
             "sourceIds": ["s-traecode-overview", "s-traework-overview"]
+          },
+          {
+            "id": "current-chinese-interfaces",
+            "title": {
+              "zh": "新版中国版工作入口",
+              "en": "Current Chinese-edition interfaces"
+            },
+            "summary": {
+              "zh": "当前中国版概览提供桌面、网页与移动端；桌面端包括 Agent 和 IDE 两类窗口。",
+              "en": "The current Chinese-edition overview lists desktop, web and mobile access, with Agent and IDE windows on desktop."
+            },
+            "items": [
+              {
+                "zh": "Agent 窗口用于管理与推进任务；IDE 窗口用于阅读、编辑、运行、调试及源代码管理。",
+                "en": "The Agent window manages and advances tasks; the IDE window supports reading, editing, running, debugging and source control."
+              },
+              {
+                "zh": "IDE 与 SOLO 是 IDE 窗口内的模式；不要继续按旧 Work、Code、Design 清单推断新版入口。",
+                "en": "IDE and SOLO are modes within the IDE window; the former Work, Code and Design list does not establish current interfaces."
+              }
+            ],
+            "sourceIds": ["s-traecode-overview"]
+          },
+          {
+            "id": "international-release-history",
+            "title": {
+              "zh": "国际站历史与地区边界",
+              "en": "International-site history and regional scope"
+            },
+            "summary": {
+              "zh": "国际站的 2026-06-09 公告当时区分 TRAE IDE 和 TRAE Work；它与当前中国版升级文档属于不同地区和时间。",
+              "en": "The international site’s 2026-06-09 announcement distinguished TRAE IDE and TRAE Work at that time; it has a different region and date from the current Chinese-edition upgrade documentation."
+            },
+            "items": [
+              {
+                "zh": "国际站公告将 TRAE IDE 定位为开发者工具（IDE/SOLO），TRAE Work 定位为跨设备的 Work/Code 工作助手。",
+                "en": "That international announcement positioned TRAE IDE for developers (IDE/SOLO) and TRAE Work as a cross-device Work/Code assistant."
+              },
+              {
+                "zh": "采用前在实际使用地区核对产品入口、账号、套餐与执行权限；一个地区的产品升级不能证明另一地区的可用性。",
+                "en": "Before adoption, check the product entry, account, plan and execution permissions for the actual region; an upgrade in one region does not establish availability in another."
+              }
+            ],
+            "sourceIds": ["source-76e211acf7924a6831a2", "s-traecode-overview"]
           }
         ]
       }
@@ -32280,16 +32324,19 @@
     {
       "id": "s-google-gemini-model-catalog-2026-09-29",
       "title": {
-        "zh": "Gemini API 官方型号目录",
-        "en": "Official Gemini API model catalog"
+        "zh": "Gemini API 目录：未留原文的历史引用",
+        "en": "Gemini API catalog: unverified historical reference"
       },
       "url": "https://ai.google.dev/gemini-api/docs/models",
       "publisher": "Google",
-      "publishedAt": "2026-09-29",
+      "publishedAt": "",
       "collectedAt": "2026-09-29",
-      "verifiedAt": "2026-09-29",
+      "verifiedAt": "",
       "type": "official",
-      "supportsClaimIds": ["c-gemini-4-not-released"]
+      "supportsClaimIds": ["c-gemini-4-not-released"],
+      "sourceExcerpt": "旧记录以当前滚动目录引用声称 2026-09-29 尚无 Gemini 4，但没有当日正文留档。保留引用历史，不将记录日期当作目录发布日期或已核验依据。",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "zh"
     },
     {
       "id": "s-google-gemini-3-8-live",
