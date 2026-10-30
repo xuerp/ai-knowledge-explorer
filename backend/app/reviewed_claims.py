@@ -36,5 +36,15 @@ def apply_reviewed_claims(snapshot: KnowledgeSnapshot, path: Path) -> None:
             raise ValueError("A correction cannot remove the reviewed evidence.")
         if not set(after.source_ids) <= guarded_ids:
             raise ValueError("Every corrected citation must have an exact evidence guard.")
+        corrected_sources = [
+            Evidence.model_validate(item) for item in row.get("correctedEvidence", [])
+        ]
+        for item in corrected_sources:
+            original = next((source for source in expected_sources if source.id == item.id), None)
+            if original is None or item.url != original.url:
+                raise ValueError("Evidence metadata corrections must retain a guarded ID and URL.")
+        for item in corrected_sources:
+            evidence[item.id] = item
         claims[before.id] = after
     snapshot.claims = [claims[item.id] for item in snapshot.claims]
+    snapshot.evidence = [evidence[item.id] for item in snapshot.evidence]

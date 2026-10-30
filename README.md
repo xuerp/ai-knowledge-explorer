@@ -49,19 +49,19 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 
 ## 功能预览
 
-以下为 **2026-10-27 本地开发版本实拍**，不代表预发布网站已同步。图片可点击查看原始尺寸。
+以下为 **2026-10-29 新网址实拍**。图片保留浏览器原始尺寸，可点击查看原图；功能入口均可在网站打开。
 
 ### 把任务和约束放在一起
 
 先描述要完成的工作，再补充预算、部署方式和偏好。研究围绕这些条件展开。
 
-[![决策助手：任务入口与约束表单](docs/assets/portfolio/decision-entry-20261027.jpg)](docs/assets/portfolio/decision-entry-20261027.jpg)
+[![线上决策助手：任务入口与约束表单](docs/assets/portfolio/decision-entry-online-20261029.jpg)](docs/assets/portfolio/decision-entry-online-20261029.jpg)
 
 ### 从事实回到资料
 
-模型档案保留版本、日期和来源入口；整理摘要与原文引语分别标注。下面展示的是历史发布记录的来源细节。
+模型档案保留版本、日期和来源入口；整理摘要与原文引语分别标注。历史记录注明适用日期，缺少原文的判断保留为待核实。
 
-[![证据来源局部：官方资料、日期与整理摘要标记](docs/assets/portfolio/source-detail-20261027.jpg)](docs/assets/portfolio/source-detail-20261027.jpg)
+[打开具体模型档案，查看「证据链」↗](https://ai-radar.xue-ai.workers.dev/knowledge/model/gemini-4)
 
 ### 把研究留下来
 

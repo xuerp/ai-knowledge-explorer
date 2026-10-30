@@ -1220,7 +1220,27 @@
           "supportsClaimIds": ["c-gemini-4-not-released"],
           "contradictsClaimIds": null
         }
-      ]
+      ],
+      "correctedEvidence": [
+        {
+          "id": "s-google-gemini-model-catalog-2026-09-29",
+          "title": {
+            "zh": "Gemini API 目录：未留原文的历史引用",
+            "en": "Gemini API catalog: unverified historical reference"
+          },
+          "url": "https://ai.google.dev/gemini-api/docs/models",
+          "publisher": "Google",
+          "publishedAt": "",
+          "collectedAt": "2026-09-29",
+          "verifiedAt": "",
+          "type": "official",
+          "supportsClaimIds": ["c-gemini-4-not-released"],
+          "sourceExcerpt": "旧记录以当前滚动目录引用声称 2026-09-29 尚无 Gemini 4，但没有当日正文留档。保留引用历史，不将记录日期当作目录发布日期或已核验依据。",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "zh"
+        }
+      ],
+      "metadataReviewedAt": "2026-10-30"
     },
     {
       "reviewedAt": "2026-10-29",
