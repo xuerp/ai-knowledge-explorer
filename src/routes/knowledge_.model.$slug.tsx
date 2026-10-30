@@ -10,7 +10,6 @@ import {
   Layers,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import { KnowledgeArticle } from "@/components/knowledge/KnowledgeArticle";
 import { ReviewedFacts } from "@/components/knowledge/ReviewedFacts";
 import { ReadingModeSelector } from "@/components/knowledge/ReadingModeSelector";
@@ -86,7 +85,7 @@ const FAMILY_READING_CONTEXT: Record<
 
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
-    const snapshot = await knowledgeRepository.getSnapshot().catch(() => DEMO_KNOWLEDGE_SNAPSHOT);
+    const snapshot = await knowledgeRepository.getSnapshot();
     const entity =
       snapshot.entities.find((item) => item.type === "model" && item.slug === params.slug) ?? null;
     if (!entity) throw notFound();
@@ -2127,7 +2126,7 @@ function createVersionKnowledge(
           ? [
               {
                 zh: `官方已公布迁移或下线计划${entity.release.retirementNotBefore ? `；最早下线日期为 ${entity.release.retirementNotBefore}` : ""}。`,
-                en: `Google has announced a migration or shutdown plan${entity.release.retirementNotBefore ? `; the earliest shutdown date is ${entity.release.retirementNotBefore}` : ""}.`,
+                en: `The provider has announced a migration or shutdown plan${entity.release.retirementNotBefore ? `; the earliest shutdown date is ${entity.release.retirementNotBefore}` : ""}.`,
               },
             ]
           : entity.release?.stage === "preview"

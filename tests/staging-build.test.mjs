@@ -32,6 +32,8 @@ test("预发构建确认 Cloudflare 同域代理与 Render 上游", async () => 
     );
     const result = await verifyStagingBuild(root);
     assert.equal(result.filesChecked, 2);
+    await writeFile(join(root, "public", "snapshot-stale.js"), "export default {};");
+    await assert.rejects(() => verifyStagingBuild(root), /完整离线快照块/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

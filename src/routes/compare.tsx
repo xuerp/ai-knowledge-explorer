@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { WorkspaceHeader, DemoBadge, ConfidenceChip } from "@/components/common";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { Entity } from "@/domain/types";
 import { modelSpecChinese } from "@/domain/model-spec";
 import { useApp, pick } from "@/lib/app-state";
@@ -55,9 +54,7 @@ function ComparePage() {
   const { models: modelSearch, research: researchId } = Route.useSearch();
   const catalogQuery = useModelCatalog();
   const snapshotQuery = useKnowledgeSnapshot();
-  const initialModels = DEMO_KNOWLEDGE_SNAPSHOT.entities.filter(
-    (entity) => entity.type === "model",
-  );
+  const initialModels = catalogQuery.data ?? [];
   const initial = modelSearch
     ? resolveComparisonSelection(modelSearch, initialModels)
     : { scope: "versions" as const, selected: defaultComparableVersionIds(initialModels) };
@@ -89,9 +86,9 @@ function ComparePage() {
     setQuery("");
   }, [catalogQuery.data, modelSearch]);
   // API mode never silently substitutes sample model facts when the catalog fails.
-  const allModels = catalogQuery.data ?? (knowledgeRepository.mode === "demo" ? initialModels : []);
+  const allModels = catalogQuery.data ?? [];
   const families = allModels.filter((model) => model.type === "model" && !model.familyId);
-  const catalogReady = Boolean(catalogQuery.data) || knowledgeRepository.mode === "demo";
+  const catalogReady = Boolean(catalogQuery.data);
   const activeFamilyId = families.some((model) => model.id === familyId)
     ? familyId
     : (families[0]?.id ?? "");

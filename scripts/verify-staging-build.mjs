@@ -27,6 +27,9 @@ export async function verifyStagingBuild(
   if (!serverRuntime.includes(expectedApiUpstream)) {
     throw new Error(`预发服务端运行时代码未包含预期 API 上游：${expectedApiUpstream}`);
   }
+  if (files.some((file) => /[/\\]snapshot-[^/\\]+\.(?:m?js)$/.test(file))) {
+    throw new Error("API 预发构建仍包含完整离线快照块，拒绝部署。");
+  }
   if (combined.includes("http://127.0.0.1:8001")) {
     throw new Error("预发构建错误地包含本机 API 地址，拒绝部署。");
   }

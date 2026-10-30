@@ -4,7 +4,7 @@ import { Check, CheckCircle2, Search, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { EntryRequestDialog } from "@/components/knowledge/EntryRequestDialog";
 import { DemoBadge, WorkspaceHeader } from "@/components/common";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
+import { DataStatePanel } from "@/components/data-state";
 import type { Entity, KnowledgeSnapshot } from "@/domain/types";
 import { useApp, pick } from "@/lib/app-state";
 import { modelDisplayName } from "@/lib/model-display";
@@ -52,8 +52,34 @@ const SIGNAL_FILTERS: Array<{
 ];
 
 function KnowledgePage() {
-  const { t, lang } = useApp();
+  const { t } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <div className="page-container">
+          <DataStatePanel
+            kind={snapshotQuery.unavailableKind}
+            title={
+              snapshotQuery.error
+                ? t("知识数据暂不可用", "Knowledge data is unavailable")
+                : t("正在加载知识数据", "Loading knowledge data")
+            }
+            description={t(
+              "正在获取当前知识快照。加载失败时可重试。",
+              "Loading the current knowledge snapshot. Retry if loading fails.",
+            )}
+            onRetry={snapshotQuery.error ? () => void snapshotQuery.refetch() : undefined}
+          />
+        </div>
+      </AppShell>
+    );
+  }
+  return <KnowledgeContent snapshot={snapshotQuery.data} />;
+}
+
+function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
+  const { t, lang } = useApp();
   const search = Route.useSearch();
   const { q: query, category, region, signal } = search;
   const navigate = useNavigate({ from: "/knowledge" });
@@ -69,7 +95,6 @@ function KnowledgePage() {
   const setRegion = (region: KnowledgeSearch["region"]) => updateSearch({ region });
   const setSignal = (signal: SignalFilter) => updateSearch({ signal });
   const browse = knowledgeBrowseHref(search);
-  const snapshot = snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT;
   const entities = snapshot.entities;
 
   const categoryCounts = useMemo(

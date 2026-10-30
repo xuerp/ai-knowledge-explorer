@@ -7,8 +7,19 @@ import type {
   TimelineEvent,
 } from "@/domain/types";
 import type { Source } from "@/domain/types";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
+// Offline data is an explicit async boundary; API mode never loads this chunk.
+let offlineSnapshot: Promise<KnowledgeSnapshot> | undefined;
+function loadOfflineSnapshot() {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return Promise.reject(new Error("Offline snapshots are not included in an API build."));
+  } else {
+    // Vite eliminates this branch, including its data chunk, in API-configured builds.
+    return (offlineSnapshot ??= import("@/data/generated/snapshot.json").then(
+      (module) => module.default as unknown as KnowledgeSnapshot,
+    ));
+  }
+}
 
 export interface EntityQuery {
   type?: EntityType;
@@ -45,9 +56,9 @@ export interface KnowledgeRepository {
   ) => Promise<EntityClaimPage>;
 }
 
-function filterDemoEntities(query: EntityQuery = {}) {
+function filterDemoEntities(snapshot: KnowledgeSnapshot, query: EntityQuery = {}) {
   const needle = query.query?.trim().toLocaleLowerCase();
-  return DEMO_KNOWLEDGE_SNAPSHOT.entities.filter((entity) => {
+  return snapshot.entities.filter((entity) => {
     if (query.type && entity.type !== query.type) return false;
     if (!needle) return true;
     return [entity.name.zh, entity.name.en, entity.slug, ...(entity.aliases ?? [])]
@@ -61,33 +72,33 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
   readonly mode = "demo" as const;
 
   async getSnapshot() {
-    return DEMO_KNOWLEDGE_SNAPSHOT;
+    return loadOfflineSnapshot();
   }
 
   async getEntities(query: EntityQuery = {}) {
-    return filterDemoEntities(query);
+    return filterDemoEntities(await this.getSnapshot(), query);
   }
 
   async getEntityBySlug(slug: string, type?: EntityType) {
     return (
-      DEMO_KNOWLEDGE_SNAPSHOT.entities.find(
+      (await this.getSnapshot()).entities.find(
         (entity) => entity.slug === slug && (!type || entity.type === type),
       ) ?? null
     );
   }
 
   async getEntityTimeline(entityId: string) {
-    return DEMO_KNOWLEDGE_SNAPSHOT.timeline[entityId] ?? [];
+    return (await this.getSnapshot()).timeline[entityId] ?? [];
   }
 
   async getModelFamilies() {
-    return DEMO_KNOWLEDGE_SNAPSHOT.entities.filter(
+    return (await this.getSnapshot()).entities.filter(
       (entity) => entity.type === "model" && !entity.familyId,
     );
   }
 
   async getFamilyVersions(familyId: string) {
-    return DEMO_KNOWLEDGE_SNAPSHOT.entities
+    return (await this.getSnapshot()).entities
       .filter((entity) => entity.familyId === familyId)
       .sort((a, b) =>
         (a.release?.releasedAt ?? a.firstReleasedAt ?? "").localeCompare(
@@ -98,7 +109,7 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
 
   async compareModelVersions(versionIds: string[]) {
     const entityById = new Map(
-      DEMO_KNOWLEDGE_SNAPSHOT.entities.map((entity) => [entity.id, entity]),
+      (await this.getSnapshot()).entities.map((entity) => [entity.id, entity]),
     );
     return versionIds
       .map((id) => entityById.get(id))
@@ -113,7 +124,7 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
     _signal?: AbortSignal,
     filters?: { q?: string; topic?: string },
   ) {
-    const ordered = DEMO_KNOWLEDGE_SNAPSHOT.claims
+    const ordered = (await this.getSnapshot()).claims
       .filter((claim) => claim.entityId === entityId)
       .sort(
         (left, right) =>
@@ -143,7 +154,7 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
     return {
       total: scoped.length,
       items,
-      evidence: DEMO_KNOWLEDGE_SNAPSHOT.evidence.filter((item) => sourceIds.has(item.id)),
+      evidence: (await this.getSnapshot()).evidence.filter((item) => sourceIds.has(item.id)),
       nextCursor:
         remaining.length > limit && items.length
           ? `${items.at(-1)?.updatedAt}|${items.at(-1)?.id}`
@@ -256,6 +267,10 @@ const apiBaseUrl = (
     : import.meta.env.VITE_API_BASE_URL
 )?.trim();
 
-export const knowledgeRepository: KnowledgeRepository = apiBaseUrl
-  ? new HttpKnowledgeRepository(apiBaseUrl.replace(/\/$/, ""))
-  : new DemoKnowledgeRepository();
+export function createKnowledgeRepository(baseUrl?: string): KnowledgeRepository {
+  return baseUrl?.trim()
+    ? new HttpKnowledgeRepository(baseUrl.trim().replace(/\/$/, ""))
+    : new DemoKnowledgeRepository();
+}
+
+export const knowledgeRepository = createKnowledgeRepository(apiBaseUrl);

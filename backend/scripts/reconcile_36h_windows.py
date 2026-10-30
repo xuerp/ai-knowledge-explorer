@@ -31,7 +31,7 @@ def main():
     parser.add_argument('--start', required=True, help='Actual authorized observation start, with timezone')
     parser.add_argument('--database', type=Path, default=ROOT / 'backend/data/ai_radar.db')
     parser.add_argument('--worker-id', help='Reconcile only this actual worker instance; never combine restarted observations')
-    parser.add_argument('--output', type=Path, default=ROOT / 'docs/SCHEDULE_WINDOWS_36H_20261006.json')
+    parser.add_argument('--output', type=Path, default=ROOT / 'artifacts/schedule/window-reconciliation.json')
     args = parser.parse_args()
     start = datetime.fromisoformat(args.start)
     if start.tzinfo is None:
@@ -55,6 +55,7 @@ def main():
               'all32WindowsSucceeded': all(w['state'] == 'succeeded' for w in windows),
               'manualRunsExcluded': sum(r['trigger'] != 'scheduled' for r in runs)}
     output = args.output.resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
     print(str(output))
 

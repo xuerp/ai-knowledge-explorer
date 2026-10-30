@@ -112,17 +112,19 @@ test("模型对比提供系列与具体版本两种范围", async () => {
 
   assert.match(source, /resolveComparisonSelection/);
   assert.match(source, /模型对比/);
-  assert.match(source, /DEMO_KNOWLEDGE_SNAPSHOT\.entities/);
+  assert.match(source, /catalogQuery\.data \?\? \[\]/);
+  assert.doesNotMatch(source, /DEMO_KNOWLEDGE_SNAPSHOT/);
 });
 
 test("未登录访客保留输入并登录后生成真实研究，不用预制答案代替", async () => {
   const [route, adapter] = await Promise.all([
     read("src/routes/ask.tsx"),
-    read("src/data/demo-adapter.ts"),
+    read("src/data/demo-baseline.ts"),
   ]);
 
   assert.doesNotMatch(route, /showcaseAnswers\.find/);
-  assert.match(route, /knowledgeRepository\.mode === "demo" \? DEMO_KNOWLEDGE_SNAPSHOT : null/);
+  assert.match(route, /snapshotQuery\.data \?\? null/);
+  assert.doesNotMatch(route, /DEMO_KNOWLEDGE_SNAPSHOT/);
   assert.doesNotMatch(route, /snapshotQuery\.data \?\? DEMO_KNOWLEDGE_SNAPSHOT/);
   assert.match(route, /AI 决策助手/);
   assert.match(route, /任务、预算与部署限制/);

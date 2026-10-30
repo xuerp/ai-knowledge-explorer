@@ -29,7 +29,7 @@ flowchart LR
 ```text
 src/
 ├─ domain/                       强类型契约、标签与图算法
-├─ data/demo-adapter.ts          明确标记的演示快照
+├─ data/generated/snapshot.json 公共离线快照生成物，按需加载
 ├─ services/
 │  ├─ knowledge-repository.ts    Demo / Live 数据边界
 │  ├─ admin-api.ts               审核与目录维护 API
@@ -42,11 +42,22 @@ src/
 └─ routes/                       文件路由和页面编排
 ```
 
+## 前端数据生成边界
+
+正式模式从 API 获取资料。`knowledge-repository.ts` 仅在未配置 API 的离线模式按需加载 `src/data/generated/snapshot.json`；页面不因 API 失败静默替换为示例事实。
+
+`npm run generate:frontend-snapshot` 从种子基线、后端目录和扩展生成经过公共投影的快照，并校验 `product/core-models.v1.json` 的目录覆盖。清单用于校验，不缩减完整目录。生成物不是独立事实编辑入口；修改上游后重新生成。`npm run check:frontend-snapshot` 检查一致性，CI 另执行生成与 Git diff。
+
+`demo-baseline.ts` 和 `src/lib/demo-data.ts` 保留历史种子及测试输入，正式客户端不导入它们。动态加载负责隔离离线数据，是否减包以实际构建结果为准。
+
 ## 后端分层
 
 ```text
 backend/
-├─ app/main.py             公共读取、认证用户和管理员 API
+├─ app/main.py             应用组装、中间件与路由注册
+├─ app/api/                按领域拆分的端点、共享会话和鉴权依赖
+├─ app/runtime.py          每个应用实例独立的服务组装
+├─ app/services/           目录、抽取、审核、报告与诊断共享逻辑
 ├─ app/repository.py       正式目录、审核门禁与公共快照
 ├─ app/database.py         SQLAlchemy 持久化模型
 ├─ app/ingestion.py        URL 规范化、快照、哈希去重和 Diff

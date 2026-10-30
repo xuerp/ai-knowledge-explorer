@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 const apiSource = await readFile(new URL("../src/services/admin-api.ts", import.meta.url), "utf8");
-const reviewSource = await readFile(
-  new URL("../src/routes/admin.review.tsx", import.meta.url),
-  "utf8",
-);
+const reviewDirectory = new URL("../src/components/admin/review/", import.meta.url);
+const reviewSource = (
+  await Promise.all(
+    (await readdir(reviewDirectory))
+      .filter((name) => /\.tsx?$/.test(name))
+      .sort()
+      .map((name) => readFile(new URL(name, reviewDirectory), "utf8")),
+  )
+).join("\n");
 
 test("审核后台展示后端构建与 Claim 实体关联审计", () => {
   assert.match(apiSource, /request<HealthStatus>\("\/health"/);

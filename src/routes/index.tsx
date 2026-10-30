@@ -12,7 +12,9 @@ import {
   Sun,
   TrendingUp,
 } from "lucide-react";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
+import { DataStatePanel } from "@/components/data-state";
+import type { KnowledgeSnapshot } from "@/domain/types";
+import { AppShell } from "@/components/layout/AppShell";
 import { useApp } from "@/lib/app-state";
 import { browseModelFamilies } from "@/domain/model-families";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -40,9 +42,34 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const { t, lang, setLang, theme, setTheme } = useApp();
+  const { t } = useApp();
   const snapshotQuery = useKnowledgeSnapshot();
-  const snapshot = snapshotQuery.data ?? DEMO_KNOWLEDGE_SNAPSHOT;
+  if (!snapshotQuery.data) {
+    return (
+      <AppShell>
+        <div className="page-container">
+          <DataStatePanel
+            kind={snapshotQuery.unavailableKind}
+            title={
+              snapshotQuery.error
+                ? t("知识数据暂不可用", "Knowledge data is unavailable")
+                : t("正在加载知识数据", "Loading knowledge data")
+            }
+            description={t(
+              "正在获取当前知识快照。加载失败时可重试。",
+              "Loading the current knowledge snapshot. Retry if loading fails.",
+            )}
+            onRetry={snapshotQuery.error ? () => void snapshotQuery.refetch() : undefined}
+          />
+        </div>
+      </AppShell>
+    );
+  }
+  return <LandingContent snapshot={snapshotQuery.data} />;
+}
+
+function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
+  const { t, lang, setLang, theme, setTheme } = useApp();
   const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
   const evidenceById = new Map(snapshot.evidence.map((source) => [source.id, source]));
   const sourcedRelations = catalogRelationships(snapshot);
