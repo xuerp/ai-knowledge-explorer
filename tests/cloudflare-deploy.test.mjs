@@ -16,6 +16,7 @@ test("Cloudflare staging config keeps workers.dev when no domain is selected", (
   assert.equal(result.preview_urls, true);
   assert.equal(result.routes, undefined);
   assert.equal(result.observability.enabled, true);
+  assert.deepEqual(result.cache, { enabled: true });
   assert.equal(result.compatibility_date, "2026-08-13");
   assert.equal(result.vars.AI_RADAR_API_UPSTREAM_URL, "https://ai-radar-api-staging.onrender.com");
 });
