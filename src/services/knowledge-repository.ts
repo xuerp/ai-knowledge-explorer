@@ -8,7 +8,7 @@ import type {
 } from "@/domain/types";
 import type { Source } from "@/domain/types";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
-import { snapshotFetchedAtHeader, withSnapshotCopyTime } from "@/lib/snapshot-cache";
+import { snapshotFetchedAtHeader, withSnapshotCopyTime } from "@/lib/edge-copy";
 // Offline data is an explicit async boundary; API mode never loads this chunk.
 let offlineSnapshot: Promise<KnowledgeSnapshot> | undefined;
 function loadOfflineSnapshot() {

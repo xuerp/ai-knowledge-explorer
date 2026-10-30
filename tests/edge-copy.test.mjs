@@ -11,7 +11,7 @@ const { createKnowledgeRepository } = await vite.ssrLoadModule(
   "/src/services/knowledge-repository.ts",
 );
 const { snapshotFetchedAtHeader, staleSnapshotCopyAge, staleSnapshotCopyMs } =
-  await vite.ssrLoadModule("/src/lib/snapshot-cache.ts");
+  await vite.ssrLoadModule("/src/lib/edge-copy.ts");
 
 test.after(async () => vite.close());
 
