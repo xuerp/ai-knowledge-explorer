@@ -180,13 +180,7 @@ function UpdatesPage() {
             "追踪模型的发布、能力、价格与可用性变化，查看影响和证据。",
             "Track model releases, capabilities, prices and access with impact and evidence.",
           )}
-          actions={
-            <DemoBadge
-              mode={snapshot.meta.mode}
-              updatedAt={snapshot.meta.retrievedAt}
-              cachedAt={snapshot.meta.cachedAt}
-            />
-          }
+          actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
         />
         <section className="updates-filters" aria-label={t("动态筛选", "Update filters")}>
           <div className="updates-container updates-filter-panel">

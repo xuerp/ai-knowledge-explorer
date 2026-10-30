@@ -129,11 +129,7 @@ function GenericEntityDetail() {
                     {entity.vendor}
                   </span>
                 )}
-                <DemoBadge
-                  mode={snapshot.meta.mode}
-                  updatedAt={snapshot.meta.retrievedAt}
-                  cachedAt={snapshot.meta.cachedAt}
-                />
+                <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
               </div>
               <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                 {pick(entity.name, lang)}
