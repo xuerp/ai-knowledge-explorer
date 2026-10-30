@@ -192,13 +192,7 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           "从提供方、应用接入和技术依据，看清一个模型或产品的联系。",
           "Understand a model or product through its providers, integrations and technical evidence.",
         )}
-        actions={
-          <DemoBadge
-            mode={snapshot.meta.mode}
-            updatedAt={snapshot.meta.retrievedAt}
-            cachedAt={snapshot.meta.cachedAt}
-          />
-        }
+        actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
       />
       <section className="relationship-controls" aria-label={t("图谱筛选", "Graph controls")}>
         <EntityPicker

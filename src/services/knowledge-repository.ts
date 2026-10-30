@@ -8,7 +8,6 @@ import type {
 } from "@/domain/types";
 import type { Source } from "@/domain/types";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
-import { snapshotFetchedAtHeader, withSnapshotCopyTime } from "@/lib/edge-copy";
 // Offline data is an explicit async boundary; API mode never loads this chunk.
 let offlineSnapshot: Promise<KnowledgeSnapshot> | undefined;
 function loadOfflineSnapshot() {
@@ -169,8 +168,8 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
 
   constructor(private readonly baseUrl: string) {}
 
-  private send(path: string, init: RequestInit = {}, signal?: AbortSignal) {
-    return fetchWithNetworkRetry(`${this.baseUrl}${path}`, {
+  private async request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal) {
+    const response = await fetchWithNetworkRetry(`${this.baseUrl}${path}`, {
       ...init,
       headers: {
         Accept: "application/json",
@@ -179,9 +178,7 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
       },
       signal,
     });
-  }
 
-  private async parse<T>(response: Response) {
     if (!response.ok) {
       if (response.status === 404) return null as T;
       throw new Error(`Knowledge API request failed with status ${response.status}`);
@@ -189,15 +186,10 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
     return (await response.json()) as T;
   }
 
-  private async request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal) {
-    return this.parse<T>(await this.send(path, init, signal));
-  }
-
   async getSnapshot(signal?: AbortSignal) {
-    const response = await this.send("/api/v2/snapshot", {}, signal);
-    const snapshot = await this.parse<KnowledgeSnapshot | null>(response);
+    const snapshot = await this.request<KnowledgeSnapshot | null>("/api/v2/snapshot", {}, signal);
     if (!snapshot) throw new Error("Knowledge snapshot is unavailable");
-    return withSnapshotCopyTime(snapshot, response.headers.get(snapshotFetchedAtHeader));
+    return snapshot;
   }
 
   getEntities(query: EntityQuery = {}, signal?: AbortSignal) {

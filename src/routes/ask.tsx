@@ -569,11 +569,7 @@ function AskPage() {
           )}
           actions={
             snapshot ? (
-              <DemoBadge
-                mode={snapshot.meta.mode}
-                updatedAt={snapshot.meta.retrievedAt}
-                cachedAt={snapshot.meta.cachedAt}
-              />
+              <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
             ) : undefined
           }
         />
