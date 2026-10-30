@@ -214,7 +214,12 @@ def test_lexical_rag_expands_family_mentions_to_concrete_versions():
         result = retriever.search(session, snapshot, "GPT 最近有哪些已核验变化？")
 
     assert result.diagnostics.matched_entity_ids == ["e-gpt"]
-    assert any(item.claim.entity_id in {"e-gpt-5", "e-gpt-6-astra"} for item in result.citations)
+    concrete_versions = {entity.id for entity in snapshot.entities if entity.family_id == "e-gpt"}
+    # Family expansion must reach real versions, independently of which release is latest.
+    assert any(item.claim.entity_id in concrete_versions for item in result.citations)
+    allowed = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
+    # The index includes grounded timeline/relationship projections as well as direct Claims.
+    assert all(item == allowed[item.claim.id] and item.evidence for item in result.citations)
 
 
 def test_lexical_rag_resolves_normalized_catalog_aliases():

@@ -14,8 +14,8 @@ const snapshot = applyCatalogOverlays(baseline, extension, frontier);
 test("reviewed non-release events contain dated evidence, differences and affected scope", () => {
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");
-  assert.equal(events.length, 64);
-  assert.equal(changes.length, 267);
+  assert.equal(events.length, 81);
+  assert.equal(changes.length, 284);
   assert.deepEqual(
     new Set(events.map((item) => item.kind)),
     new Set(["updated", "deprecated", "pricing", "availability", "benchmark"]),

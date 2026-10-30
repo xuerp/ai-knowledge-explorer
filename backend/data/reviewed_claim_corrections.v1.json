@@ -3457,6 +3457,852 @@
           "contradictsClaimIds": null
         }
       ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-gpt-4o-catalog-review",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "前代通用视觉模型；具体快照有独立生命周期，2024-05-13 快照计划于 2026-10-23 停用。",
+          "en": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-gpt-4o-20261001"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT-4o",
+        "predicate": "catalog-review",
+        "objectOrValue": "gpt-4o",
+        "validFrom": "2026-10-01",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-gpt-4o-catalog-review",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照于 2026-10-14 宣布弃用，计划于 2027-01-14 停服。不同快照和 ChatGPT 入口分别判断。",
+          "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23. The 2024-08-06 and 2024-11-20 snapshots were deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14. Snapshots and ChatGPT access have separate lifecycles.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-gpt-4o-20261001", "s-openai-api-lifecycle-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-4o",
+        "predicate": "catalog-review",
+        "objectOrValue": "gpt-4o",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-gpt-4o-20261001",
+          "title": {
+            "zh": "GPT-4o 官方型号文档",
+            "en": "GPT-4o 官方型号文档"
+          },
+          "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-gpt-4o-catalog-review"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-lifecycle-20261030",
+          "title": {
+            "zh": "OpenAI API 生命周期表（2026-10-30 核对）",
+            "en": "OpenAI API lifecycle table reviewed 2026-10-30"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-30",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "Official table distinguishes deprecation announcements from API shutdowns. It lists specific GPT-4, GPT-5.1, GPT-5.3-Codex, GPT-5.4 nano, audio and image models and their affected snapshots, shutdown dates and migration options. A snapshot shutdown is not a family-wide shutdown or a statement about ChatGPT availability.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-api-lifecycle-e-gpt-4o-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-20261030",
+            "c-api-lifecycle-e-gpt-41-20261030",
+            "c-api-lifecycle-e-gpt-41-mini-20261030",
+            "c-api-lifecycle-e-gpt-53-codex-20261030",
+            "c-api-lifecycle-e-gpt-54-nano-20261030",
+            "c-api-lifecycle-e-gpt-51-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+            "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+            "c-api-lifecycle-e-gpt-realtime-1-20261030",
+            "c-api-lifecycle-e-gpt-image-15-20261030",
+            "c-api-lifecycle-e-gpt-41-nano-20261030",
+            "c-api-lifecycle-e-gpt-image-1-20261030",
+            "c-api-lifecycle-e-gpt-51-instant-20261030",
+            "c-api-lifecycle-e-gpt-52-instant-20261030",
+            "c-api-lifecycle-e-gpt-53-instant-20261030",
+            "c-gpt-4o-catalog-review",
+            "claim-86ea22da4205a423d56f",
+            "claim-2adeb8d2598427fd6edb",
+            "claim-d4a02f6adca902598771",
+            "c-api-shutdown-gpt4o-20240513-20261023"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "claim-86ea22da4205a423d56f",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "GPT-4o Transcribe 是由 GPT-4o 驱动的语音转文本模型。",
+          "en": "GPT-4o Transcribe is a speech-to-text model powered by GPT-4o.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-86ea22da4205a423d56f"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-4o Transcribe",
+        "predicate": "is",
+        "objectOrValue": "Speech-to-text model powered by GPT-4o",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-86ea22da4205a423d56f",
+        "entityId": "e-gpt-4o-transcribe",
+        "text": {
+          "zh": "GPT-4o Transcribe 是基于 GPT-4o 的语音转文本 API 型号；已于 2026-08-26 宣布弃用，计划 2027-02-26 停服。",
+          "en": "GPT-4o Transcribe is a speech-to-text API model powered by GPT-4o; it was deprecated on 2026-08-26, with shutdown scheduled for 2027-02-26.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-86ea22da4205a423d56f", "s-openai-api-lifecycle-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-4o Transcribe",
+        "predicate": "is",
+        "objectOrValue": "Speech-to-text model powered by GPT-4o",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-86ea22da4205a423d56f",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:18.895613+00:00",
+          "sourceExcerpt": "- [GPT-4o Transcribe](/api/docs/models/gpt-4o-transcribe.md): Speech-to-text model powered by GPT-4o",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-86ea22da4205a423d56f"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-lifecycle-20261030",
+          "title": {
+            "zh": "OpenAI API 生命周期表（2026-10-30 核对）",
+            "en": "OpenAI API lifecycle table reviewed 2026-10-30"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-30",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "Official table distinguishes deprecation announcements from API shutdowns. It lists specific GPT-4, GPT-5.1, GPT-5.3-Codex, GPT-5.4 nano, audio and image models and their affected snapshots, shutdown dates and migration options. A snapshot shutdown is not a family-wide shutdown or a statement about ChatGPT availability.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-api-lifecycle-e-gpt-4o-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-20261030",
+            "c-api-lifecycle-e-gpt-41-20261030",
+            "c-api-lifecycle-e-gpt-41-mini-20261030",
+            "c-api-lifecycle-e-gpt-53-codex-20261030",
+            "c-api-lifecycle-e-gpt-54-nano-20261030",
+            "c-api-lifecycle-e-gpt-51-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+            "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+            "c-api-lifecycle-e-gpt-realtime-1-20261030",
+            "c-api-lifecycle-e-gpt-image-15-20261030",
+            "c-api-lifecycle-e-gpt-41-nano-20261030",
+            "c-api-lifecycle-e-gpt-image-1-20261030",
+            "c-api-lifecycle-e-gpt-51-instant-20261030",
+            "c-api-lifecycle-e-gpt-52-instant-20261030",
+            "c-api-lifecycle-e-gpt-53-instant-20261030",
+            "c-gpt-4o-catalog-review",
+            "claim-86ea22da4205a423d56f",
+            "claim-2adeb8d2598427fd6edb",
+            "claim-d4a02f6adca902598771",
+            "c-api-shutdown-gpt4o-20240513-20261023"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "claim-2adeb8d2598427fd6edb",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "GPT-4o Mini Search Preview 用于网络搜索。",
+          "en": "GPT-4o Mini Search Preview is used for web search.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-2adeb8d2598427fd6edb"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-4o Mini Search Preview",
+        "predicate": "used-for",
+        "objectOrValue": "web search",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-2adeb8d2598427fd6edb",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "OpenAI 的旧型号目录将 GPT-4o Mini Search Preview 用于联网搜索的预览接口；官方弃用表列示该具名预览快照已于 2026-07-23 停服。该记录保留历史用途。",
+          "en": "OpenAI’s older model catalog describes GPT-4o Mini Search Preview as a web-search preview interface; the official table lists shutdown of that named preview snapshot on 2026-07-23. This record preserves its historical purpose.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-2adeb8d2598427fd6edb", "s-openai-api-lifecycle-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-4o Mini Search Preview",
+        "predicate": "historical-named-model-purpose",
+        "objectOrValue": "web search",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-2adeb8d2598427fd6edb",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.247370+00:00",
+          "sourceExcerpt": "- [GPT-4o Mini Search Preview](/api/docs/models/gpt-4o-mini-search-preview.md): Fast, affordable small model for web search",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-2adeb8d2598427fd6edb"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-lifecycle-20261030",
+          "title": {
+            "zh": "OpenAI API 生命周期表（2026-10-30 核对）",
+            "en": "OpenAI API lifecycle table reviewed 2026-10-30"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-30",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "Official table distinguishes deprecation announcements from API shutdowns. It lists specific GPT-4, GPT-5.1, GPT-5.3-Codex, GPT-5.4 nano, audio and image models and their affected snapshots, shutdown dates and migration options. A snapshot shutdown is not a family-wide shutdown or a statement about ChatGPT availability.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-api-lifecycle-e-gpt-4o-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-20261030",
+            "c-api-lifecycle-e-gpt-41-20261030",
+            "c-api-lifecycle-e-gpt-41-mini-20261030",
+            "c-api-lifecycle-e-gpt-53-codex-20261030",
+            "c-api-lifecycle-e-gpt-54-nano-20261030",
+            "c-api-lifecycle-e-gpt-51-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+            "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+            "c-api-lifecycle-e-gpt-realtime-1-20261030",
+            "c-api-lifecycle-e-gpt-image-15-20261030",
+            "c-api-lifecycle-e-gpt-41-nano-20261030",
+            "c-api-lifecycle-e-gpt-image-1-20261030",
+            "c-api-lifecycle-e-gpt-51-instant-20261030",
+            "c-api-lifecycle-e-gpt-52-instant-20261030",
+            "c-api-lifecycle-e-gpt-53-instant-20261030",
+            "c-gpt-4o-catalog-review",
+            "claim-86ea22da4205a423d56f",
+            "claim-2adeb8d2598427fd6edb",
+            "claim-d4a02f6adca902598771",
+            "c-api-shutdown-gpt4o-20240513-20261023"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "claim-d4a02f6adca902598771",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "GPT-4o Search Preview 用于 Chat Completions 中的网络搜索。",
+          "en": "GPT-4o Search Preview is used for web search in Chat Completions.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-d4a02f6adca902598771"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-4o Search Preview",
+        "predicate": "used-for",
+        "objectOrValue": "web search in Chat Completions",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-d4a02f6adca902598771",
+        "entityId": "e-gpt",
+        "text": {
+          "zh": "OpenAI 的旧型号目录将 GPT-4o Search Preview 用于联网搜索的预览接口；官方弃用表列示该具名预览快照已于 2026-07-23 停服。该记录保留历史用途。",
+          "en": "OpenAI’s older model catalog describes GPT-4o Search Preview as a web-search preview interface; the official table lists shutdown of that named preview snapshot on 2026-07-23. This record preserves its historical purpose.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-d4a02f6adca902598771", "s-openai-api-lifecycle-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-4o Search Preview",
+        "predicate": "historical-named-model-purpose",
+        "objectOrValue": "web search in Chat Completions",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-d4a02f6adca902598771",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.156388+00:00",
+          "sourceExcerpt": "- [GPT-4o Search Preview](/api/docs/models/gpt-4o-search-preview.md): GPT model for web search in Chat Completions",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-d4a02f6adca902598771"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-lifecycle-20261030",
+          "title": {
+            "zh": "OpenAI API 生命周期表（2026-10-30 核对）",
+            "en": "OpenAI API lifecycle table reviewed 2026-10-30"
+          },
+          "url": "https://developers.openai.com/api/docs/deprecations.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-30",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "Official table distinguishes deprecation announcements from API shutdowns. It lists specific GPT-4, GPT-5.1, GPT-5.3-Codex, GPT-5.4 nano, audio and image models and their affected snapshots, shutdown dates and migration options. A snapshot shutdown is not a family-wide shutdown or a statement about ChatGPT availability.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-api-lifecycle-e-gpt-4o-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-20261030",
+            "c-api-lifecycle-e-gpt-41-20261030",
+            "c-api-lifecycle-e-gpt-41-mini-20261030",
+            "c-api-lifecycle-e-gpt-53-codex-20261030",
+            "c-api-lifecycle-e-gpt-54-nano-20261030",
+            "c-api-lifecycle-e-gpt-51-20261030",
+            "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+            "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+            "c-api-lifecycle-e-gpt-realtime-1-20261030",
+            "c-api-lifecycle-e-gpt-image-15-20261030",
+            "c-api-lifecycle-e-gpt-41-nano-20261030",
+            "c-api-lifecycle-e-gpt-image-1-20261030",
+            "c-api-lifecycle-e-gpt-51-instant-20261030",
+            "c-api-lifecycle-e-gpt-52-instant-20261030",
+            "c-api-lifecycle-e-gpt-53-instant-20261030",
+            "c-gpt-4o-catalog-review",
+            "claim-86ea22da4205a423d56f",
+            "claim-2adeb8d2598427fd6edb",
+            "claim-d4a02f6adca902598771",
+            "c-api-shutdown-gpt4o-20240513-20261023"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "claim-74d421ba1cd4766d79c8",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "GPT-4o 用于 ChatGPT。",
+          "en": "GPT-4o is used in ChatGPT.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-74d421ba1cd4766d79c8"],
+        "updatedAt": "2026-09-13",
+        "subject": "GPT-4o",
+        "predicate": "used-in",
+        "objectOrValue": "ChatGPT",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-74d421ba1cd4766d79c8",
+        "entityId": "e-gpt-4o",
+        "text": {
+          "zh": "OpenAI 型号目录记录了 GPT-4o 曾用于 ChatGPT 的产品用途；这是一项历史用途说明，不能作为当前 ChatGPT 账号仍提供该入口的证明。",
+          "en": "OpenAI’s model catalog records GPT-4o’s use in ChatGPT; this preserves a historical product purpose and does not establish current access in a ChatGPT account.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-74d421ba1cd4766d79c8"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-4o",
+        "predicate": "historical-product-usage",
+        "objectOrValue": "ChatGPT",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-74d421ba1cd4766d79c8",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.352510+00:00",
+          "sourceExcerpt": "- [ChatGPT-4o](/api/docs/models/chatgpt-4o-latest.md): GPT-4o model used in ChatGPT",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-74d421ba1cd4766d79c8"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-history-gpt-51",
+        "entityId": "e-gpt-51",
+        "text": {
+          "zh": "GPT-5.1 于 2025-11-13 发布。GPT-5.1 属于该数字代际的 Standard 版本。",
+          "en": "GPT-5.1 was released on 2025-11-13.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-51"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT-5.1",
+        "predicate": "release",
+        "objectOrValue": "2025-11-13",
+        "validFrom": "2025-11-13",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-history-gpt-51",
+        "entityId": "e-gpt-51",
+        "text": {
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1; this is an API release node, not the first rollout date in ChatGPT.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-51", "s-openai-api-release-history-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-5.1",
+        "predicate": "release",
+        "objectOrValue": "2025-11-13",
+        "validFrom": "2025-11-13",
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-history-gpt-51",
+          "title": {
+            "zh": "GPT-5.1 官方发布记录",
+            "en": "GPT-5.1 official release record"
+          },
+          "url": "https://openai.com/index/gpt-5-1-for-developers/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-11-13",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT-5.1 属于该数字代际的 Standard 版本。",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-51"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-release-history-20261030",
+          "title": {
+            "zh": "OpenAI API 发布日志：具名历史节点",
+            "en": "OpenAI API changelog: named historical release entries"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "The November 13, 2025 entry names gpt-5.1 and gpt-5.1-chat-latest. The April 21, 2026 entry announces gpt-image-2 in the Images and Batch APIs. These are API release nodes, not assertions of first availability in ChatGPT.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-history-gpt-51",
+            "c-history-gpt-51-instant",
+            "c-history-gpt-image-2"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-history-gpt-51-instant",
+        "entityId": "e-gpt-51-instant",
+        "text": {
+          "zh": "GPT-5.1 Instant 于 2025-11-13 发布。GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
+          "en": "GPT-5.1 Instant was released on 2025-11-13.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-51-instant"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT-5.1 Instant",
+        "predicate": "release",
+        "objectOrValue": "2025-11-13",
+        "validFrom": "2025-11-13",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-history-gpt-51-instant",
+        "entityId": "e-gpt-51-instant",
+        "text": {
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1-chat-latest；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1-chat-latest; this is an API release node, not the first rollout date in ChatGPT.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-51-instant", "s-openai-api-release-history-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT-5.1 Instant",
+        "predicate": "release",
+        "objectOrValue": "2025-11-13",
+        "validFrom": "2025-11-13",
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-history-gpt-51-instant",
+          "title": {
+            "zh": "GPT-5.1 Instant 官方发布记录",
+            "en": "GPT-5.1 Instant official release record"
+          },
+          "url": "https://openai.com/index/gpt-5-1-for-developers/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-11-13",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-51-instant"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-release-history-20261030",
+          "title": {
+            "zh": "OpenAI API 发布日志：具名历史节点",
+            "en": "OpenAI API changelog: named historical release entries"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "The November 13, 2025 entry names gpt-5.1 and gpt-5.1-chat-latest. The April 21, 2026 entry announces gpt-image-2 in the Images and Batch APIs. These are API release nodes, not assertions of first availability in ChatGPT.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-history-gpt-51",
+            "c-history-gpt-51-instant",
+            "c-history-gpt-image-2"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-history-gpt-image-1",
+        "entityId": "e-gpt-image-1",
+        "text": {
+          "zh": "GPT Image 1 于 2025-04-23 发布。GPT Image 1 在 API 正式推出；与 ChatGPT 图像功能上线日分开记录。",
+          "en": "GPT Image 1 was released on 2025-04-23.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-image-1"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT Image 1",
+        "predicate": "release",
+        "objectOrValue": "2025-04-23",
+        "validFrom": "2025-04-23",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-history-gpt-image-1",
+        "entityId": "e-gpt-image-1",
+        "text": {
+          "zh": "OpenAI 于 2025-04-23 将 gpt-image-1 引入 API；该日期是具名 API 型号的发布节点，ChatGPT 图像功能此前已另行推出。",
+          "en": "OpenAI introduced gpt-image-1 in the API on 2025-04-23; this is the named API model’s release node, while the ChatGPT image feature had launched separately before it.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-image-1"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT Image 1",
+        "predicate": "release",
+        "objectOrValue": "2025-04-23",
+        "validFrom": "2025-04-23",
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-history-gpt-image-1",
+          "title": {
+            "zh": "GPT Image 1 官方发布记录",
+            "en": "GPT Image 1 official release record"
+          },
+          "url": "https://openai.com/index/image-generation-api/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-04-23",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT Image 1 在 API 正式推出；与 ChatGPT 图像功能上线日分开记录。",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-image-1"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-history-gpt-image-2",
+        "entityId": "e-gpt-image-2",
+        "text": {
+          "zh": "GPT Image 2 于 2026-04-21 发布。GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
+          "en": "GPT Image 2 was released on 2026-04-21.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-image-2"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT Image 2",
+        "predicate": "release",
+        "objectOrValue": "2026-04-21",
+        "validFrom": "2026-04-21",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-history-gpt-image-2",
+        "entityId": "e-gpt-image-2",
+        "text": {
+          "zh": "OpenAI 于 2026-04-21 在 Images API 和 Batch API 发布 gpt-image-2。",
+          "en": "OpenAI released gpt-image-2 in the Images and Batch APIs on 2026-04-21.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-image-2", "s-openai-api-release-history-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT Image 2",
+        "predicate": "release",
+        "objectOrValue": "2026-04-21",
+        "validFrom": "2026-04-21",
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-history-gpt-image-2",
+          "title": {
+            "zh": "GPT Image 2 官方发布记录",
+            "en": "GPT Image 2 official release record"
+          },
+          "url": "https://openai.com/index/introducing-chatgpt-images-2-0/",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-04-21",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-image-2"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-api-release-history-20261030",
+          "title": {
+            "zh": "OpenAI API 发布日志：具名历史节点",
+            "en": "OpenAI API changelog: named historical release entries"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-29",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "The November 13, 2025 entry names gpt-5.1 and gpt-5.1-chat-latest. The April 21, 2026 entry announces gpt-image-2 in the Images and Batch APIs. These are API release nodes, not assertions of first availability in ChatGPT.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": [
+            "c-history-gpt-51",
+            "c-history-gpt-51-instant",
+            "c-history-gpt-image-2"
+          ]
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-30",
+      "reviewer": "Codex; not an independent human audit",
+      "reason": "Read named model, API/snapshot scope and dated official release/deprecation entries. Preserve historical records and distinguish API access from ChatGPT products.",
+      "expectedClaim": {
+        "id": "c-history-gpt-realtime-1",
+        "entityId": "e-gpt-realtime-1",
+        "text": {
+          "zh": "GPT Realtime 于 2025-08-28 发布。Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
+          "en": "GPT Realtime was released on 2025-08-28.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-realtime-1"],
+        "updatedAt": "2026-10-01",
+        "subject": "GPT Realtime",
+        "predicate": "release",
+        "objectOrValue": "2025-08-28",
+        "validFrom": "2025-08-28",
+        "validTo": null,
+        "observedAt": "2026-10-01"
+      },
+      "correctedClaim": {
+        "id": "c-history-gpt-realtime-1",
+        "entityId": "e-gpt-realtime-1",
+        "text": {
+          "zh": "OpenAI 于 2025-08-28 发布 gpt-realtime 语音到语音型号，同时宣布 Realtime API 正式可用。",
+          "en": "OpenAI released the gpt-realtime speech-to-speech model on 2025-08-28 alongside general availability of the Realtime API.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-history-gpt-realtime-1", "s-openai-realtime-launch-reviewed-20261030"],
+        "updatedAt": "2026-10-30",
+        "subject": "GPT Realtime",
+        "predicate": "release",
+        "objectOrValue": "2025-08-28",
+        "validFrom": "2025-08-28",
+        "validTo": null,
+        "observedAt": "2026-10-30"
+      },
+      "expectedEvidence": [
+        {
+          "id": "s-history-gpt-realtime-1",
+          "title": {
+            "zh": "GPT Realtime 官方发布记录",
+            "en": "GPT Realtime official release record"
+          },
+          "url": "https://developers.openai.com/api/docs/changelog",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-08-28",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-realtime-1"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-openai-realtime-launch-reviewed-20261030",
+          "title": {
+            "zh": "OpenAI：2025-08-28 发布 gpt-realtime",
+            "en": "OpenAI: gpt-realtime launch on 2025-08-28"
+          },
+          "url": "https://openai.com/index/introducing-gpt-realtime/",
+          "publisher": "OpenAI",
+          "publishedAt": "2025-08-28",
+          "collectedAt": "2026-10-30",
+          "verifiedAt": "2026-10-30",
+          "sourceExcerpt": "The dated OpenAI launch announces the gpt-realtime speech-to-speech model alongside general availability of the Realtime API.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-history-gpt-realtime-1"]
+        }
+      ]
     }
   ],
   "reviewer": "Codex source comparison; not an independent human audit"

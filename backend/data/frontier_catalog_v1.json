@@ -6987,26 +6987,26 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "前代通用视觉模型；具体快照有独立生命周期，2024-05-13 快照计划于 2026-10-23 停用。",
-        "en": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot."
+        "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照于 2026-10-14 宣布弃用，计划于 2027-01-14 停服。不同快照和 ChatGPT 入口分别判断。",
+        "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23. The 2024-08-06 and 2024-11-20 snapshots were deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14. Snapshots and ChatGPT access have separate lifecycles."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-4o"],
       "latestVersion": null,
       "firstReleasedAt": "2024-05-13",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "specs": {
         "contextWindow": "128,000 tokens",
         "inputPrice": "$2.5 / 1M tokens (text)",
         "outputPrice": "$10 / 1M tokens (text)",
         "modalities": "文本与图像输入 · 文本输出",
         "toolUse": null,
-        "availability": "OpenAI"
+        "availability": "2024-05-13 snapshot retired · 2024-08-06 / 2024-11-20 snapshots scheduled to shut down 2027-01-14"
       },
       "capabilities": [
         {
-          "zh": "前代通用视觉模型；具体快照有独立生命周期，2024-05-13 快照计划于 2026-10-23 停用。",
-          "en": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot.",
+          "zh": "前代通用视觉模型。2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照计划于 2027-01-14 停服。",
+          "en": "Earlier general vision model. The 2024-05-13 API snapshot shut down on 2026-10-23; the 2024-08-06 and 2024-11-20 snapshots are scheduled to shut down on 2027-01-14.",
           "confidence": "verified"
         }
       ],
@@ -7016,7 +7016,7 @@
         "variant": "GPT-4o",
         "releaseId": "gpt-4o",
         "apiModelIds": ["gpt-4o"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-4o",
           "name": {
@@ -7030,7 +7030,7 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2024-05-13",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-30",
         "accessChannels": [
           {
             "type": "official-api",
@@ -7038,13 +7038,14 @@
             "modelId": "gpt-4o",
             "url": "https://developers.openai.com/api/docs/models/gpt-4o"
           }
-        ]
+        ],
+        "retirementNotBefore": "2027-01-14"
       },
       "knowledge": {
         "introduction": [
           {
-            "zh": "前代通用视觉模型；具体快照有独立生命周期，2024-05-13 快照计划于 2026-10-23 停用。",
-            "en": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot."
+            "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照于 2026-10-14 宣布弃用，计划于 2027-01-14 停服。不同快照和 ChatGPT 入口分别判断。",
+            "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23. The 2024-08-06 and 2024-11-20 snapshots were deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14. Snapshots and ChatGPT access have separate lifecycles."
           }
         ],
         "significance": {
@@ -7073,6 +7074,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-4o"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照于 2026-10-14 宣布弃用，计划于 2027-01-14 停服。不同快照和 ChatGPT 入口分别判断。",
+              "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23. The 2024-08-06 and 2024-11-20 snapshots were deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14. Snapshots and ChatGPT access have separate lifecycles."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -7088,6 +7100,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "家族别名与日期快照分开核对；本页不把单个快照退役误写成全部 GPT-4o 退役。",
             "en": "Review aliases and dated snapshots separately; one snapshot retirement does not retire every GPT-4o variant."
@@ -7113,9 +7129,13 @@
               {
                 "zh": "输出价格：$10 / 1M tokens (文本)",
                 "en": "outputPrice: $10 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：2024-05-13 快照已下线 · 2024-08-06 / 2024-11-20 快照计划停服 2027-01-14",
+                "en": "availability: 2024-05-13 snapshot retired · 2024-08-06 / 2024-11-20 snapshots scheduled to shut down 2027-01-14"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-4o"]
+            "sourceIds": ["s-specs-e-gpt-4o", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -7733,14 +7753,14 @@
       },
       "aliases": ["gpt-4o-mini-tts"],
       "summary": {
-        "zh": "将文本转换为自然语音；用于旁白和语音播报。",
-        "en": "Text-to-speech for narration and spoken output."
+        "zh": "GPT-4o Mini TTS 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-01-06 停服；官方迁移建议为 gpt-realtime-2.1-mini。",
+        "en": "The catalogued GPT-4o Mini TTS API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-01-06; the official table recommends gpt-realtime-2.1-mini."
       },
       "latestVersion": null,
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT TTS"],
       "firstReleasedAt": "2025-03-20",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "2,000 input tokens",
@@ -7748,14 +7768,14 @@
         "outputPrice": "$12 / 1M tokens (audio)",
         "modalities": "文本输入 · 音频输出",
         "toolUse": null,
-        "availability": "OpenAI"
+        "availability": "Deprecated API · scheduled shutdown 2027-01-06 · verify other product/account access separately"
       },
       "release": {
         "generation": "GPT-4o Mini TTS",
         "variant": "GPT TTS",
         "releaseId": "gpt-4o-mini-tts",
         "apiModelIds": ["gpt-4o-mini-tts"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-tts",
           "name": {
@@ -7767,9 +7787,9 @@
             "en": "Text to speech"
           }
         },
-        "catalogCurrent": true,
+        "catalogCurrent": false,
         "releasedAt": "2025-03-20",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-30",
         "accessChannels": [
           {
             "type": "official-api",
@@ -7777,7 +7797,8 @@
             "modelId": "gpt-4o-mini-tts",
             "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts"
           }
-        ]
+        ],
+        "retirementNotBefore": "2027-01-06"
       },
       "capabilities": [
         {
@@ -7789,8 +7810,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "将文本转换为自然语音；用于旁白和语音播报。",
-            "en": "Text-to-speech for narration and spoken output."
+            "zh": "GPT-4o Mini TTS 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-01-06 停服；官方迁移建议为 gpt-realtime-2.1-mini。",
+            "en": "The catalogued GPT-4o Mini TTS API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-01-06; the official table recommends gpt-realtime-2.1-mini."
           }
         ],
         "significance": {
@@ -7830,6 +7851,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nSpeech model reference lists a 2,000 input token limit; this is not a chat context window.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-4o-mini-tts"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4o Mini TTS 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-01-06 停服；官方迁移建议为 gpt-realtime-2.1-mini。",
+              "en": "The catalogued GPT-4o Mini TTS API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-01-06; the official table recommends gpt-realtime-2.1-mini."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -7845,6 +7877,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "音频、图像和文本使用不同计费单位；不要套用通用文本模型价格。",
             "en": "Audio, images and text use different billing units; do not apply general text-model rates."
@@ -7874,9 +7910,13 @@
               {
                 "zh": "上下文：2,000 输入 token",
                 "en": "contextWindow: 2,000 input tokens"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-01-06 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-01-06 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-4o-mini-tts"]
+            "sourceIds": ["s-specs-e-gpt-4o-mini-tts", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -16600,19 +16640,19 @@
         "en": "GPT-4.1"
       },
       "summary": {
-        "zh": "GPT-4.1：GPT-4.1 属于该数字代际的 Standard 版本。",
-        "en": "GPT-4.1 is a documented historical release in the GPT-4.1 line."
+        "zh": "GPT-4.1 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+        "en": "The catalogued GPT-4.1 API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
       },
       "vendor": "OpenAI",
       "origin": {
         "zh": "海外",
         "en": "Overseas"
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT.4.1"],
       "latestVersion": null,
       "firstReleasedAt": "2025-04-14",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "aliases": ["gpt-4.1"],
       "familyId": "e-gpt",
       "release": {
@@ -16620,7 +16660,7 @@
         "variant": "Standard",
         "releaseId": "gpt-4.1",
         "apiModelIds": ["gpt-4.1"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-4-1",
           "name": {
@@ -16634,8 +16674,8 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-04-14",
-        "retirementNotBefore": null,
-        "lastVerifiedAt": "2026-10-05",
+        "retirementNotBefore": "2027-01-14",
+        "lastVerifiedAt": "2026-10-30",
         "accessChannels": []
       },
       "specs": {
@@ -16644,7 +16684,7 @@
         "outputPrice": "$8 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -16657,8 +16697,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-4.1：GPT-4.1 属于该数字代际的 Standard 版本。",
-            "en": "GPT-4.1 is a documented historical release in the GPT-4.1 line."
+            "zh": "GPT-4.1 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+            "en": "The catalogued GPT-4.1 API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
           }
         ],
         "significance": {
@@ -16687,6 +16727,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-41"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4.1 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+              "en": "The catalogued GPT-4.1 API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -16702,6 +16753,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -16731,9 +16786,13 @@
               {
                 "zh": "输出价格：$8 / 1M tokens (文本)",
                 "en": "outputPrice: $8 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-01-14 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-41"]
+            "sourceIds": ["s-specs-e-gpt-41", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -16754,19 +16813,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-4.1 mini：GPT-4.1 mini 属于该数字代际的 Mini 版本。",
-        "en": "GPT-4.1 mini is a documented historical release in the GPT-4.1 line."
+        "zh": "GPT-4.1 mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+        "en": "The catalogued GPT-4.1 mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT.4.1"],
       "firstReleasedAt": "2025-04-14",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-4.1 mini",
         "variant": "Mini",
         "releaseId": "gpt-4.1-mini",
         "apiModelIds": ["gpt-4.1-mini"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-4-1",
           "name": {
@@ -16780,8 +16839,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-04-14",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-01-14"
       },
       "specs": {
         "contextWindow": "1,047,576 tokens · max output 32,768",
@@ -16789,7 +16849,7 @@
         "outputPrice": "$1.6 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -16801,8 +16861,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-4.1 mini：GPT-4.1 mini 属于该数字代际的 Mini 版本。",
-            "en": "GPT-4.1 mini is a documented historical release in the GPT-4.1 line."
+            "zh": "GPT-4.1 mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+            "en": "The catalogued GPT-4.1 mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
           }
         ],
         "significance": {
@@ -16831,6 +16891,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-41-mini"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4.1 mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+              "en": "The catalogued GPT-4.1 mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -16846,6 +16917,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -16875,9 +16950,13 @@
               {
                 "zh": "输出价格：$1.6 / 1M tokens (文本)",
                 "en": "outputPrice: $1.6 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-01-14 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-41-mini"]
+            "sourceIds": ["s-specs-e-gpt-41-mini", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -16900,19 +16979,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-4.1 nano：GPT-4.1 nano 属于该数字代际的 Nano 版本。",
-        "en": "GPT-4.1 nano is a documented historical release in the GPT-4.1 line."
+        "zh": "GPT-4.1 nano 的已收录 API 型号 gpt-4.1-nano 已于 2026-10-23 下线；官方迁移建议为 gpt-5.6-luna。保留原版本和发布历史。",
+        "en": "The catalogued GPT-4.1 nano API model (gpt-4.1-nano) shut down on 2026-10-23; the official migration table recommends gpt-5.6-luna. The original version and release history are retained."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT.4.1"],
       "firstReleasedAt": "2025-04-14",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-4.1 nano",
         "variant": "Nano",
         "releaseId": "gpt-4.1-nano",
         "apiModelIds": ["gpt-4.1-nano"],
-        "stage": "stable",
+        "stage": "retired",
         "productLine": {
           "id": "gpt-4-1",
           "name": {
@@ -16926,16 +17005,17 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-04-14",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": null
       },
       "specs": {
         "contextWindow": "1,047,576 tokens · max output 32,768",
-        "inputPrice": "$0.1 / 1M tokens (text)",
-        "outputPrice": "$0.4 / 1M tokens (text)",
+        "inputPrice": "$0.1 / 1M tokens (text) · historical API",
+        "outputPrice": "$0.4 / 1M tokens (text) · historical API",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Original API shut down 2026-10-23 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -16947,8 +17027,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-4.1 nano：GPT-4.1 nano 属于该数字代际的 Nano 版本。",
-            "en": "GPT-4.1 nano is a documented historical release in the GPT-4.1 line."
+            "zh": "GPT-4.1 nano 的已收录 API 型号 gpt-4.1-nano 已于 2026-10-23 下线；官方迁移建议为 gpt-5.6-luna。保留原版本和发布历史。",
+            "en": "The catalogued GPT-4.1 nano API model (gpt-4.1-nano) shut down on 2026-10-23; the official migration table recommends gpt-5.6-luna. The original version and release history are retained."
           }
         ],
         "significance": {
@@ -16977,6 +17057,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-41-nano"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4.1 nano 的已收录 API 型号 gpt-4.1-nano 已于 2026-10-23 下线；官方迁移建议为 gpt-5.6-luna。保留原版本和发布历史。",
+              "en": "The catalogued GPT-4.1 nano API model (gpt-4.1-nano) shut down on 2026-10-23; the official migration table recommends gpt-5.6-luna. The original version and release history are retained."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -16992,6 +17083,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -17015,15 +17110,19 @@
                 "en": "contextWindow: 1,047,576 tokens · max output 32,768"
               },
               {
-                "zh": "输入价格：$0.1 / 1M tokens (文本)",
-                "en": "inputPrice: $0.1 / 1M tokens (text)"
+                "zh": "输入价格：$0.1 / 1M tokens (文本) · 历史 API 价格",
+                "en": "inputPrice: $0.1 / 1M tokens (text) · historical API"
               },
               {
-                "zh": "输出价格：$0.4 / 1M tokens (文本)",
-                "en": "outputPrice: $0.4 / 1M tokens (text)"
+                "zh": "输出价格：$0.4 / 1M tokens (文本) · 历史 API 价格",
+                "en": "outputPrice: $0.4 / 1M tokens (text) · historical API"
+              },
+              {
+                "zh": "可用性：原 API 已下线 2026-10-23 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Original API shut down 2026-10-23 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-41-nano"]
+            "sourceIds": ["s-specs-e-gpt-41-nano", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -17046,21 +17145,21 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-4o mini：GPT-4o mini 属于该数字代际的 Mini 版本。",
-        "en": "GPT-4o mini is a documented historical release in the GPT-4o line."
+        "zh": "GPT-4o mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+        "en": "The catalogued GPT-4o mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT.4o"],
       "latestVersion": null,
       "firstReleasedAt": "2024-07-18",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "specs": {
         "contextWindow": "128,000 tokens · max output 16,384",
         "inputPrice": "$0.15 / 1M tokens (text)",
         "outputPrice": "$0.6 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -17075,7 +17174,7 @@
         "variant": "Mini",
         "releaseId": "gpt-4o-mini",
         "apiModelIds": ["gpt-4o-mini"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-4o",
           "name": {
@@ -17089,14 +17188,15 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2024-07-18",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-01-14"
       },
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-4o mini：GPT-4o mini 属于该数字代际的 Mini 版本。",
-            "en": "GPT-4o mini is a documented historical release in the GPT-4o line."
+            "zh": "GPT-4o mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+            "en": "The catalogued GPT-4o mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
           }
         ],
         "significance": {
@@ -17125,6 +17225,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-4o-mini"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4o mini 的已收录 API 型号已于 2026-10-14 宣布弃用，计划在 2027-01-14 停服；官方迁移建议为 gpt-6-luna。",
+              "en": "The catalogued GPT-4o mini API model was deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14; the official table recommends gpt-6-luna."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -17140,6 +17251,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -17169,9 +17284,13 @@
               {
                 "zh": "输出价格：$0.6 / 1M tokens (文本)",
                 "en": "outputPrice: $0.6 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-01-14 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-01-14 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-4o-mini"]
+            "sourceIds": ["s-specs-e-gpt-4o-mini", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -17501,19 +17620,19 @@
         "en": "GPT-5.1"
       },
       "summary": {
-        "zh": "GPT-5.1：GPT-5.1 属于该数字代际的 Standard 版本。",
-        "en": "GPT-5.1 is a documented historical release in the GPT-5.1 line."
+        "zh": "GPT-5.1 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+        "en": "The catalogued GPT-5.1 API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
       },
       "vendor": "OpenAI",
       "origin": {
         "zh": "海外",
         "en": "Overseas"
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.1"],
       "latestVersion": null,
       "firstReleasedAt": "2025-11-13",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "aliases": ["gpt-5.1"],
       "familyId": "e-gpt",
       "release": {
@@ -17521,7 +17640,7 @@
         "variant": "Standard",
         "releaseId": "gpt-5.1",
         "apiModelIds": ["gpt-5.1"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5-1",
           "name": {
@@ -17535,8 +17654,8 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-11-13",
-        "retirementNotBefore": null,
-        "lastVerifiedAt": "2026-10-05",
+        "retirementNotBefore": "2027-04-01",
+        "lastVerifiedAt": "2026-10-30",
         "accessChannels": []
       },
       "specs": {
@@ -17545,7 +17664,7 @@
         "outputPrice": "$10 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -17558,8 +17677,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.1：GPT-5.1 属于该数字代际的 Standard 版本。",
-            "en": "GPT-5.1 is a documented historical release in the GPT-5.1 line."
+            "zh": "GPT-5.1 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+            "en": "The catalogued GPT-5.1 API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
           }
         ],
         "significance": {
@@ -17576,7 +17695,7 @@
               "zh": "2025-11-13：GPT-5.1 属于该数字代际的 Standard 版本。",
               "en": "Official release: 2025-11-13. GPT-5.1 is a documented historical release in the GPT-5.1 line."
             },
-            "sourceIds": ["s-history-gpt-51"]
+            "sourceIds": ["s-history-gpt-51", "s-openai-api-release-history-20261030"]
           },
           {
             "title": {
@@ -17588,6 +17707,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-51"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.1 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+              "en": "The catalogued GPT-5.1 API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -17604,8 +17734,16 @@
         ],
         "limitations": [
           {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
+          {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
+          },
+          {
+            "zh": "本档案的 2025-11-13 是 API 发布日期；ChatGPT 的产品上线时间单独判断。",
+            "en": "The 2025-11-13 date in this profile is the API release date; ChatGPT rollout timing is separate."
           }
         ],
         "officialUrl": "https://openai.com/index/gpt-5-1-for-developers/",
@@ -17632,9 +17770,13 @@
               {
                 "zh": "输出价格：$10 / 1M tokens (文本)",
                 "en": "outputPrice: $10 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-04-01 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-51"]
+            "sourceIds": ["s-specs-e-gpt-51", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -17655,19 +17797,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5.1 Instant：GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
-        "en": "GPT-5.1 Instant is a documented historical release in the GPT-5.1 line."
+        "zh": "GPT-5.1 Instant 的已收录 API 型号 gpt-5.1-chat-latest 已于 2026-07-23 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+        "en": "The catalogued GPT-5.1 Instant API model (gpt-5.1-chat-latest) shut down on 2026-07-23; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.1"],
       "firstReleasedAt": "2025-11-13",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-5.1 Instant",
         "variant": "Instant",
         "releaseId": "gpt-5.1-chat-latest",
         "apiModelIds": ["gpt-5.1-chat-latest"],
-        "stage": "stable",
+        "stage": "retired",
         "productLine": {
           "id": "gpt-5-1",
           "name": {
@@ -17681,16 +17823,17 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-11-13",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": null
       },
       "specs": {
         "contextWindow": "128,000 tokens · max output 16,384",
-        "inputPrice": "$1.25 / 1M tokens (text)",
-        "outputPrice": "$10 / 1M tokens (text)",
+        "inputPrice": "$1.25 / 1M tokens (text) · historical API",
+        "outputPrice": "$10 / 1M tokens (text) · historical API",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Original API shut down 2026-07-23 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -17702,8 +17845,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.1 Instant：GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
-            "en": "GPT-5.1 Instant is a documented historical release in the GPT-5.1 line."
+            "zh": "GPT-5.1 Instant 的已收录 API 型号 gpt-5.1-chat-latest 已于 2026-07-23 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+            "en": "The catalogued GPT-5.1 Instant API model (gpt-5.1-chat-latest) shut down on 2026-07-23; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
           }
         ],
         "significance": {
@@ -17720,7 +17863,7 @@
               "zh": "2025-11-13：GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
               "en": "Official release: 2025-11-13. GPT-5.1 Instant is a documented historical release in the GPT-5.1 line."
             },
-            "sourceIds": ["s-history-gpt-51-instant"]
+            "sourceIds": ["s-history-gpt-51-instant", "s-openai-api-release-history-20261030"]
           },
           {
             "title": {
@@ -17732,6 +17875,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-51-instant"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.1 Instant 的已收录 API 型号 gpt-5.1-chat-latest 已于 2026-07-23 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+              "en": "The catalogued GPT-5.1 Instant API model (gpt-5.1-chat-latest) shut down on 2026-07-23; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -17748,8 +17902,16 @@
         ],
         "limitations": [
           {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
+          {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
+          },
+          {
+            "zh": "本档案的 2025-11-13 是 API 发布日期；ChatGPT 的产品上线时间单独判断。",
+            "en": "The 2025-11-13 date in this profile is the API release date; ChatGPT rollout timing is separate."
           }
         ],
         "officialUrl": "https://openai.com/index/gpt-5-1-for-developers/",
@@ -17770,15 +17932,19 @@
                 "en": "contextWindow: 128,000 tokens · max output 16,384"
               },
               {
-                "zh": "输入价格：$1.25 / 1M tokens (文本)",
-                "en": "inputPrice: $1.25 / 1M tokens (text)"
+                "zh": "输入价格：$1.25 / 1M tokens (文本) · 历史 API 价格",
+                "en": "inputPrice: $1.25 / 1M tokens (text) · historical API"
               },
               {
-                "zh": "输出价格：$10 / 1M tokens (文本)",
-                "en": "outputPrice: $10 / 1M tokens (text)"
+                "zh": "输出价格：$10 / 1M tokens (文本) · 历史 API 价格",
+                "en": "outputPrice: $10 / 1M tokens (text) · historical API"
+              },
+              {
+                "zh": "可用性：原 API 已下线 2026-07-23 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Original API shut down 2026-07-23 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-51-instant"]
+            "sourceIds": ["s-specs-e-gpt-51-instant", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -18094,19 +18260,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5.2 Instant：GPT-5.2 Instant 属于该数字代际的 Instant 版本。",
-        "en": "GPT-5.2 Instant is a documented historical release in the GPT-5.2 line."
+        "zh": "GPT-5.2 Instant 的已收录 API 型号 gpt-5.2-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+        "en": "The catalogued GPT-5.2 Instant API model (gpt-5.2-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.2"],
       "firstReleasedAt": "2025-12-11",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-5.2 Instant",
         "variant": "Instant",
         "releaseId": "gpt-5.2-chat-latest",
         "apiModelIds": ["gpt-5.2-chat-latest"],
-        "stage": "stable",
+        "stage": "retired",
         "productLine": {
           "id": "gpt-5-2",
           "name": {
@@ -18120,16 +18286,17 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-12-11",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": null
       },
       "specs": {
         "contextWindow": "128,000 tokens · max output 16,384",
-        "inputPrice": "$1.75 / 1M tokens (text)",
-        "outputPrice": "$14 / 1M tokens (text)",
+        "inputPrice": "$1.75 / 1M tokens (text) · historical API",
+        "outputPrice": "$14 / 1M tokens (text) · historical API",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Original API shut down 2026-08-10 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -18141,8 +18308,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.2 Instant：GPT-5.2 Instant 属于该数字代际的 Instant 版本。",
-            "en": "GPT-5.2 Instant is a documented historical release in the GPT-5.2 line."
+            "zh": "GPT-5.2 Instant 的已收录 API 型号 gpt-5.2-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+            "en": "The catalogued GPT-5.2 Instant API model (gpt-5.2-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
           }
         ],
         "significance": {
@@ -18171,6 +18338,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-52-instant"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.2 Instant 的已收录 API 型号 gpt-5.2-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+              "en": "The catalogued GPT-5.2 Instant API model (gpt-5.2-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -18186,6 +18364,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -18209,15 +18391,19 @@
                 "en": "contextWindow: 128,000 tokens · max output 16,384"
               },
               {
-                "zh": "输入价格：$1.75 / 1M tokens (文本)",
-                "en": "inputPrice: $1.75 / 1M tokens (text)"
+                "zh": "输入价格：$1.75 / 1M tokens (文本) · 历史 API 价格",
+                "en": "inputPrice: $1.75 / 1M tokens (text) · historical API"
               },
               {
-                "zh": "输出价格：$14 / 1M tokens (文本)",
-                "en": "outputPrice: $14 / 1M tokens (text)"
+                "zh": "输出价格：$14 / 1M tokens (文本) · 历史 API 价格",
+                "en": "outputPrice: $14 / 1M tokens (text) · historical API"
+              },
+              {
+                "zh": "可用性：原 API 已下线 2026-08-10 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Original API shut down 2026-08-10 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-52-instant"]
+            "sourceIds": ["s-specs-e-gpt-52-instant", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -18240,19 +18426,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5.3 Instant：GPT-5.3 Instant 属于该数字代际的 Instant 版本。",
-        "en": "GPT-5.3 Instant is a documented historical release in the GPT-5.3 line."
+        "zh": "GPT-5.3 Instant 的已收录 API 型号 gpt-5.3-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+        "en": "The catalogued GPT-5.3 Instant API model (gpt-5.3-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.3"],
       "firstReleasedAt": "2026-03-03",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-5.3 Instant",
         "variant": "Instant",
         "releaseId": "gpt-5.3-chat-latest",
         "apiModelIds": ["gpt-5.3-chat-latest"],
-        "stage": "stable",
+        "stage": "retired",
         "productLine": {
           "id": "gpt-5-3",
           "name": {
@@ -18266,16 +18452,17 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2026-03-03",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": null
       },
       "specs": {
         "contextWindow": "128,000 tokens · max output 16,384",
-        "inputPrice": "$1.75 / 1M tokens (text)",
-        "outputPrice": "$14 / 1M tokens (text)",
+        "inputPrice": "$1.75 / 1M tokens (text) · historical API",
+        "outputPrice": "$14 / 1M tokens (text) · historical API",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Original API shut down 2026-08-10 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -18287,8 +18474,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.3 Instant：GPT-5.3 Instant 属于该数字代际的 Instant 版本。",
-            "en": "GPT-5.3 Instant is a documented historical release in the GPT-5.3 line."
+            "zh": "GPT-5.3 Instant 的已收录 API 型号 gpt-5.3-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+            "en": "The catalogued GPT-5.3 Instant API model (gpt-5.3-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
           }
         ],
         "significance": {
@@ -18317,6 +18504,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-53-instant"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.3 Instant 的已收录 API 型号 gpt-5.3-chat-latest 已于 2026-08-10 下线；官方迁移建议为 gpt-5.6-sol。保留原版本和发布历史。",
+              "en": "The catalogued GPT-5.3 Instant API model (gpt-5.3-chat-latest) shut down on 2026-08-10; the official migration table recommends gpt-5.6-sol. The original version and release history are retained."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -18332,6 +18530,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -18355,15 +18557,19 @@
                 "en": "contextWindow: 128,000 tokens · max output 16,384"
               },
               {
-                "zh": "输入价格：$1.75 / 1M tokens (文本)",
-                "en": "inputPrice: $1.75 / 1M tokens (text)"
+                "zh": "输入价格：$1.75 / 1M tokens (文本) · 历史 API 价格",
+                "en": "inputPrice: $1.75 / 1M tokens (text) · historical API"
               },
               {
-                "zh": "输出价格：$14 / 1M tokens (文本)",
-                "en": "outputPrice: $14 / 1M tokens (text)"
+                "zh": "输出价格：$14 / 1M tokens (文本) · 历史 API 价格",
+                "en": "outputPrice: $14 / 1M tokens (text) · historical API"
+              },
+              {
+                "zh": "可用性：原 API 已下线 2026-08-10 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Original API shut down 2026-08-10 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-53-instant"]
+            "sourceIds": ["s-specs-e-gpt-53-instant", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -18386,19 +18592,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5.3 Codex：面向交互式编程 Agent；首次发布覆盖 Codex 产品，API 入口需独立核实。",
-        "en": "GPT-5.3 Codex is a documented historical release in the GPT-5.3 line."
+        "zh": "GPT-5.3 Codex 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+        "en": "The catalogued GPT-5.3 Codex API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.3"],
       "firstReleasedAt": "2026-02-05",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-5.3 Codex",
         "variant": "Codex",
         "releaseId": "gpt-5.3-codex",
         "apiModelIds": ["gpt-5.3-codex"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5-3",
           "name": {
@@ -18412,8 +18618,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2026-02-05",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-04-01"
       },
       "specs": {
         "contextWindow": "400,000 tokens · max output 128,000",
@@ -18421,7 +18628,7 @@
         "outputPrice": "$14 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -18433,8 +18640,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.3 Codex：面向交互式编程 Agent；首次发布覆盖 Codex 产品，API 入口需独立核实。",
-            "en": "GPT-5.3 Codex is a documented historical release in the GPT-5.3 line."
+            "zh": "GPT-5.3 Codex 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+            "en": "The catalogued GPT-5.3 Codex API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
           }
         ],
         "significance": {
@@ -18463,6 +18670,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-53-codex"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.3 Codex 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-sol。",
+              "en": "The catalogued GPT-5.3 Codex API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-sol."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -18478,6 +18696,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -18507,9 +18729,13 @@
               {
                 "zh": "输出价格：$14 / 1M tokens (文本)",
                 "en": "outputPrice: $14 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-04-01 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-53-codex"]
+            "sourceIds": ["s-specs-e-gpt-53-codex", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -18971,19 +19197,19 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT-5.4 nano：GPT-5.4 nano 属于该数字代际的 Nano 版本。",
-        "en": "GPT-5.4 nano is a documented historical release in the GPT-5.4 line."
+        "zh": "GPT-5.4 nano 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-luna。",
+        "en": "The catalogued GPT-5.4 nano API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-luna."
       },
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT-5.4"],
       "firstReleasedAt": "2026-03-17",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "release": {
         "generation": "GPT-5.4 nano",
         "variant": "Nano",
         "releaseId": "gpt-5.4-nano",
         "apiModelIds": ["gpt-5.4-nano"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-5-4",
           "name": {
@@ -18997,8 +19223,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2026-03-17",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-04-01"
       },
       "specs": {
         "contextWindow": "400,000 tokens · max output 128,000",
@@ -19006,7 +19233,7 @@
         "outputPrice": "$1.25 / 1M tokens (text)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
       },
       "capabilities": [
         {
@@ -19018,8 +19245,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-5.4 nano：GPT-5.4 nano 属于该数字代际的 Nano 版本。",
-            "en": "GPT-5.4 nano is a documented historical release in the GPT-5.4 line."
+            "zh": "GPT-5.4 nano 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-luna。",
+            "en": "The catalogued GPT-5.4 nano API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-luna."
           }
         ],
         "significance": {
@@ -19048,6 +19275,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-54-nano"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-5.4 nano 的已收录 API 型号已于 2026-10-01 宣布弃用，计划在 2027-04-01 停服；官方迁移建议为 gpt-6-luna。",
+              "en": "The catalogued GPT-5.4 nano API model was deprecated on 2026-10-01, with shutdown scheduled for 2027-04-01; the official table recommends gpt-6-luna."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -19063,6 +19301,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -19092,9 +19334,13 @@
               {
                 "zh": "输出价格：$1.25 / 1M tokens (文本)",
                 "en": "outputPrice: $1.25 / 1M tokens (text)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-04-01 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-04-01 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-54-nano"]
+            "sourceIds": ["s-specs-e-gpt-54-nano", "s-openai-api-lifecycle-20261030"]
           }
         ]
       },
@@ -19117,14 +19363,14 @@
       },
       "aliases": ["GPT Image 1.5", "gpt-image-1.5"],
       "summary": {
-        "zh": "GPT Image 1.5：图像生成与编辑的正式迭代，后续由独立图像产品线继续更新。",
-        "en": "GPT Image 1.5 is a documented historical release in the GPT Image line."
+        "zh": "GPT Image 1.5 的已收录 API 型号已于 2026-06-02 宣布弃用，计划在 2026-12-01 停服；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。",
+        "en": "The catalogued GPT Image 1.5 API model was deprecated on 2026-06-02, with shutdown scheduled for 2026-12-01; the official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare."
       },
       "latestVersion": null,
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT Image"],
       "firstReleasedAt": "2025-12-16",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "Image API · token context limit not listed in model reference",
@@ -19132,14 +19378,14 @@
         "outputPrice": "$10 / 1M tokens (text); $32 / 1M tokens (image)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2026-12-01 · verify other product/account access separately"
       },
       "release": {
         "generation": "GPT Image 1.5",
         "variant": "GPT Image",
         "releaseId": "gpt-image-1.5",
         "apiModelIds": ["gpt-image-1.5"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-image",
           "name": {
@@ -19153,8 +19399,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-12-16",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2026-12-01"
       },
       "capabilities": [
         {
@@ -19166,8 +19413,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT Image 1.5：图像生成与编辑的正式迭代，后续由独立图像产品线继续更新。",
-            "en": "GPT Image 1.5 is a documented historical release in the GPT Image line."
+            "zh": "GPT Image 1.5 的已收录 API 型号已于 2026-06-02 宣布弃用，计划在 2026-12-01 停服；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。",
+            "en": "The catalogued GPT Image 1.5 API model was deprecated on 2026-06-02, with shutdown scheduled for 2026-12-01; the official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare."
           }
         ],
         "significance": {
@@ -19196,6 +19443,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-image-15"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT Image 1.5 的已收录 API 型号已于 2026-06-02 宣布弃用，计划在 2026-12-01 停服；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。",
+              "en": "The catalogued GPT Image 1.5 API model was deprecated on 2026-06-02, with shutdown scheduled for 2026-12-01; the official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -19211,6 +19469,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -19240,9 +19502,13 @@
               {
                 "zh": "上下文：图像 API；官方未列 token 上下文上限",
                 "en": "contextWindow: Image API · token context limit not listed in model reference"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2026-12-01 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2026-12-01 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-image-15"]
+            "sourceIds": ["s-specs-e-gpt-image-15", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -26887,29 +27153,29 @@
       },
       "aliases": ["GPT Image 1", "gpt-image-1"],
       "summary": {
-        "zh": "GPT Image 1：GPT Image 1 在 API 正式推出；与 ChatGPT 图像功能上线日分开记录。",
-        "en": "GPT Image 1 is a documented historical release in the GPT Image line."
+        "zh": "GPT Image 1 的已收录 API 型号 gpt-image-1 已于 2026-10-23 下线；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。保留原版本和发布历史。",
+        "en": "The catalogued GPT Image 1 API model (gpt-image-1) shut down on 2026-10-23; the official migration table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare. The original version and release history are retained."
       },
       "latestVersion": null,
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT Image"],
       "firstReleasedAt": "2025-04-23",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "Image API · token context limit not listed in model reference",
-        "inputPrice": "$5 / 1M tokens (text); $10 / 1M tokens (image)",
-        "outputPrice": "$40 / 1M tokens (image)",
+        "inputPrice": "$5 / 1M tokens (text); $10 / 1M tokens (image) · historical API",
+        "outputPrice": "$40 / 1M tokens (image) · historical API",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Original API shut down 2026-10-23 · verify other product/account access separately"
       },
       "release": {
         "generation": "GPT Image 1",
         "variant": "GPT Image",
         "releaseId": "gpt-image-1",
         "apiModelIds": ["gpt-image-1"],
-        "stage": "stable",
+        "stage": "retired",
         "productLine": {
           "id": "gpt-image",
           "name": {
@@ -26923,8 +27189,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-04-23",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": null
       },
       "capabilities": [
         {
@@ -26936,8 +27203,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT Image 1：GPT Image 1 在 API 正式推出；与 ChatGPT 图像功能上线日分开记录。",
-            "en": "GPT Image 1 is a documented historical release in the GPT Image line."
+            "zh": "GPT Image 1 的已收录 API 型号 gpt-image-1 已于 2026-10-23 下线；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。保留原版本和发布历史。",
+            "en": "The catalogued GPT Image 1 API model (gpt-image-1) shut down on 2026-10-23; the official migration table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare. The original version and release history are retained."
           }
         ],
         "significance": {
@@ -26966,6 +27233,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-image-1"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT Image 1 的已收录 API 型号 gpt-image-1 已于 2026-10-23 下线；官方迁移建议为 gpt-image-2.5-sunburst / gpt-image-2.5-flare。保留原版本和发布历史。",
+              "en": "The catalogued GPT Image 1 API model (gpt-image-1) shut down on 2026-10-23; the official migration table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare. The original version and release history are retained."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -26981,6 +27259,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -27000,19 +27282,23 @@
             },
             "items": [
               {
-                "zh": "输入价格：$5 / 1M tokens (文本); $10 / 1M tokens (图像)",
-                "en": "inputPrice: $5 / 1M tokens (text); $10 / 1M tokens (image)"
+                "zh": "输入价格：$5 / 1M tokens (文本); $10 / 1M tokens (图像) · 历史 API 价格",
+                "en": "inputPrice: $5 / 1M tokens (text); $10 / 1M tokens (image) · historical API"
               },
               {
-                "zh": "输出价格：$40 / 1M tokens (图像)",
-                "en": "outputPrice: $40 / 1M tokens (image)"
+                "zh": "输出价格：$40 / 1M tokens (图像) · 历史 API 价格",
+                "en": "outputPrice: $40 / 1M tokens (image) · historical API"
               },
               {
                 "zh": "上下文：图像 API；官方未列 token 上下文上限",
                 "en": "contextWindow: Image API · token context limit not listed in model reference"
+              },
+              {
+                "zh": "可用性：原 API 已下线 2026-10-23 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Original API shut down 2026-10-23 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-image-1"]
+            "sourceIds": ["s-specs-e-gpt-image-1", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -27040,7 +27326,7 @@
       "status": "active",
       "tags": ["具体版本", "GPT Image"],
       "firstReleasedAt": "2026-04-21",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "Image API · token context limit not listed in model reference",
@@ -27069,7 +27355,7 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2026-04-21",
-        "lastVerifiedAt": "2026-10-05",
+        "lastVerifiedAt": "2026-10-30",
         "accessChannels": []
       },
       "capabilities": [
@@ -27100,7 +27386,7 @@
               "zh": "2026-04-21：GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
               "en": "Official release: 2026-04-21. GPT Image 2 is a documented historical release in the GPT Image line."
             },
-            "sourceIds": ["s-history-gpt-image-2"]
+            "sourceIds": ["s-history-gpt-image-2", "s-openai-api-release-history-20261030"]
           },
           {
             "title": {
@@ -27179,14 +27465,14 @@
       },
       "aliases": ["GPT Realtime", "gpt-realtime"],
       "summary": {
-        "zh": "GPT Realtime：Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
-        "en": "GPT Realtime is a documented historical release in the GPT Realtime line."
+        "zh": "GPT Realtime 的已收录 API 型号已于 2026-07-20 宣布弃用，计划在 2027-01-20 停服；官方迁移建议为 gpt-realtime-2.1。",
+        "en": "The catalogued GPT Realtime API model was deprecated on 2026-07-20, with shutdown scheduled for 2027-01-20; the official table recommends gpt-realtime-2.1."
       },
       "latestVersion": null,
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT Realtime"],
       "firstReleasedAt": "2025-08-28",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "32,000 tokens · max output 4,096",
@@ -27194,14 +27480,14 @@
         "outputPrice": "$16 / 1M tokens (text); $64 / 1M tokens (audio)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-01-20 · verify other product/account access separately"
       },
       "release": {
         "generation": "GPT Realtime",
         "variant": "GPT Realtime",
         "releaseId": "gpt-realtime",
         "apiModelIds": ["gpt-realtime"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-realtime",
           "name": {
@@ -27215,8 +27501,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-08-28",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-01-20"
       },
       "capabilities": [
         {
@@ -27228,8 +27515,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT Realtime：Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
-            "en": "GPT Realtime is a documented historical release in the GPT Realtime line."
+            "zh": "GPT Realtime 的已收录 API 型号已于 2026-07-20 宣布弃用，计划在 2027-01-20 停服；官方迁移建议为 gpt-realtime-2.1。",
+            "en": "The catalogued GPT Realtime API model was deprecated on 2026-07-20, with shutdown scheduled for 2027-01-20; the official table recommends gpt-realtime-2.1."
           }
         ],
         "significance": {
@@ -27246,7 +27533,7 @@
               "zh": "2025-08-28：Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
               "en": "Official release: 2025-08-28. GPT Realtime is a documented historical release in the GPT Realtime line."
             },
-            "sourceIds": ["s-history-gpt-realtime-1"]
+            "sourceIds": ["s-history-gpt-realtime-1", "s-openai-realtime-launch-reviewed-20261030"]
           },
           {
             "title": {
@@ -27258,6 +27545,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-realtime-1"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT Realtime 的已收录 API 型号已于 2026-07-20 宣布弃用，计划在 2027-01-20 停服；官方迁移建议为 gpt-realtime-2.1。",
+              "en": "The catalogued GPT Realtime API model was deprecated on 2026-07-20, with shutdown scheduled for 2027-01-20; the official table recommends gpt-realtime-2.1."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -27273,6 +27571,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -27302,9 +27604,13 @@
               {
                 "zh": "输出价格：$16 / 1M tokens (文本); $64 / 1M tokens (音频)",
                 "en": "outputPrice: $16 / 1M tokens (text); $64 / 1M tokens (audio)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-01-20 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-01-20 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-realtime-1"]
+            "sourceIds": ["s-specs-e-gpt-realtime-1", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -27471,14 +27777,14 @@
       },
       "aliases": ["GPT-4o Transcribe", "gpt-4o-transcribe"],
       "summary": {
-        "zh": "GPT-4o Transcribe：GPT-4o Transcribe 语音识别发布，作为转写产品线的早期代际。",
-        "en": "GPT-4o Transcribe is a documented historical release in the GPT Transcribe line."
+        "zh": "GPT-4o Transcribe 的已收录 API 型号已于 2026-08-26 宣布弃用，计划在 2027-02-26 停服；官方迁移建议为 gpt-live-transcribe / gpt-transcribe。",
+        "en": "The catalogued GPT-4o Transcribe API model was deprecated on 2026-08-26, with shutdown scheduled for 2027-02-26; the official table recommends gpt-live-transcribe / gpt-transcribe."
       },
       "latestVersion": null,
-      "status": "active",
+      "status": "deprecated",
       "tags": ["具体版本", "GPT Transcribe"],
       "firstReleasedAt": "2025-03-20",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-30",
       "metrics": [],
       "specs": {
         "contextWindow": "16,000 tokens · max output 2,000",
@@ -27486,14 +27792,14 @@
         "outputPrice": "$10 / 1M tokens (audio)",
         "modalities": null,
         "toolUse": null,
-        "availability": null
+        "availability": "Deprecated API · scheduled shutdown 2027-02-26 · verify other product/account access separately"
       },
       "release": {
         "generation": "GPT-4o Transcribe",
         "variant": "GPT Transcribe",
         "releaseId": "gpt-4o-transcribe",
         "apiModelIds": ["gpt-4o-transcribe"],
-        "stage": "stable",
+        "stage": "deprecated",
         "productLine": {
           "id": "gpt-transcribe",
           "name": {
@@ -27507,8 +27813,9 @@
         },
         "catalogCurrent": false,
         "releasedAt": "2025-03-20",
-        "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "lastVerifiedAt": "2026-10-30",
+        "accessChannels": [],
+        "retirementNotBefore": "2027-02-26"
       },
       "capabilities": [
         {
@@ -27520,8 +27827,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT-4o Transcribe：GPT-4o Transcribe 语音识别发布，作为转写产品线的早期代际。",
-            "en": "GPT-4o Transcribe is a documented historical release in the GPT Transcribe line."
+            "zh": "GPT-4o Transcribe 的已收录 API 型号已于 2026-08-26 宣布弃用，计划在 2027-02-26 停服；官方迁移建议为 gpt-live-transcribe / gpt-transcribe。",
+            "en": "The catalogued GPT-4o Transcribe API model was deprecated on 2026-08-26, with shutdown scheduled for 2027-02-26; the official table recommends gpt-live-transcribe / gpt-transcribe."
           }
         ],
         "significance": {
@@ -27550,6 +27857,17 @@
               "en": "Official model reference; standard uncached token prices, separated by modality. Tool charges are additional. Retired entries use historical reference prices.\nVerified: 2026-10-05"
             },
             "sourceIds": ["s-specs-e-gpt-4o-transcribe"]
+          },
+          {
+            "title": {
+              "zh": "API 生命周期与迁移",
+              "en": "API lifecycle and migration"
+            },
+            "description": {
+              "zh": "GPT-4o Transcribe 的已收录 API 型号已于 2026-08-26 宣布弃用，计划在 2027-02-26 停服；官方迁移建议为 gpt-live-transcribe / gpt-transcribe。",
+              "en": "The catalogued GPT-4o Transcribe API model was deprecated on 2026-08-26, with shutdown scheduled for 2027-02-26; the official table recommends gpt-live-transcribe / gpt-transcribe."
+            },
+            "sourceIds": ["s-openai-api-lifecycle-20261030"]
           }
         ],
         "useCases": [
@@ -27565,6 +27883,10 @@
           }
         ],
         "limitations": [
+          {
+            "zh": "此处是具名 API 或快照的官方状态；不据此推断同家族全部版本或 ChatGPT 消费入口的状态。",
+            "en": "This is the official status of the named API or snapshots; it does not establish the state of every family version or a ChatGPT product surface."
+          },
           {
             "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
@@ -27594,9 +27916,13 @@
               {
                 "zh": "输出价格：$10 / 1M tokens (音频)",
                 "en": "outputPrice: $10 / 1M tokens (audio)"
+              },
+              {
+                "zh": "可用性：API 已弃用 · 计划停服 2027-02-26 · 其他产品入口与账号权限分别核对",
+                "en": "availability: Deprecated API · scheduled shutdown 2027-02-26 · verify other product/account access separately"
               }
             ],
-            "sourceIds": ["s-specs-e-gpt-4o-transcribe"]
+            "sourceIds": ["s-specs-e-gpt-4o-transcribe", "s-openai-api-lifecycle-20261030"]
           }
         ]
       }
@@ -40013,6 +40339,79 @@
         "c-deprecation-e-gpt-5-nano-20260611"
       ],
       "contradictsClaimIds": null
+    },
+    {
+      "id": "s-openai-api-lifecycle-20261030",
+      "title": {
+        "zh": "OpenAI API 生命周期表（2026-10-30 核对）",
+        "en": "OpenAI API lifecycle table reviewed 2026-10-30"
+      },
+      "url": "https://developers.openai.com/api/docs/deprecations.md",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-30",
+      "verifiedAt": "2026-10-30",
+      "sourceExcerpt": "Official table distinguishes deprecation announcements from API shutdowns. It lists specific GPT-4, GPT-5.1, GPT-5.3-Codex, GPT-5.4 nano, audio and image models and their affected snapshots, shutdown dates and migration options. A snapshot shutdown is not a family-wide shutdown or a statement about ChatGPT availability.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "c-api-lifecycle-e-gpt-4o-mini-20261030",
+        "c-api-lifecycle-e-gpt-41-20261030",
+        "c-api-lifecycle-e-gpt-41-mini-20261030",
+        "c-api-lifecycle-e-gpt-53-codex-20261030",
+        "c-api-lifecycle-e-gpt-54-nano-20261030",
+        "c-api-lifecycle-e-gpt-51-20261030",
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+        "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+        "c-api-lifecycle-e-gpt-realtime-1-20261030",
+        "c-api-lifecycle-e-gpt-image-15-20261030",
+        "c-api-lifecycle-e-gpt-41-nano-20261030",
+        "c-api-lifecycle-e-gpt-image-1-20261030",
+        "c-api-lifecycle-e-gpt-51-instant-20261030",
+        "c-api-lifecycle-e-gpt-52-instant-20261030",
+        "c-api-lifecycle-e-gpt-53-instant-20261030",
+        "c-gpt-4o-catalog-review",
+        "claim-86ea22da4205a423d56f",
+        "claim-2adeb8d2598427fd6edb",
+        "claim-d4a02f6adca902598771",
+        "c-api-shutdown-gpt4o-20240513-20261023"
+      ]
+    },
+    {
+      "id": "s-openai-api-release-history-20261030",
+      "title": {
+        "zh": "OpenAI API 发布日志：具名历史节点",
+        "en": "OpenAI API changelog: named historical release entries"
+      },
+      "url": "https://developers.openai.com/api/docs/changelog.md",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-29",
+      "verifiedAt": "2026-10-30",
+      "sourceExcerpt": "The November 13, 2025 entry names gpt-5.1 and gpt-5.1-chat-latest. The April 21, 2026 entry announces gpt-image-2 in the Images and Batch APIs. These are API release nodes, not assertions of first availability in ChatGPT.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-history-gpt-51", "c-history-gpt-51-instant", "c-history-gpt-image-2"]
+    },
+    {
+      "id": "s-openai-realtime-launch-reviewed-20261030",
+      "title": {
+        "zh": "OpenAI：2025-08-28 发布 gpt-realtime",
+        "en": "OpenAI: gpt-realtime launch on 2025-08-28"
+      },
+      "url": "https://openai.com/index/introducing-gpt-realtime/",
+      "publisher": "OpenAI",
+      "publishedAt": "2025-08-28",
+      "collectedAt": "2026-10-30",
+      "verifiedAt": "2026-10-30",
+      "sourceExcerpt": "The dated OpenAI launch announces the gpt-realtime speech-to-speech model alongside general availability of the Realtime API.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-history-gpt-realtime-1"]
     }
   ],
   "claims": [
@@ -40254,18 +40653,19 @@
       "id": "c-gpt-4o-catalog-review",
       "entityId": "e-gpt-4o",
       "text": {
-        "zh": "前代通用视觉模型；具体快照有独立生命周期，2024-05-13 快照计划于 2026-10-23 停用。",
-        "en": "Earlier general vision model; individual snapshots have separate lifecycles, including October 23 retirement for the May 13 snapshot."
+        "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；2024-08-06 和 2024-11-20 快照于 2026-10-14 宣布弃用，计划于 2027-01-14 停服。不同快照和 ChatGPT 入口分别判断。",
+        "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23. The 2024-08-06 and 2024-11-20 snapshots were deprecated on 2026-10-14, with shutdown scheduled for 2027-01-14. Snapshots and ChatGPT access have separate lifecycles.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-gpt-4o-20261001"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2026-10-01",
-      "validTo": null,
+      "sourceIds": ["s-gpt-4o-20261001", "s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
       "subject": "GPT-4o",
       "predicate": "catalog-review",
-      "objectOrValue": "gpt-4o"
+      "objectOrValue": "gpt-4o",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-gpt-4-5-catalog-review",
@@ -41649,35 +42049,37 @@
       "id": "c-history-gpt-51",
       "entityId": "e-gpt-51",
       "text": {
-        "zh": "GPT-5.1 于 2025-11-13 发布。GPT-5.1 属于该数字代际的 Standard 版本。",
-        "en": "GPT-5.1 was released on 2025-11-13."
+        "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+        "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1; this is an API release node, not the first rollout date in ChatGPT.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-gpt-51"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2025-11-13",
-      "validTo": null,
+      "sourceIds": ["s-history-gpt-51", "s-openai-api-release-history-20261030"],
+      "updatedAt": "2026-10-30",
       "subject": "GPT-5.1",
       "predicate": "release",
-      "objectOrValue": "2025-11-13"
+      "objectOrValue": "2025-11-13",
+      "validFrom": "2025-11-13",
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-history-gpt-51-instant",
       "entityId": "e-gpt-51-instant",
       "text": {
-        "zh": "GPT-5.1 Instant 于 2025-11-13 发布。GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
-        "en": "GPT-5.1 Instant was released on 2025-11-13."
+        "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1-chat-latest；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+        "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1-chat-latest; this is an API release node, not the first rollout date in ChatGPT.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-gpt-51-instant"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2025-11-13",
-      "validTo": null,
+      "sourceIds": ["s-history-gpt-51-instant", "s-openai-api-release-history-20261030"],
+      "updatedAt": "2026-10-30",
       "subject": "GPT-5.1 Instant",
       "predicate": "release",
-      "objectOrValue": "2025-11-13"
+      "objectOrValue": "2025-11-13",
+      "validFrom": "2025-11-13",
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-history-gpt-52",
@@ -42805,52 +43207,55 @@
       "id": "c-history-gpt-image-1",
       "entityId": "e-gpt-image-1",
       "text": {
-        "zh": "GPT Image 1 于 2025-04-23 发布。GPT Image 1 在 API 正式推出；与 ChatGPT 图像功能上线日分开记录。",
-        "en": "GPT Image 1 was released on 2025-04-23."
+        "zh": "OpenAI 于 2025-04-23 将 gpt-image-1 引入 API；该日期是具名 API 型号的发布节点，ChatGPT 图像功能此前已另行推出。",
+        "en": "OpenAI introduced gpt-image-1 in the API on 2025-04-23; this is the named API model’s release node, while the ChatGPT image feature had launched separately before it.",
+        "technical": null
       },
       "confidence": "verified",
       "sourceIds": ["s-history-gpt-image-1"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2025-04-23",
-      "validTo": null,
+      "updatedAt": "2026-10-30",
       "subject": "GPT Image 1",
       "predicate": "release",
-      "objectOrValue": "2025-04-23"
+      "objectOrValue": "2025-04-23",
+      "validFrom": "2025-04-23",
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-history-gpt-image-2",
       "entityId": "e-gpt-image-2",
       "text": {
-        "zh": "GPT Image 2 于 2026-04-21 发布。GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
-        "en": "GPT Image 2 was released on 2026-04-21."
+        "zh": "OpenAI 于 2026-04-21 在 Images API 和 Batch API 发布 gpt-image-2。",
+        "en": "OpenAI released gpt-image-2 in the Images and Batch APIs on 2026-04-21.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-gpt-image-2"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2026-04-21",
-      "validTo": null,
+      "sourceIds": ["s-history-gpt-image-2", "s-openai-api-release-history-20261030"],
+      "updatedAt": "2026-10-30",
       "subject": "GPT Image 2",
       "predicate": "release",
-      "objectOrValue": "2026-04-21"
+      "objectOrValue": "2026-04-21",
+      "validFrom": "2026-04-21",
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-history-gpt-realtime-1",
       "entityId": "e-gpt-realtime-1",
       "text": {
-        "zh": "GPT Realtime 于 2025-08-28 发布。Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
-        "en": "GPT Realtime was released on 2025-08-28."
+        "zh": "OpenAI 于 2025-08-28 发布 gpt-realtime 语音到语音型号，同时宣布 Realtime API 正式可用。",
+        "en": "OpenAI released the gpt-realtime speech-to-speech model on 2025-08-28 alongside general availability of the Realtime API.",
+        "technical": null
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-gpt-realtime-1"],
-      "updatedAt": "2026-10-01",
-      "observedAt": "2026-10-01",
-      "validFrom": "2025-08-28",
-      "validTo": null,
+      "sourceIds": ["s-history-gpt-realtime-1", "s-openai-realtime-launch-reviewed-20261030"],
+      "updatedAt": "2026-10-30",
       "subject": "GPT Realtime",
       "predicate": "release",
-      "objectOrValue": "2025-08-28"
+      "objectOrValue": "2025-08-28",
+      "validFrom": "2025-08-28",
+      "validTo": null,
+      "observedAt": "2026-10-30"
     },
     {
       "id": "c-history-gpt-realtime-15",
@@ -45589,6 +45994,295 @@
       "predicate": "api-deprecation-announced",
       "objectOrValue": "API shutdown scheduled 2026-12-11; recommended replacement GPT-5.6 Luna",
       "validFrom": "2026-06-11",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-4o-20261030",
+      "entityId": "e-gpt-4o",
+      "text": {
+        "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+        "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4o",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-14; shutdown 2027-01-14",
+      "validFrom": "2026-10-14",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-4o-mini-20261030",
+      "entityId": "e-gpt-4o-mini",
+      "text": {
+        "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4o mini",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-14; shutdown 2027-01-14",
+      "validFrom": "2026-10-14",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-41-20261030",
+      "entityId": "e-gpt-41",
+      "text": {
+        "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4.1",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-14; shutdown 2027-01-14",
+      "validFrom": "2026-10-14",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-41-mini-20261030",
+      "entityId": "e-gpt-41-mini",
+      "text": {
+        "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4.1 mini",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-14; shutdown 2027-01-14",
+      "validFrom": "2026-10-14",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-53-codex-20261030",
+      "entityId": "e-gpt-53-codex",
+      "text": {
+        "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.3 Codex",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-01; shutdown 2027-04-01",
+      "validFrom": "2026-10-01",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-54-nano-20261030",
+      "entityId": "e-gpt-54-nano",
+      "text": {
+        "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.4 nano",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-01; shutdown 2027-04-01",
+      "validFrom": "2026-10-01",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-51-20261030",
+      "entityId": "e-gpt-51",
+      "text": {
+        "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.1",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-01; shutdown 2027-04-01",
+      "validFrom": "2026-10-01",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+      "entityId": "e-gpt-4o-mini-tts",
+      "text": {
+        "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4o Mini TTS",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-10-01; shutdown 2027-01-06",
+      "validFrom": "2026-10-01",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+      "entityId": "e-gpt-4o-transcribe",
+      "text": {
+        "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4o Transcribe",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-08-26; shutdown 2027-02-26",
+      "validFrom": "2026-08-26",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-realtime-1-20261030",
+      "entityId": "e-gpt-realtime-1",
+      "text": {
+        "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT Realtime",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-07-20; shutdown 2027-01-20",
+      "validFrom": "2026-07-20",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-image-15-20261030",
+      "entityId": "e-gpt-image-15",
+      "text": {
+        "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+        "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT Image 1.5",
+      "predicate": "api-deprecation-announced",
+      "objectOrValue": "deprecated; announcement 2026-06-02; shutdown 2026-12-01",
+      "validFrom": "2026-06-02",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-41-nano-20261030",
+      "entityId": "e-gpt-41-nano",
+      "text": {
+        "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+        "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-4.1 nano",
+      "predicate": "api-shutdown-record",
+      "objectOrValue": "retired; announcement 2026-04-22; shutdown 2026-10-23",
+      "validFrom": "2026-10-23",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-image-1-20261030",
+      "entityId": "e-gpt-image-1",
+      "text": {
+        "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+        "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT Image 1",
+      "predicate": "api-shutdown-record",
+      "objectOrValue": "retired; announcement 2026-04-22; shutdown 2026-10-23",
+      "validFrom": "2026-10-23",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-51-instant-20261030",
+      "entityId": "e-gpt-51-instant",
+      "text": {
+        "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+        "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.1 Instant",
+      "predicate": "api-shutdown-record",
+      "objectOrValue": "retired; announcement 2026-04-22; shutdown 2026-07-23",
+      "validFrom": "2026-07-23",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-52-instant-20261030",
+      "entityId": "e-gpt-52-instant",
+      "text": {
+        "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+        "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.2 Instant",
+      "predicate": "api-shutdown-record",
+      "objectOrValue": "retired; announcement 2026-05-08; shutdown 2026-08-10",
+      "validFrom": "2026-08-10",
+      "validTo": null
+    },
+    {
+      "id": "c-api-lifecycle-e-gpt-53-instant-20261030",
+      "entityId": "e-gpt-53-instant",
+      "text": {
+        "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+        "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "GPT-5.3 Instant",
+      "predicate": "api-shutdown-record",
+      "objectOrValue": "retired; announcement 2026-05-08; shutdown 2026-08-10",
+      "validFrom": "2026-08-10",
+      "validTo": null
+    },
+    {
+      "id": "c-api-shutdown-gpt4o-20240513-20261023",
+      "entityId": "e-gpt-4o",
+      "text": {
+        "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+        "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"],
+      "updatedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
+      "subject": "gpt-4o-2024-05-13",
+      "predicate": "named-snapshot-api-shutdown",
+      "objectOrValue": "2026-10-23; later snapshots have a separate schedule",
+      "validFrom": "2026-10-23",
       "validTo": null
     }
   ],
@@ -49796,12 +50490,12 @@
           "en": "GPT-5.1 released"
         },
         "summary": {
-          "zh": "GPT-5.1 属于该数字代际的 Standard 版本。",
-          "en": "GPT-5.1 is a documented historical release in the GPT-5.1 line."
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1; this is an API release node, not the first rollout date in ChatGPT."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-gpt-51"],
+        "sourceIds": ["s-history-gpt-51", "s-openai-api-release-history-20261030"],
         "confidence": "verified",
         "releaseEntityId": "e-gpt-51"
       },
@@ -49813,12 +50507,12 @@
           "en": "GPT-5.1 Instant released"
         },
         "summary": {
-          "zh": "GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
-          "en": "GPT-5.1 Instant is a documented historical release in the GPT-5.1 line."
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1-chat-latest；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1-chat-latest; this is an API release node, not the first rollout date in ChatGPT."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-gpt-51-instant"],
+        "sourceIds": ["s-history-gpt-51-instant", "s-openai-api-release-history-20261030"],
         "confidence": "verified",
         "releaseEntityId": "e-gpt-51-instant"
       },
@@ -50017,12 +50711,12 @@
           "en": "GPT Image 2 released"
         },
         "summary": {
-          "zh": "GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
-          "en": "GPT Image 2 is a documented historical release in the GPT Image line."
+          "zh": "OpenAI 于 2026-04-21 在 Images API 和 Batch API 发布 gpt-image-2。",
+          "en": "OpenAI released gpt-image-2 in the Images and Batch APIs on 2026-04-21."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-gpt-image-2"],
+        "sourceIds": ["s-history-gpt-image-2", "s-openai-api-release-history-20261030"],
         "confidence": "verified",
         "releaseEntityId": "e-gpt-image-2"
       },
@@ -50034,12 +50728,12 @@
           "en": "GPT Realtime released"
         },
         "summary": {
-          "zh": "Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
-          "en": "GPT Realtime is a documented historical release in the GPT Realtime line."
+          "zh": "OpenAI 于 2025-08-28 发布 gpt-realtime 语音到语音型号，同时宣布 Realtime API 正式可用。",
+          "en": "OpenAI released the gpt-realtime speech-to-speech model on 2025-08-28 alongside general availability of the Realtime API."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-gpt-realtime-1"],
+        "sourceIds": ["s-history-gpt-realtime-1", "s-openai-realtime-launch-reviewed-20261030"],
         "confidence": "verified",
         "releaseEntityId": "e-gpt-realtime-1"
       },
@@ -50636,6 +51330,686 @@
             "en": "Check account access and migration differences and plan migration to GPT-5.6 Luna or another suitable model before 2026-12-11."
           }
         }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o",
+        "title": {
+          "zh": "GPT-4o API 弃用公告",
+          "en": "GPT-4o API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+          "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+            "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+            "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-mini-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-mini",
+        "title": {
+          "zh": "GPT-4o mini API 弃用公告",
+          "en": "GPT-4o mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-41",
+        "title": {
+          "zh": "GPT-4.1 API 弃用公告",
+          "en": "GPT-4.1 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-mini-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-41-mini",
+        "title": {
+          "zh": "GPT-4.1 mini API 弃用公告",
+          "en": "GPT-4.1 mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-53-codex-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-53-codex",
+        "title": {
+          "zh": "GPT-5.3 Codex API 弃用公告",
+          "en": "GPT-5.3 Codex API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-54-nano-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-54-nano",
+        "title": {
+          "zh": "GPT-5.4 nano API 弃用公告",
+          "en": "GPT-5.4 nano API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-51-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-51",
+        "title": {
+          "zh": "GPT-5.1 API 弃用公告",
+          "en": "GPT-5.1 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-mini-tts",
+        "title": {
+          "zh": "GPT-4o Mini TTS API 弃用公告",
+          "en": "GPT-4o Mini TTS API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-realtime-2.1-mini；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-realtime-2.1-mini; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-transcribe-20261030",
+        "date": "2026-08-26",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-transcribe",
+        "title": {
+          "zh": "GPT-4o Transcribe API 弃用公告",
+          "en": "GPT-4o Transcribe API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-live-transcribe / gpt-transcribe；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-live-transcribe / gpt-transcribe; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-realtime-1-20261030",
+        "date": "2026-07-20",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-realtime-1",
+        "title": {
+          "zh": "GPT Realtime API 弃用公告",
+          "en": "GPT Realtime API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-realtime-2.1；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-realtime-2.1; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-image-15-20261030",
+        "date": "2026-06-02",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-image-15",
+        "title": {
+          "zh": "GPT Image 1.5 API 弃用公告",
+          "en": "GPT Image 1.5 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-image-2.5-sunburst / gpt-image-2.5-flare；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-nano-20261030",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-41-nano",
+        "title": {
+          "zh": "GPT-4.1 nano API 原型号下线",
+          "en": "GPT-4.1 nano API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-image-1-20261030",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-image-1",
+        "title": {
+          "zh": "GPT Image 1 API 原型号下线",
+          "en": "GPT Image 1 API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-image-2.5-sunburst / gpt-image-2.5-flare；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-51-instant-20261030",
+        "date": "2026-07-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-51-instant",
+        "title": {
+          "zh": "GPT-5.1 Instant API 原型号下线",
+          "en": "GPT-5.1 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-52-instant-20261030",
+        "date": "2026-08-10",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-52-instant",
+        "title": {
+          "zh": "GPT-5.2 Instant API 原型号下线",
+          "en": "GPT-5.2 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-53-instant-20261030",
+        "date": "2026-08-10",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-53-instant",
+        "title": {
+          "zh": "GPT-5.3 Instant API 原型号下线",
+          "en": "GPT-5.3 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-shutdown-gpt4o-20240513-20261023",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-4o",
+        "title": {
+          "zh": "GPT-4o 2024-05-13 API 快照下线",
+          "en": "GPT-4o 2024-05-13 API snapshot shutdown"
+        },
+        "summary": {
+          "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+          "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+            "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+          },
+          "before": {
+            "zh": "2024-05-13 是单独的历史 API 快照。",
+            "en": "2024-05-13 is a distinct historical API snapshot."
+          },
+          "after": {
+            "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+            "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+          },
+          "affected": {
+            "zh": "明确使用 gpt-4o-2024-05-13 的 API 集成。",
+            "en": "API integrations explicitly using gpt-4o-2024-05-13."
+          },
+          "action": {
+            "zh": "核对官方迁移建议 gpt-5.6-sol，并验证真实任务与账号权限。",
+            "en": "Evaluate the recommended gpt-5.6-sol replacement on real tasks and check account access."
+          }
+        }
       }
     ],
     "e-gpt-61-sol": [
@@ -50771,6 +52145,86 @@
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-gpt-4o"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o",
+        "title": {
+          "zh": "GPT-4o API 弃用公告",
+          "en": "GPT-4o API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+          "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+            "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用 GPT-4o 的 2024-08-06 与 2024-11-20 API 快照，计划在 2027-01-14 停服。",
+            "en": "OpenAI deprecated the GPT-4o 2024-08-06 and 2024-11-20 API snapshots on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
+      },
+      {
+        "id": "t-api-shutdown-gpt4o-20240513-20261023",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-4o",
+        "title": {
+          "zh": "GPT-4o 2024-05-13 API 快照下线",
+          "en": "GPT-4o 2024-05-13 API snapshot shutdown"
+        },
+        "summary": {
+          "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+          "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+            "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+          },
+          "before": {
+            "zh": "2024-05-13 是单独的历史 API 快照。",
+            "en": "2024-05-13 is a distinct historical API snapshot."
+          },
+          "after": {
+            "zh": "GPT-4o 的 2024-05-13 API 快照已于 2026-10-23 下线；该日期不适用于 2024-08-06 与 2024-11-20 快照。",
+            "en": "The GPT-4o 2024-05-13 API snapshot shut down on 2026-10-23; that shutdown date does not apply to the 2024-08-06 and 2024-11-20 snapshots."
+          },
+          "affected": {
+            "zh": "明确使用 gpt-4o-2024-05-13 的 API 集成。",
+            "en": "API integrations explicitly using gpt-4o-2024-05-13."
+          },
+          "action": {
+            "zh": "核对官方迁移建议 gpt-5.6-sol，并验证真实任务与账号权限。",
+            "en": "Evaluate the recommended gpt-5.6-sol replacement on real tasks and check account access."
+          }
+        }
       }
     ],
     "e-gpt-45": [
@@ -50866,6 +52320,46 @@
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-gpt-4o-mini-tts"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-mini-tts",
+        "title": {
+          "zh": "GPT-4o Mini TTS API 弃用公告",
+          "en": "GPT-4o Mini TTS API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-4o-mini-tts，计划于 2027-01-06 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini-tts on 2026-10-01, with shutdown scheduled for 2027-01-06."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-realtime-2.1-mini；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-realtime-2.1-mini; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-transcribe": [
@@ -55389,6 +56883,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-41"],
         "releaseEntityId": "e-gpt-41"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-41",
+        "title": {
+          "zh": "GPT-4.1 API 弃用公告",
+          "en": "GPT-4.1 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1 on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-41-mini": [
@@ -55408,6 +56942,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-41-mini"],
         "releaseEntityId": "e-gpt-41-mini"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-mini-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-41-mini",
+        "title": {
+          "zh": "GPT-4.1 mini API 弃用公告",
+          "en": "GPT-4.1 mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4.1-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4.1-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-41-nano": [
@@ -55427,6 +57001,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-41-nano"],
         "releaseEntityId": "e-gpt-41-nano"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-41-nano-20261030",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-41-nano",
+        "title": {
+          "zh": "GPT-4.1 nano API 原型号下线",
+          "en": "GPT-4.1 nano API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-4.1-nano 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-4.1-nano on 2026-10-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-4o-mini": [
@@ -55446,6 +57060,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-4o-mini"],
         "releaseEntityId": "e-gpt-4o-mini"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-mini-20261030",
+        "date": "2026-10-14",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-mini",
+        "title": {
+          "zh": "GPT-4o mini API 弃用公告",
+          "en": "GPT-4o mini API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-14 宣布弃用具名 API gpt-4o-mini，计划于 2027-01-14 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-mini on 2026-10-14, with shutdown scheduled for 2027-01-14."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-5-mini": [
@@ -55575,14 +57229,54 @@
           "en": "GPT-5.1 released"
         },
         "summary": {
-          "zh": "GPT-5.1 属于该数字代际的 Standard 版本。",
-          "en": "GPT-5.1 is a documented historical release in the GPT-5.1 line."
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1; this is an API release node, not the first rollout date in ChatGPT."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-gpt-51"],
+        "sourceIds": ["s-history-gpt-51", "s-openai-api-release-history-20261030"],
         "releaseEntityId": "e-gpt-51"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-51-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-51",
+        "title": {
+          "zh": "GPT-5.1 API 弃用公告",
+          "en": "GPT-5.1 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.1，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.1 on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-51-instant": [
@@ -55594,14 +57288,54 @@
           "en": "GPT-5.1 Instant released"
         },
         "summary": {
-          "zh": "GPT-5.1 Instant 属于该数字代际的 Instant 版本。",
-          "en": "GPT-5.1 Instant is a documented historical release in the GPT-5.1 line."
+          "zh": "OpenAI 于 2025-11-13 在 API 日志中发布 gpt-5.1-chat-latest；本条记录的是 API 发布节点，不等同于 ChatGPT 的首次上线日期。",
+          "en": "OpenAI’s 2025-11-13 API changelog released gpt-5.1-chat-latest; this is an API release node, not the first rollout date in ChatGPT."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-gpt-51-instant"],
+        "sourceIds": ["s-history-gpt-51-instant", "s-openai-api-release-history-20261030"],
         "releaseEntityId": "e-gpt-51-instant"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-51-instant-20261030",
+        "date": "2026-07-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-51-instant",
+        "title": {
+          "zh": "GPT-5.1 Instant API 原型号下线",
+          "en": "GPT-5.1 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.1-chat-latest 于 2026-07-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.1-chat-latest on 2026-07-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-52": [
@@ -55659,6 +57393,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-52-instant"],
         "releaseEntityId": "e-gpt-52-instant"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-52-instant-20261030",
+        "date": "2026-08-10",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-52-instant",
+        "title": {
+          "zh": "GPT-5.2 Instant API 原型号下线",
+          "en": "GPT-5.2 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.2-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.2-chat-latest on 2026-08-10."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-53-instant": [
@@ -55678,6 +57452,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-53-instant"],
         "releaseEntityId": "e-gpt-53-instant"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-53-instant-20261030",
+        "date": "2026-08-10",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-53-instant",
+        "title": {
+          "zh": "GPT-5.3 Instant API 原型号下线",
+          "en": "GPT-5.3 Instant API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-5.3-chat-latest 于 2026-08-10 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-5.3-chat-latest on 2026-08-10."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-5.6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-5.6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-53-codex": [
@@ -55697,6 +57511,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-53-codex"],
         "releaseEntityId": "e-gpt-53-codex"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-53-codex-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-53-codex",
+        "title": {
+          "zh": "GPT-5.3 Codex API 弃用公告",
+          "en": "GPT-5.3 Codex API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.3-codex，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.3-codex on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-sol；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-sol; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-54": [
@@ -55773,6 +57627,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-54-nano"],
         "releaseEntityId": "e-gpt-54-nano"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-54-nano-20261030",
+        "date": "2026-10-01",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-54-nano",
+        "title": {
+          "zh": "GPT-5.4 nano API 弃用公告",
+          "en": "GPT-5.4 nano API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-10-01 宣布弃用具名 API gpt-5.4-nano，计划于 2027-04-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-5.4-nano on 2026-10-01, with shutdown scheduled for 2027-04-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-6-luna；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-6-luna; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-image-15": [
@@ -55792,6 +57686,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-image-15"],
         "releaseEntityId": "e-gpt-image-15"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-image-15-20261030",
+        "date": "2026-06-02",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-image-15",
+        "title": {
+          "zh": "GPT Image 1.5 API 弃用公告",
+          "en": "GPT Image 1.5 API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-06-02 宣布弃用具名 API gpt-image-1.5，计划于 2026-12-01 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-image-1.5 on 2026-06-02, with shutdown scheduled for 2026-12-01."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-image-2.5-sunburst / gpt-image-2.5-flare；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-deepseek-v2-0517": [
@@ -56875,6 +58809,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-image-1"],
         "releaseEntityId": "e-gpt-image-1"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-image-1-20261030",
+        "date": "2026-10-23",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "availability",
+        "releaseEntityId": "e-gpt-image-1",
+        "title": {
+          "zh": "GPT Image 1 API 原型号下线",
+          "en": "GPT Image 1 API original model shutdown"
+        },
+        "summary": {
+          "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+          "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 官方表列明具名 API gpt-image-1 于 2026-10-23 下线。",
+            "en": "OpenAI’s official table lists shutdown of the named API gpt-image-1 on 2026-10-23."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-image-2.5-sunburst / gpt-image-2.5-flare；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-image-2.5-sunburst / gpt-image-2.5-flare; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-image-2": [
@@ -56886,13 +58860,13 @@
           "en": "GPT Image 2 released"
         },
         "summary": {
-          "zh": "GPT Image 2 图像生成与编辑发布，为 1.5 至 2.5 之间的主要迭代。",
-          "en": "GPT Image 2 is a documented historical release in the GPT Image line."
+          "zh": "OpenAI 于 2026-04-21 在 Images API 和 Batch API 发布 gpt-image-2。",
+          "en": "OpenAI released gpt-image-2 in the Images and Batch APIs on 2026-04-21."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-gpt-image-2"],
+        "sourceIds": ["s-history-gpt-image-2", "s-openai-api-release-history-20261030"],
         "releaseEntityId": "e-gpt-image-2"
       }
     ],
@@ -56905,14 +58879,54 @@
           "en": "GPT Realtime released"
         },
         "summary": {
-          "zh": "Realtime API 正式版推出，与 gpt-realtime 语音模型一起发布。",
-          "en": "GPT Realtime is a documented historical release in the GPT Realtime line."
+          "zh": "OpenAI 于 2025-08-28 发布 gpt-realtime 语音到语音型号，同时宣布 Realtime API 正式可用。",
+          "en": "OpenAI released the gpt-realtime speech-to-speech model on 2025-08-28 alongside general availability of the Realtime API."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-gpt-realtime-1"],
+        "sourceIds": ["s-history-gpt-realtime-1", "s-openai-realtime-launch-reviewed-20261030"],
         "releaseEntityId": "e-gpt-realtime-1"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-realtime-1-20261030",
+        "date": "2026-07-20",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-realtime-1",
+        "title": {
+          "zh": "GPT Realtime API 弃用公告",
+          "en": "GPT Realtime API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-07-20 宣布弃用具名 API gpt-realtime，计划于 2027-01-20 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-realtime on 2026-07-20, with shutdown scheduled for 2027-01-20."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-realtime-2.1；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-realtime-2.1; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-gpt-realtime-15": [
@@ -56951,6 +58965,46 @@
         "confidence": "verified",
         "sourceIds": ["s-history-gpt-4o-transcribe"],
         "releaseEntityId": "e-gpt-4o-transcribe"
+      },
+      {
+        "id": "t-api-lifecycle-e-gpt-4o-transcribe-20261030",
+        "date": "2026-08-26",
+        "dateKind": "announcement",
+        "kind": "deprecation",
+        "changeKind": "deprecated",
+        "releaseEntityId": "e-gpt-4o-transcribe",
+        "title": {
+          "zh": "GPT-4o Transcribe API 弃用公告",
+          "en": "GPT-4o Transcribe API deprecation announced"
+        },
+        "summary": {
+          "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+          "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+        },
+        "confidence": "verified",
+        "sourceIds": ["s-openai-api-lifecycle-20261030"],
+        "detail": {
+          "description": {
+            "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+          },
+          "before": {
+            "zh": "原型号已有正式发布记录。",
+            "en": "The original model had a documented release."
+          },
+          "after": {
+            "zh": "OpenAI 于 2026-08-26 宣布弃用具名 API gpt-4o-transcribe，计划于 2027-02-26 停服。",
+            "en": "OpenAI announced deprecation of the named API gpt-4o-transcribe on 2026-08-26, with shutdown scheduled for 2027-02-26."
+          },
+          "affected": {
+            "zh": "使用上述具名 API 型号或快照的集成；不概括同家族或 ChatGPT。",
+            "en": "Integrations using the explicitly named API models or snapshots; not the whole family or ChatGPT."
+          },
+          "action": {
+            "zh": "截至 2026-10-30，当前官方表建议迁移到 gpt-live-transcribe / gpt-transcribe；在实际账号核对权限、行为与价格，再验证工作负载。",
+            "en": "As of 2026-10-30, the current official table recommends gpt-live-transcribe / gpt-transcribe; check account access, behavior and pricing and validate the workload before migrating."
+          }
+        }
       }
     ],
     "e-qwen-3-omni": [

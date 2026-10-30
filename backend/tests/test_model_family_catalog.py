@@ -158,7 +158,7 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     expected = catalog_changes(seed)
     # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
     assert len(catalog_release_changes(seed)) == 203
-    assert len(expected) == 267
+    assert len(expected) == 284
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -175,16 +175,18 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
         assert snapshot["researchQuestions"]
         changes = snapshot["changes"]
         assert changes == [item.model_dump(mode="json", by_alias=True) for item in expected]
-        assert changes[0]["date"] == "2026-10-13"
+        assert changes[0]["date"] == "2026-10-23"
         for change in changes:
             version = next(
                 item for item in snapshot["entities"] if item["id"] == change["entityId"]
             )
             if change["kind"] == "new":
                 assert change["date"] == version["release"]["releasedAt"]
+                assert change["date"] != "2026-10-01"
             else:
                 assert change["detail"]["before"] and change["detail"]["after"]
-            assert change["date"] != "2026-10-01"
+                if change["date"] == "2026-10-01":
+                    assert "s-openai-api-lifecycle-20261030" in change["sourceIds"]
             assert all(
                 any(source["id"] == source_id for source in snapshot["evidence"])
                 for source_id in change["sourceIds"]
@@ -446,3 +448,45 @@ def test_trae_chinese_migration_is_scoped_without_erasing_historical_products():
         for section in work.knowledge.sections
         for value in section.items
     )
+
+
+def test_openai_api_lifecycles_preserve_releases_and_separate_gpt4o_snapshots():
+    snapshot = KnowledgeRepository(SEED).load_seed()
+    entities = {entity.id: entity for entity in snapshot.entities}
+    retired = {
+        "e-gpt-41-nano",
+        "e-gpt-image-1",
+        "e-gpt-51-instant",
+        "e-gpt-52-instant",
+        "e-gpt-53-instant",
+    }
+    for eid in retired:
+        entity = entities[eid]
+        assert entity.release.stage == "retired" and entity.release.catalog_current is False
+        assert not any(c.type == "official-api" for c in entity.release.access_channels)
+        assert "Original API shut down" in entity.specs.availability
+        for price in (entity.specs.input_price, entity.specs.output_price):
+            assert price is None or "historical API" in price
+        for section in entity.knowledge.sections or []:
+            if section.id == "official-model-specifications":
+                availability = next(i.en for i in section.items if i.en.startswith("availability:"))
+                assert availability == "availability: " + entity.specs.availability
+    assert entities["e-gpt-41-nano"].release.released_at == "2025-04-14"
+    assert len(catalog_release_changes(snapshot)) == 203
+    gpt4o = entities["e-gpt-4o"]
+    assert gpt4o.release.stage == "deprecated"
+    assert gpt4o.release.retirement_not_before == "2027-01-14"
+    events = {event.id: event for event in snapshot.timeline["e-gpt-4o"]}
+    announcement = events["t-api-lifecycle-e-gpt-4o-20261030"]
+    shutdown = events["t-api-shutdown-gpt4o-20240513-20261023"]
+    assert announcement.date == "2026-10-14" and "2024-11-20" in announcement.summary.en
+    assert "2024-05-13" not in announcement.summary.en
+    assert shutdown.date == "2026-10-23" and "2024-05-13" in shutdown.summary.en
+    image_claim = next(
+        c for c in snapshot.claims if c.id == "c-api-lifecycle-e-gpt-image-15-20261030"
+    )
+    assert "sunburst" not in image_claim.text.en
+    image_event = next(
+        e for e in snapshot.timeline["e-gpt-image-15"] if e.change_kind == "deprecated"
+    )
+    assert image_event.detail.action.en.startswith("As of 2026-10-30")

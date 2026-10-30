@@ -51,6 +51,16 @@ def test_every_enriched_field_keeps_official_provenance_and_conflicts_stay_unres
     for patch in ledger["entries"]:
         entity = entities[patch["entityId"]]
         for key, value in patch["specs"].items():
+            if patch["entityId"] in {
+                "e-gpt-41-nano",
+                "e-gpt-51-instant",
+                "e-gpt-52-instant",
+                "e-gpt-53-instant",
+                "e-gpt-image-1",
+            } and key in {"inputPrice", "outputPrice"}:
+                # Original quoted price is retained, explicitly scoped to the retired API.
+                assert entity.release.stage == "retired"
+                value += " · historical API"
             assert entity.specs.model_dump(by_alias=True)[key] == value
         section = next(
             s for s in entity.knowledge.sections if s.id == "official-model-specifications"
