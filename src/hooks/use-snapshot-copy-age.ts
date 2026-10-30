@@ -1,5 +1,5 @@
 import { useApp } from "@/lib/app-state";
-import { staleSnapshotCopyAge } from "@/lib/snapshot-cache";
+import { staleSnapshotCopyAge } from "@/lib/edge-copy";
 
 // Relative age of an edge-cached snapshot copy, or null while it is still recent.
 export function useSnapshotCopyAgeLabel(cachedAt?: string | null): string | null {

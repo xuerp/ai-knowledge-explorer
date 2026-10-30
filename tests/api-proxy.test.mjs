@@ -17,7 +17,7 @@ const {
   resolveApiUpstream,
   withSsrCachePolicy,
 } = await vite.ssrLoadModule("/src/server.ts");
-const { snapshotFetchedAtHeader } = await vite.ssrLoadModule("/src/lib/snapshot-cache.ts");
+const { snapshotFetchedAtHeader } = await vite.ssrLoadModule("/src/lib/edge-copy.ts");
 
 const snapshotUrl = "https://frontend.example/backend/api/v2/snapshot";
 const proxy = (request, response) =>

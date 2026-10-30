@@ -1,5 +1,8 @@
 import type { KnowledgeSnapshot } from "@/domain/types";
 
+// Keep this module's name from starting with "snapshot-": verify-staging-build.mjs
+// rejects any built chunk named snapshot-* as the offline catalog.
+
 // Set by the Cloudflare Worker when it fetched the public snapshot from the API.
 // Only cached edge copies carry it; offline and direct API responses do not.
 export const snapshotFetchedAtHeader = "X-AI-Radar-Snapshot-Fetched-At";
