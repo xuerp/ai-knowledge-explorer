@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { DataStatePanel } from "@/components/data-state";
+import { useSnapshotCopyAgeLabel } from "@/hooks/use-snapshot-copy-age";
 import type { KnowledgeSnapshot } from "@/domain/types";
 import { AppShell } from "@/components/layout/AppShell";
 import { useApp } from "@/lib/app-state";
@@ -79,6 +80,7 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
   const coreModels = browseModelFamilies(snapshot.entities);
   const sourcedClaimCount = snapshot.claims.filter((claim) => claim.sourceIds.length > 0).length;
   const snapshotDate = snapshot.meta.retrievedAt.slice(0, 10);
+  const copyAge = useSnapshotCopyAgeLabel(snapshot.meta.cachedAt);
 
   return (
     <div className="landing-compact min-h-screen bg-background text-foreground">
@@ -92,6 +94,8 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                 : t("知识快照", "Knowledge snapshot")}{" "}
               · {snapshot.entities.length} {t("个实体", "entities")} · {sourcedClaimCount}/
               {snapshot.claims.length} {t("条事实有来源", "sourced claims")}
+              {copyAge &&
+                ` · ${t(`缓存副本 · ${copyAge}获取`, `Cached copy · fetched ${copyAge}`)}`}
             </div>
             <h1>
               {lang === "zh" ? (

@@ -223,7 +223,11 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
               <span>
                 {t("最后更新", "Updated")}: {lastUpdated || "—"}
               </span>
-              <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
+              <DemoBadge
+                mode={snapshot.meta.mode}
+                updatedAt={snapshot.meta.retrievedAt}
+                cachedAt={snapshot.meta.cachedAt}
+              />
             </div>
           </section>
 

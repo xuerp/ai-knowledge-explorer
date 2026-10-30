@@ -33,6 +33,9 @@ export function buildStagingWranglerConfig(
     enabled: true,
     head_sampling_rate: 1,
   };
+  // Workers Cache stores this Worker's responses. src/server.ts marks every response
+  // private/no-store except the anonymous public snapshot, so only that one is shared.
+  config.cache = { enabled: true };
   config.vars = {
     ...(config.vars ?? {}),
     AI_RADAR_API_UPSTREAM_URL: stagingApiUpstreamUrl,

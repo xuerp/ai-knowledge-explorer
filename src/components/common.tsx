@@ -6,17 +6,21 @@ import type { Confidence, DataMode, Entity, Source } from "@/domain/types";
 import { Link } from "@tanstack/react-router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SourceExcerpt } from "@/components/research/SourceExcerpt";
+import { useSnapshotCopyAgeLabel } from "@/hooks/use-snapshot-copy-age";
 
 export function DemoBadge({
   className = "",
   mode = "demo",
   updatedAt,
+  cachedAt,
 }: {
   className?: string;
   mode?: DataMode;
   updatedAt?: string;
+  cachedAt?: string | null;
 }) {
   const { t } = useApp();
+  const copyAge = useSnapshotCopyAgeLabel(cachedAt);
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -45,6 +49,14 @@ export function DemoBadge({
         {updatedAt && (
           <p>
             {t("快照日期", "Snapshot date")}: {updatedAt.slice(0, 10)}
+          </p>
+        )}
+        {copyAge && (
+          <p>
+            {t(
+              `这是 ${copyAge}获取的缓存副本；系统会在后台尝试更新，稍后刷新页面查看。`,
+              `This is a cached copy fetched ${copyAge}. A newer copy is requested in the background; reload shortly to check.`,
+            )}
           </p>
         )}
         <p>
