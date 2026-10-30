@@ -45,10 +45,9 @@ lines.push(
   "Markdown 本身是纯文本，外部编辑器决定它的显示字号。现在另提供同页只读排版报告，以及 HTML 文件下载；可使用排版报告阅读和打印，Markdown 保留给文本处理。导出草稿不会自动保存私人验证记录。",
   "",
 );
-fs.writeFileSync(
-  new URL("../docs/DECISION_ASSISTANT_FIELDS_20261010.md", import.meta.url),
-  lines.join("\n"),
-);
+const outputPath = new URL("../artifacts/decision/fields.md", import.meta.url);
+fs.mkdirSync(new URL(".", outputPath), { recursive: true });
+fs.writeFileSync(outputPath, lines.join("\n"));
 console.log(
   `Exported ${groups.inputs.length} input and ${groups.outputs.length} result explanations.`,
 );

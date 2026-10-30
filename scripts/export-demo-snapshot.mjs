@@ -15,7 +15,7 @@ const server = await createServer({
 });
 
 try {
-  const module = await server.ssrLoadModule("/src/data/demo-adapter.ts");
+  const module = await server.ssrLoadModule("/src/data/demo-baseline.ts");
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(
     outputPath,

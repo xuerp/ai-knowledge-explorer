@@ -73,6 +73,9 @@ snapshot_test.*
 /docs/ACTIVE_TIME_BUDGET_*
 /HANDOFF_SUMMARY.md
 /HANDOFF_RECENT_CONVERSATION.txt
+/admin_catalog.json
+/claim_audit.json
+/graph_data.json
 
 # Editor directories and files
 .vscode/*

@@ -139,7 +139,7 @@ backend/app/         API、采集、知识查询与研究逻辑
 backend/migrations/  数据库迁移
 backend/tests/       后端测试
 tests/               前端与数据契约测试
-docs/                架构、运行及验证文档
+docs/                架构、运行及验证文档；archive/ 保存历史记录
 ```
 
 ```bash
@@ -156,6 +156,8 @@ python -m pytest tests
 部署相关测试需要相应环境，测试结果与外部服务实际可用性分别验证。
 
 </details>
+
+历史实施与验证记录见 [docs/archive](docs/archive/README.md)，不代表当前状态。
 
 [架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [运行指南](docs/portfolio/WALKTHROUGH.md) · [文档索引](docs/README.md)
 

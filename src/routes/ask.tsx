@@ -5,12 +5,10 @@ import { AppShell } from "@/components/layout/AppShell";
 import { WorkspaceHeader, DemoBadge } from "@/components/common";
 import { useApp, pick } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
-import { DEMO_KNOWLEDGE_SNAPSHOT } from "@/data/demo-adapter";
 import type { Evidence } from "@/domain/types";
 import { SourceExcerpt } from "@/components/research/SourceExcerpt";
 import { selectResearchEvidence } from "@/domain/research-evidence";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { knowledgeRepository } from "@/services/knowledge-repository";
 import { authSessionExpiredEvent, readAuthToken } from "@/services/auth-session";
 import { accountErrorMessage } from "@/services/auth-errors";
 import {
@@ -61,11 +59,7 @@ function AskPage() {
     () => true,
     () => false,
   );
-  const snapshot = hydrated
-    ? (snapshotQuery.data ?? (knowledgeRepository.mode === "demo" ? DEMO_KNOWLEDGE_SNAPSHOT : null))
-    : knowledgeRepository.mode === "demo"
-      ? DEMO_KNOWLEDGE_SNAPSHOT
-      : null;
+  const snapshot = hydrated ? (snapshotQuery.data ?? null) : null;
   const [token, setToken] = useState("");
   const [task, setTask] = useState("");
   const [priority, setPriority] = useState<DecisionContext["priority"]>("balanced");
