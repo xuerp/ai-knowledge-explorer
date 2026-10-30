@@ -38,4 +38,4 @@
 
 最新六题与公网验收证据集中在 `artifacts/decision-task-coverage-20261016/`；早期 `artifacts/decision-product-rebuild/` 等记录保留作历史凭证。
 
-最新共同路径验收见 `docs/DECISION_FIRST_USE_ACCEPTANCE_20261016.md`；`docs/DECISION_PRODUCT_PROGRESS_20261014.md` 等作为历史保留。有限场景验收不扩展为全部渠道和地区已覆盖，不将公开资料数量、通过测试数量或基础场景候选数量换算为全模块完成百分比。
+最新共同路径验收见 `docs/archive/DECISION_FIRST_USE_ACCEPTANCE_20261016.md`；`docs/archive/DECISION_PRODUCT_PROGRESS_20261014.md` 等作为历史保留。有限场景验收不扩展为全部渠道和地区已覆盖，不将公开资料数量、通过测试数量或基础场景候选数量换算为全模块完成百分比。
