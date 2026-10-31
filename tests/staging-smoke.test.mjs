@@ -9,8 +9,9 @@ import {
 
 const direct = {
   ready: { ok: true, buildCommit: "abc1234" },
-  snapshot: { entities: [{ id: "entity-1" }, { id: "entity-2" }] },
+  snapshot: { entities: [{ id: "entity-1" }, { id: "entity-2" }], claims: [] },
 };
+const homepageHtml = '<main><h1>AI Radar</h1><a href="/ask">开始探索</a></main>';
 
 function proxyFetch({
   healthStatus = 200,
@@ -20,6 +21,8 @@ function proxyFetch({
   loginStatus = 422,
   buildCommit = "abc1234",
   entityCount = 2,
+  homeCount = entityCount,
+  homeStatus = 200,
   loginDetail = [{ type: "missing", loc: ["body", "email"] }],
   contentType = "application/json",
   html = "<!doctype html><title>DNS points to prohibited IP</title>",
@@ -50,7 +53,12 @@ function proxyFetch({
       }
       return Response.json({
         entities: Array.from({ length: entityCount }, (_, i) => ({ id: i })),
+        claims: [],
       });
+    }
+    if (url.endsWith("/api/v2/home")) {
+      if (homeStatus !== 200) return new Response(html, { status: homeStatus });
+      return Response.json({ entityCount: homeCount, claimCount: 0, sourcedClaimCount: 0 });
     }
     throw new Error(`unexpected proxy request: ${method} ${url}`);
   };
@@ -71,7 +79,7 @@ test("staging smoke test verifies health, snapshot, frontend, and CORS", async (
     if (url.endsWith("/api/v2/snapshot")) {
       return Response.json({ entities: [{ id: "entity-1" }] });
     }
-    return new Response("AI Radar", { status: 200 });
+    return new Response(homepageHtml, { status: 200 });
   };
 
   const result = await runStagingSmokeTest({
@@ -96,6 +104,21 @@ test("public deployment URLs must use HTTPS", () => {
   );
 });
 
+test("a successful HTTP response with only a loading shell fails homepage acceptance", async () => {
+  await assert.rejects(
+    runStagingSmokeTest({
+      apiBaseUrl: "https://api.example.com",
+      frontendUrl: "https://staging.example.com",
+      fetchImpl: async (url) => {
+        if (url.endsWith("/health") || url.endsWith("/ready")) return Response.json({ ok: true });
+        if (url.endsWith("/api/v2/snapshot")) return Response.json({ entities: [{ id: "e" }] });
+        return new Response("<main>正在加载</main>");
+      },
+    }),
+    /首页 HTML 缺少服务端渲染/,
+  );
+});
+
 test("Worker 代理检查默认不开启，不改变既有行为", async () => {
   const origin = "https://staging.example.com";
   const fetchImpl = async (url, init = {}) => {
@@ -107,7 +130,7 @@ test("Worker 代理检查默认不开启，不改变既有行为", async () => {
     }
     if (url.endsWith("/health") || url.endsWith("/ready")) return Response.json({ ok: true });
     if (url.endsWith("/api/v2/snapshot")) return Response.json({ entities: [{ id: "e" }] });
-    return new Response("AI Radar", { status: 200 });
+    return new Response(homepageHtml, { status: 200 });
   };
   const result = await runStagingSmokeTest({
     apiBaseUrl: "https://api.example.com",
@@ -204,6 +227,19 @@ test("代理读到的实体数量与直连不一致时报错", async () => {
   );
 });
 
+test("首页概览不能经代理读取或与完整快照不一致时阻止验收", async () => {
+  for (const options of [{ homeStatus: 403 }, { homeCount: 1 }]) {
+    await assert.rejects(
+      verifyWorkerProxy({
+        proxyRoot: "https://staging.example.com/backend",
+        direct,
+        fetchImpl: proxyFetch(options),
+      }),
+      /api\/v2\/home.*返回 403|首页概览.*数量不一致/,
+    );
+  }
+});
+
 test("传入 proxyBaseUrl 时，runStagingSmokeTest 会一并检查 Worker 代理", async () => {
   const origin = "https://staging.example.com";
   const fetchImpl = async (url, init = {}) => {
@@ -218,7 +254,7 @@ test("传入 proxyBaseUrl 时，runStagingSmokeTest 会一并检查 Worker 代�
       return Response.json({ ok: true, buildCommit: "abc1234" });
     }
     if (url === "https://api.example.com/api/v2/snapshot") {
-      return Response.json({ entities: [{ id: "e1" }, { id: "e2" }] });
+      return Response.json({ entities: [{ id: "e1" }, { id: "e2" }], claims: [] });
     }
     if (url.startsWith(`${origin}/backend`)) {
       return proxyFetch()(
@@ -226,7 +262,8 @@ test("传入 proxyBaseUrl 时，runStagingSmokeTest 会一并检查 Worker 代�
         init,
       );
     }
-    if (method === "GET" && url === origin + "/") return new Response("AI Radar", { status: 200 });
+    if (method === "GET" && url === origin + "/")
+      return new Response(homepageHtml, { status: 200 });
     throw new Error(`unexpected request: ${method} ${url}`);
   };
 

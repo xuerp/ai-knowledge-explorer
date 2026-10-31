@@ -137,7 +137,7 @@ const output = await format(rawOutput, { parser: "markdown" });
 
 if (process.argv.includes("--check")) {
   const existing = await readFile(reportPath, "utf8").catch(() => "");
-  if (existing !== output)
+  if (existing.replace(/\r\n/g, "\n") !== output.replace(/\r\n/g, "\n"))
     throw new Error("Core model coverage report is stale; run with --write.");
 } else if (process.argv.includes("--write")) {
   await writeFile(reportPath, output, "utf8");

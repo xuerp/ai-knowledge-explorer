@@ -12,15 +12,10 @@ import {
   Sun,
   TrendingUp,
 } from "lucide-react";
-import { DataStatePanel } from "@/components/data-state";
-import type { KnowledgeSnapshot } from "@/domain/types";
-import { AppShell } from "@/components/layout/AppShell";
 import { useApp } from "@/lib/app-state";
 import { browseModelFamilies } from "@/domain/model-families";
-import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
-import { catalogRelationships } from "@/domain/relationship-catalog";
+import { useHomeOverview } from "@/hooks/use-knowledge";
 import { RELATION_LABELS } from "@/domain/labels";
-import { featuredRelationships } from "@/domain/relationship-insights";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,43 +37,17 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
-  const { t } = useApp();
-  const snapshotQuery = useKnowledgeSnapshot();
-  if (!snapshotQuery.data) {
-    return (
-      <AppShell>
-        <div className="page-container">
-          <DataStatePanel
-            kind={snapshotQuery.unavailableKind}
-            title={
-              snapshotQuery.error
-                ? t("知识数据暂不可用", "Knowledge data is unavailable")
-                : t("正在加载知识数据", "Loading knowledge data")
-            }
-            description={t(
-              "正在获取当前知识快照。加载失败时可重试。",
-              "Loading the current knowledge snapshot. Retry if loading fails.",
-            )}
-            onRetry={snapshotQuery.error ? () => void snapshotQuery.refetch() : undefined}
-          />
-        </div>
-      </AppShell>
-    );
-  }
-  return <LandingContent snapshot={snapshotQuery.data} />;
-}
-
-function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
   const { t, lang, setLang, theme, setTheme } = useApp();
-  const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
-  const evidenceById = new Map(snapshot.evidence.map((source) => [source.id, source]));
-  const sourcedRelations = catalogRelationships(snapshot);
-  const featuredRelations = featuredRelationships(snapshot);
-  const featuredInsights = snapshot.changes.slice(0, 3);
-  const researchQuestions = snapshot.researchQuestions.slice(0, 3);
-  const coreModels = browseModelFamilies(snapshot.entities);
-  const sourcedClaimCount = snapshot.claims.filter((claim) => claim.sourceIds.length > 0).length;
-  const snapshotDate = snapshot.meta.retrievedAt.slice(0, 10);
+  const overviewQuery = useHomeOverview();
+  const overview = overviewQuery.data;
+  const entities = overview?.entities ?? [];
+  const entityById = new Map(entities.map((entity) => [entity.id, entity]));
+  const evidenceById = new Map((overview?.evidence ?? []).map((source) => [source.id, source]));
+  const featuredRelations = overview?.featuredRelations ?? [];
+  const featuredInsights = overview?.changes ?? [];
+  const researchQuestions = overview?.researchQuestions ?? [];
+  const coreModels = browseModelFamilies(entities);
+  const snapshotDate = overview?.meta.retrievedAt.slice(0, 10) ?? "";
 
   return (
     <div className="landing-compact min-h-screen bg-background text-foreground">
@@ -87,11 +56,9 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           <div className="landing-compact__container landing-compact__hero-inner">
             <div className="landing-compact__status">
               <span aria-hidden="true" />
-              {snapshot.meta.mode === "demo"
-                ? t("示例知识快照", "Demo knowledge snapshot")
-                : t("知识快照", "Knowledge snapshot")}{" "}
-              · {snapshot.entities.length} {t("个实体", "entities")} · {sourcedClaimCount}/
-              {snapshot.claims.length} {t("条事实有来源", "sourced claims")}
+              {overview
+                ? t("已收录知识快照", "Collected knowledge snapshot")
+                : t("证据审核与知识快照", "Evidence review and knowledge snapshots")}
             </div>
             <h1>
               {lang === "zh" ? (
@@ -121,80 +88,114 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           </div>
         </section>
 
-        <section className="landing-compact__metrics" aria-label={t("数据概览", "Data overview")}>
-          <div className="landing-compact__container">
-            <dl>
-              <Metric
-                value={snapshot.entities.length}
-                label={t("已收录实体", "Entities")}
-                href="/knowledge"
-              />
-              <Metric
-                value={`${sourcedClaimCount}/${snapshot.claims.length}`}
-                label={t("有来源事实", "Sourced claims")}
-                href="/quality"
-              />
-              <Metric
-                value={sourcedRelations.length}
-                label={t("有来源联系", "Sourced connections")}
-                href="/graph"
-              />
-              <Metric
-                value={snapshotDate.slice(5).replace("-", ".")}
-                label={t("快照日期", "Snapshot date")}
-                href="/quality"
-              />
-            </dl>
-          </div>
-        </section>
-
-        <section id="insights" className="landing-compact__section is-muted">
-          <div className="landing-compact__container">
-            <SectionHeading
-              title={t("最新洞察", "Latest insights")}
-              action={
-                <a href="/updates#latest">
-                  {t("查看全部", "View all")} <ArrowRight aria-hidden="true" />
-                </a>
-              }
-            />
-            <div className="landing-compact__insights">
-              {featuredInsights.map((change) => {
-                const entity = snapshot.entities.find((item) => item.id === change.entityId);
-                if (!entity) return null;
-                return (
-                  <article key={change.id} className="landing-compact__insight-card">
-                    <div className="landing-compact__insight-meta">
-                      <span className={`is-${change.confidence}`}>
-                        <Check aria-hidden="true" /> {confidenceLabel(change.confidence, lang)}
-                      </span>
-                      <time dateTime={change.date}>{change.date}</time>
-                    </div>
-                    <div className="landing-compact__entity">
-                      <span className="radar-mark text-signal" aria-hidden="true" />
-                      <strong>{lang === "zh" ? entity.name.zh : entity.name.en}</strong>
-                    </div>
-                    <h3>{lang === "zh" ? change.summary.zh : change.summary.en}</h3>
-                    <p>
-                      {t(
-                        "进入模型档案查看完整时间线与原始证据。",
-                        "Open the model record for the full timeline and original evidence.",
-                      )}
-                    </p>
-                    <div className="landing-compact__insight-footer">
-                      <span>
-                        {change.sourceIds?.length ?? 0} {t("个证据来源", "evidence sources")}
-                      </span>
-                      <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }}>
-                        {t("查看详情", "View details")} <ArrowRight aria-hidden="true" />
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
+        {overview ? (
+          <section className="landing-compact__metrics" aria-label={t("数据概览", "Data overview")}>
+            <div className="landing-compact__container">
+              <dl>
+                <Metric
+                  value={overview.entityCount}
+                  label={t("已收录实体", "Entities")}
+                  href="/knowledge"
+                />
+                <Metric
+                  value={`${overview.sourcedClaimCount}/${overview.claimCount}`}
+                  label={t("有来源事实", "Sourced claims")}
+                  href="/quality"
+                />
+                <Metric
+                  value={overview.relationshipCount}
+                  label={t("有来源联系", "Sourced connections")}
+                  href="/graph"
+                />
+                <Metric
+                  value={snapshotDate.slice(5).replace("-", ".")}
+                  label={t("快照读取日期", "Snapshot read date")}
+                  href="/quality"
+                />
+              </dl>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section className="landing-compact__data-status" aria-live="polite">
+            <div className="landing-compact__container">
+              <p>
+                {overviewQuery.error
+                  ? t(
+                      "知识数据暂不可用。你可以重试，或继续浏览下方功能入口。",
+                      "Knowledge data is unavailable. Retry or explore the feature links below.",
+                    )
+                  : t(
+                      "正在连接知识服务，首次唤醒可能稍慢。功能入口可直接打开。",
+                      "Connecting to the knowledge service; its first wake-up can take longer. Feature links remain available.",
+                    )}
+              </p>
+              {overviewQuery.error && (
+                <button
+                  className="landing-compact__button is-secondary"
+                  onClick={() => void overviewQuery.refetch()}
+                >
+                  {t("重试知识数据", "Retry knowledge data")}
+                </button>
+              )}
+            </div>
+          </section>
+        )}
+        <div className="landing-compact__container landing-compact__data-note">
+          {t(
+            "当前为人工维护的收录快照，并非实时全量追踪；来源内容复核仍在进行。",
+            "This is a manually maintained catalog snapshot, not a live comprehensive feed; source-content review is ongoing.",
+          )}
+        </div>
+
+        {featuredInsights.length > 0 && (
+          <section id="insights" className="landing-compact__section is-muted">
+            <div className="landing-compact__container">
+              <SectionHeading
+                title={t("最新洞察", "Latest insights")}
+                action={
+                  <a href="/updates#latest">
+                    {t("查看全部", "View all")} <ArrowRight aria-hidden="true" />
+                  </a>
+                }
+              />
+              <div className="landing-compact__insights">
+                {featuredInsights.map((change) => {
+                  const entity = entities.find((item) => item.id === change.entityId);
+                  if (!entity) return null;
+                  return (
+                    <article key={change.id} className="landing-compact__insight-card">
+                      <div className="landing-compact__insight-meta">
+                        <span className={`is-${change.confidence}`}>
+                          <Check aria-hidden="true" /> {confidenceLabel(change.confidence, lang)}
+                        </span>
+                        <time dateTime={change.date}>{change.date}</time>
+                      </div>
+                      <div className="landing-compact__entity">
+                        <span className="radar-mark text-signal" aria-hidden="true" />
+                        <strong>{lang === "zh" ? entity.name.zh : entity.name.en}</strong>
+                      </div>
+                      <h3>{lang === "zh" ? change.summary.zh : change.summary.en}</h3>
+                      <p>
+                        {t(
+                          "进入模型档案查看完整时间线与原始证据。",
+                          "Open the model record for the full timeline and original evidence.",
+                        )}
+                      </p>
+                      <div className="landing-compact__insight-footer">
+                        <span>
+                          {change.sourceIds?.length ?? 0} {t("个证据来源", "evidence sources")}
+                        </span>
+                        <Link to="/knowledge/model/$slug" params={{ slug: entity.slug }}>
+                          {t("查看详情", "View details")} <ArrowRight aria-hidden="true" />
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
 
         <section id="features" className="landing-compact__section">
           <div className="landing-compact__container">
@@ -204,8 +205,8 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                 icon={<TrendingUp aria-hidden="true" />}
                 title={t("变化追踪", "Change tracking")}
                 description={t(
-                  "持续捕捉模型升级与新能力发布",
-                  "Follow model releases and capability changes",
+                  "汇总模型升级与新能力发布",
+                  "Browse model releases and capability changes",
                 )}
                 to="/updates"
               />
@@ -299,51 +300,55 @@ function LandingContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           </section>
         )}
 
-        <section className="landing-compact__section is-muted">
-          <div className="landing-compact__container">
-            <SectionHeading
-              title={t("从一个研究问题开始", "Start with a research question")}
-              centered
-            />
-            <div className="landing-compact__questions">
-              {researchQuestions.map((question) => {
-                const text = lang === "zh" ? question.zh : question.en;
-                return (
-                  <Link key={question.zh} to="/ask" search={{ task: text }}>
-                    <Search aria-hidden="true" />
-                    <span>
-                      <strong>{text}</strong>
-                      <small>
-                        {t(
-                          "问题示例，点击后按你的需求修改",
-                          "Suggested question — adapt it to your needs",
-                        )}
-                      </small>
-                    </span>
-                    <ArrowRight aria-hidden="true" />
-                  </Link>
-                );
-              })}
+        {researchQuestions.length > 0 && (
+          <section className="landing-compact__section is-muted">
+            <div className="landing-compact__container">
+              <SectionHeading
+                title={t("从一个研究问题开始", "Start with a research question")}
+                centered
+              />
+              <div className="landing-compact__questions">
+                {researchQuestions.map((question) => {
+                  const text = lang === "zh" ? question.zh : question.en;
+                  return (
+                    <Link key={question.zh} to="/ask" search={{ task: text }}>
+                      <Search aria-hidden="true" />
+                      <span>
+                        <strong>{text}</strong>
+                        <small>
+                          {t(
+                            "问题示例，点击后按你的需求修改",
+                            "Suggested question — adapt it to your needs",
+                          )}
+                        </small>
+                      </span>
+                      <ArrowRight aria-hidden="true" />
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <section id="models" className="landing-compact__section">
-          <div className="landing-compact__container">
-            <SectionHeading title={t("模型家族", "Model families")} centered />
-            <div className="landing-compact__models">
-              {coreModels.map((model) => (
-                <Link key={model.id} to="/knowledge/model/$slug" params={{ slug: model.slug }}>
-                  <span className={`landing-compact__model-mark is-${model.slug}`}>
-                    {modelInitial(model.slug)}
-                  </span>
-                  <strong>{modelDisplayName(model.slug, lang)}</strong>
-                  <small>{model.vendor || model.latestVersion || "AI Radar"}</small>
-                </Link>
-              ))}
+        {coreModels.length > 0 && (
+          <section id="models" className="landing-compact__section">
+            <div className="landing-compact__container">
+              <SectionHeading title={t("模型家族", "Model families")} centered />
+              <div className="landing-compact__models">
+                {coreModels.map((model) => (
+                  <Link key={model.id} to="/knowledge/model/$slug" params={{ slug: model.slug }}>
+                    <span className={`landing-compact__model-mark is-${model.slug}`}>
+                      {modelInitial(model.slug)}
+                    </span>
+                    <strong>{modelDisplayName(model.slug, lang)}</strong>
+                    <small>{model.vendor || model.latestVersion || "AI Radar"}</small>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="landing-compact__section is-muted">
           <div className="landing-compact__container">

@@ -4574,6 +4574,27 @@ dl.decision-validation__review-note dd {
   background: var(--color-card);
 }
 
+.landing-compact__data-status {
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--color-border);
+  color: var(--color-muted-foreground);
+}
+
+.landing-compact__data-status p {
+  margin: 0;
+}
+
+.landing-compact__data-status button {
+  margin-top: 0.75rem;
+}
+
+.landing-compact__data-note {
+  padding-block: 0.75rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
 .landing-compact__metrics dl {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

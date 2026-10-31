@@ -202,3 +202,45 @@ def test_viewer_forbidden_and_concurrent_retractions_have_one_winner(client):
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(lambda _: change(client, item, "retract"), range(2)))
     assert sorted(r.status_code for r in results) == [200, 409]
+
+
+def test_home_is_a_small_public_projection_and_follows_review_lifecycle(client):
+    def read_and_compare():
+        full_response = client.get("/api/v2/snapshot")
+        home_response = client.get("/api/v2/home")
+        assert full_response.status_code == home_response.status_code == 200
+        full, home = full_response.json(), home_response.json()
+        assert home["entityCount"] == len(full["entities"])
+        assert home["claimCount"] == len(full["claims"])
+        assert home["sourcedClaimCount"] == sum(bool(c["sourceIds"]) for c in full["claims"])
+        assert len(home_response.content) < 50_000
+        assert len(home_response.content) < len(full_response.content) / 10
+        assert (
+            not {
+                "claims",
+                "timeline",
+                "following",
+                "notifications",
+                "researchAnswers",
+                "reviewCandidates",
+                "syncRuns",
+                "interestProfile",
+            }
+            & home.keys()
+        )
+        assert len(home["changes"]) <= 3
+        assert len(home["featuredRelations"]) <= 3
+        sources = {e["id"]: e for e in full["evidence"]}
+        for edge in home["featuredRelations"]:
+            assert edge["confidence"] == "verified"
+            assert any(sources.get(sid, {}).get("url") for sid in edge["sourceIds"])
+        assert {e["id"] for e in home["entities"]} <= {e["id"] for e in full["entities"]}
+        return home["claimCount"]
+
+    original_count = read_and_compare()
+    pending = submit(client, suffix="homepage-lifecycle")
+    assert read_and_compare() == original_count
+    published = approve(client, pending)
+    assert read_and_compare() == original_count + 1
+    assert change(client, published, "retract").status_code == 200
+    assert read_and_compare() == original_count

@@ -3,7 +3,9 @@ import type { Entity } from "./types";
 
 // The historical coverage registry orders established families; the catalog
 // supplies additional families without claiming equivalent archive coverage.
-export function browseModelFamilies(entities: Entity[]): Entity[] {
+export function browseModelFamilies<T extends Pick<Entity, "id" | "type" | "familyId">>(
+  entities: T[],
+): T[] {
   const order = new Map(manifest.models.map((model, index) => [model.entityId, index]));
   return entities
     .filter((entity) => entity.type === "model" && !entity.familyId)

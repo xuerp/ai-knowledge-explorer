@@ -12,9 +12,17 @@
 
 React / TypeScript / TanStack · FastAPI / SQLAlchemy · MIT
 
+[![Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)
+
 </div>
 
 > 当前网站为预发布版本。你可以直接浏览动态与知识库；个人研究和保存需要登录。线上版本、数据模式与验证范围见[项目状态](#项目状态)。
+
+## 快速了解
+
+1. [打开网站](https://ai-radar.xue-ai.workers.dev)，从动态进入一个具体版本，沿证据入口核对原始资料。
+2. [体验决策助手](https://ai-radar.xue-ai.workers.dev/ask)，输入自己的任务和限制，查看候选、依据及下一步；个人研究需要登录。
+3. 查看下方[技术架构](#技术架构)与[三个实现取舍](#三个实现取舍)，了解公开事实、私人研究和模型候选如何分开。
 
 ## 为什么做 AI Radar
 
@@ -49,17 +57,19 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 
 ## 功能预览
 
-以下为 **2026-10-29 新网址实拍**。图片保留浏览器原始尺寸，可点击查看原图；功能入口均可在网站打开。
+以下为 **2026-10-31 新网址实拍**。图片保留浏览器返回的原始 JPEG 和尺寸，未二次压缩，可点击查看原图；功能入口均可在网站打开。
 
 ### 把任务和约束放在一起
 
 先描述要完成的工作，再补充预算、部署方式和偏好。研究围绕这些条件展开。
 
-[![线上决策助手：任务入口与约束表单](docs/assets/portfolio/decision-entry-online-20261029.jpg)](docs/assets/portfolio/decision-entry-online-20261029.jpg)
+[![线上决策助手：任务入口与约束表单](docs/assets/portfolio/decision-entry-online-20261031.jpg)](docs/assets/portfolio/decision-entry-online-20261031.jpg)
 
 ### 从事实回到资料
 
 模型档案保留版本、日期和来源入口；整理摘要与原文引语分别标注。历史记录注明适用日期，缺少原文的判断保留为待核实。
+
+[![线上知识库：模型家族、分类与筛选](docs/assets/portfolio/knowledge-online-20261031.jpg)](docs/assets/portfolio/knowledge-online-20261031.jpg)
 
 [打开具体模型档案，查看「证据链」↗](https://ai-radar.xue-ai.workers.dev/knowledge/model/gemini-4)
 
@@ -72,7 +82,7 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 **当前处于内测与整体验收阶段。** 动态、知识库、家族版本、对比、图谱、研究与维护端均已有实现，新网址上的登录、研究、修改、重开和报告下载已有浏览器验证；全量数据内容复核仍在进行。
 
 - **在线版本**：前后端已统一从 `main` 发布到新网址。当前构建可查看[前端版本](https://ai-radar.xue-ai.workers.dev/version.txt)和[后端就绪信息](https://ai-radar.xue-ai.workers.dev/backend/ready)；免费后端首次唤醒可能较慢。
-- **数据状态**：当前预发布 API 标记为 `demo` / `cached`。它是已有知识快照，不是已经验收的实时全量采集服务。
+- **数据状态**：当前部署定位为「证据审核流水线 + 人工维护的知识快照」，API 标记为 `demo` / `cached`。采集、抽取与审核模块保留；自动抽取默认关闭，来源语义和生命周期复核仍在进行。公共结论需逐项审核后发布，持续实时追踪尚未验收。
 - **待完成**：全量来源内容、时效和生命周期核实，更多选型场景，持续采集到审核发布的闭环，以及邮件实际送达。
 
 完整依据见[研究流程复验](docs/portfolio/WORKFLOW_VERIFICATION_20261029.md)与[验证记录](docs/portfolio/VALIDATION.md)。
@@ -120,6 +130,17 @@ VITE_API_UPSTREAM_URL=http://127.0.0.1:8000
 
 ## 技术架构
 
+```mermaid
+flowchart LR
+    Source[官方公告与文档] --> Capture[采集与来源快照]
+    Capture --> Candidate[候选事实]
+    Candidate --> Review[证据与人工审核]
+    Review --> Public[公开知识 API]
+    Public --> Web[动态与知识库]
+    Public --> Decision[任务约束与证据检索]
+    Decision --> Report[私人研究与报告]
+```
+
 | 层次     | 实现                                      | 主要职责                       |
 | -------- | ----------------------------------------- | ------------------------------ |
 | Web      | React、TypeScript、TanStack、Tailwind CSS | 路由、知识浏览、研究表单与报告 |
@@ -163,6 +184,14 @@ python -m pytest tests
 历史实施与发布记录可从 Git 历史查询；运行回执不进入文档目录。
 
 [架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [运行指南](docs/portfolio/WALKTHROUGH.md) · [文档索引](docs/README.md)
+
+## 三个实现取舍
+
+| 取舍 | 为什么这样做 | 实现入口 |
+| --- | --- | --- |
+| 模型输出先进入候选，审核后才能成为公开事实 | 生成成功不等于陈述正确，待审与被驳回记录不能参与公共选型 | [公开快照与审核状态过滤](backend/app/repository.py#L909) · [ADR 0003](docs/adr/0003-candidate-verified-claim-separation.md) |
+| 抓取前验证地址与解析目标 | 外部来源不能把后端引向内网、本机或不受允许的目标 | [SafeHttpFetcher](backend/app/fetching.py#L105) |
+| API 失败保持为错误，离线目录仅在明确的离线模式使用 | 避免把旧示例伪装成最新接口结果，同时让本地浏览仍然可用 | [数据访问边界](src/services/knowledge-repository.ts) · [ADR 0007](docs/adr/0007-domain-routers-and-public-snapshot-boundary.md) |
 
 ## 反馈与贡献
 
