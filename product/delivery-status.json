@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-30",
+  "updatedAt": "2026-10-31",
   "summary": {
     "zh": "内测与整体验收进行中，尚未达到稳定正式版",
     "en": "Internal testing and full acceptance in progress; not yet a stable release"
@@ -47,8 +47,8 @@
         "en": "Claims and evidence separated; quotations, summaries and unclassified text distinguished."
       },
       "verified": {
-        "zh": "14 条渠道事实及 34 条历史范围、版本归属与来源问题已逐项修正，原记录保留并有软件回归；全量语义、时效与生命周期复核未完成。",
-        "en": "14 channel claims and 34 historical-scope, model-association and source findings corrected with original records retained and software regressions; full semantic, freshness and lifecycle review remains open."
+        "zh": "固定快照的 489 条事实记录已逐项比对来源，补正日期、渠道范围与引用；原记录和未知项保留。持续时效、缺证关系及独立复核仍待完成。",
+        "en": "All 489 claim records in the fixed snapshot have received source comparison, with date, channel-scope and citation corrections. Original records and unknowns remain. Ongoing freshness, unsupported relations and independent review are still open."
       }
     },
     {

@@ -2,7 +2,7 @@
   "meta": {
     "mode": "demo",
     "freshness": "fresh",
-    "retrievedAt": "2026-10-30T00:00:00Z",
+    "retrievedAt": "2026-10-31T00:00:00Z",
     "message": {
       "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
       "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
@@ -1894,7 +1894,7 @@
       "tags": ["具体版本", "Qwen Max"],
       "latestVersion": null,
       "firstReleasedAt": "2025-09-23",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "specs": {
         "contextWindow": "256K tokens",
         "inputPrice": "¥6–15 / 1M tokens · Beijing · tiered",
@@ -1943,7 +1943,7 @@
               "zh": "Qwen3 Max 为 Max 产品线历史型号；当前优先核对 3.8 Max，历史价格与可用地域不沿用。",
               "en": "Qwen3 Max is an earlier Max-line model; review 3.8 Max for current work and do not reuse historical pricing or region assumptions."
             },
-            "sourceIds": ["s-qwen-3-max-20261001"]
+            "sourceIds": ["s-qwen-3-max-20261001", "s-specs-qwen-releases"]
           },
           {
             "title": { "zh": "发布日期核对", "en": "Release date verification" },
@@ -17124,7 +17124,7 @@
       "status": "active",
       "tags": ["具体版本", "Qwen Coder"],
       "firstReleasedAt": "2025-07-22",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "1,000,000 context · 65,536 max output tokens",
@@ -17179,7 +17179,7 @@
               "zh": "Qwen3 Coder Plus：代码与开发工具链；以百炼对应型号和地域能力为准。",
               "en": "Qwen3 Coder Plus: Coding and developer tools; review Model Studio model and regional capability."
             },
-            "sourceIds": ["s-qwen-3-coder-plus-20261001"]
+            "sourceIds": ["s-qwen-3-coder-plus-20261001", "s-specs-qwen-releases"]
           }
         ],
         "useCases": [
@@ -17197,7 +17197,7 @@
             "en": "Prices describe standard Beijing inference; overseas, cache, thinking, long-context and batch rates/capabilities can differ."
           }
         ],
-        "officialUrl": "https://help.aliyun.com/en/model-studio/qwen3-coder-plus"
+        "officialUrl": "https://help.aliyun.com/zh/model-studio/newly-released-models"
       }
     },
     {
@@ -17361,7 +17361,7 @@
       "status": "active",
       "tags": ["具体版本", "Qwen 开放模型 / Open models"],
       "firstReleasedAt": "2026-08-17",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "1,000,000 context · 131,072 max output tokens",
@@ -17416,7 +17416,7 @@
               "zh": "Qwen3.8 27B：开放模型与部署选择；以百炼对应型号和地域能力为准。",
               "en": "Qwen3.8 27B: Open models and deployment choices; review Model Studio model and regional capability."
             },
-            "sourceIds": ["s-qwen-3-8-27b-20261001"]
+            "sourceIds": ["s-qwen-3-8-27b-20261001", "s-qwen38-27b-weights-reviewed-20261031"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -18346,14 +18346,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["doubao-seed-2.1-turbo"],
       "summary": {
-        "zh": "Seed 2.1 Turbo 接替部分旧 Code 服务；用具体方舟入口核对支持范围。",
-        "en": "Seed 2.1 Turbo replaces some earlier Code services; verify the exact Ark channel."
+        "zh": "方舟 Coding Plan 曾将 Seed2.1 Turbo 列为旧 Code/Pro 的迁移目标；Turbo 本身已于该渠道 2026-10-09 下线，其他接口需分别核对。",
+        "en": "Ark Coding Plan previously listed Seed2.1 Turbo as the migration target for older Code/Pro endpoints; Turbo itself retired from that channel on October 9, 2026. Check other interfaces separately."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Doubao Seed Code / Turbo"],
       "firstReleasedAt": "2026-06-23",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "256K tokens",
@@ -18394,16 +18394,16 @@
       },
       "capabilities": [
         {
-          "zh": "Seed 2.1 Turbo 接替部分旧 Code 服务；用具体方舟入口核对支持范围。",
-          "en": "Seed 2.1 Turbo replaces some earlier Code services; verify the exact Ark channel.",
+          "zh": "方舟 Coding Plan 曾将 Seed2.1 Turbo 列为旧 Code/Pro 的迁移目标；Turbo 本身已于该渠道 2026-10-09 下线，其他接口需分别核对。",
+          "en": "Ark Coding Plan previously listed Seed2.1 Turbo as the migration target for older Code/Pro endpoints; Turbo itself retired from that channel on October 9, 2026. Check other interfaces separately.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Seed 2.1 Turbo 接替部分旧 Code 服务；用具体方舟入口核对支持范围。",
-            "en": "Seed 2.1 Turbo replaces some earlier Code services; verify the exact Ark channel."
+            "zh": "方舟 Coding Plan 曾将 Seed2.1 Turbo 列为旧 Code/Pro 的迁移目标；Turbo 本身已于该渠道 2026-10-09 下线，其他接口需分别核对。",
+            "en": "Ark Coding Plan previously listed Seed2.1 Turbo as the migration target for older Code/Pro endpoints; Turbo itself retired from that channel on October 9, 2026. Check other interfaces separately."
           }
         ],
         "significance": { "zh": "软件工程与代码任务", "en": "Software engineering and coding" },
@@ -18411,10 +18411,14 @@
           {
             "title": { "zh": "型号与可用入口", "en": "Identity and access" },
             "description": {
-              "zh": "Seed 2.1 Turbo 接替部分旧 Code 服务；用具体方舟入口核对支持范围。",
-              "en": "Seed 2.1 Turbo replaces some earlier Code services; verify the exact Ark channel."
+              "zh": "方舟 Coding Plan 曾将 Seed2.1 Turbo 列为旧 Code/Pro 的迁移目标；Turbo 本身已于该渠道 2026-10-09 下线，其他接口需分别核对。",
+              "en": "Ark Coding Plan previously listed Seed2.1 Turbo as the migration target for older Code/Pro endpoints; Turbo itself retired from that channel on October 9, 2026. Check other interfaces separately."
             },
-            "sourceIds": ["s-seed-catalog-20261001", "s-seed21-launch-reviewed"]
+            "sourceIds": [
+              "s-seed-catalog-20261001",
+              "s-seed21-launch-reviewed",
+              "s-ark-coding-migrations-reviewed-20261031"
+            ]
           },
           {
             "title": { "zh": "渠道与计费范围", "en": "Channel and billing scope" },
@@ -18486,14 +18490,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["doubao-seed-2.0-mini"],
       "summary": {
-        "zh": "Mini 面向轻量任务；Coding Plan 记录了 0428 版本升级。",
-        "en": "Mini targets lightweight work; Coding Plan records the 0428 upgrade."
+        "zh": "Seed2.0 Mini 面向高并发和批量生成；Coding Plan 的上线记录注明其已升级到 0428 版本。",
+        "en": "Seed2.0 Mini targets high-concurrency and batch generation; the Coding Plan model history records its upgrade to version 0428."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Doubao Seed Mini"],
       "firstReleasedAt": "2026-02-14",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "256K tokens",
@@ -18534,16 +18538,16 @@
       },
       "capabilities": [
         {
-          "zh": "Mini 面向轻量任务；Coding Plan 记录了 0428 版本升级。",
-          "en": "Mini targets lightweight work; Coding Plan records the 0428 upgrade.",
+          "zh": "Seed2.0 Mini 面向高并发和批量生成；Coding Plan 的上线记录注明其已升级到 0428 版本。",
+          "en": "Seed2.0 Mini targets high-concurrency and batch generation; the Coding Plan model history records its upgrade to version 0428.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Mini 面向轻量任务；Coding Plan 记录了 0428 版本升级。",
-            "en": "Mini targets lightweight work; Coding Plan records the 0428 upgrade."
+            "zh": "Seed2.0 Mini 面向高并发和批量生成；Coding Plan 的上线记录注明其已升级到 0428 版本。",
+            "en": "Seed2.0 Mini targets high-concurrency and batch generation; the Coding Plan model history records its upgrade to version 0428."
           }
         ],
         "significance": { "zh": "大规模简单任务", "en": "Simple tasks at scale" },
@@ -18551,10 +18555,10 @@
           {
             "title": { "zh": "型号与可用入口", "en": "Identity and access" },
             "description": {
-              "zh": "Mini 面向轻量任务；Coding Plan 记录了 0428 版本升级。",
-              "en": "Mini targets lightweight work; Coding Plan records the 0428 upgrade."
+              "zh": "Seed2.0 Mini 面向高并发和批量生成；Coding Plan 的上线记录注明其已升级到 0428 版本。",
+              "en": "Seed2.0 Mini targets high-concurrency and batch generation; the Coding Plan model history records its upgrade to version 0428."
             },
-            "sourceIds": ["s-seed-catalog-20261001"]
+            "sourceIds": ["s-seed-catalog-20261001", "s-history-doubao-seed20-lite-0428"]
           },
           {
             "title": { "zh": "发布日期核对", "en": "Release date verification" },
@@ -18719,14 +18723,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["ernie-4.5-turbo-128k"],
       "summary": {
-        "zh": "Turbo 文本端点适合通用生产任务；与 VL 端点分别记录。",
-        "en": "Turbo text endpoint for general production tasks; separate from the VL endpoint."
+        "zh": "千帆页面将 ERNIE 4.5 Turbo 128K 列为文本生成端点；与 Turbo VL 图像理解端点分开记录。",
+        "en": "Qianfan lists ERNIE 4.5 Turbo 128K as a text-generation endpoint, separately from the Turbo VL image-understanding endpoint."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "ERNIE Turbo"],
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "128K context · 123K max input · up to 12K output",
@@ -18764,16 +18768,16 @@
       },
       "capabilities": [
         {
-          "zh": "Turbo 文本端点适合通用生产任务；与 VL 端点分别记录。",
-          "en": "Turbo text endpoint for general production tasks; separate from the VL endpoint.",
+          "zh": "千帆页面将 ERNIE 4.5 Turbo 128K 列为文本生成端点；与 Turbo VL 图像理解端点分开记录。",
+          "en": "Qianfan lists ERNIE 4.5 Turbo 128K as a text-generation endpoint, separately from the Turbo VL image-understanding endpoint.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Turbo 文本端点适合通用生产任务；与 VL 端点分别记录。",
-            "en": "Turbo text endpoint for general production tasks; separate from the VL endpoint."
+            "zh": "千帆页面将 ERNIE 4.5 Turbo 128K 列为文本生成端点；与 Turbo VL 图像理解端点分开记录。",
+            "en": "Qianfan lists ERNIE 4.5 Turbo 128K as a text-generation endpoint, separately from the Turbo VL image-understanding endpoint."
           }
         ],
         "significance": {
@@ -18784,8 +18788,8 @@
           {
             "title": { "zh": "型号与可用入口", "en": "Identity and access" },
             "description": {
-              "zh": "Turbo 文本端点适合通用生产任务；与 VL 端点分别记录。",
-              "en": "Turbo text endpoint for general production tasks; separate from the VL endpoint."
+              "zh": "千帆页面将 ERNIE 4.5 Turbo 128K 列为文本生成端点；与 Turbo VL 图像理解端点分开记录。",
+              "en": "Qianfan lists ERNIE 4.5 Turbo 128K as a text-generation endpoint, separately from the Turbo VL image-understanding endpoint."
             },
             "sourceIds": ["s-ernie-catalog-20261001"]
           }
@@ -18821,14 +18825,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["ernie-4.5-turbo-vl"],
       "summary": {
-        "zh": "Turbo VL 面向图像理解、文档和视觉问答。",
-        "en": "Turbo VL targets image understanding, documents and visual Q&A."
+        "zh": "千帆页面将 ERNIE 4.5 Turbo VL 列为图像理解端点；具体文档与视觉问答任务的效果需另行验证。",
+        "en": "Qianfan lists ERNIE 4.5 Turbo VL as an image-understanding endpoint; results on specific document and visual-Q&A tasks require separate validation."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "ERNIE Turbo"],
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "128K context · 123K max input · up to 16K output",
@@ -18866,16 +18870,16 @@
       },
       "capabilities": [
         {
-          "zh": "Turbo VL 面向图像理解、文档和视觉问答。",
-          "en": "Turbo VL targets image understanding, documents and visual Q&A.",
+          "zh": "千帆页面将 ERNIE 4.5 Turbo VL 列为图像理解端点；具体文档与视觉问答任务的效果需另行验证。",
+          "en": "Qianfan lists ERNIE 4.5 Turbo VL as an image-understanding endpoint; results on specific document and visual-Q&A tasks require separate validation.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Turbo VL 面向图像理解、文档和视觉问答。",
-            "en": "Turbo VL targets image understanding, documents and visual Q&A."
+            "zh": "千帆页面将 ERNIE 4.5 Turbo VL 列为图像理解端点；具体文档与视觉问答任务的效果需另行验证。",
+            "en": "Qianfan lists ERNIE 4.5 Turbo VL as an image-understanding endpoint; results on specific document and visual-Q&A tasks require separate validation."
           }
         ],
         "significance": {
@@ -18886,8 +18890,8 @@
           {
             "title": { "zh": "型号与可用入口", "en": "Identity and access" },
             "description": {
-              "zh": "Turbo VL 面向图像理解、文档和视觉问答。",
-              "en": "Turbo VL targets image understanding, documents and visual Q&A."
+              "zh": "千帆页面将 ERNIE 4.5 Turbo VL 列为图像理解端点；具体文档与视觉问答任务的效果需另行验证。",
+              "en": "Qianfan lists ERNIE 4.5 Turbo VL as an image-understanding endpoint; results on specific document and visual-Q&A tasks require separate validation."
             },
             "sourceIds": ["s-ernie-catalog-20261001"]
           }
@@ -21698,13 +21702,13 @@
       "vendor": "Anthropic",
       "origin": { "zh": "海外", "en": "Overseas" },
       "summary": {
-        "zh": "Claude Fable 5：Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
+        "zh": "Claude Fable 5：Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
         "en": "Claude Fable 5 is a documented historical release in the Claude Fable line."
       },
       "status": "active",
       "tags": ["具体版本", "Claude Fable"],
       "firstReleasedAt": "2026-06-09",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "release": {
         "generation": "Claude Fable 5",
         "variant": "Claude Fable",
@@ -21734,7 +21738,7 @@
       },
       "capabilities": [
         {
-          "zh": "Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
+          "zh": "Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
           "en": "Officially documented Claude Fable 5 release.",
           "confidence": "verified"
         }
@@ -21742,7 +21746,7 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "Claude Fable 5：Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
+            "zh": "Claude Fable 5：Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
             "en": "Claude Fable 5 is a documented historical release in the Claude Fable line."
           }
         ],
@@ -21754,10 +21758,10 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-06-09：Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
-              "en": "Official release: 2026-06-09. Claude Fable 5 is a documented historical release in the Claude Fable line."
+              "zh": "2026-06-09：Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
+              "en": "Launch: June 9, 2026; first-party access suspended June 12 and restored July 1. The announcement does not establish when each cloud partner returned."
             },
-            "sourceIds": ["s-history-claude-fable-5"]
+            "sourceIds": ["s-history-claude-fable-5", "s-claude-fable5-redeployment-20260701"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -26187,8 +26191,8 @@
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen 开放模型 / Open models"],
-      "firstReleasedAt": "2025-09-10",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2025-09-11",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "262,144 native · up to 1,010,000 extended tokens",
@@ -26210,7 +26214,7 @@
           "positioning": { "zh": "开放模型与部署选择", "en": "Open models and deployment choices" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2025-09-10",
+        "releasedAt": "2025-09-11",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
@@ -26233,10 +26237,10 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2025-09-10：Qwen3 Next 的混合注意力架构与开放权重迭代。",
-              "en": "Official release: 2025-09-10. Qwen3 Next 80B A3B is a documented historical release in the Qwen 开放模型 / Open models line."
+              "zh": "2025-09-11：Qwen3 Next 的混合注意力架构与开放权重迭代。",
+              "en": "Official release: 2025-09-11. Qwen3 Next 80B A3B is a documented historical release in the Qwen 开放模型 / Open models line."
             },
-            "sourceIds": ["s-history-qwen-3-next"]
+            "sourceIds": ["s-history-qwen-3-next", "s-qwen-release-news-reviewed-20261031"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -26313,8 +26317,8 @@
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen 开放模型 / Open models"],
-      "firstReleasedAt": "2026-02-15",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2026-02-16",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "256K tokens",
@@ -26336,7 +26340,7 @@
           "positioning": { "zh": "开放模型与部署选择", "en": "Open models and deployment choices" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-02-15",
+        "releasedAt": "2026-02-16",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
@@ -26359,10 +26363,10 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-02-15：Qwen3.5 首发的原生视觉语言开放权重模型。",
-              "en": "Official release: 2026-02-15. Qwen3.5 397B A17B is a documented historical release in the Qwen 开放模型 / Open models line."
+              "zh": "2026-02-16：Qwen3.5 首发的原生视觉语言开放权重模型。",
+              "en": "Official release: 2026-02-16. Qwen3.5 397B A17B is a documented historical release in the Qwen 开放模型 / Open models line."
             },
-            "sourceIds": ["s-history-qwen-35-397b"]
+            "sourceIds": ["s-history-qwen-35-397b", "s-qwen-release-news-reviewed-20261031"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -26436,8 +26440,8 @@
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen 开放模型 / Open models"],
-      "firstReleasedAt": "2026-04-21",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2026-04-22",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "262,144 native · up to 1,010,000 extended tokens",
@@ -26459,7 +26463,7 @@
           "positioning": { "zh": "开放模型与部署选择", "en": "Open models and deployment choices" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-04-21",
+        "releasedAt": "2026-04-22",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
@@ -26482,8 +26486,8 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-04-21：3.6 系列的 27B 稠密多模态开放权重版本。",
-              "en": "Official release: 2026-04-21. Qwen3.6 27B is a documented historical release in the Qwen 开放模型 / Open models line."
+              "zh": "2026-04-22：3.6 系列的 27B 稠密多模态开放权重版本。",
+              "en": "Official release: 2026-04-22. Qwen3.6 27B is a documented historical release in the Qwen 开放模型 / Open models line."
             },
             "sourceIds": ["s-history-qwen-36-27b"]
           },
@@ -26680,8 +26684,8 @@
       },
       "status": "active",
       "tags": ["具体版本", "Qwen Max"],
-      "firstReleasedAt": "2026-04-18",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2026-04-14",
+      "lastUpdatedAt": "2026-10-31",
       "release": {
         "generation": "Qwen3.6 Max Preview",
         "variant": "Qwen Max",
@@ -26694,7 +26698,7 @@
           "positioning": { "zh": "复杂任务云端旗舰", "en": "Hosted flagship for demanding work" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-04-18",
+        "releasedAt": "2026-04-14",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
@@ -26725,10 +26729,10 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-04-18：3.6 Max 的早期预览，补齐 3-Max 至 3.7-Max 的迭代。",
-              "en": "Official release: 2026-04-18. Qwen3.6 Max Preview is a documented historical release in the Qwen Max line."
+              "zh": "Qwen3.6 Max Preview 的官方博客公告日期为 2026-04-18；百炼记载国际地域 4 月 14 日上架、北京地域 4 月 20 日上架，不能合并为一个渠道日期。",
+              "en": "The Qwen3.6 Max Preview blog announcement is dated April 18, 2026; Model Studio records April 14 availability internationally and April 20 in Beijing, which are separate channel dates."
             },
-            "sourceIds": ["s-history-qwen-36-max-preview"]
+            "sourceIds": ["s-history-qwen-36-max-preview", "s-specs-qwen-releases"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -26937,7 +26941,7 @@
       "status": "active",
       "tags": ["具体版本", "Qwen Plus"],
       "firstReleasedAt": "2026-02-15",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "1M tokens",
@@ -26991,7 +26995,7 @@
               "zh": "2026-02-15：Qwen3.5 的托管 Plus 模型，默认 1M 上下文。",
               "en": "Official release: 2026-02-15. Qwen3.5 Plus is a documented historical release in the Qwen Plus line."
             },
-            "sourceIds": ["s-history-qwen-35-plus"]
+            "sourceIds": ["s-history-qwen-35-plus", "s-specs-qwen-releases"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -27059,14 +27063,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["Qwen3.6 Plus 0402"],
       "summary": {
-        "zh": "Qwen3.6 Plus 0402：官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-        "en": "Qwen3.6 Plus 0402 is a documented historical release in the Qwen Plus line."
+        "zh": "Qwen3.6 Plus 0402：4 月 2 日快照，百炼记录的上架日为 4 月 1 日。",
+        "en": "Qwen3.6 Plus 0402: April 2 snapshot label, with Model Studio availability recorded on April 1."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen Plus"],
-      "firstReleasedAt": "2026-04-02",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2026-04-01",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "1M tokens",
@@ -27091,22 +27095,22 @@
           }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-04-02",
+        "releasedAt": "2026-04-01",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
       "capabilities": [
         {
-          "zh": "官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-          "en": "Officially documented Qwen3.6 Plus 0402 release.",
+          "zh": "百炼上架记录为 2026-04-01；对应快照标识为 qwen3.6-plus-2026-04-02，快照日期与上架日期分开记录。",
+          "en": "Model Studio records hosted availability on April 1, 2026 for snapshot qwen3.6-plus-2026-04-02; the snapshot label is not the availability date.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Qwen3.6 Plus 0402：官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-            "en": "Qwen3.6 Plus 0402 is a documented historical release in the Qwen Plus line."
+            "zh": "Qwen3.6 Plus 0402：4 月 2 日快照，百炼记录的上架日为 4 月 1 日。",
+            "en": "Qwen3.6 Plus 0402: April 2 snapshot label, with Model Studio availability recorded on April 1."
           }
         ],
         "significance": {
@@ -27117,10 +27121,10 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-04-02：官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-              "en": "Official release: 2026-04-02. Qwen3.6 Plus 0402 is a documented historical release in the Qwen Plus line."
+              "zh": "百炼上架记录为 2026-04-01；对应快照标识为 qwen3.6-plus-2026-04-02，快照日期与上架日期分开记录。",
+              "en": "Model Studio records hosted availability on April 1, 2026 for snapshot qwen3.6-plus-2026-04-02; the snapshot label is not the availability date."
             },
-            "sourceIds": ["s-history-qwen-36-plus"]
+            "sourceIds": ["s-history-qwen-36-plus", "s-specs-qwen-releases"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -27439,8 +27443,8 @@
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen Coder"],
-      "firstReleasedAt": "2026-02-02",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": "2026-02-03",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "262,144 native tokens",
@@ -27462,7 +27466,7 @@
           "positioning": { "zh": "代码与开发工具链", "en": "Coding and developer tools" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-02-02",
+        "releasedAt": "2026-02-03",
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
@@ -27485,8 +27489,8 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-02-02：面向编程 Agent 与本地开发的开放权重代码模型。",
-              "en": "Official release: 2026-02-02. Qwen3 Coder Next is a documented historical release in the Qwen Coder line."
+              "zh": "官方渲染后的中英文发布公告均显示 2026-02-03；面向编程 Agent 与本地开发的开放权重代码模型。",
+              "en": "The rendered official announcement displays February 3, 2026 in both languages; this is the open-weight model for coding agents and local development."
             },
             "sourceIds": ["s-history-qwen-3-coder-next"]
           },
@@ -28018,7 +28022,7 @@
       "tags": ["具体版本", "Doubao Seed 通用 / General"],
       "latestVersion": null,
       "firstReleasedAt": "2025-06-25",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "specs": {
         "contextWindow": "256K tokens",
         "inputPrice": "¥0.8–2.4 / 1M tokens · Beijing Flink",
@@ -28066,7 +28070,7 @@
               "zh": "2025-06-25：通用多模态模型，支持自适应思考和 256K 上下文。",
               "en": "Official release: 2025-06-25. Doubao Seed 1.6 is a documented historical release in the Doubao Seed 通用 / General line."
             },
-            "sourceIds": ["s-history-doubao-seed16"]
+            "sourceIds": ["s-history-doubao-seed16", "s-seed16-tech-reviewed-20261031"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -28092,7 +28096,7 @@
             "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
           }
         ],
-        "officialUrl": "https://seed.bytedance.com/en/seed1_6/",
+        "officialUrl": "https://seed.bytedance.com/en/blog/introduction-to-techniques-used-in-seed1-6",
         "sections": [
           {
             "id": "official-model-specifications",
@@ -28248,14 +28252,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["Doubao Seed 2.0 Code"],
       "summary": {
-        "zh": "Doubao Seed 2.0 Code：Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
+        "zh": "Doubao Seed 2.0 Code：Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
         "en": "Doubao Seed 2.0 Code is a documented historical release in the Doubao Seed Code / Turbo line."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Doubao Seed Code / Turbo"],
       "firstReleasedAt": "2026-02-14",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "256K tokens",
@@ -28283,7 +28287,7 @@
       },
       "capabilities": [
         {
-          "zh": "Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
+          "zh": "Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
           "en": "Officially documented Doubao Seed 2.0 Code release.",
           "confidence": "verified"
         }
@@ -28291,7 +28295,7 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "Doubao Seed 2.0 Code：Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
+            "zh": "Doubao Seed 2.0 Code：Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
             "en": "Doubao Seed 2.0 Code is a documented historical release in the Doubao Seed Code / Turbo line."
           }
         ],
@@ -28300,10 +28304,13 @@
           {
             "title": { "zh": "发布与迭代", "en": "Release and iteration" },
             "description": {
-              "zh": "2026-02-14：Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
+              "zh": "2026-02-14：Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
               "en": "Official release: 2026-02-14. Doubao Seed 2.0 Code is a documented historical release in the Doubao Seed Code / Turbo line."
             },
-            "sourceIds": ["s-history-doubao-seed20-code"]
+            "sourceIds": [
+              "s-history-doubao-seed20-code",
+              "s-ark-coding-migrations-reviewed-20261031"
+            ]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -28367,14 +28374,14 @@
       "origin": { "zh": "中国", "en": "China" },
       "aliases": ["Doubao Seed 2.0 Lite 0428"],
       "summary": {
-        "zh": "Doubao Seed 2.0 Lite 0428：4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-        "en": "Doubao Seed 2.0 Lite 0428 is a documented historical release in the Doubao Seed Lite line."
+        "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+        "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Doubao Seed Lite"],
-      "firstReleasedAt": "2026-04-28",
-      "lastUpdatedAt": "2026-10-05",
+      "firstReleasedAt": null,
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "256K tokens",
@@ -28396,31 +28403,31 @@
           "positioning": { "zh": "质量与响应速度均衡", "en": "Balanced quality and response speed" }
         },
         "catalogCurrent": false,
-        "releasedAt": "2026-04-28",
+        "releasedAt": null,
         "lastVerifiedAt": "2026-10-05",
         "accessChannels": []
       },
       "capabilities": [
         {
-          "zh": "4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-          "en": "Officially documented Doubao Seed 2.0 Lite 0428 release.",
+          "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+          "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Doubao Seed 2.0 Lite 0428：4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-            "en": "Doubao Seed 2.0 Lite 0428 is a documented historical release in the Doubao Seed Lite line."
+            "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+            "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
           }
         ],
         "significance": { "zh": "质量与响应速度均衡", "en": "Balanced quality and response speed" },
         "keyPoints": [
           {
-            "title": { "zh": "发布与迭代", "en": "Release and iteration" },
+            "title": { "zh": "版本日期待核实", "en": "Version date remains unconfirmed" },
             "description": {
-              "zh": "2026-04-28：4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-              "en": "Official release: 2026-04-28. Doubao Seed 2.0 Lite 0428 is a documented historical release in the Doubao Seed Lite line."
+              "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+              "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
             },
             "sourceIds": ["s-history-doubao-seed20-lite-0428"]
           },
@@ -31587,7 +31594,7 @@
       "status": "active",
       "tags": ["具体版本", "Qwen Flash"],
       "firstReleasedAt": "2026-02-23",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-10-31",
       "metrics": [],
       "specs": {
         "contextWindow": "1M · max output 65,536 tokens",
@@ -31635,7 +31642,7 @@
               "zh": "2026-02-23：官方文档记载的 2026-02-23 快照，补齐 Flash 3 与 3.8 之间的具体更新。",
               "en": "Official release: 2026-02-23. Qwen3.5 Flash 0223 is a documented historical release in the Qwen Flash line."
             },
-            "sourceIds": ["s-history-qwen-35-flash"]
+            "sourceIds": ["s-history-qwen-35-flash", "s-specs-qwen-releases"]
           },
           {
             "title": { "zh": "规格与计费口径", "en": "Specifications and billing basis" },
@@ -34081,8 +34088,8 @@
       "title": { "zh": "Qwen3 Coder Plus 官方型号文档", "en": "Qwen3 Coder Plus 官方型号文档" },
       "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
-      "sourceExcerpt": "Qwen3 Coder Plus: Coding and developer tools; review Model Studio model and regional capability.",
+      "verifiedAt": null,
+      "sourceExcerpt": null,
       "originalLanguage": "en",
       "type": "official",
       "supportsClaimIds": ["c-qwen-3-coder-plus-catalog-review"]
@@ -34107,11 +34114,12 @@
       "title": { "zh": "Qwen3.8 27B 官方型号文档", "en": "Qwen3.8 27B 官方型号文档" },
       "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
-      "sourceExcerpt": "Qwen3.8 27B: Open models and deployment choices; review Model Studio model and regional capability.",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The Model Studio page describes the named 27B dense vision-language endpoint. Downloadable weights are supported by the separate official model card.",
       "originalLanguage": "en",
       "type": "official",
-      "supportsClaimIds": ["c-qwen-3-8-27b-catalog-review"]
+      "supportsClaimIds": ["c-qwen-3-8-27b-catalog-review"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-qwen-3-8-2-4t-a95b-20261001",
@@ -34146,8 +34154,8 @@
       "title": { "zh": "Qwen3 Max 官方型号文档", "en": "Qwen3 Max 官方型号文档" },
       "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
-      "sourceExcerpt": "Qwen3 Max is an earlier Max-line model; review 3.8 Max for current work and do not reuse historical pricing or region assumptions.",
+      "verifiedAt": null,
+      "sourceExcerpt": null,
       "originalLanguage": "en",
       "type": "official",
       "supportsClaimIds": ["c-qwen-3-max-catalog-review"]
@@ -34698,8 +34706,9 @@
       "verifiedAt": "2026-10-01",
       "type": "official",
       "originalLanguage": "en",
-      "sourceExcerpt": "Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
-      "supportsClaimIds": ["c-history-claude-fable-5"]
+      "sourceExcerpt": "The June 9 launch announcement introduces Claude Fable 5. Suspension and restoration are documented in a separate later announcement.",
+      "supportsClaimIds": ["c-history-claude-fable-5"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-gpt-41",
@@ -35230,13 +35239,14 @@
         "en": "Qwen3 Next 80B A3B official release record"
       },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2025-09-10",
+      "publishedAt": "2025-09-11",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "Qwen3 Next 的混合注意力架构与开放权重迭代。",
-      "supportsClaimIds": ["c-history-qwen-3-next"]
+      "supportsClaimIds": ["c-history-qwen-3-next"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-35-397b",
@@ -35246,26 +35256,28 @@
         "en": "Qwen3.5 397B A17B official release record"
       },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-02-15",
+      "publishedAt": "2026-02-16",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "Qwen3.5 首发的原生视觉语言开放权重模型。",
-      "supportsClaimIds": ["c-history-qwen-35-397b"]
+      "supportsClaimIds": ["c-history-qwen-35-397b"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-36-27b",
       "url": "https://qwen.ai/blog?id=qwen3.6-27b",
       "title": { "zh": "Qwen3.6 27B 官方发布记录", "en": "Qwen3.6 27B official release record" },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-04-21",
+      "publishedAt": "2026-04-22",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "3.6 系列的 27B 稠密多模态开放权重版本。",
-      "supportsClaimIds": ["c-history-qwen-36-27b"]
+      "supportsClaimIds": ["c-history-qwen-36-27b"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-37-max",
@@ -35317,13 +35329,14 @@
       "url": "https://qwen.ai/blog?id=qwen3.5",
       "title": { "zh": "Qwen3.5 Plus 官方发布记录", "en": "Qwen3.5 Plus official release record" },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-02-15",
+      "publishedAt": "2026-02-16",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "Qwen3.5 的托管 Plus 模型，默认 1M 上下文。",
-      "supportsClaimIds": ["c-history-qwen-35-plus"]
+      "supportsClaimIds": ["c-history-qwen-35-plus"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-36-plus",
@@ -35333,13 +35346,14 @@
         "en": "Qwen3.6 Plus 0402 official release record"
       },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-04-02",
+      "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-      "supportsClaimIds": ["c-history-qwen-36-plus"]
+      "supportsClaimIds": ["c-history-qwen-36-plus"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-3-flash",
@@ -35381,13 +35395,14 @@
         "en": "Qwen3 Coder Next official release record"
       },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-02-02",
+      "publishedAt": "2026-02-03",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "面向编程 Agent 与本地开发的开放权重代码模型。",
-      "supportsClaimIds": ["c-history-qwen-3-coder-next"]
+      "supportsClaimIds": ["c-history-qwen-3-coder-next"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-qwen-25-omni",
@@ -35526,12 +35541,12 @@
         "en": "Doubao Seed 1.6 official release record"
       },
       "publisher": "ByteDance Seed",
-      "publishedAt": "2025-06-25",
+      "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": null,
       "type": "official",
       "originalLanguage": "en",
-      "sourceExcerpt": "通用多模态模型，支持自适应思考和 256K 上下文。",
+      "sourceExcerpt": null,
       "supportsClaimIds": ["c-history-doubao-seed16"]
     },
     {
@@ -35563,24 +35578,26 @@
       "verifiedAt": "2026-10-01",
       "type": "official",
       "originalLanguage": "en",
-      "sourceExcerpt": "Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
-      "supportsClaimIds": ["c-history-doubao-seed20-code"]
+      "sourceExcerpt": "The February 14 Seed2.0 launch includes a dedicated Code model. Later Coding Plan migration is documented by a separate channel notice.",
+      "supportsClaimIds": ["c-history-doubao-seed20-code"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-doubao-seed20-lite-0428",
       "url": "https://seed.bytedance.com/en/seed2",
       "title": {
-        "zh": "Doubao Seed 2.0 Lite 0428 官方发布记录",
-        "en": "Doubao Seed 2.0 Lite 0428 official release record"
+        "zh": "Seed2.0 官方概述与 Lite 0428 更新",
+        "en": "Seed2.0 overview and Lite 0428 upgrade"
       },
       "publisher": "ByteDance Seed",
-      "publishedAt": "2026-04-28",
+      "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
-      "sourceExcerpt": "4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-      "supportsClaimIds": ["c-history-doubao-seed20-lite-0428"]
+      "sourceExcerpt": "The overview describes Lite as balancing quality and response speed, Mini as optimizing throughput and deployment density, and the Lite 0428 omni-modal upgrade as occurring in late April. It does not state an exact first-availability date for 0428.",
+      "supportsClaimIds": ["c-history-doubao-seed20-lite-0428"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-date-doubao-seed20-mini",
@@ -36255,13 +36272,14 @@
         "en": "Qwen3.5 Flash 0223 official release record"
       },
       "publisher": "Alibaba Cloud",
-      "publishedAt": "2026-02-23",
+      "publishedAt": "",
       "collectedAt": "2026-10-01",
-      "verifiedAt": "2026-10-01",
+      "verifiedAt": "2026-10-31",
       "type": "official",
       "originalLanguage": "en",
       "sourceExcerpt": "官方文档记载的 2026-02-23 快照，补齐 Flash 3 与 3.8 之间的具体更新。",
-      "supportsClaimIds": ["c-history-qwen-35-flash"]
+      "supportsClaimIds": ["c-history-qwen-35-flash"],
+      "sourceExcerptKind": "summary"
     },
     {
       "id": "s-history-ernie-40-turbo",
@@ -37035,10 +37053,10 @@
       },
       "url": "https://docs.volcengine.com/docs/ark/api-schema-upgrade-notice?lang=en",
       "publisher": "Volcengine",
-      "publishedAt": "2026-09-09",
+      "publishedAt": "",
       "collectedAt": "2026-10-02",
-      "verifiedAt": "2026-10-02",
-      "sourceExcerpt": "2026-09-09: Planned rollout supports developer role, normalizes Responses events and defaults encrypted reasoning. Scope: Applicable Ark APIs; check models, not a universal Doubao reasoning upgrade.",
+      "verifiedAt": null,
+      "sourceExcerpt": null,
       "originalLanguage": "zh",
       "type": "official",
       "supportsClaimIds": ["c-change-doubao-ark-schema-compatibility"]
@@ -40693,6 +40711,107 @@
       "originalLanguage": "en",
       "type": "official",
       "supportsClaimIds": ["c-history-gpt-realtime-1"]
+    },
+    {
+      "id": "s-codex-mini-model-reviewed-20261031",
+      "title": {
+        "zh": "codex-mini-latest 历史模型说明",
+        "en": "codex-mini-latest historical model reference"
+      },
+      "url": "https://developers.openai.com/api/docs/models/codex-mini-latest",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The model-specific reference describes a Codex CLI optimized o4-mini variant and marks this model as shut down.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-claude-fable5-redeployment-20260701",
+      "title": { "zh": "Claude Fable 5 恢复访问公告", "en": "Redeploying Claude Fable 5" },
+      "url": "https://www.anthropic.com/news/redeploying-fable-5",
+      "publisher": "Anthropic",
+      "publishedAt": "2026-06-30",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The July 1 update records June 12 suspension and July 1 restoration of first-party access. Cloud partners were to be re-enabled separately; their individual restoration dates are not established here.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-qwen-release-news-reviewed-20261031",
+      "title": { "zh": "Qwen 官方仓库发布记录", "en": "Qwen official repository release news" },
+      "url": "https://github.com/QwenLM/Qwen3.8",
+      "publisher": "Qwen Team",
+      "publishedAt": "",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The official release news dates Qwen3-Next to September 11, 2025 and the Qwen3.5 397B-A17B open-weight release to February 16, 2026.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-qwen38-27b-weights-reviewed-20261031",
+      "title": { "zh": "Qwen3.8 27B 官方开放权重", "en": "Qwen3.8 27B official weights" },
+      "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
+      "publisher": "Qwen Team",
+      "publishedAt": "",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The official Qwen model card provides downloadable post-trained 27B model weights and configuration, with Apache 2.0 licensing; hosted API service is a separate deployment channel.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-seed16-tech-reviewed-20261031",
+      "title": { "zh": "Seed1.6 官方技术介绍", "en": "Introduction to Techniques Used in Seed1.6" },
+      "url": "https://seed.bytedance.com/en/blog/introduction-to-techniques-used-in-seed1-6",
+      "publisher": "ByteDance Seed",
+      "publishedAt": "2025-06-25",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "The June 25, 2025 technical introduction describes Seed1.6 multimodal understanding, adaptive thinking and a 256K context window.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-ark-schema-zh-reviewed-20261031",
+      "title": {
+        "zh": "方舟 API 兼容性升级中文公告",
+        "en": "Ark API compatibility upgrade notice in Chinese"
+      },
+      "url": "https://docs.volcengine.com/docs/ark/api-schema-upgrade-notice?lang=zh",
+      "publisher": "Volcano Engine",
+      "publishedAt": "",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "公告记载自 2026 年 9 月 9 日起陆续升级部分 API，包括 developer role、Responses 事件字段及有思考内容时默认返回加密推理；这是协议兼容性范围。",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "zh",
+      "type": "official",
+      "supportsClaimIds": ["c-change-doubao-ark-schema-compatibility"]
+    },
+    {
+      "id": "s-ark-coding-migrations-reviewed-20261031",
+      "title": {
+        "zh": "方舟 Coding Plan 型号迁移与下线公告",
+        "en": "Ark Coding Plan model migrations and retirements"
+      },
+      "url": "https://docs.volcengine.com/docs/ark/coding-plan-personal-model-deprecation?lang=zh",
+      "publisher": "Volcano Engine",
+      "publishedAt": "",
+      "collectedAt": "2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "sourceExcerpt": "Coding Plan 的 7 月 24 日公告将 Seed2.0 Code/Pro 的迁移目标列为 Seed2.1 Turbo；页面另记载 Turbo 本身于 10 月 9 日在该订阅渠道下线，不等于所有厂商 API 下线。",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "zh",
+      "type": "official"
     }
   ],
   "claims": [
@@ -41686,8 +41805,8 @@
         "en": "Qwen3 Coder Plus: Coding and developer tools; review Model Studio model and regional capability."
       },
       "confidence": "verified",
-      "sourceIds": ["s-qwen-3-coder-plus-20261001"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-qwen-3-coder-plus-20261001", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -41720,8 +41839,8 @@
         "en": "Qwen3.8 27B: Open models and deployment choices; review Model Studio model and regional capability."
       },
       "confidence": "verified",
-      "sourceIds": ["s-qwen-3-8-27b-20261001"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-qwen-3-8-27b-20261001", "s-qwen38-27b-weights-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -41771,8 +41890,8 @@
         "en": "Qwen3 Max is an earlier Max-line model; review 3.8 Max for current work and do not reuse historical pricing or region assumptions."
       },
       "confidence": "verified",
-      "sourceIds": ["s-qwen-3-max-20261001"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-qwen-3-max-20261001", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -41920,12 +42039,12 @@
       "id": "c-doubao-seed-2-1-turbo-catalog-review",
       "entityId": "e-doubao-seed21-turbo",
       "text": {
-        "zh": "Seed 2.1 Turbo 接替部分旧 Code 服务；用具体方舟入口核对支持范围。",
-        "en": "Seed 2.1 Turbo replaces some earlier Code services; verify the exact Ark channel."
+        "zh": "方舟 Coding Plan 曾将 Seed2.1 Turbo 列为旧 Code/Pro 的迁移目标；Turbo 本身已于该渠道 2026-10-09 下线，其他接口需分别核对。",
+        "en": "Ark Coding Plan previously listed Seed2.1 Turbo as the migration target for older Code/Pro endpoints; Turbo itself retired from that channel on October 9, 2026. Check other interfaces separately."
       },
       "confidence": "verified",
-      "sourceIds": ["s-seed-catalog-20261001"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-seed-catalog-20261001", "s-ark-coding-migrations-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -41937,12 +42056,12 @@
       "id": "c-doubao-seed-2-0-mini-catalog-review",
       "entityId": "e-doubao-seed20-mini",
       "text": {
-        "zh": "Mini 面向轻量任务；Coding Plan 记录了 0428 版本升级。",
-        "en": "Mini targets lightweight work; Coding Plan records the 0428 upgrade."
+        "zh": "Seed2.0 Mini 面向高并发和批量生成；Coding Plan 的上线记录注明其已升级到 0428 版本。",
+        "en": "Seed2.0 Mini targets high-concurrency and batch generation; the Coding Plan model history records its upgrade to version 0428."
       },
       "confidence": "verified",
-      "sourceIds": ["s-seed-catalog-20261001"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-seed-catalog-20261001", "s-history-doubao-seed20-lite-0428"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -42039,12 +42158,12 @@
       "id": "c-ernie-4-5-turbo-128k-catalog-review",
       "entityId": "e-ernie-turbo-text",
       "text": {
-        "zh": "Turbo 文本端点适合通用生产任务；与 VL 端点分别记录。",
-        "en": "Turbo text endpoint for general production tasks; separate from the VL endpoint."
+        "zh": "千帆页面将 ERNIE 4.5 Turbo 128K 列为文本生成端点；与 Turbo VL 图像理解端点分开记录。",
+        "en": "Qianfan lists ERNIE 4.5 Turbo 128K as a text-generation endpoint, separately from the Turbo VL image-understanding endpoint."
       },
       "confidence": "verified",
       "sourceIds": ["s-ernie-catalog-20261001"],
-      "updatedAt": "2026-10-01",
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -42056,12 +42175,12 @@
       "id": "c-ernie-4-5-turbo-vl-catalog-review",
       "entityId": "e-ernie-turbo-vl",
       "text": {
-        "zh": "Turbo VL 面向图像理解、文档和视觉问答。",
-        "en": "Turbo VL targets image understanding, documents and visual Q&A."
+        "zh": "千帆页面将 ERNIE 4.5 Turbo VL 列为图像理解端点；具体文档与视觉问答任务的效果需另行验证。",
+        "en": "Qianfan lists ERNIE 4.5 Turbo VL as an image-understanding endpoint; results on specific document and visual-Q&A tasks require separate validation."
       },
       "confidence": "verified",
       "sourceIds": ["s-ernie-catalog-20261001"],
-      "updatedAt": "2026-10-01",
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-10-01",
       "validTo": null,
@@ -42498,12 +42617,12 @@
       "id": "c-history-claude-fable-5",
       "entityId": "e-claude-fable-5",
       "text": {
-        "zh": "Claude Fable 5 于 2026-06-09 发布。Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
-        "en": "Claude Fable 5 was released on 2026-06-09."
+        "zh": "Claude Fable 5 于 2026-06-09 发布。Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
+        "en": "Claude Fable 5 launched on June 9, 2026. First-party access was suspended on June 12 and restored on July 1; the announcement says cloud-partner access would be re-enabled separately."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-claude-fable-5"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-claude-fable-5", "s-claude-fable5-redeployment-20260701"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-06-09",
       "validTo": null,
@@ -43078,52 +43197,52 @@
       "id": "c-history-qwen-3-next",
       "entityId": "e-qwen-3-next",
       "text": {
-        "zh": "Qwen3 Next 80B A3B 于 2025-09-10 发布。Qwen3 Next 的混合注意力架构与开放权重迭代。",
-        "en": "Qwen3 Next 80B A3B was released on 2025-09-10."
+        "zh": "Qwen3 Next 80B A3B 于 2025-09-11 发布。Qwen3 Next 的混合注意力架构与开放权重迭代。",
+        "en": "Qwen3 Next 80B A3B was released on 2025-09-11."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-3-next"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-3-next", "s-qwen-release-news-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2025-09-10",
+      "validFrom": "2025-09-11",
       "validTo": null,
       "subject": "Qwen3 Next 80B A3B",
       "predicate": "release",
-      "objectOrValue": "2025-09-10"
+      "objectOrValue": "2025-09-11"
     },
     {
       "id": "c-history-qwen-35-397b",
       "entityId": "e-qwen-35-397b",
       "text": {
-        "zh": "Qwen3.5 397B A17B 于 2026-02-15 发布。Qwen3.5 首发的原生视觉语言开放权重模型。",
-        "en": "Qwen3.5 397B A17B was released on 2026-02-15."
+        "zh": "Qwen3.5 397B A17B 的开放权重于 2026-02-16 发布；这是官方代码仓库和中文公告的发布日期，与百炼记载的 2 月 15 日托管端点上架日分开记录。",
+        "en": "The Qwen3.5 397B A17B open-weight release is dated February 16, 2026 in the official repository and Chinese announcement, distinct from the February 15 hosted-endpoint entry in Model Studio."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-397b"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-35-397b", "s-qwen-release-news-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2026-02-15",
+      "validFrom": "2026-02-16",
       "validTo": null,
       "subject": "Qwen3.5 397B A17B",
       "predicate": "release",
-      "objectOrValue": "2026-02-15"
+      "objectOrValue": "2026-02-16"
     },
     {
       "id": "c-history-qwen-36-27b",
       "entityId": "e-qwen-36-27b",
       "text": {
-        "zh": "Qwen3.6 27B 于 2026-04-21 发布。3.6 系列的 27B 稠密多模态开放权重版本。",
-        "en": "Qwen3.6 27B was released on 2026-04-21."
+        "zh": "Qwen3.6 27B 于 2026-04-22 发布。3.6 系列的 27B 稠密多模态开放权重版本。",
+        "en": "Qwen3.6 27B was released on 2026-04-22."
       },
       "confidence": "verified",
       "sourceIds": ["s-history-qwen-36-27b"],
-      "updatedAt": "2026-10-01",
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2026-04-21",
+      "validFrom": "2026-04-22",
       "validTo": null,
       "subject": "Qwen3.6 27B",
       "predicate": "release",
-      "objectOrValue": "2026-04-21"
+      "objectOrValue": "2026-04-22"
     },
     {
       "id": "c-history-qwen-37-max",
@@ -43146,17 +43265,17 @@
       "id": "c-history-qwen-36-max-preview",
       "entityId": "e-qwen-36-max-preview",
       "text": {
-        "zh": "Qwen3.6 Max Preview 于 2026-04-18 发布。3.6 Max 的早期预览，补齐 3-Max 至 3.7-Max 的迭代。",
-        "en": "Qwen3.6 Max Preview was released on 2026-04-18."
+        "zh": "Qwen3.6 Max Preview 的官方博客公告日期为 2026-04-18；百炼记载国际地域 4 月 14 日上架、北京地域 4 月 20 日上架，不能合并为一个渠道日期。",
+        "en": "The Qwen3.6 Max Preview blog announcement is dated April 18, 2026; Model Studio records April 14 availability internationally and April 20 in Beijing, which are separate channel dates."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-36-max-preview"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-36-max-preview", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-04-18",
       "validTo": null,
       "subject": "Qwen3.6 Max Preview",
-      "predicate": "release",
+      "predicate": "announced-on",
       "objectOrValue": "2026-04-18"
     },
     {
@@ -43184,8 +43303,8 @@
         "en": "Qwen3.5 Plus was released on 2026-02-15."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-plus"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-35-plus", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-02-15",
       "validTo": null,
@@ -43197,18 +43316,18 @@
       "id": "c-history-qwen-36-plus",
       "entityId": "e-qwen-36-plus",
       "text": {
-        "zh": "Qwen3.6 Plus 0402 于 2026-04-02 发布。官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-        "en": "Qwen3.6 Plus 0402 was released on 2026-04-02."
+        "zh": "百炼上架记录为 2026-04-01；对应快照标识为 qwen3.6-plus-2026-04-02，快照日期与上架日期分开记录。",
+        "en": "Model Studio records hosted availability on April 1, 2026 for snapshot qwen3.6-plus-2026-04-02; the snapshot label is not the availability date."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-36-plus"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-36-plus", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2026-04-02",
+      "validFrom": "2026-04-01",
       "validTo": null,
       "subject": "Qwen3.6 Plus 0402",
       "predicate": "release",
-      "objectOrValue": "2026-04-02"
+      "objectOrValue": "2026-04-01"
     },
     {
       "id": "c-history-qwen-3-flash",
@@ -43248,18 +43367,18 @@
       "id": "c-history-qwen-3-coder-next",
       "entityId": "e-qwen-3-coder-next",
       "text": {
-        "zh": "Qwen3 Coder Next 于 2026-02-02 发布。面向编程 Agent 与本地开发的开放权重代码模型。",
-        "en": "Qwen3 Coder Next was released on 2026-02-02."
+        "zh": "官方渲染后的中英文发布公告均显示 2026-02-03；面向编程 Agent 与本地开发的开放权重代码模型。",
+        "en": "The rendered official announcement displays February 3, 2026 in both languages; this is the open-weight model for coding agents and local development."
       },
       "confidence": "verified",
       "sourceIds": ["s-history-qwen-3-coder-next"],
-      "updatedAt": "2026-10-01",
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2026-02-02",
+      "validFrom": "2026-02-03",
       "validTo": null,
       "subject": "Qwen3 Coder Next",
       "predicate": "release",
-      "objectOrValue": "2026-02-02"
+      "objectOrValue": "2026-02-03"
     },
     {
       "id": "c-history-qwen-25-omni",
@@ -43337,8 +43456,8 @@
         "en": "Doubao Seed 1.6 was released on 2025-06-25."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-doubao-seed16"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-doubao-seed16", "s-seed16-tech-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2025-06-25",
       "validTo": null,
@@ -43367,12 +43486,12 @@
       "id": "c-history-doubao-seed20-code",
       "entityId": "e-doubao-seed20-code",
       "text": {
-        "zh": "Doubao Seed 2.0 Code 于 2026-02-14 发布。Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
-        "en": "Doubao Seed 2.0 Code was released on 2026-02-14."
+        "zh": "Doubao Seed 2.0 Code 于 2026-02-14 发布。Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
+        "en": "Doubao Seed 2.0 Code launched on February 14, 2026. Its later Ark Coding Plan migration target was Seed2.1 Turbo, a distinct model."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-doubao-seed20-code"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-doubao-seed20-code", "s-ark-coding-migrations-reviewed-20261031"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-02-14",
       "validTo": null,
@@ -43384,18 +43503,18 @@
       "id": "c-history-doubao-seed20-lite-0428",
       "entityId": "e-doubao-seed20-lite-0428",
       "text": {
-        "zh": "Doubao Seed 2.0 Lite 0428 于 2026-04-28 发布。4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-        "en": "Doubao Seed 2.0 Lite 0428 was released on 2026-04-28."
+        "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+        "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
       },
-      "confidence": "verified",
+      "confidence": "unverified",
       "sourceIds": ["s-history-doubao-seed20-lite-0428"],
-      "updatedAt": "2026-10-01",
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
-      "validFrom": "2026-04-28",
+      "validFrom": null,
       "validTo": null,
       "subject": "Doubao Seed 2.0 Lite 0428",
-      "predicate": "release",
-      "objectOrValue": "2026-04-28"
+      "predicate": "version-documented",
+      "objectOrValue": "Lite 0428; late-April upgrade; exact first release unverified"
     },
     {
       "id": "c-history-ernie-40",
@@ -43884,8 +44003,8 @@
         "en": "Qwen3.5 Flash 0223 was released on 2026-02-23."
       },
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-flash"],
-      "updatedAt": "2026-10-01",
+      "sourceIds": ["s-history-qwen-35-flash", "s-specs-qwen-releases"],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-01",
       "validFrom": "2026-02-23",
       "validTo": null,
@@ -44717,12 +44836,15 @@
       "id": "c-change-doubao-ark-schema-compatibility",
       "entityId": "e-doubao",
       "text": {
-        "zh": "计划逐步兼容 developer role、规范 Responses 事件字段并默认返回加密推理。 适用范围：方舟适用 API；按型号核对，不代表豆包全部新增推理能力。",
-        "en": "Planned rollout supports developer role, normalizes Responses events and defaults encrypted reasoning. Scope: Applicable Ark APIs; check models, not a universal Doubao reasoning upgrade."
+        "zh": "方舟公告记载自 2026-09-09 起陆续升级部分 API：兼容 developer role、规范 Responses 事件字段，并在模型产生思考内容时默认返回加密推理。按型号和接口核对，不代表所有豆包型号新增推理能力。",
+        "en": "The Ark notice records a gradual upgrade of selected APIs from September 9, 2026: developer-role compatibility, normalized Responses events and encrypted reasoning returned by default when reasoning is produced. Check the model and interface; this is not a universal Doubao capability upgrade."
       },
       "confidence": "verified",
-      "sourceIds": ["s-change-doubao-ark-schema-compatibility"],
-      "updatedAt": "2026-10-02",
+      "sourceIds": [
+        "s-change-doubao-ark-schema-compatibility",
+        "s-ark-schema-zh-reviewed-20261031"
+      ],
+      "updatedAt": "2026-10-31",
       "observedAt": "2026-10-02",
       "validFrom": "2026-09-09",
       "predicate": "capability-updated-on",
@@ -48852,12 +48974,12 @@
         "date": "2026-06-09",
         "title": { "zh": "Claude Fable 5 发布", "en": "Claude Fable 5 released" },
         "summary": {
-          "zh": "Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
-          "en": "Claude Fable 5 is a documented historical release in the Claude Fable line."
+          "zh": "Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
+          "en": "Launch June 9, 2026; first-party access suspended June 12 and restored July 1, with cloud partners to be re-enabled separately."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-claude-fable-5"],
+        "sourceIds": ["s-history-claude-fable-5", "s-claude-fable5-redeployment-20260701"],
         "confidence": "verified",
         "releaseEntityId": "e-claude-fable-5"
       },
@@ -51195,7 +51317,7 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-qwen-3-coder-plus-20261001"],
+        "sourceIds": ["s-qwen-3-coder-plus-20261001", "s-specs-qwen-releases"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-coder-plus"
       },
@@ -51268,7 +51390,7 @@
       },
       {
         "id": "t-family-history-qwen-3-next",
-        "date": "2025-09-10",
+        "date": "2025-09-11",
         "title": { "zh": "Qwen3 Next 80B A3B 发布", "en": "Qwen3 Next 80B A3B released" },
         "summary": {
           "zh": "Qwen3 Next 的混合注意力架构与开放权重迭代。",
@@ -51276,13 +51398,13 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-3-next"],
+        "sourceIds": ["s-history-qwen-3-next", "s-qwen-release-news-reviewed-20261031"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-3-next"
       },
       {
         "id": "t-family-history-qwen-35-397b",
-        "date": "2026-02-15",
+        "date": "2026-02-16",
         "title": { "zh": "Qwen3.5 397B A17B 发布", "en": "Qwen3.5 397B A17B released" },
         "summary": {
           "zh": "Qwen3.5 首发的原生视觉语言开放权重模型。",
@@ -51290,13 +51412,13 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-35-397b"],
+        "sourceIds": ["s-history-qwen-35-397b", "s-qwen-release-news-reviewed-20261031"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-35-397b"
       },
       {
         "id": "t-family-history-qwen-36-27b",
-        "date": "2026-04-21",
+        "date": "2026-04-22",
         "title": { "zh": "Qwen3.6 27B 发布", "en": "Qwen3.6 27B released" },
         "summary": {
           "zh": "3.6 系列的 27B 稠密多模态开放权重版本。",
@@ -51324,15 +51446,18 @@
       },
       {
         "id": "t-family-history-qwen-36-max-preview",
-        "date": "2026-04-18",
-        "title": { "zh": "Qwen3.6 Max Preview 发布", "en": "Qwen3.6 Max Preview released" },
+        "date": "2026-04-14",
+        "title": {
+          "zh": "Qwen3.6 Max Preview 国际 API 上架",
+          "en": "Qwen3.6 Max Preview international API availability"
+        },
         "summary": {
-          "zh": "3.6 Max 的早期预览，补齐 3-Max 至 3.7-Max 的迭代。",
-          "en": "Qwen3.6 Max Preview is a documented historical release in the Qwen Max line."
+          "zh": "Qwen3.6 Max Preview 的官方博客公告日期为 2026-04-18；百炼记载国际地域 4 月 14 日上架、北京地域 4 月 20 日上架，不能合并为一个渠道日期。",
+          "en": "The Qwen3.6 Max Preview blog announcement is dated April 18, 2026; Model Studio records April 14 availability internationally and April 20 in Beijing, which are separate channel dates."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-36-max-preview"],
+        "sourceIds": ["s-history-qwen-36-max-preview", "s-specs-qwen-releases"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-36-max-preview"
       },
@@ -51360,21 +51485,21 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-35-plus"],
+        "sourceIds": ["s-history-qwen-35-plus", "s-specs-qwen-releases"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-35-plus"
       },
       {
         "id": "t-family-history-qwen-36-plus",
-        "date": "2026-04-02",
+        "date": "2026-04-01",
         "title": { "zh": "Qwen3.6 Plus 0402 发布", "en": "Qwen3.6 Plus 0402 released" },
         "summary": {
-          "zh": "官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-          "en": "Qwen3.6 Plus 0402 is a documented historical release in the Qwen Plus line."
+          "zh": "百炼上架记录为 2026-04-01；对应快照标识为 qwen3.6-plus-2026-04-02，快照日期与上架日期分开记录。",
+          "en": "Model Studio records hosted availability on April 1, 2026 for snapshot qwen3.6-plus-2026-04-02; the snapshot label is not the availability date."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-36-plus"],
+        "sourceIds": ["s-history-qwen-36-plus", "s-specs-qwen-releases"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-36-plus"
       },
@@ -51411,11 +51536,11 @@
       },
       {
         "id": "t-family-history-qwen-3-coder-next",
-        "date": "2026-02-02",
+        "date": "2026-02-03",
         "title": { "zh": "Qwen3 Coder Next 发布", "en": "Qwen3 Coder Next released" },
         "summary": {
-          "zh": "面向编程 Agent 与本地开发的开放权重代码模型。",
-          "en": "Qwen3 Coder Next is a documented historical release in the Qwen Coder line."
+          "zh": "官方渲染后的中英文发布公告均显示 2026-02-03；面向编程 Agent 与本地开发的开放权重代码模型。",
+          "en": "The rendered official announcement displays February 3, 2026 in both languages; this is the open-weight model for coding agents and local development."
         },
         "kind": "release",
         "dateKind": "release",
@@ -51461,7 +51586,7 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-qwen-35-flash"],
+        "sourceIds": ["s-history-qwen-35-flash", "s-specs-qwen-releases"],
         "confidence": "verified",
         "releaseEntityId": "e-qwen-35-flash"
       },
@@ -52150,7 +52275,7 @@
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-doubao-seed16"],
+        "sourceIds": ["s-history-doubao-seed16", "s-seed16-tech-reviewed-20261031"],
         "confidence": "verified",
         "releaseEntityId": "e-doubao-seed16"
       },
@@ -52173,12 +52298,12 @@
         "date": "2026-02-14",
         "title": { "zh": "Doubao Seed 2.0 Code 发布", "en": "Doubao Seed 2.0 Code released" },
         "summary": {
-          "zh": "Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
-          "en": "Doubao Seed 2.0 Code is a documented historical release in the Doubao Seed Code / Turbo line."
+          "zh": "Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
+          "en": "Seed2.0 Code launch; later Coding Plan migration targeted the distinct Seed2.1 Turbo model."
         },
         "kind": "release",
         "dateKind": "release",
-        "sourceIds": ["s-history-doubao-seed20-code"],
+        "sourceIds": ["s-history-doubao-seed20-code", "s-ark-coding-migrations-reviewed-20261031"],
         "confidence": "verified",
         "releaseEntityId": "e-doubao-seed20-code"
       },
@@ -52186,17 +52311,17 @@
         "id": "t-family-history-doubao-seed20-lite-0428",
         "date": "2026-04-28",
         "title": {
-          "zh": "Doubao Seed 2.0 Lite 0428 发布",
-          "en": "Doubao Seed 2.0 Lite 0428 released"
+          "zh": "Seed2.0 Lite 0428 版本记录（日期待核实）",
+          "en": "Seed2.0 Lite 0428 version record (date unconfirmed)"
         },
         "summary": {
-          "zh": "4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-          "en": "Doubao Seed 2.0 Lite 0428 is a documented historical release in the Doubao Seed Lite line."
+          "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+          "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
         },
-        "kind": "release",
-        "dateKind": "release",
+        "kind": "update",
+        "dateKind": null,
         "sourceIds": ["s-history-doubao-seed20-lite-0428"],
-        "confidence": "verified",
+        "confidence": "unverified",
         "releaseEntityId": "e-doubao-seed20-lite-0428"
       },
       {
@@ -52316,7 +52441,10 @@
             "en": "This is a phased plan; validate actual returned schemas."
           }
         },
-        "sourceIds": ["s-change-doubao-ark-schema-compatibility"],
+        "sourceIds": [
+          "s-change-doubao-ark-schema-compatibility",
+          "s-ark-schema-zh-reviewed-20261031"
+        ],
         "confidence": "verified"
       },
       {
@@ -52409,8 +52537,8 @@
           "en": "Doubao 2.0 Code joins Coding Plan"
         },
         "summary": {
-          "zh": "方舟 Coding Plan 增加 Seed 2.0 Code 接入。 适用范围：Coding Plan 订阅用户。",
-          "en": "Ark Coding Plan adds Seed 2.0 Code access. Scope: Coding Plan subscribers."
+          "zh": "Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
+          "en": "Seed2.0 Code launch; later Coding Plan migration targeted the distinct Seed2.1 Turbo model."
         },
         "kind": "update",
         "changeKind": "availability",
@@ -52433,7 +52561,7 @@
             "en": "Check quotas and coding-client configuration."
           }
         },
-        "sourceIds": ["s-change-doubao20-code-coding"],
+        "sourceIds": ["s-change-doubao20-code-coding", "s-ark-coding-migrations-reviewed-20261031"],
         "confidence": "verified"
       }
     ],
@@ -54797,7 +54925,7 @@
           "en": "Qwen3 Coder Plus: Coding and developer tools; review Model Studio model and regional capability."
         },
         "kind": "release",
-        "sourceIds": ["s-qwen-3-coder-plus-20261001"],
+        "sourceIds": ["s-qwen-3-coder-plus-20261001", "s-specs-qwen-releases"],
         "confidence": "verified",
         "dateKind": "release",
         "releaseEntityId": "e-qwen-coder-plus"
@@ -55404,13 +55532,13 @@
         "date": "2026-06-09",
         "title": { "zh": "Claude Fable 5 发布", "en": "Claude Fable 5 released" },
         "summary": {
-          "zh": "Fable 产品线首发；6 月 12 日暂停后于 7 月 1 日恢复，首次发布日期仍为 6 月 9 日。",
-          "en": "Claude Fable 5 is a documented historical release in the Claude Fable line."
+          "zh": "Fable 产品线首发；6 月 12 日暂停后，官方入口于 7 月 1 日恢复；云合作方重开时间另行安排，不能认定当日均已恢复，首发仍记为 6 月 9 日。",
+          "en": "Launch June 9, 2026; first-party access suspended June 12 and restored July 1, with cloud partners to be re-enabled separately."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-claude-fable-5"],
+        "sourceIds": ["s-history-claude-fable-5", "s-claude-fable5-redeployment-20260701"],
         "releaseEntityId": "e-claude-fable-5"
       }
     ],
@@ -56459,7 +56587,7 @@
     "e-qwen-3-next": [
       {
         "id": "t-history-qwen-3-next",
-        "date": "2025-09-10",
+        "date": "2025-09-11",
         "title": { "zh": "Qwen3 Next 80B A3B 发布", "en": "Qwen3 Next 80B A3B released" },
         "summary": {
           "zh": "Qwen3 Next 的混合注意力架构与开放权重迭代。",
@@ -56468,14 +56596,14 @@
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-3-next"],
+        "sourceIds": ["s-history-qwen-3-next", "s-qwen-release-news-reviewed-20261031"],
         "releaseEntityId": "e-qwen-3-next"
       }
     ],
     "e-qwen-35-397b": [
       {
         "id": "t-history-qwen-35-397b",
-        "date": "2026-02-15",
+        "date": "2026-02-16",
         "title": { "zh": "Qwen3.5 397B A17B 发布", "en": "Qwen3.5 397B A17B released" },
         "summary": {
           "zh": "Qwen3.5 首发的原生视觉语言开放权重模型。",
@@ -56484,14 +56612,14 @@
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-35-397b"],
+        "sourceIds": ["s-history-qwen-35-397b", "s-qwen-release-news-reviewed-20261031"],
         "releaseEntityId": "e-qwen-35-397b"
       }
     ],
     "e-qwen-36-27b": [
       {
         "id": "t-history-qwen-36-27b",
-        "date": "2026-04-21",
+        "date": "2026-04-22",
         "title": { "zh": "Qwen3.6 27B 发布", "en": "Qwen3.6 27B released" },
         "summary": {
           "zh": "3.6 系列的 27B 稠密多模态开放权重版本。",
@@ -56523,16 +56651,19 @@
     "e-qwen-36-max-preview": [
       {
         "id": "t-history-qwen-36-max-preview",
-        "date": "2026-04-18",
-        "title": { "zh": "Qwen3.6 Max Preview 发布", "en": "Qwen3.6 Max Preview released" },
+        "date": "2026-04-14",
+        "title": {
+          "zh": "Qwen3.6 Max Preview 国际 API 上架",
+          "en": "Qwen3.6 Max Preview international API availability"
+        },
         "summary": {
-          "zh": "3.6 Max 的早期预览，补齐 3-Max 至 3.7-Max 的迭代。",
-          "en": "Qwen3.6 Max Preview is a documented historical release in the Qwen Max line."
+          "zh": "Qwen3.6 Max Preview 的官方博客公告日期为 2026-04-18；百炼记载国际地域 4 月 14 日上架、北京地域 4 月 20 日上架，不能合并为一个渠道日期。",
+          "en": "The Qwen3.6 Max Preview blog announcement is dated April 18, 2026; Model Studio records April 14 availability internationally and April 20 in Beijing, which are separate channel dates."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-36-max-preview"],
+        "sourceIds": ["s-history-qwen-36-max-preview", "s-specs-qwen-releases"],
         "releaseEntityId": "e-qwen-36-max-preview"
       }
     ],
@@ -56564,23 +56695,23 @@
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-35-plus"],
+        "sourceIds": ["s-history-qwen-35-plus", "s-specs-qwen-releases"],
         "releaseEntityId": "e-qwen-35-plus"
       }
     ],
     "e-qwen-36-plus": [
       {
         "id": "t-history-qwen-36-plus",
-        "date": "2026-04-02",
+        "date": "2026-04-01",
         "title": { "zh": "Qwen3.6 Plus 0402 发布", "en": "Qwen3.6 Plus 0402 released" },
         "summary": {
-          "zh": "官方文档记载的 2026-04-02 快照；此日期指具体快照版本。",
-          "en": "Qwen3.6 Plus 0402 is a documented historical release in the Qwen Plus line."
+          "zh": "百炼上架记录为 2026-04-01；对应快照标识为 qwen3.6-plus-2026-04-02，快照日期与上架日期分开记录。",
+          "en": "Model Studio records hosted availability on April 1, 2026 for snapshot qwen3.6-plus-2026-04-02; the snapshot label is not the availability date."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-36-plus"],
+        "sourceIds": ["s-history-qwen-36-plus", "s-specs-qwen-releases"],
         "releaseEntityId": "e-qwen-36-plus"
       }
     ],
@@ -56622,11 +56753,11 @@
     "e-qwen-3-coder-next": [
       {
         "id": "t-history-qwen-3-coder-next",
-        "date": "2026-02-02",
+        "date": "2026-02-03",
         "title": { "zh": "Qwen3 Coder Next 发布", "en": "Qwen3 Coder Next released" },
         "summary": {
-          "zh": "面向编程 Agent 与本地开发的开放权重代码模型。",
-          "en": "Qwen3 Coder Next is a documented historical release in the Qwen Coder line."
+          "zh": "官方渲染后的中英文发布公告均显示 2026-02-03；面向编程 Agent 与本地开发的开放权重代码模型。",
+          "en": "The rendered official announcement displays February 3, 2026 in both languages; this is the open-weight model for coding agents and local development."
         },
         "kind": "release",
         "dateKind": "release",
@@ -56711,7 +56842,7 @@
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-doubao-seed16"],
+        "sourceIds": ["s-history-doubao-seed16", "s-seed16-tech-reviewed-20261031"],
         "releaseEntityId": "e-doubao-seed16"
       }
     ],
@@ -56737,13 +56868,13 @@
         "date": "2026-02-14",
         "title": { "zh": "Doubao Seed 2.0 Code 发布", "en": "Doubao Seed 2.0 Code released" },
         "summary": {
-          "zh": "Seed2.0 同期发布的专用 Code 模型；该分支后续新增 Turbo 版本。",
-          "en": "Doubao Seed 2.0 Code is a documented historical release in the Doubao Seed Code / Turbo line."
+          "zh": "Seed2.0 同期发布的专用 Code 模型；其方舟 Coding Plan 后续迁移目标为 Seed2.1 Turbo，不是同一型号。",
+          "en": "Seed2.0 Code launch; later Coding Plan migration targeted the distinct Seed2.1 Turbo model."
         },
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-doubao-seed20-code"],
+        "sourceIds": ["s-history-doubao-seed20-code", "s-ark-coding-migrations-reviewed-20261031"],
         "releaseEntityId": "e-doubao-seed20-code"
       }
     ],
@@ -56752,16 +56883,16 @@
         "id": "t-history-doubao-seed20-lite-0428",
         "date": "2026-04-28",
         "title": {
-          "zh": "Doubao Seed 2.0 Lite 0428 发布",
-          "en": "Doubao Seed 2.0 Lite 0428 released"
+          "zh": "Seed2.0 Lite 0428 版本记录（日期待核实）",
+          "en": "Seed2.0 Lite 0428 version record (date unconfirmed)"
         },
         "summary": {
-          "zh": "4 月底的 Lite 0428 更新，引入文本、图像、视频与音频的全模态理解。",
-          "en": "Doubao Seed 2.0 Lite 0428 is a documented historical release in the Doubao Seed Lite line."
+          "zh": "Seed2.0 Lite 0428 是官方概述列出的版本；官方称于 4 月底升级并加入文本、图像、视频和音频理解，精确首次可用日尚未核实。",
+          "en": "Seed2.0 Lite 0428 is a documented version upgraded in late April with text, image, video and audio understanding; its exact first-availability date remains unverified."
         },
-        "kind": "release",
-        "dateKind": "release",
-        "confidence": "verified",
+        "kind": "update",
+        "dateKind": null,
+        "confidence": "unverified",
         "sourceIds": ["s-history-doubao-seed20-lite-0428"],
         "releaseEntityId": "e-doubao-seed20-lite-0428"
       }
@@ -57379,7 +57510,7 @@
         "kind": "release",
         "dateKind": "release",
         "confidence": "verified",
-        "sourceIds": ["s-history-qwen-35-flash"],
+        "sourceIds": ["s-history-qwen-35-flash", "s-specs-qwen-releases"],
         "releaseEntityId": "e-qwen-35-flash"
       }
     ],
@@ -62773,7 +62904,7 @@
       },
       "kind": "updated",
       "confidence": "verified",
-      "sourceIds": ["s-change-doubao-ark-schema-compatibility"],
+      "sourceIds": ["s-ark-schema-zh-reviewed-20261031"],
       "detail": {
         "description": {
           "zh": "计划逐步兼容 developer role、规范 Responses 事件字段并默认返回加密推理。 适用范围：方舟适用 API；按型号核对，不代表豆包全部新增推理能力。",
@@ -63943,7 +64074,7 @@
       "summary": { "zh": "Claude Fable 5 发布", "en": "Claude Fable 5 released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-claude-fable-5"]
+      "sourceIds": ["s-history-claude-fable-5", "s-claude-fable5-redeployment-20260701"]
     },
     {
       "id": "change-event-t-change-gpt-web-search-images",
@@ -64426,18 +64557,6 @@
       }
     },
     {
-      "id": "change-release-e-doubao-seed20-lite-0428",
-      "entityId": "e-doubao-seed20-lite-0428",
-      "date": "2026-04-28",
-      "summary": {
-        "zh": "Doubao Seed 2.0 Lite 0428 发布",
-        "en": "Doubao Seed 2.0 Lite 0428 released"
-      },
-      "kind": "new",
-      "confidence": "verified",
-      "sourceIds": ["s-history-doubao-seed20-lite-0428"]
-    },
-    {
       "id": "change-release-e-gpt-55-pro",
       "entityId": "e-gpt-55-pro",
       "date": "2026-04-24",
@@ -64486,6 +64605,15 @@
       "sourceIds": ["s-hy3-release"]
     },
     {
+      "id": "change-release-e-qwen-36-27b",
+      "entityId": "e-qwen-36-27b",
+      "date": "2026-04-22",
+      "summary": { "zh": "Qwen3.6 27B 发布", "en": "Qwen3.6 27B released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-history-qwen-36-27b"]
+    },
+    {
       "id": "change-release-e-gemini-embedding-2",
       "entityId": "e-gemini-embedding-2",
       "date": "2026-04-22",
@@ -64493,15 +64621,6 @@
       "kind": "new",
       "confidence": "verified",
       "sourceIds": ["s-history-google-changelog"]
-    },
-    {
-      "id": "change-release-e-qwen-36-27b",
-      "entityId": "e-qwen-36-27b",
-      "date": "2026-04-21",
-      "summary": { "zh": "Qwen3.6 27B 发布", "en": "Qwen3.6 27B released" },
-      "kind": "new",
-      "confidence": "verified",
-      "sourceIds": ["s-history-qwen-36-27b"]
     },
     {
       "id": "change-release-e-gpt-image-2",
@@ -64574,15 +64693,6 @@
       }
     },
     {
-      "id": "change-release-e-qwen-36-max-preview",
-      "entityId": "e-qwen-36-max-preview",
-      "date": "2026-04-18",
-      "summary": { "zh": "Qwen3.6 Max Preview 发布", "en": "Qwen3.6 Max Preview released" },
-      "kind": "new",
-      "confidence": "verified",
-      "sourceIds": ["s-history-qwen-36-max-preview"]
-    },
-    {
       "id": "change-release-e-claude-opus-47",
       "entityId": "e-claude-opus-47",
       "date": "2026-04-16",
@@ -64626,6 +64736,18 @@
       }
     },
     {
+      "id": "change-release-e-qwen-36-max-preview",
+      "entityId": "e-qwen-36-max-preview",
+      "date": "2026-04-14",
+      "summary": {
+        "zh": "Qwen3.6 Max Preview 国际 API 上架",
+        "en": "Qwen3.6 Max Preview international API availability"
+      },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-history-qwen-36-max-preview", "s-specs-qwen-releases"]
+    },
+    {
       "id": "change-release-e-gemini-robotics-er-16",
       "entityId": "e-gemini-robotics-er-16",
       "date": "2026-04-14",
@@ -64637,11 +64759,11 @@
     {
       "id": "change-release-e-qwen-36-plus",
       "entityId": "e-qwen-36-plus",
-      "date": "2026-04-02",
+      "date": "2026-04-01",
       "summary": { "zh": "Qwen3.6 Plus 0402 发布", "en": "Qwen3.6 Plus 0402 released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-36-plus"]
+      "sourceIds": ["s-history-qwen-36-plus", "s-specs-qwen-releases"]
     },
     {
       "id": "change-release-e-minimax-m2-7",
@@ -64805,7 +64927,7 @@
       "summary": { "zh": "Qwen3.5 Flash 0223 发布", "en": "Qwen3.5 Flash 0223 released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-flash"]
+      "sourceIds": ["s-history-qwen-35-flash", "s-specs-qwen-releases"]
     },
     {
       "id": "change-release-e-gpt-realtime-15",
@@ -64869,22 +64991,22 @@
       "sourceIds": ["s-history-claude-sonnet-46"]
     },
     {
+      "id": "change-release-e-qwen-35-397b",
+      "entityId": "e-qwen-35-397b",
+      "date": "2026-02-16",
+      "summary": { "zh": "Qwen3.5 397B A17B 发布", "en": "Qwen3.5 397B A17B released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-history-qwen-35-397b", "s-qwen-release-news-reviewed-20261031"]
+    },
+    {
       "id": "change-release-e-qwen-35-plus",
       "entityId": "e-qwen-35-plus",
       "date": "2026-02-15",
       "summary": { "zh": "Qwen3.5 Plus 发布", "en": "Qwen3.5 Plus released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-plus"]
-    },
-    {
-      "id": "change-release-e-qwen-35-397b",
-      "entityId": "e-qwen-35-397b",
-      "date": "2026-02-15",
-      "summary": { "zh": "Qwen3.5 397B A17B 发布", "en": "Qwen3.5 397B A17B released" },
-      "kind": "new",
-      "confidence": "verified",
-      "sourceIds": ["s-history-qwen-35-397b"]
+      "sourceIds": ["s-history-qwen-35-plus", "s-specs-qwen-releases"]
     },
     {
       "id": "change-release-e-doubao-seed20-pro",
@@ -64920,7 +65042,7 @@
       "summary": { "zh": "Doubao Seed 2.0 Code 发布", "en": "Doubao Seed 2.0 Code released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-doubao-seed20-code"]
+      "sourceIds": ["s-history-doubao-seed20-code", "s-ark-coding-migrations-reviewed-20261031"]
     },
     {
       "id": "change-event-t-change-doubao20-code-coding",
@@ -65035,7 +65157,7 @@
     {
       "id": "change-release-e-qwen-3-coder-next",
       "entityId": "e-qwen-3-coder-next",
-      "date": "2026-02-02",
+      "date": "2026-02-03",
       "summary": { "zh": "Qwen3 Coder Next 发布", "en": "Qwen3 Coder Next released" },
       "kind": "new",
       "confidence": "verified",
@@ -65318,11 +65440,11 @@
     {
       "id": "change-release-e-qwen-3-next",
       "entityId": "e-qwen-3-next",
-      "date": "2025-09-10",
+      "date": "2025-09-11",
       "summary": { "zh": "Qwen3 Next 80B A3B 发布", "en": "Qwen3 Next 80B A3B released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-qwen-3-next"]
+      "sourceIds": ["s-history-qwen-3-next", "s-qwen-release-news-reviewed-20261031"]
     },
     {
       "id": "change-release-e-ernie-x11-generation",
@@ -65455,7 +65577,7 @@
       "summary": { "zh": "Qwen3 Coder Plus 发布", "en": "Qwen3 Coder Plus released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-qwen-3-coder-plus-20261001"]
+      "sourceIds": ["s-specs-qwen-releases"]
     },
     {
       "id": "change-release-e-gemini-25-flash-lite",
@@ -65536,7 +65658,7 @@
       "summary": { "zh": "Doubao Seed 1.6 发布", "en": "Doubao Seed 1.6 released" },
       "kind": "new",
       "confidence": "verified",
-      "sourceIds": ["s-history-doubao-seed16"]
+      "sourceIds": ["s-seed16-tech-reviewed-20261031"]
     },
     {
       "id": "change-release-e-gemini-25-pro",

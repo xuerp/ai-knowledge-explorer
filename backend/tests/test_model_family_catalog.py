@@ -157,8 +157,9 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     seed = KnowledgeRepository(SEED).load_seed()
     expected = catalog_changes(seed)
     # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
-    assert len(catalog_release_changes(seed)) == 203
-    assert len(expected) == 284
+    # The unconfirmed Lite 0428 date stays in the catalog without a release card.
+    assert len(catalog_release_changes(seed)) == 202
+    assert len(expected) == 283
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -335,6 +336,42 @@ def test_gemini_video_limit_uses_direct_current_source_instead_of_unqualified_ho
     assert not source.published_at
 
 
+def test_reviewed_release_dates_keep_snapshots_channels_and_unknowns_distinct():
+    snapshot = KnowledgeRepository(SEED).load_seed()
+    entities = {entity.id: entity for entity in snapshot.entities}
+    claims = {claim.id: claim for claim in snapshot.claims}
+    changes = {change.entity_id: change for change in catalog_release_changes(snapshot)}
+    for eid, date in (
+        ("e-qwen-3-next", "2025-09-11"),
+        ("e-qwen-35-397b", "2026-02-16"),
+        ("e-qwen-36-27b", "2026-04-22"),
+        ("e-qwen-3-coder-next", "2026-02-03"),
+        ("e-qwen-36-plus", "2026-04-01"),
+        ("e-qwen-36-max-preview", "2026-04-14"),
+    ):
+        assert entities[eid].first_released_at == date
+        assert entities[eid].release.released_at == date
+        assert changes[eid].date == date
+        for owner in (eid, entities[eid].family_id):
+            event = next(e for e in snapshot.timeline[owner] if e.release_entity_id == eid)
+            assert event.date == date and event.source_ids
+    assert "snapshot label" in claims["c-history-qwen-36-plus"].text.en
+    assert claims["c-history-qwen-36-max-preview"].predicate == "announced-on"
+    assert claims["c-history-qwen-36-max-preview"].valid_from == "2026-04-18"
+    lite = entities["e-doubao-seed20-lite-0428"]
+    assert lite.first_released_at is None and lite.release.released_at is None
+    assert claims["c-history-doubao-seed20-lite-0428"].confidence == "unverified"
+    assert lite.id not in changes
+    for owner in (lite.id, lite.family_id):
+        event = next(e for e in snapshot.timeline[owner] if e.release_entity_id == lite.id)
+        assert event.confidence == "unverified" and event.kind == "update"
+    fable = claims["c-history-claude-fable-5"]
+    assert "s-claude-fable5-redeployment-20260701" in fable.source_ids
+    for owner in (fable.entity_id, "e-claude"):
+        event = next(e for e in snapshot.timeline[owner] if e.release_entity_id == fable.entity_id)
+        assert "s-claude-fable5-redeployment-20260701" in event.source_ids
+
+
 def test_gemini_october_lifecycle_preserves_history_and_identifies_replacements():
     snapshot = KnowledgeRepository(SEED).load_seed()
     entities = {entity.id: entity for entity in snapshot.entities}
@@ -472,7 +509,7 @@ def test_openai_api_lifecycles_preserve_releases_and_separate_gpt4o_snapshots():
                 availability = next(i.en for i in section.items if i.en.startswith("availability:"))
                 assert availability == "availability: " + entity.specs.availability
     assert entities["e-gpt-41-nano"].release.released_at == "2025-04-14"
-    assert len(catalog_release_changes(snapshot)) == 203
+    assert len(catalog_release_changes(snapshot)) == 202
     gpt4o = entities["e-gpt-4o"]
     assert gpt4o.release.stage == "deprecated"
     assert gpt4o.release.retirement_not_before == "2027-01-14"

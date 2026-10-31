@@ -4303,6 +4303,688 @@
           "supportsClaimIds": ["c-history-gpt-realtime-1"]
         }
       ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The cited catalog explicitly limits these common capabilities to its latest models. Preserve the imported record and qualify scope instead of asserting every historical or specialized OpenAI model supports them. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "expectedClaim": {
+        "id": "claim-9b3c19e22e97060d95c0",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI models 支持视觉能力。",
+          "en": "OpenAI models support vision.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9b3c19e22e97060d95c0"],
+        "updatedAt": "2026-09-13",
+        "subject": "OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "vision",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-9b3c19e22e97060d95c0",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI 当前模型目录说明：其最新模型支持视觉能力；此概述不适用于所有历史或专用模型。",
+          "en": "The current OpenAI catalog describes vision for its latest models; this overview does not cover every historical or specialized model.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9b3c19e22e97060d95c0"],
+        "updatedAt": "2026-10-31",
+        "subject": "Latest OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "vision",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-9b3c19e22e97060d95c0",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.462637+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9b3c19e22e97060d95c0"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-9b3c19e22e97060d95c0",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.462637+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9b3c19e22e97060d95c0"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The cited catalog explicitly limits these common capabilities to its latest models. Preserve the imported record and qualify scope instead of asserting every historical or specialized OpenAI model supports them. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "expectedClaim": {
+        "id": "claim-b0b807cfd36c1bf471b0",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI models 支持多语言能力。",
+          "en": "OpenAI models support multilingual capabilities.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-b0b807cfd36c1bf471b0"],
+        "updatedAt": "2026-09-13",
+        "subject": "OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "multilingual capabilities",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-b0b807cfd36c1bf471b0",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI 当前模型目录说明：其最新模型支持多语言能力；此概述不适用于所有历史或专用模型。",
+          "en": "The current OpenAI catalog describes multilingual capabilities for its latest models; this overview does not cover every historical or specialized model.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-b0b807cfd36c1bf471b0"],
+        "updatedAt": "2026-10-31",
+        "subject": "Latest OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "multilingual capabilities",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-b0b807cfd36c1bf471b0",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.551990+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-b0b807cfd36c1bf471b0"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-b0b807cfd36c1bf471b0",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.551990+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-b0b807cfd36c1bf471b0"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The cited catalog explicitly limits these common capabilities to its latest models. Preserve the imported record and qualify scope instead of asserting every historical or specialized OpenAI model supports them. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "expectedClaim": {
+        "id": "claim-8a35df216c87709ce1ff",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI models 支持文本输出。",
+          "en": "OpenAI models support text output.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8a35df216c87709ce1ff"],
+        "updatedAt": "2026-09-13",
+        "subject": "OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "text output",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-8a35df216c87709ce1ff",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI 当前模型目录说明：其最新模型支持文本输出；此概述不适用于所有历史或专用模型。",
+          "en": "The current OpenAI catalog describes text output for its latest models; this overview does not cover every historical or specialized model.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8a35df216c87709ce1ff"],
+        "updatedAt": "2026-10-31",
+        "subject": "Latest OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "text output",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-8a35df216c87709ce1ff",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.637749+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8a35df216c87709ce1ff"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-8a35df216c87709ce1ff",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.637749+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8a35df216c87709ce1ff"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The cited catalog explicitly limits these common capabilities to its latest models. Preserve the imported record and qualify scope instead of asserting every historical or specialized OpenAI model supports them. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "expectedClaim": {
+        "id": "claim-5b94391fd4f16f0c008d",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI models 支持文本和图像输入。",
+          "en": "OpenAI models support text and image input.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5b94391fd4f16f0c008d"],
+        "updatedAt": "2026-09-13",
+        "subject": "OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "text and image input",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-5b94391fd4f16f0c008d",
+        "entityId": "e-openai",
+        "text": {
+          "zh": "OpenAI 当前模型目录说明：其最新模型支持文本和图像输入；此概述不适用于所有历史或专用模型。",
+          "en": "The current OpenAI catalog describes text and image input for its latest models; this overview does not cover every historical or specialized model.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-5b94391fd4f16f0c008d"],
+        "updatedAt": "2026-10-31",
+        "subject": "Latest OpenAI models",
+        "predicate": "supports",
+        "objectOrValue": "text and image input",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-5b94391fd4f16f0c008d",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.665091+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-5b94391fd4f16f0c008d"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-5b94391fd4f16f0c008d",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.665091+00:00",
+          "sourceExcerpt": "All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-5b94391fd4f16f0c008d"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "Scope the documented example separately from the minimum Python requirement; do not turn a sample command into a product constraint. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "expectedClaim": {
+        "id": "claim-9126d607ce60c9861365",
+        "entityId": "e-autogen",
+        "text": {
+          "zh": "autogen 环境使用 python=3.12。",
+          "en": "The autogen environment uses python=3.12.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9126d607ce60c9861365"],
+        "updatedAt": "2026-09-14",
+        "subject": "autogen",
+        "predicate": "uses-python-version",
+        "objectOrValue": "python=3.12",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-9126d607ce60c9861365",
+        "entityId": "e-autogen",
+        "text": {
+          "zh": "AutoGen 安装文档的可选 Conda 示例使用 python=3.12；文档列出的最低要求为 Python 3.10，并非必须使用 3.12。",
+          "en": "The optional Conda example in the AutoGen installation guide uses python=3.12; the documented minimum is Python 3.10, so 3.12 is not mandatory.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-9126d607ce60c9861365"],
+        "updatedAt": "2026-10-31",
+        "subject": "autogen",
+        "predicate": "installation-example-python-version",
+        "objectOrValue": "python=3.12",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-9126d607ce60c9861365",
+          "title": {
+            "zh": "AutoGen 官方安装文档",
+            "en": "AutoGen 官方安装文档"
+          },
+          "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+          "publisher": "Microsoft",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:16:34.706806+00:00",
+          "sourceExcerpt": "conda create -n autogen python=3.12",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9126d607ce60c9861365"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-9126d607ce60c9861365",
+          "title": {
+            "zh": "AutoGen 官方安装文档",
+            "en": "AutoGen 官方安装文档"
+          },
+          "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+          "publisher": "Microsoft",
+          "publishedAt": "",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:16:34.706806+00:00",
+          "sourceExcerpt": "conda create -n autogen python=3.12",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-9126d607ce60c9861365"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The environment name belongs to the optional installation example and is not a required global setup. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "expectedClaim": {
+        "id": "claim-8f4fb8e8feb9ae16bfcb",
+        "entityId": "e-autogen",
+        "text": {
+          "zh": "conda 创建名为 autogen 的环境。",
+          "en": "conda creates an environment named autogen.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8f4fb8e8feb9ae16bfcb"],
+        "updatedAt": "2026-09-14",
+        "subject": "conda",
+        "predicate": "creates-environment",
+        "objectOrValue": "autogen",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-14"
+      },
+      "correctedClaim": {
+        "id": "claim-8f4fb8e8feb9ae16bfcb",
+        "entityId": "e-autogen",
+        "text": {
+          "zh": "AutoGen 安装文档的可选 Conda 示例将环境命名为 autogen；这是示例名称，并非固定要求。",
+          "en": "The optional Conda example in the AutoGen installation guide names its environment autogen; this is an example name, not a fixed requirement.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-8f4fb8e8feb9ae16bfcb"],
+        "updatedAt": "2026-10-31",
+        "subject": "AutoGen installation example",
+        "predicate": "example-environment-name",
+        "objectOrValue": "autogen",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-8f4fb8e8feb9ae16bfcb",
+          "title": {
+            "zh": "AutoGen 官方安装文档",
+            "en": "AutoGen 官方安装文档"
+          },
+          "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+          "publisher": "Microsoft",
+          "publishedAt": "2026-09-14",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:16:34.790055+00:00",
+          "sourceExcerpt": "conda activate autogen",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8f4fb8e8feb9ae16bfcb"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-8f4fb8e8feb9ae16bfcb",
+          "title": {
+            "zh": "AutoGen 官方安装文档",
+            "en": "AutoGen 官方安装文档"
+          },
+          "url": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+          "publisher": "Microsoft",
+          "publishedAt": "",
+          "collectedAt": "2026-09-14",
+          "verifiedAt": "2026-09-14T13:16:34.790055+00:00",
+          "sourceExcerpt": "conda activate autogen",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-8f4fb8e8feb9ae16bfcb"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "Add the exact model reference because the current general catalog no longer lists this retired model; preserve the original catalog citation. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://developers.openai.com/api/docs/models/codex-mini-latest",
+      "expectedClaim": {
+        "id": "claim-f0903927231c6e160a2f",
+        "entityId": "e-codex",
+        "text": {
+          "zh": "codex-mini-latest 针对 Codex CLI 进行了优化。",
+          "en": "codex-mini-latest is optimized for the Codex CLI.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-f0903927231c6e160a2f"],
+        "updatedAt": "2026-09-13",
+        "subject": "codex-mini-latest",
+        "predicate": "optimized-for",
+        "objectOrValue": "Codex CLI",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-13"
+      },
+      "correctedClaim": {
+        "id": "claim-f0903927231c6e160a2f",
+        "entityId": "e-codex",
+        "text": {
+          "zh": "codex-mini-latest 是为 Codex CLI 优化的历史模型；官方型号页现已标记为停用。",
+          "en": "codex-mini-latest was optimized for Codex CLI; its official model-specific reference now marks it as shut down.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-f0903927231c6e160a2f", "s-codex-mini-model-reviewed-20261031"],
+        "updatedAt": "2026-10-31",
+        "subject": "codex-mini-latest",
+        "predicate": "historical-optimized-for",
+        "objectOrValue": "Codex CLI",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-f0903927231c6e160a2f",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "2026-09-13",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.434753+00:00",
+          "sourceExcerpt": "- [codex-mini-latest](/api/docs/models/codex-mini-latest.md): Fast reasoning model optimized for the Codex CLI",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-f0903927231c6e160a2f"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-codex-mini-model-reviewed-20261031",
+          "title": {
+            "zh": "codex-mini-latest 历史模型说明",
+            "en": "codex-mini-latest historical model reference"
+          },
+          "url": "https://developers.openai.com/api/docs/models/codex-mini-latest",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-31",
+          "verifiedAt": "2026-10-31",
+          "sourceExcerpt": "The model-specific reference describes a Codex CLI optimized o4-mini variant and marks this model as shut down.",
+          "sourceExcerptKind": "summary",
+          "originalLanguage": "en",
+          "type": "official"
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-f0903927231c6e160a2f",
+          "title": {
+            "zh": "OpenAI 模型目录",
+            "en": "OpenAI 模型目录"
+          },
+          "url": "https://developers.openai.com/api/docs/models.md",
+          "publisher": "OpenAI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-13",
+          "verifiedAt": "2026-09-13T07:00:19.434753+00:00",
+          "sourceExcerpt": "- [codex-mini-latest](/api/docs/models/codex-mini-latest.md): Fast reasoning model optimized for the Codex CLI",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-f0903927231c6e160a2f"],
+          "contradictsClaimIds": null
+        }
+      ]
+    },
+    {
+      "reviewedAt": "2026-10-31",
+      "reason": "The old API homepage now focuses on K3/K3.1. Add the stable model-specific K2.6 guide while preserving the original captured homepage. The collection date is not a documented publication date; retain it as collection metadata and leave publication unknown.",
+      "sourceUrl": "https://platform.kimi.com/docs/guide/kimi-k2-6-quickstart",
+      "expectedClaim": {
+        "id": "claim-549fe7c102ba1b5978ba",
+        "entityId": "e-kimi-k26",
+        "text": {
+          "zh": "Kimi K2.6 支持视觉和文本输入。",
+          "en": "Kimi K2.6 supports vision and text input.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-549fe7c102ba1b5978ba"],
+        "updatedAt": "2026-09-16",
+        "subject": "Kimi K2.6",
+        "predicate": "supports-input",
+        "objectOrValue": "vision and text input",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-09-15"
+      },
+      "correctedClaim": {
+        "id": "claim-549fe7c102ba1b5978ba",
+        "entityId": "e-kimi-k26",
+        "text": {
+          "zh": "Kimi K2.6 支持视觉和文本输入。",
+          "en": "Kimi K2.6 supports vision and text input.",
+          "technical": null
+        },
+        "confidence": "verified",
+        "sourceIds": ["evidence-549fe7c102ba1b5978ba", "s-kimi-k2-6-20261001"],
+        "updatedAt": "2026-10-31",
+        "subject": "Kimi K2.6",
+        "predicate": "supports-input",
+        "objectOrValue": "vision and text input",
+        "validFrom": null,
+        "validTo": null,
+        "observedAt": "2026-10-31"
+      },
+      "expectedEvidence": [
+        {
+          "id": "evidence-549fe7c102ba1b5978ba",
+          "title": {
+            "zh": "Kimi API 平台与最新模型目录",
+            "en": "Kimi API 平台与最新模型目录"
+          },
+          "url": "https://platform.kimi.ai",
+          "publisher": "Moonshot AI",
+          "publishedAt": "2026-09-15",
+          "collectedAt": "2026-09-15",
+          "verifiedAt": "2026-09-16T00:50:06.744400+00:00",
+          "sourceExcerpt": "Kimi K2.6 is a general-purpose model supporting vision and text input, thinking and non-thinking modes, conversations and coding agent tasks, with a 256k-token context window.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-549fe7c102ba1b5978ba"],
+          "contradictsClaimIds": null
+        },
+        {
+          "id": "s-kimi-k2-6-20261001",
+          "title": {
+            "zh": "Kimi K2.6 官方型号文档",
+            "en": "Kimi K2.6 官方型号文档"
+          },
+          "url": "https://platform.kimi.com/docs/guide/kimi-k2-6-quickstart",
+          "publisher": "Moonshot AI",
+          "publishedAt": "",
+          "collectedAt": "2026-10-01",
+          "verifiedAt": "2026-10-01",
+          "sourceExcerpt": "K2.6 supports text, image and video input, thinking modes and general agents.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": "en",
+          "type": "official",
+          "supportsClaimIds": ["c-kimi-k2-6-catalog-review"],
+          "contradictsClaimIds": null
+        }
+      ],
+      "correctedEvidence": [
+        {
+          "id": "evidence-549fe7c102ba1b5978ba",
+          "title": {
+            "zh": "Kimi API 平台与最新模型目录",
+            "en": "Kimi API 平台与最新模型目录"
+          },
+          "url": "https://platform.kimi.ai",
+          "publisher": "Moonshot AI",
+          "publishedAt": "",
+          "collectedAt": "2026-09-15",
+          "verifiedAt": null,
+          "sourceExcerpt": "Kimi K2.6 is a general-purpose model supporting vision and text input, thinking and non-thinking modes, conversations and coding agent tasks, with a 256k-token context window.",
+          "sourceExcerptKind": "unclassified",
+          "originalLanguage": null,
+          "type": "official",
+          "supportsClaimIds": ["claim-549fe7c102ba1b5978ba"],
+          "contradictsClaimIds": null
+        }
+      ]
     }
   ],
   "reviewer": "Codex source comparison; not an independent human audit"

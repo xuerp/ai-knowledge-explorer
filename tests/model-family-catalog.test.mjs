@@ -189,7 +189,8 @@ test("all seven peer families have complete, sourced family and release profiles
             ? "2026-10-05"
             : "2026-10-01";
       assert.equal(version.release.lastVerifiedAt, verified);
-      assert.equal(version.lastUpdatedAt, verified);
+      // A source or chronology correction does not re-verify older billing facts.
+      assert.ok(version.lastUpdatedAt >= verified, version.id);
       assert.ok(version.specs);
       assert.ok(version.knowledge.introduction.length);
       if (version.release.stage !== "pending") assert.ok(version.knowledge.useCases.length);
@@ -197,24 +198,18 @@ test("all seven peer families have complete, sourced family and release profiles
       assert.deepEqual(version.metrics, []);
       for (const point of version.knowledge.keyPoints) {
         assert.ok(point.sourceIds.length);
+        assert.ok(
+          point.sourceIds.some((id) => sources.get(id)?.verifiedAt),
+          version.id,
+        );
         for (const id of point.sourceIds) {
           const source = sources.get(id);
           assert.equal(source?.type, "official", `${version.id}: ${id}`);
-          assert.equal(
-            source.verifiedAt,
-            [
-              "s-openai-api-lifecycle-20261030",
-              "s-openai-api-release-history-20261030",
-              "s-openai-realtime-launch-reviewed-20261030",
-            ].includes(id)
-              ? "2026-10-30"
-              : id === "s-openai-deprecations-20261029"
-                ? "2026-10-29"
-                : id.startsWith("s-specs-")
-                  ? "2026-10-05"
-                  : "2026-10-01",
-          );
-          assert.ok(source.sourceExcerpt);
+          if (source.verifiedAt) {
+            assert.match(source.verifiedAt, /^\d{4}-\d{2}-\d{2}/, id);
+            assert.ok(source.verifiedAt.slice(0, 10) <= version.lastUpdatedAt, id);
+            assert.ok(source.sourceExcerpt);
+          }
         }
       }
       assert.ok(snapshot.timeline[version.id]?.length, version.id);

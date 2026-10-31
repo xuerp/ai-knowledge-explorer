@@ -7,12 +7,12 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 | Model           | Tier   | Releases | Product lines | Timeline | Capabilities | Limitations | Releases with pricing | Releases with access | Relations | Official sources |
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
 | GPT family      | anchor |       40 |            17 |       75 |            3 |           3 |                    40 |                   16 |        51 |               69 |
-| Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               39 |
+| Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               40 |
 | Gemini family   | anchor |       54 |            12 |       65 |            3 |           3 |                    32 |                   35 |        57 |               46 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
-| Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    7 |        28 |               36 |
+| Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    7 |        28 |               37 |
 | Kimi            | core   |        8 |             2 |       13 |            3 |           3 |                     8 |                    4 |        11 |               23 |
-| Doubao          | core   |       11 |             5 |       16 |            3 |           3 |                    10 |                    4 |        14 |               20 |
+| Doubao          | core   |       11 |             5 |       15 |            3 |           3 |                    10 |                    4 |        14 |               23 |
 | ERNIE Bot       | core   |       16 |             4 |       17 |            3 |           3 |                    14 |                   12 |        18 |               21 |
 
 ## Zero-count dimensions
@@ -65,14 +65,14 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Qwen            | Qwen Max                      |       5 |               5 |                 5 | 2025-01-28 → 2026-09-02 |
 | Qwen            | Qwen Plus                     |       4 |               4 |                 4 | 2025-04-29 → 2026-05-26 |
 | Qwen            | Qwen Flash                    |       3 |               3 |                 3 | 2025-08-01 → 2026-08-26 |
-| Qwen            | Qwen Coder                    |       3 |               3 |                 3 | 2024-11-12 → 2026-02-02 |
+| Qwen            | Qwen Coder                    |       3 |               3 |                 3 | 2024-11-12 → 2026-02-03 |
 | Qwen            | Qwen Omni                     |       3 |               3 |                 3 | 2025-03-27 → 2026-09-17 |
 | Qwen            | Qwen 开放模型 / Open models   |       7 |               7 |                 7 | 2024-09-19 → 2026-08-17 |
 | Kimi            | Kimi K general flagship       |       6 |               6 |                 6 | 2025-07-11 → 2026-07-16 |
 | Kimi            | Kimi Code                     |       2 |               1 |                 1 | 2026-06-12 → 2026-06-12 |
 | Doubao          | Doubao Seed 通用 / General    |       2 |               2 |                 2 | 2025-06-25 → 2025-12-18 |
 | Doubao          | Doubao Seed Pro               |       3 |               3 |                 3 | 2025-01-22 → 2026-06-23 |
-| Doubao          | Doubao Seed Lite              |       3 |               2 |                 2 | 2026-02-14 → 2026-04-28 |
+| Doubao          | Doubao Seed Lite              |       3 |               1 |                 1 | 2026-02-14 → 2026-02-14 |
 | Doubao          | Doubao Seed Code / Turbo      |       2 |               2 |                 2 | 2026-02-14 → 2026-06-23 |
 | Doubao          | Doubao Seed Mini              |       1 |               1 |                 1 | 2026-02-14 → 2026-02-14 |
 | ERNIE Bot       | ERNIE 开放权重 / Open weights |       4 |               4 |                 4 | 2025-06-30 → 2025-06-30 |
