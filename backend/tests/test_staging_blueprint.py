@@ -60,7 +60,8 @@ def test_cloudflare_cron_is_the_primary_automation_schedule() -> None:
     config = json.loads((cron_root / "wrangler.json").read_text(encoding="utf-8"))
     worker = (cron_root / "worker.mjs").read_text(encoding="utf-8")
 
-    assert config["triggers"]["crons"] == ["*/30 * * * *"]
+    # Process-only keepalive is separate from the unchanged automation cadence.
+    assert config["triggers"]["crons"] == ["*/5 * * * *", "*/30 * * * *"]
     assert "/api/v2/automation/run-cycle" in worker
     assert '"X-Automation-Token"' in worker
 
