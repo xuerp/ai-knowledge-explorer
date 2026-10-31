@@ -1,3 +1,4 @@
+import { projectHomeOverview, type HomeOverview } from "@/domain/home-overview";
 import type {
   DataMode,
   Claim,
@@ -36,6 +37,7 @@ export interface EntityClaimPage {
 export interface KnowledgeRepository {
   mode: DataMode;
   getSnapshot: (signal?: AbortSignal) => Promise<KnowledgeSnapshot>;
+  getHomeOverview: (signal?: AbortSignal) => Promise<HomeOverview>;
   getEntities: (query?: EntityQuery, signal?: AbortSignal) => Promise<Entity[]>;
   getEntityBySlug: (
     slug: string,
@@ -73,6 +75,10 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
 
   async getSnapshot() {
     return loadOfflineSnapshot();
+  }
+
+  async getHomeOverview() {
+    return projectHomeOverview(await this.getSnapshot());
   }
 
   async getEntities(query: EntityQuery = {}) {
@@ -190,6 +196,13 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
     const snapshot = await this.request<KnowledgeSnapshot | null>("/api/v2/snapshot", {}, signal);
     if (!snapshot) throw new Error("Knowledge snapshot is unavailable");
     return snapshot;
+  }
+
+  async getHomeOverview(signal?: AbortSignal) {
+    const overview = await this.request<HomeOverview | null>("/api/v2/home", {}, signal);
+    // Older deployments may not expose the smaller endpoint during rollout.
+    // Only a genuine 404 uses the same API's full public data, never an offline fixture.
+    return overview ?? projectHomeOverview(await this.getSnapshot(signal));
   }
 
   getEntities(query: EntityQuery = {}, signal?: AbortSignal) {

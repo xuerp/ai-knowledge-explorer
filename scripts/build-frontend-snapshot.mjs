@@ -38,7 +38,7 @@ try {
     await writeFile(output, expected);
   } else {
     const actual = await readFile(output, "utf8").catch(() => "");
-    if (actual !== expected) {
+    if (actual.replace(/\r\n/g, "\n") !== expected.replace(/\r\n/g, "\n")) {
       throw new Error("Frontend snapshot is stale. Run npm run generate:frontend-snapshot.");
     }
   }

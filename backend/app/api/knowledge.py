@@ -12,6 +12,7 @@ from ..entry_requests import (
     EntryRequestReceipt,
     create_entry_request,
 )
+from ..home_overview import HomeOverview, build_home_overview
 from ..repository import OPEN_REVIEW_STATUSES
 from ..schemas import (
     BusinessQualityMetrics,
@@ -42,6 +43,11 @@ def submit_entry_request(
 @router.get("/api/v2/snapshot", response_model=KnowledgeSnapshot)
 def snapshot(services: ServicesDependency, session: SessionDependency) -> KnowledgeSnapshot:
     return services.get_public_snapshot(session)
+
+
+@router.get("/api/v2/home", response_model=HomeOverview)
+def home_overview(services: ServicesDependency, session: SessionDependency) -> HomeOverview:
+    return build_home_overview(services.get_public_snapshot(session))
 
 
 @router.get("/api/quality/metrics", response_model=QualityMetrics)

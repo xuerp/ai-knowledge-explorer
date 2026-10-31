@@ -6,6 +6,7 @@ import { knowledgeRepository, type EntityQuery } from "@/services/knowledge-repo
 export const knowledgeKeys = {
   all: ["knowledge"] as const,
   snapshot: () => [...knowledgeKeys.all, "snapshot"] as const,
+  home: () => [...knowledgeKeys.all, "home"] as const,
   entities: (query: EntityQuery) => [...knowledgeKeys.all, "entities", query] as const,
   modelFamilies: () => [...knowledgeKeys.all, "model-families"] as const,
   familyVersions: (familyId: string) =>
@@ -41,6 +42,15 @@ export function useKnowledgeSnapshot() {
     online,
     unavailableKind: query.error ? (online ? "error" : "offline") : "loading",
   } as const;
+}
+
+export function useHomeOverview() {
+  return useQuery({
+    queryKey: knowledgeKeys.home(),
+    queryFn: ({ signal }) => knowledgeRepository.getHomeOverview(signal),
+    staleTime: knowledgeRepository.mode === "demo" ? Infinity : 60_000,
+    retry: knowledgeRepository.mode === "demo" ? false : 2,
+  });
 }
 
 export function useEntities(query: EntityQuery = {}) {

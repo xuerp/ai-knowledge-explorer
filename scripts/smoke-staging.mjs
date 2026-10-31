@@ -84,7 +84,7 @@ async function expectProxyJson(fetchImpl, label, url, init, expectedStatus) {
 export async function verifyWorkerProxy({ proxyRoot, direct, fetchImpl = fetch }) {
   const proxy = proxyRoot.replace(/\/$/, "");
 
-  const [health, ready, snapshot] = await Promise.all([
+  const [health, ready, snapshot, home] = await Promise.all([
     expectProxyJson(
       fetchImpl,
       "GET",
@@ -106,6 +106,13 @@ export async function verifyWorkerProxy({ proxyRoot, direct, fetchImpl = fetch }
       { headers: { Accept: "application/json" } },
       200,
     ),
+    expectProxyJson(
+      fetchImpl,
+      "GET",
+      `${proxy}/api/v2/home`,
+      { headers: { Accept: "application/json" } },
+      200,
+    ),
   ]);
   if (health.ok !== true || ready.ok !== true) {
     throw new Error("经 Worker 代理的健康检查或就绪检查未返回 ok=true。");
@@ -120,6 +127,13 @@ export async function verifyWorkerProxy({ proxyRoot, direct, fetchImpl = fetch }
     throw new Error(
       `经 Worker 代理读到 ${snapshot.entities?.length ?? 0} 个实体，直连为 ${direct.snapshot.entities.length} 个。`,
     );
+  }
+  if (
+    home.entityCount !== snapshot.entities.length ||
+    home.claimCount !== snapshot.claims.length ||
+    home.sourcedClaimCount !== snapshot.claims.filter((claim) => claim.sourceIds.length > 0).length
+  ) {
+    throw new Error("首页概览与同一 API 的完整公开快照数量不一致。");
   }
 
   // HEAD and POST take different Worker/cache paths than GET.
@@ -171,6 +185,10 @@ export async function runStagingSmokeTest({
   }
   if (!Array.isArray(snapshot.entities) || snapshot.entities.length === 0) {
     throw new Error("公开快照没有可读取的实体数据。");
+  }
+  const homepageHtml = await frontendResponse.text();
+  if (!/<h1[\s>]/i.test(homepageHtml) || !homepageHtml.includes('href="/ask"')) {
+    throw new Error("首页 HTML 缺少服务端渲染的产品标题或决策助手入口。");
   }
 
   const corsResponse = await request(fetchImpl, `${apiRoot}/ready`, {
