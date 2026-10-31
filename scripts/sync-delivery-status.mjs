@@ -9,6 +9,7 @@ const start = "<!-- delivery-status:start -->";
 const end = "<!-- delivery-status:end -->";
 const block = [
   start,
+  "",
   "## 当前项目进度",
   "",
   `记录更新：${status.updatedAt}。${status.summary.zh}。`,

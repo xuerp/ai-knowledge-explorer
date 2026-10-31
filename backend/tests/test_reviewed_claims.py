@@ -83,6 +83,38 @@ def test_added_citation_is_guarded_and_future_source_edits_win():
     assert next(claim for claim in snapshot.claims if claim.id == cid) == original
 
 
+def test_installation_examples_and_catalog_overviews_keep_their_documented_scope():
+    snapshot = reviewed_snapshot()
+    apply_reviewed_claims(snapshot, CORRECTIONS)
+    claims = {claim.id: claim for claim in snapshot.claims}
+    python = claims["claim-9126d607ce60c9861365"]
+    assert "optional Conda example" in python.text.en
+    assert "minimum is Python 3.10" in python.text.en
+    assert "not mandatory" in python.text.en
+    environment = claims["claim-8f4fb8e8feb9ae16bfcb"]
+    assert "example name, not a fixed requirement" in environment.text.en
+    for cid in (
+        "claim-9b3c19e22e97060d95c0",
+        "claim-b0b807cfd36c1bf471b0",
+        "claim-8a35df216c87709ce1ff",
+        "claim-5b94391fd4f16f0c008d",
+    ):
+        assert claims[cid].subject == "Latest OpenAI models"
+        assert "does not cover every historical or specialized model" in claims[cid].text.en
+    codex = claims["claim-f0903927231c6e160a2f"]
+    assert "shut down" in codex.text.en
+    assert "s-codex-mini-model-reviewed-20261031" in codex.source_ids
+    assert "s-kimi-k2-6-20261001" in claims["claim-549fe7c102ba1b5978ba"].source_ids
+    sources = {source.id: source for source in snapshot.evidence}
+    for cid in (
+        "claim-9b3c19e22e97060d95c0",
+        "claim-9126d607ce60c9861365",
+        "claim-f0903927231c6e160a2f",
+    ):
+        source = sources[claims[cid].source_ids[0]]
+        assert not source.published_at and source.collected_at
+
+
 def test_missing_archive_correction_preserves_a_later_administrator_capture():
     snapshot = reviewed_snapshot()
     cid = "c-gemini-4-not-released"
