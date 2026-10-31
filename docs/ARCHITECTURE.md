@@ -132,7 +132,7 @@ flowchart LR
 ## 部署结构
 
 - 本地开发：SQLite + Vite + Uvicorn。
-- 在线预发布：Cloudflare Workers 前端 + Render Free FastAPI + Cloudflare Cron + Neon PostgreSQL；Cron 每 30 分钟调用受保护的单周期接口并对 Render 冷启动执行有限重试，GitHub Actions 只保留 `workflow_dispatch` 手动直连 Neon 的应急入口。
+- 在线预发布：Cloudflare Workers 前端 + Render Free FastAPI + Cloudflare Cron + Neon PostgreSQL；Cron 每 5 分钟直连轻量 `/health` 防止闲置休眠，每 30 分钟调用受保护的单周期接口。保活不访问数据库、不执行采集或模型调用；自动化请求保留有限重试。GitHub Actions 只保留 `workflow_dispatch` 手动直连 Neon 的应急入口。
 - Docker 容器启动前执行 `alembic upgrade head`。
 - CI 同时验证 SQLite 与 PostgreSQL 迁移、前端构建、后端测试和种子同步。
 - 线上保持 `AI_RADAR_DATA_MODE=demo`，只有正式数据质量门槛通过后才允许切换 `live`。
