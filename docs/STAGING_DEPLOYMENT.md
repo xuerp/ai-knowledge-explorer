@@ -82,8 +82,11 @@ try {
 ```bash
 AI_RADAR_SMOKE_API_URL=https://你的API地址 \
 AI_RADAR_SMOKE_FRONTEND_URL=https://你的前端地址 \
+AI_RADAR_SMOKE_PROXY_URL=https://你的前端地址/backend \
 bun run smoke:staging
 ```
+
+`AI_RADAR_SMOKE_PROXY_URL`（可选）额外经前端 Worker 的同域 `/backend` 代理检查 GET、HEAD、POST；浏览器只走这条路径，不直接访问 API 地址。未设置时跳过，行为与之前一致。
 
 数据质量看板使用公开只读接口 `/api/quality/metrics`（兼容别名 `/api/v2/quality/metrics`）。业务指标在请求时从当前数据库轻量聚合，并写入自己的 `updatedAt`；固定集评估从随版本部署的 `backend/data/quality_evaluation.json` 读取，使用独立 `updatedAt`。评估文件只在每日评估窗口或检索策略变更后由 `scripts/publish_quality_metrics.py` 生成，不能放入每 30 分钟的自动化周期，也不能在页面请求时调用 Embedding provider。
 
