@@ -51,4 +51,4 @@
 
 内容修正与获取检查是不同结果。本记录不宣称 309 个成功获取的 URL 已全部完成语义审核。
 
-来源：[Google 官方发布日志](https://ai.google.dev/gemini-api/docs/changelog)、[Gemini 4 Argon 官方型号页](https://ai.google.dev/gemini-api/docs/models/gemini-4-argon)、[Cursor 官方文档](https://cursor.com/docs)。历史逐条检查见[完整目录核实记录](CATALOG_VERIFICATION_20261026.md)。
+来源：[Google 官方发布日志](https://ai.google.dev/gemini-api/docs/changelog)、[Gemini 4 Argon 官方型号页](https://ai.google.dev/gemini-api/docs/models/gemini-4-argon)、[Cursor 官方文档](https://cursor.com/docs)。当前验证范围见[项目验证记录](VALIDATION.md)。

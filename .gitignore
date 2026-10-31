@@ -62,13 +62,15 @@ snapshot_test.*
 
 # Raw historical run receipts may include local account or supplier details.
 /docs/*.xml
+/docs/*.log
+/docs/archive/
+/docs/**/*_ACCEPTANCE_*.md
 /docs/*.json
 !/docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json
 !/docs/model-spec-enrichment-20261005.json
 !/docs/reference-catalog-enrichment.json
 !/docs/ecosystem-runtime-audit.json
 !/docs/reference-runtime-audit.json
-!/docs/publication-scope-20261014.json
 /docs/CCSUB_*
 /docs/ACTIVE_TIME_BUDGET_*
 /HANDOFF_SUMMARY.md

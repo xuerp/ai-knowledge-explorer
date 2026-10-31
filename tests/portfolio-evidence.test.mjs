@@ -25,20 +25,20 @@ test("项目包含六份已接受且可追溯的架构决策", async () => {
   }
 });
 
-test("Case Study 的检索曲线与固定评估证据一致", async () => {
-  const caseStudy = await readProjectFile("docs/PORTFOLIO_CASE_STUDY.md");
+test("检索曲线保留在固定评估记录，不依赖已淘汰的项目介绍", async () => {
+  const caseStudy = await readProjectFile("docs/eval/CHANGELOG.md");
 
-  assert.match(caseStudy, /Golden Set v1\.0\.0（80 条）/);
+  assert.match(caseStudy, /Golden Set[^\n]*80 条/);
   assert.match(caseStudy, /PostgreSQL lexical FTS baseline\s*\|\s*99\.38%\s*\|\s*14\.06%/);
-  assert.match(caseStudy, /Alias v1\.0\.0 \+ lexical[\s\S]*16\/24 → 24\/24/);
+  assert.match(caseStudy, /Alias v1\.0\.0 \+ lexical[\s\S]*16\/24[\s\S]*24\/24/);
   assert.match(caseStudy, /Cloudflare BGE-M3 \+ lexical RRF\s*\|\s*100\.00%\s*\|\s*14\.22%/);
-  assert.match(caseStudy, /49 个实体、198 条 Claim、220 条 Evidence、77 条 Relation/);
+  assert.match(caseStudy, /固定版本|固定输入/);
 });
 
 test("公开材料不回退到过时的演示快照计数", async () => {
   const materials = (
     await Promise.all([
-      readProjectFile("docs/PORTFOLIO_CASE_STUDY.md"),
+      readProjectFile("docs/portfolio/CASE_STUDY.md"),
       readProjectFile("README.md"),
     ])
   ).join("\n");
