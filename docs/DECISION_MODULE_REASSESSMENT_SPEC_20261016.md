@@ -35,7 +35,7 @@
 | 来源维护成为用户必须完成的步骤 | `decision-verdict.ts` needs-evidence 下一步 | 缺项属于系统覆盖边界；维护入口为次级工具 |
 | 一个容器承载结论、选择、私人试用和审计 | `src/components/research/DecisionBrief.tsx` | 主建议、按需行动区、依据抽屉分工，保留共享数据 |
 | 试用说明、任务包、记录容易被误认成核心功能 | `DecisionTrialKit.tsx`、`DecisionValidationPanel.tsx`、`DecisionApiTrial.tsx` | 先解释建议和用法，用户选择验证后再进入试用 |
-| 测试证明命中预期，未证明产品回答有用 | `docs/archive/DECISION_FIRST_USE_ACCEPTANCE_20261016.md` | 增加未参与调规则的任务、交互成本与答案质量验收 |
+| 测试证明命中预期，未证明产品回答有用 | `backend/tests/test_decision_first_use.py` | 增加未参与调规则的任务、交互成本与答案质量验收 |
 
 截图未包含原始输入，因此不能断言该条请求原本足够明确。实施复现时保存真实输入、结构化条件、返回状态和版本；不得为复现效果编造原题。以上定位来自当前源代码及用户反馈，不宣称已做全量生产数据调查。
 

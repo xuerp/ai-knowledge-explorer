@@ -4,12 +4,10 @@
 
 - 状态：当前唯一项目收尾执行清单
 - 更新时间：2026-09-21
-- 工作分支：`codex/productionize`
-- 产品功能验收基线：`f0976baa9baccf203387f17598fcb03c84b57825`
 - 数据模式：`demo`
 - 适用环境：staging；当前没有已验收的正式 production 环境
 
-本文件定义剩余工作的顺序、授权边界和验收条件。历史设计、评估报告和 ADR 只能提供证据，不能覆盖本文件与 `AI_RADAR_IMPROVEMENT_SPEC_V2_EXECUTION.md` 的红线。
+本文件定义剩余工作的顺序、授权边界和验收条件。历史设计、评估报告和 ADR 只能提供相应版本的依据，不能替代当前验收。当前实现和运行状态见[项目验证记录](portfolio/VALIDATION.md)。
 
 产品设计目标、页面结构和体验原则以 `../PRODUCT_ROADMAP.md` 的“产品设计规划”为准；本文件只负责把它转化为可执行工作包和验收证据。若两者冲突，以本文件的安全顺序、数据边界和上线门禁为准。
 
@@ -23,49 +21,6 @@
 6. 每个写操作必须有：只读预检、精确目标、并发版本、有限批次、结果核对和真实回滚方式。
 7. 保留用户无关改动；禁止 force push、rebase、amend 或 squash 已推送历史。
 8. 一项节点只有在验收证据实际生成后才能完成，不能以“代码已写”“已发起部署”代替完成。
-
-## 2. 已归档核实基线
-
-### 2.1 运行状态
-
-| 项目                   | 2026-09-21 已核实事实                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------- |
-| 功能验收基线           | `f0976baa9baccf203387f17598fcb03c84b57825`                                                   |
-| GitHub Quality         | #326 全绿；frontend、backend、deploy-staging 均通过                                          |
-| Staging acceptance     | #42 全绿；双端完整 SHA 匹配并完成 smoke                                                      |
-| Render                 | `/ready` 返回 200，commit `f0976baa9baccf203387f17598fcb03c84b57825`，schema `20260905_0023` |
-| Cloudflare             | 不可变 `/releases/<sha>.txt` 返回完整 commit `f0976baa9baccf203387f17598fcb03c84b57825`      |
-| 只读审计工具           | `1384439dd2170b9983eaf99b0b3d6723b70f44fe`；Quality #328、Staging acceptance #44 全绿        |
-| 公开快照               | 49 Entity / 150 Claim / 171 Evidence / 71 Relation / 55 Timeline / 15 Change                 |
-| 最近一次管理员数据质量 | Evidence 引用覆盖率 100%，核心关系缺口 41                                                    |
-| 核心实体               | 16 个低于最近一次管理员审计的关系覆盖门槛                                                    |
-| 检索                   | Hybrid，Cloudflare `@cf/baai/bge-m3`，固定 80 条评估通过率 100%                              |
-| 审核                   | 最近一次管理员审计 open 0；批准与拒绝记录保留                                                |
-| 关系批次               | `2026-09-core-relations-02` 完成 4/4；1 Candidate、1 Duplicate、0 自动批准                   |
-
-### 2.2 已完成能力
-
-- Candidate / Verified Claim 隔离、Evidence Anchor、冲突与语义去重。
-- PostgreSQL、Alembic 单一 head、JWT/RBAC、审核并发保护和审计日志。
-- Lexical、Alias、Cloudflare Hybrid、预算限制和安全 lexical fallback。
-- 数据质量、审核统计、生产预检、故障场景和部署 Runbook。
-- 关系批次按授权预算执行，未自动批准 Relation。
-- 本地前端门禁通过：格式、ESLint、TypeScript、112 项契约测试、Core Model 覆盖检查和 production build 全绿。
-- 本地后端门禁通过：Ruff、196 项 pytest；SQLite 空库可升级到 `20260905_0023 (head)`，`alembic check` 无模型漂移。
-- 结构化决策输入、证据绑定输出、冲突/证据不足拒答、刷新/分享恢复和普通用户诊断脱敏已落地。
-- 390px 浏览器验收无横向溢出，表单字号满足移动端要求，Evidence 锚点可定位，控制台无新增错误。
-
-### 2.3 当前阻塞项
-
-1. `admin_token.txt` 已从仓库 tip 移除并加入忽略规则；旧静态管理员令牌在运行时禁用，仅接受 JWT。历史提交仍包含文件记录，历史改写不在本轮授权范围内。
-2. GitHub Secret Scanning 已启用；2026-09-21 只读复核显示 0 个未解决 Secret。
-3. 产品功能基线 `f0976baa9baccf203387f17598fcb03c84b57825` 已通过 GitHub Quality #326、Cloudflare staging、Render staging 和 Staging acceptance #42。
-4. 后续只读审计工具提交 `1384439dd2170b9983eaf99b0b3d6723b70f44fe` 已通过 Quality #328 与 Staging acceptance #44；验收日志严格匹配双端完整 SHA，并完成 smoke。
-5. 登录态实时研究、Evidence 定位、Compare 恢复、发布分享和 390px staging 用户流程已完成真实浏览器验收。
-6. 管理员 JWT 只读核验已完成：自动抽取关闭、关系自动批准为 0；开放审核已清零。
-7. GitHub Actions 手动单周期 #1 已成功，但平台未投递任何 `schedule` 事件；定时职责已切回 Cloudflare Cron，GitHub 仅保留 `workflow_dispatch` 手动回退。
-8. Cloudflare Cron 已于 2026-09-11 07:31:04（UTC+8）成功触发 `*/30 * * * *`；后端记录 `automation-cycle-succeeded`，周期 ID 为 `07a11297-bb55-48d5-ad9d-9d6034cd22d9`，E4.1 已完成。
-9. 本次上线明确采用 Outbox 模式，邮件外部投递延期，不再作为自动阻塞项；未配置时生产预检必须显示警告且不得伪装已发送。Live Gate 仍受数据质量门禁约束；`demo` 是门禁通过前必须保持的安全状态，作为切换警告而非自动阻塞项。当前也未定义正式 production 环境与责任人。
 
 ## 3. 完成定义
 

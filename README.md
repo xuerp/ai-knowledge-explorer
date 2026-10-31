@@ -75,7 +75,7 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 - **数据状态**：当前预发布 API 标记为 `demo` / `cached`。它是已有知识快照，不是已经验收的实时全量采集服务。
 - **待完成**：全量来源内容、时效和生命周期核实，更多选型场景，持续采集到审核发布的闭环，以及邮件实际送达。
 
-本次更名见[网址迁移记录](docs/DOMAIN_MIGRATION_20261028.md)。完整依据见[研究流程复验](docs/portfolio/WORKFLOW_VERIFICATION_20261029.md)与[验证记录](docs/portfolio/VALIDATION.md)。
+完整依据见[研究流程复验](docs/portfolio/WORKFLOW_VERIFICATION_20261029.md)与[验证记录](docs/portfolio/VALIDATION.md)。
 
 ## 本地运行
 
@@ -142,7 +142,7 @@ backend/app/         API、采集、知识查询与研究逻辑
 backend/migrations/  数据库迁移
 backend/tests/       后端测试
 tests/               前端与数据契约测试
-docs/                架构、运行及验证文档；archive/ 保存历史记录
+docs/                架构、运行指南、当前验证与固定评测基线
 ```
 
 ```bash
@@ -160,7 +160,7 @@ python -m pytest tests
 
 </details>
 
-历史实施与验证记录见 [docs/archive](docs/archive/README.md)，不代表当前状态。
+历史实施与发布记录可从 Git 历史查询；运行回执不进入文档目录。
 
 [架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [运行指南](docs/portfolio/WALKTHROUGH.md) · [文档索引](docs/README.md)
 

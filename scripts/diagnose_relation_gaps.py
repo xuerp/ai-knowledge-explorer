@@ -225,7 +225,7 @@ def main() -> None:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=REPO_ROOT / "docs/eval/results",
+        default=REPO_ROOT / "artifacts/relation-diagnosis",
     )
     args = parser.parse_args()
 

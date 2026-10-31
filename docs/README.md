@@ -31,12 +31,11 @@
 
 当前状态统一来自 `product/delivery-status.json`，由 `npm run sync:delivery-status` 同步到公开说明。代码实现、测试、线上部署和业务效果分别报告。
 
-## 历史资料与生成产物
+## 固定评测与生成产物
 
-- [历史实施与验证记录](archive/README.md)：按日期保留，非当前状态；归档不改变原报告的验证范围。
-- [历史评估](eval/)：保留原始快照、配置和结果，仅用于相应版本的复现。
+- [固定评估](eval/)：供现行测试、CI 和架构决策复现使用，不代表当前线上准确率。
 - `DECISION_SEMANTIC_FROZEN_12H_20261007.json` 与 `model-spec-enrichment-20261005.json` 是现行测试输入，保留原路径，不作为运行日志归档。
 
-原始运行回执写入被 Git 忽略的 `artifacts/` 或 CI artifacts。只有经检查、不含私人数据且有持续复核价值的报告才进入文档；不新建 `FINAL`、`V2_FINAL` 等重复状态文件。
+临时运行结果写入被 Git 忽略的 `artifacts/` 或 CI artifacts，使用完清理。历史实施与发布记录通过 Git 历史查询，不再另存逐批验收、交接或 `FINAL` 文档。
 
 文档不能授予外部操作权限。用户当前明确要求优先；运行和授权仍以实际配置及明确授权为准。
