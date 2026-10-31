@@ -36,3 +36,8 @@ jobs:
         env:
           AI_RADAR_SMOKE_API_URL: https://ai-radar-api-staging.onrender.com
           AI_RADAR_SMOKE_FRONTEND_URL: https://ai-radar.xue-ai.workers.dev
+          # The browser reaches the API only through this same-origin Worker proxy;
+          # checking it directly (not just the API) is what would have caught the
+          # 2026-10-30 incident where Workers Cache broke GET/HEAD through it while
+          # the API and the frontend page both stayed healthy.
+          AI_RADAR_SMOKE_PROXY_URL: https://ai-radar.xue-ai.workers.dev/backend
