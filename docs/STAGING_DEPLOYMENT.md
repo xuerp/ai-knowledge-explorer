@@ -19,9 +19,11 @@
 - PostgreSQL 由 Neon Free 提供，连接串仅填写在 Render Secret 中。
 - 前端部署到 `ai-radar.你的子域名.workers.dev`。
 
-预发布环境保持 `AI_RADAR_DATA_MODE=demo`。API 使用 Render Free，自动任务由 Cloudflare Cron 每 30 分钟调用专用单周期端点；Worker 内置有限重试，用于吸收 Render 冷启动。GitHub Actions 仅保留手动直连 Neon 的应急入口，不配置 `schedule`，避免双调度。管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
+预发布环境保持 `AI_RADAR_DATA_MODE=demo`。API 使用 Render Free；Cloudflare Cron 每 5 分钟直连 `/health` 防止闲置休眠，每 30 分钟调用专用自动化单周期端点。两类事件分别分发，保活不查询数据库、不携带自动化令牌、不执行采集或模型调用。GitHub Actions 仅保留手动直连 Neon 的应急入口，不配置 `schedule`，避免双调度。管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
 
-Render 免费 API 空闲后会休眠，首次访问可能需要约一分钟唤醒；免费实例也不能通过 `25`、`465`、`587` 端口发送 SMTP。Neon 免费数据库通过公网 TLS 连接，不能把连接串写入仓库、前端变量或聊天。
+Render 免费 API 连续 15 分钟没有入站请求会休眠；五分钟保活用于避免正常闲置触发这项限制。服务部署、平台重启、调度故障或免费额度耗尽仍可能导致等待或不可用；保活不提供付费常驻实例的可用性保证。工作区每月共享 750 个免费实例小时，一个服务连续运行 31 天使用 744 小时；若同工作区还有其他免费 Web 服务，需要共同核算额度。[Render 免费实例限制](https://render.com/docs/free)。
+
+免费实例也不能通过 `25`、`465`、`587` 端口发送 SMTP。Neon 免费数据库通过公网 TLS 连接，不能把连接串写入仓库、前端变量或聊天。
 
 ## 2. 创建 Neon 数据库
 
@@ -123,7 +125,17 @@ Cloudflare Cron 是 staging 的主调度器。GitHub `schedule` 曾在工作流�
    pnpm dlx wrangler@4 deploy --config ops/cloudflare-cron/wrangler.json
    ```
 
-Cron 配置每 30 分钟运行一次。PostgreSQL advisory lock、15 分钟周期租约以及信源和邮件自身的持久租约共同阻止并发重复执行。Worker 对 Render 冷启动相关的网络错误及 429/502/503/504 最多尝试三次；下一次定时周期会继续接管。
+Cron 同时注册 `*/5 * * * *`（进程保活）与 `*/30 * * * *`（自动化），不能通过提高采集频率代替保活。保活直连 Render 的 `/health`、禁用缓存和重定向、最多等待 90 秒，并要求 JSON 的 `ok=true`；Render 启动 HTML 或错误状态不会被算作成功。`backend-keepalive-started/succeeded/failed` 日志与自动化周期日志分开记录。现有 Worker Secret 在常规代码部署时保留。调度器变更按以上 Wrangler 步骤单独发布并核对 Cron；网站仍由 Quality 检查通过后自动部署。部署凭据只具备网站权限时，使用已登录的控制台发布调度器，不能因此扩大令牌权限或开启公开路由。
+
+自动化仍每 30 分钟执行一次。PostgreSQL advisory lock、15 分钟周期租约以及信源和邮件自身的持久租约共同阻止并发重复执行。自动化请求对网络错误及 429/502/503/504 最多尝试三次；下一次定时周期会继续接管。
+
+保活变更的验收范围：
+
+- 检查五分钟事件只请求 `/health`，半小时事件才调用自动化，凭据不进入保活请求；
+- 在隔离的 Worker 运行时验证事件分发与健康响应判断；
+- 核对线上两项 Cron 表达式、部署版本和实际成功日志；
+- 连续观察超过 15 分钟后再测页面及 API，期间不以人工请求代替定时保活；
+- 核对 GET/HEAD/POST 同域代理，保活不能改变鉴权、缓存或业务请求行为。
 
 ### GitHub Actions 手动回退
 

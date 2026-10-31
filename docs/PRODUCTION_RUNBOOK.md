@@ -1,6 +1,6 @@
 # AI Radar 生产运行手册
 
-本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render Free API、Cloudflare Cron 周期任务、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 每 30 分钟调用一次受保护的单周期接口，GitHub Actions 仅保留 `workflow_dispatch` 手动回退。自定义域名、外部监控和备份恢复演练仍需单独验收；邮件外部投递延期，当前采用 Outbox 模式。
+本文档记录仓库内能够复现的生产部署步骤。当前预发布环境使用 Cloudflare Workers 前端、Render Free API、Cloudflare Cron 周期任务、Neon PostgreSQL 和结构化抽取供应商；Cloudflare Cron 每 5 分钟直连 `/health` 防止闲置休眠，每 30 分钟调用一次受保护的单周期接口。保活不查询数据库、不执行采集或模型调用；平台重启和额度耗尽仍可能中断服务，详见 [预发布部署与验收](STAGING_DEPLOYMENT.md#5-启用-cloudflare-cron-并保留-github-手动回退)。GitHub Actions 仅保留 `workflow_dispatch` 手动回退。自定义域名、外部监控和备份恢复演练仍需单独验收；邮件外部投递延期，当前采用 Outbox 模式。
 
 ## 1. 准备环境变量与密钥
 

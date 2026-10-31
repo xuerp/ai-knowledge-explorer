@@ -211,7 +211,7 @@ flowchart LR
 
 本次上线范围采用 Outbox 模式：摘要生成、持久化和重试状态可验证，外部邮件送达延期且不阻塞上线。后续启用时应选择 HTTPS 邮件 API、验证发件域名，并单独完成受控投递验收。
 
-staging 自动化由 Cloudflare Cron 每 30 分钟调用 Render 的专用单周期端点；GitHub Actions 只保留 `workflow_dispatch`，用于人工应急直连 Neon。两条路径都不依赖 Render 常驻 Worker 或管理员登录令牌。数据库 advisory lock、周期租约、信源租约和幂等键共同防止重复运行。自动抽取保持为 0，关系不能自动批准。
+staging 自动化由 Cloudflare Cron 每 30 分钟调用 Render 的专用单周期端点；独立的五分钟事件仅直连 `/health`，防止 API 闲置休眠，不访问数据库、不执行采集或模型调用。GitHub Actions 只保留 `workflow_dispatch`，用于人工应急直连 Neon。两条自动化路径都不依赖 Render 常驻 Worker 或管理员登录令牌。数据库 advisory lock、周期租约、信源租约和幂等键共同防止重复运行。自动抽取保持为 0，关系不能自动批准。
 
 ## 6. 代码到 staging 的交付闭环
 

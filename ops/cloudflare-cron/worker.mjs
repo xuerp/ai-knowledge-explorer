@@ -10,6 +10,69 @@ export function normalizeApiBaseUrl(value) {
 }
 
 const TRANSIENT_STATUS_CODES = new Set([429, 502, 503, 504]);
+const KEEPALIVE_CRON = "*/5 * * * *";
+const AUTOMATION_CRON = "*/30 * * * *";
+
+// This path only checks the process. It must not query Neon, run collection,
+// call a model, or carry the automation credential.
+export async function keepBackendAwake(env, fetchImpl = fetch) {
+  const apiBaseUrl = normalizeApiBaseUrl(env.AI_RADAR_API_BASE_URL);
+  const startedAt = Date.now();
+  const response = await fetchImpl(`${apiBaseUrl}/health`, {
+    method: "GET",
+    headers: { Accept: "application/json", "Cache-Control": "no-cache" },
+    cache: "no-store",
+    redirect: "manual",
+    signal: AbortSignal.timeout(90_000),
+  });
+  if (!response.ok) {
+    throw new Error(`Backend health returned ${response.status}.`);
+  }
+  // Render's startup HTML and a cached/proxied 200 are not proof of health.
+  let health;
+  try {
+    health = await response.json();
+  } catch {
+    throw new Error("Backend health did not return valid JSON.");
+  }
+  if (health?.ok !== true) {
+    throw new Error("Backend health response did not confirm readiness of the process.");
+  }
+  return { ok: true, elapsedMs: Date.now() - startedAt, buildCommit: health.buildCommit ?? null };
+}
+
+export function enqueueKeepAlive(
+  controller,
+  env,
+  context,
+  keepAlive = keepBackendAwake,
+  logger = console,
+) {
+  logger.log(
+    JSON.stringify({
+      event: "backend-keepalive-started",
+      cron: controller.cron,
+      scheduledAt: new Date(controller.scheduledTime).toISOString(),
+    }),
+  );
+  const task = keepAlive(env)
+    .then((result) => {
+      logger.log(JSON.stringify({ ...result, event: "backend-keepalive-succeeded" }));
+      return result;
+    })
+    .catch((error) => {
+      logger.error(
+        JSON.stringify({
+          event: "backend-keepalive-failed",
+          error:
+            error instanceof Error ? error.message.slice(0, 500) : "Backend health request failed.",
+        }),
+      );
+      throw error;
+    });
+  context.waitUntil(task);
+  return task;
+}
 
 function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -101,7 +164,13 @@ export function enqueueAutomationCycle(
 
 export default {
   scheduled(controller, env, context) {
-    enqueueAutomationCycle(controller, env, context);
+    if (controller.cron === KEEPALIVE_CRON) {
+      enqueueKeepAlive(controller, env, context);
+    } else if (controller.cron === AUTOMATION_CRON) {
+      enqueueAutomationCycle(controller, env, context);
+    } else {
+      throw new Error(`Unsupported scheduler expression: ${controller.cron}`);
+    }
   },
 
   async fetch(request) {

@@ -69,7 +69,7 @@ envVarGroups:
       - key: AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS
         value: "900"
       - key: AI_RADAR_WORKER_STALE_SECONDS
-        # Cloudflare Cron 每 30 分钟执行一次；容忍 Render 冷启动和网络重试后再判定调度异常。
+        # 自动化仍每 30 分钟一次，独立的五分钟 /health 保活不计作采集心跳。
         value: "5400"
 
 services:
