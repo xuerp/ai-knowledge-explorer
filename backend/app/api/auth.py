@@ -11,6 +11,7 @@ from ..database import (
 from ..schemas import (
     BootstrapUser,
     LoginRequest,
+    RegistrationRequest,
     TokenResponse,
     UserCreate,
     UserView,
@@ -106,7 +107,7 @@ def logout(
     status_code=status.HTTP_201_CREATED,
 )
 def register(
-    services: ServicesDependency, payload: BootstrapUser, session: SessionDependency
+    services: ServicesDependency, payload: RegistrationRequest, session: SessionDependency
 ) -> TokenResponse:
     if not services.auth.enabled:
         raise HTTPException(
