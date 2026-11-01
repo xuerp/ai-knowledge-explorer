@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-31",
+  "updatedAt": "2026-11-01",
   "summary": {
     "zh": "内测与整体验收进行中，尚未达到稳定正式版",
     "en": "Internal testing and full acceptance in progress; not yet a stable release"
@@ -47,8 +47,8 @@
         "en": "Claims and evidence separated; quotations, summaries and unclassified text distinguished."
       },
       "verified": {
-        "zh": "固定快照的 489 条事实记录已逐项比对来源，补正日期、渠道范围与引用；原记录和未知项保留。持续时效、缺证关系及独立复核仍待完成。",
-        "en": "All 489 claim records in the fixed snapshot have received source comparison, with date, channel-scope and citation corrections. Original records and unknowns remain. Ongoing freshness, unsupported relations and independent review are still open."
+        "zh": "固定快照的 489 条事实记录已逐项比对来源，原记录和未知项保留。原 7 条缺证关系中 3 条补上限定范围的原始依据，4 条仍待核实；持续时效与独立复核仍待完成。",
+        "en": "All 489 claim records in the fixed snapshot received source comparison; original records and unknowns remain. Three of seven unsupported relations now have scoped primary support; four remain unverified. Ongoing freshness and independent review remain open."
       }
     },
     {
@@ -75,8 +75,8 @@
         "en": "README, usage guides, project introduction and validation records."
       },
       "verified": {
-        "zh": "前后端已统一从 main 发布；README 与页面共用进度记录，目录修正继续按对应版本发布复验。",
-        "en": "Frontend and backend deploy from main. README and pages share the status record; catalog corrections continue to receive version-specific release verification."
+        "zh": "前后端统一从 main 发布，页面与文档共用进度。独立五分钟健康调度已部署；约 22 分钟实际观察中，初次唤醒约 52 秒，随后四次定时健康请求为 260–312 毫秒。此观察不保证免费平台持续在线。",
+        "en": "Frontend and backend deploy from main; pages and documents share this status. A separate five-minute health schedule is deployed. In an approximately 22-minute observation, the first wake took about 52 seconds and the following four scheduled health requests took 260–312 ms. This does not guarantee free-platform uptime."
       }
     }
   ]

@@ -404,10 +404,10 @@ def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tm
     reviewed = {"r1", "r3", "r7", "r8", "r9", "r11", "r19", "r20", "r21", "r30", "r43"}
     assert reviewed <= edges.keys()
     assert all("s-openai-gpt5" not in edge.source_ids for edge in edges.values())
-    for edge_id in ("r3", "r7", "r8", "r19", "r20", "r30", "r43"):
+    for edge_id in ("r3", "r19", "r30", "r43"):
         assert edges[edge_id].confidence == "unverified"
         assert edges[edge_id].source_ids == []
-    for edge_id in ("r1", "r9", "r11", "r21"):
+    for edge_id in ("r1", "r7", "r8", "r9", "r11", "r20", "r21"):
         assert edges[edge_id].confidence == "verified" and edges[edge_id].source_ids
     withdrawn = next(source for source in snapshot.evidence if source.id == "s-openai-gpt5")
     assert not withdrawn.published_at and not withdrawn.verified_at
@@ -454,6 +454,54 @@ def test_langgraph_canonical_source_keeps_history_and_administrator_changes():
         session.commit()
         repository.seed_catalog(session)
         assert old.active is True
+
+
+def test_relation_review_is_scoped_and_migrates_only_catalog_owned_records():
+    repository = KnowledgeRepository(SEED)
+    seed = repository.load_seed()
+    edges = {edge.id: edge for edge in seed.graph.edges}
+    sources = {source.id: source for source in seed.evidence}
+    expected = {
+        "r7": ("2024-11-06", "GPT-4o and GPT-4-Turbo"),
+        "r8": ("2018-06-11", "later architectures are outside this review"),
+        "r20": ("2025-08-07", "not an API shutdown date"),
+    }
+    for key, (date, scope) in expected.items():
+        edge = edges[key]
+        assert edge.confidence == "verified" and edge.valid_from == date
+        assert scope in edge.label.en
+        source = sources[edge.source_ids[0]]
+        assert source.published_at == date
+        assert source.verified_at == "2026-11-01"
+        assert source.source_excerpt_kind == "summary"
+        assert source.supports_claim_ids == []
+    # Checking these passages must not refresh unrelated claims using an older
+    # capture of the same URL.
+    assert sources["s-gpt5-launch-reviewed"].verified_at == "2026-10-01"
+
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        for key in expected:
+            row = session.get(KnowledgeRelationRecord, key)
+            old = edges[key].model_dump(mode="json", by_alias=True)
+            old.update(confidence="unverified", sourceIds=[], validFrom=None)
+            old["label"] = {"zh": "待核实", "en": "Unverified"}
+            row.payload_json = repository._catalog_seed_payload(None, old, None)
+        session.commit()
+        repository.seed_catalog(session)
+        migrated = {edge.id: edge for edge in repository.public_snapshot(session).graph.edges}
+        for key in expected:
+            assert migrated[key] == edges[key]
+
+        row = session.get(KnowledgeRelationRecord, "r20")
+        administrator_payload = json.loads(row.payload_json)
+        administrator_payload["label"]["en"] = "Administrator-maintained scope"
+        row.payload_json = json.dumps(administrator_payload)
+        session.commit()
+        repository.seed_catalog(session)
+        assert json.loads(row.payload_json) == administrator_payload
 
 
 def test_gpt5_api_deprecation_is_a_planned_shutdown_and_retains_release_history():

@@ -2,7 +2,7 @@
   "meta": {
     "mode": "demo",
     "freshness": "fresh",
-    "retrievedAt": "2026-10-31T00:00:00Z",
+    "retrievedAt": "2026-11-01T00:00:00Z",
     "message": {
       "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
       "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
@@ -40812,6 +40812,57 @@
       "sourceExcerptKind": "summary",
       "originalLanguage": "zh",
       "type": "official"
+    },
+    {
+      "id": "s-mmlu-pro-v6-reviewed-20261101",
+      "title": {
+        "zh": "MMLU-Pro 论文 v6：具名 GPT 型号评测",
+        "en": "MMLU-Pro paper v6: named GPT models evaluated"
+      },
+      "url": "https://arxiv.org/html/2406.01574v6",
+      "publisher": "MMLU-Pro authors / arXiv",
+      "publishedAt": "2024-11-06",
+      "sourceExcerpt": "论文 v6 的评测表列出 GPT-4o 和 GPT-4-Turbo。此处只确认这些具名型号参与该论文评测，不将结果泛化到全部 GPT 型号，也不作为当前性能排名。",
+      "type": "paper",
+      "originalLanguage": "en",
+      "collectedAt": "2026-11-01",
+      "verifiedAt": "2026-11-01",
+      "sourceExcerptKind": "summary",
+      "supportsClaimIds": []
+    },
+    {
+      "id": "s-gpt-origin-transformer-reviewed-20261101",
+      "title": {
+        "zh": "2018 年 GPT 研究：Transformer 架构来源",
+        "en": "2018 GPT research: Transformer architecture origin"
+      },
+      "url": "https://openai.com/index/language-unsupervised/",
+      "publisher": "OpenAI",
+      "publishedAt": "2018-06-11",
+      "sourceExcerpt": "2018 年研究公告说明其方法结合 Transformer 与无监督预训练，并链接 Attention Is All You Need。只支撑早期 GPT 的架构来源，不推定后续未公开型号的架构。",
+      "type": "official",
+      "originalLanguage": "en",
+      "collectedAt": "2026-11-01",
+      "verifiedAt": "2026-11-01",
+      "sourceExcerptKind": "summary",
+      "supportsClaimIds": []
+    },
+    {
+      "id": "s-gpt5-chatgpt-transition-reviewed-20261101",
+      "title": {
+        "zh": "GPT-5 发布公告：ChatGPT 默认入口替代",
+        "en": "GPT-5 launch: replacement in the default ChatGPT entry"
+      },
+      "url": "https://openai.com/index/introducing-gpt-5/",
+      "publisher": "OpenAI",
+      "publishedAt": "2025-08-07",
+      "sourceExcerpt": "2025-08-07 公告称 GPT-5 在已登录用户的 ChatGPT 默认入口替代 GPT-4.5 等模型。只确认该历史产品入口变更，不代表 GPT-4.5 API 停用日，也不描述今天的默认模型。",
+      "type": "official",
+      "originalLanguage": "en",
+      "collectedAt": "2026-11-01",
+      "verifiedAt": "2026-11-01",
+      "sourceExcerptKind": "summary",
+      "supportsClaimIds": []
     }
   ],
   "claims": [
@@ -59349,8 +59400,8 @@
         "confidence": "unverified",
         "sourceIds": [],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
+          "zh": "待核实：家族级竞争关系缺少具名版本与比较范围",
+          "en": "Unverified: family-level competition needs named versions and a comparison scope"
         }
       },
       {
@@ -59382,24 +59433,26 @@
         "fromId": "e-gpt",
         "toId": "e-mmlu",
         "kind": "benchmarked-on",
-        "confidence": "unverified",
-        "sourceIds": [],
+        "confidence": "verified",
+        "sourceIds": ["s-mmlu-pro-v6-reviewed-20261101"],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
-        }
+          "zh": "论文 v6 评测含 GPT-4o、GPT-4-Turbo（2024）；不代表全系列成绩",
+          "en": "Paper v6 evaluates GPT-4o and GPT-4-Turbo (2024); not all GPT models"
+        },
+        "validFrom": "2024-11-06"
       },
       {
         "id": "r8",
         "fromId": "e-gpt",
         "toId": "e-transformer-paper",
         "kind": "based-on",
-        "confidence": "unverified",
-        "sourceIds": [],
+        "confidence": "verified",
+        "sourceIds": ["s-gpt-origin-transformer-reviewed-20261101"],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
-        }
+          "zh": "早期 GPT 采用 Transformer（2018）；后续型号架构不在核实范围",
+          "en": "Early GPT uses the Transformer (2018); later architectures are outside this review"
+        },
+        "validFrom": "2018-06-11"
       },
       {
         "id": "r9",
@@ -59497,8 +59550,8 @@
         "confidence": "unverified",
         "sourceIds": [],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
+          "zh": "待核实：发布时间先后不能证明 GPT-4.5 直接继承 GPT-4o",
+          "en": "Unverified: release order alone does not establish direct GPT-4o to GPT-4.5 succession"
         }
       },
       {
@@ -59506,12 +59559,13 @@
         "fromId": "e-gpt-5",
         "toId": "e-gpt-45",
         "kind": "successor-of",
-        "confidence": "unverified",
-        "sourceIds": [],
+        "confidence": "verified",
+        "sourceIds": ["s-gpt5-chatgpt-transition-reviewed-20261101"],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
-        }
+          "zh": "2025-08-07：ChatGPT 默认入口替代 GPT-4.5；不是 API 停用日",
+          "en": "2025-08-07: replaces GPT-4.5 in the default ChatGPT entry; not an API shutdown date"
+        },
+        "validFrom": "2025-08-07"
       },
       {
         "id": "r21",
@@ -59597,8 +59651,8 @@
         "confidence": "unverified",
         "sourceIds": [],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
+          "zh": "待核实：现有来源未支持 GPT-5 与 Sonnet 4.5 的具体竞争结论",
+          "en": "Unverified: existing sources do not establish a scoped GPT-5 / Sonnet 4.5 competition claim"
         }
       },
       {
@@ -59705,8 +59759,8 @@
         "confidence": "unverified",
         "sourceIds": [],
         "label": {
-          "zh": "待核实：原演示来源不支持此关系",
-          "en": "Unverified: the withdrawn demo source did not establish this relation"
+          "zh": "待核实：现有来源未支持 GPT-5 与 Gemini 2.5 Pro 的具体竞争结论",
+          "en": "Unverified: existing sources do not establish a scoped GPT-5 / Gemini 2.5 Pro competition claim"
         }
       },
       {

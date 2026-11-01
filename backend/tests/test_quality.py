@@ -192,7 +192,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.claims_with_missing_evidence == []
     # Withdrawn placeholder links remain in the audit denominator. The gate
     # must report their missing support rather than make the catalog look clean.
-    withdrawn = {"r3", "r7", "r8", "r19", "r20", "r30", "r43"}
+    withdrawn = {"r3", "r19", "r30", "r43"}
     assert set(report.relations_with_missing_evidence) == withdrawn
     edges = {edge.id: edge for edge in snapshot.graph.edges}
     assert all(edges[key].confidence == "unverified" for key in withdrawn)
