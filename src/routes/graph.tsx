@@ -580,7 +580,10 @@ function RelationRow({
   const from = snapshot.entities.find((entity) => entity.id === edge.fromId)!;
   const to = snapshot.entities.find((entity) => entity.id === edge.toId)!;
   const scoped = edge.records.some(
-    (record) => record.fromId !== edge.fromId || record.toId !== edge.toId,
+    (record) =>
+      record.fromId !== edge.fromId ||
+      record.toId !== edge.toId ||
+      (record.label && pick(record.label, lang) !== pick(RELATION_LABELS[record.kind], lang)),
   );
   const validSources = snapshot.evidence.filter(
     (source) => edge.sourceIds.includes(source.id) && source.url,
@@ -597,7 +600,7 @@ function RelationRow({
           <ConfidenceChip level={edge.confidence} />
           <span>
             {scoped
-              ? t("含具体版本记录", "Version-specific records")
+              ? t("含适用范围，展开查看", "Scoped records; expand for details")
               : t(`${validSources.length} 个来源`, `${validSources.length} sources`)}
           </span>
           <ChevronDown size={16} />
@@ -618,8 +621,8 @@ function RelationRow({
         {scoped && (
           <p>
             {t(
-              "以下是原始记录的对象范围，不代表该家族所有版本都有相同接入条件：",
-              "Original scope below does not imply identical access across every family version:",
+              "以下保留原始记录的对象、日期与适用范围，不代表该家族所有版本都有相同能力、架构或接入条件：",
+              "Original entities, dates and scope are retained below; capabilities, architecture and access must not be generalized to every family version:",
             )}
           </p>
         )}
@@ -631,6 +634,10 @@ function RelationRow({
               {pick(snapshot.entities.find((entity) => entity.id === record.toId)!.name, lang)}
               {record.validFrom ? ` · ${record.validFrom}` : ""}
             </p>
+            {record.label &&
+              pick(record.label, lang) !== pick(RELATION_LABELS[record.kind], lang) && (
+                <p>{pick(record.label, lang)}</p>
+              )}
             <SourceLinks ids={record.sourceIds} snapshot={snapshot} />
           </div>
         ))}
