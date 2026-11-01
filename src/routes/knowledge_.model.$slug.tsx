@@ -771,7 +771,7 @@ function EntityDetail() {
             />
             <div className="paper-card overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="model-comparison-table w-full text-sm">
                   <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th className="text-left py-3 px-4 font-medium">{t("对象", "Model")}</th>
@@ -784,33 +784,69 @@ function EntityDetail() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     <tr className="bg-signal/5">
-                      <td className="py-3 px-4 font-medium text-foreground">{displayName}</td>
-                      <td className="py-3 px-4 font-mono text-foreground">
+                      <td
+                        data-label={t("对象", "Model")}
+                        className="py-3 px-4 font-medium text-foreground"
+                      >
+                        {displayName}
+                      </td>
+                      <td
+                        data-label={t("最新版本", "Latest")}
+                        className="py-3 px-4 font-mono text-foreground"
+                      >
                         {e.latestVersion ?? "—"}
                       </td>
-                      <td className="py-3 px-4 text-ink-soft">{e.tags.slice(0, 3).join(" · ")}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{e.lastUpdatedAt}</td>
+                      <td data-label={t("特色", "Focus")} className="py-3 px-4 text-ink-soft">
+                        {e.tags.slice(0, 3).join(" · ")}
+                      </td>
+                      <td
+                        data-label={t("最近更新", "Updated")}
+                        className="py-3 px-4 text-muted-foreground"
+                      >
+                        {e.lastUpdatedAt}
+                      </td>
                     </tr>
                     {competitors.map(
                       (c) =>
                         c && (
                           <tr key={c.id}>
-                            <td className="py-3 px-4">
-                              <Link
-                                to="/knowledge/model/$slug"
-                                params={{ slug: c.slug }}
-                                className="text-foreground hover:text-signal"
-                              >
-                                {pick(c.name, lang)}
-                              </Link>
+                            <td data-label={t("对象", "Model")} className="py-3 px-4">
+                              <div>
+                                <Link
+                                  to="/knowledge/model/$slug"
+                                  params={{ slug: c.slug }}
+                                  className="text-foreground hover:text-signal"
+                                >
+                                  {pick(c.name, lang)}
+                                </Link>
+                                <div className="mt-2">
+                                  <ConfidenceChip
+                                    level={
+                                      relatedRelations.find(
+                                        (relation) =>
+                                          relation.kind === "competes-with" &&
+                                          (relation.fromId === c.id || relation.toId === c.id),
+                                      )!.confidence
+                                    }
+                                  />
+                                </div>
+                              </div>
                             </td>
-                            <td className="py-3 px-4 font-mono text-foreground">
+                            <td
+                              data-label={t("最新版本", "Latest")}
+                              className="py-3 px-4 font-mono text-foreground"
+                            >
                               {c.latestVersion ?? "—"}
                             </td>
-                            <td className="py-3 px-4 text-ink-soft">
+                            <td data-label={t("特色", "Focus")} className="py-3 px-4 text-ink-soft">
                               {c.tags.slice(0, 3).join(" · ")}
                             </td>
-                            <td className="py-3 px-4 text-muted-foreground">{c.lastUpdatedAt}</td>
+                            <td
+                              data-label={t("最近更新", "Updated")}
+                              className="py-3 px-4 text-muted-foreground"
+                            >
+                              {c.lastUpdatedAt}
+                            </td>
                           </tr>
                         ),
                     )}

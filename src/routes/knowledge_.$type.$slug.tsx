@@ -391,6 +391,12 @@ function GenericEntityDetail() {
                       </span>
                       <EntityLink entity={to} browse={browse} />
                       <ConfidenceChip level={edge.confidence} />
+                      {edge.label &&
+                        pick(edge.label, lang) !== pick(RELATION_LABELS[edge.kind], lang) && (
+                          <p className="text-sm text-ink-soft md:col-span-4">
+                            {pick(edge.label, lang)}
+                          </p>
+                        )}
                     </div>
                   );
                 })}
