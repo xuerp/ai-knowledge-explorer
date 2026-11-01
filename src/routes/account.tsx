@@ -4,7 +4,7 @@ import { Bell, BookOpen, Check, LogOut, ShieldCheck, UserPlus, UserRound } from 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PasswordField } from "@/components/account/PasswordField";
+import { PasswordField, registrationPasswordMinLength } from "@/components/account/PasswordField";
 import { useApp } from "@/lib/app-state";
 import {
   authSessionExpiredEvent,
@@ -132,6 +132,15 @@ function AccountPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const password = String(form.get("password"));
+    if (password.length < registrationPasswordMinLength) {
+      setError(
+        t(
+          `密码至少需要 ${registrationPasswordMinLength} 个字符。`,
+          `Your password must contain at least ${registrationPasswordMinLength} characters.`,
+        ),
+      );
+      return;
+    }
     if (password !== String(form.get("confirmPassword"))) {
       setError(t("两次输入的密码不一致。", "The passwords do not match."));
       event.currentTarget.querySelector<HTMLInputElement>('input[name="confirmPassword"]')?.focus();

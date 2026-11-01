@@ -3216,9 +3216,26 @@ def test_public_registration_creates_viewer_and_rejects_duplicate(client: TestCl
 
     too_short = client.post(
         "/api/v2/auth/register",
-        json={"email": "short-password@example.com", "password": "too-short"},
+        json={"email": "short-password@example.com", "password": "abcde"},
     )
     assert too_short.status_code == 422
+
+    for length in (6, 9):
+        short_allowed = {
+            "email": f"registration-boundary-{length}@example.com",
+            "password": "a" * length,
+        }
+        created = client.post("/api/v2/auth/register", json=short_allowed)
+        assert created.status_code == 201
+        assert created.json()["user"]["role"] == "viewer"
+        login = client.post("/api/v2/auth/login", json=short_allowed)
+        assert login.status_code == 200
+        assert login.json()["user"]["role"] == "viewer"
+
+    assert (
+        client.post("/api/v2/auth/register", json={**short_allowed, "role": "admin"}).status_code
+        == 422
+    )
 
 
 def test_source_snapshots_are_normalized_deduplicated_and_diffed(

@@ -912,15 +912,18 @@ class BootstrapUser(CamelModel):
     password: str = Field(min_length=12, max_length=256)
 
 
+class RegistrationRequest(CamelModel):
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=256)
+
+
 class LoginRequest(CamelModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=256)
     remember_me: bool = False
 
 
-class UserCreate(CamelModel):
-    email: EmailStr
-    password: str = Field(min_length=12, max_length=256)
+class UserCreate(RegistrationRequest):
     role: Role = "viewer"
 
 
