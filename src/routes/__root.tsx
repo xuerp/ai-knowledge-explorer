@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { isAssetLoadError, recoverStaleAssets } from "../lib/asset-recovery";
 import { AppProvider } from "@/lib/app-context";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -40,23 +41,31 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  const assetFailure = isAssetLoadError(error);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    recoverStaleAssets(error);
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">页面加载失败</h1>
-        <p className="mt-2 text-sm text-muted-foreground">你可以刷新或返回首页。</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {assetFailure ? "页面资源加载失败，请刷新重试。" : "你可以刷新或返回首页。"}
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
+              if (assetFailure) {
+                window.location.reload();
+                return;
+              }
               router.invalidate();
               reset();
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            重试
+            {assetFailure ? "刷新页面" : "重试"}
           </button>
           <a
             href="/"

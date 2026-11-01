@@ -33,8 +33,8 @@
         "en": "Sign-in, research saving, revision, history and report export."
       },
       "verified": {
-        "zh": "新网址已有登录、保存、修改保留旧版、重开与导出验证。本地另以实际发布快照完成文档问答、仓库工具、私有部署、JSON 抽取和办公新手五场景软件走查，检查桌面及手机宽度；发现的来源跳转、澄清方向与手机资料链接问题已修复。私有部署仍缺合格候选依据，真人理解与实际工具效果尚未测量。",
-        "en": "Sign-in, saving, revision history, reopening and export have prior online verification. Five additional local software scenarios used the actual published snapshot: document Q&A, repository tools, private deployment, JSON extraction and novice office work, at desktop and mobile widths. Broken source navigation, clarification routing and mobile documentation links were fixed. Private-deployment qualification remains unverified; human comprehension and actual tool quality are unmeasured."
+        "zh": "新网址已用普通用户账号复验文档问答、仓库工具、私有部署、JSON 抽取和办公新手五场景的提交、保存重开、原题与条件恢复、新手澄清保留旧版；检查桌面与手机宽度。文档问答另核对来源、前台复制及 Markdown/PDF 实际下载。私有部署仍缺合格候选依据，真人理解与实际工具效果尚未测量。",
+        "en": "A viewer account was used at the new address to verify submission, saved reopening, task and constraint recovery, and clarification retaining the original across five scenarios: document Q&A, repository tools, private deployment, JSON extraction and novice office work. Desktop and mobile widths were checked. Document Q&A additionally covered sources, foreground copying and actual Markdown/PDF downloads. Private-deployment qualification remains unverified; human comprehension and actual tool quality are unmeasured."
       }
     },
     {
