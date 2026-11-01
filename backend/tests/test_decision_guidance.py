@@ -144,6 +144,94 @@ def test_raw_strict_requirements_are_enforced_by_server(api):
     assert not result["decision"]["guidance"]["recommendation"]["primaryEntityId"]
 
 
+@pytest.mark.parametrize("language", ["zh", "en"])
+def test_missing_private_deployment_evidence_has_concrete_recovery(language):
+    from datetime import UTC, datetime
+
+    from app.decision_guidance import build_guidance
+    from app.schemas import (
+        DecisionCandidate,
+        DecisionContext,
+        DecisionGap,
+        DecisionRecommendation,
+        DecisionResult,
+        DecisionScenario,
+        KnowledgeSnapshot,
+    )
+
+    task = (
+        "你要为内部知识库选一个可以私有部署的模型，业务数据必须留在自己的服务器上，"
+        "不能调用外部 API。请用这个网站找出能不能选、选哪个，以及下一步怎么做。"
+    )
+    context = DecisionContext(
+        task=task, workflow_version=2, priority="balanced", deployment="private"
+    )
+    snapshot = KnowledgeSnapshot.model_validate_json(
+        (Path(__file__).resolve().parents[1] / "data/demo_snapshot.json").read_text("utf-8")
+    )
+    # Controlled unknown qualification, not an assertion about this real model.
+    candidate = DecisionCandidate(
+        entity_id="e-gpt-4o",
+        eligibility="unknown",
+        gaps=[
+            DecisionGap(dimension="deployment", reason="not-recorded", detail="No deployment fact")
+        ],
+    )
+    result = DecisionResult(
+        status="insufficient-evidence",
+        as_of=datetime.now(UTC),
+        scenario=DecisionScenario(id="knowledge-assistant"),
+        recommendation=DecisionRecommendation(summary="Unresolved"),
+        candidates=[candidate],
+    )
+    guidance = build_guidance(result, context, snapshot, language)
+    assert context.task == task
+    assert context.deployment == "private"
+    assert guidance.outcome == "conditional"
+    assert guidance.recommendation.primary_entity_id is None
+    assert guidance.recommendation.entity_ids == []
+    assert guidance.recommendation.reasons == []
+    assert guidance.next_action.kind == "routes"
+    instruction = guidance.next_action.instruction
+    for item in (
+        ("许可证", "脱敏样本", "网络流量")
+        if language == "zh"
+        else ("license", "redacted samples", "network traffic")
+    ):
+        assert item in instruction
+    candidate.eligibility = "excluded"
+    candidate.reasons = ["Known cloud-only deployment"]
+    excluded = build_guidance(result, context, snapshot, language)
+    assert excluded.outcome == "blocked"
+    assert excluded.next_action.kind == "edit"
+
+
+@pytest.mark.parametrize("option", ["general-text", "document-extraction", "knowledge-workspace"])
+@pytest.mark.parametrize(
+    "task",
+    [
+        "我想用 AI 提高工作效率，但不知道该选什么。我主要处理 Excel、整理资料、写周报，几乎不会编程，也不清楚模型和 AI 应用有什么区别。",
+        "我是运营，不懂开发，平时整理客户资料和写邮件，还不清楚模型与应用的区别。",
+    ],
+)
+def test_explicit_work_direction_outranks_incidental_model_and_coding_words(task, option):
+    from app.decision_dialogue import analysis_context
+    from app.decision_intent import scenario_definition
+    from app.schemas import DecisionContext, DecisionIntentAnswer
+
+    context = DecisionContext(
+        task=task,
+        workflow_version=2,
+        priority="balanced",
+        deployment="undecided",
+        intent_answers=[DecisionIntentAnswer(question_id="work-direction", option_id=option)],
+    )
+    analyzed = analysis_context(context)
+    assert scenario_definition(analyzed)["id"] == option
+    assert context.task == task
+    assert analyzed.intent_answers == context.intent_answers
+
+
 def test_client_cannot_forge_answer_history(api):
     client, owner, _ = api
     response = client.post(

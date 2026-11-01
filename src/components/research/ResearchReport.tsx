@@ -511,10 +511,13 @@ function ClaimCard({
         {sources.map((source) => (
           <a
             key={source.id}
-            href={`#source-${source.id}`}
+            href={source.url}
+            target="_blank"
+            rel="noreferrer"
             className="chip hover:border-signal/50 hover:text-signal"
           >
             [{sourceIndex.get(source.id)}] {source.publisher}
+            <ExternalLink className="h-3 w-3" aria-hidden="true" />
           </a>
         ))}
       </div>

@@ -1241,8 +1241,8 @@ function AskPage() {
                   >
                     <summary>
                       {t(
-                        `查看全部原始依据（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
-                        `Inspect all source evidence (${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
+                        `查看全部引用与来源（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
+                        `Inspect all citations and sources (${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
                       )}
                     </summary>
                     <p className="ask-result__citation-note">
@@ -1614,9 +1614,16 @@ function ClaimRow({
             const s = evidence.find((item) => item.id === id);
             if (!s) return null;
             return (
-              <a key={id} href={`#source-${s.id}`} title={lang === "zh" ? s.title.zh : s.title.en}>
+              <a
+                key={id}
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                title={lang === "zh" ? s.title.zh : s.title.en}
+              >
                 [{evidence.findIndex((item) => item.id === id) + 1}] {s.publisher}
                 <span>{s.publishedAt}</span>
+                <ExternalLink size={12} aria-hidden="true" />
               </a>
             );
           })}
