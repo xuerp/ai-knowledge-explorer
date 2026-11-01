@@ -53,6 +53,15 @@ def scenario_definition(context):
     meaning = context_meaning(context)
     if meaning is not None:
         return next((row for row in CATALOG["scenarios"] if row["id"] == meaning.scenario), None)
+    # These choices come from validated, server-owned clarification history.
+    # An explicit work direction outranks incidental words in the retained task.
+    for answer in reversed(context.intent_answers):
+        if answer.question_id in {"work-direction", "task-focus"}:
+            selected = next(
+                (row for row in CATALOG["scenarios"] if row["id"] == answer.option_id), None
+            )
+            if selected is not None:
+                return selected
     workflow = task_workflow(context.task)
     if workflow:
         return next(

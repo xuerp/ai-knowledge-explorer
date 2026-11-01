@@ -3,7 +3,7 @@
 import re
 
 from .decision_dialogue import clarification_for, task_descriptions, unsupported_task
-from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_intent import CATALOG, positive_task_text, scenario_definition, task_workflow
 from .decision_semantics import context_meaning
 from .decision_stages import ordered_task_stages, parallel_task_deliverables
 from .decision_task import daily_workload, understand_context
@@ -368,6 +368,36 @@ def build_guidance(result, context, snapshot, language):
                 if reasons
                 else summary
             )
+        if (
+            context.deployment in {"private", "on-device"}
+            and not all_excluded
+            and any(gap.decisive and gap.requirement == "deployment" for gap in unknowns)
+        ):
+            headline = t(
+                "尚不能确认符合本地部署要求的候选",
+                "No candidate is yet verified for the required local deployment",
+            )
+            summary = t(
+                "当前收录依据不足以确认候选可在你的服务器或设备上运行。你填写的数据位置与外部 API 使用限制保持不变；云端功能说明不能证明本地部署可行，未收录也不表示产品不支持。",
+                "Recorded evidence does not establish that a candidate runs on your servers or devices. Your data-residency and external-API restrictions remain unchanged. Cloud features do not establish local deployment, and missing records do not establish lack of support.",
+            )
+            reasons = []
+            tradeoff = t(
+                "本次没有已确认合格的候选，暂不能据此选定型号或接入受限业务数据。",
+                "No candidate is verified as eligible; do not select a model or connect restricted business data on this basis.",
+            )
+            kind, label = (
+                "routes",
+                t("查看本地部署核验步骤", "See local-deployment verification steps"),
+            )
+            instruction = t(
+                "先列出可用的服务器或设备、内存/显存和操作系统，以及需要的模型能力。\n"
+                "再核对具体版本的官方权重下载、许可证和本地推理部署文档；只有云 API 的说明不能通过这项核验。\n"
+                "确认部署依据后，用脱敏样本在受控环境验证：模型、嵌入及检索服务均在允许的位置运行，关闭外网后仍可完成任务，并检查日志和网络流量有无外传。通过前不接入受限业务数据。",
+                "List the available servers or devices, RAM/VRAM, operating system and required model capabilities.\n"
+                "Check the exact version's official weight downloads, license and local-inference deployment documentation; cloud-API documentation alone cannot satisfy this gate.\n"
+                "After confirming deployment support, use redacted samples in a controlled environment: keep models, embeddings and retrieval within permitted locations, confirm the task works without external network access, and inspect logs and network traffic for egress. Do not connect restricted business data before these checks pass.",
+            )
     if all_excluded:
         outcome, kind, label = (
             "blocked",
@@ -387,7 +417,11 @@ def build_guidance(result, context, snapshot, language):
     novice_writing = (
         result.scenario.id == "general-text"
         and context.task_type == "unspecified"
-        and not re.search(r"模型|API|model", context.task, re.IGNORECASE)
+        and not re.search(
+            CATALOG["interpretation"]["modelScope"],
+            positive_task_text(context.task),
+            re.IGNORECASE,
+        )
     )
     unresolved = result.scenario.id == "unspecified" and bool(context.intent_answers)
     if (

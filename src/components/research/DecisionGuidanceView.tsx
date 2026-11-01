@@ -336,7 +336,7 @@ export function DecisionGuidanceView({
                   )}
                 </p>
                 {!!documentation.length && (
-                  <p className="decision-guidance__references">
+                  <p className="decision-guidance__references decision-guidance__documentation">
                     {documentation.map((source) => (
                       <a key={source.id} href={source.url} target="_blank" rel="noreferrer">
                         {t("操作资料：", "Documentation: ")}

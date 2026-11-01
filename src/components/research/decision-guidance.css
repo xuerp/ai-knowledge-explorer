@@ -116,6 +116,14 @@
   gap: 8px;
   font-size: 0.8125rem;
 }
+.decision-guidance__documentation {
+  display: grid;
+}
+.decision-guidance__documentation a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
 .decision-guidance__comparison {
   display: grid;
   gap: 20px;
