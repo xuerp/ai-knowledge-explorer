@@ -75,7 +75,7 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 
 ### 把研究留下来
 
-登录后可以保存、修改和重开研究，导出 Markdown 或 PDF。相关浏览器操作与导出验证见[研究流程记录](docs/portfolio/WORKFLOW_VERIFICATION_20261029.md)。
+登录后可以保存、修改和重开研究，导出 Markdown 或 PDF。相关浏览器操作与导出验证见[验证记录](docs/portfolio/VALIDATION.md)。
 
 ## 项目状态
 
@@ -85,7 +85,7 @@ AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识�
 - **数据状态**：当前部署定位为「证据审核流水线 + 人工维护的知识快照」，API 标记为 `demo` / `cached`。采集、抽取与审核模块保留；自动抽取默认关闭；已比对固定快照的事实来源，未知日期和缺证关系继续如实标注。公共结论需逐项审核后发布，持续实时追踪尚未验收。
 - **待完成**：独立内容复核与持续时效维护、5 位目标用户实测、更多选型场景、持续采集到审核发布的闭环，以及邮件实际送达。
 
-完整依据见[研究流程复验](docs/portfolio/WORKFLOW_VERIFICATION_20261029.md)与[验证记录](docs/portfolio/VALIDATION.md)。
+完整依据见[验证记录](docs/portfolio/VALIDATION.md)。
 
 ## 本地运行
 
@@ -183,7 +183,7 @@ python -m pytest tests
 
 历史实施与发布记录可从 Git 历史查询；运行回执不进入文档目录。
 
-[架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [运行指南](docs/portfolio/WALKTHROUGH.md) · [文档索引](docs/README.md)
+[架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [本地运行](#本地运行) · [文档索引](docs/README.md)
 
 ## 三个实现取舍
 

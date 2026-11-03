@@ -66,8 +66,6 @@ snapshot_test.*
 /docs/archive/
 /docs/**/*_ACCEPTANCE_*.md
 /docs/*.json
-!/docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json
-!/docs/model-spec-enrichment-20261005.json
 !/docs/reference-catalog-enrichment.json
 !/docs/ecosystem-runtime-audit.json
 !/docs/reference-runtime-audit.json

@@ -46,7 +46,7 @@ def test_every_enriched_field_keeps_official_provenance_and_conflicts_stay_unres
     entities = {e.id: e for e in snapshot.entities}
     sources = {s.id: s for s in snapshot.evidence}
     ledger = json.loads(
-        (ROOT / "docs/model-spec-enrichment-20261005.json").read_text(encoding="utf-8")
+        (ROOT / "backend/data/model_spec_enrichment.json").read_text(encoding="utf-8")
     )
     for patch in ledger["entries"]:
         entity = entities[patch["entityId"]]

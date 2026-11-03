@@ -13,7 +13,7 @@ const [baseline, extension, frontier, manifest] = await Promise.all(
   ].map(async (file) => JSON.parse(await readFile(file, "utf8"))),
 );
 const snapshot = applyCatalogOverlays(baseline, extension, frontier);
-const specLedger = JSON.parse(await readFile("docs/model-spec-enrichment-20261005.json", "utf8"));
+const specLedger = JSON.parse(await readFile("backend/data/model_spec_enrichment.json", "utf8"));
 const enrichedIds = new Set(specLedger.entries.map((entry) => entry.entityId));
 const vite = await createServer({
   server: { middlewareMode: true },

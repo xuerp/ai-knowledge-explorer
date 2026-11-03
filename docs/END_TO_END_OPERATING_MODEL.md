@@ -5,7 +5,7 @@
 - 更新时间：2026-09-11
 - 性质：项目运行地图，不授予数据写入、模型调用、审核、部署或发布权限
 - 产品方向：以 [`../PRODUCT_ROADMAP.md`](../PRODUCT_ROADMAP.md) 为准
-- 执行顺序与门禁：以 [`PROJECT_COMPLETION_SPEC.md`](PROJECT_COMPLETION_SPEC.md) 为准
+- 执行顺序与门禁：以 [产品验收标准](DECISION_PRODUCT_ACCEPTANCE.md)及[运行手册](PRODUCTION_RUNBOOK.md) 为准
 - 系统分层：以 [`ARCHITECTURE.md`](ARCHITECTURE.md) 为准
 
 本文回答五个问题：用户如何完成任务、可信数据如何产生、决策如何绑定证据、代码如何进入 staging、什么条件下才允许进入 live。它把分散在页面、API、数据库、审核后台和 CI 中的真实行为连接为一套可执行的 Operating Model。

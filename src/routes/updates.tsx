@@ -1,9 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronDown, ExternalLink, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { DemoBadge, WorkspaceHeader } from "@/components/common";
 import { DataStatePanel } from "@/components/data-state";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ChangeEvent, Entity, Evidence } from "@/domain/types";
 import { browseModelFamilies } from "@/domain/model-families";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
@@ -224,20 +231,18 @@ function UpdatesPage() {
                     { value: "review", label: t("其他状态", "Other statuses") },
                   ]}
                 />
-                <label className="updates-family-filter">
-                  {t("模型家族", "Model family")}
-                  <select
-                    value={familyFilter}
-                    onChange={(event) => changeFilter(setFamilyFilter)(event.target.value)}
-                  >
-                    <option value="all">{t("全部家族", "All families")}</option>
-                    {coreEntities.map((entity) => (
-                      <option key={entity.id} value={entity.id}>
-                        {modelDisplayName(entity, lang)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <FilterSelect
+                  label={t("模型家族", "Model family")}
+                  value={familyFilter}
+                  onChange={changeFilter(setFamilyFilter)}
+                  options={[
+                    { value: "all", label: t("全部家族", "All families") },
+                    ...coreEntities.map((entity) => ({
+                      value: entity.id,
+                      label: modelDisplayName(entity, lang),
+                    })),
+                  ]}
+                />
               </div>
               <div className="updates-filter-actions">
                 {hasAnyFilter && (
@@ -761,22 +766,42 @@ function FilterSelect({
   onChange,
 }: {
   label: string;
-  description: string;
+  description?: string;
   value: string;
   options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
 }) {
+  const id = useId();
   return (
-    <label className="updates-filter-select" title={description}>
-      <span>{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="updates-filter-select">
+      <label htmlFor={id}>{label}</label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger
+          id={id}
+          className="updates-select-trigger"
+          aria-describedby={description ? `${id}-help` : undefined}
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent
+          className="updates-select-menu"
+          position="popper"
+          sideOffset={6}
+          collisionPadding={12}
+        >
+          {options.map((option) => (
+            <SelectItem className="updates-select-option" key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {description && (
+        <span id={`${id}-help`} className="sr-only">
+          {description}
+        </span>
+      )}
+    </div>
   );
 }
 

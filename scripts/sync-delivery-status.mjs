@@ -24,11 +24,7 @@ const block = [
   end,
 ].join("\n");
 let failed = false;
-for (const relative of [
-  "docs/portfolio/CASE_STUDY.md",
-  "docs/portfolio/VALIDATION.md",
-  "docs/portfolio/WALKTHROUGH.md",
-]) {
+for (const relative of ["docs/portfolio/CASE_STUDY.md", "docs/portfolio/VALIDATION.md"]) {
   const file = path.join(root, relative);
   const current = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const begin = current.indexOf(start),
@@ -46,5 +42,4 @@ for (const relative of [
   }
 }
 if (failed) process.exitCode = 1;
-else
-  console.log("Delivery status synchronized across the project page and three public documents.");
+else console.log("Delivery status synchronized across the project page and public documents.");

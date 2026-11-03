@@ -6,7 +6,7 @@
 - 性质：产品方向，不授予数据写入、模型调用、部署或发布权限
 - 主定位：基于可验证的最新变化辅助 AI 模型与产品选择
 
-工程执行顺序和上线门槛以 `docs/PROJECT_COMPLETION_SPEC.md` 为准。
+工程执行顺序和上线门槛以 `docs/DECISION_PRODUCT_ACCEPTANCE.md` 和 `docs/PRODUCTION_RUNBOOK.md` 为准。
 
 ## 产品设计规划
 

@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 REF = ROOT / "data/real_loop/model-specs-20261005"
-LEDGER = ROOT.parent / "docs/model-spec-enrichment-20261005.json"
+LEDGER = ROOT / "data/model_spec_enrichment.json"
 DATE = "2026-10-05"
 
 

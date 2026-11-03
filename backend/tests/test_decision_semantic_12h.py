@@ -15,7 +15,7 @@ from app.database import AuditLogRecord, ResearchRecord
 from app.main import create_app
 
 ROOT = Path(__file__).resolve().parents[2]
-FREEZE_PATH = ROOT / "docs/DECISION_SEMANTIC_FROZEN_12H_20261007.json"
+FREEZE_PATH = ROOT / "backend/tests/fixtures/decision_semantic.json"
 FREEZE_SHA = "13ca494fe6773af21c1931e0c6e966b474d7a30524a88752b2f27f27eb56a750"
 FREEZE = json.loads(FREEZE_PATH.read_text(encoding="utf-8"))
 
