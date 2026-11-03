@@ -114,7 +114,7 @@ export function DecisionTrialKit({
         <textarea
           ref={promptRef}
           readOnly
-          rows={7}
+          rows={12}
           aria-label={t("试用任务提示", "Trial task prompt")}
           value={kit.prompt}
         />

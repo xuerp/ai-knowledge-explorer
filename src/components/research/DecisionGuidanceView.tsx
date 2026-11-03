@@ -354,7 +354,7 @@ export function DecisionGuidanceView({
                 <label htmlFor={`start-${research.id}`}>
                   {t("可复制的任务说明", "Copyable task instructions")}
                 </label>
-                <textarea id={`start-${research.id}`} readOnly value={prompt} rows={4} />
+                <textarea id={`start-${research.id}`} readOnly value={prompt} rows={12} />
                 <Button
                   variant="outline"
                   onClick={() => {
