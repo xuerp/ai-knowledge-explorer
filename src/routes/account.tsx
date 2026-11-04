@@ -15,6 +15,7 @@ import {
 import { AuthSessionExpiredError, accountErrorMessage } from "@/services/auth-errors";
 import {
   userApi,
+  type DecisionInterpretationStatus,
   type FollowItem,
   type ResearchResult,
   type SessionUser,
@@ -33,6 +34,7 @@ function AccountPage() {
   const { t } = useApp();
   const [token, setToken] = useState("");
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [interpretation, setInterpretation] = useState<DecisionInterpretationStatus | null>(null);
   const [following, setFollowing] = useState<FollowItem[]>([]);
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [research, setResearch] = useState<ResearchResult | null>(null);
@@ -48,13 +50,17 @@ function AccountPage() {
       const nextUser = await userApi.me(activeToken);
       if (readAuthToken() !== activeToken) return;
       setUser(nextUser);
-      const [nextFollowing, nextNotifications] = await Promise.allSettled([
+      const [nextFollowing, nextNotifications, nextInterpretation] = await Promise.allSettled([
         userApi.following(activeToken),
         userApi.notifications(activeToken),
+        userApi.decisionInterpretation(activeToken),
       ]);
       if (readAuthToken() !== activeToken) return;
       if (nextFollowing.status === "fulfilled") setFollowing(nextFollowing.value);
       if (nextNotifications.status === "fulfilled") setNotifications(nextNotifications.value);
+      setInterpretation(
+        nextInterpretation.status === "fulfilled" ? nextInterpretation.value : null,
+      );
       if (nextFollowing.status === "rejected" || nextNotifications.status === "rejected") {
         setError(
           t(
@@ -85,6 +91,7 @@ function AccountPage() {
     const expired = () => {
       setToken("");
       setUser(null);
+      setInterpretation(null);
       setFollowing([]);
       setNotifications([]);
       setResearch(null);
@@ -338,6 +345,7 @@ function AccountPage() {
                   } finally {
                     clearAuthToken();
                     setUser(null);
+                    setInterpretation(null);
                     setToken("");
                     setFollowing([]);
                     setNotifications([]);
@@ -352,6 +360,31 @@ function AccountPage() {
           </div>
         </header>
         {error && <Notice text={error} destructive />}
+
+        <section
+          aria-labelledby="interpretation-heading"
+          className="space-y-2 border-y border-border py-4"
+        >
+          <h2 id="interpretation-heading" className="text-sm font-medium">
+            {t("任务理解服务", "Task interpretation service")}
+          </h2>
+          <p className="text-sm text-muted-foreground" role="status">
+            {interpretation === null
+              ? t(
+                  "状态暂不可用，请刷新账户页重试。",
+                  "Status unavailable. Reload your account to retry.",
+                )
+              : !interpretation.enabled
+                ? t(
+                    "当前账号使用规则理解任务，不调用外部任务理解服务。",
+                    "This account uses rule-based task understanding, without external interpretation calls.",
+                  )
+                : t(
+                    `当前账号已启用外部任务理解，提交研究可能产生调用费用。本轮剩余 ${interpretation.remainingCalls} 次；${interpretation.blocked || interpretation.inFlightOrInterrupted ? "当前调用已暂停" : "额度由服务端限制"}。`,
+                    `External task interpretation is enabled for this account. Research submissions may incur costs. ${interpretation.remainingCalls} calls remain; ${interpretation.blocked || interpretation.inFlightOrInterrupted ? "calls are currently paused" : "limits are enforced by the server"}.`,
+                  )}
+          </p>
+        </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
           <form

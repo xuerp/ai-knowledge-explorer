@@ -19,6 +19,17 @@ export interface SessionUser {
   digestHour: string;
 }
 
+export type DecisionInterpretationStatus =
+  | { enabled: false }
+  | {
+      enabled: true;
+      limitCalls: number;
+      usedCalls: number;
+      remainingCalls: number;
+      blocked: boolean;
+      inFlightOrInterrupted: boolean;
+    };
+
 export interface FollowItem {
   id: string;
   entityId: string;
@@ -479,6 +490,8 @@ export const userApi = {
     }),
   logout: (token: string) => request<void>("/api/v2/auth/logout", { method: "POST" }, token),
   me: (token: string) => request<SessionUser>("/api/v2/auth/me", {}, token),
+  decisionInterpretation: (token: string) =>
+    request<DecisionInterpretationStatus>("/api/v2/decision-interpretation", {}, token),
   following: (token: string) => request<FollowItem[]>("/api/v2/following", {}, token),
   follow: (token: string, entityId: string, intensity: FollowItem["intensity"]) =>
     request<FollowItem>(
