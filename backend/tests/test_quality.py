@@ -190,20 +190,35 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
     assert report.claims_required == 150
     assert report.claims_remaining == max(0, 150 - report.claim_count)
     assert report.claims_with_missing_evidence == []
-    # Withdrawn placeholder links remain in the audit denominator. The gate
-    # must report their missing support rather than make the catalog look clean.
+    # Source presence is structural coverage, not verification of the relation.
+    # Keep all original rows: three sourced inferences and unresolved succession.
     withdrawn = {"r3", "r19", "r30", "r43"}
-    assert set(report.relations_with_missing_evidence) == withdrawn
+    assert report.relations_with_missing_evidence == []
     edges = {edge.id: edge for edge in snapshot.graph.edges}
-    assert all(edges[key].confidence == "unverified" for key in withdrawn)
-    assert all(not edges[key].source_ids for key in withdrawn)
+    assert withdrawn <= edges.keys()
+    assert all(edges[key].confidence == "inferred" for key in withdrawn - {"r19"})
+    assert edges["r19"].confidence == "unverified"
+    assert all(edges[key].source_ids for key in withdrawn)
     assert report.timeline_entries_with_missing_evidence == []
     reference_records = (
         len(snapshot.claims)
         + len(snapshot.graph.edges)
         + sum(len(entries) for entries in snapshot.timeline.values())
     )
-    assert report.evidence_reference_coverage == round(1 - len(withdrawn) / reference_records, 4)
+    assert report.evidence_reference_coverage == 1
+    # Removing the newly reviewed sources must restore the same four gaps;
+    # neither the audit denominator nor the gate may be reduced to pass.
+    unsupported = snapshot.model_copy(deep=True)
+    for edge in unsupported.graph.edges:
+        if edge.id in withdrawn:
+            edge.source_ids = []
+    negative_control = KnowledgeQualityGate().report(
+        unsupported, now=datetime(2026, 8, 12, tzinfo=UTC)
+    )
+    assert set(negative_control.relations_with_missing_evidence) == withdrawn
+    assert negative_control.evidence_reference_coverage == round(
+        1 - len(withdrawn) / reference_records, 4
+    )
     assert report.official_evidence_ratio >= 0.6
     assert report.reviewed_evidence_ratio >= 0.9
     assert report.fresh_evidence_ratio >= 0.8

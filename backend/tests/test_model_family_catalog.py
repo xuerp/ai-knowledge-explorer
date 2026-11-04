@@ -404,9 +404,20 @@ def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tm
     reviewed = {"r1", "r3", "r7", "r8", "r9", "r11", "r19", "r20", "r21", "r30", "r43"}
     assert reviewed <= edges.keys()
     assert all("s-openai-gpt5" not in edge.source_ids for edge in edges.values())
-    for edge_id in ("r3", "r19", "r30", "r43"):
-        assert edges[edge_id].confidence == "unverified"
-        assert edges[edge_id].source_ids == []
+    sources = {source.id: source for source in snapshot.evidence}
+    for edge_id in ("r3", "r30", "r43"):
+        edge = edges[edge_id]
+        assert edge.confidence == "inferred"
+        assert edge.source_ids and "有据推断" in edge.label.zh
+        for source_id in edge.source_ids:
+            source = sources[source_id]
+            assert source.url == "https://www.anthropic.com/news/claude-sonnet-4-5"
+            assert source.published_at == "2025-09-29"
+            assert source.verified_at and source.type == "official"
+            assert "GPT-5" in source.source_excerpt and "Sonnet 4.5" in source.source_excerpt
+    # A source about a comparison does not establish direct succession.
+    assert edges["r19"].confidence == "unverified"
+    assert edges["r19"].source_ids and "仍待核实" in edges["r19"].label.zh
     for edge_id in ("r1", "r7", "r8", "r9", "r11", "r20", "r21"):
         assert edges[edge_id].confidence == "verified" and edges[edge_id].source_ids
     withdrawn = next(source for source in snapshot.evidence if source.id == "s-openai-gpt5")
