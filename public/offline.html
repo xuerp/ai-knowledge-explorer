@@ -85,17 +85,16 @@
       <div class="mark" aria-hidden="true">◎</div>
       <h1>当前处于离线状态</h1>
       <p>
-        AI Radar
-        无法连接网络。已访问过的页面可能仍可从本地缓存打开；未缓存的实时请求不会被演示数据替代。
+        AI Radar 暂时无法连接服务，请检查网络后重试。当前页面地址已保留，重新连接后可以继续访问。
       </p>
       <button type="button" onclick="location.reload()">重新连接</button>
-      <small id="cached-at">正在读取最后缓存时间…</small>
+      <small id="cached-at">正在读取最后在线时间…</small>
     </main>
     <script>
       const value = localStorage.getItem("ai-radar.last-online-at");
       document.getElementById("cached-at").textContent = value
-        ? `最后在线缓存：${new Date(value).toLocaleString()}`
-        : "当前设备没有可用的缓存时间记录";
+        ? `最后在线：${new Date(value).toLocaleString()}`
+        : "当前设备没有在线时间记录";
     </script>
   </body>
 </html>

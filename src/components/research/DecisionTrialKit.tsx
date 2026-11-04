@@ -3,6 +3,7 @@ import { Copy, Download, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/app-state";
 import { decisionTrialKit } from "@/domain/decision-trial-kit";
+import { copyTaskText } from "@/lib/copy-task-text";
 import type { ResearchResult } from "@/services/user-api";
 
 export function DecisionTrialKit({
@@ -72,8 +73,8 @@ export function DecisionTrialKit({
         <Button
           type="button"
           onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(kit.prompt);
+            setCopied(false);
+            if (await copyTaskText(kit.prompt, promptRef.current)) {
               setCopied(true);
               setMessage(
                 t(
@@ -81,14 +82,12 @@ export function DecisionTrialKit({
                   "Copied. Paste into your chosen product and attach actual inputs.",
                 ),
               );
-            } catch {
+            } else {
               setCopied(false);
-              promptRef.current?.focus();
-              promptRef.current?.select();
               setMessage(
                 t(
-                  "浏览器未允许自动复制。提示已选中，请按 Ctrl/Cmd+C 复制。",
-                  "Automatic copying was blocked. The prompt is selected; press Ctrl/Cmd+C.",
+                  "浏览器未允许自动复制。已选中全文，请使用系统的“复制”操作。",
+                  "Automatic copying was blocked. All text is selected; use your system's Copy action.",
                 ),
               );
             }

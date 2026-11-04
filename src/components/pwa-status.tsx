@@ -83,14 +83,14 @@ export function PwaStatus({ dark = false }: { dark?: boolean }) {
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1">
           <CloudOff className="h-4 w-4 text-inferred" />
-          <span className="font-medium">{t("离线浏览", "Offline browsing")}</span>
+          <span className="font-medium">{t("网络已断开", "Network disconnected")}</span>
           <span className={dark ? "text-white/55" : "text-muted-foreground"}>
             {lastOnlineAt
               ? t(
-                  `最后缓存：${new Date(lastOnlineAt).toLocaleString("zh-CN")}`,
-                  `Last cached: ${new Date(lastOnlineAt).toLocaleString("en-US")}`,
+                  `最后在线：${new Date(lastOnlineAt).toLocaleString("zh-CN")}`,
+                  `Last online: ${new Date(lastOnlineAt).toLocaleString("en-US")}`,
                 )
-              : t("当前设备没有缓存时间记录", "No cache timestamp on this device")}
+              : t("当前设备没有在线时间记录", "No last-online timestamp on this device")}
           </span>
           <button
             type="button"
@@ -130,8 +130,8 @@ export function PwaStatus({ dark = false }: { dark?: boolean }) {
             {installed
               ? t("可从设备主屏幕打开。", "Open it from your home screen.")
               : t(
-                  "获得独立窗口和已访问页面的离线缓存。",
-                  "Get a standalone window and offline caching for visited pages.",
+                  "从设备主屏幕打开。浏览和更新资料需要网络连接。",
+                  "Open from your home screen. Browsing and updates require a network connection.",
                 )}
           </p>
           {!installed && (

@@ -14,6 +14,7 @@ import { decisionResumePath } from "@/domain/decision-workflow";
 import { DecisionChoice } from "./DecisionChoice";
 import { decisionComparisonRows } from "@/domain/decision-choice";
 import { planDimensionName } from "@/domain/decision-plan-reading";
+import { copyTaskText } from "@/lib/copy-task-text";
 import "./decision-guidance.css";
 
 export function DecisionGuidanceView({
@@ -41,6 +42,7 @@ export function DecisionGuidanceView({
   const [pendingAnswer, setPendingAnswer] = useState<DecisionIntentAnswer | null>(null);
   const submitting = useRef(false);
   const actionRef = useRef<HTMLDivElement>(null);
+  const promptRef = useRef<HTMLTextAreaElement>(null);
   const guidance = research.decision!.guidance!;
   const advice = privateAdvice
     ? {
@@ -354,19 +356,25 @@ export function DecisionGuidanceView({
                 <label htmlFor={`start-${research.id}`}>
                   {t("可复制的任务说明", "Copyable task instructions")}
                 </label>
-                <textarea id={`start-${research.id}`} readOnly value={prompt} rows={12} />
+                <textarea
+                  ref={promptRef}
+                  id={`start-${research.id}`}
+                  readOnly
+                  value={prompt}
+                  rows={12}
+                />
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    void navigator.clipboard
-                      .writeText(prompt)
-                      .then(() => setCopied(true))
-                      .catch(() =>
-                        setError(
-                          t(
-                            "复制失败，请选择上方文字复制。",
-                            "Copy failed; select and copy the text above.",
-                          ),
+                  onClick={async () => {
+                    setError("");
+                    setCopied(false);
+                    const success = await copyTaskText(prompt, promptRef.current);
+                    setCopied(success);
+                    if (!success)
+                      setError(
+                        t(
+                          "浏览器未允许自动复制。已选中全文，请使用系统的“复制”操作。",
+                          "Automatic copying was blocked. All text is selected; use your system's Copy action.",
                         ),
                       );
                   }}

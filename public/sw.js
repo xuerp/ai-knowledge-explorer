@@ -1,15 +1,5 @@
-const CACHE_NAME = "ai-radar-shell-v4";
-const APP_SHELL = [
-  "/",
-  "/knowledge",
-  "/graph",
-  "/ask",
-  "/following",
-  "/offline.html",
-  "/manifest.webmanifest",
-  "/icon.svg",
-  "/favicon.ico",
-];
+const CACHE_NAME = "ai-radar-shell-v5";
+const APP_SHELL = ["/offline.html", "/manifest.webmanifest", "/icon.svg", "/favicon.ico"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -52,8 +42,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 构建资源由文件名指纹和浏览器 HTTP 缓存管理。不要把它们长期保存在
-  // Service Worker shell cache 中，否则新部署可能继续执行旧入口或旧路由 chunk。
+  // Hashed assets and HTML must come from the same deployment. Old navigation
+  // HTML cannot be an offline shell when its entry script is no longer hosted.
   if (url.pathname.startsWith("/assets/")) {
     event.respondWith(fetch(request, { cache: "no-store" }));
     return;
@@ -61,32 +51,25 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)));
-          }
-          return response;
-        })
-        .catch(async () => {
-          return (
-            (await caches.match(request)) ??
-            (await caches.match("/")) ??
-            (await caches.match("/offline.html"))
-          );
-        }),
+      fetch(request, { cache: "no-store" }).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        return cache.match("/offline.html");
+      }),
     );
     return;
   }
 
+  // Cache only the standalone offline page and install metadata, never private
+  // reports, route data, version markers or other application HTML.
+  if (!APP_SHELL.includes(url.pathname)) return;
   event.respondWith(
-    caches.match(request).then((cached) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(url.pathname);
       if (cached) return cached;
       return fetch(request).then((response) => {
         if (!response.ok || response.type !== "basic") return response;
         const copy = response.clone();
-        event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)));
+        event.waitUntil(cache.put(url.pathname, copy));
         return response;
       });
     }),
