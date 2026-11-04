@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from app.decision_constraints import current_claims
 from app.repository import KnowledgeRepository
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,9 +49,45 @@ def test_every_enriched_field_keeps_official_provenance_and_conflicts_stay_unres
     ledger = json.loads(
         (ROOT / "backend/data/model_spec_enrichment.json").read_text(encoding="utf-8")
     )
+    current = current_claims(snapshot.claims, snapshot)
     for patch in ledger["entries"]:
         entity = entities[patch["entityId"]]
+        section = next(
+            s for s in entity.knowledge.sections if s.id == "official-model-specifications"
+        )
+        self_hosted_display = (
+            bool(entity.release.access_channels)
+            and all(channel.type == "open-weights" for channel in entity.release.access_channels)
+            and any(
+                claim.entity_id == entity.id
+                and claim.predicate == "deployment"
+                and claim.object_or_value == "private"
+                for claim in current
+            )
+        )
         for key, value in patch["specs"].items():
+            if self_hosted_display and key == "availability":
+                assert any(
+                    claim.entity_id == entity.id
+                    and claim.predicate == "access"
+                    and claim.object_or_value == "open-weights"
+                    and all(sources[source_id].type == "official" for source_id in claim.source_ids)
+                    for claim in current
+                )
+                assert "官方权重" in entity.specs.availability
+                assert "不代表当前云 API 可用" in entity.specs.availability
+                continue
+            if self_hosted_display and key in {"inputPrice", "outputPrice"}:
+                # Preserve the original channel quote in the dated ledger and
+                # historical section; it cannot represent self-hosting cost.
+                displayed = entity.specs.model_dump(by_alias=True)[key]
+                assert "自部署" in displayed and "待核验" in displayed
+                assert any(
+                    value in item.en and "Historical hosted quote" in item.en
+                    for item in section.items
+                )
+                assert entity.release.last_verified_at == ledger["verifiedAt"]
+                continue
             if patch["entityId"] in {
                 "e-gpt-41-nano",
                 "e-gpt-51-instant",
@@ -62,9 +99,6 @@ def test_every_enriched_field_keeps_official_provenance_and_conflicts_stay_unres
                 assert entity.release.stage == "retired"
                 value += " · historical API"
             assert entity.specs.model_dump(by_alias=True)[key] == value
-        section = next(
-            s for s in entity.knowledge.sections if s.id == "official-model-specifications"
-        )
         assert section.source_ids
         for reference in patch["sources"]:
             source = sources["s-specs-" + reference["name"]]

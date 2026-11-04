@@ -3871,8 +3871,32 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     assert decision_payload["decisionContext"]["priority"] == "cost"
     assert decision_payload["decision"]["status"] in {"ready", "insufficient-evidence"}
     assert set(decision_payload["decision"]["claimIds"]).issubset(decision_payload["claimIds"])
-    # Retrieval coverage cannot establish a private deployment guarantee.
-    assert decision_payload["decision"]["recommendation"]["primaryEntityId"] is None
+    # Explicit self-hosting evidence can qualify a candidate for investigation;
+    # mere retrieval coverage cannot establish a private deployment guarantee.
+    primary = decision_payload["decision"]["recommendation"]["primaryEntityId"]
+    if primary:
+        assert any(
+            item["claim"]["entityId"] == primary
+            and item["claim"]["predicate"] == "deployment"
+            and item["claim"]["objectOrValue"] == "private"
+            and item["claim"]["confidence"] == "verified"
+            and item["evidence"]
+            for item in decision_payload["citations"]
+        )
+    cloud_only = client.post(
+        "/api/v2/research",
+        headers=headers,
+        json={
+            "question": "为长文档分析选择私有部署模型",
+            "language": "zh",
+            "decisionContext": {
+                **decision_payload["decisionContext"],
+                "candidateEntityIds": ["e-gpt-4o"],
+            },
+        },
+    )
+    assert cloud_only.status_code == 200
+    assert cloud_only.json()["decision"]["recommendation"]["primaryEntityId"] is None
     assert all(
         set(item["claimIds"]).issubset(set(decision_payload["claimIds"]))
         for item in decision_payload["decision"]["tradeoffs"]
