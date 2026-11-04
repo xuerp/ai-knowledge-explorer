@@ -175,15 +175,22 @@
       ],
       "method": "Retain all relation records; verify provider and integration links against actual official documentation and retract unsupported lineage, architecture, benchmark and competition labels. Original records remain in Git history."
     },
-    "updatedAt": "2026-11-01",
+    "updatedAt": "2026-11-04",
     "sourceReviewUpdatedAt": "2026-10-31",
     "sourceReviewScope": "Per-claim source comparison by Codex, not an independent human audit. Exact release dates remain unknown when a version suffix or approximate announcement is insufficient.",
     "scopedRelationReview": {
-      "reviewedAt": "2026-11-01",
+      "reviewedAt": "2026-11-04",
       "originalMissingRelationIds": ["r3", "r7", "r8", "r19", "r20", "r30", "r43"],
       "resolvedRelationIds": ["r7", "r8", "r20"],
-      "remainingRelationIds": ["r3", "r19", "r30", "r43"],
-      "method": "Primary-source comparison with version and historical product scope; all original relation IDs retained. Automated OpenAI fetches returned 403; readable web retrieval was reviewed separately, not counted as collector success. No independent human audit or full-catalog freshness claim."
+      "remainingRelationIds": ["r19"],
+      "method": "Named-model presence in a dated vendor comparison table is verified; competition edges are sourced editorial inferences, not vendor-confirmed market relationships or performance rankings. All original IDs retained. GPT-4.5 direct succession remains unverified. Direct OpenAI HTTP captures returned403; readable primary-page web retrieval was reviewed separately. Individual agent review, not independent human review.",
+      "inferredRelationIds": ["r3", "r30", "r43"]
+    },
+    "privateDeploymentReview": {
+      "reviewedAt": "2026-11-04",
+      "entityIds": ["e-qwen-3-235b"],
+      "scope": "Official downloadable weights, exact license revision, text generation and self-hosting documentation; no runtime, hardware, business-quality or whole-application no-egress certification.",
+      "method": "Captured public sources, individually approved via application review/publication services in an isolated local database, then exported into the existing catalog. No model calls."
     }
   },
   "entities": [
@@ -21602,22 +21609,22 @@
       },
       "aliases": ["Qwen3 235B A22B"],
       "summary": {
-        "zh": "Qwen3 235B A22B：Qwen3 首发开放权重旗舰，在同一模型中融合思考与非思考模式。",
-        "en": "Qwen3 235B A22B is a documented historical release in the Qwen 开放模型 / Open models line."
+        "zh": "Qwen3-235B-A22B 保留官方开放权重与自托管指南，可作为本地文本生成候选；需先核验目标硬件与整套知识库的数据边界。",
+        "en": "Qwen3-235B-A22B retains official weights and self-hosting documentation. It is a local text-generation candidate; target hardware and the full knowledge-base data boundary still need validation."
       },
       "latestVersion": null,
       "status": "active",
       "tags": ["具体版本", "Qwen 开放模型 / Open models"],
       "firstReleasedAt": "2025-04-29",
-      "lastUpdatedAt": "2026-10-05",
+      "lastUpdatedAt": "2026-11-04",
       "metrics": [],
       "specs": {
         "contextWindow": "32,768 native · 131,072 with YaRN tokens",
-        "inputPrice": "¥2 / 1M tokens · Beijing",
-        "outputPrice": "¥8 (non-thinking); ¥20 (thinking) / 1M tokens · Beijing",
-        "modalities": null,
+        "inputPrice": "自部署硬件与运维成本待核验；没有统一 API 单价",
+        "outputPrice": "自部署硬件与运维成本待核验；不表示免费运行",
+        "modalities": "文本输入与文本输出",
         "toolUse": null,
-        "availability": "Alibaba Cloud hosted API · Beijing"
+        "availability": "官方权重，自行部署；不代表当前云 API 可用"
       },
       "release": {
         "generation": "Qwen3 235B A22B",
@@ -21636,23 +21643,29 @@
             "en": "Open models and deployment choices"
           }
         },
-        "catalogCurrent": false,
+        "catalogCurrent": true,
         "releasedAt": "2025-04-29",
         "lastVerifiedAt": "2026-10-05",
-        "accessChannels": []
+        "accessChannels": [
+          {
+            "type": "open-weights",
+            "provider": "Qwen official Hugging Face repository",
+            "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B"
+          }
+        ]
       },
       "capabilities": [
         {
-          "zh": "Qwen3 首发开放权重旗舰，在同一模型中融合思考与非思考模式。",
-          "en": "Officially documented Qwen3 235B A22B release.",
+          "zh": "Qwen3-235B-A22B 保留官方开放权重与自托管指南，可作为本地文本生成候选；需先核验目标硬件与整套知识库的数据边界。",
+          "en": "Qwen3-235B-A22B retains official weights and self-hosting documentation. It is a local text-generation candidate; target hardware and the full knowledge-base data boundary still need validation.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Qwen3 235B A22B：Qwen3 首发开放权重旗舰，在同一模型中融合思考与非思考模式。",
-            "en": "Qwen3 235B A22B is a documented historical release in the Qwen 开放模型 / Open models line."
+            "zh": "Qwen3-235B-A22B 保留官方开放权重与自托管指南，可作为本地文本生成候选；需先核验目标硬件与整套知识库的数据边界。",
+            "en": "Qwen3-235B-A22B retains official weights and self-hosting documentation. It is a local text-generation candidate; target hardware and the full knowledge-base data boundary still need validation."
           }
         ],
         "significance": {
@@ -21660,6 +21673,21 @@
           "en": "Open models and deployment choices"
         },
         "keyPoints": [
+          {
+            "title": {
+              "zh": "自托管依据",
+              "en": "Self-hosting evidence"
+            },
+            "description": {
+              "zh": "官方权重、Apache 2.0 许可证与本地推理指南已按具体版本核对。235B 是总参数量，22B 是激活量；硬件、费用、引用正确性和数据不外传仍需验证。",
+              "en": "Official weights, Apache 2.0 and local-inference documentation were checked for the exact version. 235B total / 22B activated does not establish hardware fit, cost, citation accuracy or no-egress operation."
+            },
+            "sourceIds": [
+              "s-portfolio-qwen3-card-20261104",
+              "s-portfolio-qwen3-license-20261104",
+              "s-portfolio-qwen3-weights-20261104"
+            ]
+          },
           {
             "title": {
               "zh": "发布与迭代",
@@ -21677,8 +21705,8 @@
               "en": "Specifications and billing basis"
             },
             "description": {
-              "zh": "按具体型号和调用渠道核对；价格为 2026-10-05 记录的官方资料快照。人民币报价对应北京地区；价格区间按输入长度或模式分档。",
-              "en": "Beijing standard online uncached API; excludes cache and Batch discounts. Input/output CNY per million: qwen3-235b-a22b hosted API; native open-weight context is different from hosted context\nNative open-weight limits. Self-hosting charges depend on deployment resources; this does not mean hosted API calls are free.\nVerified: 2026-10-05"
+              "zh": "原云端报价仅保留历史来源口径，不能用于自部署预算。自主部署的硬件、量化与运维成本须按目标环境核验。",
+              "en": "Original hosted prices retain their historical source scope and cannot establish a self-hosting budget. Check hardware, quantization and operating cost for the target environment."
             },
             "sourceIds": ["s-specs-qwen-pricing", "s-specs-qwen-models", "s-specs-qwen3"]
           }
@@ -21686,22 +21714,22 @@
         "useCases": [
           {
             "title": {
-              "zh": "历史迭代研究",
-              "en": "Historical iteration research"
+              "zh": "内部知识库的生成模型候选",
+              "en": "Generation-model candidate for an internal knowledge base"
             },
             "description": {
-              "zh": "用于理解 Qwen3 235B A22B 在该产品线的演进位置；业务接入需另核当前入口与价格。",
-              "en": "Use this historical release to study the line; verify current access and pricing before integration."
+              "zh": "先核验目标服务器资源并使用脱敏文本；检索、嵌入、权限与引用另行配置，不把模型本身当成完整知识库应用。",
+              "en": "Validate target server resources with redacted text; configure retrieval, embeddings, access and citations separately. The model is not a complete knowledge-base app."
             }
           }
         ],
         "limitations": [
           {
-            "zh": "发布记录不代表目前仍可调用；未复核的规格、价格和当前入口保持待核实。",
-            "en": "A release announcement does not imply current API availability. Unreviewed specifications, pricing and current access remain unknown."
+            "zh": "未执行模型推理或硬件压测；235B 全部权重的内存、量化、吞吐、并发与总成本仍未知。仅有本地模型不保证整套应用无外传，须审查嵌入、检索、日志与监控并做断网及流量检查。",
+            "en": "No inference or hardware load test was executed. Full-weight memory, quantization, throughput, concurrency and total cost remain unknown. Audit embeddings, retrieval, logs and monitoring, then test disconnection and traffic; a local model alone does not prove no egress."
           }
         ],
-        "officialUrl": "https://qwenlm.github.io/blog/qwen3/",
+        "officialUrl": "https://huggingface.co/Qwen/Qwen3-235B-A22B",
         "sections": [
           {
             "id": "official-model-specifications",
@@ -21710,17 +21738,17 @@
               "en": "Official specifications and billing basis"
             },
             "summary": {
-              "zh": "按具体型号和调用渠道核对；价格为 2026-10-05 记录的官方资料快照。人民币报价对应北京地区；价格区间按输入长度或模式分档。",
-              "en": "Beijing standard online uncached API; excludes cache and Batch discounts. Input/output CNY per million: qwen3-235b-a22b hosted API; native open-weight context is different from hosted context\nNative open-weight limits. Self-hosting charges depend on deployment resources; this does not mean hosted API calls are free.\nVerified: 2026-10-05"
+              "zh": "上下文按原生与 YaRN 扩展条件分别阅读；原云端报价是历史资料，不能作为自部署成本。",
+              "en": "Read native context and YaRN-extension conditions separately. Original hosted quotes are historical source material, not self-hosting costs."
             },
             "items": [
               {
-                "zh": "输入价格：¥2 / 1M tokens · 北京",
-                "en": "inputPrice: ¥2 / 1M tokens · Beijing"
+                "zh": "历史云端资料（非自部署成本）：输入价格：¥2 / 1M tokens · 北京",
+                "en": "Historical hosted quote, not self-hosting cost: inputPrice: ¥2 / 1M tokens · Beijing"
               },
               {
-                "zh": "输出价格：¥8 (非思考); ¥20 (思考) / 1M tokens · 北京",
-                "en": "outputPrice: ¥8 (non-thinking); ¥20 (thinking) / 1M tokens · Beijing"
+                "zh": "历史云端资料（非自部署成本）：输出价格：¥8 (非思考); ¥20 (思考) / 1M tokens · 北京",
+                "en": "Historical hosted quote, not self-hosting cost: outputPrice: ¥8 (non-thinking); ¥20 (thinking) / 1M tokens · Beijing"
               },
               {
                 "zh": "上下文：32,768 原生 · 131,072 YaRN 扩展 tokens",
@@ -40603,6 +40631,119 @@
       "verifiedAt": "2026-11-01",
       "sourceExcerptKind": "summary",
       "supportsClaimIds": []
+    },
+    {
+      "id": "s-portfolio-qwen3-weights-20261104",
+      "title": {
+        "zh": "Qwen3-235B-A22B 官方权重文件与固定修订",
+        "en": "Qwen3-235B-A22B 官方权重文件与固定修订"
+      },
+      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/tree/8efa61729e24bd65b1d152b5ab5409052aa80e65",
+      "publisher": "Qwen",
+      "publishedAt": "2025-07-26",
+      "collectedAt": "2026-11-04T13:07:47.431452+00:00",
+      "verifiedAt": "2026-11-04T13:07:48.381203",
+      "sourceExcerpt": "The official Qwen repository revision includes downloadable Safetensors weights, configuration and tokenizer files. The revision date is not a model release or service availability date. No model weights were downloaded or run in this review.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-portfolio-qwen3-access-20261104"],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-portfolio-qwen3-card-20261104",
+      "title": {
+        "zh": "Qwen3-235B-A22B 模型卡（README 文件修订日期 2025-05-21）",
+        "en": "Qwen3-235B-A22B 模型卡（README 文件修订日期 2025-05-21）"
+      },
+      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/blob/8efa61729e24bd65b1d152b5ab5409052aa80e65/README.md",
+      "publisher": "Qwen",
+      "publishedAt": "2025-05-21",
+      "collectedAt": "2026-11-04T13:07:47.431452+00:00",
+      "verifiedAt": "2026-11-04T13:07:49.902093",
+      "sourceExcerpt": "The exact Qwen3-235B-A22B model card documents Transformers loading and text generation, SGLang/vLLM self-hosting, 235B total / 22B activated parameters, and a native 32,768-token context. It does not provide document retrieval, business accuracy, customer hardware qualification or a no-egress audit.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-portfolio-qwen3-text-20261104",
+        "c-portfolio-qwen3-modality-20261104",
+        "c-portfolio-qwen3-boundary-20261104"
+      ],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-portfolio-qwen3-license-20261104",
+      "title": {
+        "zh": "Qwen3-235B-A22B Apache 2.0（LICENSE 文件提交日期 2025-07-26）",
+        "en": "Qwen3-235B-A22B Apache 2.0（LICENSE 文件提交日期 2025-07-26）"
+      },
+      "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/blob/8efa61729e24bd65b1d152b5ab5409052aa80e65/LICENSE",
+      "publisher": "Qwen",
+      "publishedAt": "2025-07-26",
+      "collectedAt": "2026-11-04T13:07:47.431452+00:00",
+      "verifiedAt": "2026-11-04T13:07:49.598075",
+      "sourceExcerpt": "The exact repository LICENSE is Apache License 2.0. It grants rights to use, reproduce, modify and distribute subject to the license conditions, including notices for redistribution. Trademark rights and warranties are not granted. This does not license a separate hosted service or the user's input documents.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-portfolio-qwen3-license-20261104"],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-portfolio-transformers-offline-20261104",
+      "title": {
+        "zh": "Transformers 官方离线加载说明",
+        "en": "Transformers 官方离线加载说明"
+      },
+      "url": "https://huggingface.co/docs/transformers/installation#offline-mode",
+      "publisher": "Hugging Face",
+      "publishedAt": "",
+      "collectedAt": "2026-11-04T13:07:47.431452+00:00",
+      "verifiedAt": "2026-11-04T13:07:49.902093",
+      "sourceExcerpt": "Transformers documents pre-downloading model files, HF_HUB_OFFLINE=1 to prevent Hub HTTP calls during loading, and local_files_only=True. These loading controls alone do not establish that an entire RAG application, logs, embeddings or telemetry has no external traffic.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-portfolio-qwen3-boundary-20261104"],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-portfolio-sonnet45-comparison-20261104",
+      "title": {
+        "zh": "Anthropic Sonnet 4.5 发布比较表与方法说明（2025-09-29）",
+        "en": "Anthropic Sonnet 4.5 发布比较表与方法说明（2025-09-29）"
+      },
+      "url": "https://www.anthropic.com/news/claude-sonnet-4-5",
+      "publisher": "Anthropic",
+      "publishedAt": "2025-09-29",
+      "collectedAt": "2026-11-04T13:07:47.431452+00:00",
+      "verifiedAt": "2026-11-04T13:07:50.205319",
+      "sourceExcerpt": "The published table names Claude Sonnet 4.5, Opus 4.1, Sonnet 4, GPT-5 and Gemini 2.5 Pro. This is evidence of a dated named-model comparison, not a family-wide or current performance ranking. Methodology lists different tools, compute and source reports; AI Radar did not execute these evaluations.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-portfolio-comparison-20261104"],
+      "contradictsClaimIds": null
+    },
+    {
+      "id": "s-portfolio-gpt45-review-20261104",
+      "title": {
+        "zh": "OpenAI GPT-4.5 发布文（2025-02-27）",
+        "en": "OpenAI GPT-4.5 发布文（2025-02-27）"
+      },
+      "url": "https://openai.com/index/introducing-gpt-4-5/",
+      "publisher": "OpenAI",
+      "publishedAt": "2025-02-27",
+      "collectedAt": "2026-11-04T13:11:10.444102+00:00",
+      "verifiedAt": "2026-11-04T13:11:12.202405",
+      "sourceExcerpt": "The launch article compares GPT-4.5 with GPT-4o in human preference and task examples. This review found no explicit statement of direct GPT-4o succession or replacement. Release order and model comparison alone do not establish that relation. The page marks the launch post as outdated.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-portfolio-gpt45-20261104"],
+      "contradictsClaimIds": null
     }
   ],
   "claims": [
@@ -46478,6 +46619,150 @@
       "objectOrValue": "2026-10-23; later snapshots have a separate schedule",
       "validFrom": "2026-10-23",
       "validTo": null
+    },
+    {
+      "id": "c-portfolio-qwen3-access-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "Qwen3-235B-A22B 的官方固定修订保留可下载的 Safetensors 权重、配置和分词器；这是自部署入口，不代表当前云 API 可用。",
+        "en": "Qwen3-235B-A22B has official downloadable weights, configuration and tokenizer files at the reviewed revision; this is self-hosting access, not a current hosted API claim.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-weights-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "access",
+      "objectOrValue": "open-weights",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-qwen3-deployment-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "Qwen3-235B-A22B 官方模型卡给出 Transformers 本地推理和 SGLang / vLLM 自托管步骤。模型共 235B 参数、激活 22B；不能把激活参数当作全部权重内存需求。硬件容量、量化方案与维护成本仍需按目标服务器核验。",
+        "en": "The exact model card documents local Transformers inference and SGLang/vLLM self-hosting. It has 235B total and 22B activated parameters; activated parameters do not equal full weight memory. Verify target hardware, quantization and operating cost separately.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-card-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "deployment",
+      "objectOrValue": "private",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-qwen3-text-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "Qwen3-235B-A22B 模型卡给出基于输入消息生成文本的本地推理例，可作为知识库中的生成模型候选。它不是完整知识库应用；检索、引用、无答案拒答和访问隔离仍需另行配置与样本核验。",
+        "en": "The model card documents local message-to-text generation. It is a generation-model candidate, not a complete knowledge-base app; configure and test retrieval, citations, abstention and access isolation separately.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-card-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "workflow-feature",
+      "objectOrValue": "text-generation",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-qwen3-modality-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "此处核验的是 Qwen3-235B-A22B 文本输入与文本生成；不能据此推断可直接读取 PDF、Word、图片或扫描件。",
+        "en": "This review establishes text input and generation for Qwen3-235B-A22B, not native PDF, Word, image or scanned-document input.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-card-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "input_modality",
+      "objectOrValue": "text",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-qwen3-license-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "该固定修订的 Qwen3-235B-A22B 权重适用 Apache 2.0，可在遵守许可证条件时使用、修改和再分发；再分发须履行许可与声明义务，不包含商标授权，也不代表第三方服务或业务文档的使用授权。",
+        "en": "The reviewed weights use Apache 2.0, allowing use, modification and redistribution subject to its conditions and notice obligations; this does not grant trademarks or rights to separate services or business documents.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-license-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "commercial_use",
+      "objectOrValue": "allowed",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-qwen3-boundary-20261104",
+      "entityId": "e-qwen-3-235b",
+      "text": {
+        "zh": "本地推理需先准备模型文件与依赖。Transformers 提供仅从本地文件加载和禁止 Hub HTTP 请求的配置；业务数据留在自有服务器仍须让嵌入、检索、日志与监控一并受控，并以脱敏样本、断网运行及网络流量检查验证。尚未实测你的环境。",
+        "en": "Pre-stage files and dependencies for local inference. Transformers supports local-only loading and disabling Hub HTTP calls. Keep embeddings, retrieval, logs and monitoring controlled, then check redacted samples, disconnected execution and traffic; the user's environment has not been tested.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-qwen3-card-20261104", "s-portfolio-transformers-offline-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "Qwen3-235B-A22B",
+      "predicate": "workflow-qualification",
+      "objectOrValue": "model-configuration",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-comparison-20261104",
+      "entityId": "e-gpt-5",
+      "text": {
+        "zh": "Anthropic 在 2025-09-29 的 Sonnet 4.5 发布表中具名对照 GPT-5、Claude Sonnet 4.5 与 Gemini 2.5 Pro。该事实只支持当时表中的比较范围；厂商报告、工具和算力条件不同，不能据此形成 AI Radar 业务实测或当前全系列排名。",
+        "en": "Anthropic's 2025-09-29 table explicitly compares GPT-5, Sonnet 4.5 and Gemini 2.5 Pro. This establishes only that dated comparison, with vendor-reported methodology, not AI Radar business measurements or a current family-wide ranking.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-sonnet45-comparison-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "GPT-5",
+      "predicate": "catalog-review",
+      "objectOrValue": "published-comparison",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:07:47.431452+00:00"
+    },
+    {
+      "id": "c-portfolio-gpt45-20261104",
+      "entityId": "e-gpt-45",
+      "text": {
+        "zh": "OpenAI 2025-02-27 的 GPT-4.5 发布文包含与 GPT-4o 的人类偏好比较。本轮未找到直接继承或替换声明；比较结果与发布时间先后不能证明该继承关系。",
+        "en": "OpenAI's 2025-02-27 GPT-4.5 launch includes a human-preference comparison with GPT-4o. This review found no explicit direct-succession or replacement statement; comparisons and release order do not establish that relation.",
+        "technical": null
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-portfolio-gpt45-review-20261104"],
+      "updatedAt": "2026-11-04",
+      "subject": "GPT-4.5",
+      "predicate": "catalog-review",
+      "objectOrValue": "historical-comparison",
+      "validFrom": null,
+      "validTo": null,
+      "observedAt": "2026-11-04T13:11:10.444102+00:00"
     }
   ],
   "relations": [
@@ -48132,12 +48417,13 @@
       "fromId": "e-gpt",
       "toId": "e-claude",
       "kind": "competes-with",
-      "confidence": "unverified",
-      "sourceIds": [],
+      "confidence": "inferred",
+      "sourceIds": ["s-portfolio-sonnet45-comparison-20261104"],
       "label": {
-        "zh": "待核实：家族级竞争关系缺少具名版本与比较范围",
-        "en": "Unverified: family-level competition needs named versions and a comparison scope"
-      }
+        "zh": "有据推断：2025-09-29：具名 GPT-5 与 Sonnet 4.5 的厂商基准对照；不代表全系列或当前排名",
+        "en": "Sourced inference: 2025-09-29: vendor benchmark comparison of named GPT-5 / Sonnet 4.5, not entire families or a current ranking"
+      },
+      "validFrom": "2025-09-29"
     },
     {
       "id": "r7",
@@ -48195,10 +48481,10 @@
       "toId": "e-gpt-4o",
       "kind": "successor-of",
       "confidence": "unverified",
-      "sourceIds": [],
+      "sourceIds": ["s-portfolio-gpt45-review-20261104"],
       "label": {
-        "zh": "待核实：发布时间先后不能证明 GPT-4.5 直接继承 GPT-4o",
-        "en": "Unverified: release order alone does not establish direct GPT-4o to GPT-4.5 succession"
+        "zh": "仍待核实：GPT-4.5 发布文给出与 GPT-4o 的比较，未明确直接继承或替换；日期先后不能证明继承",
+        "en": "Still unverified: the GPT-4.5 launch compares GPT-4o but does not explicitly establish direct succession or replacement; chronology is insufficient"
       }
     },
     {
@@ -48231,24 +48517,26 @@
       "fromId": "e-gpt-5",
       "toId": "e-claude-45",
       "kind": "competes-with",
-      "confidence": "unverified",
-      "sourceIds": [],
+      "confidence": "inferred",
+      "sourceIds": ["s-portfolio-sonnet45-comparison-20261104"],
       "label": {
-        "zh": "待核实：现有来源未支持 GPT-5 与 Sonnet 4.5 的具体竞争结论",
-        "en": "Unverified: existing sources do not establish a scoped GPT-5 / Sonnet 4.5 competition claim"
-      }
+        "zh": "有据推断：2025-09-29：Anthropic 发布表具名对照 GPT-5 与 Sonnet 4.5；方法与工具条件须分别阅读",
+        "en": "Sourced inference: 2025-09-29: Anthropic table names GPT-5 / Sonnet 4.5; read each method and tool condition"
+      },
+      "validFrom": "2025-09-29"
     },
     {
       "id": "r43",
       "fromId": "e-gpt-5",
       "toId": "e-gemini-25-pro",
       "kind": "competes-with",
-      "confidence": "unverified",
-      "sourceIds": [],
+      "confidence": "inferred",
+      "sourceIds": ["s-portfolio-sonnet45-comparison-20261104"],
       "label": {
-        "zh": "待核实：现有来源未支持 GPT-5 与 Gemini 2.5 Pro 的具体竞争结论",
-        "en": "Unverified: existing sources do not establish a scoped GPT-5 / Gemini 2.5 Pro competition claim"
-      }
+        "zh": "有据推断：2025-09-29：发布表具名对照 GPT-5 与 Gemini 2.5 Pro；是厂商资料，不是本网站业务实测",
+        "en": "Sourced inference: 2025-09-29: named GPT-5 / Gemini 2.5 Pro comparison in a vendor table, not site business tests"
+      },
+      "validFrom": "2025-09-29"
     }
   ],
   "timeline": {

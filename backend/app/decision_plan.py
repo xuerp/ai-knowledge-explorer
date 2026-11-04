@@ -552,6 +552,37 @@ def build_plan(
                 " 未执行同口径实测前不指定效果冠军；预算未知则保留未知，不编造费用或把未知当免费。",
                 " Do not declare a quality winner before comparable measurements. Keep unknown budgets unknown without inventing charges or assuming free use.",
             )
+        if context.deployment in {"private", "on-device"} and result.scenario.id in {
+            "knowledge-assistant",
+            "coding-model",
+            "document-extraction",
+            "career-assistant",
+            "general-text",
+        }:
+            procedure = (
+                t(
+                    "先记录目标服务器或设备的操作系统、内存、显存与并发要求，对照具体版本的官方权重、许可证和推理文档核验容量与部署条件。完整权重的内存需求不能用激活参数量代替；未确认资源与费用前先做可行性检查，不接入受限业务文档。准备好模型文件与依赖后，仅从本地路径加载；模型、嵌入、检索、日志与监控均须在获准的位置运行，不调用外部模型或嵌入 API。",
+                    "Record target OS, RAM, VRAM and concurrency, then check the exact version's official weights, license and inference documentation. Activated parameters do not establish full-weight memory. Qualify resources and cost before using restricted business documents. Pre-stage files and dependencies, load local paths only, and keep models, embeddings, retrieval, logs and monitoring in approved locations without external model or embedding APIs.",
+                )
+                + " "
+                + procedure
+            )
+            check = (
+                t(
+                    "先用脱敏样本验证断开外网后仍能完成任务，并检查网络流量、日志与监控是否外传；未通过时保留阻塞。环境通过后再执行原任务的业务验收，不把部署成功当作业务效果通过。",
+                    "Use redacted samples to verify task execution with external networking disconnected, and inspect network traffic, logs and monitoring for egress. Keep failed checks blocked. After environment qualification, execute the original business acceptance; deployment success is not business-quality acceptance.",
+                )
+                + " "
+                + check
+            )
+            acceptance = (
+                t(
+                    "目标资源与许可条件得到确认，受控环境的断网运行和流量检查通过后，才接入获准的业务样本；未执行的环境和业务检查均保持未完成。",
+                    "Confirm target resources and license conditions, then pass controlled disconnected-execution and traffic checks before using authorized business samples. Unrun environment and business checks remain incomplete.",
+                )
+                + " "
+                + acceptance
+            )
         # Apply original requirements after selecting the method, so replacing a
         # procedure cannot silently remove the user's restrictions.
         if task.limits:

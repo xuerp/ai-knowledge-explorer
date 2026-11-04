@@ -68,14 +68,17 @@ def understand_task(task: str) -> TaskUnderstanding:
     limits = tuple(
         part.text
         for part in clauses
+        # Capability questions are not prohibitions. Preserve any separate
+        # real prohibition in the same task instead of dropping the sentence.
+        for constraint_text in [re.sub(r"能不能|可不可以", "", part.text)]
         if part.prohibited
         # Retention is deliberately broader than lexical goal exclusion.
         # Unknown negated operations must survive even if the verb is absent
         # from the catalog; a negative adjective must not erase its goal.
-        or re.search(r"[不未没无]|\b(?:no|not|never|without)\b", part.text, re.IGNORECASE)
+        or re.search(r"[不未没无]|\b(?:no|not|never|without)\b", constraint_text, re.IGNORECASE)
         or re.search(
             r"不能|不要|不得|不想|不允许|不传|不.*传出去|只|最多|预算|断网|离线|内存|显卡|确认|审批|must|only|offline|budget",
-            part.text,
+            constraint_text,
             re.IGNORECASE,
         )
     )

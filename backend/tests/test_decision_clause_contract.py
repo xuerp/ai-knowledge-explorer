@@ -8,6 +8,12 @@ from app.decision_task import understand_task
 from app.schemas import DecisionContext
 
 
+@pytest.mark.parametrize("question", ["能不能选", "可不可以选", "是否可以选"])
+def test_capability_question_is_not_a_prohibition(question):
+    parsed = understand_task(f"选私有部署模型，不能调用外部 API。请说明{question}、选哪个。")
+    assert parsed.limits == ("不能调用外部 API",)
+
+
 @pytest.mark.parametrize("prefix", ["不要", "也不要", "不需要", "并且不需要", "没有"])
 def test_unavailable_material_is_not_positive_input(prefix):
     task = understand_task(f"把中文译成英文，{prefix}代码仓库")

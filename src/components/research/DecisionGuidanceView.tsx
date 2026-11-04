@@ -55,12 +55,24 @@ export function DecisionGuidanceView({
     : guidance.recommendation;
   const comparisonIds = guidance.recommendation.entityIds.slice(0, 3);
   const comparisons = decisionComparisonRows(research, comparisonIds);
+  const localDeployment = ["private", "on-device"].includes(
+    research.decisionContext?.deployment ?? "",
+  );
+  const reasonClaimIds = new Set(advice.reasons.flatMap((reason) => reason.claimIds));
+  const reasonSourceIds = new Set(
+    (research.citations ?? [])
+      .filter((citation) => reasonClaimIds.has(citation.claim.id))
+      .flatMap((citation) => citation.evidence.map((source) => source.id)),
+  );
   const documentation = (research.citations ?? [])
     .filter((citation) => advice.entityIds.includes(citation.claim.entityId ?? ""))
     .flatMap((citation) => citation.evidence)
     .filter(
       (source, index, all) =>
         source.type === "official" && all.findIndex((item) => item.url === source.url) === index,
+    )
+    .sort((a, b) =>
+      localDeployment ? Number(reasonSourceIds.has(b.id)) - Number(reasonSourceIds.has(a.id)) : 0,
     )
     .slice(0, 3);
   const question = guidance.clarification;
@@ -332,10 +344,15 @@ export function DecisionGuidanceView({
             {guidance.nextAction.kind === "start" && (
               <>
                 <p>
-                  {t(
-                    "使用入口：本次未验证你的账户是否已开通，请在已有产品中确认。",
-                    "Access: your account availability has not been verified; check inside your existing product.",
-                  )}
+                  {localDeployment
+                    ? t(
+                        "使用入口：按所选版本的官方部署文档准备本地环境，先核验资源与数据边界。",
+                        "Access: prepare a local environment using the exact version's official deployment documentation; first qualify resources and data boundaries.",
+                      )
+                    : t(
+                        "使用入口：本次未验证你的账户是否已开通，请在已有产品中确认。",
+                        "Access: your account availability has not been verified; check inside your existing product.",
+                      )}
                 </p>
                 {!!documentation.length && (
                   <p className="decision-guidance__references decision-guidance__documentation">
@@ -348,10 +365,15 @@ export function DecisionGuidanceView({
                   </p>
                 )}
                 <p>
-                  {t(
-                    "在你选择的产品中执行；本页不会替你运行任务。",
-                    "Run this in your selected product; this page does not execute the task.",
-                  )}
+                  {localDeployment
+                    ? t(
+                        "在你控制的部署环境中执行；本页不会部署模型或发送业务文档。",
+                        "Run this in your controlled environment; this page does not deploy models or send business documents.",
+                      )
+                    : t(
+                        "在你选择的产品中执行；本页不会替你运行任务。",
+                        "Run this in your selected product; this page does not execute the task.",
+                      )}
                 </p>
                 <label htmlFor={`start-${research.id}`}>
                   {t("可复制的任务说明", "Copyable task instructions")}

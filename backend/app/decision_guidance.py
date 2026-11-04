@@ -329,6 +329,78 @@ def build_guidance(result, context, snapshot, language):
             # Keep the server's scoped price range and calculation assumptions.
             summary = result.recommendation.summary
             reasons = list(result.recommendation.reasons or reasons)
+    if (
+        ready
+        and not question
+        and context.deployment in {"private", "on-device"}
+        and all(entities[key].type == "model" for key in ready)
+    ):
+        # A documented self-hosting path qualifies a setup investigation, not
+        # the user's hardware or an entire application's data boundary.
+        outcome = "conditional"
+        headline = (
+            t(
+                f"可先核验 {name(primary)} 的本地部署路线",
+                f"Check {name(primary)} for local deployment",
+            )
+            if primary
+            else t("已找到有依据的本地部署候选", "Documented local-deployment candidates found")
+        )
+        summary = t(
+            "已有具体版本的自托管依据，可先核验这条部署路线。目标服务器的资源、总成本及整套应用的数据去向尚未实测；先完成下方环境检查，再决定是否接入业务材料。",
+            "The exact versions have self-hosting evidence. First qualify this deployment route: target-server resources, total cost and the full application data boundary have not been tested. Complete the environment checks below before connecting business materials.",
+        )
+        current_ids = {key for item in ready for key in rows[item].claim_ids}
+        local_reasons = []
+        for predicate, dimension in (
+            ("access", "access"),
+            ("deployment", "deployment"),
+            ("commercial_use", "commercial-use"),
+        ):
+            supported = [
+                claim
+                for claim in snapshot.claims
+                if claim.id in current_ids and claim.predicate == predicate
+            ]
+            if supported:
+                local_reasons.append(
+                    DecisionTradeoff(
+                        dimension=dimension,
+                        finding=" ".join(
+                            dict.fromkeys(getattr(c.text, language) for c in supported)
+                        ),
+                        claim_ids=[c.id for c in supported],
+                    )
+                )
+        reasons = local_reasons or reasons
+        tradeoff = t(
+            "自托管模型不是完整应用。硬件容量、嵌入与检索、日志与监控都需核验；开放权重不代表运行免费，也不证明你的环境已经没有外传。",
+            "A self-hosted model is not a complete application. Verify hardware, embeddings, retrieval, logs and monitoring. Open weights do not mean free operation or prove that this environment has no egress.",
+        )
+        unknowns.append(
+            DecisionGuidanceUnknown(
+                candidate_id=primary,
+                requirement="target-environment",
+                kind="not-tested",
+                decisive=True,
+                detail=t(
+                    "目标硬件与整套应用的数据边界尚未验证。",
+                    "Target hardware and the complete application data boundary are untested.",
+                ),
+                affects=t(
+                    "能否在你的服务器上采用该路线", "Whether this route works on your servers"
+                ),
+                recovery=t(
+                    "先记录内存、显存与操作系统，用脱敏样本检查断网运行和网络流量。",
+                    "Record RAM, VRAM and OS, then check disconnected execution and network traffic with redacted samples.",
+                ),
+                claim_ids=[],
+                checked_at=result.as_of,
+            )
+        )
+        kind, label = "start", t("查看本地部署核验步骤", "See local-deployment checks")
+        if result.plan and result.plan.trial:
+            instruction = " ".join(result.plan.trial.procedure)
     if not ready:
         headline = t(
             "先按已知功能确定路线，必要条件仍待核验",
