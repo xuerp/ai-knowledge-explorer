@@ -73,3 +73,57 @@ def test_weights_and_license_do_not_substitute_for_missing_deployment_evidence()
     assert result.guidance.recommendation.primary_entity_id is None
     assert not result.plan.trial_candidate_ids
     assert any(gap.requirement == "deployment" and gap.decisive for gap in result.guidance.unknowns)
+
+
+def test_focused_report_omits_other_candidates_price_channels_but_preserves_real_unknowns():
+    from datetime import UTC, datetime
+
+    from app.research_report import build_report, report_markdown
+    from app.schemas import (
+        DecisionComparison,
+        DecisionComparisonCell,
+        DecisionTradeoff,
+        ResearchView,
+    )
+
+    data = snapshot()
+    context, result = research(data)
+    selected = "e-qwen-3-235b"
+    price = DecisionTradeoff(dimension="api-price", finding="Synthetic channel quote")
+    result.comparisons = [
+        DecisionComparison(
+            id="api-price-foreign-basis",
+            dimension="Foreign provider-specific channel",
+            cells=[
+                DecisionComparisonCell(entity_id=selected, state="unknown"),
+                DecisionComparisonCell(
+                    entity_id="e-gemini-3-1-pro", state="supported", facts=[price]
+                ),
+            ],
+        ),
+        DecisionComparison(
+            id="context",
+            dimension="Selected candidate context unknown",
+            cells=[DecisionComparisonCell(entity_id=selected, state="unknown")],
+        ),
+    ]
+    record = ResearchView(
+        id="scoped-report",
+        question=context.task,
+        summary="Synthetic report fixture",
+        claim_ids=[],
+        citations=[],
+        steps=[],
+        status="ready",
+        created_at=datetime.now(UTC),
+        decision_context=context,
+        decision=result,
+    )
+    text = report_markdown(build_report(record, data, "en"))
+    assert "Foreign provider-specific channel" not in text
+    assert "Selected candidate context unknown" in text
+    # A price actually belonging to the selected candidate must not disappear.
+    result.comparisons[0].cells[0] = DecisionComparisonCell(
+        entity_id=selected, state="supported", facts=[price]
+    )
+    assert "Synthetic channel quote" in report_markdown(build_report(record, data, "en"))

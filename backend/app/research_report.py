@@ -224,16 +224,19 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
                         level=3,
                     )
                 )
-        comparisons = [
-            row.model_copy(
-                update={
-                    "cells": [
-                        cell for cell in row.cells if focused is None or cell.entity_id in focused
-                    ]
-                }
-            )
-            for row in decision.comparisons
-        ]
+        comparisons = []
+        for row in decision.comparisons:
+            cells = [cell for cell in row.cells if focused is None or cell.entity_id in focused]
+            if (
+                row.id.startswith("api-price-")
+                and any(cell.facts for cell in row.cells)
+                and not any(cell.facts for cell in cells)
+            ):
+                # A provider-specific price basis belonging only to candidates
+                # outside this report is not a missing price for its subjects.
+                # Generic unknown dimensions and selected price facts remain.
+                continue
+            comparisons.append(row.model_copy(update={"cells": cells}))
         comparisons = sorted(
             [row for row in comparisons if row.cells],
             key=lambda row: not row.id.startswith("feature-"),
