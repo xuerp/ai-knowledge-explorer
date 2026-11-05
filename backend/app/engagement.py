@@ -188,7 +188,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         decision = updated.decision.model_copy()
         decision.plan = build_plan(decision, updated.decision_context, language, snapshot)
         decision.guidance = build_guidance(decision, updated.decision_context, snapshot, language)
-        updated.decision = decision
+        updated.decision = reconcile_resolution(decision, updated.decision_context, language)
     if updated.decision:
         updated.decision = reconcile_resolution(updated.decision)
     return updated

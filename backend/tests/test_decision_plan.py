@@ -118,6 +118,11 @@ def test_saved_extraction_refreshes_only_unexecuted_instructions():
     assert "扫描件" not in trial.sample
     assert "页数" not in " ".join(trial.procedure)
     assert "岗位要求匹配" in " ".join(trial.procedure)
+    prompt = refreshed.decision.guidance.next_action.execution_prompt
+    assert task in prompt
+    assert trial.sample in prompt
+    assert all(item in prompt for item in [*trial.procedure, *trial.metrics, *trial.acceptance])
+    assert "未运行" in prompt
     assert refreshed.created_at == record.created_at
     assert refreshed.decision.candidates == record.decision.candidates
     assert refreshed.decision_context == settings
