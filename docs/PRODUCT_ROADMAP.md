@@ -6,7 +6,7 @@
 - 性质：产品方向，不授予数据写入、模型调用、部署或发布权限
 - 主定位：基于可验证的最新变化辅助 AI 模型与产品选择
 
-工程执行顺序和上线门槛以 `docs/DECISION_PRODUCT_ACCEPTANCE.md` 和 `docs/PRODUCTION_RUNBOOK.md` 为准。
+这是一份带日期的产品规划，规划功能不等同于当前已完成能力。当前验证范围见 [验证记录](portfolio/VALIDATION.md)，验收合同和运行要求见 [决策助手验收标准](DECISION_PRODUCT_ACCEPTANCE.md)与[运行手册](PRODUCTION_RUNBOOK.md)。
 
 ## 产品设计规划
 

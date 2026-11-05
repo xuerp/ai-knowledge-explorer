@@ -4,7 +4,7 @@
 
 - 更新时间：2026-09-11
 - 性质：项目运行地图，不授予数据写入、模型调用、审核、部署或发布权限
-- 产品方向：以 [`../PRODUCT_ROADMAP.md`](../PRODUCT_ROADMAP.md) 为准
+- 产品方向：参考 [产品路线图](PRODUCT_ROADMAP.md)；其规划不代表当前完成状态
 - 执行顺序与门禁：以 [产品验收标准](DECISION_PRODUCT_ACCEPTANCE.md)及[运行手册](PRODUCTION_RUNBOOK.md) 为准
 - 系统分层：以 [`ARCHITECTURE.md`](ARCHITECTURE.md) 为准
 

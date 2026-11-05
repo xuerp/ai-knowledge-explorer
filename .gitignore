@@ -76,6 +76,8 @@ snapshot_test.*
 /admin_catalog.json
 /claim_audit.json
 /graph_data.json
+/current_snapshot.json
+/data_quality.json
 
 # Editor directories and files
 .vscode/*

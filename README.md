@@ -1,97 +1,119 @@
 <div align="center">
 
-<img src="public/icon.svg" width="64" height="64" alt="AI Radar" />
+<img src="public/icon.svg" width="56" height="56" alt="AI Radar" />
 
 # AI Radar
 
-### 从模型变化到技术选型，让每一步都有依据。
+**AI 模型与产品选型研究平台**
 
-追踪动态 · 查阅知识 · 对比版本 · 开展研究 · 保存报告
+把分散的模型资料、版本变化和使用条件，整理成有来源、可复查的选型研究。
 
-**[打开网站 ↗](https://ai-radar.xue-ai.workers.dev)** · [功能预览](#功能预览) · [本地运行](#本地运行) · [技术架构](#技术架构) · [反馈问题](https://github.com/xuerp/ai-knowledge-explorer/issues)
-
-React / TypeScript / TanStack · FastAPI / SQLAlchemy · MIT
+[在线体验 ↗](https://ai-radar.xue-ai.workers.dev) · [产品案例](docs/portfolio/CASE_STUDY.md) · [验证记录](docs/portfolio/VALIDATION.md) · [本地运行](#本地运行)
 
 [![Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 </div>
 
-> 当前网站为预发布版本。你可以直接浏览动态与知识库；个人研究和保存需要登录。线上版本、数据模式与验证范围见[项目状态](#项目状态)。
+> **项目状态**：可在线体验的预发布作品，采用人工维护、经审核的来源快照。动态按已收录事件展示，**不提供实时全量追踪**。公共资料可直接浏览；保存个人研究需要登录。
 
-## 快速了解
+[![AI Radar 知识库：模型家族、版本摘要、分类与筛选](docs/assets/portfolio/knowledge.png)](https://ai-radar.xue-ai.workers.dev/knowledge)
 
-1. [打开网站](https://ai-radar.xue-ai.workers.dev)，从动态进入一个具体版本，沿证据入口核对原始资料。
-2. [体验决策助手](https://ai-radar.xue-ai.workers.dev/ask)，输入自己的任务和限制，查看候选、依据及下一步；个人研究需要登录。
-3. 查看下方[技术架构](#技术架构)与[三个实现取舍](#三个实现取舍)，了解公开事实、私人研究和模型候选如何分开。
+_线上实拍 · 2026-11-05。截图展示当时的收录内容，事实适用范围以各条资料的日期和来源为准。_
 
-## 为什么做 AI Radar
+## 解决什么问题
 
-“这个模型更新了什么？”和“它适不适合我的任务？”之间，还隔着版本、能力、价格、部署条件和证据。
+选模型时，知道一个名字只是开始。真正影响选择的是：具体哪个版本、能做什么、怎样接入、数据能否外传、预算是否允许，以及这些说法的依据在哪里。
 
-AI Radar 把分散的公告、模型卡和技术文档整理成关联的知识目录。你可以从一条动态进入模型档案，沿来源核对说法，再结合自己的任务研究候选方案，把判断和依据一起留下来。
+AI Radar 面向需要评估 AI 方案的产品经理与开发者，把这段过程串起来：
 
-它适合需要跟进 AI 技术的开发者、研究者，以及正在比较模型和应用方案的产品团队。
+**发现变化 → 查清版本 → 核对证据 → 带入任务约束 → 保存研究**
 
-## 从这里开始
+例如，为公司内部 PDF / Word 文档研究问答方案时，可以先查候选的部署与使用条件，再补充隐私、引用和预算要求，形成带依据与待验证条件的路线，并在条件改变后保存新版本。
 
-| 你想做什么                   | 打开哪里                                                | 可以继续做什么                     |
-| ---------------------------- | ------------------------------------------------------- | ---------------------------------- |
-| 看模型与产品发生了什么变化   | [动态雷达](https://ai-radar.xue-ai.workers.dev/updates) | 按时间和对象筛选，进入相关档案     |
-| 查一个模型的版本、能力和限制 | [知识库](https://ai-radar.xue-ai.workers.dev/knowledge) | 查看家族、具体版本、事实和来源     |
-| 对照候选的差异               | [模型对比](https://ai-radar.xue-ai.workers.dev/compare) | 从知识库添加对象，核对规格与条件   |
-| 带着任务研究该怎么选         | [决策助手](https://ai-radar.xue-ai.workers.dev/ask)     | 描述约束，查看候选与依据，保存研究 |
-| 理解模型、应用与开发者的联系 | [知识图谱](https://ai-radar.xue-ai.workers.dev/graph)   | 沿关系探索，返回对象和原始资料     |
+## 我的工作
 
-### 一条完整的研究路线
+这是一个以 AI 产品经理能力为主线的个人项目。我负责问题定义、产品流程、数据与证据规则、验收标准和迭代取舍，**以规格和验收标准驱动 AI 编程代理实现**，并通过实际页面、接口、数据和回归结果检查交付。
 
-**发现变化 → 查阅档案 → 核对来源 → 比较条件 → 保存研究**
+| 产品决策                           | 在项目中的落地                                                             |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| 将“查资料”衔接到“判断是否适合任务” | 动态、版本档案、对比与研究共享对象和证据；研究可以修改、保存和重开         |
+| 区分对象、事实与证据               | Entity–Claim–Evidence 分层；一条事实可关联多个来源，型号和适用日期分别保留 |
+| 控制生成内容的可信边界             | 抽取结果先进入候选；公开事实须经审核；缺失条件保留为未知                   |
+| 让建议可以继续执行                 | 围绕任务、预算、隐私和部署条件筛选，提供理由、限制和下一步验证任务         |
 
-例如，你准备为内部文档建立问答功能：
+设计过程、具体失败与修正见[产品案例](docs/portfolio/CASE_STUDY.md)。
 
-1. 从知识库查看相关模型和平台，确认输入格式、部署方式与使用限制。
-2. 打开具体事实的来源，区分官方原文、整理摘要和未知条件。
-3. 在决策助手中描述“处理哪些文档、是否需要引用、数据能否上传、预算范围”。
-4. 查看候选方案及其依据；登录后保存研究，修改条件时保留历史，按需导出 Markdown 或 PDF。
+## 体验三个核心场景
 
-这是一条使用路线，不是预设推荐结果。实际候选取决于任务与当前证据；模型在业务样本上的表现仍需实测。
+| 场景                   | 体验入口                                                | 重点观察                                                     |
+| ---------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
+| 理解一次模型变化       | [动态](https://ai-radar.xue-ai.workers.dev/updates)     | 事件类别、发生日期、具体型号、影响范围和证据入口             |
+| 查清候选的能力边界     | [知识库](https://ai-radar.xue-ai.workers.dev/knowledge) | 家族与版本的区别、规格、来源、未知信息与条件对比             |
+| 围绕自己的任务研究方案 | [决策助手](https://ai-radar.xue-ai.workers.dev/ask)     | 原页澄清、任务约束、候选依据、保存历史与 Markdown / PDF 导出 |
 
-## 功能预览
+<details>
+<summary>查看研究入口与事件追踪实拍</summary>
 
-以下为 **2026-10-31 新网址实拍**。图片保留浏览器返回的原始 JPEG 和尺寸，未二次压缩，可点击查看原图；功能入口均可在网站打开。
+### 从任务与约束开始
 
-### 把任务和约束放在一起
+[![决策助手：描述任务与使用条件](docs/assets/portfolio/research.png)](https://ai-radar.xue-ai.workers.dev/ask)
 
-先描述要完成的工作，再补充预算、部署方式和偏好。研究围绕这些条件展开。
+### 从变化回到具体型号与证据
 
-[![线上决策助手：任务入口与约束表单](docs/assets/portfolio/decision-entry-online-20261031.jpg)](docs/assets/portfolio/decision-entry-online-20261031.jpg)
+[![动态：下线事件、影响范围与来源](docs/assets/portfolio/updates.png)](https://ai-radar.xue-ai.workers.dev/updates)
 
-### 从事实回到资料
+以上均为 2026-11-05 线上页面实拍。
 
-模型档案保留版本、日期和来源入口；整理摘要与原文引语分别标注。历史记录注明适用日期，缺少原文的判断保留为待核实。
+</details>
 
-[![线上知识库：模型家族、分类与筛选](docs/assets/portfolio/knowledge-online-20261031.jpg)](docs/assets/portfolio/knowledge-online-20261031.jpg)
+## 关键设计与取舍
 
-[打开具体模型档案，查看「证据链」↗](https://ai-radar.xue-ai.workers.dev/knowledge/model/gemini-4)
+**让事实带着来源进入产品。** 模型输出固定为待审核候选，审核状态决定它能否进入公共知识；公开资料与个人研究通过不同接口读取。[候选与事实分离](docs/adr/0003-candidate-verified-claim-separation.md)
 
-### 把研究留下来
+**把版本和时间作为判断条件。** 某个 API 快照下线，只影响具名接口与适用范围。事件类型同时检查结构化事实和时间线，避免标题写“下线”、标签却写“开放”。[事件分类实现](backend/app/catalog_changes.py)
 
-登录后可以保存、修改和重开研究，导出 Markdown 或 PDF。相关浏览器操作与导出验证见[验证记录](docs/portfolio/VALIDATION.md)。
+**围绕实际限制组织建议。** 先识别任务与必要条件，再检索和筛选；未知价格不会被当作免费，未执行的试用不会被写成模型成绩。[决策助手验收合同](docs/DECISION_PRODUCT_ACCEPTANCE.md)
 
-## 项目状态
+**把错误与过期数据显式呈现。** API 模式发生错误时保留错误；离线目录是独立运行方式，避免用旧示例伪装最新返回。[数据访问边界](docs/adr/0007-domain-routers-and-public-snapshot-boundary.md)
 
-**当前为预发布版本，采用有来源的收录快照。** 查询、对比、新建研究、修改保存、澄清与旧版重开已有线上检查；12 行任务框方便浏览，任务说明实际复制粘贴一致，Markdown/PDF 实际下载并检查。私有部署原题的条件路线及权重、模型卡、许可入口已线上核对；目标硬件与业务效果仍需实测。
+## 实现与架构
 
-- **在线版本**：前后端已统一从 `main` 发布到新网址。当前构建可查看[前端版本](https://ai-radar.xue-ai.workers.dev/version.txt)和[后端就绪信息](https://ai-radar.xue-ai.workers.dev/backend/ready)。独立健康调度减少免费后端空闲休眠；平台重启后的首次唤醒仍可能较慢，实测范围见[验证记录](docs/portfolio/VALIDATION.md)。
-- **数据状态**：采用「证据审核流水线 + 人工维护的知识快照」，当前 API 模式为 `demo`。历史 489 项来源比对记录保留，本轮新增 8 项逐条审核事实；原 7 条缺证关系中，3 条范围核实、3 条有据推断、1 条待核实。未知日期不补造，公开事实须经审核，比较表不当作业务效果排名。
-- **后续验证**：独立内容复核与持续时效维护、真实目标用户测试、更多选型场景、持续采集到审核发布的闭环，以及邮件实际送达。软件流程检查不代替这些实证。
+```mermaid
+flowchart LR
+    Source[官方公告与文档] --> Capture[来源快照]
+    Capture --> Candidate[候选事实]
+    Candidate --> Review[核验与审核]
+    Review --> Knowledge[公共知识 API]
+    Knowledge --> Browse[动态 / 档案 / 对比 / 图谱]
+    Knowledge --> Research[任务约束与证据检索]
+    Research --> Report[私人研究 / 历史 / 导出]
+```
 
-完整依据见[验证记录](docs/portfolio/VALIDATION.md)。
+图示为系统设计；持续采集到前台更新的线上运行闭环仍待验收。
+
+| 层次       | 技术与职责                                                                 |
+| ---------- | -------------------------------------------------------------------------- |
+| 前端       | React 19、TypeScript、TanStack Start / Query、Tailwind CSS                 |
+| 服务端     | FastAPI、Pydantic、SQLAlchemy、Alembic；知识查询、账户、审核与研究接口     |
+| 数据与检索 | PostgreSQL / SQLite；结构化事实、词法检索与可配置混合检索                  |
+| 部署与检查 | Cloudflare Workers、Render、GitHub Actions；回归、构建与线上版本一致性检查 |
+
+[系统架构](docs/ARCHITECTURE.md) · [架构决策](docs/adr/) · [文档索引](docs/README.md)
+
+## 已验证什么，还有什么没完成
+
+- **已执行的软件与页面检查**：公共资料浏览、筛选、跨页对比；研究新建、修改保存、历史重开、澄清和报告导出；事件类别与支撑事实的一致性回归。
+- **内容与评估范围**：收录资料保留来源和日期；固定快照的检索评测单独记录，不能当作当前线上准确率。
+- **仍待验证**：持续采集、抽取、审核发布与前台更新的运行闭环；独立内容复核、真实目标用户测试、业务样本效果与邮件实际送达。
+
+当前决策建议主要由检索、约束筛选与预设工作流组织。可选模型需求解析与后台候选抽取分别配置，不等于已经提供大模型个性化方案生成。
+
+本项目尚无用户增长、成本节省或业务效果的实测结论。[验证记录与证据边界](docs/portfolio/VALIDATION.md) · [固定评测](docs/eval/CHANGELOG.md)
 
 ## 本地运行
 
-### 1. 启动前端
-
-准备 Node.js 22 和 Bun 1.4.3：
+前端需要 Node.js 22 与 Bun 1.4.3：
 
 ```bash
 git clone https://github.com/xuerp/ai-knowledge-explorer.git
@@ -100,105 +122,45 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-打开终端打印的地址。未配置 API 时使用内置快照，可以浏览界面与目录；账户和研究持久化需要后端。
+未配置 API 时使用内置目录，可浏览知识与界面。登录、研究持久化和后台维护需要后端。
 
-### 2. 连接 API
-
-后端使用 Python 3.12。按照[后端启动指南](backend/README.md#本地启动)安装依赖、配置数据库并执行迁移，然后在项目根目录 `.env.local` 中设置：
+后端使用 Python 3.12，按[后端启动指南](backend/README.md#本地启动)安装依赖并执行迁移。在项目根目录 `.env.local` 中连接 API：
 
 ```dotenv
 VITE_API_BASE_URL=http://127.0.0.1:8000
 VITE_API_UPSTREAM_URL=http://127.0.0.1:8000
 ```
 
-重启前端。后端 CORS 需允许你的前端地址；API 文档位于 `http://127.0.0.1:8000/docs`。
-
-### 3. 按需启用服务
-
-| 能力                 | 需要配置                           |
-| -------------------- | ---------------------------------- |
-| 浏览知识与动态       | 内置快照，或连接知识 API           |
-| 登录、研究保存与历史 | 后端、数据库及账户配置             |
-| 候选事实抽取         | 服务端抽取接口、模型及凭据         |
-| 可选需求解析         | 独立模型配置、账户白名单与调用预算 |
-| 自动采集、审核与通知 | 信源、worker 与审核权限            |
-| 邮件摘要             | 邮件服务与投递配置                 |
-
-具体环境变量和运行方式见[后端文档](backend/README.md)与[部署说明](docs/STAGING_DEPLOYMENT.md)。
-
-当前决策助手通过资料检索、约束筛选和预设工作流组织操作建议，尚未接入大模型生成个性化操作方案。可选的模型需求解析仅负责识别任务与条件，与后台候选事实抽取分别配置；填写密钥不等于启用这些能力。
-
-## 技术架构
-
-```mermaid
-flowchart LR
-    Source[官方公告与文档] --> Capture[采集与来源快照]
-    Capture --> Candidate[候选事实]
-    Candidate --> Review[证据与人工审核]
-    Review --> Public[公开知识 API]
-    Public --> Web[动态与知识库]
-    Public --> Decision[任务约束与证据检索]
-    Decision --> Report[私人研究与报告]
-```
-
-| 层次     | 实现                                      | 主要职责                       |
-| -------- | ----------------------------------------- | ------------------------------ |
-| Web      | React、TypeScript、TanStack、Tailwind CSS | 路由、知识浏览、研究表单与报告 |
-| API      | FastAPI、Pydantic                         | 查询、账户权限、审核与研究接口 |
-| 数据     | SQLAlchemy、Alembic、SQLite / PostgreSQL  | 知识目录、个人记录与迁移       |
-| 内容处理 | 采集快照、候选抽取、审核发布              | 将外部资料转为可追溯的公共知识 |
-
-核心数据分为 **Entity（对象）— Claim（事实）— Evidence（证据）**。同一个模型可以有多条事实，一条事实可以关联多份资料；动态、模型档案、图谱和研究共享这层知识。
-
-采集结果先进入候选审核，研究检索与建议组织分别处理。公共资料与个人研究分别保存，来源缺口、未知价格和未经实测的效果不会自动转换为确定结论。
+重启前端，并确认后端 CORS 允许前端地址。模型抽取、可选需求解析及邮件服务按需单独配置。[部署说明](docs/STAGING_DEPLOYMENT.md)
 
 <details>
-<summary>查看项目结构与检查命令</summary>
+<summary>项目结构与检查命令</summary>
 
 ```text
-src/routes/          页面与路由
-src/components/      共享界面及研究组件
-src/services/        前端数据访问
-backend/app/         API、采集、知识查询与研究逻辑
-backend/migrations/  数据库迁移
-backend/tests/       后端测试
-tests/               前端与数据契约测试
-docs/                架构、运行指南、当前验证与固定评测基线
+src/                  页面、交互、领域模型与 API 访问
+backend/app/          知识、研究、采集与审核服务
+backend/data/         数据源、规则与固定输入
+backend/migrations/   数据库迁移
+backend/tests/        后端回归
+tests/                前端与跨层契约检查
+product/              共享产品配置与状态
+scripts/              构建、生成、检查与维护工具
+ops/                  调度与部署配置
+docs/                 产品案例、架构、运行指南与评测
 ```
 
 ```bash
-bun run typecheck
-bun run test
-bun run build
-# 完整项目检查
 bun run check
-# 后端安装依赖后
 cd backend
 python -m pytest tests
 ```
 
-部署相关测试需要相应环境，测试结果与外部服务实际可用性分别验证。
+测试所需环境见[后端测试说明](backend/tests/README.md)。
 
 </details>
 
-历史实施与发布记录可从 Git 历史查询；运行回执不进入文档目录。
+## 反馈与许可
 
-[架构说明](docs/ARCHITECTURE.md) · [设计决策](docs/adr) · [本地运行](#本地运行) · [文档索引](docs/README.md)
+[提交问题](https://github.com/xuerp/ai-knowledge-explorer/issues)时，请提供页面、操作步骤、预期与实际表现；纠正资料请附具体对象和原始来源。安全问题见 [SECURITY.md](SECURITY.md)。
 
-## 三个实现取舍
-
-| 取舍                                               | 为什么这样做                                             | 实现入口                                                                                                                        |
-| -------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| 模型输出先进入候选，审核后才能成为公开事实         | 生成成功不等于陈述正确，待审与被驳回记录不能参与公共选型 | [公开快照与审核状态过滤](backend/app/repository.py#L909) · [ADR 0003](docs/adr/0003-candidate-verified-claim-separation.md)     |
-| 抓取前验证地址与解析目标                           | 外部来源不能把后端引向内网、本机或不受允许的目标         | [SafeHttpFetcher](backend/app/fetching.py#L105)                                                                                 |
-| API 失败保持为错误，离线目录仅在明确的离线模式使用 | 避免把旧示例伪装成最新接口结果，同时让本地浏览仍然可用   | [数据访问边界](src/services/knowledge-repository.ts) · [ADR 0007](docs/adr/0007-domain-routers-and-public-snapshot-boundary.md) |
-
-## 反馈与贡献
-
-遇到问题可以[提交 Issue](https://github.com/xuerp/ai-knowledge-explorer/issues)，附上访问页面、操作步骤、预期结果与实际表现。纠正资料时，请同时提供具体对象和原始来源。
-
-涉及账户或服务配置时，请先移除令牌、密码和个人数据。安全问题见 [SECURITY.md](SECURITY.md)。
-
-## License
-
-[MIT](LICENSE)
+[MIT License](LICENSE)

@@ -11,6 +11,7 @@
 
 ## 架构与产品合同
 
+- [产品路线图](PRODUCT_ROADMAP.md)：带日期的设计规划，完成情况以验证记录为准。
 - [系统架构](ARCHITECTURE.md)
 - [端到端数据与用户流程](END_TO_END_OPERATING_MODEL.md)
 - [架构决策 ADR](adr/)
