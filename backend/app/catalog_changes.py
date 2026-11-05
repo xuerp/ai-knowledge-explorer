@@ -1,9 +1,16 @@
 """Project reviewed catalog releases, without inventing dates or editorial cards."""
 
+import json
 from datetime import date
+from pathlib import Path
 from urllib.parse import urlparse
 
 from .schemas import ChangeEvent, KnowledgeSnapshot
+
+EVENT_TAXONOMY = json.loads(
+    (Path(__file__).resolve().parents[1] / "data/change_event_taxonomy.v1.json").read_text("utf-8")
+)
+EVENT_PREDICATE_KINDS = EVENT_TAXONOMY["predicates"]
 
 
 def catalog_release_changes(snapshot: KnowledgeSnapshot) -> list[ChangeEvent]:
@@ -69,6 +76,7 @@ def catalog_changes(snapshot: KnowledgeSnapshot) -> list[ChangeEvent]:
                 or (entity_id != owner_id and entity.family_id != owner_id)
                 or event.change_kind
                 not in {"updated", "deprecated", "benchmark", "pricing", "availability"}
+                or event.kind not in EVENT_TAXONOMY["timelineKinds"].get(event.change_kind, [])
                 or event.date_kind != "announcement"
                 or event.confidence != "verified"
                 or not event.detail
@@ -93,6 +101,7 @@ def catalog_changes(snapshot: KnowledgeSnapshot) -> list[ChangeEvent]:
                         and claim.entity_id == entity_id
                         and claim.valid_from == event.date
                         and source.id in claim.source_ids
+                        and EVENT_PREDICATE_KINDS.get(claim.predicate) == event.change_kind
                         for claim_id in source.supports_claim_ids or []
                     )
                 ):

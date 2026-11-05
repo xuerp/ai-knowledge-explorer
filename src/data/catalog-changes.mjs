@@ -1,5 +1,7 @@
 // The family timeline is the authority for release events. Review timestamps,
 // undated versions and conflicting dates cannot manufacture a release.
+import eventTaxonomy from "../../backend/data/change_event_taxonomy.v1.json" with { type: "json" };
+
 export function catalogReleaseChanges(snapshot) {
   const entities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
   const evidence = new Map(snapshot.evidence.map((source) => [source.id, source]));
@@ -67,6 +69,7 @@ export function catalogChanges(snapshot) {
         !["updated", "deprecated", "benchmark", "pricing", "availability"].includes(
           event.changeKind,
         ) ||
+        !eventTaxonomy.timelineKinds[event.changeKind]?.includes(event.kind) ||
         event.dateKind !== "announcement" ||
         event.confidence !== "verified" ||
         !/^\d{4}-\d{2}-\d{2}$/.test(event.date) ||
@@ -87,7 +90,8 @@ export function catalogChanges(snapshot) {
               claim?.confidence === "verified" &&
               claim.entityId === entityId &&
               claim.validFrom === event.date &&
-              claim.sourceIds.includes(source.id)
+              claim.sourceIds.includes(source.id) &&
+              eventTaxonomy.predicates[claim.predicate] === event.changeKind
             );
           })
         )

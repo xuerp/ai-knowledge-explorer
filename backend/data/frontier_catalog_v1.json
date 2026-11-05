@@ -52261,7 +52261,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-41-nano",
         "title": {
           "zh": "GPT-4.1 nano API 原型号下线",
@@ -52301,7 +52301,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-image-1",
         "title": {
           "zh": "GPT Image 1 API 原型号下线",
@@ -52341,7 +52341,7 @@
         "date": "2026-07-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-51-instant",
         "title": {
           "zh": "GPT-5.1 Instant API 原型号下线",
@@ -52381,7 +52381,7 @@
         "date": "2026-08-10",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-52-instant",
         "title": {
           "zh": "GPT-5.2 Instant API 原型号下线",
@@ -52421,7 +52421,7 @@
         "date": "2026-08-10",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-53-instant",
         "title": {
           "zh": "GPT-5.3 Instant API 原型号下线",
@@ -52461,7 +52461,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-4o",
         "title": {
           "zh": "GPT-4o 2024-05-13 API 快照下线",
@@ -52676,7 +52676,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-4o",
         "title": {
           "zh": "GPT-4o 2024-05-13 API 快照下线",
@@ -57495,7 +57495,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-41-nano",
         "title": {
           "zh": "GPT-4.1 nano API 原型号下线",
@@ -57790,7 +57790,7 @@
         "date": "2026-07-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-51-instant",
         "title": {
           "zh": "GPT-5.1 Instant API 原型号下线",
@@ -57887,7 +57887,7 @@
         "date": "2026-08-10",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-52-instant",
         "title": {
           "zh": "GPT-5.2 Instant API 原型号下线",
@@ -57946,7 +57946,7 @@
         "date": "2026-08-10",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-53-instant",
         "title": {
           "zh": "GPT-5.3 Instant API 原型号下线",
@@ -59303,7 +59303,7 @@
         "date": "2026-10-23",
         "dateKind": "announcement",
         "kind": "deprecation",
-        "changeKind": "availability",
+        "changeKind": "deprecated",
         "releaseEntityId": "e-gpt-image-1",
         "title": {
           "zh": "GPT Image 1 API 原型号下线",

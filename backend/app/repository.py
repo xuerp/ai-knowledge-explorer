@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from .catalog_changes import catalog_changes
+from .catalog_changes import EVENT_PREDICATE_KINDS, catalog_changes
 from .database import (
     EntityAliasRecord,
     KnowledgeEntityRecord,
@@ -50,21 +50,7 @@ logger = logging.getLogger(__name__)
 
 # A validity date on a static capability or price does not make it a change.
 # Only predicates that state an event or an availability transition enter the feed.
-CHANGE_EVENT_PREDICATES = {
-    "release",
-    "released-on",
-    "available-in",
-    "available-on",
-    "available-as",
-    "availability",
-    "expanded-access-to",
-    "deprecated-on",
-    "scheduled-for-retirement-on",
-    "recommended-replacement",
-    "capability-updated-on",
-    "pricing-changed-on",
-    "benchmark-changed-on",
-}
+CHANGE_EVENT_PREDICATES = set(EVENT_PREDICATE_KINDS)
 
 RELATION_PREDICATES: dict[str, RelationKind] = {
     "developed-by": "developed-by",
@@ -1065,26 +1051,7 @@ class KnowledgeRepository:
             )
             if not source_ids:
                 continue
-            kind = (
-                "new"
-                if claim.predicate in {"release", "released-on"}
-                else "deprecated"
-                if claim.predicate in {"deprecated-on", "scheduled-for-retirement-on"}
-                else "pricing"
-                if claim.predicate == "pricing-changed-on"
-                else "benchmark"
-                if claim.predicate == "benchmark-changed-on"
-                else "availability"
-                if claim.predicate
-                in {
-                    "available-in",
-                    "available-on",
-                    "available-as",
-                    "availability",
-                    "expanded-access-to",
-                }
-                else "updated"
-            )
+            kind = EVENT_PREDICATE_KINDS[claim.predicate]
             changes = [
                 change
                 for change in changes

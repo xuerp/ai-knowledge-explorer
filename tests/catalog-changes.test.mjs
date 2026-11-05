@@ -11,6 +11,36 @@ const [baseline, extension, frontier] = await Promise.all(
 );
 const snapshot = applyCatalogOverlays(baseline, extension, frontier);
 
+test("all API shutdown events use the retirement category", () => {
+  const claims = new Map(snapshot.claims.map((c) => [c.id, c]));
+  const sources = new Map(snapshot.evidence.map((s) => [s.id, s]));
+  const shutdowns = catalogChanges(snapshot).filter((event) =>
+    event.sourceIds.some((id) =>
+      (sources.get(id)?.supportsClaimIds ?? []).some((id) => {
+        const c = claims.get(id);
+        return (
+          c?.entityId === event.entityId &&
+          c.validFrom === event.date &&
+          ["api-shutdown-record", "named-snapshot-api-shutdown"].includes(c.predicate)
+        );
+      }),
+    ),
+  );
+  assert.equal(shutdowns.length, 6);
+  assert.ok(shutdowns.every((event) => event.kind === "deprecated"));
+});
+
+test("access classification requires matching timeline and dated claim semantics", () => {
+  for (const wrongTimelineKind of ["deprecation", "update"]) {
+    const fixture = structuredClone(snapshot);
+    const original = fixture.timeline["e-claude"].find((e) => e.changeKind === "deprecated");
+    fixture.timeline = {
+      "e-claude": [{ ...original, kind: wrongTimelineKind, changeKind: "availability" }],
+    };
+    assert.deepEqual(catalogChanges(fixture), []);
+  }
+});
+
 test("reviewed non-release events contain dated evidence, differences and affected scope", () => {
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "timelineKinds": {
+    "new": ["release"],
+    "updated": ["update"],
+    "deprecated": ["deprecation"],
+    "benchmark": ["update", "benchmark"],
+    "pricing": ["update"],
+    "availability": ["update"]
+  },
+  "predicates": {
+    "release": "new",
+    "released-on": "new",
+    "available-in": "availability",
+    "available-on": "availability",
+    "available-as": "availability",
+    "availability": "availability",
+    "expanded-access-to": "availability",
+    "historical-plan-availability": "availability",
+    "deprecated-on": "deprecated",
+    "scheduled-for-retirement-on": "deprecated",
+    "api-deprecation-announced": "deprecated",
+    "api-shutdown-record": "deprecated",
+    "named-snapshot-api-shutdown": "deprecated",
+    "named-model-deprecated-on": "deprecated",
+    "recommended-replacement": "updated",
+    "capability-updated-on": "updated",
+    "pricing-changed-on": "pricing",
+    "benchmark-changed-on": "benchmark"
+  }
+}
