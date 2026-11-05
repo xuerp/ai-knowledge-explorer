@@ -170,6 +170,25 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         updates["decision"] = refreshed
         updates["summary"] = refreshed.recommendation.summary
     updated = result.model_copy(update=updates)
+    if (
+        not stale
+        and updated.decision
+        and updated.decision_context
+        and updated.decision_context.workflow_version == 2
+        and updated.decision.scenario.id == "document-extraction"
+        and updated.decision.plan
+        and updated.decision.plan.trial
+    ):
+        # A proposed protocol is not a historical measurement. Derive it from
+        # the original task and SAME saved eligibility/citations on every read,
+        # including exports; never persist or alter private validation records.
+        from .decision_plan import build_plan
+
+        language = "zh" if re.search(r"[\u3400-\u9fff]", updated.question) else "en"
+        decision = updated.decision.model_copy()
+        decision.plan = build_plan(decision, updated.decision_context, language, snapshot)
+        decision.guidance = build_guidance(decision, updated.decision_context, snapshot, language)
+        updated.decision = decision
     if updated.decision:
         updated.decision = reconcile_resolution(updated.decision)
     return updated

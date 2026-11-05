@@ -43,6 +43,87 @@ def candidate(key="a", eligibility="eligible", gap=None, described=True):
     )
 
 
+@pytest.mark.parametrize(
+    "task,language,forbidden,required",
+    [
+        (
+            "我要做一个求职助手：从中文简历中提取工作经历、技能和教育背景，再与岗位要求匹配，输出固定 JSON 字段。目前只处理文本，优先考虑准确性，预算暂不确定，接受云 API。",
+            "zh",
+            ("扫描件", "页数"),
+            ("岗位要求匹配", "JSON", "全部交付", "原文"),
+        ),
+        (
+            "Extract invoice fields from plain text only, then compare totals with the purchase order and return JSON.",
+            "en",
+            ("scans", "pages"),
+            ("compare totals", "JSON", "every requested deliverable", "source"),
+        ),
+    ],
+)
+def test_text_extraction_protocol_keeps_input_scope_and_all_deliverables(
+    task, language, forbidden, required
+):
+    plan = build_plan(
+        result(candidate(), scenario="document-extraction"),
+        context().model_copy(update={"task": task}),
+        language,
+    )
+    text = plan.trial.model_dump_json()
+    assert all(word not in text for word in forbidden)
+    assert all(word in text for word in required)
+    assert not plan.trial.executed
+    # Scanned input remains supported when it is actually requested.
+    scan = build_plan(
+        result(candidate(), scenario="document-extraction"),
+        context().model_copy(update={"task": "提取扫描件中的发票字段"}),
+        "zh",
+    )
+    assert "扫描件" in scan.trial.sample
+    assert "页数" in scan.trial.procedure[0]
+
+
+def test_saved_extraction_refreshes_only_unexecuted_instructions():
+    from pathlib import Path
+
+    from app.decision_guidance import build_guidance
+    from app.engagement import revalidate_research
+    from app.repository import KnowledgeRepository
+    from app.schemas import ResearchView
+
+    task = "仅处理文本，从简历提取技能，再与岗位要求匹配，输出 JSON。"
+    settings = context().model_copy(update={"task": task, "workflow_version": 2})
+    decision = result(candidate(), scenario="document-extraction")
+    decision.plan = build_plan(decision, settings, "zh")
+    decision.plan.trial.sample = "旧计划：扫描件"
+    decision.plan.trial.procedure = ["旧计划：页数"]
+    snapshot = KnowledgeRepository(
+        Path(__file__).resolve().parents[1] / "data/demo_snapshot.json"
+    ).load_seed()
+    decision.guidance = build_guidance(decision, settings, snapshot, "zh")
+    record = ResearchView(
+        id="saved-text-extraction",
+        question=task,
+        summary="original",
+        claim_ids=[],
+        citations=[],
+        steps=[],
+        status="ready",
+        created_at=datetime.now(UTC),
+        decision_context=settings,
+        decision=decision,
+    )
+    before = record.model_dump_json()
+    refreshed = revalidate_research(record, snapshot)
+    trial = refreshed.decision.plan.trial
+    assert "扫描件" not in trial.sample
+    assert "页数" not in " ".join(trial.procedure)
+    assert "岗位要求匹配" in " ".join(trial.procedure)
+    assert refreshed.created_at == record.created_at
+    assert refreshed.decision.candidates == record.decision.candidates
+    assert refreshed.decision_context == settings
+    assert record.model_dump_json() == before
+
+
 def context(priority="quality"):
     return DecisionContext(task="text generation", priority=priority, deployment="undecided")
 

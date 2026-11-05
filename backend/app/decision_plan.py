@@ -6,7 +6,7 @@ network calls, guessed product facts, implicit approval or evidence-count rankin
 
 import re
 
-from .decision_intent import task_workflow
+from .decision_intent import task_workflow, text_only_input
 from .decision_semantics import context_meaning
 from .decision_stages import (
     ordered_task_stages,
@@ -460,6 +460,32 @@ def build_plan(
     if (active or reuse_workspace or source_plan or user_tools.reuse) and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
         task = understand_context(context)
+        if result.scenario.id == "document-extraction":
+            if text_only_input(context.task):
+                sample = t(
+                    "同一批授权文本，覆盖完整、缺字段、歧义和不同文本格式；事先标注正确字段与原文位置。只使用本轮允许的文本输入。",
+                    "Use the same authorized text samples with complete, missing, ambiguous and differently formatted fields. Label correct values and source locations first; use only the text inputs permitted for this trial.",
+                )
+                procedure = t(
+                    "固定文本版本、输出 schema 和提示词，逐字段抽取并保留原文位置。",
+                    "Fix text versions, output schema and prompts; extract each field with its source location.",
+                )
+            procedure += t(
+                " 抽取后继续完成原题要求的后续处理及全部交付，分别保留实际输出和依据：",
+                " After extraction, complete the task's subsequent processing and every requested deliverable, retaining each actual output and its evidence: ",
+            ) + task.goal
+            check += t(
+                " 逐项核对后续处理和最终格式，不能只检查抽取字段就认定整项任务通过。",
+                " Verify subsequent processing and final format separately; checking extracted fields alone does not establish whole-task success.",
+            )
+            metrics += t(
+                " 全部交付完成率及后续结论的原文可追溯率。",
+                " Completion of all deliverables and source traceability of subsequent conclusions.",
+            )
+            acceptance += t(
+                " 原题要求的全部处理和交付均须分别核验；任何必需环节缺失或未运行时保持未完成。",
+                " Verify every requested processing step and deliverable separately; missing or unrun required stages remain incomplete.",
+            )
         if result.scenario.id == "coding-workspace":
             sample = t(
                 "只验证本次指定的一项仓库任务：" + task.goal,
