@@ -470,10 +470,13 @@ def build_plan(
                     "固定文本版本、输出 schema 和提示词，逐字段抽取并保留原文位置。",
                     "Fix text versions, output schema and prompts; extract each field with its source location.",
                 )
-            procedure += t(
-                " 抽取后继续完成原题要求的后续处理及全部交付，分别保留实际输出和依据：",
-                " After extraction, complete the task's subsequent processing and every requested deliverable, retaining each actual output and its evidence: ",
-            ) + task.goal
+            procedure += (
+                t(
+                    " 抽取后继续完成原题要求的后续处理及全部交付，分别保留实际输出和依据：",
+                    " After extraction, complete the task's subsequent processing and every requested deliverable, retaining each actual output and its evidence: ",
+                )
+                + task.goal
+            )
             check += t(
                 " 逐项核对后续处理和最终格式，不能只检查抽取字段就认定整项任务通过。",
                 " Verify subsequent processing and final format separately; checking extracted fields alone does not establish whole-task success.",
