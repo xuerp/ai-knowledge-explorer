@@ -3,19 +3,17 @@ import {
   ArrowRight,
   Check,
   ExternalLink,
-  Languages,
-  Moon,
-  Menu,
   Network,
   Search,
   ShieldCheck,
   Sparkles,
-  Sun,
   TrendingUp,
 } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { browseModelFamilies } from "@/domain/model-families";
-import { useHomeOverview } from "@/hooks/use-knowledge";
+import { TopNav } from "@/components/layout/TopNav";
+import homeOverview from "@/data/generated/home-overview.json";
+import type { HomeOverview } from "@/domain/home-overview";
 import { RELATION_LABELS } from "@/domain/labels";
 
 export const Route = createFileRoute("/")({
@@ -36,17 +34,9 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const navigation = [
-  { to: "/updates", zh: "动态", en: "Updates" },
-  { to: "/knowledge", zh: "知识库", en: "Knowledge" },
-  { to: "/ask", zh: "决策助手", en: "Decide" },
-  { to: "/graph", zh: "知识图谱", en: "Graph" },
-] as const;
-
 function LandingPage() {
-  const { t, lang, setLang, theme, setTheme } = useApp();
-  const overviewQuery = useHomeOverview();
-  const overview = overviewQuery.data;
+  const { t, lang } = useApp();
+  const overview = homeOverview as HomeOverview;
   const entities = overview?.entities ?? [];
   const entityById = new Map(entities.map((entity) => [entity.id, entity]));
   const evidenceById = new Map((overview?.evidence ?? []).map((source) => [source.id, source]));
@@ -61,63 +51,16 @@ function LandingPage() {
       <a className="landing-compact__skip" href="#home-main">
         {t("跳到主要内容", "Skip to content")}
       </a>
-      <header className="landing-compact__header">
-        <div className="landing-compact__container landing-compact__header-inner">
-          <Link to="/" aria-label="AI Radar" className="landing-compact__logo">
-            <span className="radar-mark" aria-hidden="true" />
-            AI Radar
-          </Link>
-          <nav className="landing-compact__desktop-nav" aria-label={t("主导航", "Main navigation")}>
-            {navigation.map((item) => (
-              <Link key={item.to} to={item.to}>
-                {t(item.zh, item.en)}
-              </Link>
-            ))}
-          </nav>
-          <div className="landing-compact__header-actions">
-            <Link to="/case-study" className="landing-compact__about">
-              {t("项目介绍", "About")}
-            </Link>
-            <button
-              type="button"
-              aria-label={t("切换语言", "Switch language")}
-              title={t("切换语言", "Switch language")}
-              onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-            >
-              <Languages aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label={t("切换主题", "Switch theme")}
-              title={t("切换主题", "Switch theme")}
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
-            </button>
-            <details className="landing-compact__mobile-menu">
-              <summary aria-label={t("展开导航", "Open navigation")}>
-                <Menu aria-hidden="true" />
-              </summary>
-              <nav aria-label={t("手机导航", "Mobile navigation")}>
-                {navigation.map((item) => (
-                  <Link key={item.to} to={item.to}>
-                    {t(item.zh, item.en)}
-                  </Link>
-                ))}
-                <Link to="/case-study">{t("项目介绍", "About the project")}</Link>
-              </nav>
-            </details>
-          </div>
-        </div>
-      </header>
+      <TopNav variant="showcase" />
       <main id="home-main">
         <section className="landing-compact__hero">
           <div className="landing-compact__container landing-compact__hero-inner">
             <div className="landing-compact__status">
               <span aria-hidden="true" />
-              {overview
-                ? t("已收录知识快照", "Collected knowledge snapshot")
-                : t("证据审核与知识快照", "Evidence review and knowledge snapshots")}
+              {t(
+                "AI 信息研究与选型 · 个人实践项目",
+                "AI research and selection · Personal project",
+              )}
             </div>
             <h1>
               {lang === "zh" ? (
@@ -138,7 +81,7 @@ function LandingPage() {
             </p>
             <div className="landing-compact__hero-actions">
               <Link to="/ask" className="landing-compact__button is-primary">
-                {t("开始探索", "Start exploring")} <ArrowRight aria-hidden="true" />
+                {t("体验决策助手", "Try the decision assistant")} <ArrowRight aria-hidden="true" />
               </Link>
               <a href="/updates#latest" className="landing-compact__button is-secondary">
                 {t("查看收录动态", "View collected updates")}
@@ -147,62 +90,39 @@ function LandingPage() {
           </div>
         </section>
 
-        {overview ? (
-          <section className="landing-compact__metrics" aria-label={t("数据概览", "Data overview")}>
-            <div className="landing-compact__container">
-              <dl>
-                <Metric
-                  value={overview.entityCount}
-                  label={t("已收录实体", "Entities")}
-                  href="/knowledge"
-                />
-                <Metric
-                  value={`${overview.sourcedClaimCount}/${overview.claimCount}`}
-                  label={t("有来源事实", "Sourced claims")}
-                  href="/quality"
-                />
-                <Metric
-                  value={overview.relationshipCount}
-                  label={t("有来源联系", "Sourced connections")}
-                  href="/graph"
-                />
-                <Metric
-                  value={snapshotDate.slice(5).replace("-", ".")}
-                  label={t("快照读取日期", "Snapshot read date")}
-                  href="/quality"
-                />
-              </dl>
-            </div>
-          </section>
-        ) : (
-          <section className="landing-compact__data-status" aria-live="polite">
-            <div className="landing-compact__container">
-              <p>
-                {overviewQuery.error
-                  ? t(
-                      "知识数据暂不可用。你可以重试，或继续浏览下方功能入口。",
-                      "Knowledge data is unavailable. Retry or explore the feature links below.",
-                    )
-                  : t(
-                      "正在连接知识服务，首次唤醒可能稍慢。功能入口可直接打开。",
-                      "Connecting to the knowledge service; its first wake-up can take longer. Feature links remain available.",
-                    )}
-              </p>
-              {overviewQuery.error && (
-                <button
-                  className="landing-compact__button is-secondary"
-                  onClick={() => void overviewQuery.refetch()}
-                >
-                  {t("重试知识数据", "Retry knowledge data")}
-                </button>
-              )}
-            </div>
-          </section>
-        )}
+        <section
+          className="landing-compact__metrics"
+          aria-label={t("首页资料快照", "Homepage catalog snapshot")}
+        >
+          <div className="landing-compact__container">
+            <dl>
+              <Metric
+                value={overview.entityCount}
+                label={t("快照内实体", "Snapshot entities")}
+                href="/knowledge"
+              />
+              <Metric
+                value={`${overview.sourcedClaimCount}/${overview.claimCount}`}
+                label={t("快照内有来源事实", "Sourced snapshot claims")}
+                href="/quality"
+              />
+              <Metric
+                value={overview.relationshipCount}
+                label={t("快照内有来源联系", "Sourced snapshot connections")}
+                href="/graph"
+              />
+              <Metric
+                value={snapshotDate.slice(5).replace("-", ".")}
+                label={t("资料快照日期", "Catalog snapshot date")}
+                href="/quality"
+              />
+            </dl>
+          </div>
+        </section>
         <div className="landing-compact__container landing-compact__data-note">
           {t(
-            "当前为人工维护的收录快照，并非实时全量追踪；来源内容复核仍在进行。",
-            "This is a manually maintained catalog snapshot, not a live comprehensive feed; source-content review is ongoing.",
+            `首页展示 ${snapshotDate} 的公开资料快照，非实时更新。`,
+            `This homepage shows the public catalog snapshot dated ${snapshotDate}, not a live feed.`,
           )}
         </div>
 
@@ -210,7 +130,7 @@ function LandingPage() {
           <section id="insights" className="landing-compact__section is-muted">
             <div className="landing-compact__container">
               <SectionHeading
-                title={t("收录动态", "Collected updates")}
+                title={t("快照中的动态", "Updates in the snapshot")}
                 action={
                   <a href="/updates#latest">
                     {t("查看全部", "View all")} <ArrowRight aria-hidden="true" />
@@ -451,7 +371,7 @@ function LandingPage() {
 
         <section className="landing-compact__cta">
           <div className="landing-compact__container">
-            <h2>{t("准备好开始证据研究了吗？", "Ready to research with evidence?")}</h2>
+            <h2>{t("带着一个任务，体验 AI 选型", "Try AI selection with a real task")}</h2>
             <p>
               {t(
                 "从一个真实任务开始，核对变化、来源与选择条件。",
@@ -459,7 +379,7 @@ function LandingPage() {
               )}
             </p>
             <Link to="/ask" className="landing-compact__button is-primary">
-              {t("立即开始", "Start now")} <ArrowRight aria-hidden="true" />
+              {t("体验决策助手", "Try the decision assistant")} <ArrowRight aria-hidden="true" />
             </Link>
           </div>
         </section>

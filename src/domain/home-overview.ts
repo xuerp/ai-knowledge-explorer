@@ -20,7 +20,7 @@ export interface HomeOverview {
   researchQuestions: KnowledgeSnapshot["researchQuestions"];
 }
 
-/** Used only for explicit offline browsing or an older API's full public response. */
+/** Public projection shared by the dated showcase, offline browsing and older API compatibility. */
 export function projectHomeOverview(snapshot: KnowledgeSnapshot): HomeOverview {
   const featuredRelations = featuredRelationships(snapshot);
   const ids = new Set(

@@ -33,7 +33,7 @@ jobs:
       - name: Verify generated public frontend snapshot
         run: |
           node scripts/build-frontend-snapshot.mjs --write
-          git diff --exit-code -- src/data/generated/snapshot.json
+          git diff --exit-code -- src/data/generated/snapshot.json src/data/generated/home-overview.json
       - name: Frontend checks
         run: bun run check
       - name: Verify Cloudflare staging build and config

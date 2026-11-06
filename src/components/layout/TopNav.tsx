@@ -1,14 +1,16 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  Search,
+  Github,
   Moon,
   Sun,
   Languages,
+  Menu,
   BookOpen,
   UserRound,
   Settings,
   BarChart3,
+  Info,
 } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { Button } from "@/components/ui/button";
@@ -30,12 +32,15 @@ const NAV = [
   { to: "/graph", zh: "知识图谱", en: "Graph" },
 ] as const;
 
-export function TopNav() {
+export function TopNav({ variant = "product" }: { variant?: "product" | "showcase" }) {
   const { lang, setLang, theme, setTheme, t } = useApp();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const knowledgeReturn = useKnowledgeReturn();
+  const showcase = variant === "showcase";
   const backNavigation = backNavigationFor(pathname, 0);
+  const toggleLanguage = () => setLang(lang === "zh" ? "en" : "zh");
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   const navigateBack = () => {
     const action = backNavigationFor(pathname, window.history.length).action;
@@ -46,125 +51,166 @@ export function TopNav() {
     void router.navigate({ to: "/" });
   };
 
+  const links = showcase ? (
+    <>
+      <Link to="/updates">{t("产品体验", "Product")}</Link>
+      <a href="#features">{t("功能概览", "Features")}</a>
+      <Link to="/case-study">{t("项目介绍", "About the project")}</Link>
+    </>
+  ) : (
+    NAV.map((item) => {
+      const active = pathname === item.to || pathname.startsWith(item.to + "/");
+      return (
+        <Link
+          key={item.to}
+          to={item.to}
+          search={item.to === "/knowledge" ? knowledgeReturn.search : undefined}
+          hash={item.to === "/knowledge" ? knowledgeReturn.hash : undefined}
+          aria-current={active ? "page" : undefined}
+        >
+          {t(item.zh, item.en)}
+        </Link>
+      );
+    })
+  );
+
   return (
-    <header className="app-topnav sticky top-0 z-30 border-b border-border bg-card/95 text-foreground backdrop-blur">
-      <div className="page-container flex h-[60px] items-center gap-3">
+    <header
+      className={`site-header app-topnav${showcase ? " is-showcase" : ""}${backNavigation.visible ? " has-back" : ""}`}
+    >
+      <div className="site-header__inner">
         {backNavigation.visible && (
           <Button
             type="button"
             variant="ghost"
-            size="sm"
-            className="-ml-2 shrink-0 gap-1.5 px-2 text-ink-soft hover:text-foreground"
+            size="icon"
+            className="shrink-0"
             aria-label={t("返回上一页", "Back to previous page")}
             title={t("返回上一页", "Back to previous page")}
             onClick={navigateBack}
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden lg:inline">{t("返回", "Back")}</span>
+            <ArrowLeft aria-hidden="true" />
           </Button>
         )}
-
-        <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AI Radar">
-          <span className="radar-mark text-signal" aria-hidden="true" />
-          <span className="text-[15px] font-semibold tracking-[-0.025em] text-foreground">
-            AI Radar
-          </span>
+        <Link to="/" className="site-header__logo" aria-label={t("AI Radar 首页", "AI Radar home")}>
+          <span className="radar-mark" aria-hidden="true" />
+          AI Radar
         </Link>
-
-        <nav className="ml-5 hidden h-full items-center gap-0 md:flex">
-          {NAV.map((item) => {
-            const active = pathname === item.to || pathname.startsWith(item.to + "/");
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                search={item.to === "/knowledge" ? knowledgeReturn.search : undefined}
-                hash={item.to === "/knowledge" ? knowledgeReturn.hash : undefined}
-                className={
-                  "relative inline-flex h-full items-center whitespace-nowrap px-3 text-[13px] transition-colors " +
-                  (active
-                    ? "font-medium text-foreground after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-signal"
-                    : "text-ink-soft hover:text-foreground")
-                }
-              >
-                {t(item.zh, item.en)}
-              </Link>
-            );
-          })}
+        <nav className="site-header__desktop-nav" aria-label={t("主导航", "Main navigation")}>
+          {links}
         </nav>
-
-        <div className="flex-1" />
-
-        <Link
-          to="/knowledge"
-          search={knowledgeReturn.search}
-          hash={knowledgeReturn.hash}
-          className="hidden h-8 w-52 min-w-0 items-center gap-2 overflow-hidden rounded-md border border-border bg-background px-3 text-xs text-muted-foreground hover:border-border-strong hover:text-foreground lg:flex xl:w-64"
-        >
-          <Search className="h-4 w-4 shrink-0" />
-          <span className="min-w-0 flex-1 truncate whitespace-nowrap">
-            {t("搜索模型、产品…", "Search models and products…")}
-          </span>
-          <kbd className="ml-auto shrink-0 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-            /
-          </kbd>
-        </Link>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden sm:inline-flex"
-          aria-label="Language"
-          onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-        >
-          <Languages className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden sm:inline-flex"
-          aria-label="Theme"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t("账户与设置", "Account and settings")}
-            >
-              <UserRound className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel>{t("个人空间", "Personal space")}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/account">
-                <UserRound className="h-4 w-4" /> {t("账户", "Account")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings">
-                <Settings className="h-4 w-4" /> {t("设置", "Settings")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/following">
-                <BookOpen className="h-4 w-4" /> {t("关注", "Following")}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/quality">
-                <BarChart3 className="h-4 w-4" /> {t("数据质量", "Data quality")}
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="site-header__actions">
+          {!showcase && (
+            <Link to="/case-study" className="site-header__about">
+              {t("项目介绍", "About")}
+            </Link>
+          )}
+          <a
+            href="https://github.com/xuerp/ai-knowledge-explorer"
+            className="site-header__icon site-header__github"
+            aria-label={t("GitHub 源码", "GitHub source")}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Github aria-hidden="true" />
+          </a>
+          <button
+            type="button"
+            className="site-header__preference"
+            aria-label={t("切换语言", "Switch language")}
+            title={t("切换语言", "Switch language")}
+            onClick={toggleLanguage}
+          >
+            <Languages aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="site-header__preference"
+            aria-label={t("切换主题", "Switch theme")}
+            title={t("切换主题", "Switch theme")}
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+          </button>
+          {showcase ? (
+            <details className="site-header__mobile-menu">
+              <summary aria-label={t("展开导航", "Open navigation")}>
+                <Menu aria-hidden="true" />
+              </summary>
+              <nav
+                aria-label={t("手机导航", "Mobile navigation")}
+                onClick={(event) => {
+                  if ((event.target as HTMLElement).closest("a"))
+                    event.currentTarget.closest("details")?.removeAttribute("open");
+                }}
+              >
+                {links}
+                <a
+                  href="https://github.com/xuerp/ai-knowledge-explorer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("GitHub 源码", "GitHub source")}
+                </a>
+              </nav>
+            </details>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("账户与设置", "Account and settings")}
+                >
+                  <UserRound aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>{t("个人空间", "Personal space")}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/account">
+                    <UserRound aria-hidden="true" />
+                    {t("账户", "Account")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">
+                    <Settings aria-hidden="true" />
+                    {t("设置", "Settings")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/following">
+                    <BookOpen aria-hidden="true" />
+                    {t("关注", "Following")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/quality">
+                    <BarChart3 aria-hidden="true" />
+                    {t("数据质量", "Data quality")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/case-study">
+                    <Info aria-hidden="true" />
+                    {t("项目介绍", "About the project")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={toggleLanguage}>
+                  <Languages aria-hidden="true" />
+                  {t("切换至 English", "Switch to 中文")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={toggleTheme}>
+                  {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+                  {theme === "dark" ? t("浅色主题", "Light theme") : t("深色主题", "Dark theme")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </header>
   );

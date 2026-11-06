@@ -1,0 +1,271 @@
+{
+  "meta": {
+    "mode": "demo",
+    "freshness": "fresh",
+    "retrievedAt": "2026-11-04T00:00:00Z",
+    "message": {
+      "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
+      "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
+    }
+  },
+  "entityCount": 263,
+  "claimCount": 361,
+  "sourcedClaimCount": 361,
+  "relationshipCount": 48,
+  "entities": [
+    {
+      "id": "e-gpt",
+      "type": "model",
+      "slug": "gpt",
+      "name": { "zh": "GPT 系列", "en": "GPT family" },
+      "vendor": "OpenAI",
+      "latestVersion": "GPT-6 Astra · GPT-6.1 Sol · GPT-6 Luna"
+    },
+    {
+      "id": "e-gpt-4o",
+      "type": "model",
+      "slug": "gpt-4o",
+      "name": { "zh": "GPT-4o", "en": "GPT-4o" },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "latestVersion": null
+    },
+    {
+      "id": "e-claude",
+      "type": "model",
+      "slug": "claude",
+      "name": { "zh": "Claude 系列", "en": "Claude family" },
+      "vendor": "Anthropic",
+      "latestVersion": "Fable 5.1 · Opus 5.5 · Sonnet 5.5 · Haiku 4.5"
+    },
+    {
+      "id": "e-gemini",
+      "type": "model",
+      "slug": "gemini",
+      "name": { "zh": "Gemini 系列", "en": "Gemini family" },
+      "vendor": "Google DeepMind",
+      "latestVersion": "4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite"
+    },
+    {
+      "id": "e-deepseek",
+      "type": "model",
+      "slug": "deepseek",
+      "name": { "zh": "DeepSeek 系列", "en": "DeepSeek family" },
+      "vendor": "DeepSeek",
+      "latestVersion": "V4.1-Flash · V4-Pro-0813"
+    },
+    {
+      "id": "e-qwen",
+      "type": "model",
+      "slug": "qwen",
+      "name": { "zh": "通义千问 Qwen", "en": "Qwen" },
+      "vendor": "Alibaba Cloud",
+      "latestVersion": "Qwen3.8-Max · Qwen3.8-Flash · Qwen3.7-Plus"
+    },
+    {
+      "id": "e-kimi",
+      "type": "model",
+      "slug": "kimi",
+      "name": { "zh": "Kimi", "en": "Kimi" },
+      "vendor": "Moonshot AI",
+      "latestVersion": "Kimi K3 · K2.7 Code · K2.6"
+    },
+    {
+      "id": "e-doubao",
+      "type": "model",
+      "slug": "doubao",
+      "name": { "zh": "豆包 Doubao", "en": "Doubao" },
+      "vendor": "ByteDance Seed",
+      "latestVersion": "Seed 2.1 Pro · Lite · Turbo / Seed 2.0 Mini"
+    },
+    {
+      "id": "e-ernie",
+      "type": "model",
+      "slug": "ernie",
+      "name": { "zh": "文心一言 ERNIE Bot", "en": "ERNIE Bot" },
+      "vendor": "Baidu",
+      "latestVersion": "ERNIE 5.1 · 5.0 · X1.1 Preview · 4.5 Turbo"
+    },
+    {
+      "id": "e-mcp",
+      "type": "framework",
+      "slug": "mcp",
+      "name": { "zh": "Model Context Protocol", "en": "Model Context Protocol" },
+      "vendor": "Model Context Protocol",
+      "latestVersion": "开放规范"
+    },
+    {
+      "id": "e-traecode",
+      "type": "application",
+      "slug": "traecode",
+      "name": { "zh": "TraeCode", "en": "TraeCode" },
+      "familyId": null,
+      "vendor": "TRAE",
+      "latestVersion": null
+    },
+    {
+      "id": "e-glm",
+      "type": "model",
+      "slug": "glm",
+      "name": { "zh": "智谱 GLM", "en": "GLM" },
+      "familyId": null,
+      "vendor": "Zhipu AI",
+      "latestVersion": "GLM-5.3 / GLM-5.3-Flash（本轮核验）"
+    },
+    {
+      "id": "e-hunyuan",
+      "type": "model",
+      "slug": "hunyuan",
+      "name": { "zh": "腾讯混元", "en": "Tencent Hunyuan" },
+      "familyId": null,
+      "vendor": "Tencent",
+      "latestVersion": "Hy4 preview（本轮核验）"
+    },
+    {
+      "id": "e-minimax-company",
+      "type": "company",
+      "slug": "minimax-ai",
+      "name": { "zh": "MiniMax", "en": "MiniMax" },
+      "vendor": "MiniMax"
+    },
+    {
+      "id": "e-minimax",
+      "type": "model",
+      "slug": "minimax",
+      "name": { "zh": "MiniMax", "en": "MiniMax" },
+      "familyId": null,
+      "vendor": "MiniMax",
+      "latestVersion": "M3 / M3.1 Flash Preview（本轮核验）"
+    },
+    {
+      "id": "e-mistral",
+      "type": "model",
+      "slug": "mistral",
+      "name": { "zh": "Mistral", "en": "Mistral" },
+      "familyId": null,
+      "vendor": "Mistral AI",
+      "latestVersion": "Large 4（公开预览）/ Medium 3.5 / Small 4"
+    },
+    {
+      "id": "e-grok",
+      "type": "model",
+      "slug": "grok",
+      "name": { "zh": "Grok", "en": "Grok" },
+      "vendor": "SpaceXAI",
+      "latestVersion": "Grok 4.7"
+    },
+    {
+      "id": "e-grok-4-7",
+      "type": "model",
+      "slug": "grok-4-7",
+      "name": { "zh": "Grok 4.7", "en": "Grok 4.7" },
+      "familyId": "e-grok",
+      "vendor": "SpaceXAI"
+    },
+    {
+      "id": "e-grok-build",
+      "type": "application",
+      "slug": "grok-build",
+      "name": { "zh": "Grok Build", "en": "Grok Build" },
+      "vendor": "SpaceXAI"
+    },
+    {
+      "id": "e-gpt-41-nano",
+      "type": "model",
+      "slug": "gpt-41-nano",
+      "name": { "zh": "GPT-4.1 nano", "en": "GPT-4.1 nano" },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "latestVersion": null
+    },
+    {
+      "id": "e-gpt-image-1",
+      "type": "model",
+      "slug": "gpt-image-1",
+      "name": { "zh": "GPT Image 1", "en": "GPT Image 1" },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI",
+      "latestVersion": null
+    }
+  ],
+  "evidence": [
+    { "id": "s-traecode-overview", "url": "https://docs.trae.cn/ide_what-is-trae-code" },
+    { "id": "s-minimax-models", "url": "https://platform.minimax.io/docs/guides/models-intro" },
+    { "id": "s-grok-build", "url": "https://x.ai/build" }
+  ],
+  "changes": [
+    {
+      "id": "change-event-t-api-shutdown-gpt4o-20240513-20261023",
+      "entityId": "e-gpt-4o",
+      "date": "2026-10-23",
+      "summary": {
+        "zh": "GPT-4o 2024-05-13 API 快照下线",
+        "en": "GPT-4o 2024-05-13 API snapshot shutdown"
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"]
+    },
+    {
+      "id": "change-event-t-api-lifecycle-e-gpt-image-1-20261030",
+      "entityId": "e-gpt-image-1",
+      "date": "2026-10-23",
+      "summary": {
+        "zh": "GPT Image 1 API 原型号下线",
+        "en": "GPT Image 1 API original model shutdown"
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"]
+    },
+    {
+      "id": "change-event-t-api-lifecycle-e-gpt-41-nano-20261030",
+      "entityId": "e-gpt-41-nano",
+      "date": "2026-10-23",
+      "summary": {
+        "zh": "GPT-4.1 nano API 原型号下线",
+        "en": "GPT-4.1 nano API original model shutdown"
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-api-lifecycle-20261030"]
+    }
+  ],
+  "featuredRelations": [
+    {
+      "id": "r-grok-build-uses-grok47",
+      "fromId": "e-grok-build",
+      "toId": "e-grok-4-7",
+      "kind": "uses",
+      "confidence": "verified",
+      "sourceIds": ["s-grok-build"]
+    },
+    {
+      "id": "r-intake-e-traecode-e-mcp",
+      "fromId": "e-traecode",
+      "toId": "e-mcp",
+      "kind": "integrates-with",
+      "confidence": "verified",
+      "sourceIds": ["s-traecode-overview"]
+    },
+    {
+      "id": "r-reference-minimax-ai",
+      "fromId": "e-minimax",
+      "toId": "e-minimax-company",
+      "kind": "developed-by",
+      "confidence": "verified",
+      "sourceIds": ["s-minimax-models"]
+    }
+  ],
+  "researchQuestions": [
+    {
+      "zh": "比较 GPT 与 Claude 的编程适用条件，哪些结论有官方来源？",
+      "en": "Compare the coding use conditions of GPT and Claude. Which conclusions have official sources?"
+    },
+    {
+      "zh": "比较 DeepSeek 与通义千问的 API 价格，需要先确认哪些计费条件？",
+      "en": "Which billing conditions must be checked before comparing DeepSeek and Qwen API prices?"
+    },
+    {
+      "zh": "MCP 协议目前有哪些有来源支持的集成？",
+      "en": "Which MCP integrations are supported by sources?"
+    }
+  ]
+}
