@@ -1,5 +1,13 @@
-const CACHE_NAME = "ai-radar-shell-v5";
-const APP_SHELL = ["/offline.html", "/manifest.webmanifest", "/icon.svg", "/favicon.ico"];
+const CACHE_NAME = "ai-radar-shell-v6";
+const APP_SHELL = [
+  "/offline.html",
+  "/manifest.webmanifest",
+  "/icon.svg",
+  "/favicon.ico",
+  "/apple-touch-icon.png",
+  "/icon-192.png",
+  "/icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

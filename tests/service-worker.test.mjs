@@ -97,17 +97,27 @@ test("no-store navigation responses and account pages never enter the shell cach
   }
   assert.deepEqual(
     [...sw.precached].sort(),
-    ["/favicon.ico", "/icon.svg", "/manifest.webmanifest", "/offline.html"].sort(),
+    [
+      "/favicon.ico",
+      "/icon.svg",
+      "/manifest.webmanifest",
+      "/offline.html",
+      "/apple-touch-icon.png",
+      "/icon-192.png",
+      "/icon-512.png",
+    ].sort(),
   );
 });
 
 test("activation discards legacy HTML caches without touching other application storage", async () => {
   const sw = await worker();
   await sw.open("ai-radar-shell-v4");
+  await sw.open("ai-radar-shell-v5");
   await sw.open("other-application-data");
   await sw.lifecycle("install");
   await sw.lifecycle("activate");
   assert.equal(sw.stores.has("ai-radar-shell-v4"), false);
+  assert.equal(sw.stores.has("ai-radar-shell-v5"), false);
   assert.equal(sw.stores.has("other-application-data"), true);
 });
 

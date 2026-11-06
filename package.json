@@ -43,6 +43,7 @@
     "report:core-models": "node scripts/report-core-model-coverage.mjs --write",
     "check:core-models": "node scripts/report-core-model-coverage.mjs --check",
     "generate:frontend-snapshot": "node scripts/build-frontend-snapshot.mjs --write",
+    "generate:icons": "node scripts/build-icons.mjs",
     "check:frontend-snapshot": "node scripts/build-frontend-snapshot.mjs",
     "check:public-env": "node scripts/check-public-env.mjs"
   },
@@ -88,6 +89,7 @@
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.9.6",
+    "sharp": "0.35.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",
     "vite": "8.2.4",
