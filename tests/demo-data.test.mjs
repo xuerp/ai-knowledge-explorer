@@ -286,7 +286,7 @@ test("shortest path returns ordered nodes and edges, or null when disconnected",
 
 test("PWA manifest and service worker expose an offline application shell", async () => {
   const manifest = JSON.parse(
-    await readFile(path.resolve(process.cwd(), "public/manifest.webmanifest"), "utf8"),
+    await readFile(path.resolve(process.cwd(), "public/brand/manifest.webmanifest"), "utf8"),
   );
   const serviceWorker = await readFile(path.resolve(process.cwd(), "public/sw.js"), "utf8");
   const staticHeaders = await readFile(path.resolve(process.cwd(), "public/_headers"), "utf8");
@@ -301,7 +301,7 @@ test("PWA manifest and service worker expose an offline application shell", asyn
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/backend\/"\)/);
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/admin\/"\)/);
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/assets\/"\)/);
-  assert.match(serviceWorker, /ai-radar-shell-v6/);
+  assert.match(serviceWorker, /ai-radar-shell-v7/);
   assert.match(staticHeaders, /\/sw\.js/);
   assert.match(staticHeaders, /no-store/);
   assert.match(offlinePage, /最后在线：/);

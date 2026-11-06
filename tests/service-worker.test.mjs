@@ -99,12 +99,13 @@ test("no-store navigation responses and account pages never enter the shell cach
     [...sw.precached].sort(),
     [
       "/favicon.ico",
-      "/icon.svg",
-      "/manifest.webmanifest",
+      "/brand/favicon.ico",
+      "/brand/radar.svg",
+      "/brand/manifest.webmanifest",
       "/offline.html",
-      "/apple-touch-icon.png",
-      "/icon-192.png",
-      "/icon-512.png",
+      "/brand/apple-touch-icon.png",
+      "/brand/icon-192.png",
+      "/brand/icon-512.png",
     ].sort(),
   );
 });
@@ -113,12 +114,36 @@ test("activation discards legacy HTML caches without touching other application 
   const sw = await worker();
   await sw.open("ai-radar-shell-v4");
   await sw.open("ai-radar-shell-v5");
+  await sw.open("ai-radar-shell-v6");
   await sw.open("other-application-data");
   await sw.lifecycle("install");
   await sw.lifecycle("activate");
   assert.equal(sw.stores.has("ai-radar-shell-v4"), false);
   assert.equal(sw.stores.has("ai-radar-shell-v5"), false);
+  assert.equal(sw.stores.has("ai-radar-shell-v6"), false);
   assert.equal(sw.stores.has("other-application-data"), true);
+});
+
+test("online brand requests replace stale icons and only use cache when offline", async () => {
+  const sw = await worker();
+  await sw.lifecycle("install");
+  sw.network(async () => {
+    const response = new Response("current blue radar");
+    Object.defineProperty(response, "type", { value: "basic" });
+    return response;
+  });
+  const paths = ["/brand/radar.svg?v=new", "/brand/favicon.ico?v=new", "/favicon.ico"];
+  for (const path of paths) {
+    assert.equal(await (await sw.fetch(path, "cors")).text(), "current blue radar", path);
+  }
+  sw.network(async () => {
+    throw new TypeError("offline");
+  });
+  for (const path of paths) {
+    assert.equal(await (await sw.fetch(path, "cors")).text(), "current blue radar", path);
+  }
+  sw.network(async () => new Response("removed", { status: 404 }));
+  for (const path of paths) assert.equal((await sw.fetch(path, "cors")).status, 404, path);
 });
 
 test("API requests bypass the worker cache and failed hashed assets remain failures", async () => {

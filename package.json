@@ -28,7 +28,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-    "check": "npm run check:delivery-status && npm run check:frontend-snapshot && npm run check:public-env && npm run format:check && npm run check:decision-layout && eslint . && tsc --noEmit && node --test --test-concurrency=1 tests/*.test.mjs && npm run check:core-models && vite build",
+    "check": "npm run check:delivery-status && npm run check:frontend-snapshot && npm run check:public-env && npm run check:brand-icons && npm run format:check && npm run check:decision-layout && eslint . && tsc --noEmit && node --test --test-concurrency=1 tests/*.test.mjs && npm run check:core-models && vite build",
     "check:delivery-status": "node scripts/sync-delivery-status.mjs",
     "sync:delivery-status": "node scripts/sync-delivery-status.mjs --write",
     "check:decision-layout": "node scripts/check-decision-layout.mjs",
@@ -44,6 +44,7 @@
     "check:core-models": "node scripts/report-core-model-coverage.mjs --check",
     "generate:frontend-snapshot": "node scripts/build-frontend-snapshot.mjs --write",
     "generate:icons": "node scripts/build-icons.mjs",
+    "check:brand-icons": "node scripts/build-icons.mjs --check",
     "check:frontend-snapshot": "node scripts/build-frontend-snapshot.mjs",
     "check:public-env": "node scripts/check-public-env.mjs"
   },

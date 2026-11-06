@@ -1,12 +1,13 @@
-const CACHE_NAME = "ai-radar-shell-v6";
+const CACHE_NAME = "ai-radar-shell-v7";
 const APP_SHELL = [
   "/offline.html",
-  "/manifest.webmanifest",
-  "/icon.svg",
+  "/brand/manifest.webmanifest",
+  "/brand/radar.svg",
+  "/brand/favicon.ico",
   "/favicon.ico",
-  "/apple-touch-icon.png",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/brand/apple-touch-icon.png",
+  "/brand/icon-192.png",
+  "/brand/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -70,6 +71,24 @@ self.addEventListener("fetch", (event) => {
   // Cache only the standalone offline page and install metadata, never private
   // reports, route data, version markers or other application HTML.
   if (!APP_SHELL.includes(url.pathname)) return;
+  // Brand resources must reflect the current release online. Cache is only an
+  // offline fallback; query-versioned URLs must not revive a stale template icon.
+  if (url.pathname.startsWith("/brand/") || url.pathname === "/favicon.ico") {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async (cache) => {
+        try {
+          const response = await fetch(request, { cache: "no-cache" });
+          if (response.ok && response.type === "basic") {
+            event.waitUntil(cache.put(request.url, response.clone()));
+          }
+          return response;
+        } catch {
+          return (await cache.match(request.url)) ?? cache.match(url.pathname);
+        }
+      }),
+    );
+    return;
+  }
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cached = await cache.match(url.pathname);

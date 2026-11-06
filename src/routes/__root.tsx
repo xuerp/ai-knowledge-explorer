@@ -17,7 +17,7 @@ import { AppProvider } from "@/lib/app-context";
 import { Toaster } from "@/components/ui/sonner";
 
 // A new URL also refreshes the browser's favicon cache from the old template mark.
-const iconVersion = "radar-20261106";
+const iconVersion = "blue-radar-20261106";
 
 function NotFoundComponent() {
   return (
@@ -107,13 +107,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       {
         rel: "icon",
-        href: `/favicon.ico?v=${iconVersion}`,
+        href: `/brand/favicon.ico?v=${iconVersion}`,
         type: "image/x-icon",
         sizes: "16x16 32x32 48x48 256x256",
       },
-      { rel: "icon", href: `/icon.svg?v=${iconVersion}`, type: "image/svg+xml", sizes: "any" },
-      { rel: "manifest", href: `/manifest.webmanifest?v=${iconVersion}` },
-      { rel: "apple-touch-icon", href: `/apple-touch-icon.png?v=${iconVersion}`, sizes: "180x180" },
+      {
+        rel: "icon",
+        href: `/brand/radar.svg?v=${iconVersion}`,
+        type: "image/svg+xml",
+        sizes: "any",
+      },
+      { rel: "manifest", href: `/brand/manifest.webmanifest?v=${iconVersion}` },
+      {
+        rel: "apple-touch-icon",
+        href: `/brand/apple-touch-icon.png?v=${iconVersion}`,
+        sizes: "180x180",
+      },
     ],
   }),
   shellComponent: RootShell,

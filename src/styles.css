@@ -785,33 +785,12 @@ dl.decision-validation__review-note dd {
 }
 
 @utility radar-mark {
-  position: relative;
   display: inline-block;
   width: 1.125rem;
   height: 1.125rem;
   flex: none;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-}
-
-.radar-mark::before {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  opacity: 0.55;
-}
-
-.radar-mark::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  right: 0;
-  top: 1px;
-  border-radius: 50%;
-  background: currentColor;
+  background-color: currentColor;
+  mask: url("/brand/radar.svg") center / contain no-repeat;
 }
 
 @utility mono-meta {

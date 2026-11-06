@@ -1,30 +1,30 @@
 {
-  "name": "AI Radar · AI 技术生态知识图谱",
+  "name": "AI Radar",
   "short_name": "AI Radar",
-  "description": "持续追踪 AI 模型、Agent、框架与研究变化的时序知识图谱。",
+  "description": "AI 模型与产品信息整理、证据追溯与选型分析的个人实践项目。",
   "lang": "zh-CN",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f8f4eb",
-  "theme_color": "#0b111b",
+  "background_color": "#f7f9fc",
+  "theme_color": "#f7f9fc",
   "categories": ["education", "productivity", "reference"],
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/brand/radar.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/brand/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/brand/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

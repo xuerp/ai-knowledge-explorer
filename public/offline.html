@@ -3,14 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#0b111b" />
+    <meta name="theme-color" content="#f7f9fc" />
+    <link rel="icon" href="/brand/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/brand/radar.svg" type="image/svg+xml" sizes="any" />
     <title>离线 · AI Radar</title>
     <style>
       :root {
         color-scheme: light dark;
         font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-        background: #f8f4eb;
-        color: #28221f;
+        background: #f7f9fc;
+        color: #0b1730;
       }
       body {
         min-height: 100vh;
@@ -22,67 +24,74 @@
       }
       main {
         width: min(100%, 520px);
-        border: 1px solid #ded7ca;
+        border: 1px solid #dce4ee;
         border-radius: 16px;
         background: #fff;
         padding: 32px;
         box-sizing: border-box;
-        box-shadow: 0 16px 50px rgb(28 20 14 / 8%);
+        box-shadow: 0 12px 32px rgb(15 23 42 / 8%);
       }
       .mark {
         width: 44px;
         height: 44px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        background: #0b111b;
-        color: #e65f32;
-        font-weight: 700;
+        color: #1764f5;
+        background-color: currentColor;
+        mask: url("/brand/radar.svg") center / contain no-repeat;
       }
       h1 {
         margin: 20px 0 8px;
-        font-family: Georgia, "Noto Serif SC", serif;
+        font-family: inherit;
         font-size: 28px;
       }
       p {
-        color: #736a61;
+        color: #5f7088;
         line-height: 1.7;
       }
       button {
         margin-top: 16px;
-        min-height: 40px;
+        min-height: 44px;
         border: 0;
         border-radius: 8px;
-        background: #cf502c;
+        background: #1764f5;
         color: #fff;
         padding: 0 16px;
         font: inherit;
         cursor: pointer;
       }
+      button:hover {
+        background: #0f4fc9;
+      }
+      button:focus-visible {
+        outline: 2px solid #1764f5;
+        outline-offset: 3px;
+      }
       small {
         display: block;
         margin-top: 20px;
-        color: #8d8378;
+        color: #5f7088;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          background: #15120f;
-          color: #f3eee5;
+          background: #090c13;
+          color: #f8fafc;
         }
         main {
-          border-color: #3f3730;
-          background: #211c18;
+          border-color: #273b56;
+          background: #111827;
         }
         p,
         small {
-          color: #b9aea3;
+          color: #94a3b8;
+        }
+        .mark {
+          color: #8fb0ff;
         }
       }
     </style>
   </head>
   <body>
     <main>
-      <div class="mark" aria-hidden="true">◎</div>
+      <div class="mark" aria-hidden="true"></div>
       <h1>当前处于离线状态</h1>
       <p>
         AI Radar 暂时无法连接服务，请检查网络后重试。当前页面地址已保留，重新连接后可以继续访问。

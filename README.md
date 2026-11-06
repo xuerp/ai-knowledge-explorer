@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/icon.svg" width="56" height="56" alt="AI Radar" />
+<img src="public/brand/radar.svg" width="56" height="56" alt="AI Radar" />
 
 # AI Radar
 

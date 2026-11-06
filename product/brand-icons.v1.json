@@ -1,0 +1,11 @@
+{
+  "source": "public/brand/radar.svg",
+  "sourceSha256": "cc156e2cfdc23eaa82e4e32deb2919333a9c1ed9ece3c6896d19bfe762e28808",
+  "files": {
+    "public/brand/apple-touch-icon.png": "7e40c851805e76dfa10c977de5a6a43280838cb3914490c789fe33a1666d35d2",
+    "public/brand/icon-192.png": "8af42cdb7a06ef41f9f58a3a19d661008cf2c4e990f8aa7bd410f35187f4e232",
+    "public/brand/icon-512.png": "c861a33c8b918d97ff0630c9fcd82535b4e71fbed49ec1ab66eac847bee1a2ee",
+    "public/brand/favicon.ico": "90ed6046d3023bdb40a7bfcb6473812cb8412f1ecbcbe7185ad15cfc086916d5",
+    "public/favicon.ico": "90ed6046d3023bdb40a7bfcb6473812cb8412f1ecbcbe7185ad15cfc086916d5"
+  }
+}
