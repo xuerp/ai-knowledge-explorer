@@ -157,8 +157,6 @@ python -m pytest tests
 
 测试所需环境见[后端测试说明](backend/tests/README.md)。
 
-首页研究示例由现有决策规则对公开资料离线计算，明确标注分析日期与“尚未实测”。修改示例任务或资料后，在安装后端依赖的环境中运行 `python scripts/build-home-research.py`；CI 用 `--check` 重放，防止展示内容与来源、规则发生漂移。此命令不调用外部模型，也不创建个人研究记录。
-
 </details>
 
 ## 反馈与许可
