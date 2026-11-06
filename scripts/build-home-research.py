@@ -31,9 +31,7 @@ def fingerprint(path):
 def build(generated_at):
     case = json.loads(CASE.read_text(encoding="utf-8"))
     snapshot = KnowledgeRepository(SNAPSHOT).load_seed()
-    facts = current_claims(
-        [row.claim for row in grounded_retrieval_citations(snapshot)], snapshot
-    )
+    facts = current_claims([row.claim for row in grounded_retrieval_citations(snapshot)], snapshot)
     by_entity = defaultdict(list)
     for fact in facts:
         by_entity[fact.entity_id].append(fact)
@@ -53,16 +51,12 @@ def build(generated_at):
         guidance = build_guidance(result, context, snapshot, language)
         advice = guidance.recommendation
         if not advice.primary_entity_id or not advice.reasons:
-            raise ValueError(
-                "The featured case no longer has a sourced conditional suggestion."
-            )
+            raise ValueError("The featured case no longer has a sourced conditional suggestion.")
         reason_claim_ids = list(
             dict.fromkeys(key for row in advice.reasons for key in row.claim_ids)
         )
         source_ids = list(
-            dict.fromkeys(
-                sid for key in reason_claim_ids for sid in claims[key].source_ids
-            )
+            dict.fromkeys(sid for key in reason_claim_ids for sid in claims[key].source_ids)
         )
         sources = [
             {
@@ -102,9 +96,7 @@ def main():
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     previous = json.loads(OUTPUT.read_text(encoding="utf-8")) if args.check else None
-    generated_at = (
-        previous["generatedAt"] if previous else datetime.now(UTC).isoformat()
-    )
+    generated_at = previous["generatedAt"] if previous else datetime.now(UTC).isoformat()
     result = build(generated_at)
     if args.check:
         if result != previous:
@@ -113,12 +105,8 @@ def main():
             )
         print("Homepage research replay matches the current public data and rules.")
     else:
-        OUTPUT.write_text(
-            json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-        )
-        print(
-            "Generated public homepage research example; no external calls or saved research."
-        )
+        OUTPUT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print("Generated public homepage research example; no external calls or saved research.")
 
 
 if __name__ == "__main__":

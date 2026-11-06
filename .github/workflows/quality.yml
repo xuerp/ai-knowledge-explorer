@@ -99,13 +99,13 @@ jobs:
           python -m alembic upgrade head
           python -m alembic current --check-heads
           python -m alembic check
-      - name: Backend tests
-        run: python -m pytest
       - name: Verify public homepage research example
         run: |
-          python -m ruff format --check ../scripts/build-home-research.py
-          python -m ruff check ../scripts/build-home-research.py
+          python -m ruff format --config pyproject.toml --check ../scripts/build-home-research.py
+          python -m ruff check --config pyproject.toml ../scripts/build-home-research.py
           python ../scripts/build-home-research.py --check
+      - name: Backend tests
+        run: python -m pytest
       - name: Audit actionable decision evidence coverage
         run: |
           python -m ruff format --check ../scripts/audit_decision_coverage.py
