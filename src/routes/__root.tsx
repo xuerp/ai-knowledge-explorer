@@ -90,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "AI Radar · 基于可信变化做出 AI 选择" },
       {
         name: "description",
-        content: "AI Radar 持续追踪可追溯的 AI 变化，并用版本、关系与来源证据辅助模型和产品选择。",
+        content: "AI Radar 整理已收录的模型与产品资料，用版本、关系与来源证据辅助研究和选择。",
       },
       { property: "og:title", content: "AI Radar · 基于可信变化做出 AI 选择" },
       {

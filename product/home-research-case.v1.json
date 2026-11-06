@@ -1,0 +1,16 @@
+{
+  "title": {
+    "zh": "公司文档问答，怎么选方案？",
+    "en": "Which route fits an internal document assistant?"
+  },
+  "task": {
+    "zh": "团队要让 AI 回答公司内部 PDF 和 Word 文档里的问题，回答需标明来源，找不到依据时说明不知道，希望在公司自己的服务器部署。",
+    "en": "Our team needs an AI assistant for internal PDF and Word documents, with source citations and an explicit refusal when evidence is missing. We want to host the application on our own server."
+  },
+  "context": {
+    "workflowVersion": 2,
+    "taskType": "knowledge-product",
+    "priority": "quality",
+    "deployment": "private"
+  }
+}
