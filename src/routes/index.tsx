@@ -9,6 +9,10 @@ import {
   Moon,
   Search,
   Sun,
+  TrendingUp,
+  ShieldCheck,
+  Sparkles,
+  Network,
 } from "lucide-react";
 import { useApp } from "@/lib/app-state";
 import { useHomeOverview } from "@/hooks/use-knowledge";
@@ -105,11 +109,11 @@ function LandingPage() {
               <h1>
                 {lang === "zh" ? (
                   <>
-                    查清 AI 模型变化，<span>带着依据做选择。</span>
+                    基于<span>可验证证据</span>理解 AI 变化
                   </>
                 ) : (
                   <>
-                    Understand AI changes.<span>Choose with evidence.</span>
+                    Understand AI change with <span>verifiable evidence</span>
                   </>
                 )}
               </h1>
@@ -128,71 +132,46 @@ function LandingPage() {
                   {t("浏览已收录变化", "Browse collected changes")}
                 </a>
               </div>
-              <p className="landing-compact__intro-note">
+            </div>
+          </div>
+        </section>
+        {overview && (
+          <section
+            className="landing-compact__metrics"
+            aria-label={t("收录概览", "Catalog overview")}
+          >
+            <div className="landing-compact__container">
+              <dl>
+                <Metric
+                  value={overview.entityCount}
+                  label={t("已收录实体", "Catalog entries")}
+                  href="/knowledge"
+                />
+                <Metric
+                  value={`${overview.sourcedClaimCount}/${overview.claimCount}`}
+                  label={t("附有来源的事实", "Facts with sources")}
+                  href="/quality"
+                />
+                <Metric
+                  value={overview.relationshipCount}
+                  label={t("有来源的联系", "Sourced connections")}
+                  href="/graph"
+                />
+                <Metric
+                  value={retrievedDate ?? ""}
+                  label={t("本次资料读取", "Catalog retrieved")}
+                  href="/quality"
+                />
+              </dl>
+              <p>
                 {t(
-                  "个人实践项目。公开资料可直接浏览，保存个人研究需登录。",
-                  "A personal practice project. Browse public evidence freely; sign in to save your research.",
+                  "人工维护的收录快照；读取日期不代表来源更新，附有来源不代表已完成实测。",
+                  "A manually maintained snapshot. Retrieval is not a source update, and source links do not establish trial results.",
                 )}
               </p>
             </div>
-            <ResearchPreview />
-          </div>
-        </section>
-        <section className="landing-compact__section" aria-labelledby="home-questions">
-          <div className="landing-compact__container">
-            <div className="landing-compact__section-heading">
-              <h2 id="home-questions">{t("从你要解决的问题开始", "Start with your question")}</h2>
-              <p>{t("选一个示例，再改成自己的条件。", "Pick an example, then make it yours.")}</p>
-            </div>
-            <div className="landing-compact__questions">
-              {questions.slice(0, 3).map((question) => {
-                const text = question[lang];
-                return (
-                  <Link key={question.zh} to="/ask" search={{ task: text }}>
-                    <Search aria-hidden="true" />
-                    <strong>{text}</strong>
-                    <ArrowRight aria-hidden="true" />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-        <section className="landing-compact__section is-muted" aria-labelledby="home-workflow">
-          <div className="landing-compact__container">
-            <div className="landing-compact__section-heading">
-              <h2 id="home-workflow">
-                {t("让研究有依据，也有下一步", "From a question to a next step")}
-              </h2>
-            </div>
-            <ol className="landing-compact__workflow">
-              <WorkflowStep
-                number="1"
-                title={t("描述你的任务", "Describe your task")}
-                description={t(
-                  "说明要完成什么，以及预算、部署和数据使用限制；必要时在原页补充条件。",
-                  "Describe the job, budget, deployment and data constraints. Clarify missing conditions on the same page.",
-                )}
-              />
-              <WorkflowStep
-                number="2"
-                title={t("比较候选与依据", "Compare options and evidence")}
-                description={t(
-                  "查看建议、适用理由与取舍，沿引用核对原始资料；缺少依据的部分会保留为待确认。",
-                  "Review the advice, reasons and tradeoffs. Follow sources and keep unsupported conditions open.",
-                )}
-              />
-              <WorkflowStep
-                number="3"
-                title={t("保存研究，继续验证", "Save and validate")}
-                description={t(
-                  "登录后保存你的条件与研究；按上手步骤在实际产品中试用，再记录真实结果。",
-                  "Sign in to save your research. Try the suggested steps in the actual product, then record what happened.",
-                )}
-              />
-            </ol>
-          </div>
-        </section>
+          </section>
+        )}
         <section className="landing-compact__section" aria-labelledby="home-changes">
           <div className="landing-compact__container">
             <div className="landing-compact__section-heading">
@@ -273,6 +252,114 @@ function LandingPage() {
                 <ArrowRight aria-hidden="true" />
               </Link>
             </div>
+          </div>
+        </section>
+        <section className="landing-compact__section is-muted" aria-labelledby="home-features">
+          <div className="landing-compact__container">
+            <div className="landing-compact__section-heading">
+              <h2 id="home-features">{t("你可以在这里做什么", "Explore the workspace")}</h2>
+            </div>
+            <div className="landing-compact__features">
+              <Feature
+                to="/updates"
+                icon={<TrendingUp aria-hidden="true" />}
+                title={t("变化追踪", "Changes")}
+                description={t(
+                  "查看发布、能力、价格与下线记录",
+                  "Browse releases, capabilities, pricing and retirements",
+                )}
+              />
+              <Feature
+                to="/knowledge"
+                icon={<ShieldCheck aria-hidden="true" />}
+                title={t("知识库", "Knowledge")}
+                description={t(
+                  "查模型与产品，核对事实和原始资料",
+                  "Look up models, products and original sources",
+                )}
+              />
+              <Feature
+                to="/ask"
+                icon={<Sparkles aria-hidden="true" />}
+                title={t("决策助手", "Decision assistant")}
+                description={t(
+                  "结合任务、预算与部署条件做研究",
+                  "Research options against your task and constraints",
+                )}
+              />
+              <Feature
+                to="/graph"
+                icon={<Network aria-hidden="true" />}
+                title={t("知识图谱", "Knowledge graph")}
+                description={t(
+                  "探索开发者、模型与产品之间的联系",
+                  "Explore developers, models and product relationships",
+                )}
+              />
+            </div>
+          </div>
+        </section>
+        <section className="landing-compact__section" aria-labelledby="home-questions">
+          <div className="landing-compact__container">
+            <div className="landing-compact__section-heading">
+              <h2 id="home-questions">{t("从你要解决的问题开始", "Start with your question")}</h2>
+              <p>{t("选一个示例，再改成自己的条件。", "Pick an example, then make it yours.")}</p>
+            </div>
+            <div className="landing-compact__questions">
+              {questions.slice(0, 3).map((question) => {
+                const text = question[lang];
+                return (
+                  <Link key={question.zh} to="/ask" search={{ task: text }}>
+                    <Search aria-hidden="true" />
+                    <strong>{text}</strong>
+                    <ArrowRight aria-hidden="true" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+        <section className="landing-compact__section is-muted" aria-labelledby="home-workflow">
+          <div className="landing-compact__container">
+            <div className="landing-compact__section-heading">
+              <h2 id="home-workflow">
+                {t("让研究有依据，也有下一步", "From a question to a next step")}
+              </h2>
+            </div>
+            <ol className="landing-compact__workflow">
+              <WorkflowStep
+                number="1"
+                title={t("描述你的任务", "Describe your task")}
+                description={t(
+                  "说明要完成什么，以及预算、部署和数据使用限制；必要时在原页补充条件。",
+                  "Describe the job, budget, deployment and data constraints. Clarify missing conditions on the same page.",
+                )}
+              />
+              <WorkflowStep
+                number="2"
+                title={t("比较候选与依据", "Compare options and evidence")}
+                description={t(
+                  "查看建议、适用理由与取舍，沿引用核对原始资料；缺少依据的部分会保留为待确认。",
+                  "Review the advice, reasons and tradeoffs. Follow sources and keep unsupported conditions open.",
+                )}
+              />
+              <WorkflowStep
+                number="3"
+                title={t("保存研究，继续验证", "Save and validate")}
+                description={t(
+                  "登录后保存你的条件与研究；按上手步骤在实际产品中试用，再记录真实结果。",
+                  "Sign in to save your research. Try the suggested steps in the actual product, then record what happened.",
+                )}
+              />
+            </ol>
+          </div>
+        </section>
+        <section
+          className="landing-compact__section is-muted"
+          aria-label={t("研究结果示例", "Example research result")}
+        >
+          <div className="landing-compact__container">
+            <ResearchPreview />
           </div>
         </section>
         <section
@@ -477,4 +564,34 @@ function confidenceLabel(
     unverified: { zh: "未核验", en: "Unverified" },
     conflict: { zh: "存在冲突", en: "Conflicting" },
   }[confidence][lang];
+}
+
+function Metric({ value, label, href }: { value: string | number; label: string; href: string }) {
+  return (
+    <div>
+      <dd>
+        <a href={href}>{value}</a>
+      </dd>
+      <dt>{label}</dt>
+    </div>
+  );
+}
+function Feature({
+  to,
+  icon,
+  title,
+  description,
+}: {
+  to: "/updates" | "/knowledge" | "/ask" | "/graph";
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link to={to}>
+      <span>{icon}</span>
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </Link>
+  );
 }
