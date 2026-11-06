@@ -24,14 +24,13 @@ test("homepage payload is the dated public catalog projection, without private r
   assert.ok(!("following" in home));
 });
 
-test("showcase is independent of API loading; product API failures retain their error boundary", async () => {
+test("showcase keeps its initial data while syncing; product API failures retain their error boundary", async () => {
   const home = await read("src/routes/index.tsx");
-  assert.match(home, /@\/data\/generated\/home-overview\.json/);
-  assert.doesNotMatch(
-    home,
-    /useHomeOverview|useKnowledgeSnapshot|knowledgeRepository|overviewQuery/,
-  );
-  assert.match(home, /首页展示.*公开资料快照，非实时更新/);
+  const hook = await read("src/hooks/use-home-overview.ts");
+  assert.match(hook, /@\/data\/generated\/home-overview\.json/);
+  assert.match(hook, /homeOverviewQueryOptions/);
+  assert.doesNotMatch(home, /if \(!overview|正在连接知识服务/);
+  assert.match(home, /自动同步暂未成功，当前内容仍可浏览/);
   assert.match(home, /<TopNav variant="showcase"/);
   assert.equal((home.match(/体验决策助手/g) ?? []).length, 2);
   const { createKnowledgeRepository } = await vite.ssrLoadModule(

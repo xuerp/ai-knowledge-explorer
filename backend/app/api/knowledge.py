@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy import select
 
 from ..database import (
@@ -46,7 +46,10 @@ def snapshot(services: ServicesDependency, session: SessionDependency) -> Knowle
 
 
 @router.get("/api/v2/home", response_model=HomeOverview)
-def home_overview(services: ServicesDependency, session: SessionDependency) -> HomeOverview:
+def home_overview(
+    response: Response, services: ServicesDependency, session: SessionDependency
+) -> HomeOverview:
+    response.headers["Cache-Control"] = "no-store"
     return build_home_overview(services.get_public_snapshot(session))
 
 

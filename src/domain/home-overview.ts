@@ -9,6 +9,7 @@ export type HomeEntity = Pick<
 
 export interface HomeOverview {
   meta: KnowledgeSnapshot["meta"];
+  catalogUpdatedAt?: string | null;
   entityCount: number;
   claimCount: number;
   sourcedClaimCount: number;
@@ -37,6 +38,16 @@ export function projectHomeOverview(snapshot: KnowledgeSnapshot): HomeOverview {
   const sourceIds = new Set(featuredRelations.flatMap((edge) => edge.sourceIds));
   return {
     meta: snapshot.meta,
+    catalogUpdatedAt:
+      [
+        ...snapshot.entities.map((item) => item.lastUpdatedAt),
+        ...snapshot.claims.map((item) => item.updatedAt),
+        ...snapshot.evidence.flatMap((item) => [item.verifiedAt, item.collectedAt]),
+      ]
+        .filter((value): value is string => Boolean(value))
+        .map((value) => value.slice(0, 10))
+        .sort()
+        .at(-1) ?? null,
     entityCount: snapshot.entities.length,
     claimCount: snapshot.claims.length,
     sourcedClaimCount: snapshot.claims.filter((item) => item.sourceIds.length > 0).length,

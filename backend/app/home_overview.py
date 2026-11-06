@@ -37,6 +37,7 @@ class HomeChange(CamelModel):
 
 class HomeOverview(CamelModel):
     meta: DataMeta
+    catalog_updated_at: str | None = None
     entity_count: int
     claim_count: int
     sourced_claim_count: int
@@ -115,6 +116,17 @@ def build_home_overview(snapshot: KnowledgeSnapshot) -> HomeOverview:
 
     return HomeOverview(
         meta=snapshot.meta,
+        catalog_updated_at=max(
+            [entity.last_updated_at[:10] for entity in snapshot.entities]
+            + [claim.updated_at[:10] for claim in snapshot.claims]
+            + [
+                value[:10]
+                for source in snapshot.evidence
+                for value in [source.verified_at, source.collected_at]
+                if value
+            ],
+            default=None,
+        ),
         entity_count=len(snapshot.entities),
         claim_count=len(snapshot.claims),
         sourced_claim_count=sum(bool(item.source_ids) for item in snapshot.claims),

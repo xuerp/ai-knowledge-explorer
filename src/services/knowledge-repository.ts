@@ -199,7 +199,11 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
   }
 
   async getHomeOverview(signal?: AbortSignal) {
-    const overview = await this.request<HomeOverview | null>("/api/v2/home", {}, signal);
+    const overview = await this.request<HomeOverview | null>(
+      "/api/v2/home",
+      { cache: "no-store" },
+      signal,
+    );
     // Older deployments may not expose the smaller endpoint during rollout.
     // Only a genuine 404 uses the same API's full public data, never an offline fixture.
     return overview ?? projectHomeOverview(await this.getSnapshot(signal));

@@ -209,7 +209,20 @@ def test_home_is_a_small_public_projection_and_follows_review_lifecycle(client):
         full_response = client.get("/api/v2/snapshot")
         home_response = client.get("/api/v2/home")
         assert full_response.status_code == home_response.status_code == 200
+        assert home_response.headers["cache-control"] == "no-store"
         full, home = full_response.json(), home_response.json()
+        expected_date = max(
+            [e["lastUpdatedAt"][:10] for e in full["entities"]]
+            + [c["updatedAt"][:10] for c in full["claims"]]
+            + [
+                value[:10]
+                for source in full["evidence"]
+                for value in [source.get("verifiedAt"), source.get("collectedAt")]
+                if value
+            ],
+            default=None,
+        )
+        assert home["catalogUpdatedAt"] == expected_date
         assert home["entityCount"] == len(full["entities"])
         assert home["claimCount"] == len(full["claims"])
         assert home["sourcedClaimCount"] == sum(bool(c["sourceIds"]) for c in full["claims"])

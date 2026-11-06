@@ -4536,10 +4536,25 @@ dl.decision-validation__review-note dd {
 }
 
 .landing-compact__data-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
   padding-block: 0.75rem;
   color: var(--color-muted-foreground);
   font-size: 0.8125rem;
   line-height: 1.6;
+}
+
+.landing-compact__data-note button {
+  min-height: 2.75rem;
+  color: var(--color-signal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.landing-compact__data-note button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .landing-compact__metrics dl {

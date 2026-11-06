@@ -12,8 +12,7 @@ import {
 import { useApp } from "@/lib/app-state";
 import { browseModelFamilies } from "@/domain/model-families";
 import { TopNav } from "@/components/layout/TopNav";
-import homeOverview from "@/data/generated/home-overview.json";
-import type { HomeOverview } from "@/domain/home-overview";
+import { useHomeOverview } from "@/hooks/use-home-overview";
 import { RELATION_LABELS } from "@/domain/labels";
 
 export const Route = createFileRoute("/")({
@@ -36,7 +35,8 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { t, lang } = useApp();
-  const overview = homeOverview as HomeOverview;
+  const overviewQuery = useHomeOverview();
+  const overview = overviewQuery.data;
   const entities = overview?.entities ?? [];
   const entityById = new Map(entities.map((entity) => [entity.id, entity]));
   const evidenceById = new Map((overview?.evidence ?? []).map((source) => [source.id, source]));
@@ -44,7 +44,14 @@ function LandingPage() {
   const featuredInsights = overview?.changes ?? [];
   const researchQuestions = overview?.researchQuestions ?? [];
   const coreModels = browseModelFamilies(entities);
-  const snapshotDate = overview?.meta.retrievedAt.slice(0, 10) ?? "";
+  const snapshotDate = overview.catalogUpdatedAt ?? "";
+  const syncTime = overviewQuery.hasSynced
+    ? new Date(overviewQuery.dataUpdatedAt).toLocaleTimeString(lang === "zh" ? "zh-CN" : "en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : "";
 
   return (
     <div className="landing-compact min-h-screen bg-background text-foreground">
@@ -98,31 +105,57 @@ function LandingPage() {
             <dl>
               <Metric
                 value={overview.entityCount}
-                label={t("快照内实体", "Snapshot entities")}
+                label={t("收录实体", "Catalog entities")}
                 href="/knowledge"
               />
               <Metric
                 value={`${overview.sourcedClaimCount}/${overview.claimCount}`}
-                label={t("快照内有来源事实", "Sourced snapshot claims")}
+                label={t("有来源事实", "Sourced claims")}
                 href="/quality"
               />
               <Metric
                 value={overview.relationshipCount}
-                label={t("快照内有来源联系", "Sourced snapshot connections")}
+                label={t("有来源联系", "Sourced connections")}
                 href="/graph"
               />
               <Metric
-                value={snapshotDate.slice(5).replace("-", ".")}
-                label={t("资料快照日期", "Catalog snapshot date")}
+                value={
+                  snapshotDate ? snapshotDate.slice(5).replace("-", ".") : t("未记录", "Unknown")
+                }
+                label={t("资料更新日期", "Catalog update date")}
                 href="/quality"
               />
             </dl>
           </div>
         </section>
-        <div className="landing-compact__container landing-compact__data-note">
-          {t(
-            `首页展示 ${snapshotDate} 的公开资料快照，非实时更新。`,
-            `This homepage shows the public catalog snapshot dated ${snapshotDate}, not a live feed.`,
+        <div className="landing-compact__container landing-compact__data-note" role="status">
+          <span>
+            {!overviewQuery.automatic
+              ? t("当前为离线资料快照。", "Showing an offline catalog snapshot.")
+              : overviewQuery.isError
+                ? t(
+                    "自动同步暂未成功，当前内容仍可浏览。",
+                    "Automatic sync failed; the previous catalog remains available.",
+                  )
+                : overviewQuery.hasSynced
+                  ? t(
+                      "已同步后台已发布资料，停留时每5分钟自动核对。",
+                      "Published catalog synced; checked every 5 minutes while this page is active.",
+                    )
+                  : t(
+                      "当前为预置快照，正在后台自动同步已发布资料。",
+                      "Showing the bundled snapshot while published data syncs in the background.",
+                    )}
+          </span>
+          {syncTime && <span>{t(`最近同步 ${syncTime}`, `Last synced ${syncTime}`)}</span>}
+          {overviewQuery.isError && (
+            <button
+              type="button"
+              onClick={() => void overviewQuery.refetch()}
+              disabled={overviewQuery.isFetching}
+            >
+              {t("重新同步", "Retry sync")}
+            </button>
           )}
         </div>
 
@@ -130,7 +163,7 @@ function LandingPage() {
           <section id="insights" className="landing-compact__section is-muted">
             <div className="landing-compact__container">
               <SectionHeading
-                title={t("快照中的动态", "Updates in the snapshot")}
+                title={t("收录动态", "Collected updates")}
                 action={
                   <a href="/updates#latest">
                     {t("查看全部", "View all")} <ArrowRight aria-hidden="true" />
