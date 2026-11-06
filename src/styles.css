@@ -5222,7 +5222,7 @@ dl.decision-validation__review-note dd {
     display: none;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 767px) {
   .site-header.has-back .site-header__preference {
     display: none;
   }
