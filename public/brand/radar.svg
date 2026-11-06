@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" role="img" aria-label="AI Radar">
-  <g fill="none" stroke="#1764f5" stroke-width="1">
+  <g fill="none" stroke="#1859e8" stroke-width="1">
     <circle cx="9" cy="9" r="8.5"/>
     <circle cx="9" cy="9" r="4.5" opacity=".55"/>
   </g>
-  <circle cx="15" cy="4" r="2" fill="#1764f5"/>
+  <circle cx="15" cy="4" r="2" fill="#1859e8"/>
 </svg>

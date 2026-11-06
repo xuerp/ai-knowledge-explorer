@@ -17,7 +17,7 @@ import { AppProvider } from "@/lib/app-context";
 import { Toaster } from "@/components/ui/sonner";
 
 // A new URL also refreshes the browser's favicon cache from the old template mark.
-const iconVersion = "blue-radar-20261106";
+const iconVersion = "blue-radar-1859e8-20261106";
 
 function NotFoundComponent() {
   return (

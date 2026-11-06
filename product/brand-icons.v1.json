@@ -1,11 +1,11 @@
 {
   "source": "public/brand/radar.svg",
-  "sourceSha256": "cc156e2cfdc23eaa82e4e32deb2919333a9c1ed9ece3c6896d19bfe762e28808",
+  "sourceSha256": "47f85044087e37b5233f5dea0b6b2e52ef7d9e6d5b9157b0e77f0bec527a0ffc",
   "files": {
-    "public/brand/apple-touch-icon.png": "7e40c851805e76dfa10c977de5a6a43280838cb3914490c789fe33a1666d35d2",
-    "public/brand/icon-192.png": "8af42cdb7a06ef41f9f58a3a19d661008cf2c4e990f8aa7bd410f35187f4e232",
-    "public/brand/icon-512.png": "c861a33c8b918d97ff0630c9fcd82535b4e71fbed49ec1ab66eac847bee1a2ee",
-    "public/brand/favicon.ico": "90ed6046d3023bdb40a7bfcb6473812cb8412f1ecbcbe7185ad15cfc086916d5",
-    "public/favicon.ico": "90ed6046d3023bdb40a7bfcb6473812cb8412f1ecbcbe7185ad15cfc086916d5"
+    "public/brand/apple-touch-icon.png": "2185a3909cf196f53165e8f90acc50febb922ab4b9533be21bed58a3ff8de3a4",
+    "public/brand/icon-192.png": "28f3cb8847fd7fd0736267db6c2875fb61cf930538975b1e826810d478adc8a1",
+    "public/brand/icon-512.png": "b891bf9987d15fb606248436beee3536e2986c596185339003441e1912bff66b",
+    "public/brand/favicon.ico": "be17444ac17e58d7006a1f5c8f19b45461929058392d5d7aedeccf0ff40280b6",
+    "public/favicon.ico": "be17444ac17e58d7006a1f5c8f19b45461929058392d5d7aedeccf0ff40280b6"
   }
 }
