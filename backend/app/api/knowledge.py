@@ -12,6 +12,7 @@ from ..entry_requests import (
     EntryRequestReceipt,
     create_entry_request,
 )
+from ..evaluation_scope import retrieval_implementation_fingerprint
 from ..home_overview import HomeOverview, build_home_overview
 from ..repository import OPEN_REVIEW_STATUSES
 from ..schemas import (
@@ -22,6 +23,7 @@ from ..schemas import (
     GraphSnapshot,
     KnowledgeSnapshot,
     ModelVersionCompareRequest,
+    QualityMetricCounts,
     QualityMetrics,
     ReviewReasonBreakdown,
     ReviewStats,
@@ -55,7 +57,10 @@ def home_overview(
 
 @router.get("/api/quality/metrics", response_model=QualityMetrics)
 @router.get("/api/v2/quality/metrics", response_model=QualityMetrics)
-def quality_metrics(services: ServicesDependency, session: SessionDependency) -> QualityMetrics:
+def quality_metrics(
+    response: Response, services: ServicesDependency, session: SessionDependency
+) -> QualityMetrics:
+    response.headers["Cache-Control"] = "no-store"
     snapshot = services.get_catalog_snapshot(session)
     report = services.quality_gate.report(snapshot)
     return QualityMetrics(
@@ -74,8 +79,20 @@ def quality_metrics(services: ServicesDependency, session: SessionDependency) ->
             fresh_evidence_ratio=report.fresh_evidence_ratio,
             verified_content_ratio=report.verified_content_ratio,
             core_relation_deficit=report.core_relation_deficit,
+            counts=QualityMetricCounts(
+                referenced_content=report.claim_count
+                + report.relation_count
+                + report.timeline_entry_count,
+                resolved_references=report.resolved_reference_count,
+                official_evidence=report.official_evidence_count,
+                evidence_with_review_time=report.reviewed_evidence_count,
+                recently_collected_evidence=report.fresh_evidence_count,
+                verified_content=report.verified_content_count,
+            ),
         ),
         evaluation=services.evaluation_quality_metrics(snapshot),
+        evaluation_history=services.evaluation_quality_history(snapshot),
+        retrieval_implementation_sha256=retrieval_implementation_fingerprint(),
     )
 
 

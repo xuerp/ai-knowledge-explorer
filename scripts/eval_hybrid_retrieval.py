@@ -10,14 +10,21 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from sqlalchemy.exc import SQLAlchemyError
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from eval_retrieval import current_commit, evaluate, load_golden_set, read_bytes
 
-from app.embeddings import CloudflareEmbeddingProvider
+from app.embeddings import (
+    CloudflareEmbeddingProvider,
+    EmbeddingProviderError,
+    embedding_token_upper_bound,
+)
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
+from app.evaluation_scope import retrieval_implementation_fingerprint
 from app.rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
 from app.schemas import KnowledgeSnapshot
 
@@ -94,6 +101,7 @@ def main() -> None:
     parser.add_argument("--dimension", type=int, default=1024)
     parser.add_argument("--top-k", type=int, default=8)
     parser.add_argument("--rrf-k", type=int, default=60)
+    parser.add_argument("--database-url", default="sqlite://", help="仅使用评估专用隔离数据库。")
     parser.add_argument("--max-batch-size", type=int, default=100)
     parser.add_argument("--daily-neuron-budget", type=float, default=0)
     parser.add_argument("--neurons-per-million-tokens", type=float, default=1075)
@@ -102,15 +110,12 @@ def main() -> None:
     parser.add_argument("--api-token-env", default="CLOUDFLARE_API_TOKEN")
     parser.add_argument("--evaluation-commit")
     parser.add_argument("--allow-external-api", action="store_true")
+    parser.add_argument(
+        "--preflight-only", action="store_true", help="只保存预算预检，不读取凭证或请求模型。"
+    )
     args = parser.parse_args()
-    if not args.allow_external_api:
-        raise ValueError("Hybrid evaluation requires --allow-external-api authorization.")
-    if args.daily_neuron_budget <= 0 or args.daily_api_call_budget <= 0:
-        raise ValueError("Hybrid evaluation requires positive daily hard budgets.")
-    account_id = os.getenv(args.account_id_env)
-    api_token = os.getenv(args.api_token_env)
-    if not account_id or not api_token:
-        raise ValueError("Cloudflare evaluation credentials are not configured.")
+    if args.max_batch_size <= 0 or args.top_k <= 0 or args.dimension <= 0:
+        raise ValueError("Batch size, top K and embedding dimension must be positive.")
 
     snapshot_bytes = read_bytes(args.snapshot)
     snapshot = KnowledgeSnapshot.model_validate_json(snapshot_bytes)
@@ -119,13 +124,41 @@ def main() -> None:
     apply_entity_aliases(snapshot.entities, alias_definitions)
     document_texts = build_document_texts(snapshot)
     all_inputs = document_texts + [str(item["query"]) for item in samples]
-    conservative_tokens = sum(len(text) for text in all_inputs)
+    conservative_tokens = embedding_token_upper_bound(all_inputs)
     estimated_neurons = conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
     expected_calls = math.ceil(len(document_texts) / args.max_batch_size) + len(samples)
+    preflight = {
+        "documentCount": len(document_texts),
+        "queryCount": len(samples),
+        "expectedApiCalls": expected_calls,
+        "conservativeTokenUpperBound": conservative_tokens,
+        "estimatedNeurons": round(estimated_neurons, 4),
+        "model": args.model,
+        "modelVersion": args.model_version,
+        "embeddingDimension": args.dimension,
+        "snapshotSha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+        "goldenSetSha256": hashlib.sha256(args.golden_set.read_bytes()).hexdigest(),
+        "externalCallsExecuted": 0,
+    }
+    if args.preflight_only:
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        (args.output_dir / "hybrid-preflight.json").write_text(
+            json.dumps(preflight, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        print(json.dumps(preflight))
+        return
+    if not args.allow_external_api:
+        raise ValueError("Hybrid evaluation requires --allow-external-api authorization.")
+    if args.daily_neuron_budget <= 0 or args.daily_api_call_budget <= 0:
+        raise ValueError("Hybrid evaluation requires positive daily hard budgets.")
     if estimated_neurons > args.daily_neuron_budget:
         raise ValueError("Full evaluation would exceed the Neuron hard budget.")
     if expected_calls > args.daily_api_call_budget:
         raise ValueError("Full evaluation would exceed the API call hard budget.")
+    account_id = os.getenv(args.account_id_env)
+    api_token = os.getenv(args.api_token_env)
+    if not account_id or not api_token:
+        raise ValueError("Cloudflare evaluation credentials are not configured.")
 
     provider = CloudflareEmbeddingProvider(
         account_id=account_id,
@@ -151,15 +184,40 @@ def main() -> None:
         enabled=True,
         rrf_k=args.rrf_k,
     )
+    completed: list[dict[str, Any]] = []
     try:
         metrics, results, dialect = evaluate(
             snapshot,
             samples,
             top_k=args.top_k,
-            database_url="sqlite://",
+            database_url=args.database_url,
             retriever=retriever,
+            result_sink=completed,
         )
         usage = provider.usage()
+    except (EmbeddingProviderError, SQLAlchemyError, ValueError) as error:
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        (args.output_dir / "hybrid-failure.json").write_text(
+            json.dumps(
+                {
+                    "status": "failed-no-retry",
+                    "errorType": type(error).__name__,
+                    "preflight": preflight,
+                    "usage": provider.usage(),
+                    "completedResults": completed,
+                    "nextQuestionId": samples[len(completed)]["id"]
+                    if len(completed) < len(samples)
+                    else None,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        raise SystemExit(
+            "Hybrid evaluation stopped; inspect the redacted failure artifact. No retry was made."
+        ) from None
     finally:
         provider.close()
 
@@ -180,13 +238,17 @@ def main() -> None:
             "rrfK": args.rrf_k,
             "evaluationCommit": args.evaluation_commit or current_commit(REPO_ROOT),
             "evaluatedAt": datetime.now(UTC).isoformat(),
+            **(
+                {
+                    "fingerprintVersion": 2,
+                    "retrievalImplementationSha256": retrieval_implementation_fingerprint(),
+                    "goldenSetSha256": hashlib.sha256(args.golden_set.read_bytes()).hexdigest(),
+                }
+                if golden_version == "2.0.0"
+                else {}
+            ),
         },
-        "preflight": {
-            "documentCount": len(document_texts),
-            "expectedApiCalls": expected_calls,
-            "conservativeTokenUpperBound": conservative_tokens,
-            "estimatedNeurons": round(estimated_neurons, 4),
-        },
+        "preflight": preflight,
         "usage": usage,
         "metrics": metrics,
         "results": results,

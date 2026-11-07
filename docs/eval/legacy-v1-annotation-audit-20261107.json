@@ -1,0 +1,1540 @@
+{
+  "scope": "Annotation drift audit only; not a retrieval score or semantic revalidation. Surviving IDs do not establish unchanged meaning.",
+  "samples": 80,
+  "missingIdSamples": 67,
+  "sameIdChangedTextSamples": 6,
+  "results": [
+    {
+      "id": "entity-001",
+      "query": "GPT-5 在 SWE-bench Verified 上的通过率是多少？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-gpt5-swe",
+          "oldText": {
+            "zh": "GPT-5 在 SWE-bench Verified 上取得 62.4% 的通过率。",
+            "en": "GPT-5 achieves 62.4% pass rate on SWE-bench Verified.",
+            "technical": {
+              "zh": "在 SWE-bench Verified 500 题子集上，GPT-5 (2026-07-12 发布版) 单次尝试的解决率为 62.4%。",
+              "en": "On the 500-task SWE-bench Verified subset, GPT-5 (2026-07-12 release) solves 62.4% in a single attempt."
+            }
+          },
+          "currentText": {
+            "zh": "GPT-5 官方 API 文档列出 400K 上下文；原演示评测数字不沿用。",
+            "en": "GPT-5 API documentation lists 400K context; the earlier demo benchmark figure is not reused.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-002",
+      "query": "Claude 4.5 的官方安全评估提到了什么变化？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-claude-align",
+          "oldText": {
+            "zh": "Claude 4.5 在 Anthropic 官方安全评估中拒绝率下降 18%，同时保持有害请求识别率。",
+            "en": "Claude 4.5 reduces false refusals by 18% while retaining harmful-request detection per Anthropic's evals.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Sonnet 4.5 已宣布弃用；旧演示误拒率数字没有本次官方依据。",
+            "en": "Sonnet 4.5 is deprecated; this review does not establish the old demo false-refusal statistic.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-003",
+      "query": "OpenAI 最新模型是否支持视觉能力？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-d52e477b9559be80d40d",
+          "oldText": {
+            "zh": "所有最新的 OpenAI 模型都支持视觉能力。",
+            "en": "All latest OpenAI models support vision.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-004",
+      "query": "Gemini 2.5 Pro 能原生处理多长的视频？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-gemini-video",
+          "oldText": {
+            "zh": "Gemini 2.5 Pro 原生支持 2 小时长视频输入。",
+            "en": "Gemini 2.5 Pro natively supports up to 2-hour video inputs.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Gemini 2.5 Pro 支持视频输入；Gemini 2.5 及更高版本单次请求最多上传 10 个视频。视频时长需结合上下文窗口和媒体分辨率核对。",
+            "en": "Gemini 2.5 Pro supports video input; Gemini 2.5 and later allow up to 10 videos per request. Check duration limits against context size and media resolution.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-005",
+      "query": "OpenAI Codex 属于什么类型的产品？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-codex-agent",
+          "oldText": {
+            "zh": "OpenAI 将 Codex 描述为可在云端隔离环境中处理软件工程任务的 Agent。",
+            "en": "OpenAI describes Codex as an agent that handles software engineering tasks in isolated cloud environments.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "OpenAI 在 2025-05-16 的 Codex 发布公告中，将其描述为在云端隔离环境中处理软件工程任务的 Agent。该旧公告已标注过时，不能单独证明当前全部 Codex 产品的运行方式。",
+            "en": "OpenAI’s 2025-05-16 Codex launch post described an agent handling software-engineering tasks in isolated cloud environments. The post is now marked outdated and does not by itself establish how all current Codex products run.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-006",
+      "query": "Claude Code 能完成哪些代码操作？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-claude-code-agent",
+          "oldText": {
+            "zh": "Anthropic 发布的 Claude Code 可搜索代码、编辑文件并运行测试。",
+            "en": "Anthropic's Claude Code can search code, edit files and run tests.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Anthropic 发布的 Claude Code 可搜索代码、编辑文件并运行测试。",
+            "en": "Anthropic's Claude Code can search code, edit files and run tests.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-007",
+      "query": "Gemini CLI 是什么终端工具？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-gemini-cli-agent",
+          "oldText": {
+            "zh": "Gemini CLI 是 Google 于 2025 年发布的开源终端 AI Agent。",
+            "en": "Gemini CLI is Google's open-source terminal AI agent released in 2025.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Gemini CLI 是 Google 于 2025 年发布的开源终端 AI Agent。",
+            "en": "Gemini CLI is Google's open-source terminal AI agent released in 2025.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-008",
+      "query": "Manus 如何描述自己的任务执行能力？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-manus-agent",
+          "oldText": {
+            "zh": "Manus 文档将其描述为可规划、执行并交付任务成果的自主通用 AI Agent。",
+            "en": "Manus documentation describes it as an autonomous general AI agent that plans, executes and delivers task outcomes.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Manus 文档将其描述为可规划、执行并交付任务成果的自主通用 AI Agent。",
+            "en": "Manus documentation describes it as an autonomous general AI agent that plans, executes and delivers task outcomes.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-009",
+      "query": "Devin 的官方文档如何定义它？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-devin-agent",
+          "oldText": {
+            "zh": "Devin 官方文档将其描述为可编写、运行和测试代码的 AI 软件工程师。",
+            "en": "Devin's documentation describes it as an AI software engineer that can write, run and test code.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Devin 官方文档将其描述为可编写、运行和测试代码的 AI 软件工程师。",
+            "en": "Devin's documentation describes it as an AI software engineer that can write, run and test code.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-010",
+      "query": "LangGraph 是哪一类 Agent 框架？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-langgraph-framework",
+          "oldText": {
+            "zh": "LangGraph 是用于构建长运行、有状态 Agent 的低层编排框架和运行时。",
+            "en": "LangGraph is a low-level orchestration framework and runtime for long-running, stateful agents.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "LangGraph 官方概览将其定义为构建、管理与部署长运行、有状态 Agent 的低层编排框架和运行时；使用 LangGraph 不要求同时使用 LangChain。",
+            "en": "The official overview defines LangGraph as a low-level orchestration framework and runtime for building, managing and deploying long-running, stateful agents; using LangChain is optional.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-011",
+      "query": "AutoGen 安装文档包含哪些核心能力？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-autogen-framework",
+          "oldText": {
+            "zh": "AutoGen 安装文档提供核心运行时、模型客户端扩展和可选 Docker 代码执行器。",
+            "en": "AutoGen installation documentation provides a core runtime, model client extensions and optional Docker code executors.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "AutoGen 安装文档提供核心运行时、模型客户端扩展和可选 Docker 代码执行器。",
+            "en": "AutoGen installation documentation provides a core runtime, model client extensions and optional Docker code executors.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-012",
+      "query": "CrewAI 用哪些概念组织协作式 Agent？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-crewai-framework",
+          "oldText": {
+            "zh": "CrewAI 文档以 Agents、Crews 和 Flows 组织协作式 Agent 系统。",
+            "en": "CrewAI documentation organizes collaborative agent systems around agents, crews and flows.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "CrewAI 文档以 Agents、Crews 和 Flows 组织协作式 Agent 系统。",
+            "en": "CrewAI documentation organizes collaborative agent systems around agents, crews and flows.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-013",
+      "query": "OpenAI Agents SDK 提供哪些构建块？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "c-openai-agents-sdk-framework",
+          "oldText": {
+            "zh": "OpenAI Agents SDK 提供 Agent、工具、handoff、guardrail、会话和追踪等构建块。",
+            "en": "The OpenAI Agents SDK provides agents, tools, handoffs, guardrails, sessions and tracing.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "OpenAI Agents SDK 提供 Agent、工具、handoff、guardrail、会话和追踪等构建块。",
+            "en": "The OpenAI Agents SDK provides agents, tools, handoffs, guardrails, sessions and tracing.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "entity-014",
+      "query": "Kimi K2.6 的上下文窗口有多大？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-73b3ff0afe9ef5d63fc9",
+          "oldText": {
+            "zh": "Kimi K2.6 支持 256k-token 上下文窗口。",
+            "en": "Kimi K2.6 supports a 256k-token context window.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-015",
+      "query": "Kimi K3 支持多长的上下文？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-1d379a59788c82f7c2a0",
+          "oldText": {
+            "zh": "Kimi K3 具有 1M-token 上下文窗口。",
+            "en": "Kimi K3 features a 1M-token context window.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-016",
+      "query": "Anthropic 的公司宗旨是什么？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-d164b5c3859aa142e64b",
+          "oldText": {
+            "zh": "Anthropic 的宗旨是为人类的长期福祉负责任地开发和维护先进人工智能。",
+            "en": "Anthropic’s purpose is the responsible development and maintenance of advanced AI for the long-term benefit of humanity.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-017",
+      "query": "MCP 服务器可以公开哪三种核心原语？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-0bb5fe18f20b9d37d620",
+          "oldText": {
+            "zh": "MCP 服务器可以公开工具、资源和提示这三种核心原语。",
+            "en": "MCP servers can expose three core primitives: tools, resources, and prompts.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-018",
+      "query": "MCP 支持哪些传输机制？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-b4baf2feae10cc1faa7b",
+          "oldText": {
+            "zh": "MCP 支持 Stdio 传输和可流式 HTTP 传输两种传输机制。",
+            "en": "MCP supports Stdio transport and Streamable HTTP transport.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-019",
+      "query": "Claude Code 是否可以搜索和读取代码？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-964dfcfbc1b85062f986",
+          "oldText": {
+            "zh": "Claude Code 可以搜索和读取代码。",
+            "en": "Claude Code can search and read code.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-020",
+      "query": "LangChain 的 create_agent 是什么？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-dd89bd1c8f5c53c061b1",
+          "oldText": {
+            "zh": "create_agent 是一个最小且高度可配置的 agent harness。",
+            "en": "create_agent is a minimal, highly configurable agent harness.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-021",
+      "query": "Kimi 最多支持多少步工具调用？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-cf94fdbaa29a323ff09b",
+          "oldText": {
+            "zh": "Kimi 支持最多 300 步的工具调用。",
+            "en": "Kimi supports up to 300-step tool calling.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-022",
+      "query": "LangGraph 是否支持 human-in-the-loop？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-60b87db2ddd7abbb6700",
+          "oldText": {
+            "zh": "LangGraph 支持 human-in-the-loop。",
+            "en": "LangGraph supports human-in-the-loop.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-023",
+      "query": "Claude 3.7 Sonnet 的思考预算上限是多少？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-aec3ec964cca35fb7ce0",
+          "oldText": {
+            "zh": "通过 API 使用 Claude 3.7 Sonnet 时，思考预算最高可设置为输出限制 128K tokens。",
+            "en": "When using Claude 3.7 Sonnet through the API, the thinking budget can be set up to the output limit of 128K tokens.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-024",
+      "query": "MMLU-Pro 将答案选项扩展到了多少个？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-64413a939e7a8f19b690",
+          "oldText": {
+            "zh": "MMLU-Pro 将选项集合从四个扩展到十个选项。",
+            "en": "MMLU-Pro expands the choice set from four to ten options.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-025",
+      "query": "Qwen3-2507 可以处理多长的输入？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-d8c42aa4195b98cd5d4f",
+          "oldText": {
+            "zh": "截至 2025-08-08，Qwen3-2507 可处理 100 万 token 的超长输入。",
+            "en": "As of 2025-08-08, Qwen3-2507 can handle ultra-long inputs of 1 million tokens.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-026",
+      "query": "Doubao Seed1.8 提供几种思考模式？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-6f9aaf8ca2c9c500592f",
+          "oldText": {
+            "zh": "Seed1.8 提供三种思考模式。",
+            "en": "Seed1.8 provides three thinking modes.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-027",
+      "query": "Transformer 的核心机制是什么？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-651c65451adfbda8426e",
+          "oldText": {
+            "zh": "Transformer 仅基于注意力机制。",
+            "en": "The Transformer is based solely on attention mechanisms.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-028",
+      "query": "Cursor 在知识库中被归类为什么？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-a3e4d4f1e21a727d98cf",
+          "oldText": {
+            "zh": "Cursor 是一个 coding agent。",
+            "en": "Cursor is a coding agent.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-029",
+      "query": "ERNIE 5.0 的参数规模是多少？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-1df943f17b88c67f915b",
+          "oldText": {
+            "zh": "文心 5.0 拥有 2.4 万亿参数。",
+            "en": "ERNIE 5.0 has 2.4 trillion parameters.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "entity-030",
+      "query": "Claude Code 是哪种命令行工具？",
+      "category": "entity",
+      "references": [
+        {
+          "claimId": "claim-6d9735b8089f5c019ba7",
+          "oldText": {
+            "zh": "Claude Code 是一个用于代理式编码的命令行工具。",
+            "en": "Claude Code is a command line tool for agentic coding.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-001",
+      "query": "LangChain 的 agents 与 LangGraph 有什么技术关系？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-bf9d94a7b2d875c0bf00",
+          "oldText": {
+            "zh": "LangChain 的 agents 构建在 LangGraph 之上。",
+            "en": "LangChain’s agents are built on top of LangGraph.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-002",
+      "query": "Claude Code 与 MCP 主机是什么关系？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-3ec4878162e369974a0b",
+          "oldText": {
+            "zh": "Claude Code 是 MCP 主机的示例。",
+            "en": "Claude Code is an example of an MCP host.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-003",
+      "query": "Claude Code 如何使用 Model Context Protocol？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-708f41b052b365989d5f",
+          "oldText": {
+            "zh": "Claude Code 是使用 Model Context Protocol 的 MCP 主机示例。",
+            "en": "Claude Code is an example of an MCP host using Model Context Protocol.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-004",
+      "query": "Anthropic 开发了哪个 Claude 3.7 模型？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-c544c2ed2ada9fb5a54b",
+          "oldText": {
+            "zh": "Anthropic 开发了 Claude 3.7 Sonnet。",
+            "en": "Anthropic developed Claude 3.7 Sonnet.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-005",
+      "query": "ERNIE 5.1 与 ERNIE 5.0 的继承关系是什么？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-84efe21fd9bb4e00cae3",
+          "oldText": {
+            "zh": "ERNIE 5.1 源自 ERNIE 5.0。",
+            "en": "ERNIE 5.1 is derived from ERNIE 5.0.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-006",
+      "query": "ERNIE 5.1 的训练基础设施使用了什么框架？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-74fd2e6ec62f858d75cc",
+          "oldText": {
+            "zh": "ERNIE 5.1 的多阶段强化学习训练基础设施构建于 PaddlePaddle 之上。",
+            "en": "The multi-stage reinforcement learning training infrastructure for ERNIE 5.1 was built on PaddlePaddle.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-007",
+      "query": "LangChain 用什么平台跟踪和评估 Agent？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-37d0d89648d2a393d0c3",
+          "oldText": {
+            "zh": "LangChain 使用 LangSmith 跟踪请求、调试 agent 行为并评估输出。",
+            "en": "LangChain uses LangSmith to trace requests, debug agent behavior, and evaluate outputs.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-008",
+      "query": "LangChain 支持哪家 OpenAI 模型供应商？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-0b39443caf585df6a887",
+          "oldText": {
+            "zh": "LangChain 支持 OpenAI。",
+            "en": "LangChain supports OpenAI.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-009",
+      "query": "LangChain 是否支持 Anthropic？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-85baa52e65c945a6dbd1",
+          "oldText": {
+            "zh": "LangChain 支持 Anthropic。",
+            "en": "LangChain supports Anthropic.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-010",
+      "query": "Seed1.8 集成了哪些 Agent 能力？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-5aaf53f59267692a608e",
+          "oldText": {
+            "zh": "Seed1.8 集成搜索、代码和 GUI Agent 能力。",
+            "en": "Seed1.8 integrates search, code, and GUI Agent capabilities.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-011",
+      "query": "Seed1.8 与 VideoCut 的集成关系是什么？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-f94f9f7b5033aa600b03",
+          "oldText": {
+            "zh": "Seed1.8 集成视频工具 VideoCut，用于长视频推理。",
+            "en": "Seed1.8 integrates the video tool VideoCut for long-video reasoning.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-012",
+      "query": "OpenAI 的最新模型支持哪些输入模态？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-946116b1be917420287c",
+          "oldText": {
+            "zh": "所有最新的 OpenAI 模型都支持文本和图像输入。",
+            "en": "All latest OpenAI models support text and image input.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-013",
+      "query": "GPT-5.2-Codex 针对哪类任务优化？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-ce8bf109d9ca8dda5e63",
+          "oldText": {
+            "zh": "GPT-5.2-Codex 针对长周期代理式编码任务进行了优化。",
+            "en": "GPT-5.2-Codex is optimized for long-horizon, agentic coding tasks.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-014",
+      "query": "GPT-5-Codex 与 Codex 编码任务是什么关系？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-62e6a41540009d41ae38",
+          "oldText": {
+            "zh": "GPT-5-Codex 是针对 Codex 中的代理式编码进行优化的 GPT-5 版本。",
+            "en": "GPT-5-Codex is a version of GPT-5 optimized for agentic coding in Codex.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-015",
+      "query": "MMLU-Pro 如何扩展原始 MMLU？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-a18286f8beb841d14f78",
+          "oldText": {
+            "zh": "MMLU-Pro 扩展了主要由知识驱动的 MMLU 基准。",
+            "en": "MMLU-Pro extends the mostly knowledge-driven MMLU benchmark.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-016",
+      "query": "Transformer 与递归结构的关系是什么？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-c197b2fed5266444ac67",
+          "oldText": {
+            "zh": "Transformer 摒弃了递归。",
+            "en": "The Transformer dispenses with recurrence.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-017",
+      "query": "Transformer 与卷积结构的关系是什么？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-50c69855c226a60323a7",
+          "oldText": {
+            "zh": "Transformer 摒弃了卷积。",
+            "en": "The Transformer dispenses with convolutions.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-018",
+      "query": "Kimi K2.6 支持哪些输入模态？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-26b1d5225baf5e9bf207",
+          "oldText": {
+            "zh": "Kimi K2.6 支持视觉和文本输入。",
+            "en": "Kimi K2.6 supports vision and text input.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-019",
+      "query": "MCP 数据层使用什么消息协议？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-bedca8ceed0954f4bc73",
+          "oldText": {
+            "zh": "数据层实现基于 JSON-RPC 2.0 的交换协议。",
+            "en": "The data layer implements a JSON-RPC 2.0 based exchange protocol.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "relation-020",
+      "query": "MCP 主机会为服务器创建什么对象？",
+      "category": "relation",
+      "references": [
+        {
+          "claimId": "claim-c39776a16ff86e810567",
+          "oldText": {
+            "zh": "MCP 主机会为每个 MCP 服务器创建一个 MCP 客户端。",
+            "en": "An MCP host creates one MCP client for each MCP server.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-001",
+      "query": "Gemini CLI 在哪一年作为开源终端 Agent 发布？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "c-gemini-cli-agent",
+          "oldText": {
+            "zh": "Gemini CLI 是 Google 于 2025 年发布的开源终端 AI Agent。",
+            "en": "Gemini CLI is Google's open-source terminal AI agent released in 2025.",
+            "technical": null
+          },
+          "currentText": {
+            "zh": "Gemini CLI 是 Google 于 2025 年发布的开源终端 AI Agent。",
+            "en": "Gemini CLI is Google's open-source terminal AI agent released in 2025.",
+            "technical": null
+          },
+          "status": "same-id-same-text"
+        }
+      ]
+    },
+    {
+      "id": "timeline-002",
+      "query": "Gemini 1.5 Pro 的 2M 上下文何时正式可用？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-87feb225a273a9eac10b",
+          "oldText": {
+            "zh": "Gemini 1.5 Pro 的 2M 上下文窗口于 2024-06-27 正式可用。",
+            "en": "Gemini 1.5 Pro's 2M context window became generally available on 2024-06-27.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-003",
+      "query": "Managed Agents in Gemini API 何时进入公开预览？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-0f2b9f758b0f58398ef7",
+          "oldText": {
+            "zh": "Managed Agents in the Gemini API 于 2026-05-19 进入公开预览。",
+            "en": "Managed Agents in the Gemini API entered public preview on 2026-05-19.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-004",
+      "query": "Gemini Computer Use 工具何时进入公开预览？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-4f8f8d405cca177b06a3",
+          "oldText": {
+            "zh": "Computer Use 工具于 2026-06-24 在 Gemini 3.5 Flash 中进入公开预览。",
+            "en": "The Computer Use tool entered public preview in Gemini 3.5 Flash on 2026-06-24.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-005",
+      "query": "Gemini File Search API 何时进入公开预览？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-30074cb26f8e04cba0f2",
+          "oldText": {
+            "zh": "File Search API 于 2025-11-06 进入公开预览。",
+            "en": "The File Search API entered public preview on 2025-11-06.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-006",
+      "query": "MCP Sampling 从哪个协议版本起弃用？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-c7a1857e394448993d93",
+          "oldText": {
+            "zh": "Sampling 自协议版本 2026-07-28 起已弃用。",
+            "en": "Sampling is deprecated as of protocol version 2026-07-28.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-007",
+      "query": "Videos API 计划在哪一天从 OpenAI API 移除？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-1b95f8c29e8060f435e5",
+          "oldText": {
+            "zh": "Videos API计划于2026年9月24日从API中移除。",
+            "en": "The Videos API is scheduled for removal from the API on 2026-09-24.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-008",
+      "query": "OpenAI 一般可用模型最低退役通知期多久？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-f54e84647bf091f465d2",
+          "oldText": {
+            "zh": "一般可用模型的最低退役通知期为至少6个月。",
+            "en": "Generally available models have a minimum retirement notice period of at least 6 months.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-009",
+      "query": "OpenAI 预览模型可能只有多短的退役通知？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-90b09d0c9745cbcb877b",
+          "oldText": {
+            "zh": "预览模型可能以短得多的通知期退役，例如2周。",
+            "en": "Preview models may be retired with much shorter notice, such as 2 weeks.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-010",
+      "query": "Qwen3-2507 从何时起支持百万 token 输入？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-c9729d582aad30fb2ef1",
+          "oldText": {
+            "zh": "自 2025-08-08 起，Qwen3-2507 可处理 100 万 token 的超长输入。",
+            "en": "As of 2025-08-08, Qwen3-2507 can handle ultra-long inputs of 1 million tokens.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-011",
+      "query": "Claude Code 当前以什么发布状态提供？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-f160486f6dd1f6c4205d",
+          "oldText": {
+            "zh": "Claude Code 以有限研究预览版提供。",
+            "en": "Claude Code is available as a limited research preview.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-012",
+      "query": "Kimi K3 当前是否已经发布？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-1fdb85142657f6812e18",
+          "oldText": {
+            "zh": "Kimi K3 已发布。",
+            "en": "Kimi K3 has launched.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-013",
+      "query": "Seed2.0 Pro 和 Code 模型在哪些产品上线？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-907e86c15632fdc031a7",
+          "oldText": {
+            "zh": "Seed2.0 Pro 和 Code 模型已在 Doubao App 和 TRAE 上线。",
+            "en": "The Seed2.0 Pro and Code models have been launched on the Doubao App and TRAE.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-014",
+      "query": "ERNIE 5.1 在 2026 年 5 月的 Arena Search 排名如何？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-a6bf7bb89ea9aeb1e43b",
+          "oldText": {
+            "zh": "2026 年 5 月 9 日，ERNIE 5.1 在 Arena Search 排行榜得分 1,223，全球排名第 4、中国模型排名第 1。",
+            "en": "On May 9, 2026, ERNIE 5.1 scored 1,223 on the Arena Search leaderboard, ranking 4th globally and 1st among Chinese models.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-015",
+      "query": "Claude 3.7 Sonnet 已在哪些平台提供？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-b16d6589cd7104289b88",
+          "oldText": {
+            "zh": "Claude 3.7 Sonnet 已在所有 Claude 计划（包括 Free、Pro、Team 和 Enterprise）以及 Claude Developer Platform、Amazon Bedrock 和 Google Cloud 的 Vertex AI 上提供。",
+            "en": "Claude 3.7 Sonnet is available on all Claude plans—including Free, Pro, Team, and Enterprise—as well as the Claude Developer Platform, Amazon Bedrock, and Google Cloud’s Vertex AI.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-fa38113d856b439d625a",
+          "oldText": {
+            "zh": "Claude 3.7 Sonnet 可在所有 Claude 套餐、Claude Developer Platform、Amazon Bedrock 和 Google Cloud’s Vertex AI 上使用。",
+            "en": "Claude 3.7 Sonnet is available on all Claude plans, the Claude Developer Platform, Amazon Bedrock, and Google Cloud’s Vertex AI.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-016",
+      "query": "Claude Code 的有限研究预览状态是什么？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-852c17dc4b53a389f8d9",
+          "oldText": {
+            "zh": "Claude Code 以有限研究预览版提供。",
+            "en": "Claude Code is available as a limited research preview.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-017",
+      "query": "Gemini 1.5 Pro 的长上下文正式可用日期是什么？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-87feb225a273a9eac10b",
+          "oldText": {
+            "zh": "Gemini 1.5 Pro 的 2M 上下文窗口于 2024-06-27 正式可用。",
+            "en": "Gemini 1.5 Pro's 2M context window became generally available on 2024-06-27.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-018",
+      "query": "Qwen3 推荐的 Ollama 最低版本是什么？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-789db8e8444fba20797b",
+          "oldText": {
+            "zh": "运行 Qwen3 时推荐使用 Ollama v0.9.0 或更高版本。",
+            "en": "Ollama v0.9.0 or higher is recommended for running Qwen3.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-019",
+      "query": "Qwen3 完整支持要求的 Transformers 版本是什么？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-15263d7ff2dfc3b95ce9",
+          "oldText": {
+            "zh": "运行 Qwen3 所需的 Transformers 版本为 transformers>=4.51.0。",
+            "en": "Running Qwen3 requires transformers>=4.51.0.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "timeline-020",
+      "query": "ERNIE 5.1 目前可以在哪里聊天使用？",
+      "category": "timeline",
+      "references": [
+        {
+          "claimId": "claim-f1e2af967f065102bbde",
+          "oldText": {
+            "zh": "用户可在 https://ernie.baidu.com 与最新的 ERNIE 5.1 模型聊天。",
+            "en": "Users can chat with the latest ERNIE 5.1 model at https://ernie.baidu.com.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-001",
+      "query": "比较 Kimi K2.6 与 Kimi K3 的上下文窗口。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-73b3ff0afe9ef5d63fc9",
+          "oldText": {
+            "zh": "Kimi K2.6 支持 256k-token 上下文窗口。",
+            "en": "Kimi K2.6 supports a 256k-token context window.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-1d379a59788c82f7c2a0",
+          "oldText": {
+            "zh": "Kimi K3 具有 1M-token 上下文窗口。",
+            "en": "Kimi K3 features a 1M-token context window.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-002",
+      "query": "比较 GPT-5 与 Claude 3.7 Sonnet 的 SWE-bench Verified 表现。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "c-gpt5-swe",
+          "oldText": {
+            "zh": "GPT-5 在 SWE-bench Verified 上取得 62.4% 的通过率。",
+            "en": "GPT-5 achieves 62.4% pass rate on SWE-bench Verified.",
+            "technical": {
+              "zh": "在 SWE-bench Verified 500 题子集上，GPT-5 (2026-07-12 发布版) 单次尝试的解决率为 62.4%。",
+              "en": "On the 500-task SWE-bench Verified subset, GPT-5 (2026-07-12 release) solves 62.4% in a single attempt."
+            }
+          },
+          "currentText": {
+            "zh": "GPT-5 官方 API 文档列出 400K 上下文；原演示评测数字不沿用。",
+            "en": "GPT-5 API documentation lists 400K context; the earlier demo benchmark figure is not reused.",
+            "technical": null
+          },
+          "status": "same-id-changed-text"
+        },
+        {
+          "claimId": "claim-aa028d98f64ccca7df43",
+          "oldText": {
+            "zh": "在相同子集上不使用该脚手架时，Claude 3.7 Sonnet 在 SWE-bench Verified 上的得分为 63.7%。",
+            "en": "Without this scaffold, Claude 3.7 Sonnet scored 63.7% on SWE-bench Verified using the same subset.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-003",
+      "query": "比较 Qwen3-Thinking 与 Instruct 变体支持的思考模式。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-10c240632ac093bc9152",
+          "oldText": {
+            "zh": "Qwen3-Thinking-2507 仅支持思考模式。",
+            "en": "Qwen3-Thinking-2507 supports only thinking mode.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-4c4c5c82687fd61b55d5",
+          "oldText": {
+            "zh": "Qwen3-Instruct-2507 仅支持非思考模式。",
+            "en": "Qwen3-Instruct-2507 supports only non-thinking mode.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-004",
+      "query": "比较 Transformer 对递归和卷积结构的处理方式。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-c197b2fed5266444ac67",
+          "oldText": {
+            "zh": "Transformer 摒弃了递归。",
+            "en": "The Transformer dispenses with recurrence.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-50c69855c226a60323a7",
+          "oldText": {
+            "zh": "Transformer 摒弃了卷积。",
+            "en": "The Transformer dispenses with convolutions.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-005",
+      "query": "比较 MMLU-Pro 与 MMLU 的选项数量和准确率变化。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-64413a939e7a8f19b690",
+          "oldText": {
+            "zh": "MMLU-Pro 将选项集合从四个扩展到十个选项。",
+            "en": "MMLU-Pro expands the choice set from four to ten options.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-7f8f68faa57b9c45c7bc",
+          "oldText": {
+            "zh": "与 MMLU 相比，MMLU-Pro 的准确率下降了 16% 至 33%。",
+            "en": "MMLU-Pro causes an accuracy drop of 16% to 33% compared to MMLU.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-006",
+      "query": "比较 OpenAI 一般可用模型与预览模型的退役通知期。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-f54e84647bf091f465d2",
+          "oldText": {
+            "zh": "一般可用模型的最低退役通知期为至少6个月。",
+            "en": "Generally available models have a minimum retirement notice period of at least 6 months.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-90b09d0c9745cbcb877b",
+          "oldText": {
+            "zh": "预览模型可能以短得多的通知期退役，例如2周。",
+            "en": "Preview models may be retired with much shorter notice, such as 2 weeks.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-007",
+      "query": "比较 Seed1.8 在 VideoMME 和 VLMsAreBiased 的得分。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-48213f05b19dcaf25309",
+          "oldText": {
+            "zh": "Seed1.8 在 VideoMME 基准测试中得分 87.8。",
+            "en": "Seed1.8 achieves a score of 87.8 on the VideoMME benchmark.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-bc0878766ddba613fcef",
+          "oldText": {
+            "zh": "Seed1.8 在 VLMsAreBiased 基准测试中得分 62.0。",
+            "en": "Seed1.8 achieves a score of 62.0 on the VLMsAreBiased benchmark.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-008",
+      "query": "比较 Kimi K2.6 的输入模态与运行模式。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-26b1d5225baf5e9bf207",
+          "oldText": {
+            "zh": "Kimi K2.6 支持视觉和文本输入。",
+            "en": "Kimi K2.6 supports vision and text input.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-d46b4538f9f9a620139e",
+          "oldText": {
+            "zh": "Kimi K2.6 支持思考和非思考模式。",
+            "en": "Kimi K2.6 supports thinking and non-thinking modes.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-009",
+      "query": "比较 ERNIE 5.1 与 5.0 的参数和计算成本变化。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-f6c45a629d85f7abeb1f",
+          "oldText": {
+            "zh": "ERNIE 5.1 的激活参数量约为 ERNIE 5.0 的一半。",
+            "en": "ERNIE 5.1 has activated parameters of approximately half those of ERNIE 5.0.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-514a641cc94e8c2e9089",
+          "oldText": {
+            "zh": "ERNIE 5.1 的预训练计算成本仅为同规模可比模型的 6%。",
+            "en": "ERNIE 5.1's pre-training compute cost is only 6% of comparable models at the same scale.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    },
+    {
+      "id": "comparison-010",
+      "query": "比较 Claude Code 搜索代码与编写测试的能力。",
+      "category": "comparison",
+      "references": [
+        {
+          "claimId": "claim-964dfcfbc1b85062f986",
+          "oldText": {
+            "zh": "Claude Code 可以搜索和读取代码。",
+            "en": "Claude Code can search and read code.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        },
+        {
+          "claimId": "claim-22b1f161b39c7a6dc3ba",
+          "oldText": {
+            "zh": "Claude Code 可以编写和运行测试。",
+            "en": "Claude Code can write and run tests.",
+            "technical": null
+          },
+          "currentText": null,
+          "status": "missing"
+        }
+      ]
+    }
+  ]
+}

@@ -111,7 +111,7 @@ flowchart LR
 
 当前决策建议主要由检索、约束筛选与预设工作流组织。可选模型需求解析与后台候选抽取分别配置，不等于已经提供大模型个性化方案生成。
 
-本项目尚无用户增长、成本节省或业务效果的实测结论。[验证记录与证据边界](docs/portfolio/VALIDATION.md) · [固定评测](docs/eval/CHANGELOG.md)
+本项目尚无用户增长、成本节省或业务效果的实测结论。[验证记录与证据边界](docs/portfolio/VALIDATION.md) · [当前评估协议与题集](docs/eval/CURRENT_PROTOCOL.md) · [历史评测](docs/eval/CHANGELOG.md)
 
 ## 本地运行
 

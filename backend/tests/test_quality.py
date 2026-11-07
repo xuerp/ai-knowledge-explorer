@@ -181,7 +181,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
 
     report = KnowledgeQualityGate().report(
         snapshot,
-        now=datetime(2026, 8, 12, tzinfo=UTC),
+        now=datetime(2026, 11, 7, tzinfo=UTC),
     )
 
     assert report.live_ready is False
@@ -213,7 +213,7 @@ def test_demo_data_quality_report_does_not_claim_formal_acceptance():
         if edge.id in withdrawn:
             edge.source_ids = []
     negative_control = KnowledgeQualityGate().report(
-        unsupported, now=datetime(2026, 8, 12, tzinfo=UTC)
+        unsupported, now=datetime(2026, 11, 7, tzinfo=UTC)
     )
     assert set(negative_control.relations_with_missing_evidence) == withdrawn
     assert negative_control.evidence_reference_coverage == round(
@@ -401,3 +401,16 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
             assert swebench_source.last_probe_status is None
     finally:
         engine.dispose()
+
+
+def test_freshness_counts_past_collection_window_without_future_dates():
+    snapshot = KnowledgeRepository(SEED_PATH).load_seed()
+    now = datetime(2026, 11, 7, tzinfo=UTC)
+    dates = ["2026-11-06", "2026-05-12", "2026-05-10", "2026-11-08"]
+    snapshot.evidence = [
+        snapshot.evidence[0].model_copy(update={"id": f"fresh-{i}", "collected_at": date})
+        for i, date in enumerate(dates)
+    ]
+    report = KnowledgeQualityGate().report(snapshot, now=now)
+    assert report.fresh_evidence_count == 2
+    assert report.fresh_evidence_ratio == 0.5

@@ -8,6 +8,11 @@ from threading import Lock
 import httpx
 
 
+def embedding_token_upper_bound(texts: list[str]) -> int:
+    # UTF-8 bytes plus per-input framing headroom; characters can undercount Chinese tokens.
+    return sum(len(text.encode("utf-8")) + 32 for text in texts)
+
+
 class EmbeddingProviderError(RuntimeError):
     """不含凭证与响应正文的可安全记录 provider 错误。"""
 
@@ -140,7 +145,7 @@ class CloudflareEmbeddingProvider:
         return normalized
 
     def _reserve_budget(self, texts: list[str], *, api_calls: int) -> None:
-        conservative_tokens = sum(len(text) for text in texts)
+        conservative_tokens = embedding_token_upper_bound(texts)
         with self._budget_lock:
             today = self._today()
             if today != self._budget_date:

@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "samples": 100,
+  "categories": {
+    "entity": 30,
+    "relation": 20,
+    "timeline": 20,
+    "comparison": 10,
+    "holdout": 20
+  },
+  "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
+  "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+  "snapshotCounts": {
+    "entities": 263,
+    "claims": 518,
+    "evidence": 731
+  },
+  "frozenBeforeRetrieval": true,
+  "method": "Exact reference-claim Recall@8; Precision@8 uses 8 fixed slots and only annotated claims; entity recall retains the existing family-expanded rule. No answer-generation accuracy claim.",
+  "legacyAudit": "docs/eval/legacy-v1-annotation-audit-20261107.json",
+  "comparability": "v2 is a new current-corpus benchmark and is not numerically interchangeable with the archived v1 dataset."
+}

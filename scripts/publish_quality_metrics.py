@@ -31,6 +31,17 @@ def build_quality_evaluation(
         not ids or not set(ids).issubset(claim_ids) for ids in annotations
     ):
         raise ValueError("Evaluation annotations do not match the reference corpus.")
+    if metadata["topK"] != 8 or not samples:
+        raise ValueError("The public dashboard requires a nonempty TopK=8 report.")
+    for name, field in (
+        ("recallAtK", "claimRecallAtK"),
+        ("precisionAtK", "precisionAtK"),
+        ("entityRecallAtK", "entityRecallAtK"),
+        ("passRatio", "passed"),
+    ):
+        calculated = round(sum(row[field] for row in samples) / len(samples), 4)
+        if calculated != metrics[name]:
+            raise ValueError("Evaluation aggregate metrics do not match the per-question results.")
     return {
         "updatedAt": metadata["evaluatedAt"],
         "cadence": "on-evaluation-publication",
@@ -46,9 +57,33 @@ def build_quality_evaluation(
         "precisionAt8": metrics["precisionAtK"],
         "entityRecallAt8": metrics["entityRecallAtK"],
         "passRatio": metrics["passRatio"],
+        **(
+            {"categories": report["metrics"]["categories"]}
+            if metadata.get("fingerprintVersion") == 2
+            else {}
+        ),
         "reference": {
-            "corpusSha256": corpus_fingerprint(snapshot),
+            "corpusSha256": corpus_fingerprint(
+                snapshot, version=metadata.get("fingerprintVersion", 1)
+            ),
             "expectedClaimIdsBySample": annotations,
+            **(
+                {
+                    "fingerprintVersion": 2,
+                    "retrievalImplementationSha256": metadata["retrievalImplementationSha256"],
+                    "goldenSetSha256": metadata["goldenSetSha256"],
+                    "retrievalConfiguration": {
+                        "retrievalMode": metadata["retrievalMode"],
+                        "databaseDialect": metadata["databaseDialect"],
+                        "embeddingProvider": metadata.get("embeddingProvider", "none"),
+                        "embeddingModel": metadata.get("embeddingModel"),
+                        "embeddingVersion": metadata.get("embeddingVersion"),
+                        "embeddingDimension": metadata.get("embeddingDimension"),
+                    },
+                }
+                if metadata.get("fingerprintVersion") == 2
+                else {}
+            ),
         },
     }
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import (
     BaseModel,
@@ -1653,6 +1653,17 @@ class DataQualityReport(CamelModel):
     timeline_entries_with_missing_evidence: list[str]
     live_ready: bool
     issues: list[str]
+    resolved_reference_count: int = 0
+
+
+class QualityMetricCounts(CamelModel):
+    referenced_content: int
+    resolved_references: int
+    official_evidence: int
+    evidence_with_review_time: int
+    recently_collected_evidence: int
+    verified_content: int
+    freshness_window_days: int = 180
 
 
 class BusinessQualityMetrics(CamelModel):
@@ -1668,6 +1679,7 @@ class BusinessQualityMetrics(CamelModel):
     fresh_evidence_ratio: float
     verified_content_ratio: float
     core_relation_deficit: int
+    counts: QualityMetricCounts | None = None
 
 
 class EvaluationApplicability(CamelModel):
@@ -1675,8 +1687,10 @@ class EvaluationApplicability(CamelModel):
     corpus_matches: bool | None
     retrieval_config_matches: bool
     build_matches: bool
+    implementation_matches: bool | None = None
     missing_expected_claim_sample_count: int | None
     configured_retrieval_mode: Literal["lexical", "hybrid"]
+    configured_configuration: dict[str, Any] | None = None
     reasons: list[str]
 
 
@@ -1696,6 +1710,7 @@ class EvaluationQualityMetrics(CamelModel):
     entity_recall_at_8: float
     pass_ratio: float
     applicability: EvaluationApplicability | None = None
+    categories: dict[str, dict[str, float | int]] | None = None
 
 
 class QualityMetrics(CamelModel):
@@ -1703,6 +1718,8 @@ class QualityMetrics(CamelModel):
     data_mode: Literal["demo", "live"]
     business: BusinessQualityMetrics
     evaluation: EvaluationQualityMetrics
+    evaluation_history: list[EvaluationQualityMetrics] = Field(default_factory=list)
+    retrieval_implementation_sha256: str | None = None
 
 
 class ReleaseBaseline(CamelModel):

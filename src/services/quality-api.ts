@@ -16,32 +16,63 @@ export interface QualityMetrics {
     freshEvidenceRatio: number;
     verifiedContentRatio: number;
     coreRelationDeficit: number;
-  };
-  evaluation: {
-    updatedAt: string;
-    cadence: "daily-or-on-retrieval-change" | "on-evaluation-publication";
-    artifactPath: string;
-    goldenSetVersion: string;
-    sampleCount: number;
-    snapshotSha256: string;
-    retrievalMode: "lexical" | "hybrid";
-    embeddingModel?: string | null;
-    topK: number;
-    evaluationCommit: string;
-    recallAt8: number;
-    precisionAt8: number;
-    entityRecallAt8: number;
-    passRatio: number;
-    applicability?: {
-      status: "historical" | "scope-matched";
-      corpusMatches: boolean | null;
-      retrievalConfigMatches: boolean;
-      buildMatches: boolean;
-      missingExpectedClaimSampleCount: number | null;
-      configuredRetrievalMode: "lexical" | "hybrid";
-      reasons: string[];
+    counts?: {
+      referencedContent: number;
+      resolvedReferences: number;
+      officialEvidence: number;
+      evidenceWithReviewTime: number;
+      recentlyCollectedEvidence: number;
+      verifiedContent: number;
+      freshnessWindowDays: number;
     } | null;
   };
+  evaluation: RetrievalEvaluation;
+  evaluationHistory?: RetrievalEvaluation[];
+}
+
+export interface RetrievalEvaluation {
+  updatedAt: string;
+  cadence: "daily-or-on-retrieval-change" | "on-evaluation-publication";
+  artifactPath: string;
+  goldenSetVersion: string;
+  sampleCount: number;
+  snapshotSha256: string;
+  retrievalMode: "lexical" | "hybrid";
+  embeddingModel?: string | null;
+  topK: number;
+  evaluationCommit: string;
+  recallAt8: number;
+  precisionAt8: number;
+  entityRecallAt8: number;
+  passRatio: number;
+  categories?: Record<
+    string,
+    {
+      samples: number;
+      recallAtK: number;
+      precisionAtK: number;
+      entityRecallAtK: number;
+      passRatio: number;
+    }
+  > | null;
+  applicability?: {
+    status: "historical" | "scope-matched";
+    corpusMatches: boolean | null;
+    retrievalConfigMatches: boolean;
+    buildMatches: boolean;
+    implementationMatches?: boolean | null;
+    configuredConfiguration?: {
+      retrievalMode: string;
+      databaseDialect: string;
+      embeddingProvider: string;
+      embeddingModel: string | null;
+      embeddingVersion: string | null;
+      embeddingDimension: number | null;
+    } | null;
+    missingExpectedClaimSampleCount: number | null;
+    configuredRetrievalMode: "lexical" | "hybrid";
+    reasons: string[];
+  } | null;
 }
 
 const apiBaseUrl = (

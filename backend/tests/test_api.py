@@ -459,20 +459,45 @@ def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
         len(items) for items in snapshot["timeline"].values()
     )
     assert payload["business"]["updatedAt"]
-    assert payload["evaluation"]["updatedAt"] == "2026-08-31T06:00:28.810798Z"
+    published = json.loads((BACKEND_ROOT / "data/quality_evaluation.json").read_text("utf-8"))
+    assert response.headers["cache-control"] == "no-store"
+    for field in (
+        "goldenSetVersion",
+        "sampleCount",
+        "retrievalMode",
+        "recallAt8",
+        "precisionAt8",
+        "entityRecallAt8",
+        "passRatio",
+        "evaluationCommit",
+        "artifactPath",
+    ):
+        assert payload["evaluation"][field] == published[field]
     assert payload["evaluation"]["cadence"] == "on-evaluation-publication"
-    assert payload["evaluation"]["goldenSetVersion"] == "1.0.0"
-    assert payload["evaluation"]["sampleCount"] == 80
-    assert payload["evaluation"]["retrievalMode"] == "hybrid"
-    assert payload["evaluation"]["recallAt8"] == 1.0
-    assert payload["evaluation"]["precisionAt8"] == 0.1422
-    assert payload["evaluation"]["entityRecallAt8"] == 0.9875
-    assert payload["evaluation"]["passRatio"] == 1.0
     applicability = payload["evaluation"]["applicability"]
     assert applicability["status"] == "historical"
     assert applicability["corpusMatches"] is False
-    assert applicability["retrievalConfigMatches"] is False
     assert applicability["configuredRetrievalMode"] == "lexical"
+    assert applicability["configuredConfiguration"]["databaseDialect"] == "sqlite"
+    assert applicability["configuredConfiguration"]["embeddingProvider"] == "none"
+    all_content = [
+        *snapshot["claims"],
+        *snapshot["graph"]["edges"],
+        *[e for entries in snapshot["timeline"].values() for e in entries],
+    ]
+    source_ids = {e["id"] for e in snapshot["evidence"]}
+    counts = payload["business"]["counts"]
+    assert counts["referencedContent"] == len(all_content)
+    assert counts["resolvedReferences"] == sum(
+        bool(c["sourceIds"]) and set(c["sourceIds"]).issubset(source_ids) for c in all_content
+    )
+    assert counts["evidenceWithReviewTime"] == sum(
+        bool(e.get("verifiedAt")) for e in snapshot["evidence"]
+    )
+    assert counts["verifiedContent"] == sum(c["confidence"] == "verified" for c in all_content)
+    assert counts["freshnessWindowDays"] == 180
+    assert payload["evaluationHistory"][0]["goldenSetVersion"] == "1.0.0"
+    assert payload["evaluationHistory"][0]["sampleCount"] == 80
     reference = json.loads((BACKEND_ROOT / "data/quality_evaluation.json").read_text("utf-8"))[
         "reference"
     ]

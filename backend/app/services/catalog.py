@@ -74,10 +74,23 @@ class CatalogServices:
         return latest if latest.tzinfo is not None else latest.replace(tzinfo=UTC)
 
     def evaluation_quality_metrics(self, snapshot: KnowledgeSnapshot) -> EvaluationQualityMetrics:
-        try:
-            payload = json.loads(
-                self.app_settings.quality_evaluation_path.read_text(encoding="utf-8")
+        return self._read_evaluation(self.app_settings.quality_evaluation_path, snapshot)
+
+    def evaluation_quality_history(
+        self, snapshot: KnowledgeSnapshot
+    ) -> list[EvaluationQualityMetrics]:
+        return [
+            self._read_evaluation(path, snapshot)
+            for path in sorted(
+                self.app_settings.quality_evaluation_path.with_name(
+                    "quality_evaluation_history"
+                ).glob("*.json")
             )
+        ]
+
+    def _read_evaluation(self, path, snapshot: KnowledgeSnapshot) -> EvaluationQualityMetrics:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
             reference = payload.pop("reference", None)
             evaluation = EvaluationQualityMetrics.model_validate(payload)
             return evaluation.model_copy(

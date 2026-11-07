@@ -7,7 +7,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { WorkspaceHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/app-state";
-import { getQualityMetrics } from "@/services/quality-api";
+import { getQualityMetrics, type RetrievalEvaluation } from "@/services/quality-api";
 
 export const Route = createFileRoute("/quality")({
   head: () => ({
@@ -28,6 +28,8 @@ function QualityPage() {
     queryKey: ["quality", "metrics"],
     queryFn: ({ signal }) => getQualityMetrics(signal),
     staleTime: 60_000,
+    refetchInterval: 5 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   return (
@@ -93,11 +95,11 @@ function QualityPage() {
                   icon={<Database className="h-5 w-5" />}
                   title={t("业务数据指标", "Business data metrics")}
                   description={t(
-                    "请求时从当前知识库轻量聚合，可跟随现有数据更新周期刷新。",
-                    "Aggregated cheaply from the current knowledge base and safe to refresh with the normal data cycle.",
+                    "打开页面、切回窗口及停留期间每 5 分钟自动读取当前库。记录更新不等于来源内容重新核验。",
+                    "Reads the current corpus on opening, on window focus and every 5 minutes. A record update is not a new source verification.",
                   )}
                   updatedAt={formatDateTime(metrics.data.business.updatedAt, lang)}
-                  timeLabel={t("数据更新", "Data updated")}
+                  timeLabel={t("库记录更新", "Records updated")}
                 />
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                   <MetricCard
@@ -119,185 +121,320 @@ function QualityPage() {
                   <ProgressMetric
                     label={t("Evidence 引用覆盖", "Evidence reference coverage")}
                     value={metrics.data.business.evidenceReferenceCoverage}
+                    note={t(
+                      "事实、关系和时间线的来源 ID 均能在库中找到；不代表引用内容支持结论。",
+                      "Source IDs for claims, relations and timeline entries resolve in the corpus; this does not verify support for a conclusion.",
+                    )}
+                    count={
+                      metrics.data.business.counts &&
+                      `${metrics.data.business.counts.resolvedReferences} / ${metrics.data.business.counts.referencedContent}`
+                    }
                   />
                   <ProgressMetric
                     label={t("官方来源占比", "Official-source ratio")}
                     value={metrics.data.business.officialEvidenceRatio}
+                    note={t(
+                      "库中来源类型标记为 official 的证据记录。",
+                      "Evidence records whose source type is marked official.",
+                    )}
+                    count={
+                      metrics.data.business.counts &&
+                      `${metrics.data.business.counts.officialEvidence} / ${metrics.data.business.evidenceCount}`
+                    }
                   />
                   <ProgressMetric
-                    label={t("已审核 Evidence", "Reviewed evidence")}
+                    label={t("有审核时间记录", "Evidence with review timestamp")}
                     value={metrics.data.business.reviewedEvidenceRatio}
+                    note={t(
+                      "verifiedAt 非空；仅反映记录字段，不保证完成本轮人工审核。",
+                      "A nonempty verifiedAt field; this alone does not establish a new human review.",
+                    )}
+                    count={
+                      metrics.data.business.counts &&
+                      `${metrics.data.business.counts.evidenceWithReviewTime} / ${metrics.data.business.evidenceCount}`
+                    }
                   />
                   <ProgressMetric
-                    label={t("新鲜 Evidence", "Fresh evidence")}
+                    label={t("180 天内采集", "Collected within 180 days")}
                     value={metrics.data.business.freshEvidenceRatio}
+                    note={t(
+                      "collectedAt 在读取时刻之前 180 天内；不代表事实仍然有效。",
+                      "collectedAt falls within the preceding 180 days; this does not establish that a fact is still valid.",
+                    )}
+                    count={
+                      metrics.data.business.counts &&
+                      `${metrics.data.business.counts.recentlyCollectedEvidence} / ${metrics.data.business.evidenceCount}`
+                    }
                   />
                   <ProgressMetric
-                    label={t("已验证内容", "Verified content")}
+                    label={t("标记为已核验的内容", "Content marked verified")}
                     value={metrics.data.business.verifiedContentRatio}
+                    note={t(
+                      "事实、关系和时间线中 confidence 为 verified 的记录。",
+                      "Claims, relations and timeline entries whose confidence is verified.",
+                    )}
+                    count={
+                      metrics.data.business.counts &&
+                      `${metrics.data.business.counts.verifiedContent} / ${metrics.data.business.counts.referencedContent}`
+                    }
                   />
                   <MetricCard
                     label={t("核心关系覆盖差值", "Core relation coverage delta")}
                     value={metrics.data.business.coreRelationDeficit}
-                    note={t("观测值，不是发布配额", "Observed value, not a publishing quota")}
+                    note={t(
+                      "核心模型家族、Agent 和框架距每个 5 条有来源关系的缺口之和。",
+                      "Total shortfall from 5 grounded relations per core model family, agent and framework.",
+                    )}
                   />
                 </div>
               </section>
 
-              <section aria-labelledby="evaluation-quality-heading">
-                <SectionHeading
-                  id="evaluation-quality-heading"
-                  icon={<Activity className="h-5 w-5" />}
-                  title={t("已发布检索评估", "Published retrieval evaluation")}
-                  description={t(
-                    "测试本站能否从知识库找回预先标注的事实。报告在完成评估并发布后更新。",
-                    "Tests whether this site's search retrieves pre-annotated facts. Results update when a completed evaluation is published.",
-                  )}
-                  updatedAt={formatDateTime(metrics.data.evaluation.updatedAt, lang)}
-                  timeLabel={t("评估时间", "Evaluated")}
-                />
-                <div className="paper-card mt-5 p-5">
-                  <h3 className="font-semibold">
-                    {metrics.data.evaluation.applicability?.status === "scope-matched"
-                      ? t("评估范围匹配", "Evaluation scope matches")
-                      : t(
-                          "历史基线 · 不代表当前检索表现",
-                          "Historical baseline · not current search performance",
-                        )}
-                  </h3>
+              <EvaluationSection evaluation={metrics.data.evaluation} />
+              {!!metrics.data.evaluationHistory?.length && (
+                <section aria-labelledby="evaluation-history-heading">
+                  <h2 className="text-xl font-semibold" id="evaluation-history-heading">
+                    {t("历史评估归档", "Evaluation archive")}
+                  </h2>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {t(
-                      "固定问题集（Golden Set）包含预期事实及其来源。这份报告评估检索结果，不评估模型能力，也不证明采集、审核与发布已完整打通。",
-                      "The Golden Set defines expected facts and sources. This report evaluates retrieval, not model capability or completion of the collection, review and publishing workflow.",
+                      "保留原始题集、快照与逐题结果。不同题集的分数不能直接比较。",
+                      "Original question sets, snapshots and per-question results are retained. Scores from different sets are not directly comparable.",
                     )}
                   </p>
-                  <dl className="mt-4 divide-y divide-border text-sm">
-                    <ScopeRow label={t("知识快照", "Knowledge snapshot")}>
-                      {metrics.data.evaluation.applicability?.corpusMatches === false
-                        ? t(
-                            "与评估时的快照不同，需在当前数据上重新评估。",
-                            "Differs from the evaluated snapshot; reevaluation on current data is needed.",
-                          )
-                        : metrics.data.evaluation.applicability?.corpusMatches === true
-                          ? t("与评估时的快照匹配。", "Matches the evaluated snapshot.")
-                          : t(
-                              "缺少快照核对信息，当前适用性未验证。",
-                              "Snapshot comparison is unavailable; applicability is unverified.",
-                            )}
-                    </ScopeRow>
-                    <ScopeRow label={t("问题标注", "Question annotations")}>
-                      {metrics.data.evaluation.applicability?.missingExpectedClaimSampleCount !=
-                      null
-                        ? metrics.data.evaluation.applicability.missingExpectedClaimSampleCount > 0
-                          ? t(
-                              `${metrics.data.evaluation.sampleCount} 道题中，${metrics.data.evaluation.applicability.missingExpectedClaimSampleCount} 道引用了当前库中缺失的事实。需核验标注后再评估。`,
-                              `${metrics.data.evaluation.applicability.missingExpectedClaimSampleCount} of ${metrics.data.evaluation.sampleCount} questions reference facts missing from the current corpus. Validate annotations before reevaluation.`,
-                            )
-                          : t(
-                              "预期事实均存在；这项核对不等于通过检索评估。",
-                              "Expected facts exist; this check is not a retrieval evaluation.",
-                            )
-                        : t(
-                            "尚未核对当前库中的预期事实。",
-                            "Expected facts have not been checked against the current corpus.",
-                          )}
-                    </ScopeRow>
-                    <ScopeRow label={t("检索方式", "Retrieval mode")}>
-                      {t("报告：", "Report: ")}
-                      {metrics.data.evaluation.retrievalMode}
-                      {metrics.data.evaluation.applicability && (
-                        <>
-                          {" "}
-                          · {t("当前配置：", "Current configuration: ")}
-                          {metrics.data.evaluation.applicability.configuredRetrievalMode}
-                          {metrics.data.evaluation.applicability.retrievalConfigMatches
-                            ? t("（匹配）", " (matches)")
-                            : t("（配置不同）", " (different configuration)")}
-                        </>
-                      )}
-                    </ScopeRow>
-                    {metrics.data.evaluation.applicability?.buildMatches === false && (
-                      <ScopeRow label={t("代码版本", "Code version")}>
-                        {t(
-                          "当前运行版本与报告提交未匹配。",
-                          "The running build is not matched to the evaluation commit.",
-                        )}
-                      </ScopeRow>
-                    )}
-                  </dl>
-                </div>
-                <details className="mt-4 rounded-lg border border-border bg-background">
-                  <summary className="cursor-pointer px-5 py-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">
-                    {t("查看已保存成绩与配置", "View saved results and configuration")}
-                  </summary>
-                  <div className="border-t border-border p-5">
-                    <p className="mb-4 text-sm leading-6 text-muted-foreground">
-                      {t(
-                        "以下成绩仅属于上述报告及其原始快照。",
-                        "These scores apply only to the report and its original snapshot.",
-                      )}
-                    </p>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                      <MetricCard
-                        label="Recall@8"
-                        value={formatPercent(metrics.data.evaluation.recallAt8)}
-                        note={t(
-                          "前 8 条结果找回预期事实的比例",
-                          "Expected facts retrieved in the top 8 results",
-                        )}
-                      />
-                      <MetricCard
-                        label="Precision@8"
-                        value={formatPercent(metrics.data.evaluation.precisionAt8)}
-                        note={t(
-                          "前 8 条结果中命中标注事实的比例",
-                          "Annotated fact hits among the top 8 results",
-                        )}
-                      />
-                      <MetricCard
-                        label="Entity Recall@8"
-                        value={formatPercent(metrics.data.evaluation.entityRecallAt8)}
-                        note={t(
-                          "前 8 条结果覆盖预期对象的比例",
-                          "Expected entity coverage in the top 8 results",
-                        )}
-                      />
-                      <MetricCard
-                        label={t("通过率", "Pass ratio")}
-                        value={formatPercent(metrics.data.evaluation.passRatio)}
-                        note={t(
-                          "达到该问题集判定要求的题目比例",
-                          "Questions meeting this set's pass criteria",
-                        )}
-                      />
-                    </div>
-                    <div className="paper-card mt-3 grid gap-5 p-5 text-sm md:grid-cols-2 lg:grid-cols-4">
-                      <Detail
-                        label="Golden Set"
-                        value={`v${metrics.data.evaluation.goldenSetVersion} · ${metrics.data.evaluation.sampleCount} ${t("题", "samples")}`}
-                      />
-                      <Detail
-                        label={t("检索配置", "Retrieval setup")}
-                        value={`${metrics.data.evaluation.retrievalMode} · TopK=${metrics.data.evaluation.topK}`}
-                      />
-                      <Detail
-                        label={t("Embedding 模型", "Embedding model")}
-                        value={metrics.data.evaluation.embeddingModel ?? t("未启用", "Disabled")}
-                      />
-                      <Detail
-                        label={t("评估提交", "Evaluation commit")}
-                        value={metrics.data.evaluation.evaluationCommit.slice(0, 12)}
-                        mono
-                      />
-                    </div>
-                  </div>
-                </details>
-              </section>
+                  {metrics.data.evaluationHistory.map((evaluation) => (
+                    <details
+                      key={evaluation.artifactPath}
+                      className="mt-4 rounded-lg border border-border bg-background"
+                    >
+                      <summary className="cursor-pointer p-5 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">{`v${evaluation.goldenSetVersion} · ${evaluation.sampleCount} ${t("题", "questions")} · ${formatDateTime(evaluation.updatedAt, lang)} · ${evaluation.retrievalMode}`}</summary>
+                      <div className="border-t border-border p-5">
+                        <EvaluationSection evaluation={evaluation} archived />
+                      </div>
+                    </details>
+                  ))}
+                </section>
+              )}
+              <p className="text-xs leading-5 text-muted-foreground">
+                {t("本次读取", "Read at")} {formatDateTime(metrics.data.generatedAt, lang)}
+                {t(
+                  "（北京时间）。自动读取业务指标和报告状态；新检索成绩需实际执行评估后发布。",
+                  " (Asia/Shanghai). Business metrics and report status refresh automatically; new retrieval scores require an executed and published evaluation.",
+                )}
+              </p>
             </div>
           )}
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function EvaluationSection({
+  evaluation: e,
+  archived = false,
+}: {
+  evaluation: RetrievalEvaluation;
+  archived?: boolean;
+}) {
+  const { t, lang } = useApp();
+  const scope = e.applicability;
+  const matched = scope?.status === "scope-matched";
+  const labels: Record<string, string> = {
+    entity: t("对象事实", "Entity facts"),
+    relation: t("关系", "Relations"),
+    timeline: t("时间线", "Timeline"),
+    comparison: t("比较", "Comparisons"),
+    holdout: t("留出题", "Held-out questions"),
+  };
+  return (
+    <section aria-label={t("检索评估报告", "Retrieval evaluation report")}>
+      {!archived && (
+        <SectionHeading
+          id="evaluation-quality-heading"
+          icon={<Activity className="h-5 w-5" />}
+          title={t("已发布检索评估", "Published retrieval evaluation")}
+          description={t(
+            "固定题集测试能否找回标注事实。题集先冻结再测试，全部失败样本保留。v2 为 80 道核心题和 20 道未参与本轮调优的留出题。",
+            "A frozen question set tests retrieval of annotated facts. All failures are retained. v2 includes 80 core questions and 20 questions held out from tuning in this round.",
+          )}
+          updatedAt={formatDateTime(e.updatedAt, lang)}
+          timeLabel={t("实际评估", "Evaluated")}
+        />
+      )}
+      <div className={`paper-card p-5 ${archived ? "" : "mt-5"}`}>
+        <h3 className="font-semibold">
+          {matched
+            ? t("评估范围匹配", "Evaluation scope matches")
+            : t(
+                "历史基线 · 不代表当前检索表现",
+                "Historical baseline · not current search performance",
+              )}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {t(
+            "仅评价本站检索，不是模型回答准确率，也不证明采集、审核与发布已完整打通。",
+            "Measures this site's retrieval, not answer accuracy or completion of collection, review and publishing.",
+          )}
+        </p>
+        <dl className="mt-4 divide-y divide-border text-sm">
+          <ScopeRow label={t("知识快照", "Knowledge snapshot")}>
+            {scope?.corpusMatches === true
+              ? t(
+                  "数据内容匹配，忽略每次读取生成的时间戳。",
+                  "Corpus content matches, excluding request-generated timestamps.",
+                )
+              : scope?.corpusMatches === false
+                ? t(
+                    "当前库已变化；下方成绩只适用于报告快照。",
+                    "The current corpus has changed; scores apply only to the evaluated snapshot.",
+                  )
+                : t("快照适用性尚未核实。", "Snapshot applicability is unverified.")}
+          </ScopeRow>
+          <ScopeRow label={t("问题标注", "Annotations")}>
+            {scope?.missingExpectedClaimSampleCount != null
+              ? scope.missingExpectedClaimSampleCount > 0
+                ? t(
+                    `${e.sampleCount} 道题中 ${scope.missingExpectedClaimSampleCount} 道引用了当前库中缺失的事实。`,
+                    `${scope.missingExpectedClaimSampleCount} of ${e.sampleCount} questions reference facts missing from the current corpus.`,
+                  )
+                : t(
+                    "标注 ID 均存在；内容是否相同仍由快照核对，不能仅凭 ID 判定。",
+                    "Annotated IDs exist; the corpus check determines whether their content is unchanged.",
+                  )
+              : t("标注核对信息不可用。", "Annotation comparison is unavailable.")}
+          </ScopeRow>
+          <ScopeRow label={t("检索方式", "Retrieval mode")}>
+            {t("报告：", "Report: ")}
+            {e.retrievalMode} · {t("当前：", "Current: ")}
+            {scope?.configuredRetrievalMode ?? t("未知", "Unknown")}
+            {scope?.retrievalConfigMatches
+              ? t("（配置匹配）", " (configuration matches)")
+              : t(
+                  "（配置不同，不可替代当前方式的评估）",
+                  " (different configuration; cannot substitute for current-mode evaluation)",
+                )}
+          </ScopeRow>
+          <ScopeRow label={t("检索代码", "Retrieval code")}>
+            {scope?.implementationMatches === true
+              ? t(
+                  "影响检索的代码匹配；发布报告本身产生的新提交不会让成绩失效。",
+                  "Retrieval code matches; a report-only publication commit does not invalidate scores.",
+                )
+              : scope?.implementationMatches === false
+                ? t(
+                    "检索代码已变化，需重新评估。",
+                    "Retrieval code has changed; reevaluation is required.",
+                  )
+                : scope?.buildMatches
+                  ? t("报告提交与当前版本一致。", "Report and running build match.")
+                  : t(
+                      "旧报告缺少检索代码指纹，当前适用性未验证。",
+                      "This older report has no retrieval-code fingerprint; applicability is unverified.",
+                    )}
+          </ScopeRow>
+        </dl>
+      </div>
+      <p className="my-4 text-sm text-muted-foreground">
+        {t(
+          "以下成绩仅属于上述报告及其原始快照。",
+          "These scores apply only to the report and its original snapshot.",
+        )}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Recall@8"
+          value={formatPercent(e.recallAt8)}
+          note={t(
+            "每题命中的标注事实数 ÷ 该题全部标注事实数，再取题目平均。",
+            "Per-question fraction of annotated facts retrieved, averaged across questions.",
+          )}
+        />
+        <MetricCard
+          label="Precision@8"
+          value={formatPercent(e.precisionAt8)}
+          note={t(
+            "每题命中的标注事实数 ÷ 8，再取平均；未标注结果不计命中，不等于均无关。",
+            "Annotated hits divided by 8, averaged per question. Unannotated results are not necessarily irrelevant.",
+          )}
+        />
+        <MetricCard
+          label="Entity Recall@8"
+          value={formatPercent(e.entityRecallAt8)}
+          note={t(
+            "前 8 条结果经模型家族扩展后的对象覆盖率，不是严格版本命中率。",
+            "Entity coverage after model-family expansion, not exact-version retrieval.",
+          )}
+        />
+        <MetricCard
+          label={t("标注全命中率", "All-annotation hit rate")}
+          value={formatPercent(e.passRatio)}
+          note={t(
+            "找全该题所有标注事实的题数 ÷ 全部题数。",
+            "Questions retrieving every annotated fact divided by all questions.",
+          )}
+        />
+      </div>
+      {!!e.categories && (
+        <div className="mt-4 divide-y divide-border rounded-lg border border-border px-5">
+          {Object.entries(e.categories).map(([category, result]) => (
+            <div
+              key={category}
+              className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3 text-sm"
+            >
+              <span>
+                {labels[category] ?? category} · {result.samples} {t("题", "questions")}
+              </span>
+              <span className="font-mono text-muted-foreground">
+                Recall {formatPercent(result.recallAtK)} · {t("全命中", "All-hit")}{" "}
+                {formatPercent(result.passRatio)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      <details className="mt-4 rounded-lg border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">
+          {t("查看配置与原始报告", "View configuration and original report")}
+        </summary>
+        <div className="grid gap-5 border-t border-border p-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <Detail
+            label="Golden Set"
+            value={`v${e.goldenSetVersion} · ${e.sampleCount} ${t("题", "questions")}`}
+          />
+          <Detail
+            label={t("检索配置", "Retrieval setup")}
+            value={`${e.retrievalMode} · TopK=${e.topK}`}
+          />
+          <Detail
+            label={t("Embedding 模型", "Embedding model")}
+            value={e.embeddingModel ?? t("未启用", "Disabled")}
+          />
+          <Detail
+            label={t("评估提交", "Evaluation commit")}
+            value={e.evaluationCommit.slice(0, 12)}
+            mono
+          />
+          <div className="min-w-0 sm:col-span-2">
+            <a
+              className="break-words text-signal underline underline-offset-4"
+              href={`https://github.com/xuerp/ai-knowledge-explorer/blob/main/${e.artifactPath}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("查看逐题结果与失败明细", "Inspect every question and failure")}
+            </a>
+          </div>
+          {scope?.configuredConfiguration && (
+            <div className="min-w-0 sm:col-span-2">
+              <Detail
+                label={t("当前服务配置", "Current service configuration")}
+                value={`${scope.configuredConfiguration.databaseDialect} · ${scope.configuredConfiguration.embeddingProvider} · ${scope.configuredConfiguration.embeddingModel ?? "—"} · ${scope.configuredConfiguration.embeddingDimension ?? "—"}d`}
+              />
+            </div>
+          )}
+        </div>
+      </details>
+    </section>
   );
 }
 
@@ -331,7 +468,7 @@ function SectionHeading({
         <h2 className="flex items-center gap-2 text-xl font-semibold" id={id}>
           <span className="text-signal">{icon}</span> {title}
         </h2>
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Clock3 className="h-3.5 w-3.5 shrink-0" />
@@ -363,7 +500,17 @@ function MetricCard({
   );
 }
 
-function ProgressMetric({ label, value }: { label: string; value: number }) {
+function ProgressMetric({
+  label,
+  value,
+  note,
+  count,
+}: {
+  label: string;
+  value: number;
+  note?: string;
+  count?: string | null;
+}) {
   const percent = Math.round(value * 1000) / 10;
   return (
     <div className="paper-card p-5">
@@ -377,6 +524,8 @@ function ProgressMetric({ label, value }: { label: string; value: number }) {
           style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
         />
       </div>
+      {count && <p className="mt-3 font-mono text-xs text-muted-foreground">{count}</p>}
+      {note && <p className="mt-2 text-xs leading-5 text-muted-foreground">{note}</p>}
     </div>
   );
 }

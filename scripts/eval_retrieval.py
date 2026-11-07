@@ -12,16 +12,19 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "backend"))
 
 from app.database import Base
+from app.evaluation_scope import retrieval_implementation_fingerprint
 from app.rag import LexicalRagRetriever, RagRetriever
 from app.schemas import KnowledgeSnapshot
 
 EXPECTED_CATEGORIES = {"entity": 30, "relation": 20, "timeline": 20, "comparison": 10}
+CURRENT_CATEGORIES = {**EXPECTED_CATEGORIES, "holdout": 20}
 
 
 def read_bytes(path: Path) -> bytes:
@@ -49,7 +52,8 @@ def load_golden_set(path: Path) -> tuple[str, list[dict[str, Any]]]:
     if len(ids) != len(set(ids)):
         raise ValueError("Golden Set 样本 ID 必须唯一。")
     categories = Counter(str(item.get("category")) for item in samples)
-    if dict(categories) != EXPECTED_CATEGORIES:
+    expected_categories = CURRENT_CATEGORIES if versions == {"2.0.0"} else EXPECTED_CATEGORIES
+    if dict(categories) != expected_categories:
         raise ValueError(f"Golden Set 类别分布错误：{dict(categories)}")
     for item in samples:
         if not item.get("query") or not item.get("expected_entity_ids"):
@@ -74,7 +78,16 @@ def evaluate(
     top_k: int,
     database_url: str,
     retriever: RagRetriever | None = None,
+    result_sink: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], str]:
+    target = make_url(database_url)
+    if target.get_backend_name() != "sqlite" and (
+        target.host not in {"localhost", "127.0.0.1", "::1"}
+        or not any(
+            part in (target.database or "").lower() for part in ("test", "eval", "benchmark")
+        )
+    ):
+        raise ValueError("Evaluation requires an isolated local test/evaluation database.")
     claim_ids = {claim.id for claim in snapshot.claims}
     entity_ids = {entity.id for entity in snapshot.entities}
     for sample in samples:
@@ -89,7 +102,7 @@ def evaluate(
     engine = create_engine(database_url)
     Base.metadata.create_all(engine)
     active_retriever = retriever or LexicalRagRetriever()
-    results: list[dict[str, Any]] = []
+    results: list[dict[str, Any]] = result_sink if result_sink is not None else []
     by_category: dict[str, list[dict[str, Any]]] = defaultdict(list)
     with Session(engine) as session:
         active_retriever.prepare(session, snapshot)
@@ -142,11 +155,11 @@ def evaluate(
 
     metrics = {
         "overall": summarize(results),
-        "categories": {
-            category: summarize(by_category[category]) for category in EXPECTED_CATEGORIES
-        },
+        "categories": {category: summarize(by_category[category]) for category in by_category},
     }
-    return metrics, results, engine.dialect.name
+    dialect = engine.dialect.name
+    engine.dispose()
+    return metrics, results, dialect
 
 
 def markdown_summary(report: dict[str, Any]) -> str:
@@ -235,6 +248,15 @@ def main() -> None:
             "embeddingModel": None,
             "topK": args.top_k,
             "evaluationCommit": commit,
+            **(
+                {
+                    "fingerprintVersion": 2,
+                    "retrievalImplementationSha256": retrieval_implementation_fingerprint(),
+                    "goldenSetSha256": hashlib.sha256(args.golden_set.read_bytes()).hexdigest(),
+                }
+                if version == "2.0.0"
+                else {}
+            ),
             "evaluatedAt": datetime.now(UTC).isoformat(),
         },
         "metrics": metrics,

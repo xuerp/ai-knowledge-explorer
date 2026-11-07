@@ -270,7 +270,7 @@ class KnowledgeQualityGate:
         freshness_cutoff = current - timedelta(days=180)
         fresh_evidence_count = sum(
             bool(collected_at := _parse_date(item.collected_at))
-            and collected_at >= freshness_cutoff
+            and freshness_cutoff <= collected_at <= current
             for item in snapshot.evidence
         )
         evidence_domains = {
@@ -362,6 +362,7 @@ class KnowledgeQualityGate:
             verified_content_count=verified_content_count,
             conflict_content_count=conflict_content_count,
             evidence_reference_coverage=evidence_reference_coverage,
+            resolved_reference_count=resolved_reference_sets,
             official_evidence_ratio=official_evidence_ratio,
             reviewed_evidence_ratio=reviewed_evidence_ratio,
             fresh_evidence_ratio=fresh_evidence_ratio,

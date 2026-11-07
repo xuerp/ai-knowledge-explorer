@@ -1,0 +1,66 @@
+name: Bounded retrieval evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      allow_embedding_calls:
+        description: "Explicit authorization: up to 106 bge-m3 calls / 350 Neurons; isolated test DB only"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bounded-retrieval-evaluation
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ai_radar_evaluation
+          POSTGRES_USER: ai_radar
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ai_radar -d ai_radar_evaluation"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -r backend/requirements.txt
+      - name: Frozen-input budget preflight (no external inference)
+        run: >-
+          python scripts/eval_hybrid_retrieval.py
+          --snapshot docs/eval/snapshots/public_snapshot_2026-11-07.json
+          --golden-set docs/eval/retrieval_golden_set.v2.jsonl
+          --alias-catalog backend/data/entity_aliases_v1.json
+          --output-dir artifacts/retrieval-v2-hybrid
+          --preflight-only
+      - name: Evaluate matching hybrid configuration in isolated PostgreSQL
+        if: inputs.allow_embedding_calls
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PYTHONPATH: backend
+        run: python scripts/run_bounded_hybrid_evaluation.py --allow-external-api
+      - name: Upload report, budget and any failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-v2-hybrid-${{ github.sha }}
+          path: artifacts/retrieval-v2-hybrid
+          if-no-files-found: error
+          retention-days: 30
