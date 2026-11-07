@@ -25,30 +25,27 @@ from app.embeddings import (
 )
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
 from app.evaluation_scope import retrieval_implementation_fingerprint
-from app.rag import HybridRagRetriever, LexicalRagRetriever, SqlAlchemyVectorClaimIndex
+from app.rag import (
+    HybridRagRetriever,
+    LexicalRagRetriever,
+    SqlAlchemyVectorClaimIndex,
+    grounded_retrieval_citations,
+)
 from app.schemas import KnowledgeSnapshot
 
 
 def build_document_texts(snapshot: KnowledgeSnapshot) -> list[str]:
-    evidence_by_id = {item.id: item for item in snapshot.evidence}
     entity_by_id = {item.id: item for item in snapshot.entities}
-    texts: list[str] = []
-    for claim in snapshot.claims:
-        evidence = [
-            evidence_by_id[source_id]
-            for source_id in claim.source_ids
-            if source_id in evidence_by_id
-        ]
-        entity = entity_by_id.get(claim.entity_id or "")
-        if (
-            claim.confidence != "verified"
-            or entity is None
-            or not evidence
-            or len(evidence) != len(claim.source_ids)
-        ):
-            continue
-        texts.append(LexicalRagRetriever.document_text(claim, entity, evidence))
-    return texts
+    # sync_snapshot upserts by claim ID; shared timeline entries use their last projection.
+    citations_by_id = {
+        citation.claim.id: citation for citation in grounded_retrieval_citations(snapshot)
+    }
+    return [
+        LexicalRagRetriever.document_text(
+            citation.claim, entity_by_id[citation.claim.entity_id], citation.evidence
+        )
+        for citation in citations_by_id.values()
+    ]
 
 
 def markdown_summary(report: dict[str, Any]) -> str:
@@ -193,6 +190,7 @@ def main() -> None:
             database_url=args.database_url,
             retriever=retriever,
             result_sink=completed,
+            require_hybrid=True,
         )
         usage = provider.usage()
     except (EmbeddingProviderError, SQLAlchemyError, ValueError) as error:

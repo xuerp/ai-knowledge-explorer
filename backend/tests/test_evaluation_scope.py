@@ -244,3 +244,62 @@ def test_evaluator_refuses_nonlocal_or_non_test_database_before_connecting(monke
     for url in ["postgresql://host.example/ai_radar_test", "postgresql://localhost/production"]:
         with pytest.raises(ValueError, match="isolated local"):
             evaluate(snapshot, [], top_k=8, database_url=url)
+
+
+def test_hybrid_budget_preflight_matches_every_actual_index_document(monkeypatch):
+    from sqlalchemy import create_engine, select
+    from sqlalchemy.orm import Session
+
+    from app.database import Base, RagClaimDocumentRecord
+    from app.rag import LexicalRagRetriever
+
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    from eval_hybrid_retrieval import build_document_texts
+
+    snapshot = KnowledgeSnapshot.model_validate_json(
+        (ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json").read_bytes()
+    )
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        LexicalRagRetriever().prepare(session, snapshot)
+        indexed = list(session.scalars(select(RagClaimDocumentRecord.search_text)).all())
+    preflight = build_document_texts(snapshot)
+    assert sorted(preflight) == sorted(indexed)
+    assert len(preflight) > 1000
+    engine.dispose()
+
+
+def test_hybrid_evaluation_stops_on_first_lexical_degradation(monkeypatch):
+    from app.rag import LexicalRagRetriever
+
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    from eval_retrieval import evaluate, load_golden_set
+
+    class DegradedRetriever(LexicalRagRetriever):
+        calls = 0
+
+        def search(self, *args, **kwargs):
+            self.calls += 1
+            result = super().search(*args, **kwargs)
+            result.diagnostics.fallback_reason = "hybrid-error:test"
+            return result
+
+    snapshot = KnowledgeSnapshot.model_validate_json(
+        (ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json").read_bytes()
+    )
+    _, samples = load_golden_set(ROOT / "docs/eval/retrieval_golden_set.v2.jsonl")
+    retriever = DegradedRetriever()
+    completed = []
+    with pytest.raises(ValueError, match="degraded"):
+        evaluate(
+            snapshot,
+            samples[:2],
+            top_k=8,
+            database_url="sqlite://",
+            retriever=retriever,
+            result_sink=completed,
+            require_hybrid=True,
+        )
+    assert retriever.calls == 1
+    assert len(completed) == 1

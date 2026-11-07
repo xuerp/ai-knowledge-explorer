@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       allow_embedding_calls:
-        description: "Explicit authorization: up to 106 bge-m3 calls / 350 Neurons; isolated test DB only"
+        description: "Explicit authorization: up to 114 bge-m3 calls / 850 Neurons; isolated test DB only"
         type: boolean
         required: true
         default: false

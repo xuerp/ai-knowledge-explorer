@@ -36,6 +36,6 @@ v2 使用内容指纹核对库，忽略请求 meta 和自动生成的 graph.capt
 python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_snapshot_2026-11-07.json --golden-set docs/eval/retrieval_golden_set.v2.jsonl --alias-catalog backend/data/entity_aliases_v1.json --output-dir artifacts/retrieval-v2-hybrid --preflight-only
 ```
 
-预检为 514 个可索引事实和 100 个查询，共最多 106 次请求，UTF-8 字节加输入余量的 token 上界为 314801，估算 338.4111 Neurons。手动工作流限制为 106 次、350 Neurons，不自动重试。只有本次额度/费用授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
+预检为 1295 条按实际索引 ID 去重后的文档（包含事实、时间线和关系）和 100 个查询，预计 113 次请求，UTF-8 字节加输入余量的 token 上界为 730601，估算 785.3961 Neurons。手动工作流限制为 114 次、850 Neurons，不自动重试。只有本次额度/费用授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
 
 实际报告经 scripts/publish_quality_metrics.py 校验快照哈希、标注存在性、TopK 和逐题汇总后，发布为 backend/data/quality_evaluation.json。原报告留在 backend/data/quality_evaluation_history。新增报告必须保留逐题 JSON、执行提交、时间和配置，不手改汇总成绩。

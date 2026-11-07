@@ -73,9 +73,9 @@ def main() -> None:
         "--model-version",
         config["embeddingVersion"],
         "--daily-api-call-budget",
-        "106",
+        "114",
         "--daily-neuron-budget",
-        "350",
+        "850",
         "--allow-external-api",
     ]
     subprocess.run(command, env=env, cwd=ROOT, check=True)

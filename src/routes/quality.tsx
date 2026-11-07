@@ -428,7 +428,7 @@ function EvaluationSection({
             <div className="min-w-0 sm:col-span-2">
               <Detail
                 label={t("当前服务配置", "Current service configuration")}
-                value={`${scope.configuredConfiguration.databaseDialect} · ${scope.configuredConfiguration.embeddingProvider} · ${scope.configuredConfiguration.embeddingModel ?? "—"} · ${scope.configuredConfiguration.embeddingDimension ?? "—"}d`}
+                value={`${scope.configuredConfiguration.databaseDialect} · ${scope.configuredConfiguration.embeddingProvider} · ${scope.configuredConfiguration.embeddingModel ?? "—"} · ${scope.configuredConfiguration.embeddingDimension ? `${scope.configuredConfiguration.embeddingDimension}d` : "—"}`}
               />
             </div>
           )}

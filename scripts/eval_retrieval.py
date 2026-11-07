@@ -79,6 +79,7 @@ def evaluate(
     database_url: str,
     retriever: RagRetriever | None = None,
     result_sink: list[dict[str, Any]] | None = None,
+    require_hybrid: bool = False,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], str]:
     target = make_url(database_url)
     if target.get_backend_name() != "sqlite" and (
@@ -142,6 +143,14 @@ def evaluate(
                 "diagnostics": search.diagnostics.model_dump(mode="json", by_alias=True),
             }
             results.append(row)
+            if (
+                require_hybrid
+                and search.diagnostics.fallback_reason
+                and search.diagnostics.fallback_reason.startswith("hybrid-")
+            ):
+                raise ValueError(
+                    "Hybrid evaluation degraded; stop immediately without more queries."
+                )
             by_category[str(sample["category"])].append(row)
 
     def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
