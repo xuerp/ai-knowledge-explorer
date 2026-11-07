@@ -104,19 +104,19 @@ def build_quality_evaluation(
                 snapshot, version=metadata.get("fingerprintVersion", 1)
             ),
             "expectedClaimIdsBySample": annotations,
+            "retrievalConfiguration": {
+                "retrievalMode": metadata["retrievalMode"],
+                "databaseDialect": metadata["databaseDialect"],
+                "embeddingProvider": metadata.get("embeddingProvider", "none"),
+                "embeddingModel": metadata.get("embeddingModel"),
+                "embeddingVersion": metadata.get("embeddingVersion"),
+                "embeddingDimension": metadata.get("embeddingDimension"),
+            },
             **(
                 {
                     "fingerprintVersion": 2,
                     "retrievalImplementationSha256": metadata["retrievalImplementationSha256"],
                     "goldenSetSha256": metadata["goldenSetSha256"],
-                    "retrievalConfiguration": {
-                        "retrievalMode": metadata["retrievalMode"],
-                        "databaseDialect": metadata["databaseDialect"],
-                        "embeddingProvider": metadata.get("embeddingProvider", "none"),
-                        "embeddingModel": metadata.get("embeddingModel"),
-                        "embeddingVersion": metadata.get("embeddingVersion"),
-                        "embeddingDimension": metadata.get("embeddingDimension"),
-                    },
                 }
                 if metadata.get("fingerprintVersion") == 2
                 else {}

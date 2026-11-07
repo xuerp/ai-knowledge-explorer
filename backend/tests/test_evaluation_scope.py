@@ -47,6 +47,19 @@ def test_original_report_scope_matches_without_running_retrieval(baseline):
     assert not result.reasons
 
 
+def test_legacy_report_configuration_also_checks_database_dialect(baseline):
+    evaluation, reference, snapshot, settings = baseline
+    result = assess_evaluation(
+        evaluation,
+        reference,
+        snapshot,
+        replace(settings, database_url="postgresql://localhost/test"),
+    )
+    assert result.retrieval_config_matches is False
+    assert result.status == "historical"
+    assert result.reasons == ["retrieval-config-changed"]
+
+
 def test_corpus_fingerprint_ignores_request_metadata_and_order_but_detects_edits(baseline):
     _, _, snapshot, _ = baseline
     payload = snapshot.model_dump(mode="json", by_alias=True)

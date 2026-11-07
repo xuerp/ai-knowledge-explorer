@@ -267,6 +267,14 @@
         "claim-22b1f161b39c7a6dc3ba",
         "claim-964dfcfbc1b85062f986"
       ]
-    ]
+    ],
+    "retrievalConfiguration": {
+      "retrievalMode": "hybrid",
+      "databaseDialect": "sqlite",
+      "embeddingProvider": "cloudflare",
+      "embeddingModel": "@cf/baai/bge-m3",
+      "embeddingVersion": "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline",
+      "embeddingDimension": 1024
+    }
   }
 }
