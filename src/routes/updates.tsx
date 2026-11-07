@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import type { ChangeEvent, Entity, Evidence } from "@/domain/types";
 import { browseModelFamilies } from "@/domain/model-families";
-import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
+import { useUpdatesOverview } from "@/hooks/use-knowledge";
 import { pick, useApp } from "@/lib/app-state";
 import { modelDisplayName } from "@/lib/model-display";
 import { chronologicalChanges, visiblePageNumbers } from "@/domain/change-navigation";
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/updates")({
 
 function UpdatesPage() {
   const { t, lang } = useApp();
-  const snapshotQuery = useKnowledgeSnapshot();
+  const snapshotQuery = useUpdatesOverview();
   const liveSnapshot = snapshotQuery.data;
   const [timeFilter, setTimeFilter] = useState("all");
   const [domainFilter, setDomainFilter] = useState("all");
@@ -189,6 +189,17 @@ function UpdatesPage() {
           )}
           actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
         />
+        {snapshotQuery.error && (
+          <p className="updates-sync-status" role="status">
+            {t(
+              "更新暂未成功，当前保留上次加载的内容。",
+              "Refresh failed. Showing the last successfully loaded data.",
+            )}{" "}
+            <button type="button" onClick={() => void snapshotQuery.refetch()}>
+              {t("重试更新", "Retry refresh")}
+            </button>
+          </p>
+        )}
         <section className="updates-filters" aria-label={t("动态筛选", "Update filters")}>
           <div className="updates-container updates-filter-panel">
             <div className="updates-filters__inner">

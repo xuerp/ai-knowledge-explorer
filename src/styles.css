@@ -8318,11 +8318,12 @@ dl.decision-validation__review-note dd {
   white-space: nowrap;
 }
 .updates-select-trigger {
-  min-height: 2.75rem;
+  height: 2rem;
+  min-height: 2rem;
   width: auto;
   max-width: 10rem;
   gap: 0.6rem;
-  padding: 0.45rem 0.65rem;
+  padding: 0.25rem 0.55rem;
   border: 1px solid var(--updates-line);
   border-radius: 0.35rem;
   color: var(--updates-ink);
@@ -8330,14 +8331,26 @@ dl.decision-validation__review-note dd {
   font-size: 0.72rem;
 }
 .updates-select-menu {
-  width: var(--radix-select-trigger-width);
+  width: max-content;
+  min-width: max(10.5rem, var(--radix-select-trigger-width));
   max-width: calc(100vw - 24px);
   max-height: min(22rem, var(--radix-select-content-available-height));
 }
 .updates-select-option {
-  min-height: 2.75rem;
+  min-height: 2rem;
+  font-size: 0.72rem;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+.updates-sync-status {
+  margin: 0 1rem 0.75rem;
+  color: var(--updates-muted);
+  font-size: 0.875rem;
+}
+.updates-sync-status button {
+  color: var(--updates-blue);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 .updates-filter-more {
   display: grid;
@@ -8527,13 +8540,15 @@ dl.decision-validation__review-note dd {
     border: 0;
   }
   .updates-select-trigger {
+    height: 2.75rem;
     min-height: 2.75rem;
     width: 100%;
     max-width: none;
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
   .updates-select-option {
-    font-size: 1rem;
+    min-height: 2.75rem;
+    font-size: 0.875rem;
   }
   .updates-filter-panel .updates-filter-groups > .updates-filter-group {
     flex-wrap: wrap;

@@ -1,11 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSyncExternalStore } from "react";
 import type { EntityType } from "@/domain/types";
 import { knowledgeRepository, type EntityQuery } from "@/services/knowledge-repository";
+import { projectUpdatesOverview } from "@/domain/updates-overview";
+import type { KnowledgeSnapshot } from "@/domain/types";
+import { updatesQueryOptions } from "@/domain/updates-sync";
 
 export const knowledgeKeys = {
   all: ["knowledge"] as const,
   snapshot: () => [...knowledgeKeys.all, "snapshot"] as const,
+  updates: () => [...knowledgeKeys.all, "updates"] as const,
   entities: (query: EntityQuery) => [...knowledgeKeys.all, "entities", query] as const,
   modelFamilies: () => [...knowledgeKeys.all, "model-families"] as const,
   familyVersions: (familyId: string) =>
@@ -13,6 +17,19 @@ export const knowledgeKeys = {
   versionComparison: (versionIds: string[]) =>
     [...knowledgeKeys.all, "model-versions", "compare", ...versionIds] as const,
 };
+
+export function useUpdatesOverview() {
+  const client = useQueryClient();
+  const snapshot = client.getQueryData<KnowledgeSnapshot>(knowledgeKeys.snapshot());
+  const query = useQuery(
+    updatesQueryOptions(
+      knowledgeRepository,
+      snapshot ? projectUpdatesOverview(snapshot) : undefined,
+      client.getQueryState(knowledgeKeys.snapshot())?.dataUpdatedAt,
+    ),
+  );
+  return { ...query, unavailableKind: query.error ? "error" : "loading" } as const;
+}
 
 const subscribeToConnectivity = (onStoreChange: () => void) => {
   window.addEventListener("online", onStoreChange);

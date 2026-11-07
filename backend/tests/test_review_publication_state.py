@@ -211,6 +211,14 @@ def test_home_is_a_small_public_projection_and_follows_review_lifecycle(client):
         assert full_response.status_code == home_response.status_code == 200
         assert home_response.headers["cache-control"] == "no-store"
         full, home = full_response.json(), home_response.json()
+        updates_response = client.get("/api/v2/updates")
+        assert updates_response.status_code == 200
+        assert updates_response.headers["cache-control"] == "public, max-age=60, s-maxage=60"
+        updates = updates_response.json()
+        assert [item["id"] for item in updates["changes"]] == [
+            item["id"] for item in full["changes"]
+        ]
+        assert set(updates) == {"meta", "entities", "evidence", "changes"}
         expected_date = max(
             [e["lastUpdatedAt"][:10] for e in full["entities"]]
             + [c["updatedAt"][:10] for c in full["claims"]]

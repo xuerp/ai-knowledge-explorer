@@ -86,6 +86,7 @@ export async function proxyApiRequest(
   request: Request,
   upstreamUrl = apiUpstreamUrl,
   fetcher: typeof fetch = fetch,
+  publicCache?: Cache,
 ): Promise<Response | null> {
   const url = new URL(request.url);
   if (url.pathname !== apiProxyPrefix && !url.pathname.startsWith(`${apiProxyPrefix}/`)) {
@@ -97,8 +98,35 @@ export async function proxyApiRequest(
   const upstream = new URL(upstreamUrl);
   upstream.pathname = url.pathname.slice(apiProxyPrefix.length) || "/";
   upstream.search = url.search;
+  // This allowlist is deliberately limited to the anonymous, public updates projection.
+  // Never put account/admin responses or authenticated requests in the shared cache.
+  const cacheable =
+    publicCache &&
+    request.method === "GET" &&
+    url.pathname === `${apiProxyPrefix}/api/v2/updates` &&
+    !url.search &&
+    !request.headers.has("authorization") &&
+    !request.headers.has("cookie");
+  const cacheKey = new Request(upstream.toString());
+  if (cacheable) {
+    const cached = await publicCache.match(cacheKey).catch(() => undefined);
+    if (cached) {
+      const headers = new Headers(cached.headers);
+      headers.set("X-AI-Radar-Cache", "HIT");
+      return new Response(cached.body, { status: cached.status, headers });
+    }
+  }
   try {
     const response = await fetcher(new Request(upstream, request));
+    if (cacheable && response.status === 200 && !response.headers.has("set-cookie")) {
+      const headers = new Headers(response.headers);
+      headers.set("Cache-Control", "public, max-age=60, s-maxage=60");
+      headers.set("X-AI-Radar-Cache", "MISS");
+      const publicResponse = new Response(response.body, { status: 200, headers });
+      // A cache failure must never hide a successful origin response.
+      await publicCache.put(cacheKey, publicResponse.clone()).catch(() => {});
+      return publicResponse;
+    }
     return withNoStoreAdminApiResponse(request, response);
   } catch (error) {
     console.error(error);
@@ -112,7 +140,16 @@ export async function proxyApiRequest(
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const proxied = await proxyApiRequest(request, resolveApiUpstream(env as WorkerEnv));
+      const publicCache =
+        typeof caches === "undefined"
+          ? undefined
+          : (caches as CacheStorage & { default?: Cache }).default;
+      const proxied = await proxyApiRequest(
+        request,
+        resolveApiUpstream(env as WorkerEnv),
+        fetch,
+        publicCache,
+      );
       if (proxied) return proxied;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

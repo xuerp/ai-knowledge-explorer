@@ -29,6 +29,7 @@ from ..schemas import (
     ReviewStats,
     TimelineEntry,
 )
+from ..updates_overview import UpdatesOverview, build_updates_overview
 from .dependencies import ServicesDependency, SessionDependency
 
 router = APIRouter()
@@ -53,6 +54,15 @@ def home_overview(
 ) -> HomeOverview:
     response.headers["Cache-Control"] = "no-store"
     return build_home_overview(services.get_public_snapshot(session))
+
+
+@router.get("/api/v2/updates", response_model=UpdatesOverview, response_model_exclude_none=True)
+def updates_overview(
+    response: Response, services: ServicesDependency, session: SessionDependency
+) -> UpdatesOverview:
+    # Public data only; at most one minute of reuse, followed by revalidation.
+    response.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
+    return build_updates_overview(services.get_public_snapshot(session))
 
 
 @router.get("/api/quality/metrics", response_model=QualityMetrics)

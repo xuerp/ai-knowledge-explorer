@@ -1,4 +1,5 @@
 import { projectHomeOverview, type HomeOverview } from "@/domain/home-overview";
+import { projectUpdatesOverview, type UpdatesOverview } from "@/domain/updates-overview";
 import type {
   DataMode,
   Claim,
@@ -38,6 +39,7 @@ export interface KnowledgeRepository {
   mode: DataMode;
   getSnapshot: (signal?: AbortSignal) => Promise<KnowledgeSnapshot>;
   getHomeOverview: (signal?: AbortSignal) => Promise<HomeOverview>;
+  getUpdatesOverview: (signal?: AbortSignal) => Promise<UpdatesOverview>;
   getEntities: (query?: EntityQuery, signal?: AbortSignal) => Promise<Entity[]>;
   getEntityBySlug: (
     slug: string,
@@ -79,6 +81,10 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
 
   async getHomeOverview() {
     return projectHomeOverview(await this.getSnapshot());
+  }
+
+  async getUpdatesOverview() {
+    return projectUpdatesOverview(await this.getSnapshot());
   }
 
   async getEntities(query: EntityQuery = {}) {
@@ -207,6 +213,12 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
     // Older deployments may not expose the smaller endpoint during rollout.
     // Only a genuine 404 uses the same API's full public data, never an offline fixture.
     return overview ?? projectHomeOverview(await this.getSnapshot(signal));
+  }
+
+  async getUpdatesOverview(signal?: AbortSignal) {
+    const overview = await this.request<UpdatesOverview | null>("/api/v2/updates", {}, signal);
+    // A rolling backend deployment may briefly expose only the older API.
+    return overview ?? projectUpdatesOverview(await this.getSnapshot(signal));
   }
 
   getEntities(query: EntityQuery = {}, signal?: AbortSignal) {
