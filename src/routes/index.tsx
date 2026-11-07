@@ -60,40 +60,50 @@ function LandingPage() {
       </a>
       <TopNav variant="showcase" />
       <main id="home-main">
-        <section className="landing-compact__hero">
-          <div className="landing-compact__container landing-compact__hero-inner">
-            <div className="landing-compact__status">
-              <span aria-hidden="true" />
-              {t(
-                "AI 信息研究与选型 · 个人实践项目",
-                "AI research and selection · Personal project",
-              )}
-            </div>
-            <h1>
+        <section className="landing-compact__hero" aria-labelledby="home-hero-title">
+          <div className="landing-compact__container landing-compact__hero-inner" lang={lang}>
+            <h1 id="home-hero-title">
               {lang === "zh" ? (
                 <>
-                  基于<span>可验证证据</span>理解 AI 变化
+                  <span>从模型变化到方案选择，</span>
+                  <span>让 AI 选型有据可循</span>
                 </>
               ) : (
                 <>
-                  Understand AI change with <span>verifiable evidence</span>
+                  <span>From AI updates to informed choices.</span>
+                  <span>Grounded in evidence.</span>
                 </>
               )}
             </h1>
-            <p>
-              {t(
-                "整理主流 AI 模型与产品资料，按已收录事实查看变化、来源与适用条件。",
-                "Explore collected AI model and product information, including changes, sources and conditions of use.",
-              )}
+            <p className="landing-compact__hero-description">
+              <span>
+                {t(
+                  "串联模型版本、来源证据与任务约束，",
+                  "Connect model versions, source evidence and task constraints.",
+                )}
+              </span>{" "}
+              <span>
+                {t(
+                  "把分散资料整理成可追溯的选型研究。",
+                  "Turn scattered information into research you can trace.",
+                )}
+              </span>
             </p>
             <div className="landing-compact__hero-actions">
               <Link to="/ask" className="landing-compact__button is-primary">
                 {t("体验决策助手", "Try the decision assistant")} <ArrowRight aria-hidden="true" />
               </Link>
-              <a href="/updates#latest" className="landing-compact__button is-secondary">
-                {t("查看收录动态", "View collected updates")}
-              </a>
+              <Link to="/case-study" className="landing-compact__hero-case">
+                {t("查看项目案例", "Explore the project case study")}
+                <ArrowRight aria-hidden="true" />
+              </Link>
             </div>
+            <p className="landing-compact__hero-context">
+              {t(
+                "AI 模型与产品选型研究 · 个人实践项目",
+                "AI model and product selection research · Personal project",
+              )}
+            </p>
           </div>
         </section>
 
