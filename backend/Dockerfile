@@ -24,6 +24,7 @@ COPY data/reviewed_claim_corrections.v1.json ./data/reviewed_claim_corrections.v
 COPY data/entity_aliases_v1.json ./data/entity_aliases_v1.json
 COPY data/golden_questions.json ./data/golden_questions.json
 COPY data/quality_evaluation.json ./data/quality_evaluation.json
+COPY data/quality_evaluation_history ./data/quality_evaluation_history
 
 RUN addgroup --system app && adduser --system --ingroup app app \
     && chown -R app:app /srv/ai-radar
