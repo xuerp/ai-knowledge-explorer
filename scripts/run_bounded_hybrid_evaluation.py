@@ -79,7 +79,7 @@ def main() -> None:
         "--model-version",
         config["embeddingVersion"],
         "--daily-api-call-budget",
-        "114",
+        "119",
         "--daily-neuron-budget",
         "850",
         "--allow-external-api",

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import os
 import sys
 from datetime import UTC, datetime
@@ -19,8 +18,11 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from eval_retrieval import current_commit, evaluate, load_golden_set, read_bytes
 
 from app.embeddings import (
+    CLOUDFLARE_PADDED_BATCH_TOKEN_LIMIT,
     CloudflareEmbeddingProvider,
     EmbeddingProviderError,
+    embedding_batch_indices,
+    embedding_batch_token_upper_bound,
     embedding_token_upper_bound,
 )
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
@@ -145,15 +147,28 @@ def main() -> None:
     all_inputs = document_texts + [str(item["query"]) for item in samples]
     if args.canary_first:
         all_inputs.append(CANARY_TEXT)
-    conservative_tokens = embedding_token_upper_bound(all_inputs)
-    estimated_neurons = conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
-    expected_calls = (
-        math.ceil(len(document_texts) / args.max_batch_size) + len(samples) + int(args.canary_first)
+    document_batches = embedding_batch_indices(document_texts, max_batch_size=args.max_batch_size)
+    padded_document_tokens = sum(
+        embedding_batch_token_upper_bound([document_texts[index] for index in batch])
+        for batch in document_batches
     )
+    query_inputs = [str(item["query"]) for item in samples]
+    if args.canary_first:
+        query_inputs.append(CANARY_TEXT)
+    conservative_tokens = padded_document_tokens + embedding_token_upper_bound(query_inputs)
+    estimated_neurons = conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
+    expected_calls = len(document_batches) + len(samples) + int(args.canary_first)
     preflight = {
         "documentCount": len(document_texts),
         "queryCount": len(samples),
         "unscoredCanaryCount": int(args.canary_first),
+        "documentBatchCount": len(document_batches),
+        "paddedBatchTokenLimit": CLOUDFLARE_PADDED_BATCH_TOKEN_LIMIT,
+        "maxDocumentBatchPaddedTokenUpperBound": max(
+            embedding_batch_token_upper_bound([document_texts[index] for index in batch])
+            for batch in document_batches
+        ),
+        "inputTokenUpperBound": embedding_token_upper_bound(all_inputs),
         "expectedApiCalls": expected_calls,
         "conservativeTokenUpperBound": conservative_tokens,
         "estimatedNeurons": round(estimated_neurons, 4),
@@ -269,6 +284,7 @@ def main() -> None:
             "embeddingVersion": provider.model_version,
             "embeddingDimension": provider.dimension,
             "embeddingTransport": "cloudflare-native-run",
+            "embeddingBatching": "length-sorted-padded-token-bound-v1",
             "topK": args.top_k,
             "rrfK": args.rrf_k,
             "evaluationCommit": args.evaluation_commit or current_commit(REPO_ROOT),

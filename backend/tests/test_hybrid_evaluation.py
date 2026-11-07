@@ -153,7 +153,7 @@ def test_failed_unscored_canary_stops_before_indexing_or_scoring(monkeypatch, tm
             "--output-dir",
             str(tmp_path),
             "--daily-api-call-budget",
-            "114",
+            "119",
             "--daily-neuron-budget",
             "850",
             "--allow-external-api",
@@ -166,6 +166,8 @@ def test_failed_unscored_canary_stops_before_indexing_or_scoring(monkeypatch, tm
     assert attempts == [[eval_hybrid_retrieval.CANARY_TEXT]]
     assert failure["canaryPassed"] is False
     assert failure["completedResults"] == []
-    assert failure["preflight"]["expectedApiCalls"] == 114
+    assert failure["preflight"]["expectedApiCalls"] == 119
+    assert failure["preflight"]["documentBatchCount"] == 18
+    assert failure["preflight"]["maxDocumentBatchPaddedTokenUpperBound"] <= 48_000
     assert failure["preflight"]["estimatedNeurons"] < 850
     assert failure["providerDetails"]["errors"] == [{"code": "test-error"}]

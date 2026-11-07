@@ -8,6 +8,7 @@ from app.embeddings import (
     CloudflareEmbeddingProvider,
     EmbeddingBudgetExceeded,
     EmbeddingProviderError,
+    embedding_batch_token_upper_bound,
 )
 
 
@@ -146,3 +147,43 @@ def test_native_error_retains_useful_codes_without_credentials_and_counts_attemp
     assert "secret-token" not in json.dumps(details)
     assert provider.usage()["apiCalls"] == 2
     assert provider.usage()["attemptedApiCalls"] == 1
+
+
+def test_length_aware_batches_respect_padded_context_and_restore_input_vector_order():
+    requests = []
+
+    def handler(request):
+        texts = json.loads(request.read())["text"]
+        requests.append(texts)
+        assert embedding_batch_token_upper_bound(texts) <= 48_000
+        assert len(texts) <= 100
+        return httpx.Response(
+            200,
+            json={
+                "success": True,
+                "result": {
+                    "shape": [len(texts), 3],
+                    "data": [[float(text.split(":")[0]), 0.0, 0.0] for text in texts],
+                },
+            },
+        )
+
+    texts = [f"{i}:{'x' * (3000 if i % 3 == 0 else 100)}" for i in range(60)][::-1]
+    provider = build_provider(handler, max_batch_size=100)
+    vectors = provider.embed_documents(texts)
+    assert len(requests) == 3
+    assert vectors == [[float(text.split(":")[0]), 0.0, 0.0] for text in texts]
+    assert provider.usage()["conservativeTokenUpperBound"] == sum(
+        embedding_batch_token_upper_bound(batch) for batch in requests
+    )
+    assert provider.usage()["attemptedApiCalls"] == len(requests)
+
+
+def test_single_oversized_input_is_rejected_before_any_request():
+    def unexpected_request(_):
+        pytest.fail("Over-limit input must be rejected before contacting the provider.")
+
+    provider = build_provider(unexpected_request)
+    with pytest.raises(EmbeddingProviderError, match="conservative context limit"):
+        provider.embed_documents(["x" * 48_000])
+    assert provider.usage()["attemptedApiCalls"] == 0

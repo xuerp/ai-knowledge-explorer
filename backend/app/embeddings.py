@@ -9,10 +9,39 @@ from typing import Any
 
 import httpx
 
+# bge-m3's documented 60k context limit also applies to a padded batch.
+# Keep 20% headroom and use UTF-8 bytes plus framing as a token upper bound.
+CLOUDFLARE_PADDED_BATCH_TOKEN_LIMIT = 48_000
+
 
 def embedding_token_upper_bound(texts: list[str]) -> int:
     # UTF-8 bytes plus per-input framing headroom; characters can undercount Chinese tokens.
     return sum(len(text.encode("utf-8")) + 32 for text in texts)
+
+
+def embedding_batch_token_upper_bound(texts: list[str]) -> int:
+    return max((embedding_token_upper_bound([text]) for text in texts), default=0) * len(texts)
+
+
+def embedding_batch_indices(texts: list[str], *, max_batch_size: int = 100) -> list[list[int]]:
+    if not 1 <= max_batch_size <= 100:
+        raise ValueError("Embedding batches must contain between 1 and 100 inputs.")
+    lengths = [embedding_token_upper_bound([text]) for text in texts]
+    if any(length > CLOUDFLARE_PADDED_BATCH_TOKEN_LIMIT for length in lengths):
+        raise EmbeddingProviderError("An embedding input exceeds the conservative context limit.")
+    batches: list[list[int]] = []
+    batch: list[int] = []
+    for index in sorted(range(len(texts)), key=lengths.__getitem__):
+        if batch and (
+            len(batch) >= max_batch_size
+            or lengths[index] * (len(batch) + 1) > CLOUDFLARE_PADDED_BATCH_TOKEN_LIMIT
+        ):
+            batches.append(batch)
+            batch = []
+        batch.append(index)
+    if batch:
+        batches.append(batch)
+    return batches
 
 
 class EmbeddingProviderError(RuntimeError):
@@ -112,14 +141,17 @@ class CloudflareEmbeddingProvider:
     def _embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
-        batches = [
-            texts[start : start + self.max_batch_size]
-            for start in range(0, len(texts), self.max_batch_size)
-        ]
-        self._reserve_budget(texts, api_calls=len(batches))
-        vectors: list[list[float]] = []
-        for batch in batches:
-            vectors.extend(self._embed_batch(batch))
+        batches = embedding_batch_indices(texts, max_batch_size=self.max_batch_size)
+        conservative_tokens = sum(
+            embedding_batch_token_upper_bound([texts[index] for index in batch])
+            for batch in batches
+        )
+        self._reserve_budget(conservative_tokens, api_calls=len(batches))
+        vectors: list[list[float]] = [[] for _ in texts]
+        for indices in batches:
+            rows = self._embed_batch([texts[index] for index in indices])
+            for index, vector in zip(indices, rows, strict=True):
+                vectors[index] = vector
         return vectors
 
     def _embed_batch(self, texts: list[str]) -> list[list[float]]:
@@ -183,8 +215,7 @@ class CloudflareEmbeddingProvider:
             errors.append({"code": code[:32], "message": message[:512]})
         return {"httpStatus": response.status_code, "errors": errors}
 
-    def _reserve_budget(self, texts: list[str], *, api_calls: int) -> None:
-        conservative_tokens = embedding_token_upper_bound(texts)
+    def _reserve_budget(self, conservative_tokens: int, *, api_calls: int) -> None:
         with self._budget_lock:
             today = self._today()
             if today != self._budget_date:

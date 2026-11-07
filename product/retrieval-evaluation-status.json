@@ -1,8 +1,8 @@
 {
   "status": "failed",
   "retrievalMode": "hybrid",
-  "observedAt": "2026-11-07T08:29:25.6903466Z",
-  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_failed_20261107_1629.json",
+  "observedAt": "2026-11-07T09:08:13Z",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_failed_20261107_1708.json",
   "failureCode": "HTTP 400",
   "completedSamples": 0,
   "sampleCount": 100

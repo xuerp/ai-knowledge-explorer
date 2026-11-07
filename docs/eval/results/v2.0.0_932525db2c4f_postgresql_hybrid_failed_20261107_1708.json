@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "observedAt": "2026-11-07T09:08:13Z",
+    "evaluationCommit": "3f503c7cd34c38d6f82c2d29494b1e233c348566",
+    "workflowRun": "https://github.com/xuerp/ai-knowledge-explorer/actions/runs/42358365560",
+    "scope": "Dedicated evaluation credential; native endpoint canary succeeded; first fixed-size document batch exceeded model context; isolated PostgreSQL"
+  },
+  "failure": {
+    "status": "failed-no-retry",
+    "errorType": "EmbeddingProviderError",
+    "providerFailure": "Cloudflare embedding request returned HTTP 400.",
+    "providerDetails": {
+      "httpStatus": 400,
+      "errors": [
+        {
+          "code": "8007",
+          "message": "AiError: AiError: Max context reached 89800 tokens but model supports only 60000 (4184ed09-c048-461d-a864-43dbed391cb5)"
+        }
+      ]
+    },
+    "canaryPassed": true,
+    "preflight": {
+      "documentCount": 1295,
+      "queryCount": 100,
+      "unscoredCanaryCount": 1,
+      "expectedApiCalls": 114,
+      "conservativeTokenUpperBound": 730666,
+      "estimatedNeurons": 785.466,
+      "model": "@cf/baai/bge-m3",
+      "modelVersion": "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline",
+      "embeddingDimension": 1024,
+      "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+      "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
+      "externalCallsExecuted": 0
+    },
+    "usage": {
+      "date": "2026-11-07",
+      "apiCalls": 14,
+      "attemptedApiCalls": 2,
+      "conservativeTokenUpperBound": 720264,
+      "estimatedNeurons": 774.2838,
+      "dailyNeuronBudget": 850.0,
+      "dailyApiCallBudget": 114
+    },
+    "completedResults": [],
+    "nextQuestionId": "v2-entity-001"
+  },
+  "usageInterpretation": "attemptedApiCalls=2: one successful unscored canary and one rejected document batch. apiCalls=14 and estimatedNeurons reserve the whole document workload; they are not executed-request or verified billing counts. No question was evaluated and no retry was made. preflight.externalCallsExecuted=0 describes the preflight, not the subsequent run.",
+  "diagnosis": "Provider error8007 explicitly reports89800 tokens versus60000 context limit. A small native request succeeded. Length-aware padded-context batching is required; no further model request has been made."
+}
