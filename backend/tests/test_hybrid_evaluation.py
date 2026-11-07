@@ -5,7 +5,13 @@ import importlib.util
 import json
 from pathlib import Path
 
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
+
+from app.database import Base, RagClaimDocumentRecord
+from app.embeddings import embedding_token_upper_bound
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
+from app.rag import LexicalRagRetriever
 from app.schemas import KnowledgeSnapshot
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -32,9 +38,18 @@ def test_hybrid_evaluation_preflight_is_bound_to_fixed_workload():
     documents = eval_hybrid_retrieval.build_document_texts(snapshot)
     all_inputs = documents + [str(item["query"]) for item in samples]
 
-    assert len(documents) == 195
+    # Current indexing includes grounded timeline/relations. The archived report
+    # below keeps its original 195-document workload and original bytes.
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        LexicalRagRetriever().prepare(session, snapshot)
+        indexed = list(session.scalars(select(RagClaimDocumentRecord.search_text)).all())
+    assert sorted(documents) == sorted(indexed)
+    engine.dispose()
+    assert len(documents) == 303
     assert len(samples) == 80
-    assert sum(len(text) for text in all_inputs) == 69_750
+    assert embedding_token_upper_bound(all_inputs) == 122_784
 
 
 def test_committed_production_hybrid_result_is_complete_and_guarded():
