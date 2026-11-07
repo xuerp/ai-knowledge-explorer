@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.database import Base, RagClaimDocumentRecord
-from app.embeddings import embedding_token_upper_bound
+from app.embeddings import EmbeddingProviderError, embedding_token_upper_bound
 from app.entity_aliases import apply_entity_aliases, load_entity_alias_catalog
 from app.rag import LexicalRagRetriever
 from app.schemas import KnowledgeSnapshot
@@ -116,3 +116,56 @@ def test_evaluation_requires_dedicated_credentials_not_the_deployment_token(monk
     env = evaluation_environment()
     assert env["CLOUDFLARE_API_TOKEN"] == "evaluation-only-test-value"
     assert env["CLOUDFLARE_ACCOUNT_ID"] == "a" * 32
+
+
+def test_failed_unscored_canary_stops_before_indexing_or_scoring(monkeypatch, tmp_path):
+    import sys
+
+    monkeypatch.setenv("CLOUDFLARE_ACCOUNT_ID", "a" * 32)
+    monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "test-only-token")
+    attempts = []
+
+    def fail_canary(self, texts):
+        attempts.append(texts)
+        raise EmbeddingProviderError(
+            "Cloudflare embedding request returned HTTP 400.",
+            upstream_details={"httpStatus": 400, "errors": [{"code": "test-error"}]},
+        )
+
+    def unexpected_evaluation(*args, **kwargs):
+        pytest.fail("A failed canary must not index documents or score any question.")
+
+    monkeypatch.setattr(
+        eval_hybrid_retrieval.CloudflareEmbeddingProvider, "_embed_batch", fail_canary
+    )
+    monkeypatch.setattr(eval_hybrid_retrieval, "evaluate", unexpected_evaluation)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            str(SCRIPT_PATH),
+            "--snapshot",
+            str(REPO_ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json"),
+            "--golden-set",
+            str(REPO_ROOT / "docs/eval/retrieval_golden_set.v2.jsonl"),
+            "--alias-catalog",
+            str(REPO_ROOT / "backend/data/entity_aliases_v1.json"),
+            "--output-dir",
+            str(tmp_path),
+            "--daily-api-call-budget",
+            "114",
+            "--daily-neuron-budget",
+            "850",
+            "--allow-external-api",
+            "--canary-first",
+        ],
+    )
+    with pytest.raises(SystemExit, match="No retry was made"):
+        eval_hybrid_retrieval.main()
+    failure = json.loads((tmp_path / "hybrid-failure.json").read_text("utf-8"))
+    assert attempts == [[eval_hybrid_retrieval.CANARY_TEXT]]
+    assert failure["canaryPassed"] is False
+    assert failure["completedResults"] == []
+    assert failure["preflight"]["expectedApiCalls"] == 114
+    assert failure["preflight"]["estimatedNeurons"] < 850
+    assert failure["providerDetails"]["errors"] == [{"code": "test-error"}]

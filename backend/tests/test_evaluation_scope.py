@@ -343,8 +343,31 @@ def test_current_publication_and_attempt_status_reproduce_saved_evidence(monkeyp
     assert payload["sampleCount"] == 100
     assert (
         payload["reference"]["retrievalImplementationSha256"]
+        == report["metadata"]["retrievalImplementationSha256"]
+    )
+    # A code update may precede a new model evaluation; its saved scores must be historical.
+    settings = Settings(
+        database_url="sqlite://",
+        seed_snapshot_path=ROOT / "backend/data/demo_snapshot.json",
+        admin_token=None,
+        cors_origins=(),
+        build_commit="current-build",
+    )
+    scope = assess_evaluation(
+        EvaluationQualityMetrics.model_validate(
+            {key: value for key, value in payload.items() if key != "reference"}
+        ),
+        payload["reference"],
+        KnowledgeSnapshot.model_validate_json(snapshot_bytes),
+        settings,
+    )
+    assert scope.implementation_matches == (
+        report["metadata"]["retrievalImplementationSha256"]
         == retrieval_implementation_fingerprint()
     )
+    if not scope.implementation_matches:
+        assert scope.status == "historical"
+        assert "retrieval-implementation-changed" in scope.reasons
     attempt = json.loads((ROOT / "product/retrieval-evaluation-status.json").read_text("utf-8"))
     record = json.loads((ROOT / attempt["artifactPath"]).read_text("utf-8"))
     assert attempt == build_attempt_status(record, artifact_path=attempt["artifactPath"])

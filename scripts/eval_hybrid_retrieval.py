@@ -33,17 +33,19 @@ from app.rag import (
 )
 from app.schemas import KnowledgeSnapshot
 
+CANARY_TEXT = "AI Radar retrieval contract check"
+
 
 class AuditedEmbeddingProvider(CloudflareEmbeddingProvider):
     last_failure: str | None = None
+    last_failure_details: dict[str, Any] | None = None
 
     def _embed_batch(self, texts: list[str]) -> list[list[float]]:
         try:
             return super()._embed_batch(texts)
         except EmbeddingProviderError as error:
-            self.last_failure = str(
-                error
-            )  # Provider errors exclude credentials and response bodies.
+            self.last_failure = str(error)
+            self.last_failure_details = error.upstream_details
             raise
 
 
@@ -85,7 +87,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
                 f"{metrics['entityRecallAtK']:.2%} | {metrics['passRatio']:.2%} |"
             ),
             "",
-            f"- API 调用：{usage['apiCalls']} / {usage['dailyApiCallBudget']}",
+            f"- API 请求尝试：{usage.get('attemptedApiCalls', usage['apiCalls'])} / {usage['dailyApiCallBudget']}",
             (
                 f"- 保守 token 上界：{usage['conservativeTokenUpperBound']}；"
                 f"估算 Neurons：{usage['estimatedNeurons']} / {usage['dailyNeuronBudget']}"
@@ -123,10 +125,15 @@ def main() -> None:
     parser.add_argument("--evaluation-commit")
     parser.add_argument("--allow-external-api", action="store_true")
     parser.add_argument(
+        "--canary-first",
+        action="store_true",
+        help="先验证一次未计分的接口小样本，成功后才进行固定题集。",
+    )
+    parser.add_argument(
         "--preflight-only", action="store_true", help="只保存预算预检，不读取凭证或请求模型。"
     )
     args = parser.parse_args()
-    if args.max_batch_size <= 0 or args.top_k <= 0 or args.dimension <= 0:
+    if not 1 <= args.max_batch_size <= 100 or args.top_k <= 0 or args.dimension <= 0:
         raise ValueError("Batch size, top K and embedding dimension must be positive.")
 
     snapshot_bytes = read_bytes(args.snapshot)
@@ -136,12 +143,17 @@ def main() -> None:
     apply_entity_aliases(snapshot.entities, alias_definitions)
     document_texts = build_document_texts(snapshot)
     all_inputs = document_texts + [str(item["query"]) for item in samples]
+    if args.canary_first:
+        all_inputs.append(CANARY_TEXT)
     conservative_tokens = embedding_token_upper_bound(all_inputs)
     estimated_neurons = conservative_tokens / 1_000_000 * args.neurons_per_million_tokens
-    expected_calls = math.ceil(len(document_texts) / args.max_batch_size) + len(samples)
+    expected_calls = (
+        math.ceil(len(document_texts) / args.max_batch_size) + len(samples) + int(args.canary_first)
+    )
     preflight = {
         "documentCount": len(document_texts),
         "queryCount": len(samples),
+        "unscoredCanaryCount": int(args.canary_first),
         "expectedApiCalls": expected_calls,
         "conservativeTokenUpperBound": conservative_tokens,
         "estimatedNeurons": round(estimated_neurons, 4),
@@ -197,7 +209,13 @@ def main() -> None:
         rrf_k=args.rrf_k,
     )
     completed: list[dict[str, Any]] = []
+    canary_passed = False
     try:
+        if args.canary_first:
+            vector = provider.embed_query(CANARY_TEXT)
+            if not any(value != 0 for value in vector):
+                raise ValueError("The endpoint canary returned a zero vector.")
+            canary_passed = True
         metrics, results, dialect = evaluate(
             snapshot,
             samples,
@@ -216,6 +234,8 @@ def main() -> None:
                     "status": "failed-no-retry",
                     "errorType": type(error).__name__,
                     "providerFailure": provider.last_failure,
+                    "providerDetails": provider.last_failure_details,
+                    "canaryPassed": canary_passed,
                     "preflight": preflight,
                     "usage": provider.usage(),
                     "completedResults": completed,
@@ -248,6 +268,7 @@ def main() -> None:
             "embeddingModel": provider.model_name,
             "embeddingVersion": provider.model_version,
             "embeddingDimension": provider.dimension,
+            "embeddingTransport": "cloudflare-native-run",
             "topK": args.top_k,
             "rrfK": args.rrf_k,
             "evaluationCommit": args.evaluation_commit or current_commit(REPO_ROOT),
@@ -263,6 +284,7 @@ def main() -> None:
             ),
         },
         "preflight": preflight,
+        "unscoredCanaryPassed": canary_passed,
         "usage": usage,
         "metrics": metrics,
         "results": results,

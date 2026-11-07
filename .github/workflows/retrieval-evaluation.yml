@@ -50,6 +50,7 @@ jobs:
           --alias-catalog backend/data/entity_aliases_v1.json
           --output-dir artifacts/retrieval-v2-hybrid
           --preflight-only
+          --canary-first
       - name: Evaluate matching hybrid configuration in isolated PostgreSQL
         if: inputs.allow_embedding_calls
         env:

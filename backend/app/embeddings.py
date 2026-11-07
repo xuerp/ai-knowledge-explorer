@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from math import isfinite
 from threading import Lock
+from typing import Any
 
 import httpx
 
@@ -14,7 +16,11 @@ def embedding_token_upper_bound(texts: list[str]) -> int:
 
 
 class EmbeddingProviderError(RuntimeError):
-    """不含凭证与响应正文的可安全记录 provider 错误。"""
+    """可安全记录的错误；仅附带脱敏后的结构化上游错误详情。"""
+
+    def __init__(self, message: str, *, upstream_details: dict[str, Any] | None = None) -> None:
+        super().__init__(message)
+        self.upstream_details = upstream_details
 
 
 class EmbeddingBudgetExceeded(EmbeddingProviderError):
@@ -50,6 +56,10 @@ class CloudflareEmbeddingProvider:
             raise ValueError("Embedding daily budgets must be positive.")
         if neurons_per_million_tokens <= 0 or max_batch_size <= 0:
             raise ValueError("Embedding rate and batch size must be positive.")
+        if max_batch_size > 100:
+            raise ValueError(
+                "Cloudflare embedding batch size cannot exceed the model's 100-input limit."
+            )
         self.model_name = model_name
         self.model_version = model_version
         self.dimension = dimension
@@ -57,8 +67,9 @@ class CloudflareEmbeddingProvider:
         self.neurons_per_million_tokens = neurons_per_million_tokens
         self.daily_api_call_budget = daily_api_call_budget
         self.max_batch_size = max_batch_size
+        self._redaction_token = api_token
         self._client = client or httpx.Client(
-            base_url=(f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"),
+            base_url=(f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai"),
             headers={"Authorization": f"Bearer {api_token}"},
             timeout=timeout_seconds,
         )
@@ -67,6 +78,7 @@ class CloudflareEmbeddingProvider:
         self._budget_date = self._today()
         self._conservative_tokens = 0
         self._api_calls = 0
+        self._attempted_api_calls = 0
         self._budget_lock = Lock()
 
     def close(self) -> None:
@@ -81,6 +93,7 @@ class CloudflareEmbeddingProvider:
             return {
                 "date": self._budget_date.isoformat(),
                 "apiCalls": self._api_calls,
+                "attemptedApiCalls": self._attempted_api_calls,
                 "conservativeTokenUpperBound": self._conservative_tokens,
                 "estimatedNeurons": round(estimated_neurons, 4),
                 "dailyNeuronBudget": self.daily_neuron_budget,
@@ -110,25 +123,34 @@ class CloudflareEmbeddingProvider:
         return vectors
 
     def _embed_batch(self, texts: list[str]) -> list[list[float]]:
+        with self._budget_lock:
+            self._attempted_api_calls += 1
         try:
             response = self._client.post(
-                "/embeddings",
-                json={"input": texts, "model": self.model_name},
+                f"/run/{self.model_name}",
+                json={"text": texts, "truncate_inputs": False},
             )
         except httpx.HTTPError as exc:
             raise EmbeddingProviderError("Cloudflare embedding request failed.") from exc
         if response.status_code >= 400:
             raise EmbeddingProviderError(
-                f"Cloudflare embedding request returned HTTP {response.status_code}."
+                f"Cloudflare embedding request returned HTTP {response.status_code}.",
+                upstream_details=self._safe_upstream_details(response),
             )
         try:
             payload = response.json()
-            vectors = [
-                item["embedding"] for item in sorted(payload["data"], key=lambda row: row["index"])
-            ]
+            if not isinstance(payload, dict) or payload.get("success") is not True:
+                raise ValueError("Cloudflare did not acknowledge a successful inference.")
+            vectors = payload["result"]["data"]
+            if not isinstance(vectors, list) or any(not isinstance(row, list) for row in vectors):
+                raise ValueError("Embedding data must be an array of vectors.")
+            shape = payload["result"].get("shape")
+            if shape is not None and shape != [len(texts), self.dimension]:
+                raise ValueError("Embedding shape does not match the requested batch.")
         except (KeyError, TypeError, ValueError) as exc:
             raise EmbeddingProviderError(
-                "Cloudflare returned an invalid embedding payload."
+                "Cloudflare returned an invalid embedding payload.",
+                upstream_details=self._safe_upstream_details(response),
             ) from exc
         if len(vectors) != len(texts):
             raise EmbeddingProviderError("Cloudflare returned an unexpected result count.")
@@ -144,6 +166,23 @@ class CloudflareEmbeddingProvider:
             raise EmbeddingProviderError("Cloudflare returned non-finite embedding values.")
         return normalized
 
+    def _safe_upstream_details(self, response: httpx.Response) -> dict[str, Any] | None:
+        try:
+            payload = response.json()
+        except ValueError:
+            return None
+        if not isinstance(payload, dict) or not isinstance(payload.get("errors"), list):
+            return None
+        errors = []
+        for item in payload["errors"][:3]:
+            if not isinstance(item, dict):
+                continue
+            message = str(item.get("message", "")).replace(self._redaction_token, "[redacted]")
+            message = re.sub(r"(?i)bearer\s+[^\s\"']+", "Bearer [redacted]", message)
+            code = str(item.get("code")).replace(self._redaction_token, "[redacted]")
+            errors.append({"code": code[:32], "message": message[:512]})
+        return {"httpStatus": response.status_code, "errors": errors}
+
     def _reserve_budget(self, texts: list[str], *, api_calls: int) -> None:
         conservative_tokens = embedding_token_upper_bound(texts)
         with self._budget_lock:
@@ -152,6 +191,7 @@ class CloudflareEmbeddingProvider:
                 self._budget_date = today
                 self._conservative_tokens = 0
                 self._api_calls = 0
+                self._attempted_api_calls = 0
             projected_tokens = self._conservative_tokens + conservative_tokens
             projected_neurons = projected_tokens / 1_000_000 * self.neurons_per_million_tokens
             if projected_neurons > self.daily_neuron_budget:

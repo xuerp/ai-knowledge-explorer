@@ -21,7 +21,7 @@ def build_provider(
 ):
     client = httpx.Client(
         transport=httpx.MockTransport(handler),
-        base_url="https://example.invalid/v1",
+        base_url="https://example.invalid/ai",
     )
     return CloudflareEmbeddingProvider(
         account_id="account-id",
@@ -43,14 +43,15 @@ def test_cloudflare_provider_batches_and_validates_vectors():
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
         payload = json.loads(request.read())
-        count = len(payload["input"])
+        count = len(payload["text"])
         return httpx.Response(
             200,
             json={
-                "data": [
-                    {"index": index, "embedding": [float(index + 1), 0.0, 0.0]}
-                    for index in range(count)
-                ]
+                "success": True,
+                "result": {
+                    "shape": [count, 3],
+                    "data": [[float(index + 1), 0.0, 0.0] for index in range(count)],
+                },
             },
         )
 
@@ -59,7 +60,7 @@ def test_cloudflare_provider_batches_and_validates_vectors():
 
     assert len(requests) == 2
     assert vectors == [[1.0, 0.0, 0.0], [2.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-    assert all(request.url.path == "/v1/embeddings" for request in requests)
+    assert all(request.url.path == "/ai/run/@cf/baai/bge-m3" for request in requests)
 
 
 def test_cloudflare_provider_blocks_budget_before_network():
@@ -97,10 +98,10 @@ def test_cloudflare_provider_error_is_safe_to_log():
     ("payload", "message"),
     [
         ({"notData": []}, "invalid embedding payload"),
-        ({"data": []}, "unexpected result count"),
-        ({"data": [{"index": 0, "embedding": [1.0, 2.0]}]}, "unexpected embedding dimension"),
-        ({"data": [{"index": 0, "embedding": ["secret-value", 0, 0]}]}, "non-numeric"),
-        ({"data": [{"index": 0, "embedding": ["NaN", 0, 0]}]}, "non-finite"),
+        ({"success": True, "result": {"data": []}}, "unexpected result count"),
+        ({"success": True, "result": {"data": [[1.0, 2.0]]}}, "unexpected embedding dimension"),
+        ({"success": True, "result": {"data": [["secret-value", 0, 0]]}}, "non-numeric"),
+        ({"success": True, "result": {"data": [["NaN", 0, 0]]}}, "non-finite"),
     ],
     ids=[
         "missing-data",
@@ -123,3 +124,25 @@ def test_cloudflare_provider_rejects_malformed_vectors_without_leaking_payload(
         provider.embed_query("测试")
 
     assert "secret-value" not in str(captured.value)
+
+
+def test_native_error_retains_useful_codes_without_credentials_and_counts_attempts():
+    def handler(_: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            400,
+            json={
+                "success": False,
+                "errors": [
+                    {"code": 5006, "message": "invalid input secret-token Bearer secret-token"}
+                ],
+            },
+        )
+
+    provider = build_provider(handler)
+    with pytest.raises(EmbeddingProviderError) as captured:
+        provider.embed_documents(["one", "two", "three"])
+    details = captured.value.upstream_details
+    assert details["errors"][0]["code"] == "5006"
+    assert "secret-token" not in json.dumps(details)
+    assert provider.usage()["apiCalls"] == 2
+    assert provider.usage()["attemptedApiCalls"] == 1

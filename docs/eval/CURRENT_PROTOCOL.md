@@ -33,10 +33,10 @@ v2 使用内容指纹核对库，忽略请求 meta 和自动生成的 graph.capt
 无费用预检：
 
 ```bash
-python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_snapshot_2026-11-07.json --golden-set docs/eval/retrieval_golden_set.v2.jsonl --alias-catalog backend/data/entity_aliases_v1.json --output-dir artifacts/retrieval-v2-hybrid --preflight-only
+python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_snapshot_2026-11-07.json --golden-set docs/eval/retrieval_golden_set.v2.jsonl --alias-catalog backend/data/entity_aliases_v1.json --output-dir artifacts/retrieval-v2-hybrid --preflight-only --canary-first
 ```
 
-预检为 1295 条按实际索引 ID 去重后的文档（包含事实、时间线和关系）和 100 个查询，预计 113 次请求，UTF-8 字节加输入余量的 token 上界为 730601，估算 785.3961 Neurons。手动工作流限制为 114 次、850 Neurons，不自动重试。只有本次额度/费用授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
+预检为 1295 条按实际索引 ID 去重后的文档（包含事实、时间线和关系）、100 个查询和 1 条未计分接口小样本，预计 114 次请求，UTF-8 字节加输入余量的 token 上界为 730666，估算 785.466 Neurons。手动工作流限制为 114 次、850 Neurons，不自动重试。只有本次额度/费用授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
 
 实际报告经 scripts/publish_quality_metrics.py 校验快照哈希、标注存在性、TopK 和逐题汇总后，发布为 backend/data/quality_evaluation.json。原报告留在 backend/data/quality_evaluation_history。新增报告必须保留逐题 JSON、执行提交、时间和配置，不手改汇总成绩。
 
@@ -44,6 +44,8 @@ python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_sn
 
 SQLite 与隔离 PostgreSQL 的 100 题基线均为 Recall@8 99%、Precision@8 13.63%、家族扩展 Entity Recall@8 99%、标注全命中率 98%。两道 Gemini 多版本比较题未找全标注，失败明细保留。真实 hybrid 尝试的首个 Cloudflare 请求返回 HTTP 401 后停止，未完成任何题，也没有重试或产生 hybrid 分数。
 
-GitHub 部署令牌能够列出既有账户，但不证明它具有模型推理权限；401 的具体凭据原因尚未确认。Cloudflare 官方说明专用 Workers AI REST 令牌需要 Workers AI Read 和 Edit 权限（https://developers.cloudflare.com/workers-ai/get-started/rest-api/）。修复评估环境的既有凭据并获得下一次复测授权前，不再发起模型请求。
+GitHub 部署令牌能够列出既有账户，但不证明它具有模型推理权限；401 的具体凭据原因尚未确认。Cloudflare 官方说明专用 Workers AI REST 令牌需要 Workers AI Read 和 Edit 权限（https://developers.cloudflare.com/workers-ai/get-started/rest-api/）。随后已按用户授权创建独立的七天评估令牌并加密存入专用 GitHub Secret，没有更改部署令牌。
 
 页面的最新尝试状态由原始失败记录派生。发布时给 scripts/publish_quality_metrics.py 传入 --latest-attempt、--attempt-artifact-path 和 --attempt-status-output product/retrieval-evaluation-status.json；后续成功复测同样更新该状态，不能遗留旧的失败提示。CI 会核对当前报告、原始逐题数据及页面尝试状态一致。
+
+第二次已授权尝试使用独立的七天 Workers AI Read/Edit 评估令牌，2026-11-07 16:29（北京时间）首批返回 HTTP 400 后停止，0 题完成。旧适配器未保留上游错误正文，不能确认 400 的精确原因；官方原生模型 schema 只读核对已完成。后续适配器改用该模型文档中的原生 /ai/run 路径和 text/data 契约，并保留脱敏错误码与消息；须先通过独立的未计分接口小样本，再开始固定 100 题。小样本计入同一调用和 Neuron 硬上限，题集分母仍为 100。没有新的明确授权不会再次调用模型。

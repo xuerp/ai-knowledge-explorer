@@ -83,6 +83,7 @@ def main() -> None:
         "--daily-neuron-budget",
         "850",
         "--allow-external-api",
+        "--canary-first",
     ]
     subprocess.run(command, env=env, cwd=ROOT, check=True)
 
