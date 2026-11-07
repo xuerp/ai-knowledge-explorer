@@ -27,6 +27,17 @@ import {
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
+    // Start the public feed while route scripts are downloading, not after hydration.
+    links: import.meta.env.VITE_API_BASE_URL
+      ? [
+          {
+            rel: "preload",
+            as: "fetch",
+            href: `${import.meta.env.VITE_API_BASE_URL.trim().replace(/\/$/, "")}/api/v2/updates`,
+            crossOrigin: "anonymous",
+          },
+        ]
+      : [],
     meta: [
       { title: "动态雷达 · AI Radar" },
       {

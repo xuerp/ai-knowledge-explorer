@@ -1,4 +1,4 @@
-const CACHE_NAME = "ai-radar-shell-v7";
+const CACHE_NAME = "ai-radar-shell-v8";
 const APP_SHELL = [
   "/offline.html",
   "/brand/manifest.webmanifest",
@@ -54,7 +54,9 @@ self.addEventListener("fetch", (event) => {
   // Hashed assets and HTML must come from the same deployment. Old navigation
   // HTML cannot be an offline shell when its entry script is no longer hosted.
   if (url.pathname.startsWith("/assets/")) {
-    event.respondWith(fetch(request, { cache: "no-store" }));
+    // Content hashes change with the deployment. Let the browser reuse its
+    // immutable HTTP cache; never substitute another asset or old page HTML.
+    event.respondWith(fetch(request));
     return;
   }
 

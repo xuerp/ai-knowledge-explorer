@@ -158,7 +158,7 @@ test("API requests bypass the worker cache and failed hashed assets remain failu
   assert.equal((await sw.fetch("/assets/index-old.js", "cors")).status, 404);
   assert.equal((await sw.fetch("/admin/review")).status, 404);
   assert.deepEqual(calls, [
-    { path: "/assets/index-old.js", cache: "no-store" },
+    { path: "/assets/index-old.js", cache: undefined },
     { path: "/admin/review", cache: "no-store" },
   ]);
 });
