@@ -5209,6 +5209,31 @@ dl.decision-validation__review-note dd {
 .site-header.is-showcase .site-header__inner {
   max-width: 64rem;
 }
+.site-header.is-showcase .site-header__desktop-nav {
+  gap: 2rem;
+  color: var(--color-foreground);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.site-header.is-showcase .site-header__mobile-menu nav a {
+  font-weight: 600;
+}
+@media (min-width: 768px) {
+  .site-header.is-showcase .site-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .site-header.is-showcase .site-header__logo {
+    justify-self: start;
+  }
+  .site-header.is-showcase .site-header__desktop-nav {
+    justify-self: center;
+  }
+  .site-header.is-showcase .site-header__actions {
+    justify-self: end;
+    margin-left: 0;
+  }
+}
 .site-header__desktop-nav a {
   position: relative;
 }
