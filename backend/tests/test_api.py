@@ -496,8 +496,10 @@ def test_public_quality_metrics_separate_business_and_evaluation_timestamps(
     )
     assert counts["verifiedContent"] == sum(c["confidence"] == "verified" for c in all_content)
     assert counts["freshnessWindowDays"] == 180
-    assert payload["evaluationHistory"][0]["goldenSetVersion"] == "1.0.0"
-    assert payload["evaluationHistory"][0]["sampleCount"] == 80
+    legacy = next(
+        item for item in payload["evaluationHistory"] if item["goldenSetVersion"] == "1.0.0"
+    )
+    assert legacy["sampleCount"] == 80
     reference = json.loads((BACKEND_ROOT / "data/quality_evaluation.json").read_text("utf-8"))[
         "reference"
     ]

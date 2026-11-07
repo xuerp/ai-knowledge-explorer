@@ -6,7 +6,7 @@
 
 - [v2 题集](retrieval_golden_set.v2.jsonl)：100 题，30 道对象事实、20 道关系、20 道时间线、10 道比较、20 道留出题（未参与本轮检索调优）。在查看任何检索分数前冻结；哈希和固定分母见 [清单](golden-v2-manifest.json)。
 - [当前公开快照](snapshots/public_snapshot_2026-11-07.json)：预期事实必须已发布、标记 verified，且来源 ID 可解析。
-- [旧题漂移审计](legacy-v1-annotation-audit-20261107.json)：保留原来全部 80 题；67 题引用了已不存在的事实 ID，另有 6 题的保留 ID 对应文本已改变。同一 ID 不证明原来的结论仍成立。
+- [旧题漂移审计](legacy-v1-annotation-audit-20261107.json)：保留原来全部 80 题；67 题引用了已不存在的事实 ID，6 题包含保留 ID 但文本已改变的情况（其中 1 题也包含缺失 ID，两类不可直接相加）。同一 ID 不证明原来的结论仍成立。
 - v1 原题、原快照与原始报告全部保留。v2 是新的当前库基准，分数不能当成同一题集的提升或下降。
 
 ## 计算规则
@@ -39,3 +39,11 @@ python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_sn
 预检为 1295 条按实际索引 ID 去重后的文档（包含事实、时间线和关系）和 100 个查询，预计 113 次请求，UTF-8 字节加输入余量的 token 上界为 730601，估算 785.3961 Neurons。手动工作流限制为 114 次、850 Neurons，不自动重试。只有本次额度/费用授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
 
 实际报告经 scripts/publish_quality_metrics.py 校验快照哈希、标注存在性、TopK 和逐题汇总后，发布为 backend/data/quality_evaluation.json。原报告留在 backend/data/quality_evaluation_history。新增报告必须保留逐题 JSON、执行提交、时间和配置，不手改汇总成绩。
+
+## 本轮结果与未完成项
+
+SQLite 与隔离 PostgreSQL 的 100 题基线均为 Recall@8 99%、Precision@8 13.63%、家族扩展 Entity Recall@8 99%、标注全命中率 98%。两道 Gemini 多版本比较题未找全标注，失败明细保留。真实 hybrid 尝试的首个 Cloudflare 请求返回 HTTP 401 后停止，未完成任何题，也没有重试或产生 hybrid 分数。
+
+GitHub 部署令牌能够列出既有账户，但不证明它具有模型推理权限；401 的具体凭据原因尚未确认。Cloudflare 官方说明专用 Workers AI REST 令牌需要 Workers AI Read 和 Edit 权限（https://developers.cloudflare.com/workers-ai/get-started/rest-api/）。修复评估环境的既有凭据并获得下一次复测授权前，不再发起模型请求。
+
+页面的最新尝试状态由原始失败记录派生。发布时给 scripts/publish_quality_metrics.py 传入 --latest-attempt、--attempt-artifact-path 和 --attempt-status-output product/retrieval-evaluation-status.json；后续成功复测同样更新该状态，不能遗留旧的失败提示。CI 会核对当前报告、原始逐题数据及页面尝试状态一致。

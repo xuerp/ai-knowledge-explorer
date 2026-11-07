@@ -196,6 +196,18 @@ def test_current_scope_detects_changed_implementation(current_scope):
     assert "retrieval-implementation-changed" in result.reasons
 
 
+def test_graph_content_edit_still_invalidates_current_scope(current_scope):
+    evaluation, reference, snapshot, settings = current_scope
+    payload = snapshot.model_dump(mode="json", by_alias=True)
+    edge = payload["graph"]["edges"][0]
+    edge["confidence"] = "unverified" if edge["confidence"] != "unverified" else "verified"
+    result = assess_evaluation(
+        evaluation, reference, KnowledgeSnapshot.model_validate(payload), settings
+    )
+    assert result.corpus_matches is False
+    assert result.status == "historical"
+
+
 @pytest.mark.parametrize("version", ["2", 3, None, True])
 def test_unknown_fingerprint_versions_cannot_assert_current_applicability(current_scope, version):
     evaluation, reference, snapshot, settings = current_scope
@@ -303,3 +315,44 @@ def test_hybrid_evaluation_stops_on_first_lexical_degradation(monkeypatch):
         )
     assert retriever.calls == 1
     assert len(completed) == 1
+
+
+def test_current_publication_and_attempt_status_reproduce_saved_evidence(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    from publish_quality_metrics import build_attempt_status, build_quality_evaluation
+
+    payload = json.loads((ROOT / "backend/data/quality_evaluation.json").read_text("utf-8"))
+    report = json.loads((ROOT / payload["artifactPath"]).read_text("utf-8"))
+    snapshot_bytes = (ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json").read_bytes()
+    assert payload == build_quality_evaluation(
+        report, artifact_path=payload["artifactPath"], snapshot_bytes=snapshot_bytes
+    )
+    assert payload["sampleCount"] == 100
+    assert (
+        payload["reference"]["retrievalImplementationSha256"]
+        == retrieval_implementation_fingerprint()
+    )
+    attempt = json.loads((ROOT / "product/retrieval-evaluation-status.json").read_text("utf-8"))
+    record = json.loads((ROOT / attempt["artifactPath"]).read_text("utf-8"))
+    assert attempt == build_attempt_status(record, artifact_path=attempt["artifactPath"])
+    if attempt["status"] == "failed":
+        assert attempt["completedSamples"] == len(record["failure"]["completedResults"])
+    else:
+        assert attempt["completedSamples"] == attempt["sampleCount"]
+
+
+def test_publisher_rejects_an_aggregate_score_not_supported_by_question_results(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    from publish_quality_metrics import build_quality_evaluation
+
+    payload = json.loads((ROOT / "backend/data/quality_evaluation.json").read_text("utf-8"))
+    report = json.loads((ROOT / payload["artifactPath"]).read_text("utf-8"))
+    report["metrics"]["overall"]["recallAtK"] = 1.0
+    with pytest.raises(ValueError, match="aggregate metrics"):
+        build_quality_evaluation(
+            report,
+            artifact_path=payload["artifactPath"],
+            snapshot_bytes=(
+                ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json"
+            ).read_bytes(),
+        )

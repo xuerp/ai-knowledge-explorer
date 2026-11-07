@@ -8,6 +8,7 @@ import { WorkspaceHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/app-state";
 import { getQualityMetrics, type RetrievalEvaluation } from "@/services/quality-api";
+import latestRetrievalAttempt from "../../product/retrieval-evaluation-status.json";
 
 export const Route = createFileRoute("/quality")({
   head: () => ({
@@ -189,6 +190,27 @@ function QualityPage() {
                 </div>
               </section>
 
+              {latestRetrievalAttempt.status === "failed" && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-5 text-sm leading-6">
+                  <h2 className="font-semibold">
+                    {t("本次 Hybrid 复测未完成", "This hybrid evaluation did not complete")}
+                  </h2>
+                  <p className="mt-2">
+                    {t(
+                      `${formatDateTime(latestRetrievalAttempt.observedAt, lang)}，评估服务返回 ${latestRetrievalAttempt.failureCode}，已停止且未重试。完成 ${latestRetrievalAttempt.completedSamples} / ${latestRetrievalAttempt.sampleCount} 题。下方为已完成的全文检索基线，不能替代当前 Hybrid 的评估。`,
+                      `At ${formatDateTime(latestRetrievalAttempt.observedAt, lang)}, the evaluation service returned ${latestRetrievalAttempt.failureCode}. It stopped without retrying, completing ${latestRetrievalAttempt.completedSamples} / ${latestRetrievalAttempt.sampleCount} questions. The completed lexical baseline below does not substitute for current hybrid evaluation.`,
+                    )}
+                  </p>
+                  <a
+                    className="mt-2 inline-block text-signal underline underline-offset-4"
+                    href={`https://github.com/xuerp/ai-knowledge-explorer/blob/main/${latestRetrievalAttempt.artifactPath}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("查看失败记录", "View failure record")}
+                  </a>
+                </div>
+              )}
               <EvaluationSection evaluation={metrics.data.evaluation} />
               {!!metrics.data.evaluationHistory?.length && (
                 <section aria-labelledby="evaluation-history-heading">
@@ -265,10 +287,17 @@ function EvaluationSection({
         <h3 className="font-semibold">
           {matched
             ? t("评估范围匹配", "Evaluation scope matches")
-            : t(
-                "历史基线 · 不代表当前检索表现",
-                "Historical baseline · not current search performance",
-              )}
+            : e.retrievalMode === "lexical" &&
+                scope?.corpusMatches === true &&
+                !scope.retrievalConfigMatches
+              ? t(
+                  "当前快照的全文检索基线 · 配置与线上不同",
+                  "Current-corpus lexical baseline · configuration differs from the service",
+                )
+              : t(
+                  "历史基线 · 不代表当前检索表现",
+                  "Historical baseline · not current search performance",
+                )}
         </h3>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {t(

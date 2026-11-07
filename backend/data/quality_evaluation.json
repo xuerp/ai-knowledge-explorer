@@ -1,32 +1,93 @@
 {
-  "updatedAt": "2026-08-31T06:00:28.810798+00:00",
+  "updatedAt": "2026-11-07T06:57:36.269275+00:00",
   "cadence": "on-evaluation-publication",
-  "artifactPath": "docs/eval/results/v1.0.0_8978fef80e19_sqlite_hybrid_cloudflare_-cf-baai-bge-m3_top8.json",
-  "goldenSetVersion": "1.0.0",
-  "sampleCount": 80,
-  "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
-  "retrievalMode": "hybrid",
-  "embeddingModel": "@cf/baai/bge-m3",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_lexical_top8.json",
+  "goldenSetVersion": "2.0.0",
+  "sampleCount": 100,
+  "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+  "retrievalMode": "lexical",
+  "embeddingModel": null,
   "topK": 8,
-  "evaluationCommit": "8a6b0b7ac37bf94e715c261bf325b9314e6d2987",
-  "recallAt8": 1.0,
-  "precisionAt8": 0.1422,
-  "entityRecallAt8": 0.9875,
-  "passRatio": 1.0,
+  "evaluationCommit": "dbb40eb3f4f7463c0c24c33e26be6c8c94eacd6c",
+  "recallAt8": 0.99,
+  "precisionAt8": 0.1363,
+  "entityRecallAt8": 0.99,
+  "passRatio": 0.98,
+  "categories": {
+    "entity": {
+      "samples": 30,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.1292,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "relation": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "timeline": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "comparison": {
+      "samples": 10,
+      "recallAtK": 0.9,
+      "precisionAtK": 0.225,
+      "entityRecallAtK": 0.9,
+      "passRatio": 0.8
+    },
+    "holdout": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    }
+  },
   "reference": {
-    "corpusSha256": "399c68b5c3c79494985001ea56959619a25bc41a113a68b7078f8408d8833412",
+    "corpusSha256": "76c44986c277386a8865af48c7a0343bba210ca915732ccde8aaaa3208460f17",
     "expectedClaimIdsBySample": [
       [
-        "c-gpt5-swe"
+        "c-gpt-6-astra-catalog-review"
       ],
       [
-        "c-claude-align"
+        "c-claude-fable-5-1-official-specs"
       ],
       [
-        "claim-d52e477b9559be80d40d"
+        "c-gemini-3-8-flash-official-specs"
       ],
       [
-        "c-gemini-video"
+        "c-gemini-3-1-pro-official-specs"
+      ],
+      [
+        "c-deepseek-v4-pro-official-specs"
+      ],
+      [
+        "c-qwen-3-8-max-official-specs"
+      ],
+      [
+        "c-kimi-k3-official-specs"
+      ],
+      [
+        "c-intake-e-glm-5-3"
+      ],
+      [
+        "c-intake-e-hy4-preview"
+      ],
+      [
+        "c-reviewed-grok-4-7"
+      ],
+      [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-reviewed-grok-build"
       ],
       [
         "c-codex-agent"
@@ -56,217 +117,264 @@
         "c-openai-agents-sdk-framework"
       ],
       [
-        "claim-73b3ff0afe9ef5d63fc9"
+        "c-intake-e-workbuddy"
       ],
       [
-        "claim-1d379a59788c82f7c2a0"
+        "c-intake-e-traecode"
       ],
       [
-        "claim-d164b5c3859aa142e64b"
+        "c-intake-e-traework"
       ],
       [
-        "claim-0bb5fe18f20b9d37d620"
+        "c-portfolio-qwen3-modality-20261104"
       ],
       [
-        "claim-b4baf2feae10cc1faa7b"
+        "c-portfolio-qwen3-access-20261104"
       ],
       [
-        "claim-964dfcfbc1b85062f986"
+        "c-portfolio-qwen3-license-20261104"
       ],
       [
-        "claim-dd89bd1c8f5c53c061b1"
+        "claim-0efa60844636c45fd50e",
+        "claim-8c0e3d0fa7225ec563b5"
       ],
       [
-        "claim-cf94fdbaa29a323ff09b"
+        "claim-322ca7c2878eeb2f2df7"
       ],
       [
-        "claim-60b87db2ddd7abbb6700"
+        "claim-072ac9d41daa407d0423"
       ],
       [
-        "claim-aec3ec964cca35fb7ce0"
+        "claim-1ca696390c84e4ec93d0"
       ],
       [
-        "claim-64413a939e7a8f19b690"
+        "claim-fe24e1eb9fcf83ab078a"
       ],
       [
-        "claim-d8c42aa4195b98cd5d4f"
+        "claim-c19ef12024d54855d21c"
       ],
       [
-        "claim-6f9aaf8ca2c9c500592f"
+        "claim-ed346a807789bf303d22"
       ],
       [
-        "claim-651c65451adfbda8426e"
+        "c-langgraph-framework"
       ],
       [
-        "claim-a3e4d4f1e21a727d98cf"
+        "claim-decision-refresh-fa140559a4cf110c8798"
       ],
       [
-        "claim-1df943f17b88c67f915b"
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
       ],
       [
-        "claim-6d9735b8089f5c019ba7"
+        "claim-decision-refresh-beca37b98a898d85dca4"
       ],
       [
-        "claim-bf9d94a7b2d875c0bf00"
+        "c-autogen-framework"
       ],
       [
-        "claim-3ec4878162e369974a0b"
+        "c-reviewed-grok-build"
       ],
       [
-        "claim-708f41b052b365989d5f"
+        "c-reviewed-grok-4-7-fast"
       ],
       [
-        "claim-c544c2ed2ada9fb5a54b"
+        "c-intake-e-traecode"
       ],
       [
-        "claim-84efe21fd9bb4e00cae3"
+        "claim-decision-refresh-4edaf090128d7b4999a9"
       ],
       [
-        "claim-74fd2e6ec62f858d75cc"
+        "c-portfolio-qwen3-deployment-20261104"
       ],
       [
-        "claim-37d0d89648d2a393d0c3"
+        "c-portfolio-qwen3-boundary-20261104"
       ],
       [
-        "claim-0b39443caf585df6a887"
+        "c-portfolio-qwen3-license-20261104"
       ],
       [
-        "claim-85baa52e65c945a6dbd1"
+        "c-deprecation-e-gpt-5-20260611"
       ],
       [
-        "claim-5aaf53f59267692a608e"
+        "claim-540413843ff545bfc468"
       ],
       [
-        "claim-f94f9f7b5033aa600b03"
+        "claim-c15027091a3d57922024"
       ],
       [
-        "claim-946116b1be917420287c"
+        "claim-392d91df8b807c7b8444"
       ],
       [
-        "claim-ce8bf109d9ca8dda5e63"
+        "c-api-shutdown-gpt4o-20240513-20261023"
       ],
       [
-        "claim-62e6a41540009d41ae38"
+        "c-api-lifecycle-e-gpt-41-nano-20261030"
       ],
       [
-        "claim-a18286f8beb841d14f78"
+        "c-api-lifecycle-e-gpt-image-1-20261030"
       ],
       [
-        "claim-c197b2fed5266444ac67"
+        "c-api-lifecycle-e-gpt-51-instant-20261030"
       ],
       [
-        "claim-50c69855c226a60323a7"
+        "c-api-lifecycle-e-gpt-52-instant-20261030"
       ],
       [
-        "claim-26b1d5225baf5e9bf207"
+        "c-api-lifecycle-e-gpt-53-instant-20261030"
       ],
       [
-        "claim-bedca8ceed0954f4bc73"
+        "c-api-lifecycle-e-gpt-4o-20261030"
       ],
       [
-        "claim-c39776a16ff86e810567"
+        "c-api-lifecycle-e-gpt-4o-mini-20261030"
       ],
       [
-        "c-gemini-cli-agent"
+        "c-api-lifecycle-e-gpt-41-20261030"
       ],
       [
-        "claim-87feb225a273a9eac10b"
+        "c-api-lifecycle-e-gpt-41-mini-20261030"
       ],
       [
-        "claim-0f2b9f758b0f58398ef7"
+        "c-api-lifecycle-e-gpt-53-codex-20261030"
       ],
       [
-        "claim-4f8f8d405cca177b06a3"
+        "c-api-lifecycle-e-gpt-54-nano-20261030"
       ],
       [
-        "claim-30074cb26f8e04cba0f2"
+        "c-api-lifecycle-e-gpt-51-20261030"
       ],
       [
-        "claim-c7a1857e394448993d93"
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030"
       ],
       [
-        "claim-1b95f8c29e8060f435e5"
+        "c-api-lifecycle-e-gpt-4o-transcribe-20261030"
       ],
       [
-        "claim-f54e84647bf091f465d2"
+        "c-api-lifecycle-e-gpt-realtime-1-20261030"
       ],
       [
-        "claim-90b09d0c9745cbcb877b"
+        "c-api-lifecycle-e-gpt-image-15-20261030"
       ],
       [
-        "claim-c9729d582aad30fb2ef1"
+        "c-nano-banana21-ga-20261029"
       ],
       [
-        "claim-f160486f6dd1f6c4205d"
+        "c-lifecycle-e-gemini-37-flash-20261029"
       ],
       [
-        "claim-1fdb85142657f6812e18"
+        "c-lifecycle-e-gemini-31-flash-image-20261029"
       ],
       [
-        "claim-907e86c15632fdc031a7"
+        "c-gpt-6-astra-catalog-review",
+        "c-gpt-6.1-sol-catalog-review"
       ],
       [
-        "claim-a6bf7bb89ea9aeb1e43b"
+        "c-gpt-6-luna-catalog-review",
+        "c-gpt-6-sol-catalog-review"
       ],
       [
-        "claim-b16d6589cd7104289b88",
-        "claim-fa38113d856b439d625a"
+        "c-gemini-3-1-pro-official-specs",
+        "c-gemini-3-8-flash-official-specs"
       ],
       [
-        "claim-852c17dc4b53a389f8d9"
+        "c-gemini-3-5-flash-lite-official-specs",
+        "c-gemini-3-8-flash-official-specs"
       ],
       [
-        "claim-87feb225a273a9eac10b"
+        "c-deepseek-v4-pro-official-specs",
+        "c-reviewed-grok-4-7"
       ],
       [
-        "claim-789db8e8444fba20797b"
+        "c-langgraph-framework",
+        "c-openai-agents-sdk-framework"
       ],
       [
-        "claim-15263d7ff2dfc3b95ce9"
+        "c-devin-agent",
+        "c-manus-agent"
       ],
       [
-        "claim-f1e2af967f065102bbde"
+        "c-intake-e-workbuddy",
+        "c-reviewed-grok-build"
       ],
       [
-        "claim-1d379a59788c82f7c2a0",
-        "claim-73b3ff0afe9ef5d63fc9"
+        "c-portfolio-qwen3-access-20261104",
+        "c-reviewed-grok-4-7-fast"
       ],
       [
-        "c-gpt5-swe",
-        "claim-aa028d98f64ccca7df43"
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "c-deprecation-e-gpt-5-20260611"
       ],
       [
-        "claim-10c240632ac093bc9152",
-        "claim-4c4c5c82687fd61b55d5"
+        "c-portfolio-qwen3-deployment-20261104"
       ],
       [
-        "claim-50c69855c226a60323a7",
-        "claim-c197b2fed5266444ac67"
+        "c-portfolio-qwen3-boundary-20261104"
       ],
       [
-        "claim-64413a939e7a8f19b690",
-        "claim-7f8f68faa57b9c45c7bc"
+        "c-portfolio-qwen3-modality-20261104"
       ],
       [
-        "claim-90b09d0c9745cbcb877b",
-        "claim-f54e84647bf091f465d2"
+        "c-portfolio-qwen3-license-20261104"
       ],
       [
-        "claim-48213f05b19dcaf25309",
-        "claim-bc0878766ddba613fcef"
+        "c-portfolio-qwen3-access-20261104"
       ],
       [
-        "claim-26b1d5225baf5e9bf207",
-        "claim-d46b4538f9f9a620139e"
+        "c-api-shutdown-gpt4o-20240513-20261023"
       ],
       [
-        "claim-514a641cc94e8c2e9089",
-        "claim-f6c45a629d85f7abeb1f"
+        "c-gpt5-swe"
       ],
       [
-        "claim-22b1f161b39c7a6dc3ba",
-        "claim-964dfcfbc1b85062f986"
+        "c-claude-align"
+      ],
+      [
+        "c-gemini-video"
+      ],
+      [
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      [
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      [
+        "claim-decision-refresh-c4c65933a2ec8a359d84"
+      ],
+      [
+        "c-codex-agent"
+      ],
+      [
+        "claim-decision-refresh-4edaf090128d7b4999a9"
+      ],
+      [
+        "c-intake-e-traework"
+      ],
+      [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-portfolio-comparison-20261104"
+      ],
+      [
+        "c-portfolio-gpt45-20261104"
+      ],
+      [
+        "claim-9126d607ce60c9861365"
+      ],
+      [
+        "claim-8f4fb8e8feb9ae16bfcb"
       ]
-    ]
+    ],
+    "fingerprintVersion": 2,
+    "retrievalImplementationSha256": "e9078f12d874507abacb24c9fc466e08c88f8d1ee3dd98baa24fe9e588692435",
+    "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
+    "retrievalConfiguration": {
+      "retrievalMode": "lexical",
+      "databaseDialect": "postgresql",
+      "embeddingProvider": "none",
+      "embeddingModel": null,
+      "embeddingVersion": null,
+      "embeddingDimension": null
+    }
   }
 }

@@ -1,5 +1,20 @@
 # 检索评估变更记录
 
+## 2026-11-07：当前库 v2 题集与 PostgreSQL 基线
+
+输入为 2026-11-07 公开快照（263 对象 / 518 事实 / 731 证据），题集在查看分数前冻结为 100 题（核心 80 + 留出 20）。[协议与完整口径](CURRENT_PROTOCOL.md) · [题集清单](golden-v2-manifest.json)。v2 与旧 v1 不可直接比较。
+
+| 配置               | 样本 | Recall@8 | Precision@8 | Entity Recall@8 | 标注全命中率 |
+| ------------------ | ---: | -------: | ----------: | --------------: | -----------: |
+| SQLite lexical     |  100 |   99.00% |      13.63% |          99.00% |       98.00% |
+| PostgreSQL lexical |  100 |   99.00% |      13.63% |          99.00% |       98.00% |
+
+两道比较题 `v2-comparison-003`、`v2-comparison-004` 未找全两个 Gemini 版本的标注，原题、返回 ID 和失败结果保留在 [PostgreSQL 逐题报告](results/v2.0.0_932525db2c4f_postgresql_lexical_top8.json)。题集、分母和通过规则没有为成绩修改。
+
+[真实 hybrid 尝试](results/v2.0.0_932525db2c4f_postgresql_hybrid_failed_20261107.json) 已核对运行中的检索代码、配置和库内容，但首次 Cloudflare embedding 请求返回 HTTP 401，按约定停止且未重试；0 道题完成，没有 hybrid 成绩。错误记录中的 usage 是批量预算预留，不是已核验账单或实际请求计数。当前发布的是 PostgreSQL lexical 基线，不能替代线上 hybrid 评估。
+
+本轮同时修复内容指纹误包含请求时间戳、报告提交自我失效和预算预检漏算派生索引的问题。保留全部旧 80 题漂移审计，旧 v1 成绩移入历史归档。业务页面新增分子/分母、记录字段口径和实际评估时间；读取页面不触发模型评估。
+
 ## 2026-08-30：Golden Set v1.0.0 与便携式 lexical 基线
 
 固定版本组合：

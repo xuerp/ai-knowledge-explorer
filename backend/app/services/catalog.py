@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
@@ -79,16 +80,18 @@ class CatalogServices:
     def evaluation_quality_history(
         self, snapshot: KnowledgeSnapshot
     ) -> list[EvaluationQualityMetrics]:
-        return [
-            self._read_evaluation(path, snapshot)
-            for path in sorted(
-                self.app_settings.quality_evaluation_path.with_name(
+        return sorted(
+            (
+                self._read_evaluation(path, snapshot)
+                for path in self.app_settings.quality_evaluation_path.with_name(
                     "quality_evaluation_history"
                 ).glob("*.json")
-            )
-        ]
+            ),
+            key=lambda evaluation: evaluation.updated_at,
+            reverse=True,
+        )
 
-    def _read_evaluation(self, path, snapshot: KnowledgeSnapshot) -> EvaluationQualityMetrics:
+    def _read_evaluation(self, path: Path, snapshot: KnowledgeSnapshot) -> EvaluationQualityMetrics:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             reference = payload.pop("reference", None)

@@ -1,0 +1,9 @@
+{
+  "status": "failed",
+  "retrievalMode": "hybrid",
+  "observedAt": "2026-11-07T07:01:11.740725Z",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_failed_20261107.json",
+  "failureCode": "HTTP 401",
+  "completedSamples": 0,
+  "sampleCount": 100
+}

@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "observedAt": "2026-11-07T07:01:11.740725Z",
+    "evaluationCommit": "b4c25426212100423916c6d54dd19e9a51833b94",
+    "workflowRun": "https://github.com/xuerp/ai-knowledge-explorer/actions/runs/42349406727",
+    "scope": "Frozen public v2 corpus and questions; matching runtime code/configuration; isolated PostgreSQL evaluation database"
+  },
+  "failure": {
+    "status": "failed-no-retry",
+    "errorType": "EmbeddingProviderError",
+    "providerFailure": "Cloudflare embedding request returned HTTP 401.",
+    "preflight": {
+      "documentCount": 1295,
+      "queryCount": 100,
+      "expectedApiCalls": 113,
+      "conservativeTokenUpperBound": 730601,
+      "estimatedNeurons": 785.3961,
+      "model": "@cf/baai/bge-m3",
+      "modelVersion": "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline",
+      "embeddingDimension": 1024,
+      "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+      "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
+      "externalCallsExecuted": 0
+    },
+    "usage": {
+      "date": "2026-11-07",
+      "apiCalls": 13,
+      "conservativeTokenUpperBound": 720199,
+      "estimatedNeurons": 774.2139,
+      "dailyNeuronBudget": 850.0,
+      "dailyApiCallBudget": 114
+    },
+    "completedResults": [],
+    "nextQuestionId": "v2-entity-001"
+  },
+  "usageInterpretation": "The provider reserves the entire document batch budget before the first request. usage.apiCalls=13 and estimatedNeurons=774.2139 are reservations, not verified executed calls or billing. The first batch received HTTP 401 and no question was evaluated; no retry was made."
+}

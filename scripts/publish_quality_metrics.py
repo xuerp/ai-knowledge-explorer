@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,42 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 
 from app.evaluation_scope import corpus_fingerprint
 from app.schemas import KnowledgeSnapshot
+
+
+def build_attempt_status(record: dict[str, Any], *, artifact_path: str) -> dict[str, Any]:
+    if "failure" in record:
+        failure = record["failure"]
+        error = re.search(r"HTTP (\d{3})", failure.get("providerFailure") or "")
+        return {
+            "status": "failed",
+            "retrievalMode": "hybrid",
+            "observedAt": record["metadata"]["observedAt"],
+            "artifactPath": artifact_path,
+            "failureCode": f"HTTP {error[1]}" if error else failure["errorType"],
+            "completedSamples": len(failure["completedResults"]),
+            "sampleCount": failure["preflight"]["queryCount"],
+        }
+    if (
+        record["metadata"]["retrievalMode"] != "hybrid"
+        or len(record["results"]) != record["metadata"]["sampleCount"]
+    ):
+        raise ValueError("A completed hybrid attempt requires all declared samples.")
+    if any(
+        (row.get("diagnostics", {}).get("fallbackReason") or "").startswith("hybrid-")
+        for row in record["results"]
+    ):
+        raise ValueError(
+            "A degraded lexical result cannot be published as completed hybrid evaluation."
+        )
+    return {
+        "status": "completed",
+        "retrievalMode": record["metadata"]["retrievalMode"],
+        "observedAt": record["metadata"]["evaluatedAt"],
+        "artifactPath": artifact_path,
+        "failureCode": None,
+        "completedSamples": len(record["results"]),
+        "sampleCount": record["metadata"]["sampleCount"],
+    }
 
 
 def build_quality_evaluation(
@@ -94,7 +131,14 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--artifact-path", required=True)
     parser.add_argument("--snapshot", type=Path, required=True)
+    parser.add_argument("--latest-attempt", type=Path)
+    parser.add_argument("--attempt-artifact-path")
+    parser.add_argument("--attempt-status-output", type=Path)
     args = parser.parse_args()
+    if any(
+        [args.latest_attempt, args.attempt_artifact_path, args.attempt_status_output]
+    ) and not all([args.latest_attempt, args.attempt_artifact_path, args.attempt_status_output]):
+        raise ValueError("Attempt publication requires a source, artifact path and status output.")
 
     report = json.loads(args.source.read_text(encoding="utf-8"))
     payload = build_quality_evaluation(
@@ -107,6 +151,18 @@ def main() -> None:
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    if args.latest_attempt:
+        record = json.loads(args.latest_attempt.read_text(encoding="utf-8"))
+        args.attempt_status_output.parent.mkdir(parents=True, exist_ok=True)
+        args.attempt_status_output.write_text(
+            json.dumps(
+                build_attempt_status(record, artifact_path=args.attempt_artifact_path),
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
 
 if __name__ == "__main__":

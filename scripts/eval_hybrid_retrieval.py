@@ -67,7 +67,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
     usage = report["usage"]
     return "\n".join(
         [
-            "# 生产 Hybrid 检索路径评估",
+            "# Hybrid 检索路径评估（隔离数据库）",
             "",
             f"- Provider：`{metadata['embeddingProvider']}`",
             f"- 模型：`{metadata['embeddingModel']}`",
@@ -76,6 +76,7 @@ def markdown_summary(report: dict[str, Any]) -> str:
             f"- 快照：`{metadata['snapshotSha256']}`",
             f"- 别名目录：v{metadata['aliasCatalogVersion']} (`{metadata['aliasCatalogSha256']}`)",
             f"- 评测提交：`{metadata['evaluationCommit']}`",
+            f"- 数据库方言：`{metadata['databaseDialect']}`（隔离评估数据库）",
             "",
             "| Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |",
             "| ---: | ---: | ---: | ---: |",
@@ -90,7 +91,8 @@ def markdown_summary(report: dict[str, Any]) -> str:
                 f"估算 Neurons：{usage['estimatedNeurons']} / {usage['dailyNeuronBudget']}"
             ),
             "",
-            "本结果执行的是生产 Cloudflare provider、版本化持久索引与 RRF union 路径。",
+            "本结果使用与线上配置匹配的 Cloudflare provider、版本化索引与 RRF union 路径。",
+            "评估在隔离数据库中执行，不代表线上延迟、稳定性或业务问答准确率。",
             "Cloudflare 响应不提供可核验账单金额；免费层状态仍需在账户控制台确认。",
             "",
         ]
