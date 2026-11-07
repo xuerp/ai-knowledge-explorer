@@ -2,3 +2,7 @@
 # Do not normalize its historical CRLF bytes across Windows/Linux checkouts.
 /backend/tests/fixtures/decision_semantic.json -text whitespace=cr-at-eol
 /backend/tests/fixtures/decision_seed_20261007.json -text
+
+# Evaluation provenance hashes refer to the frozen original bytes on every OS.
+/docs/eval/retrieval_golden_set.v2.jsonl -text whitespace=cr-at-eol
+/docs/eval/snapshots/public_snapshot_2026-11-07.json -text
