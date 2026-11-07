@@ -5209,14 +5209,9 @@ dl.decision-validation__review-note dd {
 .site-header.is-showcase .site-header__inner {
   max-width: 64rem;
 }
-.site-header.is-showcase .site-header__desktop-nav {
-  gap: 2rem;
-  color: var(--color-foreground);
-  font-size: 1rem;
-  font-weight: 600;
-}
+.site-header.is-showcase .site-header__desktop-nav,
 .site-header.is-showcase .site-header__mobile-menu nav a {
-  font-weight: 600;
+  font-weight: 500;
 }
 @media (min-width: 768px) {
   .site-header.is-showcase .site-header__inner {
