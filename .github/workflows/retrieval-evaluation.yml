@@ -53,7 +53,8 @@ jobs:
       - name: Evaluate matching hybrid configuration in isolated PostgreSQL
         if: inputs.allow_embedding_calls
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          AI_RADAR_EVALUATION_CLOUDFLARE_API_TOKEN: ${{ secrets.AI_RADAR_EVALUATION_CLOUDFLARE_API_TOKEN }}
+          AI_RADAR_EVALUATION_CLOUDFLARE_ACCOUNT_ID: ${{ vars.AI_RADAR_EVALUATION_CLOUDFLARE_ACCOUNT_ID }}
           PYTHONPATH: backend
         run: python scripts/run_bounded_hybrid_evaluation.py --allow-external-api
       - name: Upload report, budget and any failure evidence

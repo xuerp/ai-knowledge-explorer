@@ -360,7 +360,9 @@ def test_publisher_rejects_an_aggregate_score_not_supported_by_question_results(
 
     payload = json.loads((ROOT / "backend/data/quality_evaluation.json").read_text("utf-8"))
     report = json.loads((ROOT / payload["artifactPath"]).read_text("utf-8"))
-    report["metrics"]["overall"]["recallAtK"] = 1.0
+    report["metrics"]["overall"]["recallAtK"] = (
+        0.0 if report["metrics"]["overall"]["recallAtK"] > 0 else 1.0
+    )
     with pytest.raises(ValueError, match="aggregate metrics"):
         build_quality_evaluation(
             report,

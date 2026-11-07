@@ -5,6 +5,7 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -99,3 +100,19 @@ def test_committed_production_hybrid_result_is_complete_and_guarded():
     assert len(report["results"]) == 80
     assert all(item["passed"] for item in report["results"])
     assert all(item["diagnostics"]["fallbackReason"] is None for item in report["results"])
+
+
+def test_evaluation_requires_dedicated_credentials_not_the_deployment_token(monkeypatch):
+    monkeypatch.syspath_prepend(str(REPO_ROOT / "scripts"))
+    from run_bounded_hybrid_evaluation import evaluation_environment
+
+    monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "deployment-only-test-value")
+    monkeypatch.delenv("AI_RADAR_EVALUATION_CLOUDFLARE_API_TOKEN", raising=False)
+    monkeypatch.delenv("AI_RADAR_EVALUATION_CLOUDFLARE_ACCOUNT_ID", raising=False)
+    with pytest.raises(SystemExit, match="Dedicated evaluation"):
+        evaluation_environment()
+    monkeypatch.setenv("AI_RADAR_EVALUATION_CLOUDFLARE_ACCOUNT_ID", "a" * 32)
+    monkeypatch.setenv("AI_RADAR_EVALUATION_CLOUDFLARE_API_TOKEN", "evaluation-only-test-value")
+    env = evaluation_environment()
+    assert env["CLOUDFLARE_API_TOKEN"] == "evaluation-only-test-value"
+    assert env["CLOUDFLARE_ACCOUNT_ID"] == "a" * 32

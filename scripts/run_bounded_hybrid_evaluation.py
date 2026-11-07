@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -16,11 +17,22 @@ from app.evaluation_scope import corpus_fingerprint, retrieval_implementation_fi
 from app.schemas import KnowledgeSnapshot
 
 
+def evaluation_environment() -> dict[str, str]:
+    account_id = os.getenv("AI_RADAR_EVALUATION_CLOUDFLARE_ACCOUNT_ID", "").strip()
+    token = os.getenv("AI_RADAR_EVALUATION_CLOUDFLARE_API_TOKEN", "").strip()
+    if not re.fullmatch(r"[a-f0-9]{32}", account_id) or not token:
+        raise SystemExit(
+            "Dedicated evaluation account/token are not configured. No inference called."
+        )
+    return {**os.environ, "CLOUDFLARE_ACCOUNT_ID": account_id, "CLOUDFLARE_API_TOKEN": token}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--allow-external-api", action="store_true")
     if not parser.parse_args().allow_external_api:
         raise SystemExit("Explicit --allow-external-api authorization is required.")
+    env = evaluation_environment()
     output = ROOT / "artifacts/retrieval-v2-hybrid"
     output.mkdir(parents=True, exist_ok=True)
     with httpx.Client(timeout=60) as client:
@@ -51,21 +63,6 @@ def main() -> None:
         )
         if corpus_fingerprint(current, version=2) != corpus_fingerprint(frozen, version=2):
             raise SystemExit("Published corpus changed since the freeze. No inference called.")
-        token = os.environ.get("CLOUDFLARE_API_TOKEN")
-        if not token:
-            raise SystemExit("Existing Cloudflare token is unavailable. No inference called.")
-        response = client.get(
-            "https://api.cloudflare.com/client/v4/accounts",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        if response.status_code != 200:
-            raise SystemExit("Account discovery failed. No inference called; no retry.")
-        accounts = response.json().get("result", [])
-        if len(accounts) != 1:
-            raise SystemExit(
-                "Cannot determine a unique existing Cloudflare account. No inference called."
-            )
-        env = {**os.environ, "CLOUDFLARE_ACCOUNT_ID": accounts[0]["id"]}
     command = [
         sys.executable,
         "scripts/eval_hybrid_retrieval.py",
