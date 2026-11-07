@@ -1,9 +1,9 @@
 {
-  "status": "failed",
+  "status": "completed",
   "retrievalMode": "hybrid",
-  "observedAt": "2026-11-07T09:08:13Z",
-  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_failed_20261107_1708.json",
-  "failureCode": "HTTP 400",
-  "completedSamples": 0,
+  "observedAt": "2026-11-07T10:19:53.166853+00:00",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_cloudflare_-cf-baai-bge-m3_top8.json",
+  "failureCode": null,
+  "completedSamples": 100,
   "sampleCount": 100
 }

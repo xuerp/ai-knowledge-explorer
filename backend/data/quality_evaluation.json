@@ -1,18 +1,18 @@
 {
-  "updatedAt": "2026-11-07T06:57:36.269275+00:00",
+  "updatedAt": "2026-11-07T10:19:53.166853+00:00",
   "cadence": "on-evaluation-publication",
-  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_lexical_top8.json",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_cloudflare_-cf-baai-bge-m3_top8.json",
   "goldenSetVersion": "2.0.0",
   "sampleCount": 100,
   "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
-  "retrievalMode": "lexical",
-  "embeddingModel": null,
+  "retrievalMode": "hybrid",
+  "embeddingModel": "@cf/baai/bge-m3",
   "topK": 8,
-  "evaluationCommit": "dbb40eb3f4f7463c0c24c33e26be6c8c94eacd6c",
-  "recallAt8": 0.99,
-  "precisionAt8": 0.1363,
-  "entityRecallAt8": 0.99,
-  "passRatio": 0.98,
+  "evaluationCommit": "90a31121c55f704f2601043607ae11e1560edae4",
+  "recallAt8": 0.995,
+  "precisionAt8": 0.1375,
+  "entityRecallAt8": 0.995,
+  "passRatio": 0.99,
   "categories": {
     "entity": {
       "samples": 30,
@@ -37,10 +37,10 @@
     },
     "comparison": {
       "samples": 10,
-      "recallAtK": 0.9,
-      "precisionAtK": 0.225,
-      "entityRecallAtK": 0.9,
-      "passRatio": 0.8
+      "recallAtK": 0.95,
+      "precisionAtK": 0.2375,
+      "entityRecallAtK": 0.95,
+      "passRatio": 0.9
     },
     "holdout": {
       "samples": 20,
@@ -365,16 +365,16 @@
         "claim-8f4fb8e8feb9ae16bfcb"
       ]
     ],
-    "fingerprintVersion": 2,
-    "retrievalImplementationSha256": "e9078f12d874507abacb24c9fc466e08c88f8d1ee3dd98baa24fe9e588692435",
-    "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
     "retrievalConfiguration": {
-      "retrievalMode": "lexical",
+      "retrievalMode": "hybrid",
       "databaseDialect": "postgresql",
-      "embeddingProvider": "none",
-      "embeddingModel": null,
-      "embeddingVersion": null,
-      "embeddingDimension": null
-    }
+      "embeddingProvider": "cloudflare",
+      "embeddingModel": "@cf/baai/bge-m3",
+      "embeddingVersion": "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline",
+      "embeddingDimension": 1024
+    },
+    "fingerprintVersion": 2,
+    "retrievalImplementationSha256": "417cb4016d8c4b5d8f614bfd88056c0e648e1500019e88910bbe6b21f67c9603",
+    "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0"
   }
 }

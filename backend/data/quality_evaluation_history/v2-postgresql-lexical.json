@@ -1,0 +1,380 @@
+{
+  "updatedAt": "2026-11-07T10:13:32.308478+00:00",
+  "cadence": "on-evaluation-publication",
+  "artifactPath": "docs/eval/results/v2.0.0_932525db2c4f_postgresql_lexical_top8_90a3112.json",
+  "goldenSetVersion": "2.0.0",
+  "sampleCount": 100,
+  "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+  "retrievalMode": "lexical",
+  "embeddingModel": null,
+  "topK": 8,
+  "evaluationCommit": "90a31121c55f704f2601043607ae11e1560edae4",
+  "recallAt8": 0.99,
+  "precisionAt8": 0.1363,
+  "entityRecallAt8": 0.99,
+  "passRatio": 0.98,
+  "categories": {
+    "entity": {
+      "samples": 30,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.1292,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "relation": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "timeline": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    },
+    "comparison": {
+      "samples": 10,
+      "recallAtK": 0.9,
+      "precisionAtK": 0.225,
+      "entityRecallAtK": 0.9,
+      "passRatio": 0.8
+    },
+    "holdout": {
+      "samples": 20,
+      "recallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passRatio": 1.0
+    }
+  },
+  "reference": {
+    "corpusSha256": "76c44986c277386a8865af48c7a0343bba210ca915732ccde8aaaa3208460f17",
+    "expectedClaimIdsBySample": [
+      [
+        "c-gpt-6-astra-catalog-review"
+      ],
+      [
+        "c-claude-fable-5-1-official-specs"
+      ],
+      [
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      [
+        "c-gemini-3-1-pro-official-specs"
+      ],
+      [
+        "c-deepseek-v4-pro-official-specs"
+      ],
+      [
+        "c-qwen-3-8-max-official-specs"
+      ],
+      [
+        "c-kimi-k3-official-specs"
+      ],
+      [
+        "c-intake-e-glm-5-3"
+      ],
+      [
+        "c-intake-e-hy4-preview"
+      ],
+      [
+        "c-reviewed-grok-4-7"
+      ],
+      [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-reviewed-grok-build"
+      ],
+      [
+        "c-codex-agent"
+      ],
+      [
+        "c-claude-code-agent"
+      ],
+      [
+        "c-gemini-cli-agent"
+      ],
+      [
+        "c-manus-agent"
+      ],
+      [
+        "c-devin-agent"
+      ],
+      [
+        "c-langgraph-framework"
+      ],
+      [
+        "c-autogen-framework"
+      ],
+      [
+        "c-crewai-framework"
+      ],
+      [
+        "c-openai-agents-sdk-framework"
+      ],
+      [
+        "c-intake-e-workbuddy"
+      ],
+      [
+        "c-intake-e-traecode"
+      ],
+      [
+        "c-intake-e-traework"
+      ],
+      [
+        "c-portfolio-qwen3-modality-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-access-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      [
+        "claim-0efa60844636c45fd50e",
+        "claim-8c0e3d0fa7225ec563b5"
+      ],
+      [
+        "claim-322ca7c2878eeb2f2df7"
+      ],
+      [
+        "claim-072ac9d41daa407d0423"
+      ],
+      [
+        "claim-1ca696390c84e4ec93d0"
+      ],
+      [
+        "claim-fe24e1eb9fcf83ab078a"
+      ],
+      [
+        "claim-c19ef12024d54855d21c"
+      ],
+      [
+        "claim-ed346a807789bf303d22"
+      ],
+      [
+        "c-langgraph-framework"
+      ],
+      [
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      [
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      [
+        "claim-decision-refresh-beca37b98a898d85dca4"
+      ],
+      [
+        "c-autogen-framework"
+      ],
+      [
+        "c-reviewed-grok-build"
+      ],
+      [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-intake-e-traecode"
+      ],
+      [
+        "claim-decision-refresh-4edaf090128d7b4999a9"
+      ],
+      [
+        "c-portfolio-qwen3-deployment-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-boundary-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      [
+        "c-deprecation-e-gpt-5-20260611"
+      ],
+      [
+        "claim-540413843ff545bfc468"
+      ],
+      [
+        "claim-c15027091a3d57922024"
+      ],
+      [
+        "claim-392d91df8b807c7b8444"
+      ],
+      [
+        "c-api-shutdown-gpt4o-20240513-20261023"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-41-nano-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-image-1-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-51-instant-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-52-instant-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-53-instant-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-4o-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-4o-mini-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-41-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-41-mini-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-53-codex-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-54-nano-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-51-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-4o-transcribe-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-realtime-1-20261030"
+      ],
+      [
+        "c-api-lifecycle-e-gpt-image-15-20261030"
+      ],
+      [
+        "c-nano-banana21-ga-20261029"
+      ],
+      [
+        "c-lifecycle-e-gemini-37-flash-20261029"
+      ],
+      [
+        "c-lifecycle-e-gemini-31-flash-image-20261029"
+      ],
+      [
+        "c-gpt-6-astra-catalog-review",
+        "c-gpt-6.1-sol-catalog-review"
+      ],
+      [
+        "c-gpt-6-luna-catalog-review",
+        "c-gpt-6-sol-catalog-review"
+      ],
+      [
+        "c-gemini-3-1-pro-official-specs",
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      [
+        "c-gemini-3-5-flash-lite-official-specs",
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      [
+        "c-deepseek-v4-pro-official-specs",
+        "c-reviewed-grok-4-7"
+      ],
+      [
+        "c-langgraph-framework",
+        "c-openai-agents-sdk-framework"
+      ],
+      [
+        "c-devin-agent",
+        "c-manus-agent"
+      ],
+      [
+        "c-intake-e-workbuddy",
+        "c-reviewed-grok-build"
+      ],
+      [
+        "c-portfolio-qwen3-access-20261104",
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "c-deprecation-e-gpt-5-20260611"
+      ],
+      [
+        "c-portfolio-qwen3-deployment-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-boundary-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-modality-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      [
+        "c-portfolio-qwen3-access-20261104"
+      ],
+      [
+        "c-api-shutdown-gpt4o-20240513-20261023"
+      ],
+      [
+        "c-gpt5-swe"
+      ],
+      [
+        "c-claude-align"
+      ],
+      [
+        "c-gemini-video"
+      ],
+      [
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      [
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      [
+        "claim-decision-refresh-c4c65933a2ec8a359d84"
+      ],
+      [
+        "c-codex-agent"
+      ],
+      [
+        "claim-decision-refresh-4edaf090128d7b4999a9"
+      ],
+      [
+        "c-intake-e-traework"
+      ],
+      [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      [
+        "c-portfolio-comparison-20261104"
+      ],
+      [
+        "c-portfolio-gpt45-20261104"
+      ],
+      [
+        "claim-9126d607ce60c9861365"
+      ],
+      [
+        "claim-8f4fb8e8feb9ae16bfcb"
+      ]
+    ],
+    "retrievalConfiguration": {
+      "retrievalMode": "lexical",
+      "databaseDialect": "postgresql",
+      "embeddingProvider": "none",
+      "embeddingModel": null,
+      "embeddingVersion": null,
+      "embeddingDimension": null
+    },
+    "fingerprintVersion": 2,
+    "retrievalImplementationSha256": "417cb4016d8c4b5d8f614bfd88056c0e648e1500019e88910bbe6b21f67c9603",
+    "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0"
+  }
+}

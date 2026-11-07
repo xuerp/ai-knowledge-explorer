@@ -18,7 +18,7 @@
 | Entity Recall@8 | 检索结果经过既有模型家族扩展后的预期对象覆盖率，再取平均   | 不是严格的具体版本命中率                                                |
 | 标注全命中率    | 找全所有标注事实的题数 / 全部题数                          | 不是答案正确率                                                          |
 
-所有失败题和实际返回 ID 都保留。先运行无模型请求的 lexical 基线，PostgreSQL 结果由 CI 隔离数据库产生。SQLite 仅为便携基线，不能代替 PostgreSQL 的 FTS 路径。当前线上 hybrid 需要同配置的独立测试；不得用 lexical 成绩冒充。
+所有失败题和实际返回 ID 都保留。先运行无模型请求的 lexical 基线，PostgreSQL 结果由 CI 隔离数据库产生。SQLite 仅为便携基线，不能代替 PostgreSQL 的 FTS 路径。当前 hybrid 成绩在隔离 PostgreSQL 中按线上相同检索代码、配置与公开库运行；lexical 成绩单独归档，不能互相替代。
 
 ## 更新与适用范围
 
@@ -38,13 +38,19 @@ python scripts/eval_hybrid_retrieval.py --snapshot docs/eval/snapshots/public_sn
 
 预检为 1295 条按实际索引 ID 去重后的文档（包含事实、时间线和关系）、100 个查询和 1 条未计分接口小样本。文档按长度排序，批次同时受 100 条和补齐后保守 token 上界 48000 限制（低于模型的 60000 上限）；结果恢复原文档顺序。实际输入 token 上界为 730666，连批次补齐开销也计入后为 780800，估算 839.36 Neurons；共 18 个文档批次和 119 次请求。预检与执行共用分批函数，预算按相同补齐上界预留。
 
-手动工作流限制为 119 次、850 Neurons，不自动重试。这比此前授权的 114 次多 5 次，需要新一轮明确授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
+手动工作流限制为 119 次、850 Neurons，不自动重试。这比此前授权的 114 次多 5 次，用户已明确批准本轮 119 次 / 850 Neurons。后续每次仍须获得明确授权后才可启用 Bounded retrieval evaluation 的 allow_embedding_calls；默认关闭。它只写隔离 PostgreSQL，不连接应用数据库。运行前核对实际服务的检索代码与配置；不匹配则在模型调用前停止。
 
 实际报告经 scripts/publish_quality_metrics.py 校验快照哈希、标注存在性、TopK 和逐题汇总后，发布为 backend/data/quality_evaluation.json。原报告留在 backend/data/quality_evaluation_history。新增报告必须保留逐题 JSON、执行提交、时间和配置，不手改汇总成绩。
 
 ## 本轮结果与未完成项
 
-SQLite 与隔离 PostgreSQL 的 100 题基线均为 Recall@8 99%、Precision@8 13.63%、家族扩展 Entity Recall@8 99%、标注全命中率 98%。两道 Gemini 多版本比较题未找全标注，失败明细保留。真实 hybrid 尝试的首个 Cloudflare 请求返回 HTTP 401 后停止，未完成任何题，也没有重试或产生 hybrid 分数。
+2026-11-07 18:19（北京时间）[真实 hybrid 复测](results/v2.0.0_932525db2c4f_postgresql_hybrid_cloudflare_-cf-baai-bge-m3_top8.json)完成全部 100 题；未计分小样本成功，逐题无 hybrid 降级。Recall@8 99.50%、Precision@8 13.75%、家族扩展 Entity Recall@8 99.50%、标注全命中率 99.00%。唯一未全命中的是 `v2-comparison-004`，Gemini 多版本比较仍少一个预期事实；原题、标注和失败结果均保留。20 道留出题的标注全命中率为 100%，不外推到未测问题或生成答案准确率。
+
+实际尝试 119 次请求，按输入及批次补齐的保守上界估算 839.36 Neurons，低于本轮 119 次 / 850 Neurons 授权；这不是供应商核验账单。执行提交为 `90a31121c55f704f2601043607ae11e1560edae4`，[运行 42363239090](https://github.com/xuerp/ai-knowledge-explorer/actions/runs/42363239090)成功。题集哈希、代码指纹、配置和逐题结果完整记录，题集没有为了成绩修改。
+
+当前主报告更新为本次 hybrid，最新尝试状态更新为 completed；同代码的 [PostgreSQL lexical 基线](results/v2.0.0_932525db2c4f_postgresql_lexical_top8_90a3112.json)与旧 80 题报告保留在历史区域。下列为过程中的失败记录。
+
+SQLite 与隔离 PostgreSQL 的 100 题基线均为 Recall@8 99%、Precision@8 13.63%、家族扩展 Entity Recall@8 99%、标注全命中率 98%。两道 Gemini 多版本比较题未找全标注，失败明细保留。首次真实 hybrid 尝试的首个 Cloudflare 请求返回 HTTP 401 后停止，未完成任何题，也没有重试或产生 hybrid 分数。
 
 GitHub 部署令牌能够列出既有账户，但不证明它具有模型推理权限；401 的具体凭据原因尚未确认。Cloudflare 官方说明专用 Workers AI REST 令牌需要 Workers AI Read 和 Edit 权限（https://developers.cloudflare.com/workers-ai/get-started/rest-api/）。随后已按用户授权创建独立的七天评估令牌并加密存入专用 GitHub Secret，没有更改部署令牌。
 

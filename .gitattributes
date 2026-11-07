@@ -6,3 +6,6 @@
 # Evaluation provenance hashes refer to the frozen original bytes on every OS.
 /docs/eval/retrieval_golden_set.v2.jsonl -text whitespace=cr-at-eol
 /docs/eval/snapshots/public_snapshot_2026-11-07.json -text
+/docs/eval/results/v2.0.0_932525db2c4f_postgresql_hybrid_cloudflare_-cf-baai-bge-m3_top8.json -text
+/docs/eval/results/v2.0.0_932525db2c4f_postgresql_lexical_top8_90a3112.json -text
+/docs/eval/results/v2.0.0_932525db2c4f_sqlite_lexical_top8_90a3112.json -text

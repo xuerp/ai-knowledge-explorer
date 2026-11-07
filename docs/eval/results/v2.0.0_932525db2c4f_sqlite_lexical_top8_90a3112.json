@@ -1,0 +1,3259 @@
+{
+  "metadata": {
+    "goldenSetVersion": "2.0.0",
+    "sampleCount": 100,
+    "snapshotPath": "docs/eval/snapshots/public_snapshot_2026-11-07.json",
+    "snapshotSha256": "932525db2c4f14be615b7c819edc50122a57effcbcbd4c49c4ed164c39189b54",
+    "snapshotRetrievedAt": "2026-11-07T06:07:09.502885+00:00",
+    "snapshotCounts": {
+      "entities": 263,
+      "claims": 518,
+      "evidence": 731,
+      "relations": 310,
+      "timeline": 574
+    },
+    "retrievalMode": "lexical",
+    "databaseDialect": "sqlite",
+    "embeddingModel": null,
+    "topK": 8,
+    "evaluationCommit": "90a31121c55f704f2601043607ae11e1560edae4",
+    "fingerprintVersion": 2,
+    "retrievalImplementationSha256": "417cb4016d8c4b5d8f614bfd88056c0e648e1500019e88910bbe6b21f67c9603",
+    "goldenSetSha256": "fe2ac8b8acaa3c51ab8b68af5e969d03047d19d649536a35be3860b56c302ff0",
+    "evaluatedAt": "2026-11-07T09:58:05.051975+00:00"
+  },
+  "metrics": {
+    "overall": {
+      "samples": 100,
+      "recallAtK": 0.99,
+      "precisionAtK": 0.1363,
+      "entityRecallAtK": 0.99,
+      "passRatio": 0.98
+    },
+    "categories": {
+      "entity": {
+        "samples": 30,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.1292,
+        "entityRecallAtK": 1.0,
+        "passRatio": 1.0
+      },
+      "relation": {
+        "samples": 20,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passRatio": 1.0
+      },
+      "timeline": {
+        "samples": 20,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passRatio": 1.0
+      },
+      "comparison": {
+        "samples": 10,
+        "recallAtK": 0.9,
+        "precisionAtK": 0.225,
+        "entityRecallAtK": 0.9,
+        "passRatio": 0.8
+      },
+      "holdout": {
+        "samples": 20,
+        "recallAtK": 1.0,
+        "precisionAtK": 0.125,
+        "entityRecallAtK": 1.0,
+        "passRatio": 1.0
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "v2-entity-001",
+      "category": "entity",
+      "query": "GPT-6 Astra 的定位和输入模态是什么？",
+      "expectedClaimIds": [
+        "c-gpt-6-astra-catalog-review"
+      ],
+      "retrievedClaimIds": [
+        "c-gpt-6-astra-catalog-review",
+        "c-gpt6-astra-official-specs",
+        "c-change-astra-ultrafast",
+        "claim-825b8e7a403a92abe6f3",
+        "rag-timeline:t-gpt-6-astra-catalog-review",
+        "rag-relation:r-gpt6-astra-family",
+        "rag-timeline:t-gpt6-astra-release"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 7,
+        "returnedCount": 7,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-6-astra"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-002",
+      "category": "entity",
+      "query": "Claude Fable 5.1 面向哪些任务？",
+      "expectedClaimIds": [
+        "c-claude-fable-5-1-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-claude-fable-5-1-catalog-review",
+        "c-claude-fable-5-1-official-specs",
+        "rag-relation:r-claude-fable-5-1-family",
+        "rag-timeline:t-claude-fable-5-1-catalog-review",
+        "rag-timeline:t-claude-fable-5-1-release"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-claude-fable-5-1"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-003",
+      "category": "entity",
+      "query": "Gemini 3.8 Flash 的 API ID、输入和输出上限分别是什么？",
+      "expectedClaimIds": [
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-3-8-flash-official-specs",
+        "claim-decision-price-20a33b907c733ebf5470",
+        "decision-commercial-e-gemini-3-8-flash",
+        "claim-decision-refresh-05460b0b41c7594a3bbf",
+        "claim-decision-refresh-8de5c4186cb5bdd51c66",
+        "claim-decision-refresh-b55acef4e49be828e7ff",
+        "claim-decision-refresh-e4a1f3a6dc785b1c076c",
+        "claim-decision-refresh-408d28d0505229780a17"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 5,
+        "matchedEntityIds": [
+          "e-gemini-3-8-flash"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-004",
+      "category": "entity",
+      "query": "Gemini 3.1 Pro Preview 的型号名、输入输出上限和长输入计费边界是什么？",
+      "expectedClaimIds": [
+        "c-gemini-3-1-pro-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-3-1-pro-official-specs",
+        "claim-decision-price-090e401541658e82c6f0",
+        "decision-commercial-e-gemini-3-1-pro",
+        "claim-decision-refresh-27231c16f87e1d89717a",
+        "claim-decision-refresh-363ba2e131a929dab33b",
+        "claim-decision-refresh-95517b54370240abf3f1",
+        "claim-decision-refresh-f2ba2b446e1a63d8a538",
+        "rag-relation:r-gemini-3-1-pro-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 9,
+        "returnedCount": 8,
+        "filteredCount": 1,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-gemini-3-1-pro"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-005",
+      "category": "entity",
+      "query": "DeepSeek V4 Pro 别名对应哪个版本，能接受图片吗？",
+      "expectedClaimIds": [
+        "c-deepseek-v4-pro-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-deepseek-v4-pro-catalog-review",
+        "c-deepseek-v4-pro-official-specs",
+        "c-change-deepseek-pro-service-extended",
+        "c-change-deepseek-responses-effort",
+        "c-deepseek-v4-1-flash-catalog-review",
+        "c-deepseek-v4-flash-catalog-review",
+        "c-history-deepseek-v4-flash-vision-exp",
+        "c-history-deepseek-v4-pro-preview"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 92,
+        "returnedCount": 8,
+        "filteredCount": 84,
+        "elapsedMs": 7,
+        "matchedEntityIds": [
+          "e-deepseek"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-006",
+      "category": "entity",
+      "query": "Qwen3.8 Max 的用途与地域适用范围如何描述？",
+      "expectedClaimIds": [
+        "c-qwen-3-8-max-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-qwen-3-8-max-catalog-review",
+        "c-qwen-3-8-max-official-specs",
+        "rag-timeline:t-qwen-3-8-max-catalog-review",
+        "rag-relation:r-qwen-3-8-max-family",
+        "rag-timeline:t-qwen-3-8-max-0902"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-qwen-3-8-max"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-007",
+      "category": "entity",
+      "query": "Kimi K3 的视觉、编码定位与权重开放情况是什么？",
+      "expectedClaimIds": [
+        "c-kimi-k3-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-kimi-k3-catalog-review",
+        "c-kimi-k3-official-specs",
+        "c-change-kimi-k3-ark-coding",
+        "claim-157ed371093974a0a950",
+        "claim-1fff4d8b52f8aaa663f5",
+        "claim-241ae9b54153529b32f2",
+        "claim-643635a0776812883698",
+        "rag-timeline:t-kimi-k3-release-official"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-kimi-k3"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-008",
+      "category": "entity",
+      "query": "GLM-5.3 的模态、上下文、输出上限和思考开关是什么？",
+      "expectedClaimIds": [
+        "c-intake-e-glm-5-3"
+      ],
+      "retrievedClaimIds": [
+        "c-intake-e-glm-5-3",
+        "rag-relation:r-intake-e-glm-5-3-e-glm",
+        "rag-timeline:t-intake-e-glm-5-3",
+        "rag-timeline:t-reference-glm-5-3"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 4,
+        "returnedCount": 4,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-glm-5-3"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-009",
+      "category": "entity",
+      "query": "腾讯 Hy4 preview 在何时发布，权重和上下文如何说明？",
+      "expectedClaimIds": [
+        "c-intake-e-hy4-preview"
+      ],
+      "retrievedClaimIds": [
+        "c-intake-e-hy4-preview",
+        "rag-relation:r-intake-e-hunyuan-e-tencent",
+        "rag-timeline:t-intake-e-hy4-preview",
+        "rag-relation:r-intake-e-hy4-preview-e-hunyuan",
+        "claim-hunyuan12h-a13b-context",
+        "c-ernie-4-5-catalog-review",
+        "c-ernie-4-5-turbo-128k-catalog-review",
+        "c-ernie-4-5-turbo-vl-catalog-review"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 76,
+        "matchedEntityIds": [
+          "e-hy4-preview",
+          "e-tencent"
+        ],
+        "fallbackReason": "entity-scope-incomplete",
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-010",
+      "category": "entity",
+      "query": "Grok 4.7 模型卡列出的输入输出模态及上下文是多少？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-4-7"
+      ],
+      "retrievedClaimIds": [
+        "c-reviewed-grok-4-7",
+        "rag-relation:r-grok-4-7-family",
+        "rag-timeline:t-grok-4-7-release"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-grok-4-7"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-011",
+      "category": "entity",
+      "query": "Grok 4.7 Fast 是独立模型还是加速接入，有公共 API ID 吗？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      "retrievedClaimIds": [
+        "c-reviewed-grok-4-7-fast",
+        "rag-timeline:t-grok-fast-channel",
+        "rag-relation:r-grok-fast-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-grok-4-7-fast"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-012",
+      "category": "entity",
+      "query": "Grok Build 属于什么产品，包含哪些编码操作？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-build"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-930a0c6946a4919fe2fb",
+        "claim-decision-refresh-dd39d361704dd77ba2dd",
+        "c-reviewed-grok-build",
+        "rag-relation:r-grok-build-developer",
+        "rag-relation:r-grok-build-uses-grok47"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-grok-build"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-013",
+      "category": "entity",
+      "query": "2025 年 5 月 16 日的 Codex 公告如何描述其运行方式，这能覆盖当前所有产品吗？",
+      "expectedClaimIds": [
+        "c-codex-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-codex-agent",
+        "claim-decision-critical-5f95bed01477c104cb41",
+        "claim-decision-refresh-5136e8ea4a40fc717313",
+        "claim-f0903927231c6e160a2f",
+        "rag-relation:r-codex-gpt",
+        "rag-relation:r-codex-openai",
+        "rag-relation:r-mcp-codex",
+        "rag-timeline:t-codex-preview"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 8,
+        "returnedCount": 8,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-codex"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-014",
+      "category": "entity",
+      "query": "Claude Code 官方资料描述了哪些代码操作？",
+      "expectedClaimIds": [
+        "c-claude-code-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-claude-code-agent",
+        "claim-3a87a01a170c5f4836b0",
+        "claim-6d196b6cdacf34a72701",
+        "claim-9c14c64cfeb047b9945a",
+        "claim-bf95758b913ad9491992",
+        "claim-cfd3ed41e15d58e04317",
+        "claim-claude-code-ga-20250522-real-loop",
+        "claim-d4ca81c7c5857a864bf7"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 17,
+        "returnedCount": 8,
+        "filteredCount": 9,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-claude-code"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-015",
+      "category": "entity",
+      "query": "Gemini CLI 的产品类型、开放方式与发布年份是什么？",
+      "expectedClaimIds": [
+        "c-gemini-cli-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-cli-agent",
+        "reviewed36h-claim-96d5e2a63a286408be2a",
+        "claim-decision-refresh-82e8c3da111d1455dcf8",
+        "claim-decision-refresh-1c698bee65a568e70a3a",
+        "claim-decision-refresh-982faa90d35c62e9e892",
+        "rag-timeline:t-gemini-cli-launch",
+        "rag-relation:r-gemini-cli-gemini",
+        "rag-relation:r-gemini-cli-google"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 8,
+        "returnedCount": 8,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-cli"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-016",
+      "category": "entity",
+      "query": "Manus 的官方产品定义涉及哪些任务阶段？",
+      "expectedClaimIds": [
+        "c-manus-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-manus-agent",
+        "rag-relation:r-manus-company",
+        "rag-timeline:t-manus-docs-reviewed",
+        "c-history-ernie-40-turbo",
+        "c-change-image-encoding-fix",
+        "c-codex-agent",
+        "c-gpt-4-5-catalog-review",
+        "c-history-claude-fable-5"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 71,
+        "matchedEntityIds": [
+          "e-manus",
+          "e-manus-company"
+        ],
+        "fallbackReason": "entity-scope-incomplete",
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-017",
+      "category": "entity",
+      "query": "Devin 官方将其定义为何种软件工程工具？",
+      "expectedClaimIds": [
+        "c-devin-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-devin-agent",
+        "claim-6d2fdc4b161f3fc31213",
+        "claim-cf151153ee9a1c923560",
+        "claim-115815a2356b71033b34",
+        "claim-21399fd0bb288259b43b",
+        "claim-2e3535c08c4a7d6a0d07",
+        "claim-3b0237b17a2b6312cda3",
+        "claim-4f549e0771db986106cc"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 19,
+        "returnedCount": 8,
+        "filteredCount": 11,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-devin"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-018",
+      "category": "entity",
+      "query": "LangGraph 是什么层级的框架，面向什么类型的 Agent？",
+      "expectedClaimIds": [
+        "c-langgraph-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-langgraph-framework",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-7c9bff46235a48647b40",
+        "claim-decision-refresh-67a02985eba9f6d4d50b",
+        "claim-decision-refresh-beca37b98a898d85dca4",
+        "claim-decision-refresh-c4c65933a2ec8a359d84"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-019",
+      "category": "entity",
+      "query": "AutoGen 安装文档列出的核心、扩展和执行器组件有哪些？",
+      "expectedClaimIds": [
+        "c-autogen-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-autogen-framework",
+        "claim-9126d607ce60c9861365",
+        "claim-530c0634510d2357246e",
+        "rag-timeline:t-autogen-docs-reviewed",
+        "claim-8f4fb8e8feb9ae16bfcb",
+        "rag-relation:r-autogen-microsoft"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-autogen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-020",
+      "category": "entity",
+      "query": "CrewAI 用哪些构建块组织协作式 Agent？",
+      "expectedClaimIds": [
+        "c-crewai-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-crewai-framework",
+        "rag-relation:r-crewai-company",
+        "c-codex-agent",
+        "c-gemini-cli-agent",
+        "c-manus-agent",
+        "claim-6d2fdc4b161f3fc31213",
+        "c-claude-code-agent",
+        "c-devin-agent"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 113,
+        "matchedEntityIds": [
+          "e-crewai",
+          "e-crewai-company"
+        ],
+        "fallbackReason": "entity-scope-incomplete",
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-021",
+      "category": "entity",
+      "query": "OpenAI Agents SDK 提供哪些工具、交接和追踪构建块？",
+      "expectedClaimIds": [
+        "c-openai-agents-sdk-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-openai-agents-sdk-framework",
+        "rag-timeline:t-openai-agents-sdk-reviewed",
+        "rag-relation:r-mcp-openai-agents-sdk",
+        "rag-relation:r-openai-agents-sdk-gpt",
+        "rag-relation:r-openai-agents-sdk-openai"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-openai-agents-sdk"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-022",
+      "category": "entity",
+      "query": "WorkBuddy 官方将产品定位为何种办公工具，涉及哪些资料处理？",
+      "expectedClaimIds": [
+        "c-intake-e-workbuddy"
+      ],
+      "retrievedClaimIds": [
+        "c-intake-e-workbuddy",
+        "rag-relation:r-intake-e-workbuddy-e-hy4-preview",
+        "rag-relation:r-intake-e-workbuddy-e-tencent"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-workbuddy"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-023",
+      "category": "entity",
+      "query": "截至 2026 年 10 月 29 日，中国版 TRAE 由哪些入口和模式构成？",
+      "expectedClaimIds": [
+        "c-intake-e-traecode"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9",
+        "c-intake-e-traecode",
+        "rag-relation:r-intake-e-traecode-e-mcp"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-traecode"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-024",
+      "category": "entity",
+      "query": "原 TraeWork 概览对升级后的产品和三种旧模式能证明什么？",
+      "expectedClaimIds": [
+        "c-intake-e-traework"
+      ],
+      "retrievedClaimIds": [
+        "c-intake-e-traework"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1,
+        "returnedCount": 1,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-traework"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-025",
+      "category": "entity",
+      "query": "已核验的 Qwen3-235B-A22B 输入与输出模态是什么？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-modality-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-modality-20261104",
+        "c-history-qwen-3-omni",
+        "c-portfolio-qwen3-text-20261104",
+        "c-change-qwen-ptu-long-input-cache",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-history-qwen-25-omni",
+        "c-history-qwen-35-flash",
+        "c-history-qwen-35-plus"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-026",
+      "category": "entity",
+      "query": "Qwen3-235B-A22B 固定修订提供什么下载入口，是否等同于云 API？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-access-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-access-20261104",
+        "c-portfolio-qwen3-license-20261104",
+        "c-change-qwen-compatible-interfaces",
+        "c-change-qwen-model-studio-regions",
+        "claim-135dac3232b4a99c9910",
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-portfolio-qwen3-modality-20261104"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 12,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-027",
+      "category": "entity",
+      "query": "Qwen3-235B-A22B 固定权重使用什么许可证及再分发条件？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-license-20261104",
+        "c-portfolio-qwen3-access-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-history-qwen-25-72b",
+        "c-history-qwen-25-coder-32b",
+        "c-history-qwen-3-235b",
+        "c-history-qwen-3-coder-next",
+        "c-history-qwen-3-next"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-028",
+      "category": "entity",
+      "query": "Anthropic 的公司性质和研究定位如何描述？",
+      "expectedClaimIds": [
+        "claim-0efa60844636c45fd50e",
+        "claim-8c0e3d0fa7225ec563b5"
+      ],
+      "retrievedClaimIds": [
+        "claim-8c0e3d0fa7225ec563b5",
+        "claim-0efa60844636c45fd50e",
+        "claim-0277843b105bdc24d6e0",
+        "claim-436fbc19bd711397dbd6"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 4,
+        "returnedCount": 4,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-anthropic"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-029",
+      "category": "entity",
+      "query": "Cursor 在当前资料中被定位为什么产品？",
+      "expectedClaimIds": [
+        "claim-322ca7c2878eeb2f2df7"
+      ],
+      "retrievedClaimIds": [
+        "claim-322ca7c2878eeb2f2df7",
+        "rag-relation:r-cursor-uses-grok47",
+        "rag-relation:r9"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-cursor"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-entity-030",
+      "category": "entity",
+      "query": "MCP 的底层 RPC 协议是什么？",
+      "expectedClaimIds": [
+        "claim-072ac9d41daa407d0423"
+      ],
+      "retrievedClaimIds": [
+        "claim-072ac9d41daa407d0423",
+        "claim-c15027091a3d57922024",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-540413843ff545bfc468",
+        "claim-c19ef12024d54855d21c",
+        "claim-d653d0d3372e6df94040",
+        "claim-fe24e1eb9fcf83ab078a"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-001",
+      "category": "relation",
+      "query": "MCP Host 与一个或多个 clients 的管理关系是什么？",
+      "expectedClaimIds": [
+        "claim-1ca696390c84e4ec93d0"
+      ],
+      "retrievedClaimIds": [
+        "claim-1ca696390c84e4ec93d0",
+        "claim-c19ef12024d54855d21c",
+        "claim-fe24e1eb9fcf83ab078a",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-540413843ff545bfc468",
+        "claim-c15027091a3d57922024",
+        "claim-d653d0d3372e6df94040"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 56,
+        "returnedCount": 8,
+        "filteredCount": 48,
+        "elapsedMs": 5,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-002",
+      "category": "relation",
+      "query": "MCP Client 与 server 之间由谁维护连接？",
+      "expectedClaimIds": [
+        "claim-fe24e1eb9fcf83ab078a"
+      ],
+      "retrievedClaimIds": [
+        "claim-fe24e1eb9fcf83ab078a",
+        "claim-540413843ff545bfc468",
+        "claim-c19ef12024d54855d21c",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-c15027091a3d57922024",
+        "claim-d653d0d3372e6df94040"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-003",
+      "category": "relation",
+      "query": "MCP Server 向 clients 提供什么？",
+      "expectedClaimIds": [
+        "claim-c19ef12024d54855d21c"
+      ],
+      "retrievedClaimIds": [
+        "claim-c19ef12024d54855d21c",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-fe24e1eb9fcf83ab078a",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-540413843ff545bfc468",
+        "claim-c15027091a3d57922024",
+        "claim-d653d0d3372e6df94040"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-004",
+      "category": "relation",
+      "query": "LangChain agents 与 LangGraph 的构建关系是什么？",
+      "expectedClaimIds": [
+        "claim-ed346a807789bf303d22"
+      ],
+      "retrievedClaimIds": [
+        "claim-ed346a807789bf303d22",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-392d91df8b807c7b8444",
+        "rag-relation:edge-reviewed-4a4d923f6426a4bb",
+        "rag-relation:r-langgraph-langchain"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 16,
+        "returnedCount": 8,
+        "filteredCount": 8,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langchain",
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-005",
+      "category": "relation",
+      "query": "使用 LangGraph 是否必须同时使用 LangChain？",
+      "expectedClaimIds": [
+        "c-langgraph-framework"
+      ],
+      "retrievedClaimIds": [
+        "claim-ed346a807789bf303d22",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-392d91df8b807c7b8444",
+        "claim-7c9bff46235a48647b40",
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 16,
+        "returnedCount": 8,
+        "filteredCount": 8,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langchain",
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-006",
+      "category": "relation",
+      "query": "LangGraph 线程状态持久化依赖什么组件和后端？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-fa140559a4cf110c8798",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-c4c65933a2ec8a359d84",
+        "claim-7c9bff46235a48647b40",
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-007",
+      "category": "relation",
+      "query": "LangGraph interrupt 恢复流程需要怎样配合 checkpointer 和 thread_id？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      "retrievedClaimIds": [
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-67a02985eba9f6d4d50b",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-decision-refresh-c4c65933a2ec8a359d84",
+        "claim-decision-refresh-fa140559a4cf110c8798",
+        "claim-7c9bff46235a48647b40"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-008",
+      "category": "relation",
+      "query": "LangGraph 暂停工具执行供人审批时，权限和工具集由谁配置？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-beca37b98a898d85dca4"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-beca37b98a898d85dca4",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-67a02985eba9f6d4d50b",
+        "claim-decision-refresh-fa140559a4cf110c8798",
+        "claim-7c9bff46235a48647b40"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-009",
+      "category": "relation",
+      "query": "AutoGen 核心运行时与可选 Docker 代码执行器是什么关系？",
+      "expectedClaimIds": [
+        "c-autogen-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-autogen-framework",
+        "claim-530c0634510d2357246e",
+        "claim-19b574860a7ac666b7e3",
+        "rag-timeline:t-autogen-docs-reviewed",
+        "claim-8f4fb8e8feb9ae16bfcb",
+        "claim-9126d607ce60c9861365",
+        "rag-relation:r-autogen-microsoft"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 7,
+        "returnedCount": 7,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-autogen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-010",
+      "category": "relation",
+      "query": "Grok Build 与 MCP、终端编码工具的关系是什么？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-build"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-930a0c6946a4919fe2fb",
+        "claim-072ac9d41daa407d0423",
+        "claim-decision-refresh-dd39d361704dd77ba2dd",
+        "c-reviewed-grok-build",
+        "c-openai-agents-sdk-framework",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-540413843ff545bfc468"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 64,
+        "returnedCount": 8,
+        "filteredCount": 56,
+        "elapsedMs": 5,
+        "matchedEntityIds": [
+          "e-grok-build",
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-011",
+      "category": "relation",
+      "query": "Grok 4.7 Fast 可通过哪些应用使用，是否有公共 API？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      "retrievedClaimIds": [
+        "c-reviewed-grok-4-7-fast",
+        "rag-timeline:t-grok-fast-channel",
+        "rag-relation:r-grok-fast-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-grok-4-7-fast"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-012",
+      "category": "relation",
+      "query": "中国版 TRAE 对 TraeCode、TraeWork 和跨端接续是什么整合关系？",
+      "expectedClaimIds": [
+        "c-intake-e-traecode"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9",
+        "c-intake-e-traework",
+        "c-intake-e-traecode",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-540413843ff545bfc468",
+        "claim-c15027091a3d57922024"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 14,
+        "returnedCount": 8,
+        "filteredCount": 6,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-traecode",
+          "e-traework"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-013",
+      "category": "relation",
+      "query": "2026 年 6 月国际站中的 TRAE IDE 与 TRAE Work 是如何区分的？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9",
+        "c-intake-e-traecode",
+        "rag-relation:r-intake-e-traecode-e-mcp"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-traecode"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-014",
+      "category": "relation",
+      "query": "Qwen3-235B-A22B 与 Transformers、SGLang、vLLM 的部署关系是什么？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-deployment-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-portfolio-qwen3-modality-20261104",
+        "c-portfolio-qwen3-text-20261104",
+        "c-portfolio-qwen3-access-20261104",
+        "c-change-qwen-compatible-interfaces",
+        "c-change-qwen-model-studio-regions",
+        "c-change-qwen-ptu-long-input-cache"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 142,
+        "returnedCount": 8,
+        "filteredCount": 134,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-015",
+      "category": "relation",
+      "query": "Qwen3 本地运行时嵌入、检索、日志和监控需如何一起受控？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-boundary-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-text-20261104",
+        "c-history-qwen-3-coder-next",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-qwen-3-coder-plus-catalog-review",
+        "c-qwen-3-max-catalog-review",
+        "claim-34e6cc0b74ae79994342",
+        "c-change-qwen-model-studio-regions"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 12,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-016",
+      "category": "relation",
+      "query": "Qwen3 权重的 Apache 2.0 授权与第三方服务、业务文档授权有什么边界？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-license-20261104",
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-change-qwen-model-studio-regions",
+        "c-history-qwen-25-72b",
+        "c-history-qwen-3-235b",
+        "c-history-qwen-3-coder-next",
+        "c-history-qwen-3-next"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-017",
+      "category": "relation",
+      "query": "GPT-5 官方弃用表推荐迁移到哪个型号？",
+      "expectedClaimIds": [
+        "c-deprecation-e-gpt-5-20260611"
+      ],
+      "retrievedClaimIds": [
+        "c-deprecation-e-gpt-5-20260611",
+        "c-gpt-5-catalog-review",
+        "c-gpt5-swe",
+        "claim-49987dea6ebb627ef301",
+        "rag-timeline:t-deprecation-e-gpt-5-20260611",
+        "c-portfolio-comparison-20261104",
+        "claim-047c316a3f865b4a4196",
+        "claim-27489b7a4396cd5c0217"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 24,
+        "returnedCount": 8,
+        "filteredCount": 16,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-gpt-5"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-018",
+      "category": "relation",
+      "query": "MCP tunnels 研究预览与私有网络中的 MCP servers 是什么接入关系？",
+      "expectedClaimIds": [
+        "claim-540413843ff545bfc468"
+      ],
+      "retrievedClaimIds": [
+        "claim-540413843ff545bfc468",
+        "claim-bf95758b913ad9491992",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-8c0e3d0fa7225ec563b5",
+        "claim-c15027091a3d57922024",
+        "claim-c19ef12024d54855d21c"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 56,
+        "returnedCount": 8,
+        "filteredCount": 48,
+        "elapsedMs": 5,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-019",
+      "category": "relation",
+      "query": "MCP 协议主要关注哪一种交换范围？",
+      "expectedClaimIds": [
+        "claim-c15027091a3d57922024"
+      ],
+      "retrievedClaimIds": [
+        "claim-c15027091a3d57922024",
+        "claim-072ac9d41daa407d0423",
+        "claim-09cf906ce067f509db88",
+        "claim-1ca696390c84e4ec93d0",
+        "claim-540413843ff545bfc468",
+        "claim-c19ef12024d54855d21c",
+        "claim-d653d0d3372e6df94040",
+        "claim-fe24e1eb9fcf83ab078a"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-mcp"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-relation-020",
+      "category": "relation",
+      "query": "LangChain 与 create_agent 的提供关系是什么？",
+      "expectedClaimIds": [
+        "claim-392d91df8b807c7b8444"
+      ],
+      "retrievedClaimIds": [
+        "claim-392d91df8b807c7b8444",
+        "claim-ed346a807789bf303d22",
+        "rag-relation:edge-reviewed-4a4d923f6426a4bb",
+        "rag-relation:r11",
+        "rag-relation:r12"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 5,
+        "matchedEntityIds": [
+          "e-langchain"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-001",
+      "category": "timeline",
+      "query": "GPT-4o 的 2024-05-13 API 快照何时下线，能否把该日期用于其他快照？",
+      "expectedClaimIds": [
+        "c-api-shutdown-gpt4o-20240513-20261023"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-shutdown-gpt4o-20240513-20261023",
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-20261030",
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "claim-ba9f2c19e44a154bb9b1",
+        "rag-timeline:t-gpt-4o",
+        "claim-74d421ba1cd4766d79c8",
+        "c-gpt-4o-catalog-review"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 9,
+        "returnedCount": 8,
+        "filteredCount": 1,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-gpt-4o"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-002",
+      "category": "timeline",
+      "query": "具名 API gpt-4.1-nano 的下线日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-41-nano-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-41-nano-20261030",
+        "c-api-lifecycle-e-gpt-41-nano-20261030",
+        "rag-timeline:t-history-gpt-41-nano",
+        "c-history-gpt-41-nano",
+        "rag-relation:r-history-gpt-41-nano-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-41-nano"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-003",
+      "category": "timeline",
+      "query": "具名 API gpt-image-1 在何时下线？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-image-1-20261030"
+      ],
+      "retrievedClaimIds": [
+        "c-api-lifecycle-e-gpt-image-1-20261030",
+        "c-history-gpt-image-1",
+        "rag-timeline:t-api-lifecycle-e-gpt-image-1-20261030",
+        "rag-relation:r-history-gpt-image-1-family",
+        "rag-timeline:t-history-gpt-image-1"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-image-1"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-004",
+      "category": "timeline",
+      "query": "gpt-5.1-chat-latest 的停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-51-instant-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-history-gpt-51-instant",
+        "c-history-gpt-51-instant",
+        "rag-timeline:t-api-lifecycle-e-gpt-51-instant-20261030",
+        "c-api-lifecycle-e-gpt-51-instant-20261030",
+        "rag-relation:r-history-gpt-51-instant-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-51-instant"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-005",
+      "category": "timeline",
+      "query": "gpt-5.2-chat-latest 的停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-52-instant-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-52-instant-20261030",
+        "rag-timeline:t-history-gpt-52-instant",
+        "c-api-lifecycle-e-gpt-52-instant-20261030",
+        "c-history-gpt-52-instant",
+        "rag-relation:r-history-gpt-52-instant-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-gpt-52-instant"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-006",
+      "category": "timeline",
+      "query": "gpt-5.3-chat-latest 的停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-53-instant-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-53-instant-20261030",
+        "rag-timeline:t-history-gpt-53-instant",
+        "c-api-lifecycle-e-gpt-53-instant-20261030",
+        "c-history-gpt-53-instant",
+        "rag-relation:r-history-gpt-53-instant-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-gpt-53-instant"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-007",
+      "category": "timeline",
+      "query": "GPT-4o 的 2024-08-06 与 2024-11-20 快照何时宣布弃用、计划何时停服？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-20261030"
+      ],
+      "retrievedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "c-gpt-4o-catalog-review",
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-20261030",
+        "claim-ba9f2c19e44a154bb9b1",
+        "claim-74d421ba1cd4766d79c8",
+        "rag-timeline:t-api-shutdown-gpt4o-20240513-20261023",
+        "rag-timeline:t-gpt-4o"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 9,
+        "returnedCount": 8,
+        "filteredCount": 1,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-4o"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-008",
+      "category": "timeline",
+      "query": "gpt-4o-mini 何时宣布弃用，计划关闭日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-mini-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-mini-20261030",
+        "c-api-lifecycle-e-gpt-4o-mini-20261030",
+        "claim-66816b09583b88a55c42",
+        "rag-timeline:t-history-gpt-4o-mini",
+        "c-history-gpt-4o-mini",
+        "rag-relation:r-history-gpt-4o-mini-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-4o-mini"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-009",
+      "category": "timeline",
+      "query": "具名 API gpt-4.1 的弃用公告与计划停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-41-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-41-20261030",
+        "c-api-lifecycle-e-gpt-41-20261030",
+        "claim-4947b402f22cf31ab16d",
+        "rag-timeline:t-history-gpt-41",
+        "c-history-gpt-41",
+        "rag-relation:r-history-gpt-41-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-41"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-010",
+      "category": "timeline",
+      "query": "具名 API gpt-4.1-mini 的弃用公告与计划停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-41-mini-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-41-mini-20261030",
+        "c-api-lifecycle-e-gpt-41-mini-20261030",
+        "claim-5e92d67338a7b088eb43",
+        "rag-timeline:t-history-gpt-41-mini",
+        "c-history-gpt-41-mini",
+        "rag-relation:r-history-gpt-41-mini-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-41-mini"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-011",
+      "category": "timeline",
+      "query": "gpt-5.3-codex 何时宣布弃用，计划何时停止服务？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-53-codex-20261030"
+      ],
+      "retrievedClaimIds": [
+        "c-api-lifecycle-e-gpt-53-codex-20261030",
+        "claim-6ccf70b900fab987d990",
+        "c-history-gpt-53-codex",
+        "claim-28fcfd19ccddc7866cb1",
+        "rag-timeline:t-api-lifecycle-e-gpt-53-codex-20261030",
+        "rag-relation:r-history-gpt-53-codex-family",
+        "rag-timeline:t-history-gpt-53-codex"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 7,
+        "returnedCount": 7,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-53-codex"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-012",
+      "category": "timeline",
+      "query": "gpt-5.4-nano 的 API 生命周期公告列出哪些日期？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-54-nano-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-54-nano-20261030",
+        "c-api-lifecycle-e-gpt-54-nano-20261030",
+        "rag-timeline:t-history-gpt-54-nano",
+        "c-history-gpt-54-nano",
+        "rag-relation:r-history-gpt-54-nano-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-54-nano"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-013",
+      "category": "timeline",
+      "query": "gpt-5.1 API 的弃用和计划下线日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-51-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-51-20261030",
+        "rag-timeline:t-history-gpt-51",
+        "c-api-lifecycle-e-gpt-51-20261030",
+        "c-history-gpt-51",
+        "rag-relation:r-history-gpt-51-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-51"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-014",
+      "category": "timeline",
+      "query": "gpt-4o-mini-tts 的弃用公告和计划停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030",
+        "rag-timeline:t-gpt-4o-mini-tts-catalog-review",
+        "c-gpt-4o-mini-tts-catalog-review",
+        "rag-relation:r-gpt-4o-mini-tts-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-4o-mini-tts"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-015",
+      "category": "timeline",
+      "query": "gpt-4o-transcribe 何时宣布弃用，计划何时停服？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-transcribe-20261030"
+      ],
+      "retrievedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-transcribe-20261030",
+        "claim-86ea22da4205a423d56f",
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-transcribe-20261030",
+        "c-history-gpt-4o-transcribe",
+        "rag-relation:r-history-gpt-4o-transcribe-family",
+        "rag-timeline:t-history-gpt-4o-transcribe"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-4o-transcribe"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-016",
+      "category": "timeline",
+      "query": "gpt-realtime API 的弃用与计划停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-realtime-1-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-realtime-1-20261030",
+        "c-api-lifecycle-e-gpt-realtime-1-20261030",
+        "rag-timeline:t-history-gpt-realtime-1",
+        "c-history-gpt-realtime-1",
+        "rag-relation:r-history-gpt-realtime-1-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-gpt-realtime-1"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-017",
+      "category": "timeline",
+      "query": "gpt-image-1.5 的弃用公告与计划停服日期是什么？",
+      "expectedClaimIds": [
+        "c-api-lifecycle-e-gpt-image-15-20261030"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-lifecycle-e-gpt-image-15-20261030",
+        "c-api-lifecycle-e-gpt-image-15-20261030",
+        "rag-timeline:t-history-gpt-image-15",
+        "c-history-gpt-image-15",
+        "rag-relation:r-history-gpt-image-15-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 5,
+        "returnedCount": 5,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-image-15"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-018",
+      "category": "timeline",
+      "query": "Gemini Nano Banana 2.1 何时正式发布，API 标识和用途是什么？",
+      "expectedClaimIds": [
+        "c-nano-banana21-ga-20261029"
+      ],
+      "retrievedClaimIds": [
+        "c-nano-banana21-ga-20261029",
+        "rag-timeline:t-nano-banana21-ga-20261006",
+        "c-nano-banana21-specs-20261029",
+        "rag-relation:r-family-nano-banana21"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 4,
+        "returnedCount": 4,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-nano-banana-21"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-019",
+      "category": "timeline",
+      "query": "Gemini 3.7 Flash 旧 API 名称将路由到哪个型号？",
+      "expectedClaimIds": [
+        "c-lifecycle-e-gemini-37-flash-20261029"
+      ],
+      "retrievedClaimIds": [
+        "c-lifecycle-e-gemini-37-flash-20261029",
+        "rag-timeline:t-lifecycle-e-gemini-37-flash-20261029",
+        "rag-relation:r-gemini-3-7-flash-family",
+        "rag-timeline:t-gemini-3-7-flash-release"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 4,
+        "returnedCount": 4,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-37-flash"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-timeline-020",
+      "category": "timeline",
+      "query": "Gemini 3.1 Flash Image 的弃用迁移目标和关闭日期是否已公布？",
+      "expectedClaimIds": [
+        "c-lifecycle-e-gemini-31-flash-image-20261029"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-lifecycle-e-gemini-31-flash-image-20261029",
+        "c-lifecycle-e-gemini-31-flash-image-20261029",
+        "rag-timeline:t-lifecycle-e-gemini-35-flash-20261029",
+        "rag-timeline:t-lifecycle-e-gemini-37-flash-20261029",
+        "rag-timeline:t-family-release-gemini-31-flash-image",
+        "rag-timeline:t-gemini-3-1-flash-lite-deprecated",
+        "c-gemini-3-1-pro-official-specs",
+        "rag-timeline:t-family-history-gemini-31-image-preview"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 229,
+        "returnedCount": 8,
+        "filteredCount": 221,
+        "elapsedMs": 14,
+        "matchedEntityIds": [
+          "e-gemini"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-001",
+      "category": "comparison",
+      "query": "GPT-6 Astra 与 GPT-6.1 Sol 的官方用途定位有什么区别？",
+      "expectedClaimIds": [
+        "c-gpt-6-astra-catalog-review",
+        "c-gpt-6.1-sol-catalog-review"
+      ],
+      "retrievedClaimIds": [
+        "c-gpt-6-astra-catalog-review",
+        "c-gpt-6-1-sol-catalog-review",
+        "c-change-astra-ultrafast",
+        "c-gpt-6.1-sol-catalog-review",
+        "c-gpt6-astra-official-specs",
+        "claim-825b8e7a403a92abe6f3",
+        "claim-decision-critical-ddc2ad5233ddc684adce",
+        "claim-decision-refresh-4f211f3638802d6e0ae3"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 18,
+        "returnedCount": 8,
+        "filteredCount": 10,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-6-astra",
+          "e-gpt-61-sol"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-002",
+      "category": "comparison",
+      "query": "GPT-6 Luna 与 GPT-6 Sol 的成本和任务定位有什么区别？",
+      "expectedClaimIds": [
+        "c-gpt-6-luna-catalog-review",
+        "c-gpt-6-sol-catalog-review"
+      ],
+      "retrievedClaimIds": [
+        "c-gpt-6-luna-catalog-review",
+        "c-gpt-6-sol-catalog-review",
+        "rag-timeline:t-gpt-6-luna-catalog-review",
+        "rag-timeline:t-gpt-6-sol-catalog-review",
+        "rag-relation:r-gpt-6-luna-family",
+        "rag-relation:r-gpt-6-sol-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-6-luna",
+          "e-gpt-6-sol"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-003",
+      "category": "comparison",
+      "query": "Gemini 3.1 Pro Preview 和 3.8 Flash 的 API ID、正式状态及输入输出上限如何分别记录？",
+      "expectedClaimIds": [
+        "c-gemini-3-1-pro-official-specs",
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-3-1-pro-official-specs",
+        "claim-decision-price-090e401541658e82c6f0",
+        "decision-commercial-e-gemini-3-1-pro",
+        "claim-decision-refresh-27231c16f87e1d89717a",
+        "claim-decision-refresh-363ba2e131a929dab33b",
+        "claim-decision-refresh-95517b54370240abf3f1",
+        "claim-decision-refresh-f2ba2b446e1a63d8a538",
+        "rag-relation:r-gemini-3-1-pro-family"
+      ],
+      "claimRecallAtK": 0.5,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 0.5,
+      "passed": false,
+      "diagnostics": {
+        "candidateCount": 9,
+        "returnedCount": 8,
+        "filteredCount": 1,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-3-1-pro"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-004",
+      "category": "comparison",
+      "query": "Gemini 3.8 Flash 与 3.5 Flash-Lite 的产品线定位及 token 上限如何记录？",
+      "expectedClaimIds": [
+        "c-gemini-3-5-flash-lite-official-specs",
+        "c-gemini-3-8-flash-official-specs"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-3-8-flash-official-specs",
+        "claim-decision-price-20a33b907c733ebf5470",
+        "decision-commercial-e-gemini-3-8-flash",
+        "claim-decision-refresh-05460b0b41c7594a3bbf",
+        "claim-decision-refresh-408d28d0505229780a17",
+        "claim-decision-refresh-8de5c4186cb5bdd51c66",
+        "claim-decision-refresh-b55acef4e49be828e7ff",
+        "claim-decision-refresh-e4a1f3a6dc785b1c076c"
+      ],
+      "claimRecallAtK": 0.5,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 0.5,
+      "passed": false,
+      "diagnostics": {
+        "candidateCount": 10,
+        "returnedCount": 8,
+        "filteredCount": 2,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-3-8-flash"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-005",
+      "category": "comparison",
+      "query": "DeepSeek V4 Pro 与 Grok 4.7 的视觉输入支持有什么区别？",
+      "expectedClaimIds": [
+        "c-deepseek-v4-pro-official-specs",
+        "c-reviewed-grok-4-7"
+      ],
+      "retrievedClaimIds": [
+        "c-deepseek-v4-pro-catalog-review",
+        "c-deepseek-v4-pro-official-specs",
+        "c-reviewed-grok-4-7",
+        "c-change-deepseek-responses-effort",
+        "c-deepseek-v4-1-flash-catalog-review",
+        "c-history-deepseek-v4-flash-vision-exp",
+        "c-change-deepseek-pro-service-extended",
+        "c-deepseek-v4-flash-catalog-review"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 95,
+        "returnedCount": 8,
+        "filteredCount": 87,
+        "elapsedMs": 7,
+        "matchedEntityIds": [
+          "e-deepseek",
+          "e-grok-4-7"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-006",
+      "category": "comparison",
+      "query": "OpenAI Agents SDK 与 LangGraph 各自提供什么开发构建块？",
+      "expectedClaimIds": [
+        "c-langgraph-framework",
+        "c-openai-agents-sdk-framework"
+      ],
+      "retrievedClaimIds": [
+        "c-langgraph-framework",
+        "c-openai-agents-sdk-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "rag-relation:r-mcp-openai-agents-sdk",
+        "rag-relation:r-openai-agents-sdk-gpt",
+        "rag-relation:r-openai-agents-sdk-openai"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 16,
+        "returnedCount": 8,
+        "filteredCount": 8,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-langgraph",
+          "e-openai-agents-sdk"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-007",
+      "category": "comparison",
+      "query": "Manus 与 Devin 官方描述的任务范围各是什么？",
+      "expectedClaimIds": [
+        "c-devin-agent",
+        "c-manus-agent"
+      ],
+      "retrievedClaimIds": [
+        "claim-cf151153ee9a1c923560",
+        "c-manus-agent",
+        "rag-relation:r-manus-company",
+        "c-devin-agent",
+        "claim-115815a2356b71033b34",
+        "claim-21399fd0bb288259b43b",
+        "claim-2e3535c08c4a7d6a0d07",
+        "claim-3b0237b17a2b6312cda3"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 83,
+        "matchedEntityIds": [
+          "e-devin",
+          "e-manus",
+          "e-manus-company"
+        ],
+        "fallbackReason": "entity-scope-incomplete",
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-008",
+      "category": "comparison",
+      "query": "WorkBuddy 与 Grok Build 分别面向办公还是终端编程，已有何种依据？",
+      "expectedClaimIds": [
+        "c-intake-e-workbuddy",
+        "c-reviewed-grok-build"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-dd39d361704dd77ba2dd",
+        "c-intake-e-workbuddy",
+        "claim-decision-refresh-930a0c6946a4919fe2fb",
+        "c-reviewed-grok-build",
+        "rag-relation:r-intake-e-workbuddy-e-hy4-preview",
+        "rag-relation:r-grok-build-developer",
+        "rag-relation:r-grok-build-uses-grok47",
+        "rag-relation:r-intake-e-workbuddy-e-tencent"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 8,
+        "returnedCount": 8,
+        "filteredCount": 0,
+        "elapsedMs": 3,
+        "matchedEntityIds": [
+          "e-grok-build",
+          "e-workbuddy"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-009",
+      "category": "comparison",
+      "query": "Qwen3-235B-A22B 自部署入口与 Grok 4.7 Fast 的应用接入有什么区别？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-access-20261104",
+        "c-reviewed-grok-4-7-fast"
+      ],
+      "retrievedClaimIds": [
+        "c-reviewed-grok-4-7-fast",
+        "c-portfolio-qwen3-access-20261104",
+        "c-history-qwen-35-flash",
+        "c-change-qwen-model-studio-regions",
+        "c-history-qwen-35-plus",
+        "c-history-qwen-36-max-preview",
+        "c-history-qwen-36-plus",
+        "c-portfolio-qwen3-text-20261104"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 134,
+        "returnedCount": 8,
+        "filteredCount": 126,
+        "elapsedMs": 14,
+        "matchedEntityIds": [
+          "e-grok-4-7-fast",
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-comparison-010",
+      "category": "comparison",
+      "query": "GPT-5 计划退役与 GPT-4o 2024-05-13 API 已下线，状态和日期有什么区别？",
+      "expectedClaimIds": [
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "c-deprecation-e-gpt-5-20260611"
+      ],
+      "retrievedClaimIds": [
+        "rag-timeline:t-api-shutdown-gpt4o-20240513-20261023",
+        "rag-timeline:t-deprecation-e-gpt-5-20260611",
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-20261030",
+        "rag-timeline:t-gpt-4o",
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "c-deprecation-e-gpt-5-20260611",
+        "c-gpt-5-catalog-review"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.25,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 33,
+        "returnedCount": 8,
+        "filteredCount": 25,
+        "elapsedMs": 4,
+        "matchedEntityIds": [
+          "e-gpt-4o",
+          "e-gpt-5"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-001",
+      "category": "holdout",
+      "query": "准备用一台服务器部署 Qwen3-235B-A22B，能按激活 22B 参数直接估算全部权重内存吗？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-deployment-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-access-20261104",
+        "c-portfolio-qwen3-license-20261104",
+        "c-portfolio-qwen3-modality-20261104",
+        "c-change-qwen-model-studio-regions",
+        "c-change-qwen-ptu-long-input-cache",
+        "c-portfolio-qwen3-text-20261104"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-002",
+      "category": "holdout",
+      "query": "公司要求业务文件不出机房，Qwen3 的本地配置之外还要核对哪些数据链路？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-boundary-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-text-20261104",
+        "c-portfolio-qwen3-license-20261104",
+        "c-history-qwen-3-coder-next",
+        "c-portfolio-qwen3-access-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-qwen-3-max-catalog-review",
+        "claim-34e6cc0b74ae79994342"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 11,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-003",
+      "category": "holdout",
+      "query": "已有 Qwen3 文本生成示例，可以据此认定它能直接读扫描 PDF 和图片吗？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-modality-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-modality-20261104",
+        "c-qwen-3-coder-plus-catalog-review",
+        "c-qwen-3-max-catalog-review",
+        "c-history-qwen-35-flash",
+        "c-history-qwen-35-plus",
+        "c-history-qwen-36-max-preview",
+        "c-history-qwen-36-plus",
+        "c-portfolio-qwen3-text-20261104"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 13,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-004",
+      "category": "holdout",
+      "query": "拿到 Qwen3 的 Apache 2.0 权重许可，是否也取得了商标、第三方服务及业务文档授权？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-license-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-license-20261104",
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-change-qwen-model-studio-regions",
+        "c-history-qwen-3-235b",
+        "c-history-qwen-3-coder-next",
+        "c-history-qwen-3-next",
+        "c-history-qwen-3-omni"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 12,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-005",
+      "category": "holdout",
+      "query": "能下载 Qwen3-235B-A22B 固定修订，是否就证明当前有对应云 API？",
+      "expectedClaimIds": [
+        "c-portfolio-qwen3-access-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-portfolio-qwen3-access-20261104",
+        "c-portfolio-qwen3-license-20261104",
+        "c-qwen-3-8-27b-catalog-review",
+        "c-history-qwen-36-plus",
+        "c-portfolio-qwen3-boundary-20261104",
+        "c-portfolio-qwen3-deployment-20261104",
+        "c-portfolio-qwen3-modality-20261104",
+        "c-portfolio-qwen3-text-20261104"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 131,
+        "returnedCount": 8,
+        "filteredCount": 123,
+        "elapsedMs": 12,
+        "matchedEntityIds": [
+          "e-qwen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-006",
+      "category": "holdout",
+      "query": "看到 GPT-4o 在 2026-10-23 的下线记录，是否应认定 2024 年所有快照都在这天停服？",
+      "expectedClaimIds": [
+        "c-api-shutdown-gpt4o-20240513-20261023"
+      ],
+      "retrievedClaimIds": [
+        "c-api-shutdown-gpt4o-20240513-20261023",
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "claim-74d421ba1cd4766d79c8",
+        "claim-ba9f2c19e44a154bb9b1",
+        "c-gpt-4o-catalog-review",
+        "rag-timeline:t-api-shutdown-gpt4o-20240513-20261023",
+        "rag-timeline:t-gpt-4o",
+        "rag-timeline:t-api-lifecycle-e-gpt-4o-20261030"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 9,
+        "returnedCount": 8,
+        "filteredCount": 1,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gpt-4o"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-007",
+      "category": "holdout",
+      "query": "旧演示里 GPT-5 的 SWE-bench 数字还能沿用吗，当前记录实际核验了什么？",
+      "expectedClaimIds": [
+        "c-gpt5-swe"
+      ],
+      "retrievedClaimIds": [
+        "c-gpt5-swe",
+        "rag-relation:r22",
+        "c-portfolio-comparison-20261104",
+        "claim-047c316a3f865b4a4196",
+        "claim-27489b7a4396cd5c0217",
+        "claim-4a1ebb8f3f92395d3da1",
+        "claim-56e49e9c2eb067356427",
+        "claim-59bed5964254cce42b30"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 79,
+        "matchedEntityIds": [
+          "e-gpt-5",
+          "e-swebench"
+        ],
+        "fallbackReason": "entity-scope-incomplete",
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-008",
+      "category": "holdout",
+      "query": "Sonnet 4.5 的旧演示误拒率数字与当前生命周期资料分别能证明什么？",
+      "expectedClaimIds": [
+        "c-claude-align"
+      ],
+      "retrievedClaimIds": [
+        "c-claude-align",
+        "c-portfolio-comparison-20261104",
+        "claim-f07d56331cb21f101062",
+        "c-change-claude-old-context-beta-retired",
+        "c-change-sonnet45-retirement-notice",
+        "c-claude-3-5-sonnet-catalog-review",
+        "c-claude-4-5-sonnet-catalog-review",
+        "c-claude-4-sonnet-catalog-review"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1295,
+        "returnedCount": 8,
+        "filteredCount": 1287,
+        "elapsedMs": 76,
+        "matchedEntityIds": [],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-009",
+      "category": "holdout",
+      "query": "Gemini 2.5 Pro 单次能传 10 个视频，就一定能处理固定两小时视频吗？",
+      "expectedClaimIds": [
+        "c-gemini-video"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-video",
+        "rag-timeline:t-gemini-25-pro",
+        "rag-relation:r32",
+        "rag-relation:r33",
+        "rag-relation:r34",
+        "rag-timeline:t-release-history-gemini-25-pro"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-gemini-25-pro"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-010",
+      "category": "holdout",
+      "query": "想用 LangGraph 给工具执行加人工审批，仅调用 interrupt 就能保证流程不会被绕过吗？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      "retrievedClaimIds": [
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-67a02985eba9f6d4d50b",
+        "claim-decision-refresh-beca37b98a898d85dca4",
+        "claim-7c9bff46235a48647b40",
+        "claim-decision-refresh-c4c65933a2ec8a359d84"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-011",
+      "category": "holdout",
+      "query": "LangGraph 用内存 saver 保存状态，进程重启后还能默认保留吗？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-fa140559a4cf110c8798",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-c4c65933a2ec8a359d84",
+        "claim-7c9bff46235a48647b40",
+        "claim-decision-refresh-67a02985eba9f6d4d50b"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-012",
+      "category": "holdout",
+      "query": "LangGraph 从错误状态恢复时，节点重跑的副作用和幂等性是否仍需核验？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-c4c65933a2ec8a359d84"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-c4c65933a2ec8a359d84",
+        "c-langgraph-framework",
+        "claim-1fb51657cd6a70a756b2",
+        "claim-ce370b2ecd6f183c8442",
+        "claim-d0399fe7ffaa0e10ba11",
+        "claim-decision-refresh-67a02985eba9f6d4d50b",
+        "claim-decision-refresh-beca37b98a898d85dca4",
+        "claim-decision-refresh-fa140559a4cf110c8798"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 11,
+        "returnedCount": 8,
+        "filteredCount": 3,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-langgraph"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-013",
+      "category": "holdout",
+      "query": "旧 Codex 发布公告提到云端隔离环境，这能证明今天所有 Codex 产品都只能云端运行吗？",
+      "expectedClaimIds": [
+        "c-codex-agent"
+      ],
+      "retrievedClaimIds": [
+        "c-codex-agent",
+        "claim-decision-critical-5f95bed01477c104cb41",
+        "claim-decision-refresh-5136e8ea4a40fc717313",
+        "claim-f0903927231c6e160a2f",
+        "rag-timeline:t-codex-preview",
+        "rag-relation:r-codex-gpt",
+        "rag-relation:r-codex-openai",
+        "rag-relation:r-mcp-codex"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 8,
+        "returnedCount": 8,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-codex"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-014",
+      "category": "holdout",
+      "query": "能用 2026 年 6 月 TRAE 国际站文章证明 10 月中国版的入口仍然独立吗？",
+      "expectedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9"
+      ],
+      "retrievedClaimIds": [
+        "claim-decision-refresh-4edaf090128d7b4999a9",
+        "c-intake-e-traecode",
+        "rag-relation:r-intake-e-traecode-e-mcp"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-traecode"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-015",
+      "category": "holdout",
+      "query": "原 TraeWork 的 Work、Code、Design 三种模式，当前中国版概览是否足以继续确认？",
+      "expectedClaimIds": [
+        "c-intake-e-traework"
+      ],
+      "retrievedClaimIds": [
+        "c-intake-e-traework"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 1,
+        "returnedCount": 1,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-traework"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-016",
+      "category": "holdout",
+      "query": "想在自建服务里直接用 Grok 4.7 Fast，公开资料是否提供了独立 API ID？",
+      "expectedClaimIds": [
+        "c-reviewed-grok-4-7-fast"
+      ],
+      "retrievedClaimIds": [
+        "c-reviewed-grok-4-7-fast",
+        "rag-timeline:t-grok-fast-channel",
+        "rag-relation:r-grok-fast-family"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 3,
+        "returnedCount": 3,
+        "filteredCount": 0,
+        "elapsedMs": 1,
+        "matchedEntityIds": [
+          "e-grok-4-7-fast"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-017",
+      "category": "holdout",
+      "query": "Sonnet 4.5 发布表具名比较过 GPT-5 和 Gemini 2.5 Pro，能否据此排当前所有模型名次？",
+      "expectedClaimIds": [
+        "c-portfolio-comparison-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-gemini-video",
+        "c-portfolio-comparison-20261104",
+        "c-gpt-5-catalog-review",
+        "claim-59bed5964254cce42b30",
+        "c-deprecation-e-gpt-5-20260611",
+        "c-gpt5-swe",
+        "claim-047c316a3f865b4a4196",
+        "claim-27489b7a4396cd5c0217"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 30,
+        "returnedCount": 8,
+        "filteredCount": 22,
+        "elapsedMs": 4,
+        "matchedEntityIds": [
+          "e-gemini-25-pro",
+          "e-gpt-5"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-018",
+      "category": "holdout",
+      "query": "GPT-4.5 发布晚且与 GPT-4o 做过偏好比较，是否就能认定存在直接继承关系？",
+      "expectedClaimIds": [
+        "c-portfolio-gpt45-20261104"
+      ],
+      "retrievedClaimIds": [
+        "c-api-lifecycle-e-gpt-4o-20261030",
+        "c-portfolio-gpt45-20261104",
+        "c-gpt-4-5-catalog-review",
+        "c-history-gpt-4o-mini",
+        "c-history-gpt-4o-transcribe",
+        "c-portfolio-comparison-20261104",
+        "c-api-lifecycle-e-gpt-4o-mini-20261030",
+        "c-api-lifecycle-e-gpt-4o-mini-tts-20261030"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 292,
+        "returnedCount": 8,
+        "filteredCount": 284,
+        "elapsedMs": 19,
+        "matchedEntityIds": [
+          "e-gpt-4o"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-019",
+      "category": "holdout",
+      "query": "AutoGen 的 Conda 示例写 python=3.12，是不是最低版本也只能是 3.12？",
+      "expectedClaimIds": [
+        "claim-9126d607ce60c9861365"
+      ],
+      "retrievedClaimIds": [
+        "claim-9126d607ce60c9861365",
+        "c-autogen-framework",
+        "claim-530c0634510d2357246e",
+        "claim-8f4fb8e8feb9ae16bfcb",
+        "rag-relation:r-autogen-microsoft",
+        "rag-timeline:t-autogen-docs-reviewed"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-autogen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    },
+    {
+      "id": "v2-holdout-020",
+      "category": "holdout",
+      "query": "AutoGen 安装示例把 Conda 环境命名为 autogen，换一个名字是否就不符合要求？",
+      "expectedClaimIds": [
+        "claim-8f4fb8e8feb9ae16bfcb"
+      ],
+      "retrievedClaimIds": [
+        "claim-8f4fb8e8feb9ae16bfcb",
+        "c-autogen-framework",
+        "claim-530c0634510d2357246e",
+        "claim-9126d607ce60c9861365",
+        "rag-timeline:t-autogen-docs-reviewed",
+        "rag-relation:r-autogen-microsoft"
+      ],
+      "claimRecallAtK": 1.0,
+      "precisionAtK": 0.125,
+      "entityRecallAtK": 1.0,
+      "passed": true,
+      "diagnostics": {
+        "candidateCount": 6,
+        "returnedCount": 6,
+        "filteredCount": 0,
+        "elapsedMs": 2,
+        "matchedEntityIds": [
+          "e-autogen"
+        ],
+        "fallbackReason": null,
+        "generationFallbackReason": null
+      }
+    }
+  ]
+}
