@@ -34,6 +34,19 @@ from app.rag import (
 from app.schemas import KnowledgeSnapshot
 
 
+class AuditedEmbeddingProvider(CloudflareEmbeddingProvider):
+    last_failure: str | None = None
+
+    def _embed_batch(self, texts: list[str]) -> list[list[float]]:
+        try:
+            return super()._embed_batch(texts)
+        except EmbeddingProviderError as error:
+            self.last_failure = str(
+                error
+            )  # Provider errors exclude credentials and response bodies.
+            raise
+
+
 def build_document_texts(snapshot: KnowledgeSnapshot) -> list[str]:
     entity_by_id = {item.id: item for item in snapshot.entities}
     # sync_snapshot upserts by claim ID; shared timeline entries use their last projection.
@@ -157,7 +170,7 @@ def main() -> None:
     if not account_id or not api_token:
         raise ValueError("Cloudflare evaluation credentials are not configured.")
 
-    provider = CloudflareEmbeddingProvider(
+    provider = AuditedEmbeddingProvider(
         account_id=account_id,
         api_token=api_token,
         model_name=args.model,
@@ -200,6 +213,7 @@ def main() -> None:
                 {
                     "status": "failed-no-retry",
                     "errorType": type(error).__name__,
+                    "providerFailure": provider.last_failure,
                     "preflight": preflight,
                     "usage": provider.usage(),
                     "completedResults": completed,

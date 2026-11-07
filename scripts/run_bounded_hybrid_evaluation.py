@@ -12,7 +12,8 @@ import httpx
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
-from app.evaluation_scope import retrieval_implementation_fingerprint
+from app.evaluation_scope import corpus_fingerprint, retrieval_implementation_fingerprint
+from app.schemas import KnowledgeSnapshot
 
 
 def main() -> None:
@@ -42,6 +43,14 @@ def main() -> None:
             or config["embeddingDimension"] != 1024
         ):
             raise SystemExit("Running retrieval configuration exceeds this evaluation scope.")
+        response = client.get("https://ai-radar.xue-ai.workers.dev/backend/api/v2/snapshot")
+        response.raise_for_status()
+        current = KnowledgeSnapshot.model_validate(response.json())
+        frozen = KnowledgeSnapshot.model_validate_json(
+            (ROOT / "docs/eval/snapshots/public_snapshot_2026-11-07.json").read_bytes()
+        )
+        if corpus_fingerprint(current, version=2) != corpus_fingerprint(frozen, version=2):
+            raise SystemExit("Published corpus changed since the freeze. No inference called.")
         token = os.environ.get("CLOUDFLARE_API_TOKEN")
         if not token:
             raise SystemExit("Existing Cloudflare token is unavailable. No inference called.")
