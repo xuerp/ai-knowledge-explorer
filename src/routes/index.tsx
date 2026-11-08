@@ -93,7 +93,7 @@ function LandingPage() {
               <Link to="/ask" className="landing-compact__button is-primary">
                 {t("体验决策助手", "Try the decision assistant")} <ArrowRight aria-hidden="true" />
               </Link>
-              <Link to="/updates" className="landing-compact__hero-case">
+              <Link to="/updates" className="landing-compact__button is-secondary">
                 {t("浏览动态", "Browse updates")}
                 <ArrowRight aria-hidden="true" />
               </Link>

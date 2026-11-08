@@ -4469,31 +4469,9 @@ dl.decision-validation__review-note dd {
   margin: 0;
 }
 
-.landing-compact__hero-actions .is-primary {
+.landing-compact__hero-actions .landing-compact__button {
   min-height: 3rem;
   padding-inline: 1.5rem;
-}
-
-.landing-compact__hero-case {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  min-height: 3rem;
-  color: var(--color-foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.landing-compact__hero-case:hover {
-  color: var(--color-signal);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
-
-.landing-compact__hero-case svg {
-  width: 1rem;
-  height: 1rem;
 }
 
 .landing-compact__hero .landing-compact__hero-context {
