@@ -361,8 +361,8 @@ function UpdatesPage() {
                   <dt>{t("来源链接", "Source links")}</dt>
                   <dd>
                     {t(
-                      "能否打开关联原文；有链接不等于已核验。",
-                      "Linked original material does not itself imply verification.",
+                      "打开关联原文查看依据；结论审核情况见核验状态。",
+                      "Open the original material for evidence; the verification status shows whether the conclusion was reviewed.",
                     )}
                   </dd>
                 </div>
@@ -387,8 +387,8 @@ function UpdatesPage() {
               </dl>
               <p>
                 {t(
-                  "传闻暂不作为公开收录方向，空标签隐藏。仅关注可能影响选型的发布、价格、访问或下线线索；来源与时间明确后进入待审核，确认前不计入已核验事实。",
-                  "Rumors are not a public collection priority; empty labels are hidden. Material release, pricing, access or retirement leads require attributable sources and dates, and remain pending until confirmed.",
+                  "这里整理可能影响选型的发布、价格、访问与下线变化，按已收录资料显示；传闻暂不公开展示。",
+                  "This view organizes recorded releases, pricing, access and retirement changes relevant to selection. Rumors are not publicly shown.",
                 )}
               </p>
             </details>
@@ -398,8 +398,8 @@ function UpdatesPage() {
         <div className="updates-container updates-content">
           <p className="updates-coverage-note">
             {t(
-              `累计收录 ${snapshot.changes.length} 条变化，其中 ${snapshot.changes.filter((change) => change.kind !== "new").length} 条非发布事件。标签数量随筛选变化；尚未收录的事件不计入。`,
-              `${snapshot.changes.length} recorded changes, including ${snapshot.changes.filter((change) => change.kind !== "new").length} non-release events. Label counts follow the filters; unrecorded events are not counted.`,
+              `累计收录 ${snapshot.changes.length} 条变化，其中 ${snapshot.changes.filter((change) => change.kind !== "new").length} 条非发布事件。可按时间、对象与变化类型继续筛选。`,
+              `${snapshot.changes.length} recorded changes, including ${snapshot.changes.filter((change) => change.kind !== "new").length} non-release events. Filter by time, entity or change type to explore.`,
             )}
           </p>
           {hasFilteredChanges && (
@@ -630,11 +630,11 @@ function UpdatesPage() {
                 <p>
                   {t(
                     kindFilter.length === 1 && kindFilter.includes("rumor")
-                      ? "当前没有达到收录条件的传闻。已核验的官方变化不会被改标为传闻。"
-                      : "当前筛选组合没有已收录事件；数量不代表该厂商完整的历史事件总量。",
+                      ? "暂无可展示的传闻，试试其他变化类型。"
+                      : "当前没有符合条件的记录，试试其他时间或对象。",
                     kindFilter.length === 1 && kindFilter.includes("rumor")
-                      ? "No rumors currently meet inclusion criteria. Verified official changes are not relabeled as rumors."
-                      : "No recorded events match these filters; counts are not the vendor's complete historical total.",
+                      ? "No rumors are available. Try another change type."
+                      : "No records match these filters. Try another time range or entity.",
                   )}
                 </p>
                 <button type="button" onClick={resetFilters}>

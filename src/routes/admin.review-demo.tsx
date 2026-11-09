@@ -7,7 +7,6 @@ import {
   Clock3,
   Database,
   ExternalLink,
-  Eye,
   FileDiff,
   FileSearch,
   GitMerge,
@@ -17,7 +16,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { ConfidenceChip, DemoBadge } from "@/components/common";
+import { ConfidenceChip } from "@/components/common";
 import { DataFreshnessBadge, DataStatePanel } from "@/components/data-state";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp, pick } from "@/lib/app-state";
@@ -85,11 +84,6 @@ function ReviewDemoPage() {
             <div className="flex flex-wrap items-start justify-between gap-5">
               <div className="max-w-3xl">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-inferred/40 bg-inferred/10 px-2.5 py-1 text-xs font-medium text-inferred">
-                    <Eye className="h-3.5 w-3.5" />
-                    {t("只读演示后台", "Read-only demo console")}
-                  </span>
-                  <DemoBadge />
                   <DataFreshnessBadge meta={snapshot.meta} />
                 </div>
                 <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -97,20 +91,20 @@ function ReviewDemoPage() {
                 </h1>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
                   {t(
-                    "这里展示一条知识如何从来源进入候选队列，经过去重、冲突检测和人工核验后才发布到正式图谱。演示后台不提供抓取、批准、拒绝、删除或发布操作。",
-                    "See how knowledge moves from sources into a candidate queue, through deduplication, conflict detection, and human review before publication. This demo exposes no crawl, approve, reject, delete, or publish actions.",
+                    "了解一条资料如何从来源进入候选队列，经过去重、冲突检测与人工核验，再发布到知识库。",
+                    "Explore how material moves from a source into the review queue, through deduplication, conflict detection and human review, then into the knowledge base.",
                   )}
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-background p-4 text-sm">
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   <LockKeyhole className="h-4 w-4 text-signal" />
-                  {t("权限边界", "Permission boundary")}
+                  {t("只读演示", "Read-only demo")}
                 </div>
                 <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
                   {t(
-                    "所有写操作均被移除；此页面只读取当前知识快照。",
-                    "All write actions are removed; this page only reads the current knowledge snapshot.",
+                    "可查看审核流程与依据，此处不会修改或发布资料。",
+                    "Explore the review workflow and evidence. This page does not modify or publish records.",
                   )}
                 </p>
               </div>

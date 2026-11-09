@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { expireAuthSession, readAuthToken, rememberedAuthKey } from "@/services/auth-session";
 import { TopNav } from "./TopNav";
 import { BottomNav } from "./BottomNav";
@@ -29,13 +30,15 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
       <BottomNav />
       <footer className="hidden border-t border-border bg-card/70 md:block">
         <div className="page-container py-3 text-[11px] text-muted-foreground flex flex-wrap gap-4 justify-between">
-          <span>{t("AI Radar V2 · AI 研究工作台", "AI Radar V2 · AI research workspace")}</span>
-          <span>
-            {t(
-              "部分页面包含示例内容；重要决策请核对数据状态、日期与原始来源。",
-              "Some pages contain sample content. Verify data status, dates, and original sources before making important decisions.",
-            )}
-          </span>
+          <span>{t("AI Radar · 模型与产品选型研究", "AI Radar · Model and product research")}</span>
+          <nav className="flex gap-5" aria-label={t("页脚导航", "Footer navigation")}>
+            <Link className="hover:text-foreground" to="/case-study">
+              {t("项目介绍", "About")}
+            </Link>
+            <Link className="hover:text-foreground" to="/quality">
+              {t("数据与方法", "Data and methodology")}
+            </Link>
+          </nav>
         </div>
       </footer>
     </div>

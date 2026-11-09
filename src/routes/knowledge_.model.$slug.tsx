@@ -221,7 +221,7 @@ function EntityDetail() {
                       )}
                     </span>
                   )}
-                  <DemoBadge />
+                  <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {displayName}
@@ -1092,7 +1092,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                   <span className="model-version__verified">
                     <span aria-hidden="true">✓</span>
                     {verifiedCount > 0
-                      ? t("资料已验证", "Evidence verified")
+                      ? t("含已核验资料", "Includes verified records")
                       : t("资料已收录", "Profile catalogued")}
                   </span>
                   {release && (
@@ -1100,7 +1100,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                       {releaseStageLabel(release.stage, t)}
                     </span>
                   )}
-                  <DemoBadge />
+                  <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
                 </div>
                 <div className="model-version__meta">
                   <span>
@@ -1224,18 +1224,18 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                         <div>
                           <span>{t("输入定价", "Input price")}</span>
                           <strong>{specValue(entity.specs?.inputPrice)}</strong>
-                          <small>
-                            {t("以官方当前计费页为准", "Check the current official pricing page")}
-                          </small>
                         </div>
                         <div>
                           <span>{t("输出定价", "Output price")}</span>
                           <strong>{specValue(entity.specs?.outputPrice)}</strong>
-                          <small>
-                            {t("价格为收录时点快照", "Price is a point-in-time snapshot")}
-                          </small>
                         </div>
                       </div>
+                      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                        {t(
+                          "收录时点价格，当前报价请查看官方计费页。",
+                          "Recorded price snapshot. Check the official pricing page for current rates.",
+                        )}
+                      </p>
                     </section>
                   )}
 

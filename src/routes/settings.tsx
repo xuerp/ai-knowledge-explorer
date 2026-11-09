@@ -147,10 +147,7 @@ function SettingsPage() {
             id="notifications"
             icon={<Bell className="h-4 w-4" />}
             title={t("通知", "Notifications")}
-            description={t(
-              "控制重大版本变化和每日摘要提醒。",
-              "Control major-change alerts and daily digests.",
-            )}
+            description={t("管理本机提醒偏好。", "Manage notification preferences on this device.")}
           >
             <PreferenceRow
               label={t("站内通知", "In-app notifications")}
@@ -164,10 +161,11 @@ function SettingsPage() {
               }
             />
             <PreferenceRow
-              label={t("每日邮件摘要", "Daily email digest")}
+              label={t("邮件摘要（暂未开放）", "Email digest (not yet available)")}
+              disabled
               description={t(
-                "按设定时间汇总过去 24 小时变化。",
-                "A 24-hour change digest at your chosen time.",
+                "邮件发送暂未开放，已保存的偏好会保留。",
+                "Email delivery is not yet available. Saved preferences are retained.",
               )}
               checked={notifications?.dailyEmailEnabled ?? false}
               onCheckedChange={(dailyEmailEnabled) =>
@@ -216,20 +214,20 @@ function SettingsPage() {
             icon={<LockKeyhole className="h-4 w-4" />}
             title={t("隐私与账户", "Privacy and account")}
             description={t(
-              "演示版本不会上传你的本机偏好。",
-              "The demo does not upload your local preferences.",
+              "语言、主题与阅读偏好保存在当前设备。",
+              "Language, theme and reading preferences are saved on this device.",
             )}
           >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <UserRound className="h-4 w-4 text-signal" />
-                  {t("本机访客账户", "Local guest account")}
+                  {t("账户与研究", "Account and research")}
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {t(
-                    "关注、设置与研究记录保存在浏览器中。",
-                    "Follows, settings, and research stay in this browser.",
+                    "前往账户页查看登录状态、关注与已保存的研究。",
+                    "Open your account to view sign-in status, follows and saved research.",
                   )}
                 </p>
               </div>
@@ -305,11 +303,13 @@ function PreferenceRow({
   description,
   checked,
   onCheckedChange,
+  disabled = false,
 }: {
   label: string;
   description: string;
   checked: boolean;
   onCheckedChange: (value: boolean) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
@@ -317,7 +317,7 @@ function PreferenceRow({
         <div className="text-sm font-medium">{label}</div>
         <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </div>
   );
 }

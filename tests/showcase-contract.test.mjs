@@ -29,7 +29,7 @@ test("公开首页仅在演示模式展示示例，API 不可用时显式提示"
   assert.match(source, /动态分页/);
   assert.match(source, /模型家族/);
   assert.match(source, /没有符合条件的变化/);
-  assert.match(source, /当前筛选组合没有已收录事件/);
+  assert.match(source, /当前没有符合条件的记录，试试其他时间或对象/);
   assert.match(source, /hasFilteredChanges && selectedChange && selectedEntity \?/);
   assert.doesNotMatch(source, /if \(!selectedChange \|\| !selectedEntity\)/);
   assert.doesNotMatch(
@@ -96,8 +96,8 @@ test("产品 Case Study 是公开路由并覆盖关键产品决策", async () =>
   assert.match(route, /createFileRoute\("\/case-study"\)/);
   assert.match(route, /<AppShell>/);
   assert.match(route, /<WorkspaceHeader/);
-  assert.match(route, /delivery-status.json/);
-  assert.match(route, /status.modules.map/);
+  assert.match(route, /docs\/portfolio\/VALIDATION.md/);
+  assert.doesNotMatch(route, /status.modules.map|当前项目进度|本页进度与项目验证文档/);
   assert.match(route, /项目介绍/);
   for (const path of ["updates", "knowledge", "graph", "ask"]) {
     assert.ok(route.includes(`to="/${path}"`));

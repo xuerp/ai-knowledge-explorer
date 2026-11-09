@@ -360,8 +360,8 @@ function GenericEntityDetail() {
               <SectionHeading
                 title={t("它与谁有什么关系", "How this entity is connected")}
                 description={t(
-                  "每条关系都明确显示起点、关系语义、终点和置信度；点击相关实体可继续追踪。",
-                  "Every row names its source, relationship, target and confidence. Open a related entity to continue exploring.",
+                  "沿每条联系查看相关对象、核验状态与来源。",
+                  "Follow each connection to related entities, verification status and sources.",
                 )}
                 action={
                   <Link

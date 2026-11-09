@@ -34,12 +34,12 @@ export function DemoBadge({
         <p>
           {mode === "demo"
             ? t(
-                "当前处于示例模式，包含固定演示内容和人工核验的模型目录，并非持续实时采集。",
-                "Sample mode combines fixed demonstrations and a manually reviewed model catalog, without continuous live collection.",
+                "当前展示收录快照，包含示例内容与人工核验的模型目录。",
+                "This catalog snapshot includes sample content and manually reviewed model records.",
               )
             : t(
-                "当前使用 API 返回的数据快照。接口连接成功不代表每条信息刚刚发生或已完成核验。",
-                "This snapshot comes from the API. A successful connection does not mean every fact is recent or verified.",
+                "资料从当前知识库读取，发生日期与核验状态随各条记录展示。",
+                "Records come from the current knowledge base, with event dates and verification status shown on each entry.",
               )}
         </p>
         {updatedAt && (
@@ -49,8 +49,8 @@ export function DemoBadge({
         )}
         <p>
           {t(
-            "每条内容的发生日期、核验日期和证据等级需要分别查看。",
-            "Check each record's event date, verification date and evidence level separately.",
+            "资料按收录快照浏览，非实时全量追踪；可打开条目核对日期与原始来源。",
+            "Browse cataloged snapshots rather than a complete real-time feed. Open an entry to check its dates and original sources.",
           )}
         </p>
         <Link to="/quality">

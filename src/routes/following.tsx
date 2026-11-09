@@ -65,15 +65,15 @@ const INTENSITY_META = {
     icon: Bell,
     zh: "摘要",
     en: "Digest",
-    desc: { zh: "每周汇总，重要更新才提醒。", en: "Weekly digest of important updates." },
+    desc: { zh: "汇总关注对象的变化。", en: "Summarize changes to followed entities." },
   },
   instant: {
     icon: Zap,
-    zh: "即时",
-    en: "Instant",
+    zh: "重点",
+    en: "Priority",
     desc: {
-      zh: "重大变化与传闻立即出现在首页。",
-      en: "Major changes show up on the home immediately.",
+      zh: "优先查看关注对象的重要变化。",
+      en: "Prioritize important changes to followed entities.",
     },
   },
 } as const;
@@ -367,8 +367,8 @@ function AuthenticatedFollowingPage({ token }: { token: string }) {
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "每日摘要偏好已保存在账户中；邮件服务配置完成前，内容会安全停留在发件队列。",
-                "Daily digest preferences are stored in your account; messages remain safely queued until email delivery is configured.",
+                "摘要偏好保存在账户中。邮件发送暂未开放。",
+                "Digest preferences are stored in your account. Email delivery is not yet available.",
               )}
             </p>
             {user && (
@@ -414,7 +414,7 @@ function AuthenticatedFollowingPage({ token }: { token: string }) {
               to="/updates"
               className="mt-2 inline-flex items-center gap-1 text-sm text-signal hover:underline"
             >
-              {t("回到首页看今日更新", "Back to today's updates")}{" "}
+              {t("浏览已收录动态", "Browse recorded updates")}{" "}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -528,8 +528,8 @@ function DemoFollowingPage() {
       <PageHeader
         title={t("关注与通知", "Following & notifications")}
         subtitle={t(
-          "定义你希望在首页看到什么。每个对象都可以选择静默、摘要或即时三种提醒强度。",
-          "Define what shows up on your home. Each item supports silent, digest or instant alerts.",
+          "管理关注对象，选择静默、摘要或重点提醒。",
+          "Manage followed entities and choose silent, digest or priority notifications.",
         )}
       />
       <div className="page-container grid min-w-0 gap-8 pb-12 pt-3 lg:grid-cols-3">
@@ -762,8 +762,8 @@ function DemoFollowingPage() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               {t(
-                "系统根据你的关注、浏览与提问自动总结你的兴趣，也可以手动修正。",
-                "Auto-derived from what you follow, browse and ask; you can override anything.",
+                "根据你选择的对象与方向整理，可随时编辑或清空。",
+                "Based on your selected entities and topics. Edit or clear it at any time.",
               )}
             </p>
             <div className="space-y-3">
@@ -805,33 +805,11 @@ function DemoFollowingPage() {
               {!(personalization?.interests ?? snapshotQuery.data.interestProfile).length && (
                 <p className="rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
                   {t(
-                    "兴趣画像已清空，首页仍会保留全行业重要事件。",
-                    "Your profile is empty; major industry events remain visible.",
+                    "尚未设置兴趣，可编辑偏好或直接浏览动态。",
+                    "No interests set. Edit your preferences or browse updates directly.",
                   )}
                 </p>
               )}
-            </div>
-            <div className="mt-5 flex items-start justify-between gap-3 border-t border-border pt-4">
-              <div>
-                <div className="text-sm font-medium text-foreground">
-                  {t("行为学习", "Behavior learning")}
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                  {t(
-                    "暂停后不再根据浏览行为调整画像。",
-                    "Pause to stop adapting from browsing behavior.",
-                  )}
-                </p>
-              </div>
-              <Switch
-                checked={personalization?.behaviorLearning ?? false}
-                onCheckedChange={(behaviorLearning) =>
-                  setPersonalization((current) =>
-                    current ? { ...current, behaviorLearning } : current,
-                  )
-                }
-                aria-label={t("行为学习", "Behavior learning")}
-              />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
@@ -867,7 +845,7 @@ function DemoFollowingPage() {
               to="/updates"
               className="text-sm text-signal hover:underline inline-flex items-center gap-1"
             >
-              {t("回到首页看今日更新", "Back to today's updates")}{" "}
+              {t("浏览已收录动态", "Browse recorded updates")}{" "}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -876,20 +854,22 @@ function DemoFollowingPage() {
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-signal" />
               <h3 className="font-serif font-semibold">
-                {t("每日邮件摘要", "Daily email digest")}
+                {t("邮件摘要预览", "Email digest preview")}
               </h3>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t(
-                "保存希望接收摘要的邮箱与时间。当前仅保存本机偏好，邮件投递服务尚未接入。",
-                "Save the address and time you prefer. This demo stores settings locally; delivery is not connected.",
+                "可在本机预览邮箱与时间设置，邮件发送暂未开放。",
+                "Preview an address and time on this device. Email delivery is not yet available.",
               )}
             </p>
             <div className="mt-4 flex items-start justify-between gap-3">
               <div>
-                <Label htmlFor="daily-email-enabled">{t("启用每日摘要", "Enable digest")}</Label>
+                <Label htmlFor="daily-email-enabled">
+                  {t("预览摘要设置", "Preview digest settings")}
+                </Label>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  {t("仅用于前端交互验收", "For frontend interaction validation only")}
+                  {t("偏好保存在当前设备", "Preferences stay on this device")}
                 </p>
               </div>
               <Switch
@@ -938,12 +918,12 @@ function DemoFollowingPage() {
             <p className="mt-3 rounded-md border border-dashed border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
               {notificationPreferences?.dailyEmailEnabled && notificationPreferences.email.trim()
                 ? t(
-                    `已在本机保存：每天 ${notificationPreferences.digestHour} 发送至 ${notificationPreferences.email.trim()}。尚未产生真实邮件。`,
-                    `Saved on this device: ${notificationPreferences.digestHour} to ${notificationPreferences.email.trim()}. No real email is sent yet.`,
+                    `已保存偏好：${notificationPreferences.email.trim()} · ${notificationPreferences.digestHour}。`,
+                    `Preferences saved: ${notificationPreferences.email.trim()} · ${notificationPreferences.digestHour}.`,
                   )
                 : t(
-                    "启用后填写邮箱即可预览完整设置状态。",
-                    "Enable the digest and enter an address to preview the configured state.",
+                    "打开预览后，可填写希望使用的邮箱与时间。",
+                    "Turn on the preview to enter your preferred address and time.",
                   )}
             </p>
           </div>

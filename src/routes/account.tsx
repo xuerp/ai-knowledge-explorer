@@ -172,7 +172,7 @@ function AccountPage() {
   if (!userApi.configured) {
     return (
       <AppShell>
-        <Notice text="当前是明确标记的演示模式。设置 VITE_API_BASE_URL 后可启用真实登录、跨设备关注、通知和私密研究。" />
+        <Notice text="当前版本暂不支持登录，你仍可浏览公开内容。" />
       </AppShell>
     );
   }
@@ -320,10 +320,17 @@ function AccountPage() {
       <main className="mx-auto max-w-5xl space-y-7 px-4 py-8 md:px-6">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-signal">Authenticated</div>
+            <div className="text-xs uppercase tracking-widest text-signal">
+              {t("已登录", "Signed in")}
+            </div>
             <h1 className="mt-1 font-serif text-3xl font-semibold">我的账户</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {user.email} · {user.role}
+              {user.email} ·{" "}
+              {user.role === "admin"
+                ? t("管理员", "Administrator")
+                : user.role === "reviewer"
+                  ? t("审核员", "Reviewer")
+                  : t("个人账户", "Personal account")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -469,7 +476,7 @@ function AccountPage() {
         >
           <h2 className="flex items-center gap-2 font-serif text-xl font-semibold">
             <BookOpen className="h-5 w-5 text-signal" />
-            基于已审核 Claim 的私密研究
+            基于已收录资料的私密研究
           </h2>
           <Input name="question" placeholder="例如：GPT 最近有什么已核验变化？" required />
           <Button disabled={busy}>开始研究</Button>
@@ -477,7 +484,12 @@ function AccountPage() {
             <div className="rounded-md border border-border p-4">
               <div className="text-xs uppercase text-muted-foreground">{research.status}</div>
               <div className="mt-3 whitespace-pre-wrap text-sm">{research.summary}</div>
-              <div className="mt-3 font-mono text-xs">{research.claimIds.join(", ")}</div>
+              <div className="mt-3 text-sm text-muted-foreground">
+                {t(
+                  `引用 ${research.claimIds.length} 条事实`,
+                  `${research.claimIds.length} cited facts`,
+                )}
+              </div>
               {!research.publishedSlug && (
                 <Button
                   className="mt-4"

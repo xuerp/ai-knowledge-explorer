@@ -76,8 +76,8 @@ function GraphPage() {
             kind="empty"
             title={t("暂无关系目录", "No relationship catalog yet")}
             description={t(
-              "先收录模型家族或应用对象，再建立有来源的联系。",
-              "Add model families or applications before reviewing their sourced connections.",
+              "当前还没有可展示的联系，可先浏览知识库中的对象与资料。",
+              "There are no connections to show yet. Explore the entities and material in the knowledge base.",
             )}
           />
         ) : query.data ? (
@@ -359,8 +359,8 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
               <h2>{t("通过一个中间对象发现线索", "Discover leads through one intermediary")}</h2>
               <p>
                 {t(
-                  "每条线索展示两段实际联系，不代表影响、兼容性或因果关系。",
-                  "Each lead shows two recorded links, not impact, compatibility or causation.",
+                  "沿两段已收录联系发现相关对象，打开来源核对具体关系。",
+                  "Discover related entities through two recorded links, then check the sources for their precise relationship.",
                 )}
               </p>
             </div>
@@ -443,8 +443,8 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             <EmptyState
               title={t("暂无可追溯的间接线索", "No traceable indirect leads")}
               text={t(
-                "需要两段有来源的联系才能形成线索；不会用竞品或版本归属扩充范围。",
-                "Two sourced links are needed; rivalry and version membership do not expand this view.",
+                "暂未找到两段相连的来源记录，可以切换对象查看其他联系。",
+                "No pair of connected sourced records was found. Select another entity to explore.",
               )}
             />
           )}
@@ -461,8 +461,8 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             />
             <p>
               {t(
-                "沿已有联系核对路径。路径连接不等于可以互相替换或兼容。",
-                "Follow recorded links. A connected path does not imply substitutability or compatibility.",
+                "沿已收录联系查看路径；替代性与兼容性需查看具体依据。",
+                "Follow recorded links. Check the specific evidence for compatibility or substitutability.",
               )}
             </p>
           </div>
@@ -493,8 +493,8 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             <EmptyState
               title={t("没有找到可核对的路径", "No inspectable path found")}
               text={t(
-                "这只表示当前资料没有连接路径，不能据此断言它们互不相关。",
-                "The current catalog has no path; this does not prove the entities are unrelated.",
+                "当前资料中暂未找到路径，试试其他对象或查看各自的来源。",
+                "No path is recorded in this catalog. Try other entities or inspect their sources.",
               )}
             />
           )}
@@ -529,8 +529,8 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             "Use the decision assistant for comparisons and family dossiers for version history. This view focuses on sourced integrations and technical context.",
           )}
         </p>
-        <Link to="/admin/review">
-          {t("完善关系资料", "Review relationship data")}
+        <Link to="/knowledge">
+          {t("浏览知识库", "Browse knowledge")}
           <ArrowRight size={14} />
         </Link>
       </footer>
@@ -621,8 +621,8 @@ function RelationRow({
         {scoped && (
           <p>
             {t(
-              "以下保留原始记录的对象、日期与适用范围，不代表该家族所有版本都有相同能力、架构或接入条件：",
-              "Original entities, dates and scope are retained below; capabilities, architecture and access must not be generalized to every family version:",
+              "以下联系适用于各条记录注明的对象、日期与版本范围：",
+              "These connections apply to the entities, dates and versions named in each record:",
             )}
           </p>
         )}

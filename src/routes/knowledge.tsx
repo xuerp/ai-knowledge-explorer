@@ -65,10 +65,7 @@ function KnowledgePage() {
                 ? t("知识数据暂不可用", "Knowledge data is unavailable")
                 : t("正在加载知识数据", "Loading knowledge data")
             }
-            description={t(
-              "正在获取当前知识快照。加载失败时可重试。",
-              "Loading the current knowledge snapshot. Retry if loading fails.",
-            )}
+            description={t("正在读取已收录资料。", "Loading cataloged material.")}
             onRetry={snapshotQuery.error ? () => void snapshotQuery.refetch() : undefined}
           />
         </div>
@@ -267,8 +264,8 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           {category === "model" && anchors.length > 0 && (
             <section className="knowledge-landing__section">
               <div className="knowledge-landing__section-heading">
-                <h2>{t("锚点模型", "Anchor models")}</h2>
-                <span>{t("主流竞争对标", "Mainstream benchmarks")}</span>
+                <h2>{t("常用模型", "Common models")}</h2>
+                <span>{t("快速查看主流模型", "Explore popular model families")}</span>
               </div>
               <div className="knowledge-landing__anchors">
                 {anchors.map((entity) => (

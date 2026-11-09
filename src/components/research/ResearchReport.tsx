@@ -291,8 +291,8 @@ export function ResearchReport({
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-inferred/30 bg-inferred/5 p-3 text-xs leading-relaxed text-muted-foreground">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-inferred" />
                 {t(
-                  "结论只覆盖当前快照中能够被引用支持的范围；缺失证据不会被流畅文本掩盖。",
-                  "The conclusion is limited to what the current snapshot can cite; fluent prose never hides missing evidence.",
+                  "以下结论基于本次引用资料，可展开查看来源与待确认项。",
+                  "These conclusions are based on the cited material. Expand the sources and open questions for detail.",
                 )}
               </div>
             </section>

@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  Eye,
   MousePointerClick,
   ShieldCheck,
   Sparkles,
@@ -13,7 +12,6 @@ import { AppShell } from "@/components/layout/AppShell";
 import { DataStatePanel } from "@/components/data-state";
 import { DemoBadge } from "@/components/common";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { useApp, pick } from "@/lib/app-state";
 import {
@@ -130,8 +128,8 @@ function OnboardingWizard({ snapshot }: { snapshot: KnowledgeSnapshot }) {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
               {t(
-                "选择你关心的对象和方向，系统会优先展示相关变化；全行业重要事件仍会保留，避免形成过滤气泡。",
-                "Choose entities and topics to prioritize relevant changes. Major industry events remain visible to avoid a filter bubble.",
+                "选择关心的对象与方向，让相关变化更容易找到；仍可随时浏览全部动态。",
+                "Choose entities and topics to make relevant changes easier to find. You can still browse all updates.",
               )}
             </p>
             <ol
@@ -193,15 +191,7 @@ function OnboardingWizard({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                 }
               />
             )}
-            {step === 3 && (
-              <ControlStep
-                preferences={preferences}
-                interests={generatedInterests}
-                onLearningChange={(behaviorLearning) =>
-                  setPreferences((current) => ({ ...current, behaviorLearning }))
-                }
-              />
-            )}
+            {step === 3 && <ControlStep preferences={preferences} interests={generatedInterests} />}
 
             <div className="mt-8 flex items-center justify-between border-t border-border pt-5">
               <Button
@@ -363,65 +353,44 @@ function TopicStep({
 function ControlStep({
   preferences,
   interests,
-  onLearningChange,
 }: {
   preferences: PersonalizationPreferences;
   interests: InterestProfileItem[];
-  onLearningChange: (value: boolean) => void;
 }) {
   const { t, lang } = useApp();
   return (
     <div>
       <StepHeading
         icon={<ShieldCheck className="h-5 w-5" />}
-        title={t("确认个性化边界", "Confirm personalization controls")}
+        title={t("确认偏好", "Confirm your preferences")}
         description={t(
-          "个性化应当可解释、可暂停、可修改和可清空。",
-          "Personalization must remain explainable, pausable, editable, and clearable.",
+          "这些偏好可随时修改或清空。",
+          "You can edit or clear these preferences at any time.",
         )}
       />
-      <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        <div className="rounded-xl border border-border p-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 font-medium text-foreground">
-                <Eye className="h-4 w-4 text-signal" />
-                {t("根据浏览行为逐步学习", "Learn from browsing behavior")}
-              </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {t(
-                  "关闭后只使用你明确选择的关注对象、标签和描述。演示版不会上传行为数据。",
-                  "When off, only explicit entities, topics, and description are used. The demo uploads no behavioral data.",
-                )}
-              </p>
+      {interests.length > 0 && (
+        <div className="mt-6">
+          <div className="rounded-xl border border-border p-4">
+            <div className="font-medium text-foreground">{t("画像预览", "Profile preview")}</div>
+            <div className="mt-4 space-y-3">
+              {interests.map((interest) => (
+                <div key={interest.id}>
+                  <div className="mb-1 flex justify-between text-xs">
+                    <span>{pick(interest.label, lang)}</span>
+                    <span className="font-mono text-muted-foreground">{interest.score}</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-signal"
+                      style={{ width: `${interest.score}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-            <Switch
-              checked={preferences.behaviorLearning}
-              onCheckedChange={onLearningChange}
-              aria-label={t("行为学习", "Behavior learning")}
-            />
           </div>
         </div>
-        <div className="rounded-xl border border-border p-4">
-          <div className="font-medium text-foreground">{t("画像预览", "Profile preview")}</div>
-          <div className="mt-4 space-y-3">
-            {interests.map((interest) => (
-              <div key={interest.id}>
-                <div className="mb-1 flex justify-between text-xs">
-                  <span>{pick(interest.label, lang)}</span>
-                  <span className="font-mono text-muted-foreground">{interest.score}</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-signal"
-                    style={{ width: `${interest.score}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
       <div className="mt-5 rounded-lg border border-inferred/30 bg-inferred/5 p-3 text-xs leading-relaxed text-muted-foreground">
         {t(
           `已选择 ${preferences.selectedEntityIds.length} 个对象、${preferences.topics.length} 个方向。保存后可在关注页查看推荐理由并清空画像。`,

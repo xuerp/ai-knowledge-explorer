@@ -596,11 +596,11 @@ function AskPage() {
             <div className="rounded-md border border-signal/20 bg-accent/60 px-4 py-3 text-xs leading-6 text-muted-foreground">
               {t(
                 snapshotQuery.error
-                  ? "实时接口暂时不可用，请重试；当前无法核验事实。"
-                  : "实时接口正在连接，请等待当前事实加载。",
+                  ? "资料服务暂时不可用，请稍后重试。"
+                  : "正在连接资料服务，读取已收录事实。",
                 snapshotQuery.error
-                  ? "The live API is unavailable. Retry to verify current facts."
-                  : "Connecting to the live API. Waiting for current facts.",
+                  ? "The knowledge service is unavailable. Please try again shortly."
+                  : "Connecting to the knowledge service and loading recorded facts.",
               )}
             </div>
           </div>

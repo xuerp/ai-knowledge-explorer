@@ -156,8 +156,8 @@ export function EntityDossier({
           ) : (
             <p>
               {t(
-                "尚无已收录的直接关联；未绑定关系不等于没有产品或合作。",
-                "No direct relationships have been recorded yet.",
+                "暂未收录直接关联，可先查看已有事实与来源。",
+                "No direct links are recorded yet. Explore the available facts and sources instead.",
               )}
             </p>
           )}

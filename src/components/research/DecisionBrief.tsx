@@ -458,8 +458,8 @@ export function DecisionBrief({
             </div>
             <p>
               {t(
-                "先看候选是否满足必要条件，再比较已知事实。依据覆盖表示资料完整度，不代表模型能力排名。",
-                "Check necessary constraints first, then compare known facts. Evidence coverage describes available information, not model capability.",
+                "先核对必要条件，再比较已知事实；依据覆盖反映资料完整度。",
+                "Check necessary constraints, then compare known facts. Evidence coverage describes information completeness.",
               )}
             </p>
             {reading.commonReasons.length > 0 && (

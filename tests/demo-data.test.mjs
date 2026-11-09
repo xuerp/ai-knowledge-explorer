@@ -316,6 +316,6 @@ test("notification preferences stay local and do not imply delivery", async () =
 
   assert.match(source, /ai-radar\.notification-preferences\.v1/);
   assert.match(source, /readNotificationIds/);
-  assert.match(followingRoute, /邮件投递服务尚未接入/);
+  assert.match(followingRoute, /邮件发送暂未开放/);
   assert.match(followingRoute, /markAllNotificationsRead/);
 });

@@ -204,8 +204,8 @@ export function DecisionChoice({
               </summary>
               <p className="decision-choice__hint">
                 {t(
-                  "以下状态只描述本次分析取得的知识库依据；未核验不代表网上没有资料或产品不支持。",
-                  "These states describe knowledge-base evidence retrieved for this analysis. Unverified does not mean unavailable online or unsupported.",
+                  "以下状态基于本次检索到的资料。待核验项可补充依据后重新分析。",
+                  "These states reflect the evidence retrieved for this analysis. Add sources for unverified conditions, then reanalyze.",
                 )}
               </p>
               <div className="decision-choice__list">{more.map(renderRow)}</div>

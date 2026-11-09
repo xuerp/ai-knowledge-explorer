@@ -42,4 +42,4 @@ for (const relative of ["docs/portfolio/CASE_STUDY.md", "docs/portfolio/VALIDATI
   }
 }
 if (failed) process.exitCode = 1;
-else console.log("Delivery status synchronized across the project page and public documents.");
+else console.log("Delivery status synchronized across project validation documents.");

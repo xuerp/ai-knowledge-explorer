@@ -114,8 +114,8 @@ export function DecisionEvidenceRequests({
           </p>
           <p className="decision-choice__hint">
             {t(
-              "只提交公开候选名称和缺项，不提交你的任务原文、文件或试用笔记。请求已处理也不代表条件通过，以重新分析结果为准。",
-              "Only public candidate names and gaps are submitted, without your task text, files or trial notes. A processed request does not establish eligibility; reanalyze to verify.",
+              "仅提交公开候选名称和待补项；任务原文、文件与试用笔记保持私密。资料补齐后可重新分析。",
+              "Only public candidate names and evidence gaps are submitted. Task text, files and trial notes stay private. Reanalyze when sources are added.",
             )}
           </p>
           <Button
