@@ -108,7 +108,9 @@ jobs:
       - name: Backend tests
         env:
           AI_RADAR_USER_TEST_DATABASE_URL: postgresql+psycopg://ai_radar:test-only-password@127.0.0.1:5432/ai_radar_test
-        run: python -m pytest
+        run: |
+          python -m pytest tests/test_admin_users.py -k postgres
+          python -m pytest
       - name: Audit actionable decision evidence coverage
         run: |
           python -m ruff format --check ../scripts/audit_decision_coverage.py

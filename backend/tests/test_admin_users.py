@@ -47,7 +47,10 @@ def client(tmp_path, request):
         cors_origins=("http://localhost:4184",),
     )
     try:
-        with TestClient(create_app(settings)) as instance:
+        application = create_app(settings)
+        if postgres is not None:
+            application.state.database.create_all()
+        with TestClient(application) as instance:
             yield instance
     finally:
         if postgres is not None:
