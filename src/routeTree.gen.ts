@@ -25,6 +25,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as AdminReviewDemoRouteImport } from './routes/admin.review-demo'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as ResearchIdRouteImport } from './routes/research.$id'
 import { Route as ShareIdRouteImport } from './routes/share.$id'
 import { Route as KnowledgeTypeSlugRouteImport } from './routes/knowledge_.$type.$slug'
@@ -110,6 +111,11 @@ const AdminReviewDemoRoute = AdminReviewDemoRouteImport.update({
   path: '/admin/review-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResearchIdRoute = ResearchIdRouteImport.update({
   id: '/research/$id',
   path: '/research/$id',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
+  '/admin/users': typeof AdminUsersRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
   '/knowledge/$type/$slug': typeof KnowledgeTypeSlugRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
+  '/admin/users': typeof AdminUsersRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
   '/knowledge/$type/$slug': typeof KnowledgeTypeSlugRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/updates': typeof UpdatesRoute
   '/admin/review': typeof AdminReviewRoute
   '/admin/review-demo': typeof AdminReviewDemoRoute
+  '/admin/users': typeof AdminUsersRoute
   '/research/$id': typeof ResearchIdRoute
   '/share/$id': typeof ShareIdRoute
   '/knowledge_/$type/$slug': typeof KnowledgeTypeSlugRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
+    | '/admin/users'
     | '/research/$id'
     | '/share/$id'
     | '/knowledge/$type/$slug'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
+    | '/admin/users'
     | '/research/$id'
     | '/share/$id'
     | '/knowledge/$type/$slug'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/updates'
     | '/admin/review'
     | '/admin/review-demo'
+    | '/admin/users'
     | '/research/$id'
     | '/share/$id'
     | '/knowledge_/$type/$slug'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   UpdatesRoute: typeof UpdatesRoute
   AdminReviewRoute: typeof AdminReviewRoute
   AdminReviewDemoRoute: typeof AdminReviewDemoRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   ResearchIdRoute: typeof ResearchIdRoute
   ShareIdRoute: typeof ShareIdRoute
   KnowledgeTypeSlugRoute: typeof KnowledgeTypeSlugRoute
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReviewDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/research/$id': {
       id: '/research/$id'
       path: '/research/$id'
@@ -452,6 +472,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpdatesRoute: UpdatesRoute,
   AdminReviewRoute: AdminReviewRoute,
   AdminReviewDemoRoute: AdminReviewDemoRoute,
+  AdminUsersRoute: AdminUsersRoute,
   ResearchIdRoute: ResearchIdRoute,
   ShareIdRoute: ShareIdRoute,
   KnowledgeTypeSlugRoute: KnowledgeTypeSlugRoute,

@@ -2,8 +2,11 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .api import (
     account,
@@ -59,6 +62,16 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
         lifespan=lifespan,
     )
     app.state.settings = services.app_settings
+
+    @app.exception_handler(RequestValidationError)
+    async def safe_account_validation(request: Request, error: RequestValidationError):
+        if request.url.path.startswith("/api/v2/admin/users"):
+            return JSONResponse(
+                status_code=422,
+                content={"detail": "账户资料格式不正确，请检查邮箱、角色、密码长度和账户版本。"},
+            )
+        return await request_validation_exception_handler(request, error)
+
     app.state.database = services.database
     app.state.repository = services.repository
     app.state.auth = services.auth

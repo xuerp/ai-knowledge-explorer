@@ -4,6 +4,7 @@ import { expireAuthSession } from "@/services/auth-session";
 import { authResponseError } from "@/services/auth-errors";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 import type { ReviewReasonCategory } from "@/domain/review-decision";
+import type { AccountRole, AccountUpdate, ManagedUser, UserPage } from "@/domain/admin-users";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()?.replace(/\/$/, "") ?? "";
 
@@ -456,12 +457,53 @@ async function request<T>(
     const authError = authResponseError(response.status, Boolean(token), path);
     if (authError) throw authError;
     const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
+    if (path.startsWith("/api/v2/admin/users")) {
+      throw new Error(
+        response.status === 403
+          ? "仅管理员可以管理用户账户。"
+          : detail?.detail || "账户操作未完成，请稍后重试。",
+      );
+    }
     throw new Error(`${path}：${detail?.detail || `请求失败（${response.status}）`}`);
   }
   return (await response.json()) as T;
 }
 
 export const adminApi = {
+  users: (token: string, query: { q: string; role: string; status: string; offset: number }) =>
+    request<UserPage>(
+      `/api/v2/admin/users?${new URLSearchParams({
+        q: query.q,
+        status: query.status,
+        offset: String(query.offset),
+        limit: "20",
+        ...(query.role !== "all" ? { role: query.role } : {}),
+      })}`,
+      {},
+      token,
+    ),
+  createUser: (token: string, payload: { email: string; password: string; role: AccountRole }) =>
+    request<ManagedUser>(
+      "/api/v2/admin/users",
+      { method: "POST", body: JSON.stringify(payload) },
+      token,
+    ),
+  updateUser: (token: string, id: string, payload: AccountUpdate) =>
+    request<ManagedUser>(
+      `/api/v2/admin/users/${encodeURIComponent(id)}`,
+      { method: "PATCH", body: JSON.stringify(payload) },
+      token,
+    ),
+  resetUserPassword: (
+    token: string,
+    id: string,
+    payload: { password: string; expectedVersion: number },
+  ) =>
+    request<ManagedUser>(
+      `/api/v2/admin/users/${encodeURIComponent(id)}/reset-password`,
+      { method: "POST", body: JSON.stringify(payload) },
+      token,
+    ),
   entryRequests: (token: string, offset = 0, status = "all", query = "") =>
     request<import("./entry-request-types").EntryRequestView[]>(
       `/api/v2/admin/entry-requests?${new URLSearchParams({ offset: String(offset), limit: "21", ...(status !== "all" ? { status } : {}), ...(query.trim() ? { q: query.trim() } : {}) })}`,

@@ -4,6 +4,7 @@ import { Bell, BookOpen, Check, LogOut, ShieldCheck, UserPlus, UserRound } from 
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { safeReturnTo } from "@/domain/account-return";
 import { PasswordField, registrationPasswordMinLength } from "@/components/account/PasswordField";
 import { useApp } from "@/lib/app-state";
 import {
@@ -130,6 +131,7 @@ function AccountPage() {
       const returnTo = safeReturnTo(
         new URLSearchParams(window.location.search).get("returnTo"),
         window.location.origin,
+        response.user.role,
       );
       if (returnTo) window.location.assign(returnTo);
     });
@@ -164,6 +166,7 @@ function AccountPage() {
       const returnTo = safeReturnTo(
         new URLSearchParams(window.location.search).get("returnTo"),
         window.location.origin,
+        response.user.role,
       );
       if (returnTo) window.location.assign(returnTo);
     });
@@ -334,6 +337,11 @@ function AccountPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            {user.role === "admin" && (
+              <Button asChild variant="outline">
+                <Link to="/admin/users">{t("用户管理", "User management")}</Link>
+              </Button>
+            )}
             {(user.role === "reviewer" || user.role === "admin") && (
               <Button asChild variant="outline">
                 <Link to="/admin/review">
@@ -548,19 +556,6 @@ function AccountPage() {
       </main>
     </AppShell>
   );
-}
-
-function safeReturnTo(value: string | null, origin: string) {
-  if (!value) return "";
-  try {
-    const destination = new URL(value, origin);
-    const allowedPath =
-      destination.pathname === "/ask" || /^\/research\/[^/]+$/.test(destination.pathname);
-    if (destination.origin !== origin || !allowedPath) return "";
-    return `${destination.pathname}${destination.search}${destination.hash}`;
-  } catch {
-    return "";
-  }
 }
 
 function Notice({ text, destructive = false }: { text: string; destructive?: boolean }) {

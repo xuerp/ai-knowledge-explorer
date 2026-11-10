@@ -13,7 +13,7 @@ from .database import RememberedSessionRecord, RevokedAccessTokenRecord, UserRec
 def _current_account_principal(request: Request, principal: Principal) -> Principal | None:
     with request.app.state.database.session() as session:
         user = session.get(UserRecord, principal.subject)
-        if user is None or not user.active:
+        if user is None or not user.active or principal.session_version != user.session_version:
             return None
         if principal.token_fingerprint and session.get(
             RevokedAccessTokenRecord, principal.token_fingerprint
@@ -37,6 +37,7 @@ def _current_account_principal(request: Request, principal: Principal) -> Princi
             session_id=principal.session_id,
             token_fingerprint=principal.token_fingerprint,
             expires_at=principal.expires_at,
+            session_version=principal.session_version,
         )
 
 

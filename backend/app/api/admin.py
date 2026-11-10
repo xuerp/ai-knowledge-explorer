@@ -1,6 +1,6 @@
 import json
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy import select
@@ -39,23 +39,34 @@ from ..schemas import (
     ReleaseBaseline,
     ReleaseClaimMetrics,
     TimelineEntry,
-    UserCreate,
-    UserView,
+)
+from ..user_management import (
+    AdminUserCreate,
+    ManagedUser,
+    PasswordReset,
+    UserPage,
+    UserUpdate,
+    lock_account_changes,
+    managed_user,
+    reset_user_password,
+    update_user,
+    user_page,
 )
 from .dependencies import AdminDependency, ReviewerDependency, ServicesDependency, SessionDependency
 
 router = APIRouter()
 
 
-@router.post("/api/v2/admin/users", response_model=UserView, status_code=status.HTTP_201_CREATED)
+@router.post("/api/v2/admin/users", response_model=ManagedUser, status_code=status.HTTP_201_CREATED)
 def create_user(
     services: ServicesDependency,
-    payload: UserCreate,
+    payload: AdminUserCreate,
     principal: AdminDependency,
     session: SessionDependency,
-) -> UserView:
+) -> ManagedUser:
     try:
-        user = services.auth.create_user(session, payload)
+        lock_account_changes(session, principal)
+        user = services.auth.create_user(session, payload, commit=False)
     except IntegrityError as error:
         session.rollback()
         raise HTTPException(
@@ -64,7 +75,49 @@ def create_user(
         ) from error
     services.audit.record(session, principal, "user.create", "user", user.id, {"role": user.role})
     session.commit()
-    return services.auth.to_user_view(user)
+    return managed_user(services, user)
+
+
+@router.get("/api/v2/admin/users", response_model=UserPage)
+def list_users(
+    services: ServicesDependency,
+    session: SessionDependency,
+    _: AdminDependency,
+    response: Response,
+    q: Annotated[str, Query(max_length=320)] = "",
+    role: Annotated[Literal["viewer", "reviewer", "admin"] | None, Query()] = None,
+    account_status: Annotated[Literal["all", "active", "disabled"], Query(alias="status")] = "all",
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> UserPage:
+    response.headers["Cache-Control"] = "no-store"
+    return user_page(services, session, q, role, account_status, offset, limit)
+
+
+@router.patch("/api/v2/admin/users/{user_id}", response_model=ManagedUser)
+def change_user(
+    user_id: str,
+    payload: UserUpdate,
+    services: ServicesDependency,
+    session: SessionDependency,
+    principal: AdminDependency,
+) -> ManagedUser:
+    try:
+        return update_user(services, session, principal, user_id, payload)
+    except IntegrityError as error:
+        session.rollback()
+        raise HTTPException(409, "该邮箱已被其他账户使用。") from error
+
+
+@router.post("/api/v2/admin/users/{user_id}/reset-password", response_model=ManagedUser)
+def reset_account_password(
+    user_id: str,
+    payload: PasswordReset,
+    services: ServicesDependency,
+    session: SessionDependency,
+    principal: AdminDependency,
+) -> ManagedUser:
+    return reset_user_password(services, session, principal, user_id, payload)
 
 
 @router.get("/api/v2/admin/audit-log", response_model=list[AuditLogView])

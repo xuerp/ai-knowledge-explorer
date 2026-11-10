@@ -1,4 +1,5 @@
 import { EntryRequestsPanel } from "@/components/knowledge/EntryRequestsPanel";
+import { Link } from "@tanstack/react-router";
 
 import { LogOut, Mail, RefreshCw, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
@@ -167,6 +168,9 @@ export function ReviewWorkspace() {
           <div className="flex flex-wrap gap-2">
             {user.role === "admin" && (
               <>
+                <Button asChild variant="outline">
+                  <Link to="/admin/users">用户管理</Link>
+                </Button>
                 <Button variant="outline" onClick={() => run("ingestion")} disabled={busy}>
                   <RefreshCw />
                   运行采集

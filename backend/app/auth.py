@@ -24,6 +24,7 @@ class Principal:
     session_id: str | None = None
     token_fingerprint: str | None = None
     expires_at: datetime | None = None
+    session_version: int = 0
 
 
 class AuthService:
@@ -39,7 +40,9 @@ class AuthService:
     def count_users(self, session: Session) -> int:
         return session.scalar(select(func.count()).select_from(UserRecord)) or 0
 
-    def create_user(self, session: Session, payload: UserCreate) -> UserRecord:
+    def create_user(
+        self, session: Session, payload: UserCreate, *, commit: bool = True
+    ) -> UserRecord:
         record = UserRecord(
             id=str(uuid4()),
             email=str(payload.email).strip().casefold(),
@@ -49,7 +52,7 @@ class AuthService:
             created_at=datetime.now(UTC),
         )
         session.add(record)
-        session.commit()
+        session.commit() if commit else session.flush()
         return record
 
     def authenticate(self, session: Session, email: str, password: str) -> UserRecord | None:
@@ -87,6 +90,7 @@ class AuthService:
                 "iss": "ai-radar",
                 "aud": "ai-radar-web",
                 "jti": str(uuid4()),
+                "ver": user.session_version or 0,
                 **({"sid": remembered_session_id} if remembered_session_id else {}),
             },
             self.jwt_secret,
@@ -125,6 +129,9 @@ class AuthService:
             role = payload.get("role")
             if role not in {"viewer", "reviewer", "admin"}:
                 return None
+            version = payload.get("ver", 0)
+            if type(version) is not int or version < 0:
+                return None
             return Principal(
                 subject=str(payload["sub"]),
                 email=str(payload["email"]),
@@ -132,6 +139,7 @@ class AuthService:
                 session_id=payload.get("sid"),
                 token_fingerprint=hashlib.sha256(token.encode("utf-8")).hexdigest(),
                 expires_at=datetime.fromtimestamp(float(payload["exp"]), UTC),
+                session_version=version,
             )
         except (jwt.InvalidTokenError, KeyError):
             return None

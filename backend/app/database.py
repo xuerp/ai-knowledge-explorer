@@ -242,6 +242,9 @@ class UserRecord(Base):
     password_hash: Mapped[str] = mapped_column(String(512), nullable=False)
     role: Mapped[str] = mapped_column(String(32), nullable=False, default="viewer")
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    session_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
     daily_digest_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     digest_hour: Mapped[str] = mapped_column(String(5), nullable=False, default="08:00")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

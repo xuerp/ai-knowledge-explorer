@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from .config import Settings
 from .database import AuditLogRecord, Database, UserRecord
+from .user_management import invalidate_sessions
 
 EMAIL_ADAPTER = TypeAdapter(EmailStr)
 
@@ -29,6 +30,7 @@ def reset_password(
         if user is None:
             return False
         user.password_hash = PasswordHash.recommended().hash(password)
+        invalidate_sessions(session, user)
         user.active = True
         if normalized_new_email:
             user.email = normalized_new_email

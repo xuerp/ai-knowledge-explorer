@@ -4,6 +4,10 @@ import test from "node:test";
 
 const askRoute = await readFile(new URL("../src/routes/ask.tsx", import.meta.url), "utf8");
 const accountRoute = await readFile(new URL("../src/routes/account.tsx", import.meta.url), "utf8");
+const accountReturn = await readFile(
+  new URL("../src/domain/account-return.ts", import.meta.url),
+  "utf8",
+);
 const userApi = await readFile(new URL("../src/services/user-api.ts", import.meta.url), "utf8");
 const decisionBrief = await readFile(
   new URL("../src/components/research/DecisionBrief.tsx", import.meta.url),
@@ -60,7 +64,8 @@ test("expired sessions clear auth and resume the complete decision form after lo
   assert.match(userApi, /export \{ AuthSessionExpiredError \}/);
   assert.match(askRoute, /authSessionExpiredEvent/);
   assert.match(askRoute, /登录并继续/);
-  assert.match(accountRoute, /destination\.pathname === "\/ask"/);
+  assert.match(accountReturn, /destination\.pathname === "\/ask"/);
+  assert.match(accountRoute, /import \{ safeReturnTo \}/);
   assert.match(accountRoute, /research/);
   assert.match(accountRoute, /window\.location\.assign\(returnTo\)/);
   for (const field of [

@@ -102,7 +102,11 @@ def test_remember_checkbox_does_not_extend_privileged_access(client):
 @pytest.mark.parametrize("offset", [-10, 10])
 def test_database_session_timezone_preserves_the_actual_expiry_instant(offset):
     user = SimpleNamespace(
-        id="fixture-user", email="timezone@example.com", role="viewer", active=True
+        id="fixture-user",
+        email="timezone@example.com",
+        role="viewer",
+        active=True,
+        session_version=0,
     )
     remembered = SimpleNamespace(
         user_id=user.id,
