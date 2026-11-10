@@ -277,6 +277,7 @@ export function UsersWorkspace() {
               </p>
             )}
             <form
+              aria-label={t("账户筛选", "Account filters")}
               className="flex flex-wrap items-end gap-3"
               onSubmit={(event) => {
                 event.preventDefault();
@@ -285,7 +286,7 @@ export function UsersWorkspace() {
                 setRevision((v) => v + 1);
               }}
             >
-              <label className="min-w-0 grow basis-64 space-y-2">
+              <label className="flex min-w-0 grow basis-64 flex-col gap-2">
                 <span className="text-sm">{t("搜索邮箱", "Search email")}</span>
                 <Input
                   type="search"
@@ -295,7 +296,7 @@ export function UsersWorkspace() {
                   placeholder={t("输入完整邮箱或关键词", "Email address or keyword")}
                 />
               </label>
-              <div className="w-36 space-y-2">
+              <div className="flex min-w-0 grow basis-32 flex-col gap-2 sm:w-36 sm:grow-0 sm:basis-auto">
                 <label htmlFor="users-role" className="text-sm">
                   {t("角色", "Role")}
                 </label>
@@ -319,7 +320,7 @@ export function UsersWorkspace() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="w-36 space-y-2">
+              <div className="flex min-w-0 grow basis-32 flex-col gap-2 sm:w-36 sm:grow-0 sm:basis-auto">
                 <label htmlFor="users-status" className="text-sm">
                   {t("账户状态", "Account status")}
                 </label>
@@ -340,19 +341,21 @@ export function UsersWorkspace() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" variant="outline">
-                <Search />
-                {t("搜索", "Search")}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={loading}
-                onClick={() => setRevision((v) => v + 1)}
-              >
-                <RefreshCw className={loading ? "animate-spin" : ""} />
-                {t("刷新", "Refresh")}
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button type="submit" variant="outline">
+                  <Search />
+                  {t("搜索", "Search")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={loading}
+                  onClick={() => setRevision((v) => v + 1)}
+                >
+                  <RefreshCw className={loading ? "animate-spin" : ""} />
+                  {t("刷新", "Refresh")}
+                </Button>
+              </div>
             </form>
             {error && (
               <div
