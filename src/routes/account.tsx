@@ -5,7 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { safeReturnTo } from "@/domain/account-return";
-import { PasswordField, registrationPasswordMinLength } from "@/components/account/PasswordField";
+import { PasswordField, passwordMinLength } from "@/components/account/PasswordField";
 import { useApp } from "@/lib/app-state";
 import {
   authSessionExpiredEvent,
@@ -157,11 +157,11 @@ function AccountPage() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const password = String(form.get("password"));
-    if (password.length < registrationPasswordMinLength) {
+    if (password.length < passwordMinLength) {
       setError(
         t(
-          `密码至少需要 ${registrationPasswordMinLength} 个字符。`,
-          `Your password must contain at least ${registrationPasswordMinLength} characters.`,
+          `密码至少需要 ${passwordMinLength} 个字符。`,
+          `Your password must contain at least ${passwordMinLength} characters.`,
         ),
       );
       return;

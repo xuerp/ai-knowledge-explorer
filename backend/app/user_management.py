@@ -10,7 +10,14 @@ from sqlalchemy.orm import Session
 
 from .auth import Principal
 from .database import RememberedSessionRecord, UserRecord
-from .schemas import CamelModel, Role, UserCreate, UserView
+from .schemas import (
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
+    CamelModel,
+    Role,
+    UserCreate,
+    UserView,
+)
 
 
 class AdminUserCreate(UserCreate):
@@ -45,7 +52,7 @@ class UserUpdate(CamelModel):
 class PasswordReset(CamelModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid", populate_by_name=True)
     expected_version: int = Field(ge=0)
-    password: str = Field(min_length=12, max_length=256)
+    password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
 
 
 def managed_user(services, row: UserRecord) -> ManagedUser:

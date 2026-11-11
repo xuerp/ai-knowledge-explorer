@@ -905,11 +905,13 @@ class ExtractionPlanItem(CamelModel):
 
 
 Role = Literal["viewer", "reviewer", "admin"]
+PASSWORD_MIN_LENGTH = 6
+PASSWORD_MAX_LENGTH = 256
 
 
 class RegistrationRequest(CamelModel):
     email: EmailStr
-    password: str = Field(min_length=6, max_length=256)
+    password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
 
 
 class BootstrapUser(RegistrationRequest):
@@ -918,7 +920,7 @@ class BootstrapUser(RegistrationRequest):
 
 class LoginRequest(CamelModel):
     email: EmailStr
-    password: str = Field(min_length=1, max_length=256)
+    password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
     remember_me: bool = False
 
 

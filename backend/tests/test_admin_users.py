@@ -17,7 +17,7 @@ from app.main import create_app
 
 SECRET = "isolated-admin-user-tests-secret-at-least-32-characters"
 PASSWORD = "original isolated account password"
-NEW_PASSWORD = "replacement isolated account password"
+NEW_PASSWORD = "R4m!t8"
 
 
 @pytest.fixture
@@ -202,6 +202,11 @@ def test_all_new_account_entry_points_accept_six_character_passwords(client):
             path, headers=headers, json={"email": email, "password": new_password}
         )
         assert accepted.status_code == expected_status, accepted.text
+        short_login = client.post(
+            "/api/v2/auth/login", json={"email": email, "password": new_password[:-1]}
+        )
+        assert short_login.status_code == 422
+        assert new_password[:-1] not in short_login.text
         assert (
             client.get("/api/v2/auth/me", headers=login(client, email, new_password)).status_code
             == 200
@@ -248,6 +253,13 @@ def test_reset_password_revokes_all_sessions_without_reactivating_account(client
     create(client, owner)
     before = login(client, "person@example.com", remembered=remembered)
     user = row(client, owner, "person@example.com")
+    too_short = client.post(
+        f"/api/v2/admin/users/{user['id']}/reset-password",
+        headers=owner,
+        json={"expectedVersion": user["version"], "password": NEW_PASSWORD[:-1]},
+    )
+    assert too_short.status_code == 422
+    assert client.get("/api/v2/auth/me", headers=before).status_code == 200
     reset = client.post(
         f"/api/v2/admin/users/{user['id']}/reset-password",
         headers=owner,

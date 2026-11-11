@@ -70,7 +70,7 @@ GET /api/v2/admin/production-readiness
 $headers = @{ "X-Admin-Token" = "你的 AI_RADAR_ADMIN_TOKEN" }
 $body = @{
   email = "admin@example.com"
-  password = "至少十二位的独立强密码"
+  password = "至少 6 个字符的独立密码"
 } | ConvertTo-Json
 Invoke-RestMethod "http://127.0.0.1:8000/api/v2/auth/bootstrap" `
   -Method Post -Headers $headers -ContentType "application/json" -Body $body

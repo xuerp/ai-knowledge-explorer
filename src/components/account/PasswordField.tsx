@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useApp } from "@/lib/app-state";
 
-export const registrationPasswordMinLength = 6;
+export const passwordMinLength = 6;
 
 export function PasswordField({
   id,
@@ -40,7 +40,7 @@ export function PasswordField({
           autoCorrect="off"
           spellCheck={false}
           placeholder={t("输入密码", "Enter your password")}
-          minLength={creating ? registrationPasswordMinLength : 1}
+          minLength={passwordMinLength}
           maxLength={256}
           required
           disabled={disabled}
@@ -73,8 +73,8 @@ export function PasswordField({
       {creating && showHint && (
         <small id={`${id}-hint`}>
           {t(
-            `至少 ${registrationPasswordMinLength} 个字符，支持粘贴或浏览器生成的密码。`,
-            `At least ${registrationPasswordMinLength} characters. Pasting and generated passwords are supported.`,
+            `至少 ${passwordMinLength} 个字符，支持粘贴或浏览器生成的密码。`,
+            `At least ${passwordMinLength} characters. Pasting and generated passwords are supported.`,
           )}
         </small>
       )}

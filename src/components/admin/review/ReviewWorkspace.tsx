@@ -2,6 +2,7 @@ import { EntryRequestsPanel } from "@/components/knowledge/EntryRequestsPanel";
 import { Link } from "@tanstack/react-router";
 
 import { LogOut, Mail, RefreshCw, ShieldCheck } from "lucide-react";
+import { passwordMinLength } from "@/components/account/PasswordField";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,6 +116,8 @@ export function ReviewWorkspace() {
               type="password"
               autoComplete="current-password"
               placeholder="密码"
+              minLength={passwordMinLength}
+              maxLength={256}
               required
             />
             {error && <p className="text-sm text-destructive">{error}</p>}

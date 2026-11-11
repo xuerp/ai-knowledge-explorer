@@ -4,13 +4,14 @@ param(
 
 $ErrorActionPreference = "Stop"
 $apiRoot = $ApiBaseUrl.TrimEnd("/")
+$passwordMinLength = 6
 
 Write-Host "AI Radar staging admin bootstrap"
 Write-Host "API: $apiRoot"
 Write-Host "The token and password will not be echoed or stored in shell history."
 
 $email = Read-Host "Admin email"
-$securePassword = Read-Host "Admin password (at least 12 characters)" -AsSecureString
+$securePassword = Read-Host "Admin password (at least $passwordMinLength characters)" -AsSecureString
 $secureAdminToken = Read-Host "AI_RADAR_ADMIN_TOKEN from Render" -AsSecureString
 
 $password = $null
@@ -23,8 +24,8 @@ try {
   if ([string]::IsNullOrWhiteSpace($email)) {
     throw "Admin email cannot be empty."
   }
-  if ($password.Length -lt 12) {
-    throw "Admin password must contain at least 12 characters."
+  if ($password.Length -lt $passwordMinLength) {
+    throw "Admin password must contain at least $passwordMinLength characters."
   }
   if ([string]::IsNullOrWhiteSpace($adminToken)) {
     throw "AI_RADAR_ADMIN_TOKEN cannot be empty."

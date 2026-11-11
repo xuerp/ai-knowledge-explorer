@@ -70,6 +70,20 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
                 status_code=422,
                 content={"detail": "账户资料格式不正确，请检查邮箱、角色、密码长度和账户版本。"},
             )
+        if request.url.path in {
+            "/api/v2/auth/bootstrap",
+            "/api/v2/auth/login",
+            "/api/v2/auth/register",
+        }:
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "detail": [
+                        {key: issue[key] for key in ("type", "loc", "msg")}
+                        for issue in error.errors()
+                    ]
+                },
+            )
         return await request_validation_exception_handler(request, error)
 
     app.state.database = services.database

@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from .config import Settings
 from .database import AuditLogRecord, Database, UserRecord
+from .schemas import PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH
 from .user_management import invalidate_sessions
 
 EMAIL_ADAPTER = TypeAdapter(EmailStr)
@@ -66,10 +67,14 @@ def main() -> int:
     database = Database(settings.database_url)
     try:
         if args.command == "reset-password":
-            password = getpass.getpass("New password (at least 12 characters): ")
+            password = getpass.getpass(
+                f"New password (at least {PASSWORD_MIN_LENGTH} characters): "
+            )
             confirmation = getpass.getpass("Repeat new password: ")
-            if len(password) < 12:
-                print("Password must contain at least 12 characters.")
+            if not PASSWORD_MIN_LENGTH <= len(password) <= PASSWORD_MAX_LENGTH:
+                print(
+                    f"Password must contain {PASSWORD_MIN_LENGTH} to {PASSWORD_MAX_LENGTH} characters."
+                )
                 return 2
             if password != confirmation:
                 print("Passwords do not match.")

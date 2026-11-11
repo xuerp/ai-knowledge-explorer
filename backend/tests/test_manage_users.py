@@ -10,6 +10,7 @@ def test_reset_password_reactivates_user_and_records_audit():
     database = Database("sqlite://")
     database.create_all()
     auth = AuthService("test-secret-that-is-long-enough-for-tests", 30)
+    replacement = "P8n!r2"
     try:
         with database.session() as session:
             user = auth.create_user(
@@ -27,7 +28,7 @@ def test_reset_password_reactivates_user_and_records_audit():
             reset_password(
                 database,
                 " ADMIN@example.com ",
-                "replacement-password",
+                replacement,
                 "owner@example.com",
             )
             is True
@@ -35,9 +36,7 @@ def test_reset_password_reactivates_user_and_records_audit():
 
         with database.session() as session:
             assert auth.authenticate(session, "admin@example.com", "original-password") is None
-            assert (
-                auth.authenticate(session, "owner@example.com", "replacement-password") is not None
-            )
+            assert auth.authenticate(session, "owner@example.com", replacement) is not None
             audit = session.scalar(select(AuditLogRecord))
             assert audit is not None
             assert audit.action == "user.password-reset"

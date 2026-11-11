@@ -56,7 +56,7 @@ python -m app.migrate_operational_data --source-url sqlite:////本机路径/ai_r
 curl -X POST http://127.0.0.1:8000/api/v2/auth/bootstrap \
   -H "Content-Type: application/json" \
   -H "X-Admin-Token: $AI_RADAR_ADMIN_TOKEN" \
-  -d '{"email":"你的邮箱","password":"至少十二位的独立强密码"}'
+  -d '{"email":"你的邮箱","password":"至少 6 个字符的独立密码"}'
 ```
 
 首个用户创建后，该接口会返回 `409`。使用管理员 Bearer 令牌调用 `POST /api/v2/admin/users`，可创建审核员或其他用户。

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { KeyRound, Pencil, RefreshCw, Search, UserPlus } from "lucide-react";
-import { registrationPasswordMinLength } from "@/components/account/PasswordField";
+import { passwordMinLength } from "@/components/account/PasswordField";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -224,7 +224,6 @@ export function UsersWorkspace() {
           : action?.kind === "status" && action.user.active
             ? t("停用账户", "Disable account")
             : t("恢复账户", "Restore account");
-  const passwordMinLength = action?.kind === "create" ? registrationPasswordMinLength : 12;
 
   if (checking || !auth || auth.user.role !== "admin") {
     return (
