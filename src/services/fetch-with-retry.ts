@@ -13,6 +13,7 @@ export async function fetchWithNetworkRetry(
   init: RequestInit = {},
   options: FetchWithRetryOptions = {},
 ): Promise<Response> {
+  init.signal?.throwIfAborted();
   const attempts = Math.max(1, options.attempts ?? 3);
   const baseDelayMs = Math.max(0, options.baseDelayMs ?? 600);
   const timeoutMs = Math.max(1, options.timeoutMs ?? 75_000);

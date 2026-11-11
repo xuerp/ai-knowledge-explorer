@@ -15,7 +15,6 @@ from .schemas import CamelModel, Role, UserCreate, UserView
 
 class AdminUserCreate(UserCreate):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid", populate_by_name=True)
-    password: str = Field(min_length=12, max_length=256)
 
 
 class ManagedUser(UserView):

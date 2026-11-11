@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { mergeReviewQueue } from "@/domain/review-decision";
@@ -14,7 +14,8 @@ import {
   type RelationClaimRepairReport,
   type ReviewQueueItem,
 } from "@/services/admin-api";
-import { authSessionExpiredEvent, clearAuthToken, readAuthToken } from "@/services/auth-session";
+import { accountErrorMessage } from "@/services/auth-errors";
+import { authSessionExpiredEvent, readAuthToken } from "@/services/auth-session";
 
 import { catalogExamples } from "./catalog-examples";
 import type { Workspace, CatalogRecordKind } from "./types";
@@ -61,20 +62,46 @@ export function useReviewState() {
     null,
   );
   const [goldenQuestionsBusy, setGoldenQuestionsBusy] = useState(false);
+  const refreshController = useRef<AbortController | null>(null);
 
   const refresh = useCallback(async (activeToken: string) => {
-    const currentUser = await adminApi.me(activeToken);
-    setUser(currentUser);
-    const data = await adminApi.workspace(activeToken, currentUser.role);
-    setWorkspace((current) =>
-      current
-        ? {
-            ...data,
-            queue: mergeReviewQueue(current.queue, data.queue),
-            productionReadiness: data.productionReadiness ?? current.productionReadiness,
+    if (readAuthToken() !== activeToken) return;
+    refreshController.current?.abort();
+    const controller = new AbortController();
+    refreshController.current = controller;
+    const { signal } = controller;
+    const isCurrent = () => !signal.aborted && readAuthToken() === activeToken;
+    try {
+      const currentUser = await adminApi.me(activeToken, signal);
+      if (!isCurrent()) return;
+      setUser(currentUser);
+      if (currentUser.role === "viewer") {
+        setWorkspace(null);
+        return;
+      }
+      const applyData = (data: Workspace) => {
+        if (!isCurrent()) return;
+        setWorkspace((current) => {
+          if (!current) return data;
+          const queue = mergeReviewQueue(current.queue, data.queue);
+          if (data.diagnosticsPending && !current.diagnosticsPending) {
+            return { ...current, queue, entities: data.entities };
           }
-        : data,
-    );
+          return {
+            ...data,
+            queue,
+            productionReadiness: data.productionReadiness ?? current.productionReadiness,
+          };
+        });
+      };
+      applyData(
+        await adminApi.workspace(activeToken, currentUser.role, { onQueue: applyData, signal }),
+      );
+    } catch (reason) {
+      if (isCurrent()) throw reason;
+    } finally {
+      if (refreshController.current === controller) refreshController.current = null;
+    }
   }, []);
 
   const addRevision = (created: ReviewQueueItem) => {
@@ -92,24 +119,30 @@ export function useReviewState() {
 
   useEffect(() => {
     const stored = readAuthToken();
-    if (!stored) {
+    if (!stored || !adminApi.configured) {
       setSessionChecking(false);
       return;
     }
+    let active = true;
     setToken(stored);
     refresh(stored)
       .catch((reason: unknown) => {
-        clearAuthToken();
-        setToken("");
-        setUser(null);
-        setWorkspace(null);
-        setError(reason instanceof Error ? reason.message : "Session validation failed.");
+        if (active && readAuthToken() === stored) {
+          setError(accountErrorMessage(reason, (zh) => zh));
+        }
       })
-      .finally(() => setSessionChecking(false));
+      .finally(() => {
+        if (active) setSessionChecking(false);
+      });
+    return () => {
+      active = false;
+      refreshController.current?.abort();
+    };
   }, [refresh]);
 
   useEffect(() => {
     const handleExpiredSession = () => {
+      refreshController.current?.abort();
       setToken("");
       setUser(null);
       setWorkspace(null);
@@ -120,13 +153,20 @@ export function useReviewState() {
     return () => window.removeEventListener(authSessionExpiredEvent, handleExpiredSession);
   }, []);
 
+  const canPollOperations = Boolean(workspace && !workspace.diagnosticsPending);
   useEffect(() => {
-    if (!token || user?.role !== "admin") return;
+    if (!token || user?.role !== "admin" || !canPollOperations) return;
+    let active = true;
+    let refreshing = false;
     const refreshOperations = async () => {
+      if (refreshing || document.visibilityState === "hidden") return;
+      refreshing = true;
       const [operationsResult, readinessResult] = await Promise.allSettled([
         adminApi.operations(token),
         adminApi.productionReadiness(token),
       ]);
+      refreshing = false;
+      if (!active || readAuthToken() !== token) return;
       setWorkspace((current) => {
         if (!current) return current;
         return {
@@ -151,8 +191,11 @@ export function useReviewState() {
       );
     };
     const timer = window.setInterval(refreshOperations, 60_000);
-    return () => window.clearInterval(timer);
-  }, [token, user?.role]);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [token, user?.role, canPollOperations]);
 
   return {
     token,

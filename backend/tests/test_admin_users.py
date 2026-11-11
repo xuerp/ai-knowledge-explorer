@@ -184,6 +184,30 @@ def test_create_validation_duplicate_email_and_audit(client):
         assert PASSWORD not in logs[0].detail_json
 
 
+def test_all_new_account_entry_points_accept_six_character_passwords(client):
+    new_password = "Q7d9!s"
+    cases = [
+        ("/api/v2/auth/bootstrap", "six-admin@example.com", 200),
+        ("/api/v2/auth/register", "six-self@example.com", 201),
+        ("/api/v2/admin/users", "six-managed@example.com", 201),
+    ]
+    admin_headers = {"X-Admin-Token": "isolated-admin-token"}
+    for path, email, expected_status in cases:
+        headers = admin_headers if path != "/api/v2/auth/register" else {}
+        short = client.post(
+            path, headers=headers, json={"email": email, "password": new_password[:-1]}
+        )
+        assert short.status_code == 422
+        accepted = client.post(
+            path, headers=headers, json={"email": email, "password": new_password}
+        )
+        assert accepted.status_code == expected_status, accepted.text
+        assert (
+            client.get("/api/v2/auth/me", headers=login(client, email, new_password)).status_code
+            == 200
+        )
+
+
 @pytest.mark.parametrize("remembered", [False, True])
 def test_disable_restore_invalidates_sessions_and_preserves_user_data(client, remembered):
     owner = admin(client)

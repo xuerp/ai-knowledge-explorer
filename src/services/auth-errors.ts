@@ -15,6 +15,19 @@ export class AuthSessionExpiredError extends AuthRequestError {
   }
 }
 
+export function apiAvailabilityError(status: number): AuthRequestError | null {
+  if (status === 504) {
+    return new AuthRequestError("服务响应超时，请重试。", "The service timed out. Try again.");
+  }
+  if (status === 502 || status === 503) {
+    return new AuthRequestError(
+      "暂时无法连接服务，请重试。",
+      "The service is temporarily unavailable. Try again.",
+    );
+  }
+  return null;
+}
+
 export function authResponseError(status: number, hasToken: boolean, path: string): Error | null {
   if (status === 401 && hasToken) return new AuthSessionExpiredError();
   if (!path.startsWith("/api/v2/auth/")) return null;
@@ -45,15 +58,9 @@ export function accountErrorMessage(
   if (reason instanceof AuthRequestError) return t(reason.message, reason.englishMessage);
   if (reason instanceof Error) {
     if (reason.message === "暂时无法连接后端 API，服务可能正在唤醒，请稍后刷新重试。")
-      return t(
-        reason.message,
-        "The backend API is unavailable. Your inputs are preserved; try again shortly.",
-      );
+      return t("暂时无法连接服务，请重试。", "The service is temporarily unavailable. Try again.");
     if (reason.message === "后端请求超时，请稍后重试；若已登录，其他后台数据仍可继续加载。")
-      return t(
-        reason.message,
-        "The backend request timed out. Try again; other account data can continue loading.",
-      );
+      return t("服务响应超时，请重试。", "The service timed out. Try again.");
   }
   return reason instanceof Error
     ? reason.message

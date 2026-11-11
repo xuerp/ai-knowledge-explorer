@@ -1,7 +1,7 @@
 import type { Claim, Entity, Evidence, GraphEdge, TimelineEntry } from "@/domain/types";
 import type { CandidateCreateRequest } from "@/domain/manual-candidate";
-import { expireAuthSession } from "@/services/auth-session";
-import { authResponseError } from "@/services/auth-errors";
+import { expireAuthSession, readAuthToken } from "@/services/auth-session";
+import { apiAvailabilityError, authResponseError } from "@/services/auth-errors";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 import type { ReviewReasonCategory } from "@/domain/review-decision";
 import type { AccountRole, AccountUpdate, ManagedUser, UserPage } from "@/domain/admin-users";
@@ -12,6 +12,26 @@ export interface AdminUser {
   email: string;
   role: "viewer" | "reviewer" | "admin";
 }
+
+export type ReviewWorkspaceData = {
+  queue: ReviewQueueItem[];
+  entities: Entity[];
+  extractionPlan: ExtractionPlanItem[];
+  sources: SourceView[];
+  runs: IngestionRun[];
+  audit: AuditEntry[];
+  outbox: OutboxEntry[];
+  quality: DataQualityReport | null;
+  integrations: IntegrationStatus | null;
+  operations: OperationsDiagnostics | null;
+  productionReadiness: ProductionReadiness | null;
+  reviewInventory: ReviewInventoryReport | null;
+  build: HealthStatus | null;
+  claimEntityAudit: ClaimEntityAuditReport | null;
+  relationClaimAudit: RelationClaimAuditReport | null;
+  loadWarnings: string[];
+  diagnosticsPending: boolean;
+};
 
 export interface HealthStatus {
   ok: boolean;
@@ -451,9 +471,11 @@ async function request<T>(
     { timeoutMs },
   );
   if (!response.ok) {
-    if (response.status === 401 && token) {
+    if (response.status === 401 && token && readAuthToken() === token) {
       expireAuthSession();
     }
+    const availabilityError = apiAvailabilityError(response.status);
+    if (availabilityError) throw availabilityError;
     const authError = authResponseError(response.status, Boolean(token), path);
     if (authError) throw authError;
     const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
@@ -537,7 +559,8 @@ export const adminApi = {
     );
   },
 
-  me: (token: string) => request<AdminUser>("/api/v2/auth/me", {}, token),
+  me: (token: string, signal?: AbortSignal) =>
+    request<AdminUser>("/api/v2/auth/me", { signal }, token),
 
   operations: (token: string) =>
     request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
@@ -587,104 +610,115 @@ export const adminApi = {
       token,
     ),
 
-  async workspace(token: string, role: AdminUser["role"]) {
-    const [
-      openQueueResult,
-      historyQueueResult,
-      inventoryResult,
-      healthResult,
-      entityAuditResult,
-      relationAuditResult,
-      entitiesResult,
-    ] = await Promise.all([
-      settle(
-        "开放审核队列",
-        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", {}, token),
-        [],
+  async workspace(
+    token: string,
+    role: AdminUser["role"],
+    {
+      onQueue,
+      signal,
+    }: { onQueue?: (data: ReviewWorkspaceData) => void; signal?: AbortSignal } = {},
+  ): Promise<ReviewWorkspaceData> {
+    const options = { signal };
+    const [openQueue, historyQueue, entities] = await Promise.all([
+      request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=open&limit=500", options, token),
+      request<ReviewQueueItem[]>(
+        "/api/v2/admin/review-queue?scope=history&limit=100",
+        options,
+        token,
       ),
-      settle(
-        "最近审核历史",
-        request<ReviewQueueItem[]>("/api/v2/admin/review-queue?scope=history&limit=100", {}, token),
-        [],
-      ),
-      settle(
-        "审核盘点",
-        request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", {}, token),
-        null,
-      ),
-      settle("构建信息", request<HealthStatus>("/health", {}, token), null),
-      settle(
-        "Claim 实体审计",
-        request<ClaimEntityAuditReport>("/api/v2/admin/claim-entity-audit", {}, token),
-        null,
-      ),
-      settle(
-        "历史关系审计",
-        request<RelationClaimAuditReport>("/api/v2/admin/relation-claim-audit", {}, token),
-        null,
-      ),
-      settle("实体目录", request<Entity[]>("/api/v2/entities", {}, token), []),
+      request<Entity[]>("/api/v2/entities", options, token),
     ]);
-    const queueResult = {
-      value: [...openQueueResult.value, ...historyQueueResult.value],
-      warning: [openQueueResult.warning, historyQueueResult.warning].filter(Boolean).join("；"),
+    signal?.throwIfAborted();
+    const queueData: ReviewWorkspaceData = {
+      queue: [...openQueue, ...historyQueue],
+      entities,
+      extractionPlan: [],
+      sources: [],
+      runs: [],
+      audit: [],
+      outbox: [],
+      quality: null,
+      integrations: null,
+      operations: null,
+      productionReadiness: null,
+      reviewInventory: null,
+      build: null,
+      claimEntityAudit: null,
+      relationClaimAudit: null,
+      loadWarnings: [],
+      diagnosticsPending: true,
     };
-    if (role !== "admin") {
-      return {
-        queue: queueResult.value,
-        entities: entitiesResult.value,
-        extractionPlan: [],
-        sources: [],
-        runs: [],
-        audit: [],
-        outbox: [],
-        quality: null,
-        integrations: null,
-        operations: null,
-        productionReadiness: null,
-        reviewInventory: inventoryResult.value,
-        build: healthResult.value,
-        claimEntityAudit: entityAuditResult.value,
-        relationClaimAudit: relationAuditResult.value,
-        loadWarnings: [
-          queueResult.warning,
-          inventoryResult.warning,
-          healthResult.warning,
-          entityAuditResult.warning,
-          relationAuditResult.warning,
-          entitiesResult.warning,
-        ].filter(Boolean) as string[],
-      };
-    }
+    onQueue?.(queueData);
+
+    const [inventoryResult, healthResult, entityAuditResult, relationAuditResult] =
+      await Promise.all([
+        settle(
+          "审核盘点",
+          request<ReviewInventoryReport>("/api/v2/admin/review-queue-inventory", options, token),
+          null,
+        ),
+        settle("构建信息", request<HealthStatus>("/health", options), null),
+        settle(
+          "Claim 实体审计",
+          request<ClaimEntityAuditReport>("/api/v2/admin/claim-entity-audit", options, token),
+          null,
+        ),
+        settle(
+          "历史关系审计",
+          request<RelationClaimAuditReport>("/api/v2/admin/relation-claim-audit", options, token),
+          null,
+        ),
+      ]);
+    signal?.throwIfAborted();
+    const common = {
+      ...queueData,
+      reviewInventory: inventoryResult.value,
+      build: healthResult.value,
+      claimEntityAudit: entityAuditResult.value,
+      relationClaimAudit: relationAuditResult.value,
+      loadWarnings: [inventoryResult, healthResult, entityAuditResult, relationAuditResult].flatMap(
+        ({ warning }) => (warning ? [warning] : []),
+      ),
+      diagnosticsPending: false,
+    };
+    if (role !== "admin") return common;
     const [extractionPlan, sources, runs, audit, outbox, quality, integrations, operations] =
       await Promise.all([
         settle(
           "批量抽取计划",
-          request<ExtractionPlanItem[]>("/api/v2/admin/extraction-plan?limit=30", {}, token),
+          request<ExtractionPlanItem[]>("/api/v2/admin/extraction-plan?limit=30", options, token),
           [],
         ),
-        settle("信源", request<SourceView[]>("/api/v2/admin/sources", {}, token), []),
-        settle("采集记录", request<IngestionRun[]>("/api/v2/admin/ingestion-runs", {}, token), []),
-        settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", {}, token), []),
-        settle("邮件 Outbox", request<OutboxEntry[]>("/api/v2/admin/email-outbox", {}, token), []),
+        settle("信源", request<SourceView[]>("/api/v2/admin/sources", options, token), []),
+        settle(
+          "采集记录",
+          request<IngestionRun[]>("/api/v2/admin/ingestion-runs", options, token),
+          [],
+        ),
+        settle("审计日志", request<AuditEntry[]>("/api/v2/admin/audit-log", options, token), []),
+        settle(
+          "邮件 Outbox",
+          request<OutboxEntry[]>("/api/v2/admin/email-outbox", options, token),
+          [],
+        ),
         settle(
           "数据质量",
-          request<DataQualityReport>("/api/v2/admin/data-quality", {}, token),
+          request<DataQualityReport>("/api/v2/admin/data-quality", options, token),
           null,
         ),
         settle(
           "外部集成",
-          request<IntegrationStatus>("/api/v2/admin/integrations", {}, token),
+          request<IntegrationStatus>("/api/v2/admin/integrations", options, token),
           null,
         ),
         settle(
           "运行诊断",
-          request<OperationsDiagnostics>("/api/v2/admin/operations", {}, token),
+          request<OperationsDiagnostics>("/api/v2/admin/operations", options, token),
           null,
         ),
       ]);
+    signal?.throwIfAborted();
     const sections = [
-      queueResult,
       extractionPlan,
       sources,
       runs,
@@ -693,15 +727,9 @@ export const adminApi = {
       quality,
       integrations,
       operations,
-      inventoryResult,
-      healthResult,
-      entityAuditResult,
-      relationAuditResult,
-      entitiesResult,
     ];
     return {
-      queue: queueResult.value,
-      entities: entitiesResult.value,
+      ...common,
       extractionPlan: extractionPlan.value,
       sources: sources.value,
       runs: runs.value,
@@ -710,12 +738,10 @@ export const adminApi = {
       quality: quality.value,
       integrations: integrations.value,
       operations: operations.value,
-      productionReadiness: null,
-      reviewInventory: inventoryResult.value,
-      build: healthResult.value,
-      claimEntityAudit: entityAuditResult.value,
-      relationClaimAudit: relationAuditResult.value,
-      loadWarnings: sections.flatMap((section) => (section.warning ? [section.warning] : [])),
+      loadWarnings: [
+        ...common.loadWarnings,
+        ...sections.flatMap(({ warning }) => (warning ? [warning] : [])),
+      ],
     };
   },
 

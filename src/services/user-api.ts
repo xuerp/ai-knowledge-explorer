@@ -1,5 +1,9 @@
-import { expireAuthSession } from "@/services/auth-session";
-import { authResponseError, AuthSessionExpiredError } from "@/services/auth-errors";
+import { expireAuthSession, readAuthToken } from "@/services/auth-session";
+import {
+  apiAvailabilityError,
+  authResponseError,
+  AuthSessionExpiredError,
+} from "@/services/auth-errors";
 import { fetchReportBlob } from "@/services/report-export";
 export { AuthSessionExpiredError } from "@/services/auth-errors";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
@@ -425,9 +429,11 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     },
   });
   if (!response.ok) {
-    if (response.status === 401 && token) {
+    if (response.status === 401 && token && readAuthToken() === token) {
       expireAuthSession();
     }
+    const availabilityError = apiAvailabilityError(response.status);
+    if (availabilityError) throw availabilityError;
     const body = (await response.json().catch(() => null)) as {
       detail?: string | Array<{ loc?: Array<string | number>; msg?: string }>;
     } | null;

@@ -46,11 +46,8 @@ function AccountPage() {
   const [rememberMe, setRememberMe] = useState(false);
   useEffect(() => setAuthReady(true), []);
 
-  const refresh = useCallback(
+  const loadAccountDetails = useCallback(
     async (activeToken: string) => {
-      const nextUser = await userApi.me(activeToken);
-      if (readAuthToken() !== activeToken) return;
-      setUser(nextUser);
       const [nextFollowing, nextNotifications, nextInterpretation] = await Promise.allSettled([
         userApi.following(activeToken),
         userApi.notifications(activeToken),
@@ -72,6 +69,16 @@ function AccountPage() {
       }
     },
     [t],
+  );
+
+  const refresh = useCallback(
+    async (activeToken: string) => {
+      const nextUser = await userApi.me(activeToken);
+      if (readAuthToken() !== activeToken) return;
+      setUser(nextUser);
+      await loadAccountDetails(activeToken);
+    },
+    [loadAccountDetails],
   );
 
   useEffect(() => {
@@ -113,6 +120,25 @@ function AccountPage() {
     }
   };
 
+  const openAccount = (activeToken: string, sessionUser: SessionUser) => {
+    setFollowing([]);
+    setNotifications([]);
+    setInterpretation(null);
+    setResearch(null);
+    setToken(activeToken);
+    setUser(sessionUser);
+    const returnTo = safeReturnTo(
+      new URLSearchParams(window.location.search).get("returnTo"),
+      window.location.origin,
+      sessionUser.role,
+    );
+    if (returnTo) {
+      window.location.assign(returnTo);
+      return;
+    }
+    void loadAccountDetails(activeToken);
+  };
+
   const login = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -123,17 +149,7 @@ function AccountPage() {
         rememberMe,
       );
       writeAuthToken(response.accessToken, rememberMe, response.expiresIn);
-      setFollowing([]);
-      setNotifications([]);
-      setResearch(null);
-      setToken(response.accessToken);
-      await refresh(response.accessToken);
-      const returnTo = safeReturnTo(
-        new URLSearchParams(window.location.search).get("returnTo"),
-        window.location.origin,
-        response.user.role,
-      );
-      if (returnTo) window.location.assign(returnTo);
+      openAccount(response.accessToken, response.user);
     });
   };
 
@@ -158,24 +174,19 @@ function AccountPage() {
     void execute(async () => {
       const response = await userApi.register(String(form.get("email")), password);
       writeAuthToken(response.accessToken);
-      setFollowing([]);
-      setNotifications([]);
-      setResearch(null);
-      setToken(response.accessToken);
-      await refresh(response.accessToken);
-      const returnTo = safeReturnTo(
-        new URLSearchParams(window.location.search).get("returnTo"),
-        window.location.origin,
-        response.user.role,
-      );
-      if (returnTo) window.location.assign(returnTo);
+      openAccount(response.accessToken, response.user);
     });
   };
 
   if (!userApi.configured) {
     return (
       <AppShell>
-        <Notice text="当前版本暂不支持登录，你仍可浏览公开内容。" />
+        <Notice
+          text={t(
+            "当前页面未配置账户服务。请从发布版本打开账户页。",
+            "Account services are unavailable on this build. Open the account page on the published site.",
+          )}
+        />
       </AppShell>
     );
   }

@@ -907,14 +907,13 @@ class ExtractionPlanItem(CamelModel):
 Role = Literal["viewer", "reviewer", "admin"]
 
 
-class BootstrapUser(CamelModel):
-    email: EmailStr
-    password: str = Field(min_length=12, max_length=256)
-
-
 class RegistrationRequest(CamelModel):
     email: EmailStr
     password: str = Field(min_length=6, max_length=256)
+
+
+class BootstrapUser(RegistrationRequest):
+    pass
 
 
 class LoginRequest(CamelModel):

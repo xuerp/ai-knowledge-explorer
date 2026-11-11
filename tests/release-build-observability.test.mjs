@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { createServer } from "vite";
 
 const apiSource = await readFile(new URL("../src/services/admin-api.ts", import.meta.url), "utf8");
 const reviewDirectory = new URL("../src/components/admin/review/", import.meta.url);
@@ -53,8 +54,9 @@ test("AI 候选抽取的前端超时覆盖后端模型调用窗口", () => {
 });
 
 test("生产预检在基础工作区显示后再加载，避免重复质量评估争抢连接", () => {
-  const workspaceStart = apiSource.indexOf("async workspace(token:");
+  const workspaceStart = apiSource.indexOf("async workspace(");
   const workspaceEnd = apiSource.indexOf("\n  decide:", workspaceStart);
+  assert.ok(workspaceStart >= 0 && workspaceEnd > workspaceStart);
   const workspaceSource = apiSource.slice(workspaceStart, workspaceEnd);
 
   assert.doesNotMatch(workspaceSource, /生产预检/);
@@ -62,6 +64,50 @@ test("生产预检在基础工作区显示后再加载，避免重复质量评�
   assert.match(apiSource, /\/api\/v2\/admin\/golden-questions/);
   assert.match(reviewSource, /运行完整 RAG Golden/);
   assert.match(reviewSource, /adminApi\.goldenQuestions\(token\)/);
+});
+
+test("审核队列可以在缓慢的诊断响应之前使用", async (t) => {
+  const vite = await createServer({
+    define: { "import.meta.env.VITE_API_BASE_URL": '"https://api.example.test"' },
+    server: { middlewareMode: true },
+    appType: "custom",
+    optimizeDeps: { noDiscovery: true },
+  });
+  const diagnosticStarted = Promise.withResolvers();
+  const releaseDiagnostic = Promise.withResolvers();
+  let loading;
+  try {
+    const { adminApi } = await vite.ssrLoadModule("/src/services/admin-api.ts");
+    const requested = [];
+    t.mock.method(globalThis, "fetch", async (input) => {
+      const url = new URL(input);
+      requested.push(url.pathname + url.search);
+      if (url.pathname.endsWith("/review-queue-inventory")) {
+        diagnosticStarted.resolve();
+        await releaseDiagnostic.promise;
+      }
+      if (url.pathname.endsWith("/review-queue") && url.searchParams.get("scope") === "open") {
+        return Response.json([{ id: "pending-review" }]);
+      }
+      return Response.json([]);
+    });
+    let early;
+    loading = adminApi.workspace("test-session", "admin", { onQueue: (data) => (early = data) });
+    await Promise.race([diagnosticStarted.promise, loading]);
+    assert.deepEqual(early.queue, [{ id: "pending-review" }]);
+    assert.equal(early.diagnosticsPending, true);
+    assert.equal(requested.slice(0, 3).filter((path) => path.includes("review-queue?")).length, 2);
+    assert.ok(requested.slice(0, 3).includes("/api/v2/entities"));
+    assert.ok(!requested.includes("/api/v2/admin/data-quality"));
+    releaseDiagnostic.resolve();
+    const complete = await loading;
+    assert.equal(complete.diagnosticsPending, false);
+    assert.ok(requested.includes("/api/v2/admin/data-quality"));
+  } finally {
+    releaseDiagnostic.resolve();
+    await loading?.catch(() => {});
+    await vite.close();
+  }
 });
 
 test("刷新后台会先恢复现有会话而不是闪回登录表单", () => {
