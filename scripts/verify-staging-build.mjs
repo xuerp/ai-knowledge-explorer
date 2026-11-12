@@ -2,9 +2,12 @@ import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
+const browserApiProxy = "/backend";
+const legacyApiProxy = "https://ai-radar.xue-ai.workers.dev/backend";
+
 export async function verifyStagingBuild(
   outputDirectory = ".output",
-  expectedApiProxy = "https://ai-radar.xue-ai.workers.dev/backend",
+  expectedApiProxy = browserApiProxy,
   expectedApiUpstream = "https://ai-radar-api-staging.onrender.com",
 ) {
   const root = resolve(outputDirectory);
@@ -21,8 +24,14 @@ export async function verifyStagingBuild(
     .map(([, content]) => content)
     .join("\n");
   const combined = [...contents.values()].join("\n");
-  if (!publicRuntime.includes(expectedApiProxy)) {
+  // A bare substring would also match the path in an absolute URL.
+  if (
+    !['"', "'", "`"].some((quote) => publicRuntime.includes(`${quote}${expectedApiProxy}${quote}`))
+  ) {
     throw new Error(`预发构建未包含预期同域 API 代理：${expectedApiProxy}`);
+  }
+  if (expectedApiProxy === browserApiProxy && publicRuntime.includes(legacyApiProxy)) {
+    throw new Error("预发构建的浏览器代码仍包含旧域名的 API 地址。");
   }
   if (!serverRuntime.includes(expectedApiUpstream)) {
     throw new Error(`预发服务端运行时代码未包含预期 API 上游：${expectedApiUpstream}`);

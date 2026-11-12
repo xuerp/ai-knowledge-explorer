@@ -2,11 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { validatePublicEnvironment } from "../scripts/check-public-env.mjs";
 
-const valid =
-  "VITE_API_BASE_URL=https://app.example.com/backend\nVITE_API_UPSTREAM_URL=https://api.example.com\n";
+const valid = "VITE_API_BASE_URL=/backend\nVITE_API_UPSTREAM_URL=https://api.example.com\n";
 
 test("tracked staging configuration accepts the documented public URL contract", () => {
   assert.doesNotThrow(() => validatePublicEnvironment(valid));
+});
+
+test("the browser API stays on the active origin", () => {
+  for (const base of ["https://app.example.com/backend", "//app.example.com/backend", "/api"]) {
+    assert.throws(() => validatePublicEnvironment(valid.replace("/backend", base)), /same-origin/);
+  }
 });
 
 test("new secret-like keys cannot enter the tracked staging environment", () => {

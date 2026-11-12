@@ -22,16 +22,17 @@ test("预发构建确认 Cloudflare 同域代理与 Render 上游", async () => 
   try {
     await mkdir(join(root, "public"));
     await mkdir(join(root, "server"));
-    await writeFile(
-      join(root, "public", "app.js"),
-      'const proxy = "https://ai-radar.xue-ai.workers.dev/backend";',
-    );
+    await writeFile(join(root, "public", "app.js"), 'const proxy = "/backend";');
     await writeFile(
       join(root, "server", "ssr.mjs"),
       'const upstream = "https://ai-radar-api-staging.onrender.com";',
     );
     const result = await verifyStagingBuild(root);
     assert.equal(result.filesChecked, 2);
+    const staleProxy = join(root, "public", "stale-proxy.js");
+    await writeFile(staleProxy, 'const proxy = "https://ai-radar.xue-ai.workers.dev/backend";');
+    await assert.rejects(() => verifyStagingBuild(root), /仍包含旧域名的 API 地址/);
+    await rm(staleProxy);
     await writeFile(join(root, "public", "snapshot-stale.js"), "export default {};");
     await assert.rejects(() => verifyStagingBuild(root), /完整离线快照块/);
   } finally {
@@ -44,10 +45,7 @@ test("预发构建拒绝只在 Wrangler 配置中声明上游", async () => {
   try {
     await mkdir(join(root, "public"));
     await mkdir(join(root, "server"));
-    await writeFile(
-      join(root, "public", "app.js"),
-      'const proxy = "https://ai-radar.xue-ai.workers.dev/backend";',
-    );
+    await writeFile(join(root, "public", "app.js"), 'const proxy = "/backend";');
     await writeFile(
       join(root, "server", "wrangler.staging.json"),
       '{"vars":{"AI_RADAR_API_UPSTREAM_URL":"https://ai-radar-api-staging.onrender.com"}}',
