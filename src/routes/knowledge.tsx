@@ -226,37 +226,49 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
 
           <section className="knowledge-landing__filters" aria-label={t("筛选", "Filters")}>
             <span>{t("筛选", "Filter")}:</span>
-            {(["all", "domestic", "overseas"] as const).map((item) => (
-              <button
-                type="button"
-                key={item}
-                className={region === item ? "is-active" : undefined}
-                aria-pressed={region === item}
-                onClick={() => setRegion(item)}
-              >
-                {region === item && <Check aria-hidden="true" />}
-                {item === "all"
-                  ? t("全部地区", "All regions")
-                  : item === "domestic"
-                    ? t("国内", "Domestic")
-                    : t("海外", "Overseas")}
-              </button>
-            ))}
+            <div
+              className="knowledge-landing__filter-group"
+              role="group"
+              aria-label={t("地区", "Region")}
+            >
+              {(["all", "domestic", "overseas"] as const).map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  className={region === item ? "is-active" : undefined}
+                  aria-pressed={region === item}
+                  onClick={() => setRegion(item)}
+                >
+                  {region === item && <Check aria-hidden="true" />}
+                  {item === "all"
+                    ? t("全部地区", "All regions")
+                    : item === "domestic"
+                      ? t("国内", "Domestic")
+                      : t("海外", "Overseas")}
+                </button>
+              ))}
+            </div>
             {category === "model" && (
               <>
                 <i aria-hidden="true" />
-                {SIGNAL_FILTERS.filter((item) => item.id !== "all").map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    className={signal === item.id ? "is-active" : undefined}
-                    aria-pressed={signal === item.id}
-                    onClick={() => setSignal(signal === item.id ? "all" : item.id)}
-                  >
-                    {signal === item.id && <Check aria-hidden="true" />}
-                    {t(item.zh, item.en)}
-                  </button>
-                ))}
+                <div
+                  className="knowledge-landing__filter-group"
+                  role="group"
+                  aria-label={t("模型条件", "Model criteria")}
+                >
+                  {SIGNAL_FILTERS.filter((item) => item.id !== "all").map((item) => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      className={signal === item.id ? "is-active" : undefined}
+                      aria-pressed={signal === item.id}
+                      onClick={() => setSignal(signal === item.id ? "all" : item.id)}
+                    >
+                      {signal === item.id && <Check aria-hidden="true" />}
+                      {t(item.zh, item.en)}
+                    </button>
+                  ))}
+                </div>
               </>
             )}
           </section>

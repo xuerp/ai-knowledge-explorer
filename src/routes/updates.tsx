@@ -800,13 +800,13 @@ function FilterSelect({
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
           id={id}
-          className="updates-select-trigger"
+          className="updates-select-trigger mobile-filter-select-trigger"
           aria-describedby={description ? `${id}-help` : undefined}
         >
           <SelectValue />
         </SelectTrigger>
         <SelectContent
-          className="updates-select-menu"
+          className="updates-select-menu mobile-filter-select-menu"
           position="popper"
           sideOffset={6}
           collisionPadding={12}

@@ -308,10 +308,10 @@ export function UsersWorkspace() {
                     setOffset(0);
                   }}
                 >
-                  <SelectTrigger id="users-role">
+                  <SelectTrigger id="users-role" className="mobile-filter-select-trigger">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="mobile-filter-select-menu">
                     <SelectItem value="all">{t("全部角色", "All roles")}</SelectItem>
                     {(["viewer", "reviewer", "admin"] as const).map((value) => (
                       <SelectItem value={value} key={value}>
@@ -332,10 +332,10 @@ export function UsersWorkspace() {
                     setOffset(0);
                   }}
                 >
-                  <SelectTrigger id="users-status">
+                  <SelectTrigger id="users-status" className="mobile-filter-select-trigger">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="mobile-filter-select-menu">
                     <SelectItem value="all">{t("全部状态", "All statuses")}</SelectItem>
                     <SelectItem value="active">{t("已启用", "Active")}</SelectItem>
                     <SelectItem value="disabled">{t("已停用", "Disabled")}</SelectItem>
