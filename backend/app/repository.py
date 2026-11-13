@@ -138,6 +138,20 @@ MACHINE_SOURCE_CATALOG = (
         "publisher": "Anthropic",
         "fetch_interval_minutes": 240,
     },
+    {
+        "id": "s-alibaba-bailian-model-updates",
+        "url": "https://www.alibabacloud.com/help/zh/model-studio/newly-released-models",
+        "title": "阿里云百炼模型上架与更新",
+        "publisher": "阿里云",
+        "fetch_interval_minutes": 1440,
+    },
+    {
+        "id": "s-qoder-ide-changelog",
+        "url": "https://changelog.qoder.com/zh/ide",
+        "title": "Qoder IDE 官方更新日志",
+        "publisher": "Qoder",
+        "fetch_interval_minutes": 1440,
+    },
 )
 
 

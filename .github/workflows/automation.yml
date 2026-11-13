@@ -32,7 +32,8 @@ jobs:
         deepmind.google,ai.google.dev,cursor.com,docs.cursor.com,docs.langchain.com,
         ernie.baidu.com,modelcontextprotocol.io,platform.kimi.ai,qwenlm.ai,
         seed.bytedance.com,moonshot.ai,swebench.com,arxiv.org,raw.githubusercontent.com,
-        microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im
+        microsoft.github.io,docs.crewai.com,docs.devin.ai,help.manus.im,
+        www.alibabacloud.com,changelog.qoder.com
       AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE: "0"
       AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT: "5"
       AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES: "360"
