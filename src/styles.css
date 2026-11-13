@@ -8583,22 +8583,35 @@ dl.decision-validation__review-note dd {
   }
   .updates-filter-select {
     display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr);
+    grid-template-columns: 5rem minmax(0, 1fr);
     min-width: 0;
+    width: min(100%, 17rem);
+    margin-inline: auto;
     padding: 0;
     border: 0;
+    font-size: 0.8125rem;
   }
   .updates-filter-select > label {
-    text-align: center;
+    text-align: end;
     white-space: normal;
   }
   .updates-select-trigger {
-    width: 100%;
     max-width: none;
-    font-size: 0.875rem;
+    height: auto;
+    font-size: inherit;
+    box-shadow: none;
+    white-space: normal;
+  }
+  .updates-select-trigger:focus-visible {
+    outline: 2px solid var(--updates-blue);
+    outline-offset: 2px;
+  }
+  .updates-select-trigger > span {
+    display: block;
+    overflow-wrap: anywhere;
   }
   .updates-select-option {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
   }
   .mobile-filter-select-trigger,
   .mobile-filter-select-menu [role="option"] {
