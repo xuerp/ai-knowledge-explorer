@@ -8585,30 +8585,14 @@ dl.decision-validation__review-note dd {
     display: grid;
     grid-template-columns: 5rem minmax(0, 1fr);
     min-width: 0;
-    width: min(100%, 17rem);
-    margin-inline: auto;
     padding: 0;
     border: 0;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
   .updates-filter-select > label {
-    text-align: end;
+    text-align: center;
     white-space: normal;
-  }
-  .updates-select-trigger {
-    max-width: none;
-    height: auto;
-    font-size: inherit;
-    box-shadow: none;
-    white-space: normal;
-  }
-  .updates-select-trigger:focus-visible {
-    outline: 2px solid var(--updates-blue);
-    outline-offset: 2px;
-  }
-  .updates-select-trigger > span {
-    display: block;
-    overflow-wrap: anywhere;
+    font-weight: 500;
   }
   .updates-select-option {
     font-size: 0.8125rem;
@@ -8625,6 +8609,24 @@ dl.decision-validation__review-note dd {
   .mobile-filter-select-trigger > svg {
     position: absolute;
     inset-inline-end: 0.55rem;
+  }
+  .updates-select-trigger {
+    width: 100%;
+    max-width: clamp(14rem, 55vw, 22rem);
+    min-height: 2.25rem;
+    height: auto;
+    font-size: 0.78125rem;
+    white-space: normal;
+  }
+  /* Keep a 44px tap area around the shorter visible control. */
+  .updates-select-trigger::before {
+    position: absolute;
+    inset: calc(-0.25rem - 1px) 0;
+    content: "";
+  }
+  .updates-select-trigger > span {
+    display: block;
+    overflow-wrap: anywhere;
   }
   .mobile-filter-select-menu [role="option"] {
     white-space: normal;
