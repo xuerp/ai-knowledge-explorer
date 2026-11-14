@@ -8,10 +8,37 @@ const vite = await createServer({
   appType: "custom",
   optimizeDeps: { noDiscovery: true },
 });
-const { proxyApiRequest, resolveApiUpstream, withNoStoreHtmlResponse } =
+const { proxyApiRequest, redirectLegacyPage, resolveApiUpstream, withNoStoreHtmlResponse } =
   await vite.ssrLoadModule("/src/server.ts");
 
 test.after(async () => vite.close());
+
+test("old page links keep their path and query on the public domain", () => {
+  for (const hostname of [
+    "ai-radar.xue-ai.workers.dev",
+    "ai-radar-staging.1966761779.workers.dev",
+  ]) {
+    const request = new Request(`https://${hostname}/share/example?lang=zh`, { method: "HEAD" });
+    const response = redirectLegacyPage(request);
+    assert.equal(response.status, 308);
+    assert.equal(
+      response.headers.get("location"),
+      "https://airadar.rainza.cn/share/example?lang=zh",
+    );
+  }
+});
+
+test("the old origin keeps serving existing API clients, assets and version checks", () => {
+  for (const path of ["/backend", "/backend/ready", "/sw.js", "/version.txt"]) {
+    assert.equal(
+      redirectLegacyPage(new Request(`https://ai-radar.xue-ai.workers.dev${path}`)),
+      null,
+    );
+  }
+  assert.equal(redirectLegacyPage(new Request("https://airadar.rainza.cn/updates")), null);
+  const post = new Request("https://ai-radar.xue-ai.workers.dev/updates", { method: "POST" });
+  assert.equal(redirectLegacyPage(post), null);
+});
 
 test("only successful anonymous updates feeds share the 60-second edge cache", async () => {
   const stored = new Map();

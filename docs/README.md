@@ -1,6 +1,6 @@
 # AI Radar 文档索引
 
-[在线使用](https://ai-radar.xue-ai.workers.dev/) · [项目 README](../README.md) · [当前验证记录](portfolio/VALIDATION.md)
+[在线使用](https://airadar.rainza.cn/) · [项目 README](../README.md) · [当前验证记录](portfolio/VALIDATION.md)
 
 ## 使用与部署
 

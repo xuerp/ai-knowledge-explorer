@@ -4,9 +4,9 @@
 
 当前预发布地址：
 
-- 前端：`https://ai-radar.xue-ai.workers.dev`
+- 前端：`https://airadar.rainza.cn`
 - API：`https://ai-radar-api-staging.onrender.com`
-- 浏览器同域 API 入口：`https://ai-radar.xue-ai.workers.dev/backend`，由 Cloudflare Worker 转发至 Render，避免浏览器直连 Render 的网络不稳定。
+- 浏览器同域 API 入口：`https://airadar.rainza.cn/backend`，由 Cloudflare Worker 转发至 Render，避免浏览器直连 Render 的网络不稳定。
 - 就绪检查：`https://ai-radar-api-staging.onrender.com/ready`
 
 2026 年 8 月 9 日已完成无凭据远程冒烟验收：前端返回 `200`，API 健康检查与就绪检查通过，公开快照可读，Cloudflare 来源的 CORS 预检通过。该环境仍明确保持 `AI_RADAR_DATA_MODE=demo`。
@@ -17,7 +17,7 @@
 
 - `ai-radar-api-staging`：Render Free Docker Web Service，对外提供 API。
 - PostgreSQL 由 Neon Free 提供，连接串仅填写在 Render Secret 中。
-- 前端部署到 `ai-radar.你的子域名.workers.dev`。
+- 前端通过 Cloudflare Worker `ai-radar` 提供服务，公开地址为 `https://airadar.rainza.cn/`。
 
 预发布环境保持 `AI_RADAR_DATA_MODE=demo`。API 使用 Render Free；Cloudflare Cron 每 5 分钟直连 `/health` 防止闲置休眠，每 30 分钟调用专用自动化单周期端点。两类事件分别分发，保活不查询数据库、不携带自动化令牌、不执行采集或模型调用。GitHub Actions 仅保留手动直连 Neon 的应急入口，不配置 `schedule`，避免双调度。管理员仍可在审核后台手动触发采集、摘要生成和 Outbox 投递。
 
@@ -37,11 +37,11 @@ Render 免费 API 连续 15 分钟没有入站请求会休眠；五分钟保活�
 ## 3. 创建 Render Blueprint
 
 1. 在 Render 中连接仓库 `xuerp/ai-knowledge-explorer`。
-2. 分支选择 `codex/productionize`，Blueprint Path 使用根目录的 `render.yaml`。
+2. 分支选择 `main`，Blueprint Path 使用根目录的 `render.yaml`。
 3. 首次创建时填写：
    - `AI_RADAR_DATABASE_URL`：Neon pooled connection string。
    - `AI_RADAR_ADMIN_TOKEN`：仅用于创建首个管理员的临时随机值。
-   - `AI_RADAR_CORS_ORIGINS`：`https://ai-radar.你的Cloudflare子域名.workers.dev`。
+   - `AI_RADAR_CORS_ORIGINS`：`https://airadar.rainza.cn`。
    - `CLOUDFLARE_ACCOUNT_ID`：Workers AI 页面显示的 Account ID。
    - `CLOUDFLARE_API_TOKEN`：使用 Cloudflare 的 “Create a Workers AI API Token” 模板创建，只保存在 Render Secret 中。
 4. 确认资源列表中只有 `ai-radar-api-staging`，计划必须显示 `Free`，不应再出现 Background Worker 或 Render Postgres。

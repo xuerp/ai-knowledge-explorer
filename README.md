@@ -8,7 +8,7 @@
 
 把分散的模型资料、版本变化和使用条件，整理成有来源、可复查的选型研究。
 
-[在线体验 ↗](https://ai-radar.xue-ai.workers.dev) · [产品案例](docs/portfolio/CASE_STUDY.md) · [验证记录](docs/portfolio/VALIDATION.md) · [本地运行](#本地运行)
+[在线体验 ↗](https://airadar.rainza.cn) · [产品案例](docs/portfolio/CASE_STUDY.md) · [验证记录](docs/portfolio/VALIDATION.md) · [本地运行](#本地运行)
 
 [![Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -19,7 +19,7 @@
 
 首页先渲染随版本附带的公开资料快照，随后自动同步后台已发布资料：打开时、切回页面、恢复联网以及停留期间每 5 分钟都会核对，无需重新发布前端。失败时保留当前内容并提示同步状态；资料更新日期与最近同步时间分开显示。预置快照仍由 `npm run generate:frontend-snapshot` 从同一份公开目录生成，CI 检查一致性。自动同步覆盖已收录、已发布内容；外部消息的采集与审核仍有独立边界。
 
-[![AI Radar 知识库：模型家族、版本摘要、分类与筛选](docs/assets/portfolio/knowledge.png)](https://ai-radar.xue-ai.workers.dev/knowledge)
+[![AI Radar 知识库：模型家族、版本摘要、分类与筛选](docs/assets/portfolio/knowledge.png)](https://airadar.rainza.cn/knowledge)
 
 _线上实拍 · 2026-11-05。截图展示当时的收录内容，事实适用范围以各条资料的日期和来源为准。_
 
@@ -48,22 +48,22 @@ AI Radar 面向需要评估 AI 方案的产品经理与开发者，把这段过�
 
 ## 体验三个核心场景
 
-| 场景                   | 体验入口                                                | 重点观察                                                     |
-| ---------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
-| 理解一次模型变化       | [动态](https://ai-radar.xue-ai.workers.dev/updates)     | 事件类别、发生日期、具体型号、影响范围和证据入口             |
-| 查清候选的能力边界     | [知识库](https://ai-radar.xue-ai.workers.dev/knowledge) | 家族与版本的区别、规格、来源、未知信息与条件对比             |
-| 围绕自己的任务研究方案 | [决策助手](https://ai-radar.xue-ai.workers.dev/ask)     | 原页澄清、任务约束、候选依据、保存历史与 Markdown / PDF 导出 |
+| 场景                   | 体验入口                                      | 重点观察                                                     |
+| ---------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| 理解一次模型变化       | [动态](https://airadar.rainza.cn/updates)     | 事件类别、发生日期、具体型号、影响范围和证据入口             |
+| 查清候选的能力边界     | [知识库](https://airadar.rainza.cn/knowledge) | 家族与版本的区别、规格、来源、未知信息与条件对比             |
+| 围绕自己的任务研究方案 | [决策助手](https://airadar.rainza.cn/ask)     | 原页澄清、任务约束、候选依据、保存历史与 Markdown / PDF 导出 |
 
 <details>
 <summary>查看研究入口与事件追踪实拍</summary>
 
 ### 从任务与约束开始
 
-[![决策助手：描述任务与使用条件](docs/assets/portfolio/research.png)](https://ai-radar.xue-ai.workers.dev/ask)
+[![决策助手：描述任务与使用条件](docs/assets/portfolio/research.png)](https://airadar.rainza.cn/ask)
 
 ### 从变化回到具体型号与证据
 
-[![动态：下线事件、影响范围与来源](docs/assets/portfolio/updates.png)](https://ai-radar.xue-ai.workers.dev/updates)
+[![动态：下线事件、影响范围与来源](docs/assets/portfolio/updates.png)](https://airadar.rainza.cn/updates)
 
 以上均为 2026-11-05 线上页面实拍。
 
@@ -106,7 +106,7 @@ flowchart LR
 ## 已验证什么，还有什么没完成
 
 - **已执行的软件与页面检查**：公共资料浏览、筛选、跨页对比；研究新建、修改保存、历史重开、澄清和报告导出；事件类别与支撑事实的一致性回归。
-- **内容与检索评估**：2026-11-07 固定公开快照的 100 题 hybrid 实测为 Recall@8 99.50%、标注全命中率 99.00%，保留 1 道未找全的比较题及全部历史失败。报告绑定库内容、检索代码和配置；业务指标从当前库读取。详见[线上质量页](https://ai-radar.xue-ai.workers.dev/quality)和[评估协议](docs/eval/CURRENT_PROTOCOL.md)。这些成绩只评价固定标注检索。
+- **内容与检索评估**：2026-11-07 固定公开快照的 100 题 hybrid 实测为 Recall@8 99.50%、标注全命中率 99.00%，保留 1 道未找全的比较题及全部历史失败。报告绑定库内容、检索代码和配置；业务指标从当前库读取。详见[线上质量页](https://airadar.rainza.cn/quality)和[评估协议](docs/eval/CURRENT_PROTOCOL.md)。这些成绩只评价固定标注检索。
 - **仍待验证**：持续采集、抽取、审核发布与前台更新的运行闭环；独立内容复核、真实目标用户测试、业务样本效果与邮件实际送达。
 
 当前决策建议主要由检索、约束筛选与预设工作流组织。可选模型需求解析与后台候选抽取分别配置，不等于已经提供大模型个性化方案生成。

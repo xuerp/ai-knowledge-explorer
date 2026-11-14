@@ -4,7 +4,7 @@
 
 ## 已执行的检查
 
-- **发布**：前后端从同一 `main` 提交发布；[Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)与[部署验收](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/staging-acceptance.yml)分别检查软件回归、实际版本一致性及同源代理。具体构建与健康情况须另查[前端版本](https://ai-radar.xue-ai.workers.dev/version.txt)和[API 就绪信息](https://ai-radar.xue-ai.workers.dev/backend/ready)，不能用历史成功记录代替当前状态。
+- **发布**：前后端从同一 `main` 提交发布；[Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)与[部署验收](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/staging-acceptance.yml)分别检查软件回归、实际版本一致性及同源代理。具体构建与健康情况须另查[前端版本](https://airadar.rainza.cn/version.txt)和[API 就绪信息](https://airadar.rainza.cn/backend/ready)，不能用历史成功记录代替当前状态。
 - **公共页面**：保留动态、知识库、家族、图谱、对比及跨页检查。手机菜单改为页面内列表，线上 390px 实际操作覆盖对象、Qwen、核验状态、无结果、组合筛选及清除；知识库关键词查询与三对象对比未撑宽整页。
 - **研究流程**：原文档问答、仓库工具、私有部署、JSON 抽取和办公新手五场景保留。2026-11-04 至 11-05 重新打开旧记录，并完成新文档题的新建、修改保存、上一版重开，以及手机原页澄清后保存独立版本。原题、补充样本要求与选择保留。12 行任务框在桌面与手机分别检查；任务说明 516 个字符实际复制粘贴完全一致，Markdown/PDF 实际下载，四页 PDF 逐页检查。私有部署原题重新生成条件路线、保存并重开，三个官方资料入口实际可读。文本抽取模板按允许的输入类型准备样本，并纳入原题后续处理与全部交付；旧报告在读取、导出时重新生成未执行说明，不改写原记录或私人实测结果。
 - **恢复与复制**：旧服务工作线程手动缓存应用 HTML，导航失败时返回旧页面，可能引用已下线的启动资源。控制浏览器重现旧路径；新版本仅返回独立离线页，同址重连后恢复，并保留测试会话与草稿。原历史请求未保存网络出处，不能把每次旧页现象都追溯到同一路径。复制受浏览器限制时选择全部原文供手动复制；拒绝 Clipboard 的控制条件与当前前台复制分别验证，原失败异常未留存。

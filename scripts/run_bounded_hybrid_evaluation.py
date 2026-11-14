@@ -36,7 +36,7 @@ def main() -> None:
     output = ROOT / "artifacts/retrieval-v2-hybrid"
     output.mkdir(parents=True, exist_ok=True)
     with httpx.Client(timeout=60) as client:
-        response = client.get("https://ai-radar.xue-ai.workers.dev/backend/api/quality/metrics")
+        response = client.get("https://airadar.rainza.cn/backend/api/quality/metrics")
         response.raise_for_status()
         runtime = response.json()
         (output / "runtime-scope.json").write_text(
@@ -55,7 +55,7 @@ def main() -> None:
             or config["embeddingDimension"] != 1024
         ):
             raise SystemExit("Running retrieval configuration exceeds this evaluation scope.")
-        response = client.get("https://ai-radar.xue-ai.workers.dev/backend/api/v2/snapshot")
+        response = client.get("https://airadar.rainza.cn/backend/api/v2/snapshot")
         response.raise_for_status()
         current = KnowledgeSnapshot.model_validate(response.json())
         frozen = KnowledgeSnapshot.model_validate_json(

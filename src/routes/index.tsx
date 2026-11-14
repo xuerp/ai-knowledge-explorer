@@ -17,6 +17,7 @@ import { RELATION_LABELS } from "@/domain/labels";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://airadar.rainza.cn/" }],
     meta: [
       { title: "AI Radar · AI 模型与产品信息研究" },
       {
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "追踪模型变化，逐条核验证据，并把研究结果带入可解释的 AI 选型。",
       },
+      { property: "og:url", content: "https://airadar.rainza.cn/" },
     ],
   }),
   component: LandingPage,

@@ -14,6 +14,28 @@ type WorkerEnv = {
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 const apiProxyPrefix = "/backend";
 const apiUpstreamUrl = import.meta.env.VITE_API_UPSTREAM_URL?.trim()?.replace(/\/$/, "");
+const legacySiteHosts = new Set([
+  "ai-radar.xue-ai.workers.dev",
+  "ai-radar-staging.1966761779.workers.dev",
+]);
+
+export function redirectLegacyPage(request: Request): Response | null {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const url = new URL(request.url);
+  if (
+    !legacySiteHosts.has(url.hostname) ||
+    url.pathname === apiProxyPrefix ||
+    url.pathname.startsWith(`${apiProxyPrefix}/`)
+  ) {
+    return null;
+  }
+  // Old clients can continue to request their assets and service worker.
+  if (url.pathname.split("/").at(-1)?.includes(".")) return null;
+  const target = new URL("https://airadar.rainza.cn");
+  target.pathname = url.pathname;
+  target.search = url.search;
+  return Response.redirect(target, 308);
+}
 
 export function resolveApiUpstream(env?: WorkerEnv) {
   return env?.AI_RADAR_API_UPSTREAM_URL?.trim()?.replace(/\/$/, "") || apiUpstreamUrl;
@@ -140,6 +162,8 @@ export async function proxyApiRequest(
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const redirect = redirectLegacyPage(request);
+      if (redirect) return redirect;
       const publicCache =
         typeof caches === "undefined"
           ? undefined
