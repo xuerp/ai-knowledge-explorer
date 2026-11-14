@@ -30,7 +30,19 @@ test("scenario templates carry matching conditions and stay consistent after int
 });
 
 test("newcomer starters cover the seven supported tasks without inventing capacity, hosting or budgets", () => {
-  const seen = new Set();
+  const expectedScenarios = {
+    coding: "coding-workspace",
+    knowledge: "knowledge-workspace",
+    career: "career-assistant",
+    extraction: "document-extraction",
+    agent: "agent-orchestration",
+    writing: "general-text",
+    "coding-api": "coding-model",
+  };
+  assert.deepEqual(
+    decisionStarters.map(({ id }) => id).sort(),
+    Object.keys(expectedScenarios).sort(),
+  );
   for (const example of decisionStarters) {
     for (const lang of ["zh", "en"]) {
       const context = decisionExampleContext(example, lang);
@@ -43,11 +55,9 @@ test("newcomer starters cover the seven supported tasks without inventing capaci
       assert.equal(interpreted.taskType, context.taskType);
       assert.equal(interpreted.deployment, "undecided");
       const scene = decisionScenario(context, lang);
-      assert.notEqual(scene.id, "unspecified", example.id + lang);
-      seen.add(scene.id);
+      assert.equal(scene.id, expectedScenarios[example.id], example.id + lang);
     }
   }
-  assert.equal(seen.size, 7);
 });
 
 test("switching from long-context API to coding clears API and version constraints without mutating templates", () => {

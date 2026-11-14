@@ -15,8 +15,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "coding",
     label: { zh: "改代码、修缺陷", en: "Edit and fix code" },
     task: {
-      zh: "为现有代码仓库选择编码工具，需要编辑文件、运行测试。",
-      en: "Choose a coding tool to edit files and run tests in an existing repository.",
+      zh: "我想给现有项目选一个编码工具，先用一个能稳定复现的缺陷试用。我可以提供代码仓库、复现步骤和失败的测试用例，希望工具能找到原因、修改相关文件并运行测试。我最看重的是原来失败的用例能通过，已有功能也不受影响。",
+      en: "I need a coding tool for an existing project. I'll provide the repository, steps to reproduce a bug, and a failing test. I want the tool to find the cause, edit the relevant files, and run the tests. The fix should pass the failing test and keep the rest of the suite green.",
     },
     conditions: {
       taskType: "coding-product",
@@ -30,8 +30,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "knowledge",
     label: { zh: "知识库与文档问答", en: "Knowledge and document QA" },
     task: {
-      zh: "我要让 AI 回答 PDF 和 Word 文档里的问题，标明出处，找不到依据就明确说不知道。先选适合小规模试点的知识库平台。",
-      en: "Choose a knowledge base platform to answer PDF and Word document questions with checkable citations and explicit abstention. Start with a small pilot.",
+      zh: "我想给小团队选一个知识库平台，先用几份 PDF 手册和 Word 流程文档做试点。同事可以直接提问，答案要附上文档名称和对应章节，方便点回原文核对。资料没覆盖的问题要明确说找不到依据。我最看重的是引用能对得上原文。",
+      en: "I need a knowledge base platform for a small team to try with a few PDF manuals and Word process guides. Answers should cite the document and section so we can check the original. If the guides don't cover a question, the answer should say so. Accurate citations matter most.",
     },
     conditions: {
       taskType: "knowledge-product",
@@ -45,8 +45,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "career",
     label: { zh: "简历整理、岗位匹配", en: "Resume and job matching" },
     task: {
-      zh: "为求职助手选择模型，需要整理简历信息、匹配岗位，输出固定字段。",
-      en: "Choose a model for resume extraction and job search matching with a fixed output schema.",
+      zh: "我在做一款给求职者用的助手，想选一个模型，把简历里的工作经历、项目和技能整理成固定字段。对照目标岗位时，要说明哪些要求有对应的经历，并指出依据来自简历的哪一段。简历里找不到依据的要求，标为「待确认」。我最看重的是信息整理准确、匹配理由能在原文里找到依据。",
+      en: "I'm choosing a model for a career assistant that turns work history, projects, and skills from a resume into fixed fields. For each job requirement it matches, I want a reference to the relevant part of the resume. Mark gaps in the evidence as unconfirmed. Accuracy and traceability matter most.",
     },
     conditions: {
       taskType: "model-api",
@@ -60,8 +60,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "extraction",
     label: { zh: "文档信息抽取", en: "Extract document data" },
     task: {
-      zh: "为文档信息抽取选择模型，需要提取固定字段，不编造缺失信息。",
-      en: "Choose a model for document extraction with fixed fields and no invented missing values.",
+      zh: "我想选一个模型，处理几种版式不同的合同 PDF。每份合同都要提取合同编号、金额、币种和签署日期，按固定字段输出，方便汇总到同一张表里。原文没写的字段留空，金额旁边有税费或分期款时要能区分。我最看重的是字段和原文对得上。",
+      en: "I need a model to extract fields from PDF contracts with different layouts. Return the contract number, amount, currency, and signing date in the same format for every file. Leave missing fields blank. I care most about getting the figures right when taxes or installments appear nearby.",
     },
     conditions: {
       taskType: "model-api",
@@ -75,8 +75,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "agent",
     label: { zh: "搭建 Agent 工作流", en: "Build an agent workflow" },
     task: {
-      zh: "为 Agent 开发选择框架，需要编排任务并调用工具。",
-      en: "Choose an agent development framework for task orchestration and tool use.",
+      zh: "我想选一个 Agent 框架，搭个售后工单处理流程。我已经有订单查询接口和处理规则，希望流程能按工单查订单、核对规则，再给客服一条处理建议。接口失败时要能从失败的步骤重试。我最看重的是能查到每一步的结果，出错后也方便排查。",
+      en: "I need an agent framework for after-sales tickets. I have an order lookup API and support rules. The workflow should look up the order, check the rules, and suggest a next step for the support team. I want to inspect each step and retry from the point where a call fails.",
     },
     conditions: {
       taskType: "agent-development",
@@ -90,8 +90,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "writing",
     label: { zh: "写作、客服对话", en: "Writing and customer support" },
     task: {
-      zh: "为文本生成与客服对话选择模型，需要遵守指令、回答准确。",
-      en: "Choose a model for text generation and customer support that follows instructions and answers accurately.",
+      zh: "我想选一个模型，帮客服起草退换货回复。我会提供客户的问题和现行政策，回复要说明适用条件、需要补充的信息和下一步，客服确认后再发送。政策没写清楚的情况要标出来，不能擅自承诺退款。我最看重的是回复准确、客户看得懂。",
+      en: "I need a model to draft replies about returns for my support team. I'll provide the customer message and current policy. The draft should state the conditions, what information is missing, and what to do next. It should flag unclear cases for review and avoid unsupported refund promises.",
     },
     conditions: {
       taskType: "model-api",
@@ -105,8 +105,8 @@ export const decisionStarters: DecisionExample[] = [
     id: "coding-api",
     label: { zh: "接入编程模型 API", en: "Integrate a coding model API" },
     task: {
-      zh: "为代码生成选择模型 API，需要生成可执行代码并调用工具。",
-      en: "Choose a coding model API for code generation and tool use.",
+      zh: "我在做自己的代码助手，想选一个编程模型 API 接进现有应用。我会把报错和相关代码交给模型，希望它能调用应用提供的工具读取上下文，再生成补丁。补丁由应用里的测试工具验证，我最看重的是补丁能通过测试，工具调用也能稳定接入。",
+      en: "I'm building a code assistant and need a coding model API. I'll send error messages and relevant code. The model should call the tools my app provides to get more context, then generate a patch. I'll check the patch with my own test runner and look for reliable tool calls.",
     },
     conditions: {
       taskType: "model-api",

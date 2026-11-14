@@ -574,13 +574,7 @@ function AskPage() {
           }
         />
 
-        <div className="ask-container page-container flex flex-wrap items-center justify-between gap-3 pt-1 text-sm text-muted-foreground">
-          <span>
-            {t(
-              "建议问题包含：要完成什么任务、最重视什么、不能接受什么。",
-              "A useful question names the job, the top priority, and the deal-breakers.",
-            )}
-          </span>
+        <div className="ask-container page-container flex justify-end pt-1 text-sm">
           <Link
             to="/compare"
             search={{ models: undefined }}
@@ -625,8 +619,8 @@ function AskPage() {
                 <h2>{t("你想用 AI 做什么？", "What do you want AI to do?")}</h2>
                 <p>
                   {t(
-                    "选一个场景开始，也可以直接写下你的任务。得到建议和开始使用的方法。",
-                    "Start with a scenario or describe your task. Get advice and a way to start.",
+                    "选一个场景填入示例，或直接写下你的需求。决策助手会根据已有资料给出选型建议和下一步。",
+                    "Pick a scenario to fill in an example, or write your own. The assistant uses the available evidence to suggest what to choose and how to start.",
                   )}
                 </p>
                 <div className="decision-start__scenarios">
@@ -642,23 +636,37 @@ function AskPage() {
                   ))}
                 </div>
               </section>
-              <label className="space-y-1.5">
-                <span className="text-xs font-medium text-foreground">
-                  {t("描述你的任务", "Describe your task")}
-                </span>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="decision-task"
+                  className="block text-xs font-medium text-foreground"
+                >
+                  {t("描述你的需求", "Describe your needs")}
+                </label>
+                <p
+                  id="decision-task-hint"
+                  className="text-xs leading-relaxed text-muted-foreground"
+                >
+                  {t(
+                    "用日常语言写下你想做什么、最看重什么。有预算或隐私要求也可以一起写。",
+                    "In your own words, say what you want to do and what matters most. Include any budget or privacy requirements you have.",
+                  )}
+                </p>
                 <textarea
+                  id="decision-task"
+                  aria-describedby="decision-task-hint"
                   disabled={!draftRestored || busy}
                   value={task}
                   onChange={(e) => setTask(e.target.value)}
-                  rows={3}
+                  rows={4}
                   maxLength={1000}
-                  className="w-full resize-none rounded-md border border-border bg-background/60 px-3 py-2 text-base text-foreground focus:border-signal focus:outline-none"
+                  className="field-sizing-content min-h-28 max-h-56 w-full resize-none rounded-md border border-border bg-background/60 px-3 py-2 text-base text-foreground focus:border-signal focus:outline-none"
                   placeholder={t(
-                    "例如：我想让 AI 回答公司文档里的问题，并告诉我答案来自哪里。",
-                    "Example: Answer questions about company documents and show where the answers come from.",
+                    "比如，我想选个工具来回答公司文档里的问题，答案要标明出处，文档不能传到外部服务。",
+                    "For example, I need a tool that answers questions about company documents, cites its sources, and keeps the files off external services.",
                   )}
                 />
-              </label>
+              </div>
               <details className="decision-preferences decision-more-conditions" lang={lang}>
                 <summary>
                   {t("限制与偏好（可选）", "Limits and preferences (optional)")}
