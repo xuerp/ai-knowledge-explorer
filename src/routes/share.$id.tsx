@@ -75,7 +75,9 @@ function PublicResearchPage() {
               {t("用户主动公开", "Published by the user")}
             </div>
             <h1 className="mt-2 font-serif text-3xl font-semibold md:text-4xl">
-              {liveResearch.question}
+              {liveResearch.decision?.guidance
+                ? t("选型建议", "Selection advice")
+                : liveResearch.question}
             </h1>
             <div className="mt-3 text-sm text-muted-foreground">
               {liveResearch.status === "ready"

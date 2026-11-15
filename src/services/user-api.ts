@@ -89,7 +89,7 @@ export interface DecisionIntentAnswer {
 }
 
 export interface DecisionGuidance {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   outcome: "advice" | "clarify" | "conditional" | "unsupported" | "blocked";
   intent: Array<{
     field: string;
@@ -139,6 +139,7 @@ export interface DecisionGuidance {
     checkedAt: string;
   }>;
   nextAction: {
+    entryUrl?: string | null;
     executionPrompt?: string | null;
     kind: "answer" | "start" | "compare" | "edit" | "routes";
     label: string;

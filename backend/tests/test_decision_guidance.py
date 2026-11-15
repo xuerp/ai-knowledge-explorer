@@ -366,6 +366,49 @@ def test_reopened_guidance_and_export_follow_source_correction_and_recovery(api,
     assert after == before
 
 
+def test_legacy_career_result_reopens_with_one_starting_option(api):
+    import json
+
+    from app.database import ResearchRecord
+
+    client, owner, _ = api
+    task = (
+        "我在做一款给求职者用的助手，想选一个模型，把简历里的工作经历、项目和技能整理成固定字段。"
+        "对照目标岗位时，要指出依据来自简历的哪一段。"
+    )
+    original = create(api, task, taskType="model-api", priority="quality")
+    original_guidance = original["decision"]["guidance"]
+    entry_url = original_guidance["nextAction"]["entryUrl"]
+    assert entry_url
+    assert len(original_guidance["nextAction"]["targetIds"]) == 1
+    assert len(original_guidance["recommendation"]["entityIds"]) > 1
+    research_id = original["id"]
+    database = client.app.state.database
+    with database.session() as session:
+        row = session.get(ResearchRecord, research_id)
+        old = json.loads(row.decision_json)
+        guidance = old["guidance"]
+        guidance["schemaVersion"] = 1
+        guidance["outcome"] = "conditional"
+        guidance["recommendation"]["headline"] = "先比较候选的功能与使用条件"
+        guidance["nextAction"]["targetIds"] = guidance["recommendation"]["entityIds"]
+        guidance["nextAction"].pop("entryUrl")
+        saved_json = json.dumps(old, ensure_ascii=False)
+        row.decision_json = saved_json
+        session.commit()
+
+    reopened = client.get(f"/api/v2/research/{research_id}", headers=owner).json()
+    assert reopened["decisionContext"] == original["decisionContext"]
+    assert reopened["claimIds"] == original["claimIds"]
+    assert reopened["decision"]["guidance"] == original_guidance
+    report = client.get(f"/api/v2/research/{research_id}/report?format=md", headers=owner)
+    assert report.status_code == 200
+    assert entry_url in report.text
+    assert "先比较候选的功能与使用条件" not in report.text
+    with database.session() as session:
+        assert session.get(ResearchRecord, research_id).decision_json == saved_json
+
+
 def test_additional_frozen_acceptance_phrasings(api):
     import json
 

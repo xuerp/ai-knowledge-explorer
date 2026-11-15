@@ -120,7 +120,15 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
         sections.append(
             Section(
                 t("下一步", "Next step"),
-                [instruction, *guidance.recommendation.premises],
+                [
+                    *(
+                        [t("官方入口", "Official entry") + " " + guidance.next_action.entry_url]
+                        if guidance.outcome == "advice" and guidance.next_action.entry_url
+                        else []
+                    ),
+                    instruction,
+                    *guidance.recommendation.premises,
+                ],
             )
         )
         if guidance.clarification:

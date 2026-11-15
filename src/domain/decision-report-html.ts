@@ -66,6 +66,11 @@ export function decisionReportHtml(
     `<h2>${e(t("公开资料分析与任务条件", "Public evidence and task conditions"))}</h2><p>${e(research.decisionContext?.task ?? research.question)}</p><p><strong>${e(presentation.headline)}</strong></p><p>${e(presentation.summary)}</p><p>${e(presentation.action)}</p>`,
     ...(decision?.guidance
       ? [
+          ...(decision.guidance.outcome === "advice" && decision.guidance.nextAction.entryUrl
+            ? [
+                `<p>${e(t("官方入口", "Official entry"))} ${e(decision.guidance.nextAction.entryUrl)}</p>`,
+              ]
+            : []),
           ...decision.guidance.recommendation.reasons.map(
             (reason) =>
               `<p><strong>${e(reason.dimension)}</strong>：${e(reason.finding)}${citation(reason.claimIds)}</p>`,

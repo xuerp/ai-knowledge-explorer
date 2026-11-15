@@ -1,6 +1,7 @@
 """One authoritative, versioned recommendation for the page and every export."""
 
 import re
+from urllib.parse import urlsplit
 
 from .decision_dialogue import clarification_for, task_descriptions, unsupported_task
 from .decision_intent import CATALOG, positive_task_text, scenario_definition, task_workflow
@@ -18,6 +19,39 @@ from .schemas import (
     DecisionNextAction,
     DecisionTradeoff,
 )
+
+
+def _start_entry(entity, context):
+    """A catalog link for the intended entry type, without assuming account access."""
+    if not getattr(entity, "type", None):
+        return None
+    channels = entity.release.access_channels if entity.release else ()
+    if entity.type == "model":
+        local = context.deployment in {"private", "on-device"}
+        channel_type = "open-weights" if local else "official-api"
+        provider = (
+            context.service_access.channel if context.service_access else context.budget.channel
+        )
+        urls = [
+            channel.url
+            for channel in channels
+            if channel.type == channel_type
+            and (
+                local or not provider or provider.strip().casefold() == channel.provider.casefold()
+            )
+        ]
+    else:
+        urls = [entity.knowledge.official_url] if entity.knowledge else []
+    for url in urls:
+        if not url:
+            continue
+        try:
+            parsed = urlsplit(url)
+            if parsed.scheme == "https" and parsed.hostname and "@" not in parsed.netloc:
+                return url
+        except ValueError:
+            continue
+    return None
 
 
 def build_guidance(result, context, snapshot, language):
@@ -766,7 +800,42 @@ def build_guidance(result, context, snapshot, language):
                 "Your original task and requirements are retained; continue here after choosing.",
             ),
         )
+    target_ids = ready
+    entry_url = None
+    if kind == "start" and not user_tools.comparison:
+        if primary and primary in ready:
+            target_ids = [primary]
+            entry_url = _start_entry(entities.get(primary), context)
+        elif outcome == "advice" and context.deployment not in {"private", "on-device", "hybrid"}:
+            # A stable official starting point is an onboarding suggestion.
+            # Keep the evidence ranking, candidate scope and unknowns intact.
+            for key in ready:
+                entity = entities.get(key)
+                if not entity or getattr(entity, "status", None) != "active":
+                    continue
+                entry_url = _start_entry(entity, context)
+                if entry_url:
+                    target_ids = [key]
+                    headline = t(f"可以先从 {name(key)} 开始", f"Start with {name(key)}")
+                    summary = (
+                        t(
+                            "它覆盖本次需要的编排功能。可以按官方文档先跑通一个最小流程。",
+                            "It covers the orchestration features you need. Start with a minimal workflow using its official docs.",
+                        )
+                        if entity.type == "framework"
+                        else t(
+                            "已有资料支持本次需要的功能。先打开官方入口，确认你的使用条件，再用一个手头任务开始。",
+                            "Documentation supports the features you need. Check your access at the official entry and start with one task you already have.",
+                        )
+                    )
+                    reasons = list(rows[key].strengths[:3])
+                    tradeoff = t(
+                        "这是基于已核验功能和官方入口给出的起步建议，实际效果与费用取决于你的使用方式。",
+                        "This starting suggestion is based on verified features and an official entry point. Results and costs depend on how you use it.",
+                    )
+                    break
     return DecisionGuidance(
+        schema_version=2,
         outcome=outcome,
         intent=intent,
         tasks=task_descriptions(context),
@@ -785,8 +854,9 @@ def build_guidance(result, context, snapshot, language):
         next_action=DecisionNextAction(
             kind=kind,
             label=label,
-            target_ids=ready,
+            target_ids=target_ids,
             location="this-page" if kind != "start" else "selected-product",
             instruction=instruction,
+            entry_url=entry_url,
         ),
     )

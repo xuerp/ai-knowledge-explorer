@@ -19,6 +19,7 @@ import "./decision-guidance.css";
 
 export function DecisionGuidanceView({
   research,
+  outcomeLevel,
   entityName,
   isComparable,
   onRevision,
@@ -26,6 +27,7 @@ export function DecisionGuidanceView({
   privateAdvice,
 }: {
   research: ResearchResult;
+  outcomeLevel: 2 | 3;
   entityName: (id: string) => string;
   isComparable: (id: string) => boolean;
   onRevision?: (result: ResearchResult) => void;
@@ -33,6 +35,7 @@ export function DecisionGuidanceView({
   privateAdvice?: { headline: string; summary: string; boundary: string; next: string };
 }) {
   const { t, lang } = useApp();
+  const OutcomeHeading = outcomeLevel === 2 ? "h2" : "h3";
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -142,32 +145,30 @@ export function DecisionGuidanceView({
   const editPath = research.decisionContext
     ? decisionResumePath({ ...research.decisionContext, parentResearchId: research.id })
     : "/ask";
+  const entryUrl =
+    !privateAdvice && guidance.nextAction.kind === "start" && guidance.outcome === "advice"
+      ? guidance.nextAction.entryUrl
+      : null;
+  const singleStartId =
+    guidance.nextAction.targetIds.length === 1
+      ? guidance.nextAction.targetIds[0]
+      : advice.primaryEntityId;
+  const showNextAction = () => {
+    setOpened(true);
+    requestAnimationFrame(() => {
+      actionRef.current?.scrollIntoView({ block: "nearest" });
+      actionRef.current?.focus();
+    });
+  };
   return (
     <section
       className="decision-guidance"
       aria-label={t("建议与下一步", "Advice and next step")}
       aria-busy={busy}
     >
-      <div className="decision-guidance__request">
-        <p>
-          <strong>{t("你的任务", "Your task")}</strong> {task}
-        </p>
-        <a href={editPath}>{t("修改", "Edit")}</a>
-      </div>
-      {research.decisionContext?.parentResearchId && (
-        <p className="decision-guidance__revision">
-          {t(
-            "这是修改后的新建议，旧记录仍保留。",
-            "This is a new revision; the earlier record is retained.",
-          )}{" "}
-          <Link to="/research/$id" params={{ id: research.decisionContext.parentResearchId }}>
-            {t("查看上一版", "Previous revision")}
-          </Link>
-        </p>
-      )}
-      <h3 className="decision-outcome__headline" tabIndex={-1}>
+      <OutcomeHeading className="decision-outcome__headline" tabIndex={-1}>
         {advice.headline}
-      </h3>
+      </OutcomeHeading>
       <p className="decision-outcome__summary">{advice.summary}</p>
       {privateAdvice && (
         <p>
@@ -246,6 +247,25 @@ export function DecisionGuidanceView({
         </div>
       ) : (
         <>
+          {entryUrl && (
+            <div className="decision-guidance__actions">
+              <Button asChild>
+                <a
+                  href={entryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="decision-guidance__entry"
+                >
+                  {research.decisionContext?.taskType === "model-api"
+                    ? t("打开官方 API 文档", "Open official API docs")
+                    : t("打开官方入口", "Open official entry")}
+                </a>
+              </Button>
+              <Button variant="ghost" onClick={showNextAction} aria-expanded={opened}>
+                {t("查看上手步骤", "See how to start")}
+              </Button>
+            </div>
+          )}
           {!!advice.reasons.length && (
             <div className="decision-guidance__reasons">
               <h4>{t("为什么这样选", "Why this fits")}</h4>
@@ -286,29 +306,23 @@ export function DecisionGuidanceView({
               {advice.tradeoff}
             </p>
           )}
-          <div className="decision-guidance__actions">
-            {privateAdvice && onTrial ? (
-              <Button onClick={() => onTrial([])}>
-                {t("查看使用记录", "View actual records")}
-              </Button>
-            ) : guidance.nextAction.kind === "edit" ? (
-              <Button asChild>
-                <a href={editPath}>{guidance.nextAction.label}</a>
-              </Button>
-            ) : (
-              <Button
-                onClick={() => {
-                  setOpened(true);
-                  requestAnimationFrame(() => {
-                    actionRef.current?.scrollIntoView({ block: "nearest" });
-                    actionRef.current?.focus();
-                  });
-                }}
-              >
-                {guidance.nextAction.label}
-              </Button>
-            )}
-          </div>
+          {!entryUrl && (
+            <div className="decision-guidance__actions">
+              {privateAdvice && onTrial ? (
+                <Button onClick={() => onTrial([])}>
+                  {t("查看使用记录", "View actual records")}
+                </Button>
+              ) : guidance.nextAction.kind === "edit" ? (
+                <Button asChild>
+                  <a href={editPath}>{guidance.nextAction.label}</a>
+                </Button>
+              ) : (
+                <Button onClick={showNextAction} aria-expanded={opened}>
+                  {guidance.nextAction.label}
+                </Button>
+              )}
+            </div>
+          )}
           <div
             ref={actionRef}
             hidden={!opened}
@@ -460,19 +474,30 @@ export function DecisionGuidanceView({
             (guidance.outcome === "advice" ||
               (guidance.outcome === "conditional" && advice.entityIds.length > 0)) && (
               <details className="decision-guidance__optional">
-                <summary>
-                  {t("验证是否适合我 / 记录使用结果", "Validate fit / record actual results")}
-                </summary>
+                <summary>{t("记录这次使用（可选）", "Record this use (optional)")}</summary>
                 <p>
                   {t(
-                    "可选：执行一个实际任务后记录结果。下载操作说明不会替你执行。",
-                    "Optional: record results after doing an actual task. Downloading instructions does not execute it.",
+                    "用一个手头任务就能开始。想留档时，可以记录这次的效果和成本。",
+                    "Start with one task you already have. You can save its result and cost here for later.",
                   )}
                 </p>
-                {advice.primaryEntityId ? (
-                  <Button variant="outline" onClick={() => onTrial([advice.primaryEntityId!])}>
-                    {t("准备验证任务", "Prepare a validation task")}
-                  </Button>
+                {singleStartId ? (
+                  <>
+                    <Button variant="outline" onClick={() => onTrial([singleStartId])}>
+                      {t("准备这一个方案的记录", "Prepare a record for this option")}
+                    </Button>
+                    {advice.entityIds.some((id) => id !== singleStartId) && (
+                      <details>
+                        <summary>{t("选择其他方案记录", "Record a different option")}</summary>
+                        <DecisionChoice
+                          research={research}
+                          entityName={entityName}
+                          isComparable={isComparable}
+                          onTrial={onTrial}
+                        />
+                      </details>
+                    )}
+                  </>
                 ) : (
                   <DecisionChoice
                     research={research}
@@ -490,6 +515,18 @@ export function DecisionGuidanceView({
           </aside>
         </>
       )}
+      <details>
+        <summary>{t("查看原始需求", "View original requirements")}</summary>
+        <div className="decision-guidance__request">
+          <p>{task}</p>
+          <a href={editPath}>{t("修改", "Edit")}</a>
+        </div>
+        {research.decisionContext?.parentResearchId && (
+          <Link to="/research/$id" params={{ id: research.decisionContext.parentResearchId }}>
+            {t("查看上一版", "Previous revision")}
+          </Link>
+        )}
+      </details>
       {error && <p role="alert">{error}</p>}
       {pendingAnswer && !busy && question && (
         <Button variant="outline" onClick={() => void respond(pendingAnswer)}>

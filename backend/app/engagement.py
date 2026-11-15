@@ -175,13 +175,20 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         and updated.decision
         and updated.decision_context
         and updated.decision_context.workflow_version == 2
-        and updated.decision.scenario.id == "document-extraction"
         and updated.decision.plan
         and updated.decision.plan.trial
+        and (
+            updated.decision.scenario.id == "document-extraction"
+            or (
+                (guidance := updated.decision.guidance)
+                and guidance.schema_version == 1
+                and guidance.outcome in {"advice", "conditional"}
+                and guidance.next_action.kind in {"start", "compare"}
+            )
+        )
     ):
-        # A proposed protocol is not a historical measurement. Derive it from
-        # the original task and SAME saved eligibility/citations on every read,
-        # including exports; never persist or alter private validation records.
+        # Refresh proposed next steps from the original task and still-current
+        # saved evidence. Do not persist the refresh or change validation records.
         from .decision_plan import build_plan
 
         language = "zh" if re.search(r"[\u3400-\u9fff]", updated.question) else "en"
@@ -189,6 +196,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
         decision.plan = build_plan(decision, updated.decision_context, language, snapshot)
         decision.guidance = build_guidance(decision, updated.decision_context, snapshot, language)
         updated.decision = reconcile_resolution(decision, updated.decision_context, language)
+        updated.summary = decision.guidance.recommendation.summary
     if updated.decision:
         updated.decision = reconcile_resolution(updated.decision)
     return updated

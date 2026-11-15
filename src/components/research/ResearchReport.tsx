@@ -169,7 +169,11 @@ export function ResearchReport({
                       : t("证据不足", "Insufficient evidence")}
             </span>
           </div>
-          <h1 className="research-report__question">{pick(answer.question, lang)}</h1>
+          <h1 className="research-report__question">
+            {research?.decision?.guidance
+              ? t("选型建议", "Selection advice")
+              : pick(answer.question, lang)}
+          </h1>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="h-3.5 w-3.5" />

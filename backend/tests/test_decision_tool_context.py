@@ -32,6 +32,8 @@ ORBIT = SimpleNamespace(
         ("公司已有自建问答服务，别替我更换平台", False, True),
         ("已有内部问答服务，希望选择 Orbit 平台", False, False),
         ("已有 Orbit 平台，希望推荐另一平台", True, False),
+        ("我想给现有项目选一个编码工具", False, False),
+        ("我想选一个编程模型 API 接进现有应用", False, False),
     ],
 )
 def test_ownership_and_selection_minimal_pairs(task, named, reuse):
@@ -48,6 +50,20 @@ def test_alias_prefix_does_not_bind_a_different_product():
     )
     result = tool_context(context, [ORBIT])
     assert result.reuse and not result.entity_ids
+
+
+@pytest.mark.parametrize(
+    "task,comparison",
+    [
+        ("对照目标岗位，指出简历里的匹配依据", False),
+        ("Compare a resume with the job description", False),
+        ("我想比较两个模型的结构化输出", True),
+        ("Compare Orbit with another option", True),
+    ],
+)
+def test_comparison_requires_a_product_target(task, comparison):
+    context = DecisionContext(task=task, priority="balanced", deployment="undecided")
+    assert tool_context(context, [ORBIT]).comparison is comparison
 
 
 @pytest.mark.parametrize(

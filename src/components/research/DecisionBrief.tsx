@@ -118,6 +118,7 @@ export function DecisionBrief({
         <DecisionGuidanceView
           key={research.id}
           research={research}
+          outcomeLevel={outcomeLevel}
           entityName={entityName}
           isComparable={isComparable}
           onRevision={onRevision}

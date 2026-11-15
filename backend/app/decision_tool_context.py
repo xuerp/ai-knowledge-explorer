@@ -27,7 +27,11 @@ MATERIAL_FIRST = re.compile(
     re.IGNORECASE,
 )
 SELECTION = re.compile(
-    r"选择|选型|推荐|比较|对比|对照|更换|替换|迁移|\b(?:choose|select|recommend|compare|switch|replace)\b",
+    r"选择|选型|选(?:一个|一款|个)|推荐|比较|对比|对照|更换|替换|迁移|\b(?:choose|select|recommend|compare|switch|replace)\b",
+    re.IGNORECASE,
+)
+COMPARISON_TARGET = re.compile(
+    r"模型|候选|产品|工具|平台|框架|方案|\b(?:models?|candidates?|products?|tools?|platforms?|frameworks?|options?)\b",
     re.IGNORECASE,
 )
 
@@ -84,13 +88,13 @@ def tool_context(context, entities=()) -> ToolContext:
             continue
         selection = SELECTION.search(part.text)
         if selection:
+            selected_object = part.text[selection.end() :]
+            named_target = any(names_entity(selected_object, entity) for entity in entities)
             comparison |= bool(
                 re.search(r"比较|对比|对照|\bcompare\b", selection.group(), re.IGNORECASE)
+                and (COMPARISON_TARGET.search(selected_object) or named_target)
             )
-            selected_object = part.text[selection.end() :]
-            choosing |= bool(TOOL_KIND.search(selected_object)) or any(
-                names_entity(selected_object, entity) for entity in entities
-            )
+            choosing |= bool(TOOL_KIND.search(selected_object)) or named_target
         relation = RELATION.search(part.text)
         obj = OBJECT_END.split(relation["object"], maxsplit=1)[0].strip() if relation else ""
         if relation and (

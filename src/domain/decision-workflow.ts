@@ -396,6 +396,9 @@ export function decisionMarkdown(
         (reason) => `- ${reason.finding}${cite(reason.claimIds)}`,
       ),
       guidance.recommendation.tradeoff ?? "",
+      ...(guidance.outcome === "advice" && guidance.nextAction.entryUrl
+        ? [`官方入口 / Official entry ${guidance.nextAction.entryUrl}`]
+        : []),
       guidance.nextAction.instruction,
       ...guidance.recommendation.premises,
     );

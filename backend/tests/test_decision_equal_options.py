@@ -65,6 +65,43 @@ def test_equal_qualified_options_keep_a_task_without_selecting_a_winner(scene, l
     assert decision.plan.trial.executed is False
 
 
+def test_catalog_entry_gives_one_starting_point_without_changing_qualification():
+    task = "我想选一个 Agent 框架搭建工作流"
+    context = DecisionContext(
+        task=task, priority="balanced", deployment="undecided", task_type="agent-development"
+    )
+    order = ("preview", "alpha", "beta")
+    decision = result(
+        *(candidate(key) for key in order), scenario="agent-orchestration", status="ready"
+    )
+    snapshot = SimpleNamespace(
+        entities=[
+            SimpleNamespace(
+                id=key,
+                name=SimpleNamespace(zh=key, en=key),
+                aliases=[],
+                type="framework",
+                status="preview" if key == "preview" else "active",
+                knowledge=SimpleNamespace(official_url=f"https://{key}.example.com/docs"),
+                release=None,
+            )
+            for key in order
+        ]
+    )
+    decision.plan = build_plan(decision, context, "zh")
+    guidance = build_guidance(decision, context, snapshot, "zh")
+    assert guidance.outcome == "advice"
+    assert guidance.recommendation.primary_entity_id is None
+    assert guidance.recommendation.entity_ids == list(order)
+    assert guidance.next_action.target_ids == ["alpha"]
+    assert guidance.next_action.entry_url == "https://alpha.example.com/docs"
+
+    comparison = context.model_copy(update={"task": "比较两个 Agent 框架的编排能力"})
+    guidance = build_guidance(decision, comparison, snapshot, "zh")
+    assert guidance.next_action.entry_url is None
+    assert len(guidance.next_action.target_ids) == 3
+
+
 @pytest.mark.parametrize("language", ["zh", "en"])
 def test_equal_options_task_survives_api_save_and_report(tmp_path, language):
     interpreter = MethodInterpreter()

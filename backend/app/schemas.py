@@ -1125,10 +1125,11 @@ class DecisionNextAction(CamelModel):
     location: Literal["this-page", "selected-product"]
     instruction: str
     execution_prompt: str | None = None
+    entry_url: str | None = None
 
 
 class DecisionGuidance(CamelModel):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[1, 2] = 1
     outcome: Literal["advice", "clarify", "conditional", "unsupported", "blocked"]
     intent: list[DecisionIntentField]
     tasks: list[str]

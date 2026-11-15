@@ -619,8 +619,8 @@ function AskPage() {
                 <h2>{t("你想用 AI 做什么？", "What do you want AI to do?")}</h2>
                 <p>
                   {t(
-                    "选一个场景填入示例，或直接写下你的需求。决策助手会根据已有资料给出选型建议和下一步。",
-                    "Pick a scenario to fill in an example, or write your own. The assistant uses the available evidence to suggest what to choose and how to start.",
+                    "选一个场景填入示例，或直接写下你的需求。决策助手会尽量给出一个可开始的方案，并告诉你怎么上手。",
+                    "Pick a scenario to fill in an example, or write your own. When the evidence supports a choice, the assistant suggests one way to get started.",
                   )}
                 </p>
                 <div className="decision-start__scenarios">

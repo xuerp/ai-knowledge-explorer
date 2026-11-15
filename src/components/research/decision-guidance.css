@@ -70,8 +70,7 @@
   cursor: wait;
 }
 .decision-guidance__options span,
-.decision-guidance__boundary,
-.decision-guidance__revision {
+.decision-guidance__boundary {
   color: var(--color-muted-foreground);
 }
 .decision-guidance textarea {
@@ -89,6 +88,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+.decision-guidance a.decision-guidance__entry {
+  color: var(--color-primary-foreground);
+  text-decoration: none;
 }
 .decision-guidance__action-area {
   padding: 20px 0;
@@ -149,7 +152,7 @@
   .decision-guidance .decision-outcome__headline {
     font-size: 1.25rem;
   }
-  .decision-guidance__actions > button {
+  .decision-guidance__actions > :is(button, a) {
     min-height: 44px;
     height: auto;
     white-space: normal;
