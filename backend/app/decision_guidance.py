@@ -693,8 +693,8 @@ def build_guidance(result, context, snapshot, language):
         )
         summary = (
             t(
-                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先对比与你相关的使用方式和限制。有可用入口，就从一个方案开始。",
-                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Compare the interfaces and limits that matter to your task. Start with one option you can access.",
+                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。按功能与使用条件比较。性能排名需要用同一批样本实测。已有可用入口，可以先试一个。",
+                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Compare features and access conditions. Performance rankings need tests on the same samples. Start with one option you can access.",
             )
             if ready
             else t(
