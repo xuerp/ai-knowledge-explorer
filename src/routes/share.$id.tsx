@@ -69,7 +69,9 @@ function PublicResearchPage() {
     }
     return (
       <AppShell>
-        <article className="print-report mx-auto max-w-4xl space-y-7 px-4 py-10 md:px-6">
+        <article
+          className={`print-report mx-auto max-w-4xl px-4 py-10 md:px-6 ${liveResearch.decision?.guidance ? "shared-decision-report space-y-3" : "space-y-7"}`}
+        >
           <header>
             <div className="text-xs font-medium uppercase tracking-widest text-signal">
               {t("用户主动公开", "Published by the user")}

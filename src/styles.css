@@ -9997,7 +9997,8 @@ dl.decision-validation__review-note dd {
   line-height: 1.65;
   text-wrap: pretty;
 }
-.research-report .decision-brief {
+.research-report .decision-brief,
+.shared-decision-report .decision-brief {
   padding: 0;
   border: 0;
 }
