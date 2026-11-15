@@ -31,7 +31,8 @@ SELECTION = re.compile(
     re.IGNORECASE,
 )
 COMPARISON_TARGET = re.compile(
-    r"模型|候选|产品|工具|平台|框架|方案|\b(?:models?|candidates?|products?|tools?|platforms?|frameworks?|options?)\b",
+    r"模型|候选|产品|工具|平台|框架|方案|(?:功能|能力).{0,12}(?:使用条件|接入条件|限制|费用)|"
+    r"\b(?:models?|candidates?|products?|tools?|platforms?|frameworks?|options?)\b",
     re.IGNORECASE,
 )
 

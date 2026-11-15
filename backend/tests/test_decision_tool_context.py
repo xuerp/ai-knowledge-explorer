@@ -58,6 +58,7 @@ def test_alias_prefix_does_not_bind_a_different_product():
         ("对照目标岗位，指出简历里的匹配依据", False),
         ("Compare a resume with the job description", False),
         ("我想比较两个模型的结构化输出", True),
+        ("先比较有官方来源的能力与使用条件", True),
         ("Compare Orbit with another option", True),
     ],
 )
