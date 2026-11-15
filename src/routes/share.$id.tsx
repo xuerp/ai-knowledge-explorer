@@ -109,13 +109,13 @@ function PublicResearchPage() {
             </div>
           </section>
           <details
-            className="research-source-library"
+            className={`research-source-library${liveResearch.decision?.guidance ? " decision-result-disclosure" : ""}`}
             open={liveResearch.decision ? undefined : true}
           >
             <summary>
               {t(
-                `查看引用与来源（${liveResearch.citations.length} 条）`,
-                `Inspect citations and sources (${liveResearch.citations.length})`,
+                `引用与来源（${liveResearch.citations.length} 条）`,
+                `Citations and sources (${liveResearch.citations.length})`,
               )}
             </summary>
             <section className="space-y-3">

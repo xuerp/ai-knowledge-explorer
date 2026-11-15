@@ -14,6 +14,7 @@ import { decisionResumePath } from "@/domain/decision-workflow";
 import { DecisionChoice } from "./DecisionChoice";
 import { decisionComparisonRows } from "@/domain/decision-choice";
 import { planDimensionName } from "@/domain/decision-plan-reading";
+import { guidanceReasonText } from "@/domain/decision-reading";
 import { copyTaskText } from "@/lib/copy-task-text";
 import "./decision-guidance.css";
 
@@ -272,14 +273,19 @@ export function DecisionGuidanceView({
               <ul>
                 {advice.reasons.map((reason, index) => (
                   <li key={index}>
-                    {reason.finding}
+                    <span>
+                      {guidanceReasonText(reason, research, entryUrl ? singleStartId : null, lang)}
+                    </span>
                     {reason.claimIds.length > 0 && (
-                      <span className="decision-guidance__references">
-                        {" "}
-                        {reason.claimIds.slice(0, 2).map((id) => (
+                      <span className="decision-guidance__reason-links">
+                        {reason.claimIds.slice(0, 2).map((id, sourceIndex, sources) => (
                           <a
                             key={id}
                             href={`#claim-${id}`}
+                            aria-label={t(
+                              `第 ${index + 1} 条理由的来源 ${sourceIndex + 1}`,
+                              `Source ${sourceIndex + 1} for reason ${index + 1}`,
+                            )}
                             onClick={() => {
                               const target = document.getElementById(`claim-${id}`);
                               let ancestor = target?.parentElement;
@@ -290,7 +296,9 @@ export function DecisionGuidanceView({
                               target?.scrollIntoView({ block: "start" });
                             }}
                           >
-                            {t("依据", "Source")}
+                            {sources.length === 1
+                              ? t("来源", "Source")
+                              : t(`来源 ${sourceIndex + 1}`, `Source ${sourceIndex + 1}`)}
                           </a>
                         ))}
                       </span>
@@ -300,7 +308,7 @@ export function DecisionGuidanceView({
               </ul>
             </div>
           )}
-          {advice.tradeoff && (
+          {advice.tradeoff && (!entryUrl || advice.primaryEntityId) && (
             <p>
               <strong>{t("主要取舍：", "Main tradeoff: ")}</strong>
               {advice.tradeoff}
@@ -360,12 +368,12 @@ export function DecisionGuidanceView({
                 <p>
                   {localDeployment
                     ? t(
-                        "使用入口：按所选版本的官方部署文档准备本地环境，先核验资源与数据边界。",
-                        "Access: prepare a local environment using the exact version's official deployment documentation; first qualify resources and data boundaries.",
+                        "按所选版本的部署文档准备环境，先确认资源和数据去向。",
+                        "Follow the selected version’s deployment guide and check resources and data handling.",
                       )
                     : t(
-                        "使用入口：本次未验证你的账户是否已开通，请在已有产品中确认。",
-                        "Access: your account availability has not been verified; check inside your existing product.",
+                        "打开所选工具，确认账号权限和费用后，用一份样本看看效果。",
+                        "Check account access and pricing in the tool you choose, then try one sample.",
                       )}
                 </p>
                 {!!documentation.length && (
@@ -378,17 +386,6 @@ export function DecisionGuidanceView({
                     ))}
                   </p>
                 )}
-                <p>
-                  {localDeployment
-                    ? t(
-                        "在你控制的部署环境中执行；本页不会部署模型或发送业务文档。",
-                        "Run this in your controlled environment; this page does not deploy models or send business documents.",
-                      )
-                    : t(
-                        "在你选择的产品中执行；本页不会替你运行任务。",
-                        "Run this in your selected product; this page does not execute the task.",
-                      )}
-                </p>
                 <label htmlFor={`start-${research.id}`}>
                   {t("可复制的任务说明", "Copyable task instructions")}
                 </label>
@@ -470,63 +467,68 @@ export function DecisionGuidanceView({
               </ul>
             )}
           </div>
-          {onTrial &&
-            (guidance.outcome === "advice" ||
-              (guidance.outcome === "conditional" && advice.entityIds.length > 0)) && (
-              <details className="decision-guidance__optional">
-                <summary>{t("记录这次使用（可选）", "Record this use (optional)")}</summary>
-                <p>
-                  {t(
-                    "用一个手头任务就能开始。想留档时，可以记录这次的效果和成本。",
-                    "Start with one task you already have. You can save its result and cost here for later.",
-                  )}
-                </p>
-                {singleStartId ? (
-                  <>
-                    <Button variant="outline" onClick={() => onTrial([singleStartId])}>
-                      {t("准备这一个方案的记录", "Prepare a record for this option")}
-                    </Button>
-                    {advice.entityIds.some((id) => id !== singleStartId) && (
-                      <details>
-                        <summary>{t("选择其他方案记录", "Record a different option")}</summary>
-                        <DecisionChoice
-                          research={research}
-                          entityName={entityName}
-                          isComparable={isComparable}
-                          onTrial={onTrial}
-                        />
-                      </details>
-                    )}
-                  </>
-                ) : (
-                  <DecisionChoice
-                    research={research}
-                    entityName={entityName}
-                    isComparable={isComparable}
-                    onTrial={onTrial}
-                  />
-                )}
-              </details>
-            )}
-          <aside className="decision-guidance__boundary">
-            {advice.premises.map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </aside>
+          {!entryUrl && advice.premises.length > 0 && (
+            <aside className="decision-guidance__boundary">
+              {advice.premises.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </aside>
+          )}
         </>
       )}
-      <details>
-        <summary>{t("查看原始需求", "View original requirements")}</summary>
-        <div className="decision-guidance__request">
-          <p>{task}</p>
-          <a href={editPath}>{t("修改", "Edit")}</a>
-        </div>
-        {research.decisionContext?.parentResearchId && (
-          <Link to="/research/$id" params={{ id: research.decisionContext.parentResearchId }}>
-            {t("查看上一版", "Previous revision")}
-          </Link>
-        )}
-      </details>
+      <div className="decision-guidance__details">
+        {!question &&
+          onTrial &&
+          (guidance.outcome === "advice" ||
+            (guidance.outcome === "conditional" && advice.entityIds.length > 0)) && (
+            <details className="decision-result-disclosure decision-guidance__optional">
+              <summary>{t("记录这次使用（可选）", "Record this use (optional)")}</summary>
+              <p>
+                {t(
+                  "试用后可以记录结果和实际费用。",
+                  "Save the result and actual cost after trying the tool.",
+                )}
+              </p>
+              {singleStartId ? (
+                <>
+                  <Button variant="outline" onClick={() => onTrial([singleStartId])}>
+                    {t("准备这一个方案的记录", "Prepare a record for this option")}
+                  </Button>
+                  {advice.entityIds.some((id) => id !== singleStartId) && (
+                    <details>
+                      <summary>{t("选择其他方案记录", "Record a different option")}</summary>
+                      <DecisionChoice
+                        research={research}
+                        entityName={entityName}
+                        isComparable={isComparable}
+                        onTrial={onTrial}
+                      />
+                    </details>
+                  )}
+                </>
+              ) : (
+                <DecisionChoice
+                  research={research}
+                  entityName={entityName}
+                  isComparable={isComparable}
+                  onTrial={onTrial}
+                />
+              )}
+            </details>
+          )}
+        <details className="decision-result-disclosure">
+          <summary>{t("原始需求", "Original requirements")}</summary>
+          <div className="decision-guidance__request">
+            <p>{task}</p>
+            <a href={editPath}>{t("修改", "Edit")}</a>
+          </div>
+          {research.decisionContext?.parentResearchId && (
+            <Link to="/research/$id" params={{ id: research.decisionContext.parentResearchId }}>
+              {t("查看上一版", "Previous revision")}
+            </Link>
+          )}
+        </details>
+      </div>
       {error && <p role="alert">{error}</p>}
       {pendingAnswer && !busy && question && (
         <Button variant="outline" onClick={() => void respond(pendingAnswer)}>

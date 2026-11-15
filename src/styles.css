@@ -946,6 +946,7 @@ dl.decision-validation__review-note dd {
 }
 
 .ask-result {
+  --ask-result-inset: 1.6rem;
   overflow: hidden;
   border: 1px solid var(--ask-line);
   border-radius: 0.7rem;
@@ -1245,7 +1246,7 @@ dl.decision-validation__review-note dd {
 }
 
 .decision-brief {
-  padding: 1.25rem 1.6rem;
+  padding: 1.25rem var(--ask-result-inset, 1.6rem);
   border-bottom: 1px solid var(--ask-line);
 }
 
@@ -1346,6 +1347,9 @@ dl.decision-validation__review-note dd {
 }
 
 @media (max-width: 767px) {
+  .ask-result {
+    --ask-result-inset: 1rem;
+  }
   .ask-result__header,
   .ask-answer-block,
   .decision-brief {
@@ -9003,6 +9007,9 @@ dl.decision-validation__review-note dd {
 }
 .ask-source-library {
   padding: 12px 24px;
+}
+.ask-result > .ask-source-library.decision-result-disclosure {
+  padding-inline: var(--ask-result-inset);
 }
 .ask-source-library[open] > summary,
 .research-source-library[open] > summary {

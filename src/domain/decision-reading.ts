@@ -1,6 +1,47 @@
-import type { DecisionResult } from "@/services/user-api";
+import type { Lang } from "@/domain/types";
+import type { DecisionResult, ResearchResult } from "@/services/user-api";
 
 type CitedFinding = { finding: string; claimIds: string[] };
+
+export function guidanceReasonText(
+  reason: CitedFinding & { dimension: string },
+  research: ResearchResult,
+  entityId: string | null | undefined,
+  lang: Lang,
+) {
+  if (!entityId || !reason.claimIds.length) return reason.finding;
+  const isCareer = research.decision?.scenario?.id === "career-assistant";
+  const label =
+    reason.dimension === "text-generation"
+      ? isCareer
+        ? { zh: "支持文本输出，可用于说明匹配理由。", en: "Text output can explain job matches." }
+        : { zh: "支持文本输出。", en: "Supports text output." }
+      : reason.dimension === "structured-output"
+        ? isCareer
+          ? {
+              zh: "支持结构化输出，便于按固定字段整理简历。",
+              en: "Structured output helps organize résumés into fixed fields.",
+            }
+          : { zh: "支持结构化输出。", en: "Supports structured output." }
+        : null;
+  if (
+    label &&
+    reason.claimIds.every((id) =>
+      research.citations?.some(
+        ({ claim, evidence }) =>
+          claim.id === id &&
+          claim.entityId === entityId &&
+          claim.confidence === "verified" &&
+          claim.predicate === "workflow-feature" &&
+          claim.objectOrValue === reason.dimension &&
+          evidence.some((source) => source.type === "official"),
+      ),
+    )
+  )
+    return label[lang];
+  return reason.finding;
+}
+
 const sentences = (text: string) =>
   text
     .split(/(?<=[。！？])\s*|(?<=[.!?])\s+(?=[A-Z])/)

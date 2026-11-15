@@ -1244,13 +1244,13 @@ function AskPage() {
 
                 {factClaims.length + inferredClaims.length + unverifiedClaims.length > 0 && (
                   <details
-                    className="ask-source-library"
+                    className={`ask-source-library${research.decision?.guidance ? " decision-result-disclosure" : ""}`}
                     open={research.decision ? undefined : true}
                   >
                     <summary>
                       {t(
-                        `查看全部引用与来源（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
-                        `Inspect all citations and sources (${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
+                        `引用与来源（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
+                        `Citations and sources (${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
                       )}
                     </summary>
                     <p className="ask-result__citation-note">
@@ -1335,12 +1335,14 @@ function AskPage() {
                   </details>
                 )}
                 <div className="ask-result__footer">
-                  <p>
-                    {t(
-                      "结论仅基于当前收录证据；信息不足时会明确标注。",
-                      "Conclusions use the currently recorded evidence; gaps are explicitly marked.",
-                    )}
-                  </p>
+                  {!research.decision?.guidance && (
+                    <p>
+                      {t(
+                        "结论仅基于当前收录证据；信息不足时会明确标注。",
+                        "Conclusions use the currently recorded evidence; gaps are explicitly marked.",
+                      )}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-x-5 gap-y-2">
                     {token ? (
                       <Link

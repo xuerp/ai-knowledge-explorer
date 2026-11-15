@@ -271,8 +271,10 @@ export function DecisionBrief({
           />
         )}
       {workspace}
-      <details className="decision-audit">
-        <summary>{t("筛选依据与其他候选", "Screening details and other candidates")}</summary>
+      <details
+        className={`decision-audit${decision.guidance ? " decision-result-disclosure" : ""}`}
+      >
+        <summary>{t("其他候选与筛选依据", "Other options and screening")}</summary>
         {decision.guidance && validationContent && !hasTrialCandidates && (
           <DecisionEvidenceRequests research={research} entityName={entityName} />
         )}

@@ -303,12 +303,12 @@ export function ResearchReport({
           )}
 
           {decisionContent}
-          <details className="research-source-library" open={research?.decision ? undefined : true}>
+          <details
+            className={`research-source-library${research?.decision?.guidance ? " decision-result-disclosure" : ""}`}
+            open={research?.decision ? undefined : true}
+          >
             <summary>
-              {t(
-                `全部结论与原始来源（${claims.length} 条事实）`,
-                `All claims and source documents (${claims.length} claims)`,
-              )}
+              {t(`引用与来源（${claims.length} 条）`, `Citations and sources (${claims.length})`)}
             </summary>
             <section aria-labelledby="claims-title">
               <div className="mb-4">
