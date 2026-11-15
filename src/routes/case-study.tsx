@@ -111,7 +111,7 @@ function CaseStudyPage() {
                 <dt className="font-semibold">{t("资料范围", "Information scope")}</dt>
                 <dd className="mt-1 text-muted-foreground">
                   {t(
-                    "以已收录资料为基础，包含示例内容；来源、日期与核验状态随条目展示。",
+                    "资料包含人工核验记录和示例。打开条目可查看来源与日期。",
                     "Based on cataloged material, including sample content. Each entry shows its sources, dates and verification status.",
                   )}
                 </dd>

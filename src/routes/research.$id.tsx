@@ -151,8 +151,8 @@ function ResearchRecordPage() {
               </Button>
               <span className="text-xs text-muted-foreground">
                 {t(
-                  "仅在你主动发布后生成公开链接。",
-                  "A public link is created only after you publish explicitly.",
+                  "任何拿到链接的人都可以查看这份研究。",
+                  "Anyone with the link can view this research.",
                 )}
               </span>
             </div>

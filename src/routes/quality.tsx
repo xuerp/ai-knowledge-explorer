@@ -46,12 +46,7 @@ function QualityPage() {
             )}
             actions={
               <div className="flex flex-wrap items-center gap-3">
-                {metrics.data && (
-                  <DemoBadge
-                    mode={metrics.data.dataMode}
-                    updatedAt={metrics.data.business.updatedAt}
-                  />
-                )}
+                {metrics.data && <DemoBadge mode={metrics.data.dataMode} />}
                 <Button
                   type="button"
                   variant="outline"
@@ -93,8 +88,8 @@ function QualityPage() {
                   icon={<Database className="h-5 w-5" />}
                   title={t("业务数据指标", "Business data metrics")}
                   description={t(
-                    "每 5 分钟同步当前库；条目的核验日期可在来源中查看。",
-                    "Syncs the current corpus every 5 minutes. Verification dates are available with each source.",
+                    "页面每 5 分钟刷新知识库指标。",
+                    "Catalog metrics refresh every 5 minutes.",
                   )}
                   updatedAt={formatDateTime(metrics.data.business.updatedAt, lang)}
                   timeLabel={t("库记录更新", "Records updated")}
@@ -123,8 +118,8 @@ function QualityPage() {
                     label={t("来源引用完整度", "Source reference coverage")}
                     value={metrics.data.business.evidenceReferenceCoverage}
                     note={t(
-                      "检查事实、关系和时间线引用的来源记录是否齐全。结论的支持程度需结合原文核对。",
-                      "Checks that the sources referenced by facts, relationships and timeline entries exist. Check the original text to assess support for a conclusion.",
+                      "统计引用可找到的记录。原文支持程度见各条目的核验状态。",
+                      "Counts records with resolvable sources. See each entry's verification status for the review outcome.",
                     )}
                     count={
                       metrics.data.business.counts &&
@@ -147,8 +142,8 @@ function QualityPage() {
                     label={t("有审核时间记录", "Evidence with review timestamp")}
                     value={metrics.data.business.reviewedEvidenceRatio}
                     note={t(
-                      "来源中填写了审核日期的比例。日期反映记录中的审核时间。",
-                      "The share of sources with a recorded review date. Dates refer to the review recorded on each source.",
+                      "有审核日期的来源占比。",
+                      "Share of sources with a recorded review date.",
                     )}
                     count={
                       metrics.data.business.counts &&
@@ -158,10 +153,7 @@ function QualityPage() {
                   <ProgressMetric
                     label={t("180 天内采集", "Collected within 180 days")}
                     value={metrics.data.business.freshEvidenceRatio}
-                    note={t(
-                      "按来源的采集日期计算。具体信息的有效期请查看原文与适用条件。",
-                      "Calculated from source collection dates. Check the original source and conditions for current validity.",
-                    )}
+                    note={t("按来源采集日期统计。", "Based on source collection dates.")}
                     count={
                       metrics.data.business.counts &&
                       `${metrics.data.business.counts.recentlyCollectedEvidence} / ${metrics.data.business.evidenceCount}`
@@ -238,10 +230,7 @@ function QualityPage() {
               )}
               <p className="text-xs leading-5 text-muted-foreground">
                 {t("本次读取", "Read at")} {formatDateTime(metrics.data.generatedAt, lang)}
-                {t(
-                  "（北京时间）。刷新核对数据与报告状态，检索成绩在完成新一轮评估后更新。",
-                  " (Asia/Shanghai). Refresh checks data and report status. Retrieval scores update after a new evaluation is completed.",
-                )}
+                {t("（北京时间）", " (Asia/Shanghai)")}
               </p>
             </div>
           )}
@@ -296,26 +285,17 @@ function EvaluationSection({
                 )
               : t("历史评估 · 适用于原报告快照", "Historical evaluation · original snapshot only")}
         </h3>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {t(
-            "记录本站的资料检索表现，成绩适用于报告中指定的题集与快照。",
-            "Measures this site's evidence retrieval on the report's question set and snapshot.",
-          )}
-        </p>
-        <details className="mt-4">
+        <details className="mt-2">
           <summary className="cursor-pointer py-2 text-sm font-medium text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">
             {t("核对评估范围", "Check evaluation scope")}
           </summary>
           <dl className="mt-2 divide-y divide-border text-sm">
             <ScopeRow label={t("知识快照", "Knowledge snapshot")}>
               {scope?.corpusMatches === true
-                ? t(
-                    "数据内容匹配，忽略每次读取生成的时间戳。",
-                    "Corpus content matches, excluding request-generated timestamps.",
-                  )
+                ? t("当前库与报告快照内容一致。", "The current corpus matches the report snapshot.")
                 : scope?.corpusMatches === false
                   ? t(
-                      "当前库已变化；下方成绩只适用于报告快照。",
+                      "当前库内容有变动，成绩沿用报告快照。",
                       "The current corpus has changed; scores apply only to the evaluated snapshot.",
                     )
                   : t("快照适用性尚未核实。", "Snapshot applicability is unverified.")}
@@ -339,10 +319,7 @@ function EvaluationSection({
               {scope?.configuredRetrievalMode ?? t("未知", "Unknown")}
               {scope?.retrievalConfigMatches
                 ? t("（配置匹配）", " (configuration matches)")
-                : t(
-                    "（配置不同，不可替代当前方式的评估）",
-                    " (different configuration; cannot substitute for current-mode evaluation)",
-                  )}
+                : t("（配置不同）", " (different configuration)")}
             </ScopeRow>
             <ScopeRow label={t("检索代码", "Retrieval code")}>
               {scope?.implementationMatches === true
@@ -378,8 +355,8 @@ function EvaluationSection({
           label="Precision@8"
           value={formatPercent(e.precisionAt8)}
           note={t(
-            "每题命中的标注事实数 ÷ 8，再取平均；未标注结果不计命中，不等于均无关。",
-            "Annotated hits divided by 8, averaged per question. Unannotated results are not necessarily irrelevant.",
+            "每题命中的标注事实数 ÷ 8，再取平均。未标注的结果可能同样相关。",
+            "Annotated hits divided by 8, averaged across questions. Unannotated results may also be relevant.",
           )}
         />
         <MetricCard

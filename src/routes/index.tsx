@@ -143,23 +143,13 @@ function LandingPage() {
         <div className="landing-compact__container landing-compact__data-note" role="status">
           <span>
             {!overviewQuery.automatic
-              ? t("当前为离线资料快照。", "Showing an offline catalog snapshot.")
+              ? t("离线资料快照", "Offline catalog snapshot")
               : overviewQuery.isError
-                ? t(
-                    "自动同步暂未成功，当前内容仍可浏览。",
-                    "Automatic sync failed; the previous catalog remains available.",
-                  )
-                : overviewQuery.hasSynced
-                  ? t(
-                      "已同步后台已发布资料，停留时每5分钟自动核对。",
-                      "Published catalog synced; checked every 5 minutes while this page is active.",
-                    )
-                  : t(
-                      "当前为预置快照，正在后台自动同步已发布资料。",
-                      "Showing the bundled snapshot while published data syncs in the background.",
-                    )}
+                ? t("同步失败，正在显示上次的资料。", "Sync failed. Showing the previous catalog.")
+                : syncTime
+                  ? t(`最近同步 ${syncTime}`, `Last synced ${syncTime}`)
+                  : t("正在同步已发布资料…", "Syncing published data…")}
           </span>
-          {syncTime && <span>{t(`最近同步 ${syncTime}`, `Last synced ${syncTime}`)}</span>}
           {overviewQuery.isError && (
             <button
               type="button"

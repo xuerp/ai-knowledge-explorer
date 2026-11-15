@@ -192,7 +192,7 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
           "从提供方、应用接入和技术依据，看清一个模型或产品的联系。",
           "Understand a model or product through its providers, integrations and technical evidence.",
         )}
-        actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
+        actions={<DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />}
       />
       <section className="relationship-controls" aria-label={t("图谱筛选", "Graph controls")}>
         <EntityPicker
@@ -343,10 +343,10 @@ function RelationshipWorkspace({ snapshot }: { snapshot: KnowledgeSnapshot }) {
               text={t(
                 filterText
                   ? "换一个关键词，或清空搜索条件。"
-                  : "当前筛选下没有可展示的提供方、应用接入或技术联系。下方保留已有来源要点；缺少的关系需要核实后收录。",
+                  : "试试放宽筛选条件，或查看下方已收录的资料要点。",
                 filterText
                   ? "Try another keyword or clear the search."
-                  : "No provider, integration or technical links match these filters. Existing sourced notes are shown below; missing relationships need review.",
+                  : "Broaden the filters or browse the cataloged notes below.",
               )}
             />
           )}

@@ -10,11 +10,11 @@ import { SourceExcerpt } from "@/components/research/SourceExcerpt";
 export function DemoBadge({
   className = "",
   mode = "demo",
-  updatedAt,
+  retrievedAt,
 }: {
   className?: string;
   mode?: DataMode;
-  updatedAt?: string;
+  retrievedAt?: string;
 }) {
   const { t } = useApp();
   return (
@@ -30,29 +30,24 @@ export function DemoBadge({
         align="end"
         aria-label={t("数据状态说明", "Data status explanation")}
       >
-        <h2>{t("当前数据从哪里来", "Where this data comes from")}</h2>
+        <h2>{t("资料范围", "Catalog coverage")}</h2>
         <p>
           {mode === "demo"
             ? t(
-                "当前展示收录快照，包含示例内容与人工核验的模型目录。",
-                "This catalog snapshot includes sample content and manually reviewed model records.",
+                "此快照包含示例与已核验资料。打开条目可查看原始来源。",
+                "This snapshot includes examples and verified material. Open any entry for its original sources.",
               )
             : t(
-                "资料从当前知识库读取，发生日期与核验状态随各条记录展示。",
-                "Records come from the current knowledge base, with event dates and verification status shown on each entry.",
+                "只展示已收录资料。日期、核验状态和原始来源见各条目。",
+                "Browse cataloged material. Each entry shows its dates, verification status and original sources.",
               )}
         </p>
-        {updatedAt && (
+        {retrievedAt && (
           <p>
-            {t("快照日期", "Snapshot date")}: {updatedAt.slice(0, 10)}
+            {mode === "demo" ? t("快照日期", "Snapshot date") : t("读取日期", "Read date")}{" "}
+            {retrievedAt.slice(0, 10)}
           </p>
         )}
-        <p>
-          {t(
-            "资料按收录快照浏览，非实时全量追踪；可打开条目核对日期与原始来源。",
-            "Browse cataloged snapshots rather than a complete real-time feed. Open an entry to check its dates and original sources.",
-          )}
-        </p>
         <Link to="/quality">
           {t("查看数据质量与覆盖说明", "View data quality and coverage")}{" "}
           <ExternalLink aria-hidden="true" />

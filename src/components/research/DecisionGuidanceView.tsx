@@ -58,6 +58,24 @@ export function DecisionGuidanceView({
       }
     : guidance.recommendation;
   const comparisonIds = guidance.recommendation.entityIds.slice(0, 3);
+  const legacyPremises = [
+    "公开资料支持功能和条件判断；实际效果、你的账户权限及最终费用仍以实际使用为准。",
+    "公开资料支持功能和条件判断；实际效果、你的账户权限及最终费用仍以实际使用为准。 费用未估算，不表示免费。",
+    "Public evidence supports feature and condition checks; actual results, account access and final charges remain unmeasured.",
+    "Public evidence supports feature and condition checks; actual results, account access and final charges remain unmeasured. Cost is not estimated, not assumed free.",
+  ];
+  const premises = [
+    ...new Set(
+      advice.premises.map((line) =>
+        !privateAdvice && legacyPremises.includes(line)
+          ? t(
+              "使用前确认账号权限和费用。实际效果可用任务样本验证。",
+              "Check account access and pricing before use. Try a task sample to assess results.",
+            )
+          : line,
+      ),
+    ),
+  ];
   const comparisons = decisionComparisonRows(research, comparisonIds);
   const localDeployment = ["private", "on-device"].includes(
     research.decisionContext?.deployment ?? "",
@@ -365,17 +383,19 @@ export function DecisionGuidanceView({
             </div>
             {guidance.nextAction.kind === "start" && (
               <>
-                <p>
-                  {localDeployment
-                    ? t(
-                        "按所选版本的部署文档准备环境，先确认资源和数据去向。",
-                        "Follow the selected version’s deployment guide and check resources and data handling.",
-                      )
-                    : t(
-                        "打开所选工具，确认账号权限和费用后，用一份样本看看效果。",
-                        "Check account access and pricing in the tool you choose, then try one sample.",
-                      )}
-                </p>
+                {entryUrl && (
+                  <p>
+                    {localDeployment
+                      ? t(
+                          "按部署文档确认资源和数据去向。",
+                          "Check resources and data handling against the deployment guide.",
+                        )
+                      : t(
+                          "使用前确认账号权限和费用。",
+                          "Check account access and pricing before use.",
+                        )}
+                  </p>
+                )}
                 {!!documentation.length && (
                   <p className="decision-guidance__references decision-guidance__documentation">
                     {documentation.map((source) => (
@@ -438,12 +458,6 @@ export function DecisionGuidanceView({
                           .join(" ") || t("当前资料未核验", "Unverified in current sources")}
                       </p>
                     ))}
-                    <p>
-                      {t(
-                        "费用与账户入口需要按实际使用方式确认。",
-                        "Confirm cost and account access for your actual interface.",
-                      )}
-                    </p>
                     {onTrial && (
                       <Button variant="outline" onClick={() => onTrial([id])}>
                         {t("已有此入口，准备一个任务", "I have access; prepare a task")}
@@ -467,9 +481,9 @@ export function DecisionGuidanceView({
               </ul>
             )}
           </div>
-          {!entryUrl && advice.premises.length > 0 && (
+          {!entryUrl && premises.length > 0 && (
             <aside className="decision-guidance__boundary">
-              {advice.premises.map((line) => (
+              {premises.map((line) => (
                 <p key={line}>{line}</p>
               ))}
             </aside>

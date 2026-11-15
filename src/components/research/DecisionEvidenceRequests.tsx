@@ -238,8 +238,8 @@ export function DecisionEvidenceRequests({
                         )
                       : row.currentEligibility !== "eligible"
                         ? t(
-                            "所请求资料补齐不代表所有条件通过；其他限制仍以重新分析为准。",
-                            "Completed evidence does not establish every condition; reanalyze to check the remaining requirements.",
+                            "资料补齐后，重新分析以检查其他条件。",
+                            "Once sources are added, analyze again to check the remaining requirements.",
                           )
                         : t(
                             "这只表示必要条件有依据，业务效果仍需实际试用。",

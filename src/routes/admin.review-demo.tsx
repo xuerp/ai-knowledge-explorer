@@ -103,8 +103,8 @@ function ReviewDemoPage() {
                 </div>
                 <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
                   {t(
-                    "可查看审核流程与依据，此处不会修改或发布资料。",
-                    "Explore the review workflow and evidence. This page does not modify or publish records.",
+                    "可查看审核流程、候选资料和来源。",
+                    "Explore the review workflow, candidates and sources.",
                   )}
                 </p>
               </div>
@@ -526,13 +526,6 @@ function ReviewQueue({
                   {sources.map((source) => (
                     <SourceEvidence key={source.id} source={source} />
                   ))}
-                </div>
-                <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                  <LockKeyhole className="h-4 w-4 shrink-0" />
-                  {t(
-                    "演示模式仅展示审核依据，不提供处置按钮。",
-                    "Demo mode presents review evidence without action controls.",
-                  )}
                 </div>
               </aside>
             </div>

@@ -227,11 +227,9 @@ def build_guidance(result, context, snapshot, language):
             )
         )
     boundary = t(
-        "公开资料支持功能和条件判断；实际效果、你的账户权限及最终费用仍以实际使用为准。",
-        "Public evidence supports feature and condition checks; actual results, account access and final charges remain unmeasured.",
+        "使用前确认账号权限和费用。实际效果可用任务样本验证。",
+        "Check account access and pricing before use. Try a task sample to assess results.",
     )
-    if context.budget.mode == "unknown":
-        boundary += t(" 费用未估算，不表示免费。", " Cost is not estimated, not assumed free.")
     headline = (
         t(f"建议先用 {name(primary)}", f"Start with {name(primary)}")
         if primary
@@ -695,13 +693,13 @@ def build_guidance(result, context, snapshot, language):
         )
         summary = (
             t(
-                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先核对使用方式、权限与缺项；这些依据不构成性能排名，也不要求逐个实测才能开始。",
-                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Check interfaces, access and gaps first; this is not a performance ranking and testing every candidate is not required to start.",
+                f"{'、'.join(name(key) for key in ready[:3])} 有本次必要功能的资料依据。先对比与你相关的使用方式和限制。有可用入口，就从一个方案开始。",
+                f"{', '.join(name(key) for key in ready[:3])} have evidence for the required features. Compare the interfaces and limits that matter to your task. Start with one option you can access.",
             )
             if ready
             else t(
-                "按你的任务核对各方案的功能、使用方式和缺项，再用相同材料与验收标准验证；公开功能依据不能证明哪个实际效果更好。",
-                "Compare features, interfaces and gaps against your task, then validate with the same inputs and criteria. Documented features do not establish a real-world quality winner.",
+                "先按任务核对各方案的功能与限制。需要比较实际效果时，使用同样的材料和验收标准。",
+                "Check features and limits against your task. To compare actual results, use the same inputs and acceptance criteria.",
             )
         )
         tradeoff = t(

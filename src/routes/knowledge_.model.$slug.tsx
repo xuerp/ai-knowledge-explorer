@@ -221,7 +221,7 @@ function EntityDetail() {
                       )}
                     </span>
                   )}
-                  <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
+                  <DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {displayName}
@@ -1100,7 +1100,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                       {releaseStageLabel(release.stage, t)}
                     </span>
                   )}
-                  <DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />
+                  <DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />
                 </div>
                 <div className="model-version__meta">
                   <span>
@@ -2174,8 +2174,8 @@ function createVersionKnowledge(
               ]
             : []),
       {
-        zh: "未收录的规格或价格不表示该能力不存在、免费或不可用，应以具体 API 渠道的官方文档为准。",
-        en: "Missing specifications or prices do not mean a feature is absent, free, or unavailable; check the official documentation for the actual API channel.",
+        zh: "缺少规格或报价时，可到所用 API 渠道的官方文档核对。",
+        en: "For missing specifications or prices, check the official documentation for your API channel.",
       },
       {
         zh: "同产品线不同版本的能力、限制与计费可能不同，对比时应选择具体型号。",

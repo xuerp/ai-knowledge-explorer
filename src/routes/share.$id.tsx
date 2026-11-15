@@ -102,12 +102,14 @@ function PublicResearchPage() {
               ) ?? false
             }
           />
-          <section className="paper-card p-6">
-            <h2 className="font-serif text-xl font-semibold">{t("结论", "Answer")}</h2>
-            <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">
-              {liveResearch.summary}
-            </div>
-          </section>
+          {!liveResearch.decision?.guidance && (
+            <section className="paper-card p-6">
+              <h2 className="font-serif text-xl font-semibold">{t("结论", "Answer")}</h2>
+              <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed">
+                {liveResearch.summary}
+              </div>
+            </section>
+          )}
           <details
             className={`research-source-library${liveResearch.decision?.guidance ? " decision-result-disclosure" : ""}`}
             open={liveResearch.decision ? undefined : true}
@@ -119,7 +121,6 @@ function PublicResearchPage() {
               )}
             </summary>
             <section className="space-y-3">
-              <h2 className="font-serif text-2xl font-semibold">{t("引用与来源", "Citations")}</h2>
               {liveResearch.citations.map((citation, index) => (
                 <div
                   key={citation.claim.id}
@@ -167,10 +168,11 @@ function PublicResearchPage() {
             snapshotQuery.error ? "公开研究页加载失败" : "正在加载公开研究页",
             snapshotQuery.error ? "Public research failed to load" : "Loading public research",
           )}
-          description={t(
-            "无法读取来源时不会显示不完整结论。",
-            "Incomplete conclusions are not shown when sources cannot be loaded.",
-          )}
+          description={
+            snapshotQuery.error
+              ? t("请重试加载研究记录和来源。", "Try loading the research and its sources again.")
+              : t("正在读取引用。", "Reading citations.")
+          }
           onRetry={snapshotQuery.error ? () => snapshotQuery.refetch() : undefined}
         />
       </AppShell>

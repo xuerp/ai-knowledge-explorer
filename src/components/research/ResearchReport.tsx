@@ -9,7 +9,6 @@ import {
   ExternalLink,
   FileText,
   Globe2,
-  Info,
   Printer,
   ShieldCheck,
 } from "lucide-react";
@@ -188,11 +187,6 @@ export function ResearchReport({
                     `Reference material: ${claims.length} facts · ${sources.length} sources`,
                   )}
             </span>
-            <span>
-              {dataMode === "demo"
-                ? t("数据范围：示例快照", "Data scope: sample snapshot")
-                : t("数据模式：已审核图谱", "Data mode: reviewed graph")}
-            </span>
           </div>
           <div className="print-hidden mt-6 flex flex-wrap gap-2">
             {!publicView && shareId && (
@@ -292,13 +286,6 @@ export function ResearchReport({
                 {t("研究结论摘要", "Research summary")}
               </h2>
               <p className="research-report__summary">{pick(answer.summary, lang)}</p>
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-inferred/30 bg-inferred/5 p-3 text-xs leading-relaxed text-muted-foreground">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-inferred" />
-                {t(
-                  "以下结论基于本次引用资料，可展开查看来源与待确认项。",
-                  "These conclusions are based on the cited material. Expand the sources and open questions for detail.",
-                )}
-              </div>
             </section>
           )}
 

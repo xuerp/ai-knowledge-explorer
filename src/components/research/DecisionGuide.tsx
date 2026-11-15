@@ -4,8 +4,8 @@ const inputs = [
   [
     "要完成的任务",
     "Task",
-    "写清输入、输出和合格标准。只写模型名称无法判断具体业务效果。",
-    "Specify inputs, outputs and acceptance criteria. Model names alone do not define task quality.",
+    "写清用什么材料、要得到什么结果，以及怎样算合格。",
+    "Specify the inputs, desired output and acceptance criteria.",
   ],
   [
     "首要优先级",
@@ -40,8 +40,8 @@ const inputs = [
   [
     "部署地区",
     "Hosting region",
-    "要求服务或部署适用于该地区，须有对应事实。它不是界面语言，也不是完整的法律合规认证。",
-    "Require cited availability or hosting for that region. This is neither interface language nor a complete legal compliance assessment.",
+    "选择服务必须可用或允许部署的地区。",
+    "Choose the region where the service must be available or hosted.",
   ],
   [
     "最低上下文 token",
@@ -96,8 +96,8 @@ const outputs = [
   [
     "新测试清单与保留记录",
     "New checklists and retained records",
-    "新业务测试只为具备试用资格的候选生成。候选较多时先选1–3个；未具备资格时先生成资格核验项。建议测试方案不是实测成绩；复用口径只填同一候选的空字段，保存前须确认实际设置。旧记录仍可查看和导出。",
-    "New business checks are generated for qualified trial candidates. Select 1–3 when many qualify; unresolved eligibility starts with qualification checks. Suggested protocols are not test results. Reusing conditions fills only empty fields for the same candidate; confirm actual settings before saving. Existing records remain available and exportable.",
+    "选 1–3 个方案创建测试清单。待核验的方案先生成核验项。复用配置时只填该候选的空字段，请在保存前核对实际设置。",
+    "Select 1–3 options to create a test checklist. Pending options start with eligibility checks. Reuse fills blank fields for the same option. Review the settings before saving.",
   ],
   [
     "现在先做什么",
@@ -108,8 +108,8 @@ const outputs = [
   [
     "可进入业务验证 / 必要功能待核验",
     "Ready for a business trial / Required features unverified",
-    "可进入验证需要同时通过已指定硬条件，并有本场景全部必要功能的引用。只通过硬条件不代表业务功能齐全，也不代表效果最好或可直接上线。",
-    "Trial eligibility requires both selected constraints and citations for every required workflow feature. Passing constraints alone does not establish feature completeness, best quality or deployment readiness.",
+    "通过必要条件且所需功能都有出处，才进入任务测试。",
+    "Options move to task testing once they meet the requirements and every required feature has a source.",
   ],
   [
     "业务测试方案与合格标准",
@@ -168,14 +168,14 @@ const outputs = [
   [
     "引用、来源日期、核验时间",
     "Citations and dates",
-    "已核验表示资料引用通过规则，不表示已运行模型。来源日期是资料发布/生效时间；核验时间是本次分析时间，不保证供应商页面此刻未变化。",
-    "Verified means citation checks passed, not that the model ran. Source dates mark publication/effectiveness; evaluation time marks this analysis, not guaranteed live freshness.",
+    "引用核验检查的是资料。来源日期表示发布或生效时间，核验时间表示本次分析时间。",
+    "Citation checks cover the source material. Source dates indicate publication or effective dates. Verification time refers to this analysis.",
   ],
   [
     "研究过程已完成",
     "Completed research steps",
-    "表示检索与引用核验完成，不表示候选符合条件，更不表示真实业务测试完成。",
-    "Retrieval and citation checks completed; this does not mean candidates qualify or real business testing finished.",
+    "表示已完成资料检索与引用核验。试用结果见实际使用记录。",
+    "Evidence retrieval and citation checks are complete. Trial results are in actual use records.",
   ],
   [
     "私人 PoC 与导出",

@@ -169,7 +169,7 @@ function ComparePage() {
             actions={
               <DemoBadge
                 mode={snapshotQuery.data?.meta.mode ?? knowledgeRepository.mode}
-                updatedAt={snapshotQuery.data?.meta.retrievedAt}
+                retrievedAt={snapshotQuery.data?.meta.retrievedAt}
               />
             }
           />

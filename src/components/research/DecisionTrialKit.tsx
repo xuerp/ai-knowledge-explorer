@@ -45,12 +45,7 @@ export function DecisionTrialKit({
     link.href = url;
     link.download = name;
     link.click();
-    setMessage(
-      t(
-        "任务说明已准备，下载不会开始试测。",
-        "Instructions prepared. Downloading does not start a trial.",
-      ),
-    );
+    setMessage(t("任务说明已下载。", "Instructions downloaded."));
   };
   return (
     <section
@@ -65,8 +60,8 @@ export function DecisionTrialKit({
       </h4>
       <p className="decision-trial-kit__intro">
         {t(
-          "复制下面的提示，粘贴到你已有的产品入口，并附上实际材料。用过以后，再切换到“记录实际结果”。",
-          "Copy the prompt into your existing product and attach actual inputs. After trying it, switch to Record actual results.",
+          "将任务粘贴到所选工具，附上获准使用的材料。完成后可记录实际结果。",
+          "Paste the task into the chosen tool with authorized materials. Record the outcome after the trial.",
         )}
       </p>
       <div className="decision-trial-kit__actions">
@@ -119,12 +114,6 @@ export function DecisionTrialKit({
         />
       </label>
 
-      <p className="decision-choice__hint">
-        {t(
-          "下载是可选项：排版版可离线阅读或打印，Markdown 适合编辑器。任务说明不会自动调用产品或产生测试成绩。",
-          "Download is optional: the formatted version is for offline reading or printing; Markdown is for editors. Instructions do not invoke a product or create scores.",
-        )}
-      </p>
       {message && (
         <p role="status" className="decision-trial-kit__feedback">
           {message}

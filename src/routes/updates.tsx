@@ -198,7 +198,7 @@ function UpdatesPage() {
             "追踪模型的发布、能力、价格与可用性变化，查看影响和证据。",
             "Track model releases, capabilities, prices and access with impact and evidence.",
           )}
-          actions={<DemoBadge mode={snapshot.meta.mode} updatedAt={snapshot.meta.retrievedAt} />}
+          actions={<DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />}
         />
         {snapshotQuery.error && (
           <p className="updates-sync-status" role="status">
@@ -244,8 +244,8 @@ function UpdatesPage() {
                   value={evidenceFilter}
                   onChange={changeFilter(setEvidenceFilter)}
                   description={t(
-                    "结论的核验状态；其他状态包含未核验、推断与冲突，有来源链接不代表已经核验。",
-                    "Verification of the conclusion; other statuses include unverified, inferred and conflicting. A source link does not imply verification.",
+                    "其他状态包括待核验、推断和冲突。",
+                    "Other statuses include pending, inferred and conflicting.",
                   )}
                   options={[
                     { value: "all", label: t("全部状态", "All statuses") },
@@ -355,14 +355,19 @@ function UpdatesPage() {
               <dl>
                 <div>
                   <dt>{t("核验状态", "Verification")}</dt>
-                  <dd>{t("结论是否经过审核。", "Whether the conclusion has been reviewed.")}</dd>
+                  <dd>
+                    {t(
+                      "「其他状态」包括待核验、推断和冲突。",
+                      "Other statuses include pending, inferred and conflicting.",
+                    )}
+                  </dd>
                 </div>
                 <div>
                   <dt>{t("来源链接", "Source links")}</dt>
                   <dd>
                     {t(
-                      "打开关联原文查看依据；结论审核情况见核验状态。",
-                      "Open the original material for evidence; the verification status shows whether the conclusion was reviewed.",
+                      "按条目是否附有原始资料链接筛选。",
+                      "Filter entries by whether they link to an original source.",
                     )}
                   </dd>
                 </div>
@@ -385,12 +390,6 @@ function UpdatesPage() {
                   </dd>
                 </div>
               </dl>
-              <p>
-                {t(
-                  "这里整理可能影响选型的发布、价格、访问与下线变化，按已收录资料显示；传闻暂不公开展示。",
-                  "This view organizes recorded releases, pricing, access and retirement changes relevant to selection. Rumors are not publicly shown.",
-                )}
-              </p>
             </details>
           </div>
         </section>
@@ -398,8 +397,8 @@ function UpdatesPage() {
         <div className="updates-container updates-content">
           <p className="updates-coverage-note">
             {t(
-              `累计收录 ${snapshot.changes.length} 条变化，其中 ${snapshot.changes.filter((change) => change.kind !== "new").length} 条非发布事件。可按时间、对象与变化类型继续筛选。`,
-              `${snapshot.changes.length} recorded changes, including ${snapshot.changes.filter((change) => change.kind !== "new").length} non-release events. Filter by time, entity or change type to explore.`,
+              `累计收录 ${snapshot.changes.length} 条变化，其中 ${snapshot.changes.filter((change) => change.kind !== "new").length} 条非发布事件。`,
+              `${snapshot.changes.length} recorded changes, including ${snapshot.changes.filter((change) => change.kind !== "new").length} non-release events.`,
             )}
           </p>
           {hasFilteredChanges && (
@@ -409,14 +408,8 @@ function UpdatesPage() {
                   <h2 id="updates-signal-title">{t("变化脉冲", "Change pulse")}</h2>
                   <p>
                     {t(
-                      "把近期模型变化按时间排开，选择节点即可查看证据。",
-                      "Recent model changes, ordered by time. Select a node to inspect its evidence.",
-                    )}
-                  </p>
-                  <p>
-                    {t(
-                      "按事件发生日期排序；资料核验日期单独标注。",
-                      "Ordered by event date; verification dates are shown separately.",
+                      "按事件日期排序。选择节点查看来源与核验日期。",
+                      "Sorted by event date. Select an event for its sources and verification dates.",
                     )}
                   </p>
                 </div>

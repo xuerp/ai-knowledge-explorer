@@ -11,7 +11,7 @@ export function ReviewRiskPanel({ context }: { context: ReviewViewModel }) {
             <div>
               <h2 className="font-serif text-xl font-semibold">跨通道风险标记</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                以下指标可彼此重叠，也可能与下方主通道同时命中；它们只提示复核重点，不代表候选可批准。
+                同一候选可能计入多个指标。请打开对应队列复核。
               </p>
             </div>
             <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">

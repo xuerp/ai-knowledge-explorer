@@ -225,12 +225,12 @@ export function DecisionValidationPanel({
           <p>
             {trialIds.length
               ? t(
-                  "先选1–3个合格候选，使用同一批样本。展示顺序不代表性能排名；原有测试记录保留。",
-                  "Choose 1–3 qualified candidates for the same samples. Display order is not a performance ranking; existing records are retained.",
+                  "选 1–3 个可试用方案，使用同一批样本。",
+                  "Choose 1–3 eligible options and use the same samples.",
                 )
               : t(
-                  "先选1–3个待核验候选，补足具体版本、入口与条款依据后再测试业务。展示顺序不代表排名，原记录保留。",
-                  "Choose 1–3 candidates to verify versions, interfaces and terms before business testing. Display order is not a ranking; existing records are retained.",
+                  "选 1–3 个方案，先核对版本、使用入口和条款，再做任务测试。",
+                  "Choose 1–3 options, then verify versions, access and terms before testing.",
                 )}
           </p>
           <div className="decision-validation__trial-choices">
