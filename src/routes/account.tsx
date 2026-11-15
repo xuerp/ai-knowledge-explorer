@@ -396,18 +396,12 @@ function AccountPage() {
           </h2>
           <p className="text-sm text-muted-foreground" role="status">
             {interpretation === null
-              ? t(
-                  "状态暂不可用，请刷新账户页重试。",
-                  "Status unavailable. Reload your account to retry.",
-                )
+              ? t("刷新页面后重试。", "Reload the page to retry.")
               : !interpretation.enabled
-                ? t(
-                    "当前账号使用规则理解任务，不调用外部任务理解服务。",
-                    "This account uses rule-based task understanding, without external interpretation calls.",
-                  )
+                ? t("任务描述由本站解析。", "This site processes your task description.")
                 : t(
-                    `当前账号已启用外部任务理解，提交研究可能产生调用费用。本轮剩余 ${interpretation.remainingCalls} 次；${interpretation.blocked || interpretation.inFlightOrInterrupted ? "当前调用已暂停" : "额度由服务端限制"}。`,
-                    `External task interpretation is enabled for this account. Research submissions may incur costs. ${interpretation.remainingCalls} calls remain; ${interpretation.blocked || interpretation.inFlightOrInterrupted ? "calls are currently paused" : "limits are enforced by the server"}.`,
+                    `提交研究可能调用外部服务并产生费用。剩余 ${interpretation.remainingCalls} 次。${interpretation.blocked || interpretation.inFlightOrInterrupted ? "当前调用已暂停。" : ""}`,
+                    `Research submissions may use an external service and incur costs. ${interpretation.remainingCalls} calls left.${interpretation.blocked || interpretation.inFlightOrInterrupted ? " Calls are currently paused." : ""}`,
                   )}
           </p>
         </section>

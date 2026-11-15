@@ -45,7 +45,7 @@ export function DecisionTrialKit({
     link.href = url;
     link.download = name;
     link.click();
-    setMessage(t("任务说明已下载。", "Instructions downloaded."));
+    setMessage(t("任务说明已生成。", "Instructions ready."));
   };
   return (
     <section

@@ -44,8 +44,7 @@ export function DemoBadge({
         </p>
         {retrievedAt && (
           <p>
-            {mode === "demo" ? t("快照日期", "Snapshot date") : t("读取日期", "Read date")}{" "}
-            {retrievedAt.slice(0, 10)}
+            {t("资料读取日期", "Catalog read date")} {retrievedAt.slice(0, 10)}
           </p>
         )}
         <Link to="/quality">
