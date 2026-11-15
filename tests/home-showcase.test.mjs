@@ -30,7 +30,7 @@ test("showcase keeps its initial data while syncing; product API failures retain
   assert.match(hook, /@\/data\/generated\/home-overview\.json/);
   assert.match(hook, /homeOverviewQueryOptions/);
   assert.doesNotMatch(home, /if \(!overview|正在连接知识服务/);
-  assert.match(home, /自动同步暂未成功，当前内容仍可浏览/);
+  assert.match(home, /同步失败，正在显示上次的资料/);
   assert.match(home, /<TopNav variant="showcase"/);
   assert.equal((home.match(/体验决策助手/g) ?? []).length, 2);
   const { createKnowledgeRepository } = await vite.ssrLoadModule(

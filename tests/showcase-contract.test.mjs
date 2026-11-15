@@ -10,7 +10,7 @@ test("公开首页仅在演示模式展示示例，API 不可用时显式提示"
     read("src/services/knowledge-repository.ts"),
   ]);
 
-  assert.match(source, /把近期模型变化按时间排开，选择节点即可查看证据/);
+  assert.match(source, /按事件日期排序。选择节点查看来源与核验日期/);
   assert.match(source, /变化追踪|Change tracking/);
   assert.match(source, /模型家族|Model families/);
   assert.match(source, /browseModelFamilies\(snapshot.entities\)/);

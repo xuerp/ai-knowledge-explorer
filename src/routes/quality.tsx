@@ -265,8 +265,8 @@ function EvaluationSection({
           icon={<Activity className="h-5 w-5" />}
           title={t("已发布检索评估", "Published retrieval evaluation")}
           description={t(
-            "在固定题集上检查能否找回标注事实；可展开查看计算口径、逐题结果与原始报告。",
-            "Tests retrieval of annotated facts on a fixed question set. Explore the methodology, per-question results and original report below.",
+            "用固定题集评估资料检索。新一轮评估发布后更新成绩。",
+            "Measures retrieval on a fixed set of questions. Scores update when a new evaluation is published.",
           )}
           updatedAt={formatDateTime(e.updatedAt, lang)}
           timeLabel={t("实际评估", "Evaluated")}
