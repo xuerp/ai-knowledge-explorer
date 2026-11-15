@@ -1267,6 +1267,11 @@ details > summary:focus-visible {
   border-bottom: 1px solid var(--ask-line);
 }
 
+.decision-brief--guided {
+  padding-block-end: 0;
+  border-bottom: 0;
+}
+
 .decision-brief__recommendation > p {
   max-width: none;
   margin-top: 0.45rem;
@@ -9030,7 +9035,10 @@ a.decision-brief__claims {
   padding: 12px 24px;
 }
 .ask-result > .ask-source-library.decision-result-disclosure {
-  padding-inline: var(--ask-result-inset);
+  padding: 0 var(--ask-result-inset);
+}
+.ask-result > .ask-source-library.decision-result-disclosure[open] {
+  padding-block-end: 12px;
 }
 .ask-source-library[open] > summary,
 .research-source-library[open] > summary {
@@ -10018,6 +10026,9 @@ a.decision-brief__claims {
   font-size: 1rem;
   line-height: 1.65;
   text-wrap: pretty;
+}
+.shared-decision-report > header {
+  margin-block-end: 0.75rem;
 }
 .research-report .decision-brief,
 .shared-decision-report .decision-brief {

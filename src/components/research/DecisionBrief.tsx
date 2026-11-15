@@ -110,7 +110,7 @@ export function DecisionBrief({
 
   return (
     <section
-      className="decision-brief decision-brief--choice"
+      className={`decision-brief decision-brief--choice${decision.guidance ? " decision-brief--guided" : ""}`}
       lang={lang === "zh" ? "zh-CN" : "en"}
       aria-label={t("结构化决策说明", "Decision brief")}
     >
