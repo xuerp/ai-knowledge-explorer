@@ -9031,18 +9031,25 @@ a.decision-brief__claims {
   line-height: 1.7;
   color: var(--color-muted-foreground);
 }
-.ask-source-library {
+.ask-source-library:not(.decision-result-disclosure) {
   padding: 12px 24px;
 }
 .ask-result > .ask-source-library.decision-result-disclosure {
-  padding: 0 var(--ask-result-inset);
+  padding-inline: var(--ask-result-inset);
 }
-.ask-result > .ask-source-library.decision-result-disclosure[open] {
-  padding-block-end: 12px;
+.ask-source-library.decision-result-disclosure > .ask-result__citation-note {
+  padding: 0;
 }
-.ask-source-library[open] > summary,
-.research-source-library[open] > summary {
+.ask-source-library.decision-result-disclosure
+  :is(.ask-answer-block, .ask-secondary-evidence > summary) {
+  padding-inline: 0;
+}
+:is(.ask-source-library, .research-source-library):not(.decision-result-disclosure)[open]
+  > summary {
   margin-bottom: 12px;
+}
+.research-source-library.decision-result-disclosure > section + section {
+  margin-block-start: 1.25rem;
 }
 @media print {
   .ask-source-library::details-content,

@@ -14,7 +14,10 @@
   display: flex;
   align-items: baseline;
   gap: 16px;
-  padding-bottom: 16px;
+}
+.decision-guidance__request + a {
+  display: inline-block;
+  margin-block-start: 12px;
 }
 .decision-guidance__request p {
   flex: 1;
@@ -59,7 +62,9 @@
   align-items: baseline;
   column-gap: 16px;
   padding-block: 9px;
-  border-bottom: 1px solid var(--color-border);
+}
+.decision-guidance__reasons li + li {
+  border-top: 1px solid var(--color-border);
 }
 .decision-guidance__reason-links {
   display: inline-flex;
