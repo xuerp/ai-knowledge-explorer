@@ -17,6 +17,37 @@ const {
 } = await vite.ssrLoadModule("/src/domain/decision-choice.ts");
 test.after(() => vite.close());
 
+const { comparisonRowHeading } = await vite.ssrLoadModule("/src/domain/decision-reading.ts");
+
+test("saved price rows distinguish billing methods and retain the full quote terms", () => {
+  const terms = "(USD · Google Gemini Developer API · 每百万 token) · Standard 未缓存";
+  const tiered = {
+    id: "api-price-a",
+    dimension: `API 价格 ${terms} · 按请求输入分档（200000 token）`,
+  };
+  const flat = { id: "api-price-b", dimension: `API 价格 ${terms} · 单一费率` };
+  assert.deepEqual(comparisonRowHeading(tiered, "zh"), {
+    title: "API 价格 · 分档费率",
+    basis: `${terms} · （200000 token）`,
+  });
+  assert.deepEqual(comparisonRowHeading(flat, "zh"), {
+    title: "API 价格 · 单一费率",
+    basis: terms,
+  });
+  assert.equal(
+    comparisonRowHeading(
+      { id: "api-price-c", dimension: "API price (USD · per million tokens) · Flat rate" },
+      "en",
+    ).title,
+    "API price · Flat rate",
+  );
+  const customQuote = { id: "api-price-custom", dimension: "API price (EUR · EU hosting)" };
+  assert.deepEqual(comparisonRowHeading(customQuote, "en"), {
+    title: customQuote.dimension,
+    basis: "",
+  });
+});
+
 test("a scoped cost primary is shown first without changing stored candidate order", () => {
   const input = {
     decision: {

@@ -26,7 +26,7 @@ export function SourceExcerpt({ source, lang }: { source: Evidence; lang: Lang }
 
   return (
     <details className="mt-3">
-      <summary className="cursor-pointer text-sm font-medium text-signal hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal">
+      <summary className="cursor-pointer text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal">
         {lang === "zh" ? `查看${label}` : `View ${label}`}
       </summary>
       <TextElement

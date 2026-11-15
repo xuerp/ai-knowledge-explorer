@@ -269,9 +269,7 @@ function EntryRequestRow({
         </p>
       ) : (
         <details className="entry-request-row__review mt-3">
-          <summary className="cursor-pointer text-sm font-medium text-signal">
-            审核与关联收录
-          </summary>
+          <summary className="cursor-pointer text-sm font-medium">审核与关联收录</summary>
           <fieldset disabled={busy} className="mt-3 space-y-2">
             <label htmlFor={`note-${row.id}`} className="block text-sm">
               处理说明

@@ -5,7 +5,7 @@ import type { DecisionValidation, ResearchResult } from "@/services/user-api";
 import scenarios from "../../../backend/data/decision_scenarios.v1.json";
 import { decisionPresentation } from "@/domain/decision-presentation";
 import { DecisionGuide } from "./DecisionGuide";
-import { compactFindings, decisionReading } from "@/domain/decision-reading";
+import { compactFindings, comparisonRowHeading, decisionReading } from "@/domain/decision-reading";
 import { DecisionPlan } from "./DecisionPlan";
 import { planDimensionName, trialQualificationLabel } from "@/domain/decision-plan-reading";
 import { DecisionChoice } from "./DecisionChoice";
@@ -353,84 +353,69 @@ export function DecisionBrief({
                 "Uncovered dimensions remain unknown. Model size, source counts and different tests do not establish a ranking.",
               )}
             </p>
-            {reading.knownComparisons.map((row, index) => (
-              <details
-                key={row.id}
-                className="decision-comparison__row"
-                open={index < 2 && row.cells.filter((cell) => cell.state !== "unknown").length <= 6}
-              >
-                <summary>
-                  <h4>
-                    {row.id.startsWith("api-price") ? (
-                      <>
-                        {t("API 价格", "API price")}
-                        <small className="decision-comparison__basis">
-                          {row.dimension.replace(/^API (?:价格|price)\s*/i, "")}
-                        </small>
-                      </>
-                    ) : (
-                      row.dimension
-                    )}
-                  </h4>
-                  <span>
-                    {t(
-                      `${row.cells.filter((cell) => cell.state !== "unknown").length} 个候选有依据`,
-                      `${row.cells.filter((cell) => cell.state !== "unknown").length} candidates with evidence`,
-                    )}
-                  </span>
-                </summary>
-                {row.cells.some((cell) => cell.state !== "unknown") &&
-                  row.cells.some((cell) => cell.state === "unknown") && (
+            {reading.knownComparisons.map((row, index) => {
+              const heading = comparisonRowHeading(row, lang);
+              const groundedCells = row.cells.filter((cell) => cell.state !== "unknown");
+              const unknownCells = row.cells.filter((cell) => cell.state === "unknown");
+              return (
+                <details
+                  key={row.id}
+                  className="decision-comparison__row"
+                  open={index < 2 && groundedCells.length <= 6}
+                >
+                  <summary>
+                    <h4>
+                      {heading.title}
+                      {heading.basis && (
+                        <small className="decision-comparison__basis">{heading.basis}</small>
+                      )}
+                    </h4>
+                    <span>
+                      {row.id.startsWith("api-price") && groundedCells.length === 1
+                        ? entityName(groundedCells[0].entityId)
+                        : t(
+                            `${groundedCells.length} 个候选有依据`,
+                            `${groundedCells.length} candidates with evidence`,
+                          )}
+                    </span>
+                  </summary>
+                  {unknownCells.length > 0 && (
                     <details className="decision-comparison__note">
                       <summary>
                         {t(
-                          `${row.cells.filter((cell) => cell.state === "unknown").length} 个候选此项待核验`,
-                          `${row.cells.filter((cell) => cell.state === "unknown").length} candidates need evidence for this dimension`,
+                          `${unknownCells.length} 个候选此项待核验`,
+                          `${unknownCells.length} candidates need evidence for this dimension`,
                         )}
                       </summary>
-                      <p>
-                        {row.cells
-                          .filter((cell) => cell.state === "unknown")
-                          .map((cell) => entityName(cell.entityId))
-                          .join("、")}
-                      </p>
+                      <p>{unknownCells.map((cell) => entityName(cell.entityId)).join("、")}</p>
                     </details>
                   )}
-                {
                   <ul className="decision-comparison__cells">
-                    {row.cells
-                      .filter((cell) => cell.state !== "unknown")
-                      .map((cell) => (
-                        <li key={cell.entityId}>
-                          <strong>{entityName(cell.entityId)}</strong>
-                          {cell.state === "unknown" ? (
-                            <p className="decision-comparison__unknown">
-                              {t("当前引用未覆盖此项", "Not covered by current citations")}
-                            </p>
-                          ) : (
-                            cell.facts.map((fact) => (
-                              <p key={fact.claimIds.join("-")}>
-                                {fact.finding}
-                                <span className="decision-brief__claims">
-                                  {fact.claimIds.map((claimId, index) => (
-                                    <a
-                                      key={claimId}
-                                      href={`#claim-${claimId}`}
-                                      className="text-signal hover:underline"
-                                    >
-                                      {t("查看依据", "View evidence")} {index + 1}
-                                    </a>
-                                  ))}
-                                </span>
-                              </p>
-                            ))
-                          )}
-                        </li>
-                      ))}
+                    {groundedCells.map((cell) => (
+                      <li key={cell.entityId}>
+                        <strong>{entityName(cell.entityId)}</strong>
+                        {cell.facts.map((fact) => (
+                          <p key={fact.claimIds.join("-")}>
+                            {fact.finding}
+                            <span className="decision-brief__claims">
+                              {fact.claimIds.map((claimId, index) => (
+                                <a
+                                  key={claimId}
+                                  href={`#claim-${claimId}`}
+                                  className="text-signal hover:underline"
+                                >
+                                  {t("查看依据", "View evidence")} {index + 1}
+                                </a>
+                              ))}
+                            </span>
+                          </p>
+                        ))}
+                      </li>
+                    ))}
                   </ul>
-                }
-              </details>
-            ))}
+                </details>
+              );
+            })}
             {reading.missingDimensions.length > 0 && (
               <div className="decision-coverage-summary">
                 <h4>{t("尚不能比较的维度", "Dimensions awaiting evidence")}</h4>

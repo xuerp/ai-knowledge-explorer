@@ -131,7 +131,6 @@
 }
 .decision-guidance details:not(.decision-result-disclosure) > summary {
   cursor: pointer;
-  color: var(--color-signal);
   padding-block: 8px;
 }
 .decision-guidance__references {

@@ -660,7 +660,7 @@
   > summary::marker {
   content: "";
 }
-/* Secondary utilities read as links, never as another primary action. */
+/* Compact secondary disclosures use the shared summary interaction. */
 :is(
     .decision-choice__more,
     .decision-audit,
@@ -686,12 +686,9 @@
   min-height: 36px;
   padding-block: 6px;
   margin: 0;
-  color: var(--color-signal);
   font-size: 14px;
   line-height: 1.65;
   font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 /* A drawn chevron complements the label and retains native keyboard behavior. */
 .decision-brief--choice summary::before,
@@ -735,10 +732,7 @@
 .decision-result-disclosure > summary::before {
   order: 1;
   margin-inline: auto 5px;
-  color: var(--color-muted-foreground);
-}
-.decision-result-disclosure > summary:hover {
-  color: var(--color-signal);
+  color: var(--disclosure-active-color, var(--color-muted-foreground));
 }
 .decision-result-disclosure > summary:focus-visible {
   outline: 2px solid var(--color-signal);
@@ -773,9 +767,6 @@
   margin: 0;
   white-space: normal;
   text-align: right;
-}
-.decision-comparison__row > summary:hover h4 {
-  color: var(--color-signal);
 }
 .decision-comparison__basis {
   display: block;

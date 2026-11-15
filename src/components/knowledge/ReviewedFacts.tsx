@@ -111,7 +111,7 @@ export function ReviewedFacts({
         </p>
         {claimSources.length > 0 ? (
           <details className="group mt-2">
-            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-signal hover:underline">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium">
               {t(`查看依据 (${claimSources.length})`, `View evidence (${claimSources.length})`)}
               <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
             </summary>

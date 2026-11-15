@@ -727,6 +727,24 @@ dl.decision-validation__review-note dd {
   }
 }
 
+/* Native disclosure controls share interaction colors across routes. */
+details > summary {
+  color: var(--color-foreground);
+  cursor: pointer;
+}
+
+details > summary:focus-visible {
+  --disclosure-active-color: var(--color-signal);
+  color: var(--disclosure-active-color);
+}
+
+@media (hover: hover) {
+  details > summary:hover {
+    --disclosure-active-color: var(--color-signal);
+    color: var(--disclosure-active-color);
+  }
+}
+
 @utility paper-card {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
@@ -1208,7 +1226,6 @@ dl.decision-validation__review-note dd {
 
 .ask-secondary-evidence > summary {
   padding: 0.85rem 1.6rem;
-  color: var(--color-signal);
   font-size: 0.74rem;
   font-weight: 700;
   cursor: pointer;
@@ -1324,6 +1341,12 @@ dl.decision-validation__review-note dd {
   padding-block: 0.25rem;
   color: var(--color-signal);
   font-size: 0.8125rem;
+}
+/* Citation links remain identifiable alongside body copy. */
+.decision-brief__claims a,
+a.decision-brief__claims {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 .decision-brief__claims a:focus-visible,
 .decision-candidates summary:focus-visible {
@@ -6825,7 +6848,6 @@ dl.decision-validation__review-note dd {
   width: fit-content;
   min-height: 2.5rem;
   padding: 0.65rem 0;
-  color: var(--color-signal);
   cursor: pointer;
   font-size: 0.78rem;
 }
@@ -6851,7 +6873,6 @@ dl.decision-validation__review-note dd {
 .model-family__sources summary {
   width: fit-content;
   padding: 0.75rem;
-  color: var(--color-signal);
   cursor: pointer;
   font-size: 0.8rem;
 }
@@ -9077,7 +9098,7 @@ dl.decision-validation__review-note dd {
 }
 .decision-candidates > summary::before {
   content: "▸";
-  color: var(--color-muted-foreground);
+  color: var(--disclosure-active-color, var(--color-muted-foreground));
 }
 .decision-candidates[open] > summary::before {
   content: "▾";
@@ -9100,7 +9121,6 @@ dl.decision-validation__review-note dd {
 }
 .decision-candidates__more > summary {
   cursor: pointer;
-  color: var(--color-signal);
 }
 .decision-candidates__list > li > ul {
   color: var(--color-muted-foreground);
@@ -9561,6 +9581,9 @@ dl.decision-validation__review-note dd {
 .relationship-row__connection strong {
   font-weight: 550;
 }
+.relationship-row__status > svg {
+  color: var(--disclosure-active-color, currentColor);
+}
 .relationship-row__status {
   display: flex;
   align-items: center;
@@ -9742,7 +9765,6 @@ dl.decision-validation__review-note dd {
 }
 .relationship-leads section > details > summary {
   font-size: 13px;
-  color: var(--color-signal);
   cursor: pointer;
 }
 .relationship-lead-route {
@@ -10777,7 +10799,6 @@ dl.decision-validation__review-note dd {
 }
 .compare-capability-details summary {
   cursor: pointer;
-  color: var(--workspace-blue);
   font-size: 0.8125rem;
   line-height: 1.7;
 }
@@ -10947,6 +10968,7 @@ dl.decision-validation__review-note dd {
   padding-block: 8px;
 }
 .decision-comparison__row > summary h4 {
+  color: inherit;
   display: inline;
   margin: 0;
 }

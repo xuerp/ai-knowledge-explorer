@@ -3,6 +3,30 @@ import type { DecisionResult, ResearchResult } from "@/services/user-api";
 
 type CitedFinding = { finding: string; claimIds: string[] };
 
+/** Present the tariff ahead of its full quote basis, including in saved research. */
+export function comparisonRowHeading(row: { id: string; dimension: string }, lang: Lang) {
+  if (!row.id.startsWith("api-price")) return { title: row.dimension, basis: "" };
+
+  const match = row.dimension.match(
+    /^API (?:价格|price)\s*(.*?)\s* · (按请求输入分档|Request-input tiers|单一费率|Flat rate)(\s*(?:（[^）]*）|\([^)]*\)))?$/i,
+  );
+  if (!match) return { title: row.dimension, basis: "" };
+
+  const [, terms, rateLabel, limit] = match;
+  const tiered = /^(?:按请求输入分档|Request-input tiers)$/i.test(rateLabel);
+  return {
+    title:
+      lang === "zh"
+        ? tiered
+          ? "API 价格 · 分档费率"
+          : "API 价格 · 单一费率"
+        : tiered
+          ? "API price · Tiered rate"
+          : "API price · Flat rate",
+    basis: [terms, limit?.trim()].filter(Boolean).join(" · "),
+  };
+}
+
 export function guidanceReasonText(
   reason: CitedFinding & { dimension: string },
   research: ResearchResult,

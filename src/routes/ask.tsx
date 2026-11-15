@@ -1586,7 +1586,7 @@ function EvidenceSidebar({ evidence }: { evidence: Evidence[] }) {
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">{sourceCards.slice(0, 8)}</div>
       {sourceCards.length > 8 && (
         <details className="mt-3">
-          <summary className="cursor-pointer text-sm font-medium text-signal hover:underline">
+          <summary className="cursor-pointer text-sm font-medium">
             {t(`更多来源（${sourceCards.length - 8}）`, `More sources (${sourceCards.length - 8})`)}
           </summary>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">

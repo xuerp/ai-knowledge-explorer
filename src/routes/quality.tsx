@@ -286,7 +286,7 @@ function EvaluationSection({
               : t("历史评估 · 适用于原报告快照", "Historical evaluation · original snapshot only")}
         </h3>
         <details className="mt-2">
-          <summary className="cursor-pointer py-2 text-sm font-medium text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">
+          <summary className="cursor-pointer py-2 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal">
             {t("核对评估范围", "Check evaluation scope")}
           </summary>
           <dl className="mt-2 divide-y divide-border text-sm">
