@@ -60,7 +60,7 @@ jobs:
         run: python scripts/run_bounded_hybrid_evaluation.py --allow-external-api
       - name: Upload report, budget and any failure evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: retrieval-v2-hybrid-${{ github.sha }}
           path: artifacts/retrieval-v2-hybrid
