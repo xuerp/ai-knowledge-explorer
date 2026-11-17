@@ -14,7 +14,6 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as CaseStudyRouteImport } from './routes/case-study'
 import { Route as CompareRouteImport } from './routes/compare'
-import { Route as DesignReviewRouteImport } from './routes/design-review'
 import { Route as FollowingRouteImport } from './routes/following'
 import { Route as GraphRouteImport } from './routes/graph'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
@@ -54,11 +53,6 @@ const CaseStudyRoute = CaseStudyRouteImport.update({
 const CompareRoute = CompareRouteImport.update({
   id: '/compare',
   path: '/compare',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignReviewRoute = DesignReviewRouteImport.update({
-  id: '/design-review',
-  path: '/design-review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FollowingRoute = FollowingRouteImport.update({
@@ -143,7 +137,6 @@ export interface FileRoutesByFullPath {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
-  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
@@ -166,7 +159,6 @@ export interface FileRoutesByTo {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
-  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
@@ -190,7 +182,6 @@ export interface FileRoutesById {
   '/ask': typeof AskRoute
   '/case-study': typeof CaseStudyRoute
   '/compare': typeof CompareRoute
-  '/design-review': typeof DesignReviewRoute
   '/following': typeof FollowingRoute
   '/graph': typeof GraphRoute
   '/knowledge': typeof KnowledgeRoute
@@ -215,7 +206,6 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
-    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
@@ -238,7 +228,6 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
-    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
@@ -261,7 +250,6 @@ export interface FileRouteTypes {
     | '/ask'
     | '/case-study'
     | '/compare'
-    | '/design-review'
     | '/following'
     | '/graph'
     | '/knowledge'
@@ -285,7 +273,6 @@ export interface RootRouteChildren {
   AskRoute: typeof AskRoute
   CaseStudyRoute: typeof CaseStudyRoute
   CompareRoute: typeof CompareRoute
-  DesignReviewRoute: typeof DesignReviewRoute
   FollowingRoute: typeof FollowingRoute
   GraphRoute: typeof GraphRoute
   KnowledgeRoute: typeof KnowledgeRoute
@@ -338,13 +325,6 @@ declare module '@tanstack/react-router' {
       path: '/compare'
       fullPath: '/compare'
       preLoaderRoute: typeof CompareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design-review': {
-      id: '/design-review'
-      path: '/design-review'
-      fullPath: '/design-review'
-      preLoaderRoute: typeof DesignReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/following': {
@@ -461,7 +441,6 @@ const rootRouteChildren: RootRouteChildren = {
   AskRoute: AskRoute,
   CaseStudyRoute: CaseStudyRoute,
   CompareRoute: CompareRoute,
-  DesignReviewRoute: DesignReviewRoute,
   FollowingRoute: FollowingRoute,
   GraphRoute: GraphRoute,
   KnowledgeRoute: KnowledgeRoute,

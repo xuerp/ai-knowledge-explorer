@@ -52,7 +52,7 @@ snapshot_test.*
 **/.pytest*/
 /.impeccable/
 /.claude/
-/.tmp-*
+.tmp-*
 *.tsbuildinfo
 
 # Design mockups remain local; the implemented application lives in src/.
@@ -64,6 +64,7 @@ snapshot_test.*
 /docs/*.xml
 /docs/*.log
 /docs/archive/
+/docs/portfolio/user-testing/
 /docs/**/*_ACCEPTANCE_*.md
 /docs/*.json
 !/docs/reference-catalog-enrichment.json
@@ -73,6 +74,10 @@ snapshot_test.*
 /docs/ACTIVE_TIME_BUDGET_*
 /HANDOFF_SUMMARY.md
 /HANDOFF_RECENT_CONVERSATION.txt
+/DESIGN.md
+/DESIGN_SYSTEM.md
+/IMPLEMENTATION_PROMPT.md
+/PRODUCT.md
 /admin_catalog.json
 /claim_audit.json
 /graph_data.json

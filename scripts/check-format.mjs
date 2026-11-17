@@ -9,7 +9,6 @@ const includedFiles = new Set([
   ".github/workflows/staging-acceptance.yml",
   ".prettierignore",
   "docs/CORE_MODEL_COVERAGE.md",
-  "docs/END_TO_END_OPERATING_MODEL.md",
   "docs/README.md",
   "package.json",
   "product/core-models.v1.json",

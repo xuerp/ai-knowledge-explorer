@@ -1,6 +1,6 @@
 # AI Radar 架构与可信数据闭环
 
-端到端用户、数据、审核与发布流程见 [`END_TO_END_OPERATING_MODEL.md`](END_TO_END_OPERATING_MODEL.md)。
+[产品案例](portfolio/CASE_STUDY.md)展示用户研究流程，[验证记录](portfolio/VALIDATION.md)区分已核对的行为与仍待验证的环节。
 
 ## 系统边界
 
