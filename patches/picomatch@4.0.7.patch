@@ -1,0 +1,14 @@
+diff --git a/lib/parse.js b/lib/parse.js
+index 29207512c60183b4bb9bf5112be3b9b5f4a9a9fd..b5dc1bfb27b42bf2c67f45c1eb3d6047fce5afba 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -346,2 +346,9 @@ const analyzeRepeatedExtglob = (body, options) => {
++  // A nonliteral branch can nest an unbounded wildcard inside the outer
++  // repetition, including a single branch. Keep upstream's literal fallback;
++  // plain literal repetitions and the flattened star sequences above are safe.
++  if (branches.some(branch => !normalizeSimpleBranch(branch))) {
++    return { risky: true };
++  }
++
+   return { risky: false };
+ };

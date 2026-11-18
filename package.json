@@ -17,9 +17,11 @@
     "undici": "7.30.1",
     "launch-editor": "2.14.2",
     "seroval": "1.6.11",
+    "picomatch": "4.0.7",
     "minimatch": "^11.0.1"
   },
   "scripts": {
+    "audit:frontend": "node scripts/audit-frontend-dependencies.mjs",
     "dev": "vite dev",
     "build": "vite build",
     "build:staging": "vite build --mode staging",
@@ -95,5 +97,8 @@
     "typescript-eslint": "^8.67.0",
     "vite": "8.2.4",
     "wrangler": "4.120.0"
+  },
+  "patchedDependencies": {
+    "picomatch@4.0.7": "patches/picomatch@4.0.7.patch"
   }
 }

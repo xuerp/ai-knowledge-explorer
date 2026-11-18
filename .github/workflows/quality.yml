@@ -25,7 +25,7 @@ jobs:
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile
       - name: Audit resolved frontend dependencies
-        run: bun audit --audit-level low
+        run: bun run audit:frontend
       - name: Verify generated backend seed
         run: |
           node scripts/export-demo-snapshot.mjs
