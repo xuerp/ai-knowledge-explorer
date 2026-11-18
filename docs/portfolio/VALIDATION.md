@@ -2,6 +2,12 @@
 
 本页集中说明已执行的验证及其边界。逐批审核回执、历史实施方案和重复演示说明已删除，历史细节通过 Git 查询。测试输入、固定评测及实际产品数据保留在对应目录。
 
+## 2026-11-18 运行配置核对
+
+已从现有 Render 服务配置核对：API 连接 Supabase PostgreSQL；候选抽取配置为 SoleAPI、普通自动抽取上限为 0，模型需求解析关闭；邮件选择 Resend，但缺少投递密钥与发件人，保持 Outbox。公开前端版本与后端提交一致，后端就绪、质量接口可读。来源与检查边界见[部署核对记录](../STAGING_DEPLOYMENT.md#当前部署核对记录)。
+
+该核对没有执行新付费模型请求、邮件发送、云端配置变更或恢复演练，也没有重新验收全部业务流程。下面的功能验收与固定集评测保留各自原始日期，不能因文档更新而视为本日重新通过。
+
 ## 已执行的检查
 
 - **发布**：前后端从同一 `main` 提交发布；[Quality](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/quality.yml)与[部署验收](https://github.com/xuerp/ai-knowledge-explorer/actions/workflows/staging-acceptance.yml)分别检查软件回归、实际版本一致性及同源代理。具体构建与健康情况须另查[前端版本](https://airadar.rainza.cn/version.txt)和[API 就绪信息](https://airadar.rainza.cn/backend/ready)，不能用历史成功记录代替当前状态。

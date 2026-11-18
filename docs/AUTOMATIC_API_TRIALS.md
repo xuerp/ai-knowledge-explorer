@@ -14,10 +14,10 @@
 
 ## 2. 本地配置并预览
 
-在已安装后端依赖的项目 `app/backend` 目录中运行，PowerShell 示例（替换实际文件路径）：
+在当前 Git 检出的 `backend` 目录中，使用已经安装依赖的 Python 3.12 环境运行；不要从同名历史工作目录误启动。环境准备见[后端指南](../backend/README.md#本地启动)。PowerShell 示例（替换实际文件路径）：
 
 ```powershell
-python -m app.decision_trial_runner --plan "C:/path/my-api-trial.json" --setup-targets
+.\.venv\Scripts\python.exe -m app.decision_trial_runner --plan "C:/path/my-api-trial.json" --setup-targets
 ```
 
 交互填写各候选实际账户的模型标识、完整 HTTPS API 地址、协议、每百万输入/输出单价和密钥环境变量名。生成的同名 `.targets.json` 仅含入口与变量名，不含密钥；已有文件不覆盖。地址和型号从你实际账户确认，不根据展示名称猜测。
@@ -27,7 +27,7 @@ python -m app.decision_trial_runner --plan "C:/path/my-api-trial.json" --setup-t
 ## 3. 明确确认后执行
 
 ```powershell
-python -m app.decision_trial_runner --plan "C:/path/my-api-trial.json" --execute --accept-data-transfer --prompt-for-keys --output "C:/path/private-trial-run-01"
+.\.venv\Scripts\python.exe -m app.decision_trial_runner --plan "C:/path/my-api-trial.json" --execute --accept-data-transfer --prompt-for-keys --output "C:/path/private-trial-run-01"
 ```
 
 两个执行标志表示你允许将该文件中的输入发送至已配置入口并承担相关费用。密钥在本地隐藏提示中输入，不写文件；也可事先在本机安全环境配置所填的环境变量。

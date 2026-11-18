@@ -81,7 +81,7 @@ services:
     branch: main
     dockerContext: ./backend
     dockerfilePath: ./backend/Dockerfile
-    # Render 的服务存活检查不得依赖 Neon 延迟；数据库与迁移就绪状态仍由
+    # Render 的服务存活检查不得依赖托管 PostgreSQL 延迟；数据库与迁移就绪状态仍由
     # 部署后冒烟显式检查 /ready。
     healthCheckPath: /health
     # Deploy the same main-branch release as the website, after GitHub checks pass.

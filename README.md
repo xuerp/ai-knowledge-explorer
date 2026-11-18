@@ -27,7 +27,7 @@ _线上实拍 · 2026-11-05。截图展示当时的收录内容，事实适用�
 
 选模型时，知道一个名字只是开始。真正影响选择的是：具体哪个版本、能做什么、怎样接入、数据能否外传、预算是否允许，以及这些说法的依据在哪里。
 
-AI Radar 面向需要评估 AI 方案的产品经理与开发者，把这段过程串起来：
+项目把模型、版本、来源与个人研究记录组织在一起，用于探索下面这段流程：
 
 **发现变化 → 查清版本 → 核对证据 → 带入任务约束 → 保存研究**
 
@@ -103,6 +103,8 @@ flowchart LR
 
 [系统架构](docs/ARCHITECTURE.md) · [架构决策](docs/adr/) · [文档索引](docs/README.md)
 
+当前线上链路为 **Cloudflare Workers 前端 → Render FastAPI → Supabase PostgreSQL**。2026-11-18 已从 Render 的现有连接配置核对数据库托管方；数据库类型与托管平台分别记录。后台候选抽取配置为 SoleAPI，普通自动抽取上限为 0；可选模型需求解析当前关闭。邮件配置选择 Resend，但缺少投递密钥与发件人，摘要保留在 Outbox。配置存在不代表已完成实际模型调用或邮件送达验证。地址、配置边界与检查方法统一见[当前部署说明](docs/STAGING_DEPLOYMENT.md#当前部署核对记录)。
+
 ## 已验证什么，还有什么没完成
 
 - **已执行的软件与页面检查**：公共资料浏览、筛选、跨页对比；研究新建、修改保存、历史重开、澄清和报告导出；事件类别与支撑事实的一致性回归。
@@ -121,19 +123,23 @@ flowchart LR
 git clone https://github.com/xuerp/ai-knowledge-explorer.git
 cd ai-knowledge-explorer
 bun install --frozen-lockfile
-bun run dev
+bun run dev --host 127.0.0.1 --port 8082 --strictPort
 ```
 
 未配置 API 时使用内置目录，可浏览知识与界面。登录、研究持久化和后台维护需要后端。
 
-后端使用 Python 3.12，按[后端启动指南](backend/README.md#本地启动)安装依赖并执行迁移。在项目根目录 `.env.local` 中连接 API：
+浏览器打开 `http://127.0.0.1:8082`。后端使用 Python 3.12，按[后端启动指南](backend/README.md#本地启动)在第二个终端中安装依赖、生成独立本机配置并启动。本文统一使用前端 8082、后端 8001；端口本身不区分正式或演示模式。
+
+在项目根目录 `.env.local` 中连接本机 API：
 
 ```dotenv
-VITE_API_BASE_URL=http://127.0.0.1:8000
-VITE_API_UPSTREAM_URL=http://127.0.0.1:8000
+VITE_API_BASE_URL=http://127.0.0.1:8001
+VITE_API_UPSTREAM_URL=http://127.0.0.1:8001
 ```
 
-重启前端，并确认后端 CORS 允许前端地址。模型抽取、可选需求解析及邮件服务按需单独配置。[部署说明](docs/STAGING_DEPLOYMENT.md)
+重启前端，并确认后端 CORS 允许 `http://127.0.0.1:8082`。两个终端保持运行；各自按 `Ctrl+C` 停止，数据库文件保留。本机默认使用 `backend/data/ai_radar.db`，由后端直接访问，不需要另外启动数据库服务。本机账户和记录与线上 Supabase 独立。
+
+访问线上网站无需启动本机程序；本机重启也不会重启云端服务。故障检查、日志和数据库备份见[运行手册](docs/PRODUCTION_RUNBOOK.md)。模型抽取、可选需求解析及邮件服务按需单独配置，日常浏览无需启动采集 worker。
 
 <details>
 <summary>项目结构与检查命令</summary>

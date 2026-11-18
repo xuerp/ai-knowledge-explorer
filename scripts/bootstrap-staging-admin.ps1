@@ -6,13 +6,13 @@ $ErrorActionPreference = "Stop"
 $apiRoot = $ApiBaseUrl.TrimEnd("/")
 $passwordMinLength = 6
 
-Write-Host "AI Radar staging admin bootstrap"
+Write-Host "AI Radar first admin bootstrap"
 Write-Host "API: $apiRoot"
 Write-Host "The token and password will not be echoed or stored in shell history."
 
 $email = Read-Host "Admin email"
 $securePassword = Read-Host "Admin password (at least $passwordMinLength characters)" -AsSecureString
-$secureAdminToken = Read-Host "AI_RADAR_ADMIN_TOKEN from Render" -AsSecureString
+$secureAdminToken = Read-Host "AI_RADAR_ADMIN_TOKEN for the selected API" -AsSecureString
 
 $password = $null
 $adminToken = $null
@@ -52,7 +52,7 @@ try {
   }
 
   Write-Host "Admin creation and login verification succeeded." -ForegroundColor Green
-  Write-Host "Next: remove AI_RADAR_ADMIN_TOKEN from Render and redeploy the API."
+  Write-Host "Next: remove AI_RADAR_ADMIN_TOKEN from this API's configuration and restart its service."
 }
 finally {
   $password = $null

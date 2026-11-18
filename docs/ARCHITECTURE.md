@@ -2,6 +2,8 @@
 
 [产品案例](portfolio/CASE_STUDY.md)展示用户研究流程，[验证记录](portfolio/VALIDATION.md)区分已核对的行为与仍待验证的环节。
 
+运行说明核对：2026-11-18。当前部署事实与配置证据统一见[部署核对记录](STAGING_DEPLOYMENT.md#当前部署核对记录)，历史 ADR 与评测不是运行配置来源。
+
 ## 系统边界
 
 仓库同时交付 React/TanStack 前端、FastAPI API、SQLAlchemy/Alembic 数据层，以及明确标记的演示数据。前端可以无后端运行作品集模式；配置 `VITE_API_BASE_URL` 后会使用真实 API，失败时显示错误，不会静默退回演示数据。
@@ -44,7 +46,7 @@ src/
 
 ## 前端数据生成边界
 
-正式模式从 API 获取资料。`knowledge-repository.ts` 仅在未配置 API 的离线模式按需加载 `src/data/generated/snapshot.json`；页面不因 API 失败静默替换为示例事实。
+配置 API 时，目录通过 API 获取资料。`knowledge-repository.ts` 仅在未配置 API 的离线模式按需加载 `src/data/generated/snapshot.json`；目录请求失败不会静默切换为离线适配器。首页另以 `src/data/generated/home-overview.json` 首屏渲染，再核对已发布资料；同步失败保留已有首页内容并展示同步状态。这种首屏与缓存策略不代表后台请求已经成功，也不提供外部消息实时全量追踪。
 
 `npm run generate:frontend-snapshot` 从种子基线、后端目录和扩展生成经过公共投影的快照，并校验 `product/core-models.v1.json` 的目录覆盖。清单用于校验，不缩减完整目录。生成物不是独立事实编辑入口；修改上游后重新生成。`npm run check:frontend-snapshot` 检查一致性，CI 另执行生成与 Git diff。
 
@@ -127,21 +129,23 @@ flowchart LR
 
 ## PWA 与离线策略
 
-页面与静态资产可缓存，API 使用网络优先且不写入 Service Worker 数据缓存，避免把过期响应伪装为实时内容。离线时显示状态和最后缓存时间。
+Service Worker 缓存静态资产，不缓存应用导航 HTML、登录态、个人研究正文或 API 数据。断网导航返回独立离线说明页并保留原地址。已打开页面的查询缓存和首页初始快照另有状态提示，不能把它们的存在当作 API 当前可用。
 
 ## 部署结构
 
-- 本地开发：SQLite + Vite + Uvicorn。
-- 在线预发布：Cloudflare Workers 前端 + Render Free FastAPI + Cloudflare Cron + Neon PostgreSQL；Cron 每 5 分钟直连轻量 `/health` 防止闲置休眠，每 30 分钟调用受保护的单周期接口。保活不访问数据库、不执行采集或模型调用；自动化请求保留有限重试。GitHub Actions 只保留 `workflow_dispatch` 手动直连 Neon 的应急入口。
+- 本地开发：SQLite + Vite + Uvicorn。文档统一使用前端 8082、API 8001；数据库是独立本机文件，不同步云端账户和研究。
+- 在线预发布：Cloudflare Workers 前端 + Render Free FastAPI + Supabase PostgreSQL。2026-11-18 已在现有 Render 配置核对 Supabase 连接池、5432 端口及 TLS 要求；完整连接串只保存在部署环境。
+- 调度配置：Cloudflare Cron 每 5 分钟直连轻量 `/health` 保活，每 30 分钟调用受保护的单周期接口。保活不访问数据库、不执行采集或模型调用；GitHub Actions 保留 `workflow_dispatch` 手动直连同一 PostgreSQL 的应急入口。仓库配置与持续成功执行日志分别核对。
 - Docker 容器启动前执行 `alembic upgrade head`。
 - CI 同时验证 SQLite 与 PostgreSQL 迁移、前端构建、后端测试和种子同步。
 - 线上保持 `AI_RADAR_DATA_MODE=demo`，只有正式数据质量门槛通过后才允许切换 `live`。
-- SMTP、自定义域名、外部监控和备份恢复演练仍需部署方提供外部资源。
+- 自定义域名 `airadar.rainza.cn` 已提供 HTTPS 访问。邮件选择 Resend，但当前缺少投递密钥与发件人；摘要保留在 Outbox。外部监控、恢复演练与真实收件箱送达仍需各自的验证记录。
+- 候选抽取已配置 SoleAPI；普通自动抽取上限为 0。模型需求解析是另一套账号与预算配置，目前关闭。检索配置为 Cloudflare hybrid；当前请求实际使用的模式与降级原因以请求诊断为准。
 
 ## 关键技术决策
 
 - 公共读取与审核写入分离：公开接口只组合种子和已批准记录，待审、驳回与证据不足内容不会泄漏到公共快照。
 - 自动化采用有限吞吐：每周期最多处理有限信源和快照，失败进入退避与冷却，避免供应商故障放大成本。
 - 当前自动抽取只生成候选，所有关系和普通事实均进入人审；是否开放任何自动批准必须另行授权并由真实精度证明，不以数据增长速度换取可信度。
-- Cloudflare Cron 使用独立自动化令牌、有限重试、结构化生命周期日志和数据库租约；GitHub 手动应急任务使用仓库级 Neon Secret。运维诊断只记录信源 ID，不把 URL 参数、错误正文或凭据写入外部日志。
+- Cloudflare Cron 使用独立自动化令牌、有限重试、结构化生命周期日志和数据库租约；GitHub 手动应急任务使用仓库级 `AI_RADAR_DATABASE_URL` Secret，并须指向预期环境。运维诊断只记录信源 ID，不把 URL 参数、错误正文或凭据写入外部日志。
 - 图谱保持二维并提供列表替代视图，因为查询方向、路径、时间与证据比视觉炫技更重要。

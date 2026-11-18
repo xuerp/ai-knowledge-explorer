@@ -9,7 +9,7 @@
 请优先通过 GitHub 仓库的 Security Advisory 私密报告功能提交问题。不要在公开 Issue、Discussion、Pull Request、截图或日志中粘贴以下内容：
 
 - API Key、访问令牌、JWT、Cookie 或密码；
-- Neon/PostgreSQL 完整连接串；
+- Supabase 或其他 PostgreSQL 托管平台的完整连接串；
 - Render、Cloudflare、GitHub 或邮件服务凭据；
 - 可识别真实用户的私密研究记录；
 - 尚未修复漏洞的完整利用步骤。

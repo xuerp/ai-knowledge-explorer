@@ -18,7 +18,7 @@ def test_staging_blueprint_uses_one_free_api_service() -> None:
     assert "preDeployCommand" not in api
 
 
-def test_staging_blueprint_requests_neon_url_as_a_secret() -> None:
+def test_staging_blueprint_requests_database_url_as_a_secret() -> None:
     repository_root = Path(__file__).resolve().parents[2]
     blueprint = yaml.safe_load((repository_root / "render.yaml").read_text(encoding="utf-8"))
     env_vars = {item["key"]: item for item in blueprint["services"][0]["envVars"] if "key" in item}
