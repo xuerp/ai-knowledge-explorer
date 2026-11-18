@@ -50,11 +50,20 @@ test("Render 在已授权关系批次完成后关闭普通自动抽取", () => {
   assert.match(blueprint, /AI_RADAR_RELATION_BACKFILL_MAX_SNAPSHOTS\s+value: "4"/);
 });
 
-test("Render 与网站统一从 main 分支通过检查后部署", () => {
+test("Render 与网站由同一受测试门禁保护的 main 发布任务部署", () => {
   assert.match(blueprint, /branch: main/);
   assert.match(qualityWorkflow, /github.ref == 'refs\/heads\/main'/);
-  assert.match(blueprint, /autoDeployTrigger: checksPass/);
+  assert.match(blueprint, /autoDeployTrigger: off/);
   assert.doesNotMatch(blueprint, /autoDeployTrigger: commit/);
+  const releaseJob = qualityWorkflow.slice(qualityWorkflow.indexOf("  deploy-staging:"));
+  assert.match(releaseJob, /github.event_name == 'push'/);
+  assert.match(releaseJob, /needs: \[frontend, backend\]/);
+  assert.match(releaseJob, /node scripts\/deploy-render-staging\.mjs/);
+  assert.match(
+    releaseJob,
+    /RENDER_STAGING_DEPLOY_HOOK: \$\{\{ secrets\.RENDER_STAGING_DEPLOY_HOOK \}\}/,
+  );
+  assert.doesNotMatch(releaseJob, /continue-on-error/);
 });
 
 test("Cloudflare staging 部署独立等待前后端检查并使用固定 Wrangler", () => {

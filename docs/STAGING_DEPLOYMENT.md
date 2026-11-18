@@ -192,7 +192,17 @@ Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数�
 
 ## 6. 验收顺序
 
-当前发布分支是 `main`。Quality 在 push/PR 上执行，只有 `main` 的 push 才在前后端检查成功后发布已验证的 Cloudflare 构建；Render Blueprint 同样跟踪 `main`，模板使用 `checksPass`。独立 Staging acceptance 在 main 的 Quality 成功后运行，等待前端 `version.txt` 和 API `buildCommit` 对齐该提交，再执行直接 API 与同域代理冒烟。以这些现有工作流为准，日常启动无需创建或保留历史开发分支。
+当前发布分支是 `main`。Quality 在 push/PR 上执行，只有 `main` 的 push 才在前后端检查成功后发布已验证的 Cloudflare 构建，并通过私密部署钩子要求 Render 部署同一个完整 commit。Render Blueprint 仍跟踪 `main`，但 `autoDeployTrigger: off`，由 Quality 控制部署时机。独立 Staging acceptance 在 main 的 Quality 成功后运行，等待前端版本标记和 API `buildCommit` 对齐该提交，再执行直接 API 与同域代理冒烟。日常启动无需创建或保留历史开发分支。
+
+不能同时使用 Render 的 `After CI Checks Pass` 和等待 Render 的发布后验收。Render 会等待该提交的所有 CI 检查；验收又等待 Render 时可能互相阻塞。部署钩子明确指定已验证的 `ref`，避免部署时 `main` 已前进而取到未经这次测试的其他提交；Render 会关闭 Git 自动部署，后续提交仍经 Quality 的前后端门禁后部署。[Render 部署说明](https://render.com/docs/deploys)。
+
+首次启用这条发布链路需要单独配置一次凭据：
+
+1. 从现有 Render 服务的 Settings → Deploy Hook 获取私密钩子，只将它保存到本仓库的 GitHub Actions Repository Secret **`RENDER_STAGING_DEPLOY_HOOK`**。这是向 GitHub 授予该 staging 服务的部署权限，需要明确授权；不要在聊天、仓库文件、命令参数或日志中展示钩子。
+2. 同步 Blueprint 的 `autoDeployTrigger: off`，保持部署控制权在经过测试的 Quality 发布任务。使用指定 `ref` 的钩子也会关闭 Git 自动部署，不改为绕过测试的 `On Commit`。
+3. 首次发布后核对实际 Render 设置、Quality、Staging acceptance 及两端完整提交。缺少钩子或钩子无效时发布任务失败，不跳过后端部署，也不把旧 API 版本视为新版本。
+
+部署脚本仅接受现有 staging 服务的 HTTPS 钩子与完整提交，不跟随重定向，不输出钩子、请求错误原文或响应内容。请求被 Render 接受只代表触发成功，实际运行与代理可用性仍由发布后验收决定。
 
 修改文档后若推送 main，也会触发当前自动发布流程。发布前完成检查，发布后核对两端版本与业务冒烟结果。不能把提交成功、构建上传成功或一项 HTTP 200 当作新版本全链路验收。
 

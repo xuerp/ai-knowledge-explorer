@@ -84,8 +84,9 @@ services:
     # Render 的服务存活检查不得依赖托管 PostgreSQL 延迟；数据库与迁移就绪状态仍由
     # 部署后冒烟显式检查 /ready。
     healthCheckPath: /health
-    # Deploy the same main-branch release as the website, after GitHub checks pass.
-    autoDeployTrigger: checksPass
+    # Quality owns commit-pinned deployment after both test jobs pass. Render's
+    # checksPass mode would also wait for the post-deploy acceptance check.
+    autoDeployTrigger: off
     envVars:
       - fromGroup: ai-radar-staging-runtime
       - key: PORT
