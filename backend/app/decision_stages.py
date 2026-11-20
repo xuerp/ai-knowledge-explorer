@@ -34,13 +34,15 @@ def ordered_task_stages(context) -> tuple[str, ...]:
     meaning = context_meaning(context)
     source = meaning_source(context)
     if meaning is not None:
-        if meaning.state != "understood" or meaning.scenario != "general-text":
+        if meaning.state != "understood" or meaning.scenario not in {None, "general-text"}:
+            return ()
+        if meaning.scenario is None and not any(item.role == "output" for item in meaning.items):
             return ()
         positive = [item.quote for item in meaning.items if item.role in {"goal", "output"}]
         regions = [item.quote for item in meaning.items if item.role == "goal"]
         if not regions:
             return ()
-        if meaning.method:
+        if meaning.method and meaning.scenario == "general-text":
             # A concise interpreter must not erase an explicit second output.
             # Add source clauses for a known text method, respecting its
             # explicit non-goal roles; no new method or facts are inferred.
@@ -58,7 +60,7 @@ def ordered_task_stages(context) -> tuple[str, ...]:
         if receipt and receipt.status != "unavailable":
             return ()
         workflow = task_workflow(context.task)
-        if workflow and workflow["scenario"] != "general-text":
+        if workflow and workflow["scenario"] not in {None, "general-text"}:
             return ()
         # The ordinary, model-off path still retains explicitly written order.
         # It does not infer an unrecognized method or pretend semantic parsing
@@ -69,7 +71,25 @@ def ordered_task_stages(context) -> tuple[str, ...]:
             if not part.prohibited
         ]
         regions = [context.task]
-    return _source_sequences(positive, regions, source, meaning is not None)
+    stages = _source_sequences(positive, regions, source, meaning is not None)
+    # An outside method can be an input step to a written deliverable.
+    # Require the later step to state that output explicitly.
+    if (
+        meaning is None
+        and workflow
+        and workflow["scenario"] is None
+        and not any(
+            re.search(
+                r"(?:写|撰写|整理|生成|输出).{0,24}(?:步骤|指南|手册|报告|清单|说明|文字)|"
+                r"\b(?:write|draft|document)\b.{0,40}\b(?:steps|guide|manual|report|checklist)\b",
+                stage,
+                re.IGNORECASE,
+            )
+            for stage in stages[1:]
+        )
+    ):
+        return ()
+    return stages
 
 
 def source_ordered_stages(task):

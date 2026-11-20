@@ -7,7 +7,7 @@ from .decision_dialogue import clarification_for, task_descriptions, unsupported
 from .decision_intent import CATALOG, positive_task_text, scenario_definition, task_workflow
 from .decision_semantics import context_meaning
 from .decision_stages import ordered_task_stages, parallel_task_deliverables
-from .decision_task import daily_workload, understand_context
+from .decision_task import daily_workload, understand_context, understand_task
 from .decision_tool_context import tool_context
 from .schemas import (
     DecisionClarification,
@@ -550,6 +550,11 @@ def build_guidance(result, context, snapshot, language):
             "准备一份可使用的材料，在你已有工具中说明想得到的结果；核对原文，不让工具编造缺失事实。硬条件尚未核验时，不发送受限制材料。",
             "Prepare one authorized document and describe the desired result in your existing tool. Check against the source and leave missing facts unknown. Do not send restricted material while mandatory conditions remain unverified.",
         )
+        if novice_writing:
+            instruction = t(
+                f"用一份获准材料在现有工具中试做：{context.task.strip()} 完成后逐项对照原文。",
+                f"Try the following with one permitted input in your existing tool: {context.task.strip()} Check the result against the source.",
+            )
         kind, label = "start", t("查看上手步骤", "See how to start")
         tradeoff = t(
             "这是一条有前提的使用路线，尚未确认具体工具满足所有条件。",
@@ -709,14 +714,16 @@ def build_guidance(result, context, snapshot, language):
         instruction = " ".join(result.plan.trial.procedure)
         kind, label = "start", t("查看同口径验证步骤", "See comparable validation steps")
     stages = ordered_task_stages(context)
-    if (
+    staged_plan = (
         stages
         and result.plan
         and result.plan.trial
-        and outcome in {"advice", "conditional"}
+        and outcome in {"advice", "conditional", "unsupported"}
         and not question
         and not all_excluded
-    ):
+        and not unsupported_task(context, has_grounded_plan=True)
+    )
+    if staged_plan:
         # One catalog method cannot establish qualification for the entire
         # requested chain. Retain each explicit goal while keeping the route
         # conditional and refusing to invent a full-workflow product winner.
@@ -739,7 +746,7 @@ def build_guidance(result, context, snapshot, language):
         summary = "；".join(deliverables)
         instruction = " ".join(result.plan.trial.procedure)
         kind, label = "start", t("查看完整任务", "See the complete task")
-    if unsupported_task(context):
+    if not staged_plan and unsupported_task(context):
         outcome, primary, ready, reasons = "unsupported", None, [], []
         headline = t(
             "这类任务尚未纳入可核验选型范围", "This task is outside the verified selection scope"
@@ -798,6 +805,11 @@ def build_guidance(result, context, snapshot, language):
                 "Your original task and requirements are retained; continue here after choosing.",
             ),
         )
+        if question.id == "upload-boundary":
+            limits = understand_task(context.task).limits
+            if limits:
+                instruction = t("继续前保留这些限制：", "Keep these constraints while clarifying: ")
+                instruction += "。".join(limits) if language == "zh" else ". ".join(limits)
     target_ids = ready
     entry_url = None
     if kind == "start" and not user_tools.comparison:

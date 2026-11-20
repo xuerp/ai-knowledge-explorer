@@ -13,6 +13,7 @@ const {
   knowledgeReturnSearch,
   knowledgeBrowseHref,
   CATEGORY_TYPES,
+  knowledgeKeywordMatches,
   knowledgePurpose,
 } = await vite.ssrLoadModule("/src/domain/knowledge-browse.ts");
 const { DEMO_KNOWLEDGE_SNAPSHOT: snapshot } = await vite.ssrLoadModule("/src/data/demo-adapter.ts");
@@ -23,6 +24,18 @@ const { authResponseError, AuthSessionExpiredError } = await vite.ssrLoadModule(
 const { changeDetailFields } = await vite.ssrLoadModule("/src/domain/change-presentation.ts");
 const { claimTopicLabel } = await vite.ssrLoadModule("/src/domain/claim-reading-mode.ts");
 test.after(() => vite.close());
+
+test("版本名和 API 型号可搜索，空搜索保留家族目录", () => {
+  const carbon = snapshot.entities.find((entity) => entity.id === "e-gemini-4-carbon");
+  const pro = snapshot.entities.find((entity) => entity.id === "e-kimi-k3-1-pro");
+  const hy = snapshot.entities.find((entity) => entity.id === "e-hunyuan-hy4");
+  assert.equal(knowledgeKeywordMatches(carbon, "", ""), false);
+  assert.equal(knowledgeKeywordMatches(carbon, "Gemini 4 Carbon", ""), true);
+  assert.equal(knowledgeKeywordMatches(carbon, "gemini-4-carbon", ""), true);
+  assert.equal(knowledgeKeywordMatches(pro, "Kimi K3.1 Pro", ""), true);
+  assert.equal(knowledgeKeywordMatches(hy, "hy4", ""), true);
+  assert.equal(knowledgeKeywordMatches(carbon, "Claude", "irrelevant summary"), false);
+});
 
 test("模型家族入口保留全部家族且排除具体版本，不改变核心历史范围", async () => {
   const { browseModelFamilies } = await vite.ssrLoadModule("/src/domain/model-families.ts");

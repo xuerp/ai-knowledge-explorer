@@ -40,17 +40,18 @@ export async function readStagingCommits({
   frontendVersionUrl,
   fetchImpl = fetch,
 }) {
-  const releaseMarkerUrl = buildReleaseMarkerUrl(frontendVersionUrl, expectedCommit);
   const [readyResponse, versionResponse] = await Promise.all([
     fetchWithTimeout(fetchImpl, apiReadyUrl),
-    fetchWithTimeout(fetchImpl, releaseMarkerUrl),
+    frontendVersionUrl
+      ? fetchWithTimeout(fetchImpl, buildReleaseMarkerUrl(frontendVersionUrl, expectedCommit))
+      : null,
   ]);
   const ready = await readyResponse.json();
   return {
     backendCommit: String(ready.buildCommit ?? "")
       .trim()
       .toLowerCase(),
-    frontendCommit: (await versionResponse.text()).trim().toLowerCase(),
+    frontendCommit: versionResponse ? (await versionResponse.text()).trim().toLowerCase() : null,
     backendReady: ready.ok === true,
   };
 }
@@ -80,7 +81,7 @@ export async function waitForStagingRelease({
       if (
         latest.backendReady &&
         latest.backendCommit === expectedCommit &&
-        latest.frontendCommit === expectedCommit
+        (!frontendVersionUrl || latest.frontendCommit === expectedCommit)
       ) {
         return latest;
       }
@@ -91,18 +92,19 @@ export async function waitForStagingRelease({
     if (attempt < maxAttempts) await sleep(intervalMs);
   }
   const observed = latest
-    ? `backend=${latest.backendCommit || "missing"}, frontend=${latest.frontendCommit || "missing"}`
+    ? `backend=${latest.backendCommit || "missing"}` +
+      (frontendVersionUrl ? `, frontend=${latest.frontendCommit || "missing"}` : "")
     : `未读取到部署状态${latestError ? `：${latestError.message}` : ""}`;
   throw new Error(`staging 未在等待窗口内运行预期提交 ${expectedCommit}；${observed}。`);
 }
 
 async function main() {
+  const backendOnly = process.argv.includes("--backend-only");
   const expectedCommit = normalizeExpectedCommit(process.env.AI_RADAR_EXPECTED_COMMIT);
   const apiReadyUrl = requiredUrl(process.env.AI_RADAR_STAGING_READY_URL, "staging ready URL");
-  const frontendVersionUrl = requiredUrl(
-    process.env.AI_RADAR_STAGING_VERSION_URL,
-    "staging version URL",
-  );
+  const frontendVersionUrl = backendOnly
+    ? null
+    : requiredUrl(process.env.AI_RADAR_STAGING_VERSION_URL, "staging version URL");
   const result = await waitForStagingRelease({
     expectedCommit,
     apiReadyUrl,
@@ -111,7 +113,8 @@ async function main() {
       console.log(
         error
           ? `等待 staging 第 ${attempt} 次：${error}`
-          : `等待 staging 第 ${attempt} 次：backend=${backendCommit || "missing"}, frontend=${frontendCommit || "missing"}`,
+          : `等待 staging 第 ${attempt} 次：backend=${backendCommit || "missing"}` +
+              (backendOnly ? "" : `, frontend=${frontendCommit || "missing"}`),
       );
     },
   });

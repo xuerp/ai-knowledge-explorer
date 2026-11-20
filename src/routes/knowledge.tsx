@@ -11,6 +11,7 @@ import { modelDisplayName } from "@/lib/model-display";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import {
   CATEGORY_TYPES,
+  knowledgeKeywordMatches,
   knowledgePurpose,
   parseKnowledgeSearch,
   validateKnowledgeSearch,
@@ -119,7 +120,6 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
     const filter = SIGNAL_FILTERS.find((item) => item.id === signal);
 
     return (entities ?? []).filter((entity) => {
-      if (entity.familyId) return false;
       if (category !== "all" && !CATEGORY_TYPES[category].includes(entity.type)) return false;
       if (region === "domestic" && !isDomestic(entity)) return false;
       if (region === "overseas" && isDomestic(entity)) return false;
@@ -136,7 +136,7 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
         .join(" ")
         .toLowerCase();
 
-      if (keyword && !searchable.includes(keyword)) return false;
+      if (!knowledgeKeywordMatches(entity, keyword, searchable)) return false;
       if (
         filter &&
         filter.terms.length > 0 &&

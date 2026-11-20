@@ -229,7 +229,7 @@ AI 抽取供应商配置后，审核后台的“验证连接与结构化输出�
 
 #### 前端与 API 分阶段发布
 
-1. 当前 main 发布由 Quality 在前后端检查通过后发布 Cloudflare，并用私密 Render 钩子部署同一完整提交；Render Git 自动部署关闭，避免与等待 Render 的发布后验收互相阻塞。钩子仅保存在 GitHub Actions 的 `RENDER_STAGING_DEPLOY_HOOK` Secret，首次启用需要明确授权。独立 Staging acceptance 再等待两端版本一致并检查代理，日常不需要手动排列历史分支发布顺序。缺少钩子时发布应失败；手动处置也要核对目标 commit、staging 构建与现有工作流依赖。配置步骤见[部署说明](STAGING_DEPLOYMENT.md#6-验收顺序)。
+1. 当前 main 发布由 Quality 等待前后端检查通过，再通过私密 Render 钩子部署同一完整提交。目标版本数据库迁移完成且 `/ready` 就绪后，发布 Cloudflare。Render Git 自动部署关闭，钩子保存在 GitHub Actions 的 `RENDER_STAGING_DEPLOY_HOOK` Secret。独立 Staging acceptance 等待两端版本一致并检查代理。缺少钩子或后端未就绪时发布任务失败。手动处置需核对目标 commit、staging 构建与工作流依赖。配置步骤见[部署说明](STAGING_DEPLOYMENT.md#6-验收顺序)。
 2. 部署后同时验证 `/backend/health`、`/backend/api/review/stats` 和浏览器水合后的统计面板；只检查 SSR HTML 不足以证明客户端查询成功。
 3. 若构建模式错误，立即用正确 staging build 覆盖，不把上传成功当作验收成功。
 

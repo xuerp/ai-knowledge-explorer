@@ -1,10 +1,19 @@
 import { readFile, mkdir, writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
 import { createServer } from "vite";
 import { format, resolveConfig } from "prettier";
 import { applyCatalogOverlays, publicCatalogSnapshot } from "../src/data/catalog-overlay.mjs";
 
 const root = new URL("../", import.meta.url);
+const outputFlag = process.argv.indexOf("--out-dir");
+const outputPath = outputFlag === -1 ? undefined : process.argv[outputFlag + 1];
+if (outputFlag !== -1 && (!outputPath || outputPath.startsWith("--"))) {
+  throw new Error("--out-dir requires a directory path.");
+}
+const outputRoot = outputPath
+  ? new URL("./", pathToFileURL(resolve(outputPath) + "/"))
+  : new URL("src/data/generated/", root);
 const read = async (path) => JSON.parse(await readFile(new URL(path, root), "utf8"));
 const server = await createServer({
   root: fileURLToPath(root),
@@ -21,9 +30,46 @@ try {
     read("backend/data/frontier_catalog_v1.json"),
     read("product/core-models.v1.json"),
   ]);
-  const snapshot = publicCatalogSnapshot(
-    applyCatalogOverlays(BASE_DEMO_KNOWLEDGE_SNAPSHOT, extension, frontier),
-  );
+  const publicExportFlag = process.argv.indexOf("--public-snapshot");
+  const exportedPath = publicExportFlag === -1 ? undefined : process.argv[publicExportFlag + 1];
+  if (publicExportFlag !== -1 && (!exportedPath || exportedPath.startsWith("--"))) {
+    throw new Error("--public-snapshot requires a saved public /api/v2/snapshot JSON file.");
+  }
+  let catalog = applyCatalogOverlays(BASE_DEMO_KNOWLEDGE_SNAPSHOT, extension, frontier);
+  if (exportedPath) {
+    const exported = JSON.parse(await readFile(resolve(exportedPath), "utf8"));
+    for (const field of ["entities", "claims", "evidence", "changes"]) {
+      if (!Array.isArray(exported[field])) throw new Error(`Invalid public export field: ${field}`);
+    }
+    for (const field of [
+      "following",
+      "interestProfile",
+      "researchAnswers",
+      "notifications",
+      "reviewCandidates",
+      "syncRuns",
+    ]) {
+      if (!Array.isArray(exported[field]) || exported[field].length) {
+        throw new Error(`Public export includes private, operational or invalid data: ${field}`);
+      }
+    }
+    if (!exported.meta || !exported.timeline || !exported.graph) {
+      throw new Error("Public export is missing catalog metadata, timeline or graph.");
+    }
+    // Preserve the source contract through a closed projection. A runtime
+    // export never imports additional account or operator metadata.
+    catalog = {
+      ...catalog,
+      meta: exported.meta,
+      entities: exported.entities,
+      claims: exported.claims,
+      evidence: exported.evidence,
+      timeline: exported.timeline,
+      changes: exported.changes,
+      graph: exported.graph,
+    };
+  }
+  const snapshot = publicCatalogSnapshot(catalog);
   const ids = new Set(snapshot.entities.map((entity) => entity.id));
   for (const model of manifest.models) {
     if (!ids.has(model.entityId)) throw new Error(`Missing core model: ${model.entityId}`);
@@ -35,7 +81,7 @@ try {
     ["snapshot.json", snapshot],
     ["home-overview.json", projectHomeOverview(snapshot)],
   ]) {
-    const output = new URL(`src/data/generated/${name}`, root);
+    const output = new URL(name, outputRoot);
     const expected = await format(JSON.stringify(data), {
       ...(await resolveConfig(fileURLToPath(output))),
       parser: "json",

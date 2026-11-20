@@ -1,5 +1,15 @@
 from __future__ import annotations
 
+import re
+
+CODING_TOOL = re.compile(
+    r"(?:编码|编程)(?:工具|助手|智能体)|\bcoding (?:tool|assistant|agent)s?\b", re.IGNORECASE
+)
+TERMINAL = re.compile(
+    r"终端(?!用户|消费者|客户|设备)|命令行|\b(?:terminal|cli|command.line)\b",
+    re.IGNORECASE,
+)
+
 
 def resolve_entity_type_intent(question: str) -> set[str]:
     """Resolve broad entity-type language shared by retrieval and evaluation."""
@@ -19,4 +29,6 @@ def resolve_entity_type_intent(question: str) -> set[str]:
         intents.add("paper")
     if "基准" in key or "benchmark" in key:
         intents.add("benchmark")
+    if CODING_TOOL.search(question):
+        intents.update(("agent", "tool", "application"))
     return intents

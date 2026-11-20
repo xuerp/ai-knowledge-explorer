@@ -8,10 +8,10 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
 | GPT family      | anchor |       40 |            17 |       75 |            3 |           3 |                    40 |                   16 |        51 |               71 |
 | Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               41 |
-| Gemini family   | anchor |       54 |            12 |       65 |            3 |           3 |                    32 |                   35 |        57 |               46 |
+| Gemini family   | anchor |       55 |            13 |       66 |            3 |           3 |                    32 |                   36 |        58 |               47 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
 | Qwen            | core   |       25 |             6 |       29 |            3 |           3 |                    25 |                    8 |        28 |               37 |
-| Kimi            | core   |        8 |             2 |       13 |            3 |           3 |                     8 |                    4 |        11 |               23 |
+| Kimi            | core   |        9 |             2 |       14 |            3 |           3 |                     8 |                    5 |        12 |               25 |
 | Doubao          | core   |       11 |             5 |       15 |            3 |           3 |                    10 |                    4 |        14 |               23 |
 | ERNIE Bot       | core   |       16 |             4 |       17 |            3 |           3 |                    14 |                   12 |        18 |               21 |
 
@@ -47,6 +47,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Claude family   | Claude Opus                   |       9 |               9 |                 9 | 2024-03-04 → 2026-09-22 |
 | Claude family   | Claude Haiku                  |       3 |               3 |                 3 | 2024-03-13 → 2025-10-15 |
 | Gemini family   | Gemini Pro                    |       9 |               9 |                 9 | 2023-12-13 → 2026-02-19 |
+| Gemini family   | Gemini 4 frontier             |       1 |               1 |                 1 | 2026-11-10 → 2026-11-10 |
 | Gemini family   | Gemini Flash                  |       9 |               9 |                 9 | 2024-05-23 → 2026-09-02 |
 | Gemini family   | Gemini Flash-Lite             |       5 |               5 |                 5 | 2025-02-25 → 2026-07-21 |
 | Gemini family   | Gemini Live                   |       8 |               6 |                 6 | 2025-04-09 → 2026-09-15 |
@@ -68,7 +69,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | Qwen            | Qwen Coder                    |       3 |               3 |                 3 | 2024-11-12 → 2026-02-03 |
 | Qwen            | Qwen Omni                     |       3 |               3 |                 3 | 2025-03-27 → 2026-09-17 |
 | Qwen            | Qwen 开放模型 / Open models   |       7 |               7 |                 7 | 2024-09-19 → 2026-08-17 |
-| Kimi            | Kimi K general flagship       |       6 |               6 |                 6 | 2025-07-11 → 2026-07-16 |
+| Kimi            | Kimi K general flagship       |       7 |               7 |                 7 | 2025-07-11 → 2026-10-24 |
 | Kimi            | Kimi Code                     |       2 |               1 |                 1 | 2026-06-12 → 2026-06-12 |
 | Doubao          | Doubao Seed 通用 / General    |       2 |               2 |                 2 | 2025-06-25 → 2025-12-18 |
 | Doubao          | Doubao Seed Pro               |       3 |               3 |                 3 | 2025-01-22 → 2026-06-23 |

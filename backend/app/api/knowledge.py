@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, HTTPException, Query, Request, Response, status
 from sqlalchemy import select
 
 from ..database import (
@@ -346,6 +346,29 @@ def entity_neighbors(
         captured_at=graph.captured_at,
         valid_at=graph.valid_at,
     )
+
+
+@router.get("/api/v2/entity-pages/{entity_type}/{slug}", response_model=KnowledgeSnapshot)
+def entity_page(
+    request: Request,
+    response: Response,
+    services: ServicesDependency,
+    entity_type: str,
+    slug: str,
+    session: SessionDependency,
+) -> KnowledgeSnapshot | Response:
+    detail = services.detail_snapshot_cache.load_page(services, session, entity_type, slug)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Entity not found.")
+    result, etag = detail
+    response.headers.update({"Cache-Control": "public, no-cache", "ETag": etag})
+    validators = {
+        tag.strip().removeprefix("W/")
+        for tag in request.headers.get("if-none-match", "").split(",")
+    }
+    if "*" in validators or etag.removeprefix("W/") in validators:
+        return Response(status_code=304, headers=dict(response.headers))
+    return result
 
 
 @router.get("/api/v2/entities/{entity_type}/{slug}", response_model=Entity)

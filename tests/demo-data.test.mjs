@@ -112,7 +112,8 @@ test("repository exposes family, version, timeline, and comparison queries", asy
   assert.equal(detail?.specs?.availability, "Alibaba Cloud hosted API · Beijing");
 
   const kimiVersions = await knowledgeRepository.getFamilyVersions("e-kimi");
-  assert.equal(kimiVersions.length, 8);
+  assert.equal(kimiVersions.length, 9);
+  assert.ok(kimiVersions.some((entity) => entity.id === "e-kimi-k3-1-pro"));
   assert.ok(kimiVersions.some((entity) => entity.id === "e-kimi-k27-code"));
   assert.equal(kimiVersions.find((entity) => entity.id === "e-kimi-k25").release.stage, "retired");
 

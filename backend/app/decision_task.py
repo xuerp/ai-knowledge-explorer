@@ -9,6 +9,14 @@ from .decision_semantics import context_meaning, meaning_source
 from .decision_time import deadline_from_quote, execution_bounds
 
 NUMBER = r"(?:\d+(?:\.\d+)?|[零〇一二两三四五六七八九十百千万]+)"
+MONTHLY_BUDGET_CEILING = re.compile(
+    rf"(?:每月|月预算)(?:预算)?\s*(?:最多|最高|不超过|上限)?\s*"
+    rf"(人民币|美元|CNY|USD|[¥￥$])?\s*({NUMBER})\s*(元|美元|CNY|USD)?",
+    re.IGNORECASE,
+)
+FIRST_PARTY_API = re.compile(
+    r"(?:原厂|官方)\s*(?:模型\s*)?API|\bfirst.party (?:model )?API\b", re.IGNORECASE
+)
 
 
 def number(value: str) -> float:
@@ -103,7 +111,10 @@ def understand_task(task: str) -> TaskUnderstanding:
         ),
         unsupported_media=bool(
             re.search(
-                r"生成视频|制作视频|生成图片|画图|三维建模|3D建模|语音合成|(?:视频|广告片).{0,40}(?:变成|延长|剪辑|配音)|(?:人物|人脸).{0,20}(?:一致|保留)|generate (?:video|images)|text.to.speech|extend.{0,20}video",
+                r"生成视频|制作视频|生成图片|画图|三维建模|3D建模|语音合成|合成旁白|"
+                r"(?:视频|广告片).{0,40}(?:变成|延长|剪辑|配音)|"
+                r"(?:延长|剪辑|配音).{0,24}(?:视频|广告片)|"
+                r"(?:人物|人脸).{0,20}(?:一致|保留)|generate (?:video|images)|text.to.speech|extend.{0,20}video",
                 positive,
                 re.IGNORECASE,
             )

@@ -6,7 +6,7 @@ from ..automation import AutomationCycleBusyError, automation_cycle_lock
 from ..schemas import (
     AutomationCycleResponse,
 )
-from ..worker import run_cycle
+from ..worker import run_cycle, run_extraction_cycle
 from .dependencies import AutomationDependency, ServicesDependency, SessionDependency
 
 router = APIRouter()
@@ -55,12 +55,7 @@ def run_automation_cycle(
                     now=current,
                     heartbeat=cycle_heartbeat,
                 )
-                automatic_extraction = services.run_automatic_extraction(session)
-                result["extraction"] = automatic_extraction
-                if int(automatic_extraction.get("failed", 0)) > 0:
-                    errors = result.setdefault("errors", {})
-                    if isinstance(errors, dict):
-                        errors["extraction"] = automatic_extraction.get("errors", [])
+                run_extraction_cycle(services, session, result)
                 cycle_status = services.operations.complete_cycle(
                     session,
                     worker_id,

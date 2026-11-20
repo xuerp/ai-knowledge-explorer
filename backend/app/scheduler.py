@@ -14,6 +14,7 @@ from .fetching import (
     classify_fetch_failure,
 )
 from .ingestion import IngestionService, source_fetch_urls
+from .release_discovery import discover_release_leads
 from .schemas import DocumentIngestRequest, SchedulerRunSummary
 
 
@@ -158,6 +159,12 @@ class IngestionScheduler:
                         unchanged += 1
                     else:
                         succeeded += 1
+                    discovery = discover_release_leads(session, source, document, current)
+                    if discovery.deferred:
+                        # The next scheduled fetch needs links from the body to
+                        # review deferred leads, even if the index is unchanged.
+                        source.etag = None
+                        source.last_modified = None
                 source.last_seen_at = datetime.now(UTC)
                 source.consecutive_failures = 0
                 source.last_fetch_error = None

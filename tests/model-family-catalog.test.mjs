@@ -30,8 +30,8 @@ test("family latest change includes concrete releases without taking another fam
   const changes = [...snapshot.changes].reverse();
   const before = structuredClone(changes);
   const latest = latestFamilyChange(changes, "e-gemini", snapshot.entities);
-  assert.equal(latest.entityId, "e-gemini-4-pending");
-  assert.equal(latest.date, "2026-10-13");
+  assert.equal(latest.entityId, "e-gemini-4-carbon");
+  assert.equal(latest.date, "2026-11-10");
   assert.deepEqual(changes, before);
   assert.equal(latestFamilyChange(changes, "missing-family", snapshot.entities), undefined);
 });
@@ -151,7 +151,14 @@ test("all seven peer families have complete, sourced family and release profiles
   const sources = new Map(snapshot.evidence.map((source) => [source.id, source]));
   for (const family of manifest.models.filter((model) => model.entityId !== "e-gemini")) {
     const entity = snapshot.entities.find((item) => item.id === family.entityId);
-    assert.equal(entity.lastUpdatedAt, "2026-10-01");
+    const familyReviewedAt = entity.id === "e-kimi" ? "2026-11-20" : "2026-10-01";
+    assert.equal(entity.lastUpdatedAt, familyReviewedAt, entity.id);
+    if (entity.id === "e-kimi") {
+      assert.match(entity.latestVersion, /K3\.1 Pro/);
+      assert.ok(
+        entity.knowledge.keyPoints.some((point) => point.sourceIds.includes("s-kimi-k3-1-pro-api")),
+      );
+    }
     assert.ok(entity.knowledge.introduction.length >= 2);
     assert.ok(entity.knowledge.keyPoints.length >= 3);
     assert.ok(entity.knowledge.useCases.length >= 3);
@@ -181,13 +188,18 @@ test("all seven peer families have complete, sourced family and release profiles
         "e-gpt-image-1",
         "e-gpt-image-2",
       ].includes(version.id);
-      const verified = lifecycleRefreshed
-        ? "2026-10-30"
-        : refreshed
-          ? "2026-10-29"
-          : enrichedIds.has(version.id)
-            ? "2026-10-05"
-            : "2026-10-01";
+      const newlyPublished = ["e-kimi-k3-1-pro", "e-hunyuan-hy4", "e-hunyuan-hy4-flash"].includes(
+        version.id,
+      );
+      const verified = newlyPublished
+        ? "2026-11-20"
+        : lifecycleRefreshed
+          ? "2026-10-30"
+          : refreshed
+            ? "2026-10-29"
+            : enrichedIds.has(version.id)
+              ? "2026-10-05"
+              : "2026-10-01";
       assert.equal(version.release.lastVerifiedAt, verified);
       // A source or chronology correction does not re-verify older billing facts.
       assert.ok(version.lastUpdatedAt >= verified, version.id);

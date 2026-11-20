@@ -39,7 +39,8 @@ export const Route = createFileRoute("/knowledge_/$type/$slug")({
   loader: async ({ params }) => {
     if (!ENTITY_TYPES.has(params.type as EntityType)) throw notFound();
     const entityType = params.type as EntityType;
-    const snapshot = await knowledgeRepository.getSnapshot();
+    const snapshot = await knowledgeRepository.getEntityPage(entityType, params.slug);
+    if (!snapshot) throw notFound();
     const entity =
       snapshot.entities.find((item) => item.type === entityType && item.slug === params.slug) ??
       null;

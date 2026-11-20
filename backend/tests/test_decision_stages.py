@@ -134,6 +134,31 @@ def test_concise_separate_goal_and_output_excerpts_keep_the_source_order():
     assert ordered_task_stages(ctx) == ("先把合成通知译成英文", "再根据译文建立带编号的术语表")
 
 
+def test_visual_step_cannot_replace_the_requested_written_deliverable():
+    task = "用合成界面图和手册写一份中文设置说明。先看截图确认菜单名称，再写设置步骤。不编造菜单。"
+    ctx = context(task, method="visual-review")
+    ctx.task_meaning.meaning.scenario = None
+    ctx.task_meaning.meaning.items = [
+        SourceItem(role="goal", quote="先看截图确认菜单名称，再写设置步骤"),
+        SourceItem(role="material", quote="合成界面图和手册"),
+        SourceItem(role="output", quote="中文设置说明"),
+        SourceItem(role="prohibition", quote="不编造菜单"),
+    ]
+    value = result(status="insufficient-evidence")
+    value.scenario.id = "unspecified"
+    snapshot = SimpleNamespace(entities=[])
+    value.plan = build_plan(value, ctx, "zh")
+    value.guidance = build_guidance(value, ctx, snapshot, "zh")
+    reconcile_resolution(value, ctx)
+    guidance = value.guidance
+    assert guidance.outcome == "conditional"
+    assert guidance.recommendation.primary_entity_id is None
+    assert "1. 先看截图确认菜单名称 → 2. 再写设置步骤" in guidance.recommendation.summary
+    assert "中文设置说明" in guidance.next_action.execution_prompt
+    assert "不编造菜单" in guidance.next_action.execution_prompt
+    assert "无障碍认证" not in guidance.next_action.instruction
+
+
 def test_repository_phases_keep_the_dedicated_coding_protocol():
     ctx = context("先复现问题，再做最小修改并运行已有测试。", method=None)
     ctx.task_meaning.meaning.scenario = "coding-workspace"

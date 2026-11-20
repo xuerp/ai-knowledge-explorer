@@ -10,9 +10,18 @@ from .decision_constraints import (
     context_values,
 )
 from .decision_licenses import commercial_status, service_billing_mismatch
+from .decision_requirements import context_requirements, requirement_checks
 from .schemas import Claim, DecisionCandidate, DecisionContext, KnowledgeSnapshot
 
 REASONS = {
+    "data-boundary-unverified": (
+        "数据处理范围尚未核验；私有部署或境内入口不能证明不出境，禁止上传还需明确边界",
+        "Data boundaries are unverified; private deployment or a domestic endpoint does not prove residency, and upload prohibitions need a boundary",
+    ),
+    "data-boundary-violated": (
+        "已审核资料与要求的数据处理边界不符",
+        "Reviewed evidence contradicts the required data boundary",
+    ),
     "billing-channel-mismatch": (
         "实际服务与预算计费渠道不一致，不能沿用其他渠道报价",
         "Actual service and billing channels differ; another channel's quote cannot establish budget fit",
@@ -72,6 +81,7 @@ REASONS = {
     "conflict": ("当前事实存在冲突，需要核对来源", "Current facts conflict; inspect their sources"),
 }
 EXCLUDED = {
+    "data-boundary-violated",
     "commercial-use-prohibited",
     "excluded",
     "different-task-type",
@@ -152,6 +162,10 @@ def candidate_dispositions(
 ) -> list[DecisionCandidate]:
     entities = {entity.id: entity for entity in snapshot.entities}
     required = [PRIORITY[context.priority]]
+    required.extend(
+        item.dimension for item in context_requirements(context) if item.strength == "hard"
+    )
+    required = list(dict.fromkeys(required))
     for enabled, field in [
         (context.deployment != "undecided", "deployment"),
         (bool(context.region), "region"),
@@ -178,6 +192,11 @@ def candidate_dispositions(
             for claim in claims
             for field in fields_for_claim(claim, official_specs=context.workflow_version == 2)
         }
+        fields.update(
+            check["requirement"]["dimension"]
+            for check in requirement_checks(context, claims)
+            if check["state"] == "satisfied"
+        )
         # A fact for text input is not complete evidence for required audio;
         # existing fields must not hide an unverified requested subcondition.
         # Known but insufficient specs remain cited and explicitly excluded.

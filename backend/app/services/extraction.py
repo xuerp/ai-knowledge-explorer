@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 from urllib.parse import urlsplit
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..application_rules import RELATION_CLAIM_PREDICATES, RELATION_PREDICATE_ANCHORS
@@ -523,6 +523,38 @@ class ExtractionServices:
         }
         if not summary["enabled"]:
             return summary
+        day_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        attempted = (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditLogRecord)
+                .where(
+                    AuditLogRecord.action == "extraction.reserved",
+                    AuditLogRecord.created_at >= day_start,
+                )
+            )
+            or 0
+        )
+        pending = (
+            session.scalar(
+                select(func.count())
+                .select_from(ReviewJobRecord)
+                .where(
+                    ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES),
+                )
+            )
+            or 0
+        )
+        remaining = self.app_settings.auto_extraction_max_snapshots_per_day - attempted
+        capacity = self.app_settings.auto_extraction_review_backlog_limit - pending
+        summary.update({"reviewBacklog": pending, "dailySlotsRemaining": max(0, remaining)})
+        if remaining <= 0 or capacity <= 0:
+            summary["pausedReason"] = "daily-limit" if remaining <= 0 else "review-backlog"
+            return summary
+        # Conservative bound: each attempted snapshot can create up to this
+        # many review jobs. Workers serialize the complete cycle.
+        per_snapshot = min(capacity, self.app_settings.auto_extraction_max_candidates_per_snapshot)
+        limit = min(limit, remaining, max(1, capacity // per_snapshot))
         backfill_plan, backfill_remaining = self.build_relation_backfill_plan(session, limit)
         planned: list[tuple[SourceRecord, DocumentSnapshotRecord, bool]] = [
             (source, snapshot_row, True) for source, snapshot_row in backfill_plan
@@ -552,11 +584,21 @@ class ExtractionServices:
                 else {}
             )
             try:
+                self.audit.record(
+                    session,
+                    principal,
+                    "extraction.reserved",
+                    "document_snapshot",
+                    snapshot_row.id,
+                    {"sourceId": source.id, "pipelineVersion": EXTRACTION_PIPELINE_VERSION},
+                )
+                session.commit()
+                summary["dailySlotsRemaining"] = int(summary["dailySlotsRemaining"]) - 1
                 created, duplicates_skipped = self.create_extraction_candidates(
                     session,
                     source,
                     snapshot_row,
-                    self.app_settings.auto_extraction_max_candidates_per_snapshot,
+                    per_snapshot,
                 )
                 auto_approved = 0
                 for item in created:

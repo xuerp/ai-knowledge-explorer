@@ -104,6 +104,20 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
 
 MACHINE_SOURCE_CATALOG = (
     {
+        "id": "s-google-model-card-index",
+        "url": "https://deepmind.google/models/model-cards/",
+        "title": "Google DeepMind 模型卡目录",
+        "publisher": "Google DeepMind",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-moonshot-research-index",
+        "url": "https://www.moonshot.ai/",
+        "title": "Moonshot AI 官方研究目录",
+        "publisher": "Moonshot AI",
+        "fetch_interval_minutes": 240,
+    },
+    {
         "id": "s-openai-api-changelog",
         "url": "https://developers.openai.com/api/docs/changelog.md",
         "title": "OpenAI API 更新日志",

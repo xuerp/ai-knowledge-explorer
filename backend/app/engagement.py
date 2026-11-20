@@ -28,7 +28,7 @@ from .decision_guidance import build_guidance
 from .decision_resolution import reconcile_resolution
 from .decision_semantics import TaskMeaningService, meaning_source
 from .decision_workflow import REASONS, candidate_dispositions, conflicting_entities, missing_inputs
-from .rag import HybridRagRetriever, LexicalRagRetriever, RagRetriever, grounded_retrieval_citations
+from .rag import LexicalRagRetriever, RagRetriever, RagSearchResult, grounded_retrieval_citations
 from .schemas import (
     Claim,
     DecisionContext,
@@ -46,6 +46,7 @@ from .schemas import (
     ResearchCreate,
     ResearchStep,
     ResearchView,
+    RetrievalDiagnostics,
 )
 
 
@@ -403,24 +404,8 @@ class EngagementService:
         workflow_v2 = bool(
             payload.decision_context and payload.decision_context.workflow_version == 2
         )
-        # V2's offline boundary is explicit. Reuse the existing hybrid fallback,
-        # without inheriting an enabled external embedding provider.
-        retriever = HybridRagRetriever(enabled=False) if workflow_v2 else self.retriever
-        retrieval = retriever.search(
-            session,
-            snapshot,
-            payload.decision_context.task if workflow_v2 else payload.question,
-            limit=32 if workflow_v2 else 8,
-            entity_ids=(
-                set(payload.decision_context.candidate_entity_ids)
-                if payload.decision_context and payload.decision_context.candidate_entity_ids
-                else None
-            ),
-        )
-        matched_claims = [item.claim for item in retrieval.citations]
-        matched_entity_ids = set(retrieval.diagnostics.matched_entity_ids)
         decision_context = payload.decision_context
-        if decision_context and decision_context.workflow_version == 2:
+        if workflow_v2:
             # Candidate-specific evidence must not compete for eight global search slots.
             grounded = grounded_retrieval_citations(snapshot)
             current = current_claims([item.claim for item in grounded], snapshot)
@@ -439,31 +424,38 @@ class EngagementService:
                 for item in grounded
                 if item.claim.entity_id in requested and item.claim.id in current_ids
             ]
-            retrieval.citations = citations
-            retrieval.diagnostics = retrieval.diagnostics.model_copy(
-                update={
-                    "returned_count": len(citations),
-                    "candidate_count": len(current),
-                    "filtered_count": len(current) - len(citations),
-                    "matched_entity_ids": requested,
-                }
+            retrieval = RagSearchResult(
+                citations,
+                RetrievalDiagnostics(
+                    returned_count=len(citations),
+                    candidate_count=len(current),
+                    filtered_count=len(current) - len(citations),
+                    matched_entity_ids=requested,
+                    fallback_reason="hybrid-disabled",
+                ),
             )
-            matched_claims = [item.claim for item in citations]
-            matched_entity_ids = set(requested)
+        else:
+            retrieval = self.retriever.search(
+                session,
+                snapshot,
+                payload.question,
+                entity_ids=(
+                    set(decision_context.candidate_entity_ids)
+                    if decision_context and decision_context.candidate_entity_ids
+                    else None
+                ),
+            )
+            if self.answer_service.enabled:
+                # Retrieval may flush index maintenance. Release the write
+                # transaction before the independent budget reservation.
+                session.commit()
+        matched_claims = [item.claim for item in retrieval.citations]
+        matched_entity_ids = set(retrieval.diagnostics.matched_entity_ids)
         status = "ready" if matched_claims else "insufficient-evidence"
-        answer = (CitedAnswerService() if workflow_v2 else self.answer_service).answer(
-            payload.question,
-            retrieval.citations,
-            payload.language,
-        )
-        summary = answer.summary
-        diagnostics = retrieval.diagnostics.model_copy(
-            update={"generation_fallback_reason": answer.fallback_reason}
-        )
         decision = self._build_decision(
             decision_context,
             matched_claims,
-            diagnostics.matched_entity_ids,
+            retrieval.diagnostics.matched_entity_ids,
             snapshot,
             payload.language,
         )
@@ -477,13 +469,66 @@ class EngagementService:
                 decision = reconcile_resolution(
                     decision, payload.decision_context, payload.language
                 )
-            summary = (
-                decision.guidance.recommendation.summary
-                if decision.guidance
-                else decision.recommendation.summary
-            )
             if decision.status != "ready":
                 status = "failed" if decision.status == "failed" else "insufficient-evidence"
+        # Resolve constraints BEFORE synthesis. The model cannot promote an
+        # excluded/unknown candidate, replace a choice or erase a blocking limit.
+        generation_citations = retrieval.citations
+        generation_context = None
+        if decision:
+            eligible = {
+                item.entity_id for item in decision.candidates if item.eligibility == "eligible"
+            }
+            if decision.guidance:
+                eligible.intersection_update(decision.guidance.recommendation.entity_ids)
+            generation_citations = [
+                item for item in retrieval.citations if item.claim.entity_id in eligible
+            ]
+            generation_context = {
+                "requirements": payload.decision_context.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    exclude={"notes", "parent_research_id"},
+                ),
+                "eligibleEntityIds": sorted(eligible),
+                "recommendation": decision.recommendation.model_dump(mode="json", by_alias=True),
+                "conditions": decision.conditions,
+            }
+            if decision.guidance and decision.guidance.outcome in {
+                "clarify",
+                "blocked",
+                "unsupported",
+            }:
+                generation_citations = []
+        answer = self.answer_service.answer(
+            payload.question,
+            generation_citations,
+            payload.language,
+            user_id=user_id,
+            context=generation_context,
+        )
+        summary = answer.summary
+        if not decision and answer.fallback_reason == "generation-insufficient-evidence":
+            status = "insufficient-evidence"
+        if decision:
+            recommendation = (
+                decision.guidance.recommendation if decision.guidance else decision.recommendation
+            )
+            if answer.statements:
+                # Store once in the structured authority consumed by the inline
+                # page, saved view, public share and Markdown/PDF exporters.
+                recommendation.reasons = [
+                    DecisionTradeoff(
+                        dimension="evidence-synthesis",
+                        finding=item.text_zh if payload.language == "zh" else item.text_en,
+                        claim_ids=item.claim_ids,
+                    )
+                    for item in answer.statements
+                ]
+            summary = recommendation.summary
+        diagnostics = retrieval.diagnostics.model_copy(
+            update={"generation_fallback_reason": answer.fallback_reason}
+        )
         steps = [
             ResearchStep(
                 id="understand",

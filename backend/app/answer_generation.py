@@ -1,11 +1,29 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
 from pydantic import ValidationError
 
-from .schemas import GeneratedAnswerPayload, ResearchCitation
+from .schemas import GeneratedAnswerPayload, GeneratedAnswerStatement, ResearchCitation
+
+_QUOTED_VALUES = re.compile(
+    r"(?<![\d.])(?:\d{4}-\d{2}-\d{2}(?!\d)|"
+    r"\d+(?:,\d{3})*(?:\.\d+)?\s*(?:[%％]|[kmb]?\s*(?:tokens?\b|词元)))",
+    re.IGNORECASE,
+)
+
+
+def _quoted_values(*texts: str) -> set[str]:
+    return {
+        re.sub(r"[,\s]", "", match.group().lower())
+        .replace("％", "%")
+        .replace("词元", "token")
+        .removesuffix("s")
+        for text in texts
+        for match in _QUOTED_VALUES.finditer(text)
+    }
 
 
 class AnswerGenerator(Protocol):
@@ -14,6 +32,9 @@ class AnswerGenerator(Protocol):
         question: str,
         citations: list[ResearchCitation],
         language: Literal["zh", "en"],
+        *,
+        user_id: str | None = None,
+        context: dict | None = None,
     ) -> str: ...
 
 
@@ -22,6 +43,7 @@ class AnswerResult:
     summary: str
     answer_mode: Literal["extractive", "generated"]
     fallback_reason: str | None = None
+    statements: tuple[GeneratedAnswerStatement, ...] = ()
 
 
 class CitedAnswerService:
@@ -41,6 +63,9 @@ class CitedAnswerService:
         question: str,
         citations: list[ResearchCitation],
         language: Literal["zh", "en"],
+        *,
+        user_id: str | None = None,
+        context: dict | None = None,
     ) -> AnswerResult:
         extractive = self._extractive(citations, language)
         if not citations:
@@ -51,7 +76,9 @@ class CitedAnswerService:
             return AnswerResult(extractive, "extractive", "generation-unavailable")
 
         try:
-            raw = self.generator.generate(question, citations, language)
+            raw = self.generator.generate(
+                question, citations, language, user_id=user_id, context=context
+            )
             payload = GeneratedAnswerPayload.model_validate_json(raw)
             self._validate_citations(payload, citations)
         except (ValidationError, ValueError, TypeError):
@@ -60,15 +87,19 @@ class CitedAnswerService:
             return AnswerResult(extractive, "extractive", "generation-provider-error")
 
         if payload.refused:
-            refusal = payload.refusal_reason or (
+            refusal = (
                 "当前证据不足，无法生成可靠结论。"
                 if language == "zh"
                 else "The available evidence is insufficient for a reliable answer."
             )
-            return AnswerResult(refusal, "generated")
+            return AnswerResult(refusal, "extractive", "generation-insufficient-evidence")
         return AnswerResult(
-            payload.answer_zh if language == "zh" else payload.answer_en,
+            "\n\n".join(
+                statement.text_zh if language == "zh" else statement.text_en
+                for statement in payload.statements
+            ),
             "generated",
+            statements=tuple(payload.statements),
         )
 
     @staticmethod
@@ -76,15 +107,29 @@ class CitedAnswerService:
         payload: GeneratedAnswerPayload,
         citations: list[ResearchCitation],
     ) -> None:
-        evidence_by_claim = {item.claim.id: item.evidence for item in citations}
+        citations_by_claim = {item.claim.id: item for item in citations}
         if not payload.refused and not payload.statements:
             raise ValueError("A non-refusal answer must contain cited statements.")
         for statement in payload.statements:
+            supported_values: set[str] = set()
             for claim_id in statement.claim_ids:
-                if claim_id not in evidence_by_claim:
+                citation = citations_by_claim.get(claim_id)
+                if citation is None:
                     raise ValueError("Generated answer referenced an unknown claim.")
-                if not evidence_by_claim[claim_id]:
+                if not citation.evidence:
                     raise ValueError("Generated answer referenced a claim without evidence.")
+                claim = citation.claim
+                supported_values |= _quoted_values(
+                    claim.text.zh,
+                    claim.text.en,
+                    claim.object_or_value or "",
+                    claim.valid_from or "",
+                    claim.valid_to or "",
+                )
+            if _quoted_values(statement.text_zh, statement.text_en) - supported_values:
+                raise ValueError(
+                    "Generated answer used a numeric value absent from its cited claims."
+                )
 
     @staticmethod
     def _extractive(

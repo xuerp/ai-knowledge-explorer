@@ -158,8 +158,8 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
     expected = catalog_changes(seed)
     # Includes the now-confirmed Gemini 4 Argon release; the existing ID remains stable.
     # The unconfirmed Lite 0428 date stays in the catalog without a release card.
-    assert len(catalog_release_changes(seed)) == 202
-    assert len(expected) == 283
+    assert len(catalog_release_changes(seed)) == 206
+    assert len(expected) == 287
     with TestClient(create_app(settings)) as client:
         snapshot = client.get("/api/v2/snapshot").json()
         for key in (
@@ -176,7 +176,8 @@ def test_public_changes_match_all_confirmed_catalog_releases(tmp_path):
         assert snapshot["researchQuestions"]
         changes = snapshot["changes"]
         assert changes == [item.model_dump(mode="json", by_alias=True) for item in expected]
-        assert changes[0]["date"] == "2026-10-23"
+        assert changes[0]["date"] == "2026-11-16"
+        assert changes[0]["entityId"] == "e-hunyuan-hy4-flash"
         for change in changes:
             version = next(
                 item for item in snapshot["entities"] if item["id"] == change["entityId"]
@@ -568,7 +569,7 @@ def test_openai_api_lifecycles_preserve_releases_and_separate_gpt4o_snapshots():
                 availability = next(i.en for i in section.items if i.en.startswith("availability:"))
                 assert availability == "availability: " + entity.specs.availability
     assert entities["e-gpt-41-nano"].release.released_at == "2025-04-14"
-    assert len(catalog_release_changes(snapshot)) == 202
+    assert len(catalog_release_changes(snapshot)) == 206
     gpt4o = entities["e-gpt-4o"]
     assert gpt4o.release.stage == "deprecated"
     assert gpt4o.release.retirement_not_before == "2027-01-14"

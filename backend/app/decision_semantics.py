@@ -12,6 +12,7 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .decision_requirements import TaskRequirement, cloud_api_mislabeled_as_upload
 from .decision_time import deadline_from_quote
 
 
@@ -41,6 +42,7 @@ class TaskMeaning(BaseModel):
     items: list[SourceItem] = Field(min_length=1, max_length=32)
     # A genuine unresolved choice, not a request to repeat an explicit task.
     ambiguity: str | None = Field(max_length=300)
+    requirements: list[TaskRequirement] = Field(default_factory=list, max_length=16)
 
 
 class TaskMeaningReceipt(BaseModel):
@@ -66,6 +68,7 @@ class TaskProposal(BaseModel):
     route: str | None
     items: list[SourceItem] = Field(min_length=1, max_length=8)
     ambiguity: str | None = Field(max_length=300)
+    requirements: list[TaskRequirement] = Field(default_factory=list, max_length=16)
 
 
 class UnderstoodRoute(BaseModel):
@@ -97,6 +100,7 @@ class JointTaskProposal(BaseModel):
     source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     resolution: UnderstoodRoute | AmbiguousRoute | OutsideRoute
     items: list[SourceItem] = Field(min_length=1, max_length=8)
+    requirements: list[TaskRequirement] = Field(default_factory=list, max_length=16)
 
 
 def task_digest(task: str) -> str:
@@ -114,6 +118,8 @@ def validate_meaning(raw: str, task: str) -> TaskMeaning:
     meaning = TaskMeaning.model_validate_json(raw)
     if meaning.source_sha256 != task_digest(task):
         raise ValueError("Interpretation belongs to a different task.")
+    if any(item.quote not in task for item in meaning.requirements):
+        raise ValueError("A requirement must quote the original task exactly.")
     if meaning.scenario is not None and meaning.scenario not in {
         row["id"] for row in CATALOG["scenarios"]
     }:
@@ -176,7 +182,7 @@ def normalize_proposal(raw: str, task: str) -> tuple[str, list[str]]:
     """
     from .decision_clauses import clauses
     from .decision_intent import CATALOG
-    from .decision_task import understand_task
+    from .decision_task import FIRST_PARTY_API, MONTHLY_BUDGET_CEILING, understand_task
 
     if len(raw) > 20000:
         raise ValueError("Interpretation exceeds the response bound.")
@@ -201,6 +207,7 @@ def normalize_proposal(raw: str, task: str) -> tuple[str, list[str]]:
             "source_sha256": joint.source_sha256,
             **joint.resolution.model_dump(),
             "items": [item.model_dump() for item in joint.items],
+            "requirements": [item.model_dump() for item in joint.requirements],
         }
         events.append("joint-state-contract")
     if isinstance(envelope, dict) and envelope.get("version") == 2:
@@ -223,7 +230,7 @@ def normalize_proposal(raw: str, task: str) -> tuple[str, list[str]]:
         events.append("catalog-route-resolution")
     proposal = TaskMeaning.model_validate_json(raw)
     if proposal.source_sha256 != task_digest(task) or any(
-        item.quote not in task for item in proposal.items
+        item.quote not in task for item in [*proposal.items, *proposal.requirements]
     ):
         # Leave provenance failures to the strict validator. Do not guess text.
         return raw, []
@@ -269,7 +276,25 @@ def normalize_proposal(raw: str, task: str) -> tuple[str, list[str]]:
             events.append("explicit-source-constraint")
     # Preserve response limits; overflowing an interpretation is a failure,
     # never a reason to truncate the user's constraints.
-    normalized = proposal.model_copy(update={"items": items}).model_dump_json()
+    requirements = []
+    for item in proposal.requirements:
+        if cloud_api_mislabeled_as_upload(item):
+            events.append("cloud-api-is-not-an-upload-boundary")
+            continue
+        if item.dimension == "other":
+            quoted = item.quote.strip(" ，。,.")
+            monthly = MONTHLY_BUDGET_CEILING.fullmatch(quoted)
+            if FIRST_PARTY_API.fullmatch(quoted) or monthly and (monthly[1] or monthly[3]):
+                # Budget and API channel are evaluated by their own controls.
+                # Keep their source conditions, not a duplicate data gate.
+                if not any(part.quote == item.quote and part.role == "condition" for part in items):
+                    items.append(SourceItem(quote=item.quote, role="condition"))
+                events.append("pricing-or-channel-is-not-a-data-boundary")
+                continue
+        requirements.append(item)
+    normalized = proposal.model_copy(
+        update={"items": items, "requirements": requirements}
+    ).model_dump_json()
     return normalized, list(dict.fromkeys(events))
 
 
@@ -323,6 +348,16 @@ class TaskMeaningService:
                 "A task can be understood even when its route is null: this means catalog "
                 "coverage is missing, not that the user needs to explain the goal again. "
                 "Do not recommend suppliers, assert capabilities, prices, measured results or relax conditions."
+                " Extract data-boundary requirements separately: cross-border prohibition is not offline "
+                "deployment; private deployment does not prove residency. Use dimension cross-border, "
+                "operator forbid, value transfer, scope all-processing for no overseas transfers. "
+                "Use processing-region/data-residency equals CN only when explicitly required. "
+                "For no uploads use upload/forbid/outside-boundary and leave scope unspecified unless "
+                "the user names local-device or organization. A ban on cloud API calls is not an upload "
+                "boundary. An explicitly air-gapped workstation is network/forbid/external-network/"
+                "local-device. Report budgets, prices and provider interfaces as source conditions, "
+                "not as data-handling requirements. Quote each requirement verbatim; distinguish "
+                "hard requirements from preferences. Do not invent data constraints from a privacy preference."
             ),
             "task": task,
             "source_sha256": task_digest(task),
@@ -335,7 +370,8 @@ class TaskMeaningService:
             ],
         }
         try:
-            raw = self.interpreter.interpret(request)
+            scoped = getattr(self.interpreter, "interpret_for_user", None)
+            raw = scoped(request, owner_id) if scoped else self.interpreter.interpret(request)
         except Exception:  # noqa: BLE001 -- provider failures must not leak private inputs or credentials
             return TaskMeaningReceipt(status="failed")
         try:

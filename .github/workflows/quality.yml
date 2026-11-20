@@ -236,11 +236,16 @@ jobs:
         with:
           name: cloudflare-staging-${{ github.sha }}
           path: .output
-      - name: Deploy verified commit to Cloudflare Workers
-        run: npx --no-install wrangler deploy --config .output/server/wrangler.staging.json
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - name: Deploy verified commit to Render
         run: node scripts/deploy-render-staging.mjs
         env:
           RENDER_STAGING_DEPLOY_HOOK: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}
+      - name: Wait for the migrated Render API
+        run: node scripts/wait-staging-release.mjs --backend-only
+        env:
+          AI_RADAR_EXPECTED_COMMIT: ${{ github.sha }}
+          AI_RADAR_STAGING_READY_URL: https://ai-radar-api-staging.onrender.com/ready
+      - name: Deploy verified commit to Cloudflare Workers
+        run: npx --no-install wrangler deploy --config .output/server/wrangler.staging.json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

@@ -186,7 +186,9 @@ def build_plan(
     active = [row for row in rows if row.eligibility != "excluded"]
     user_tools = tool_context(context, snapshot.entities if snapshot else ())
     reuse_workspace = result.scenario.id == "knowledge-workspace" and user_tools.reuse
-    source_plan = bool(ordered_task_stages(context) or parallel_task_deliverables(context))
+    stages = ordered_task_stages(context)
+    deliverables = parallel_task_deliverables(context)
+    source_plan = bool(stages or deliverables)
     features = set(result.scenario.required_features)
     qualified = [
         row.entity_id
@@ -454,9 +456,12 @@ def build_plan(
                 claims=row.claim_ids,
             )
     trial = None
-    protocol = PROTOCOLS.get(
-        "knowledge-assistant" if result.scenario.id == "knowledge-workspace" else result.scenario.id
-    )
+    protocol_scenario = result.scenario.id
+    if protocol_scenario == "knowledge-workspace":
+        protocol_scenario = "knowledge-assistant"
+    elif protocol_scenario == "unspecified" and source_plan:
+        protocol_scenario = "general-text"
+    protocol = PROTOCOLS.get(protocol_scenario)
     if (active or reuse_workspace or source_plan or user_tools.reuse) and protocol:
         sample, procedure, check, metrics, acceptance = [pair[index] for pair in protocol]
         task = understand_context(context)
@@ -534,6 +539,16 @@ def build_plan(
                 "This trial selects an answering model. Fix retrieved excerpts and sources before comparing generation; verify retrieval recall, citations and permissions separately. If built-in retrieval is required, explicitly add that requirement and reanalyze.",
             )
         workflow = task_workflow(context.task, context_meaning(context))
+        if (
+            protocol_scenario == "general-text"
+            and user_tools.reuse
+            and not workflow
+            and not source_plan
+        ):
+            procedure = t(
+                f"先用一份获准材料在现有工具里试做：{context.task.strip()}",
+                f"Try this in your existing tool with one permitted input: {context.task.strip()}",
+            )
         if workflow and workflow["scenario"]:
             sample = (
                 t("按原题限定的材料与样本执行：", "Use the requested materials and sample: ")
@@ -649,8 +664,8 @@ def build_plan(
         trial = DecisionTrial(
             sample=sample, procedure=[procedure, check], metrics=metric_rows, acceptance=accept_rows
         )
-        trial = retain_ordered_trial(trial, ordered_task_stages(context), language)
-        trial = retain_parallel_trial(trial, parallel_task_deliverables(context), language)
+        trial = retain_ordered_trial(trial, stages, language)
+        trial = retain_parallel_trial(trial, deliverables, language)
         if qualified:
             add(
                 "business-trial",

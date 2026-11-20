@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 from .decision_facts import fact_values, normalized_facts
 from .decision_licenses import commercial_status, service_billing_mismatch
+from .decision_requirements import requirement_checks
 from .decision_task import understand_task
 from .schemas import Claim, DecisionContext, Entity, KnowledgeSnapshot
 
@@ -80,6 +81,15 @@ def current_claims(claims: list[Claim], snapshot: KnowledgeSnapshot) -> list[Cla
         and claim.confidence == "verified"
         and claim.source_ids
         and all(source_id in sources for source_id in claim.source_ids)
+        and (
+            claim.predicate != "data-handling"
+            or all(
+                sources[source_id].type == "official"
+                and bool(sources[source_id].source_excerpt)
+                and bool(sources[source_id].verified_at)
+                for source_id in claim.source_ids
+            )
+        )
         and (
             claim.predicate != "api_price"
             or claim.valid_from
@@ -295,6 +305,13 @@ def context_values(claims: list[Claim], *, official_specs: bool = False) -> list
 
 def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionContext) -> list[str]:
     failures = []
+    for check in requirement_checks(context, claims):
+        if check["requirement"]["strength"] != "hard":
+            continue
+        if check["state"] == "unsatisfied":
+            failures.append("data-boundary-violated")
+        elif check["state"] == "unknown":
+            failures.append("data-boundary-unverified")
     if service_billing_mismatch(context):
         failures.append("billing-channel-mismatch")
     if context.workflow_version == 2 and entity.type == "model" and not entity.family_id:
@@ -380,12 +397,13 @@ def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionCo
         )
     ):
         failures.append("unavailable-version")
-    offline_required = understand_task(context.task).offline or any(
+    original_task = context._original_task or context.task
+    offline_required = understand_task(original_task).offline or any(
         re.search(
             r"(?:必须|要求).{0,8}离线|完全离线运行|fully offline|air.gapped", clause, re.IGNORECASE
         )
         and not re.search(r"不要求|不需要|无需|不用|not required|no need", clause, re.IGNORECASE)
-        for clause in re.split(r"[，,。；;.!]", context.task)
+        for clause in re.split(r"[，,。；;.!]", original_task)
     )
     offline_verified = any(
         claim.predicate == "deployment" and claim.object_or_value == "fully-offline"

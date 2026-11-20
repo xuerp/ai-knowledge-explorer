@@ -85,7 +85,8 @@ const FAMILY_READING_CONTEXT: Record<
 
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
-    const snapshot = await knowledgeRepository.getSnapshot();
+    const snapshot = await knowledgeRepository.getEntityPage("model", params.slug);
+    if (!snapshot) throw notFound();
     const entity =
       snapshot.entities.find((item) => item.type === "model" && item.slug === params.slug) ?? null;
     if (!entity) throw notFound();

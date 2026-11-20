@@ -183,6 +183,10 @@ class BudgetedTaskInterpreter:
 def configured_task_interpreter(settings, database):
     if not settings.decision_interpretation_enabled:
         return None
+    if settings.interpretation_generation is not None:
+        from .generation_runtime import BudgetedMeaningInterpreter
+
+        return BudgetedMeaningInterpreter(database, settings.interpretation_generation)
     adapter = ChatTaskInterpreter(
         endpoint=settings.decision_interpretation_api_url,
         api_key=settings.decision_interpretation_api_key,

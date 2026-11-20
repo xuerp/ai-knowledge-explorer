@@ -17,7 +17,22 @@ class ReportsServices:
     def visible_research(self, result: ResearchView, role: str | None = None) -> ResearchView:
         if role == "admin":
             return result
-        return result.model_copy(update={"retrieval_diagnostics": RetrievalDiagnostics()})
+        generation_fallback = result.retrieval_diagnostics.generation_fallback_reason
+        return result.model_copy(
+            update={
+                "retrieval_diagnostics": RetrievalDiagnostics(
+                    generation_fallback_reason=generation_fallback
+                    if generation_fallback
+                    in {
+                        "generation-invalid",
+                        "generation-provider-error",
+                        "generation-unavailable",
+                        "generation-insufficient-evidence",
+                    }
+                    else None,
+                ),
+            }
+        )
 
     def export_report_response(
         self, result: ResearchView, session: Session, file_format: str, language: str
@@ -44,6 +59,10 @@ class ReportsServices:
     ) -> PublishedResearchView:
         snapshot = self.get_public_snapshot(session)
         result = revalidate_research(result, snapshot)
+        if result.decision_context:
+            result.decision_context = result.decision_context.model_copy(
+                update={"notes": None, "task_meaning": None, "parent_research_id": None}
+            )
         citations_by_id = {item.claim.id: item for item in grounded_retrieval_citations(snapshot)}
         citations = [
             citations_by_id[claim_id]

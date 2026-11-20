@@ -53,6 +53,25 @@ export function categoryForEntity(type: EntityType): KnowledgeCategory {
         : "ecosystem";
 }
 
+export function knowledgeKeywordMatches(entity: Entity, keyword: string, description: string) {
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[-_\s]+/g, " ")
+      .trim();
+  const query = normalize(keyword);
+  if (!query) return !entity.familyId;
+  const names = [
+    entity.name.zh,
+    entity.name.en,
+    entity.slug,
+    ...(entity.aliases ?? []),
+    ...(entity.release?.apiModelIds ?? []),
+  ];
+  if (!entity.familyId) names.push(description);
+  return names.some((value) => normalize(value).includes(query));
+}
+
 /** Browse by primary purpose; Agent, IDE and CLI remain descriptive tags. */
 export function knowledgePurpose(
   entity: Entity,

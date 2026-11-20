@@ -268,7 +268,7 @@
     {
       "id": "general-text",
       "intentPatterns": [
-        "起草|改写|润色|撰写|写(?:一篇|个|一封)?(?:文章|报告|邮件|总结)|\\bdraft\\b|\\brewrite\\b|customer replies|摘要|总结|summariz"
+        "起草|改写|润色|撰写|写(?:一篇|个|一封)?(?:文章|报告|邮件|总结)|(?:邮件|报告|周报|文章)(?:的)?初稿|\\bdraft\\b|\\brewrite\\b|customer replies|摘要|总结|summariz"
       ],
       "name": {
         "zh": "文本生成与对话",

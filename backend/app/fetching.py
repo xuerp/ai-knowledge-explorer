@@ -68,20 +68,33 @@ class _TextExtractor(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
         self.ignored_depth = 0
+        self.links: list[tuple[str, str]] = []
+        self.current_link: str | None = None
+        self.link_label: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "a" and not self.ignored_depth and len(self.links) < 1500:
+            self.current_link = dict(attrs).get("href")
+            self.link_label = []
         if tag in {"script", "style", "noscript", "svg"}:
             self.ignored_depth += 1
         elif tag in {"p", "div", "article", "section", "li", "br", "h1", "h2", "h3"}:
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
+        if tag == "a" and self.current_link:
+            label = " ".join(" ".join(self.link_label).split())[:120]
+            if label:
+                self.links.append((self.current_link, label))
+            self.current_link = None
         if tag in {"script", "style", "noscript", "svg"} and self.ignored_depth:
             self.ignored_depth -= 1
 
     def handle_data(self, data: str) -> None:
         if not self.ignored_depth:
             self.parts.append(data)
+            if self.current_link and len(self.link_label) < 20:
+                self.link_label.append(data[:120])
 
     def text(self) -> str:
         lines = (" ".join(part.split()) for part in "".join(self.parts).splitlines())
@@ -96,6 +109,7 @@ class FetchedDocument:
     last_modified: str | None
     not_modified: bool = False
     final_url: str | None = None
+    links: tuple[tuple[str, str], ...] = ()
 
 
 def _default_resolver(host: str) -> Iterable[str]:
@@ -235,5 +249,6 @@ class SafeHttpFetcher:
                         etag=response.headers.get("etag"),
                         last_modified=response.headers.get("last-modified"),
                         final_url=current_url,
+                        links=tuple(parser.links) if content_type == "text/html" else (),
                     )
             raise FetchPolicyError("Source URL exceeded the safe redirect limit.")

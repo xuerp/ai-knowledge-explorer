@@ -9,6 +9,7 @@ from pydantic import (
     EmailStr,
     Field,
     HttpUrl,
+    PrivateAttr,
     field_validator,
     model_validator,
 )
@@ -1019,6 +1020,7 @@ class DecisionIntentAnswer(CamelModel):
 
 
 class DecisionContext(CamelModel):
+    _original_task: str | None = PrivateAttr(default=None)
     task_meaning: TaskMeaningReceipt | None = None
     workflow_version: Literal[1, 2] = 1
     minimum_context_tokens: int | None = Field(default=None, ge=1, le=100_000_000, strict=True)

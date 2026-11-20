@@ -112,3 +112,26 @@ test("staging release gate fails when either deployment stays stale", async () =
     /staging 未在等待窗口内运行预期提交/,
   );
 });
+
+test("backend gate waits for the target ready response before the frontend is deployed", async () => {
+  const apiReadyUrl = new URL("https://api.example/ready");
+  const replies = [
+    new Response(JSON.stringify({ ok: true, buildCommit: "f".repeat(40) })),
+    new Response(JSON.stringify({ ok: false, buildCommit: expectedCommit }), { status: 503 }),
+    new Response(JSON.stringify({ ok: true, buildCommit: expectedCommit })),
+  ];
+  const result = await waitForStagingRelease({
+    expectedCommit,
+    apiReadyUrl,
+    fetchImpl: async (url) => {
+      assert.equal(url.href, apiReadyUrl.href);
+      return replies.shift();
+    },
+    maxAttempts: 3,
+    intervalMs: 0,
+    sleep: async () => {},
+  });
+  assert.equal(result.backendCommit, expectedCommit);
+  assert.equal(result.frontendCommit, null);
+  assert.equal(replies.length, 0);
+});

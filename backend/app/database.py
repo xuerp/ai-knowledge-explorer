@@ -491,6 +491,44 @@ class DecisionInterpretationBudgetRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class CatalogRevisionRecord(Base):
+    __tablename__ = "catalog_revision"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class ModelBudgetRecord(Base):
+    __tablename__ = "model_budgets"
+    __table_args__ = (
+        CheckConstraint(
+            "charged_units >= 0 AND charged_units <= limit_units", name="ck_model_budget_amount"
+        ),
+    )
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    profile_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    limit_units: Mapped[int] = mapped_column(Integer, nullable=False)
+    charged_units: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    used_calls: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    blocked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    active_attempt_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+
+
+class ModelCallRecord(Base):
+    __tablename__ = "model_calls"
+    __table_args__ = (Index("ix_model_calls_account_day", "budget_id", "user_id", "created_at"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    budget_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("model_budgets.id"), nullable=False
+    )
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    purpose: Mapped[str] = mapped_column(String(32), nullable=False)
+    reserved_units: Mapped[int] = mapped_column(Integer, nullable=False)
+    charged_units: Mapped[int] = mapped_column(Integer, nullable=False)
+    state: Mapped[str] = mapped_column(String(32), nullable=False)
+    receipt_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class WorkerStatusRecord(Base):
     __tablename__ = "worker_status"
 
@@ -530,6 +568,11 @@ class Database:
 
     def create_all(self) -> None:
         Base.metadata.create_all(self.engine)
+        if self.engine.dialect.name == "sqlite":
+            from .catalog_revision import install_revision_triggers
+
+            with self.engine.begin() as connection:
+                install_revision_triggers(connection)
 
     def session(self) -> Session:
         return self.session_factory()

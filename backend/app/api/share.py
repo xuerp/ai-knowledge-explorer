@@ -3,6 +3,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Query, status
 from fastapi.responses import PlainTextResponse
 
+from ..research_report import build_report, report_markdown
 from ..schemas import (
     PublishedResearchView,
 )
@@ -49,9 +50,7 @@ def public_research_markdown(
             detail="Published research not found.",
         )
     published = services.published_research_view(result, session)
-    citations = "\n".join(
-        f"- `{item.claim.id}` — "
-        + ", ".join(f"[{source.publisher}]({source.url})" for source in item.evidence)
-        for item in published.citations
-    )
-    return f"# {result.question}\n\n{result.summary}\n\n## Sources\n\n{citations}\n"
+    report = report_markdown(build_report(published, services.get_public_snapshot(session), "zh"))
+    # Keep citation IDs for older download callers.
+    references = "\n".join(f"- `{item.claim.id}`" for item in published.citations)
+    return report + ("\n## 引用标识\n\n" + references + "\n" if references else "")

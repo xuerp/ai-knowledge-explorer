@@ -23,6 +23,7 @@ class ChatTaskInterpreter:
         max_calls: int,
         response_timeout_seconds: int = 30,
         reasoning_effort: str = "low",
+        max_output_tokens: int = 4096,
         transport=None,
     ):
         parsed = urlsplit(endpoint)
@@ -43,6 +44,7 @@ class ChatTaskInterpreter:
         self.response_timeout_seconds = response_timeout_seconds
         self.endpoint, self.api_key, self.model = endpoint, api_key, model
         self.max_calls = max_calls
+        self.max_output_tokens = max_output_tokens
         self.calls = 0
         self.total_tokens = 0
         self.blocked = False
@@ -58,7 +60,7 @@ class ChatTaskInterpreter:
             self.calls += 1
         # Increment before sending, including failures, to prevent retry loops.
         started = monotonic()
-        self.last_exchange = {"call": self.calls}
+        self.last_exchange = {"call": self.calls, "requestedOutputTokens": self.max_output_tokens}
         self.last_content = None
         try:
             with httpx.Client(
@@ -86,7 +88,7 @@ class ChatTaskInterpreter:
                                 ),
                             },
                         ],
-                        "max_completion_tokens": 4096,
+                        "max_completion_tokens": self.max_output_tokens,
                         "reasoning_effort": self.reasoning_effort,
                         "response_format": {
                             "type": "json_schema",

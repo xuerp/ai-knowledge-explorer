@@ -2,7 +2,7 @@
   "meta": {
     "mode": "demo",
     "freshness": "fresh",
-    "retrievedAt": "2026-11-04T00:00:00Z",
+    "retrievedAt": "2026-11-20T00:00:00Z",
     "message": {
       "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
       "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
@@ -1017,9 +1017,9 @@
       },
       "status": "active",
       "tags": ["LLM", "闭源", "多模态", "长上下文"],
-      "latestVersion": "4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite",
+      "latestVersion": "4 Carbon · 4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite",
       "firstReleasedAt": "2023-12-06",
-      "lastUpdatedAt": "2026-10-29",
+      "lastUpdatedAt": "2026-11-20",
       "capabilities": [
         { "zh": "超长上下文分析", "en": "Ultra-long context analysis", "confidence": "verified" },
         {
@@ -2017,14 +2017,14 @@
       "vendor": "Moonshot AI",
       "origin": { "zh": "中国", "en": "China" },
       "summary": {
-        "zh": "Kimi 以 K 系列通用旗舰持续迭代，保留 K2、K2 Thinking、K2.5、K2.6 至 K3 的历史；Kimi Code 使用独立代码入口和型号。",
-        "en": "Kimi continuously evolves its K-series general flagship from K2 through K3; Kimi Code uses distinct coding endpoints and model identities."
+        "zh": "Kimi 的通用旗舰包含 K3.1 Pro 及 K2 至 K3 的历史版本。Kimi Code 使用独立代码入口和型号。",
+        "en": "Kimi's general-purpose flagship line includes K3.1 Pro and the earlier K2 through K3 releases. Kimi Code uses separate endpoints and model IDs."
       },
       "status": "active",
       "tags": ["LLM", "长上下文", "阅读"],
-      "latestVersion": "Kimi K3 · K2.7 Code · K2.6",
+      "latestVersion": "Kimi K3.1 Pro · K3 · K2.7 Code · K2.6",
       "firstReleasedAt": "2023-10-09",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-11-20",
       "capabilities": [
         { "zh": "长程软件开发", "en": "Long-horizon development", "confidence": "inferred" },
         {
@@ -2069,10 +2069,10 @@
           {
             "title": { "zh": "当前目录主线", "en": "Current catalog lines" },
             "description": {
-              "zh": "Kimi K3 · K2.7 Code · K2.6",
-              "en": "Kimi K3 · K2.7 Code · K2.6"
+              "zh": "通用旗舰包含 K3.1 Pro 与 K3。Kimi Code 的型号仍按独立入口核对。",
+              "en": "The general flagship line includes K3.1 Pro and K3. Check Kimi Code model IDs through its separate endpoint."
             },
-            "sourceIds": ["s-kimi-catalog-20261001"]
+            "sourceIds": ["s-kimi-k3-1-pro-api", "s-kimi-catalog-20261001"]
           }
         ],
         "useCases": [
@@ -7477,16 +7477,16 @@
       "slug": "hunyuan",
       "name": { "zh": "腾讯混元", "en": "Tencent Hunyuan" },
       "summary": {
-        "zh": "腾讯混元模型家族：分别记录Hy3 preview、Hy3正式版、Hy4 preview，以及A13B-Instruct历史权重；阶段、许可和入口按版本核对。",
-        "en": "Tencent Hunyuan family: separate Hy3 preview, Hy3 stable, Hy4 preview and historical A13B-Instruct weights, with stages, licensing and access checked per version."
+        "zh": "腾讯混元家族包含 Hy4 正式版、Hy4 flash、Hy4 preview、Hy3 及历史 A13B-Instruct 权重。阶段、许可和使用入口按版本核对。",
+        "en": "Tencent Hunyuan includes Hy4, Hy4 flash, Hy4 preview, Hy3 and historical A13B-Instruct weights. Release status, licensing and access are tracked per version."
       },
       "vendor": "Tencent",
       "origin": { "zh": "国内", "en": "Domestic" },
       "status": "active",
       "tags": ["LLM", "开源", "上下文", "代码"],
-      "latestVersion": "Hy4 preview（本轮核验）",
+      "latestVersion": "Hy4 · Hy4 flash · Hy4 preview",
       "firstReleasedAt": null,
-      "lastUpdatedAt": "2026-10-08",
+      "lastUpdatedAt": "2026-11-20",
       "aliases": ["混元", "Hunyuan", "Hy3", "Hy4"],
       "familyId": null,
       "release": null,
@@ -7496,8 +7496,8 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "腾讯混元模型家族：分别记录Hy3 preview、Hy3正式版、Hy4 preview，以及A13B-Instruct历史权重；阶段、许可和入口按版本核对。",
-            "en": "Tencent Hunyuan family: separate Hy3 preview, Hy3 stable, Hy4 preview and historical A13B-Instruct weights, with stages, licensing and access checked per version."
+            "zh": "具体型号包括 Hy4 正式版、Hy4 flash、Hy4 preview、Hy3 和历史 A13B-Instruct 权重，部署与许可须按型号和入口核对。",
+            "en": "Versions include Hy4, Hy4 flash, Hy4 preview, Hy3 and historical A13B-Instruct weights. Deployment and license conditions depend on the specific model and access channel."
           }
         ],
         "significance": {
@@ -10976,6 +10976,386 @@
           }
         ]
       }
+    },
+    {
+      "id": "e-gemini-4-carbon",
+      "type": "model",
+      "slug": "gemini-4-carbon",
+      "name": { "zh": "Gemini 4 Carbon", "en": "Gemini 4 Carbon" },
+      "summary": {
+        "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
+        "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+      },
+      "vendor": "Google",
+      "origin": { "zh": "美国", "en": "United States" },
+      "status": "active",
+      "tags": ["具体版本", "Gemini 4 通用前沿"],
+      "firstReleasedAt": "2026-11-10",
+      "lastUpdatedAt": "2026-11-20",
+      "aliases": ["gemini-4-carbon"],
+      "familyId": "e-gemini",
+      "release": {
+        "generation": "Gemini 4",
+        "variant": "Gemini 4 Carbon",
+        "releaseId": "gemini-4-carbon",
+        "apiModelIds": ["gemini-4-carbon"],
+        "stage": "stable",
+        "productLine": {
+          "id": "gemini-4-frontier",
+          "name": { "zh": "Gemini 4 通用前沿", "en": "Gemini 4 frontier" },
+          "positioning": { "zh": "Gemini 4 通用前沿", "en": "Gemini 4 frontier" }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-10",
+        "lastVerifiedAt": "2026-11-20",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Google",
+            "modelId": "gemini-4-carbon",
+            "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+          }
+        ]
+      },
+      "capabilities": [
+        {
+          "zh": "官方模型卡列出文本、图像、音频与视频输入，输入输出合计上下文最高为 1M tokens。",
+          "en": "The model card lists text, image, audio and video inputs and up to 1M combined input-output tokens.",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
+            "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+          }
+        ],
+        "significance": { "zh": "官方发布与入口", "en": "Official launch and access" },
+        "keyPoints": [
+          {
+            "title": { "zh": "型号与可用入口", "en": "Identity and availability" },
+            "description": {
+              "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
+              "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+            },
+            "sourceIds": ["s-gemini-4-carbon-release", "s-gemini-4-carbon-api"]
+          },
+          {
+            "title": { "zh": "输入和上下文", "en": "Inputs and context" },
+            "description": {
+              "zh": "官方模型卡列出文本、图像、音频与视频输入，输入输出合计上下文最高为 1M tokens。",
+              "en": "The model card lists text, image, audio and video inputs and up to 1M combined input-output tokens."
+            },
+            "sourceIds": ["s-gemini-4-carbon-model-card"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "公开资料分析", "en": "Public document analysis" },
+            "description": {
+              "zh": "使用公开资料试跑总结与结构化输出，并逐项核对出处。",
+              "en": "Try summarization and structured output on public documents and check every source."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "实际使用前请核对账号权限、地区和计费条件。",
+            "en": "Check account access, region and billing terms before use."
+          }
+        ],
+        "officialUrl": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/"
+      },
+      "specs": { "availability": "Gemini API paid tier / Google Cloud" },
+      "metrics": []
+    },
+    {
+      "id": "e-kimi-k3-1-pro",
+      "type": "model",
+      "slug": "kimi-k3-1-pro",
+      "name": { "zh": "Kimi K3.1 Pro", "en": "Kimi K3.1 Pro" },
+      "summary": {
+        "zh": "Kimi K3.1 Pro 是公开权重的多模态版本，可从 Moonshot 官方平台调用。",
+        "en": "Kimi K3.1 Pro is an open-weight multimodal model available on the Moonshot API."
+      },
+      "vendor": "Moonshot AI",
+      "origin": { "zh": "中国", "en": "China" },
+      "status": "active",
+      "tags": ["具体版本", "Kimi K 通用旗舰"],
+      "firstReleasedAt": "2026-10-24",
+      "lastUpdatedAt": "2026-11-20",
+      "aliases": ["kimi-k3.1-pro"],
+      "familyId": "e-kimi",
+      "release": {
+        "generation": "Kimi K3.1",
+        "variant": "Kimi K3.1 Pro",
+        "releaseId": "kimi-k3.1-pro",
+        "apiModelIds": ["kimi-k3.1-pro"],
+        "stage": "stable",
+        "productLine": {
+          "id": "kimi-flagship",
+          "name": { "zh": "Kimi K 通用旗舰", "en": "Kimi K general flagship" },
+          "positioning": {
+            "zh": "通用推理、多模态与长时程 Agent 的连续迭代",
+            "en": "Continuous iterations in reasoning, multimodality and long-horizon agents"
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-10-24",
+        "lastVerifiedAt": "2026-11-20",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Moonshot AI",
+            "modelId": "kimi-k3.1-pro",
+            "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro"
+          }
+        ]
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "Kimi K3.1 Pro 是公开权重的多模态版本，可从 Moonshot 官方平台调用。",
+            "en": "Kimi K3.1 Pro is an open-weight multimodal model available on the Moonshot API."
+          }
+        ],
+        "significance": { "zh": "官方发布与入口", "en": "Official launch and access" },
+        "keyPoints": [
+          {
+            "title": { "zh": "型号与可用入口", "en": "Identity and availability" },
+            "description": {
+              "zh": "Kimi K3.1 Pro 是公开权重的多模态版本，可从 Moonshot 官方平台调用。",
+              "en": "Kimi K3.1 Pro is an open-weight multimodal model available on the Moonshot API."
+            },
+            "sourceIds": ["s-kimi-k3-1-pro-release", "s-kimi-k3-1-pro-api"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "多模态材料分析", "en": "Multimodal material analysis" },
+            "description": {
+              "zh": "用公开图片和文本先验证输出格式与事实准确性。",
+              "en": "Check output format and accuracy on public images and text."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "实际使用前请核对账号权限、地区和计费条件。",
+            "en": "Check account access, region and billing terms before use."
+          }
+        ],
+        "officialUrl": "https://www.kimi.ai/blog/kimi-k3-1-pro"
+      },
+      "specs": { "availability": "Moonshot AI API" },
+      "metrics": []
+    },
+    {
+      "id": "e-hunyuan-hy4",
+      "type": "model",
+      "slug": "hunyuan-hy4",
+      "name": { "zh": "混元 Hy4", "en": "Tencent Hy4" },
+      "summary": {
+        "zh": "混元 Hy4 正式版可通过腾讯云 TokenHub 调用，官方文档列出其视觉理解能力。",
+        "en": "Hy4 is available on Tencent Cloud TokenHub with documented visual understanding."
+      },
+      "vendor": "Tencent",
+      "origin": { "zh": "中国", "en": "China" },
+      "status": "active",
+      "tags": ["具体版本", "混元通用旗舰"],
+      "firstReleasedAt": "2026-11-04",
+      "lastUpdatedAt": "2026-11-20",
+      "aliases": ["hy4"],
+      "familyId": "e-hunyuan",
+      "release": {
+        "generation": "Hy4",
+        "variant": "混元 Hy4",
+        "releaseId": "hy4",
+        "apiModelIds": ["hy4"],
+        "stage": "stable",
+        "productLine": {
+          "id": "hunyuan-flagship",
+          "name": { "zh": "混元通用旗舰", "en": "Hunyuan flagship" },
+          "positioning": { "zh": "混元通用旗舰", "en": "Hunyuan flagship" }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-04",
+        "lastVerifiedAt": "2026-11-20",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Tencent",
+            "modelId": "hy4",
+            "url": "https://cloud.tencent.com/document/product/1823/132252"
+          }
+        ]
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "混元 Hy4 正式版可通过腾讯云 TokenHub 调用，官方文档列出其视觉理解能力。",
+            "en": "Hy4 is available on Tencent Cloud TokenHub with documented visual understanding."
+          }
+        ],
+        "significance": { "zh": "官方发布与入口", "en": "Official launch and access" },
+        "keyPoints": [
+          {
+            "title": { "zh": "型号与可用入口", "en": "Identity and availability" },
+            "description": {
+              "zh": "混元 Hy4 正式版可通过腾讯云 TokenHub 调用，官方文档列出其视觉理解能力。",
+              "en": "Hy4 is available on Tencent Cloud TokenHub with documented visual understanding."
+            },
+            "sourceIds": ["s-hunyuan-hy4-release", "s-hunyuan-hy4-api"]
+          },
+          {
+            "title": {
+              "zh": "TokenHub 上下文与请求上限",
+              "en": "TokenHub context and request limits"
+            },
+            "description": {
+              "zh": "TokenHub 列出 1M token 上下文，单次输入最大 960k token，单次输出最大 64k token。",
+              "en": "TokenHub lists a 1M-token context window, 960k-token maximum input and 64k-token maximum output."
+            },
+            "sourceIds": ["s-tokenhub-hy4-model-list-20261117"]
+          },
+          {
+            "title": {
+              "zh": "结构化输出与工具调用",
+              "en": "Structured outputs and function calling"
+            },
+            "description": {
+              "zh": "TokenHub 模型表将结构化输出和 Function Calling 列为 Hy4 的能力。",
+              "en": "The TokenHub model list documents structured outputs and function calling for Hy4."
+            },
+            "sourceIds": ["s-tokenhub-hy4-model-list-20261117"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "视觉材料理解", "en": "Visual material understanding" },
+            "description": {
+              "zh": "用允许使用的图片试跑理解任务，抽查结论与原图是否一致。",
+              "en": "Use authorized images and verify the result against the original."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "实际使用前请核对账号权限、地区和计费条件。",
+            "en": "Check account access, region and billing terms before use."
+          }
+        ],
+        "officialUrl": "https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/"
+      },
+      "specs": {
+        "contextWindow": "1M tokens (Tencent Cloud TokenHub)",
+        "availability": "Tencent Cloud TokenHub"
+      },
+      "metrics": []
+    },
+    {
+      "id": "e-hunyuan-hy4-flash",
+      "type": "model",
+      "slug": "hunyuan-hy4-flash",
+      "name": { "zh": "混元 Hy4 flash", "en": "Tencent Hy4 flash" },
+      "summary": {
+        "zh": "混元 Hy4 flash 是腾讯面向高频办公任务发布的轻量版本，独立于 Hy4 正式版。",
+        "en": "Hy4 flash is Tencent's separate lighter release for everyday high-volume tasks."
+      },
+      "vendor": "Tencent",
+      "origin": { "zh": "中国", "en": "China" },
+      "status": "active",
+      "tags": ["具体版本", "混元轻量系列"],
+      "firstReleasedAt": "2026-11-16",
+      "lastUpdatedAt": "2026-11-20",
+      "aliases": ["hy4-flash"],
+      "familyId": "e-hunyuan",
+      "release": {
+        "generation": "Hy4",
+        "variant": "混元 Hy4 flash",
+        "releaseId": "hy4-flash",
+        "apiModelIds": ["hy4-flash"],
+        "stage": "stable",
+        "productLine": {
+          "id": "hunyuan-flash",
+          "name": { "zh": "混元轻量系列", "en": "Hunyuan Flash" },
+          "positioning": { "zh": "混元轻量系列", "en": "Hunyuan Flash" }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-16",
+        "lastVerifiedAt": "2026-11-20",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Tencent",
+            "modelId": "hy4-flash",
+            "url": "https://cloud.tencent.com/document/product/1823/132252"
+          }
+        ]
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "混元 Hy4 flash 是腾讯面向高频办公任务发布的轻量版本，独立于 Hy4 正式版。",
+            "en": "Hy4 flash is Tencent's separate lighter release for everyday high-volume tasks."
+          }
+        ],
+        "significance": { "zh": "官方发布与入口", "en": "Official launch and access" },
+        "keyPoints": [
+          {
+            "title": { "zh": "型号与可用入口", "en": "Identity and availability" },
+            "description": {
+              "zh": "混元 Hy4 flash 是腾讯面向高频办公任务发布的轻量版本，独立于 Hy4 正式版。",
+              "en": "Hy4 flash is Tencent's separate lighter release for everyday high-volume tasks."
+            },
+            "sourceIds": ["s-hunyuan-hy4-flash-release", "s-hunyuan-hy4-flash-api"]
+          },
+          {
+            "title": {
+              "zh": "TokenHub 上下文与请求上限",
+              "en": "TokenHub context and request limits"
+            },
+            "description": {
+              "zh": "TokenHub 列出 1M token 上下文，单次输入最大 960k token，单次输出最大 64k token。",
+              "en": "TokenHub lists a 1M-token context window, 960k-token maximum input and 64k-token maximum output."
+            },
+            "sourceIds": ["s-tokenhub-hy4-model-list-20261117"]
+          },
+          {
+            "title": {
+              "zh": "结构化输出与图片理解",
+              "en": "Structured outputs and image understanding"
+            },
+            "description": {
+              "zh": "TokenHub 模型表将结构化输出、Function Calling 和图片理解列为 Hy4 flash 的能力。",
+              "en": "TokenHub documents structured outputs, function calling and image understanding for Hy4 flash."
+            },
+            "sourceIds": ["s-tokenhub-hy4-model-list-20261117"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "高频办公任务", "en": "Routine workplace tasks" },
+            "description": {
+              "zh": "用少量公开文本试跑摘要，记录实际速度和费用。",
+              "en": "Trial a small batch of public texts and record measured speed and cost."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "实际使用前请核对账号权限、地区和计费条件。",
+            "en": "Check account access, region and billing terms before use."
+          }
+        ],
+        "officialUrl": "https://www.tencent.com/zh-cn/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/"
+      },
+      "specs": {
+        "contextWindow": "1M tokens (Tencent Cloud TokenHub)",
+        "availability": "Tencent Cloud TokenHub"
+      },
+      "metrics": []
     },
     {
       "id": "e-gemini-20-flash",
@@ -33352,6 +33732,145 @@
       "type": "official"
     },
     {
+      "id": "s-gemini-4-carbon-model-card",
+      "title": { "zh": "Gemini 4 Carbon 官方模型卡", "en": "Gemini 4 Carbon model card" },
+      "url": "https://deepmind.google/models/model-cards/gemini-4-carbon/",
+      "publisher": "Google DeepMind",
+      "publishedAt": "2026-11-10",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "with a combined input-output token context window of up to 1M",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official"
+    },
+    {
+      "id": "s-gemini-4-carbon-release",
+      "title": { "zh": "Gemini 4 Carbon 发布", "en": "Gemini 4 Carbon release" },
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/",
+      "publisher": "Google",
+      "publishedAt": "2026-11-10",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "Gemini 4 Carbon is available via the API",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-carbon-released"]
+    },
+    {
+      "id": "s-gemini-4-carbon-api",
+      "title": { "zh": "Gemini 4 Carbon 官方资料", "en": "Gemini 4 Carbon reference" },
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "publisher": "Google",
+      "publishedAt": "2026-11-10",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "gemini-4-carbon",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-carbon-official-entry"]
+    },
+    {
+      "id": "s-kimi-k3-1-pro-release",
+      "title": { "zh": "Kimi K3.1 Pro 发布", "en": "Kimi K3.1 Pro release" },
+      "url": "https://www.kimi.ai/blog/kimi-k3-1-pro",
+      "publisher": "Moonshot AI",
+      "publishedAt": "2026-10-24",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "Kimi K3.1 Pro",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-kimi-k3-1-pro-released"]
+    },
+    {
+      "id": "s-kimi-k3-1-pro-api",
+      "title": { "zh": "Kimi K3.1 Pro 官方资料", "en": "Kimi K3.1 Pro reference" },
+      "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
+      "publisher": "Moonshot AI",
+      "publishedAt": "2026-10-24",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "You can access Kimi K3.1 Pro's API on https://platform.kimi.ai by selecting kimi-k3.1-pro",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-kimi-k3-1-pro-official-entry"]
+    },
+    {
+      "id": "s-hunyuan-hy4-release",
+      "title": { "zh": "混元 Hy4 发布", "en": "Tencent Hy4 release" },
+      "url": "https://www.tencent.com/tencent-launches-hy4-joining-the-ranks-of-the-worlds-leading-open-source-ai-models/",
+      "publisher": "Tencent",
+      "publishedAt": "2026-11-04",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "Tencent Launches Hy4",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-hunyuan-hy4-released"]
+    },
+    {
+      "id": "s-hunyuan-hy4-api",
+      "title": { "zh": "混元 Hy4 官方资料", "en": "Tencent Hy4 reference" },
+      "url": "https://cloud.tencent.com/document/product/1823/132252",
+      "publisher": "Tencent",
+      "publishedAt": "2026-11-16",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "hy4",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "zh",
+      "type": "official",
+      "supportsClaimIds": ["c-hunyuan-hy4-official-entry"]
+    },
+    {
+      "id": "s-hunyuan-hy4-flash-release",
+      "title": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash release" },
+      "url": "https://www.tencent.com/zh-cn/tencent-launches-hy4-flash-to-power-high-speed-cost-efficient-ai-deployment-for-everyday-workflows/",
+      "publisher": "Tencent",
+      "publishedAt": "2026-11-16",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "腾讯混元 Hy4 flash 正式发布",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "zh",
+      "type": "official",
+      "supportsClaimIds": ["c-hunyuan-hy4-flash-released"]
+    },
+    {
+      "id": "s-hunyuan-hy4-flash-api",
+      "title": { "zh": "混元 Hy4 flash 官方资料", "en": "Tencent Hy4 flash reference" },
+      "url": "https://cloud.tencent.com/document/product/1823/132252",
+      "publisher": "Tencent",
+      "publishedAt": "2026-11-16",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "hy4-flash",
+      "sourceExcerptKind": "quote",
+      "originalLanguage": "zh",
+      "type": "official",
+      "supportsClaimIds": ["c-hunyuan-hy4-flash-official-entry"]
+    },
+    {
+      "id": "s-tokenhub-hy4-model-list-20261117",
+      "title": { "zh": "腾讯云 TokenHub 模型列表", "en": "Tencent Cloud TokenHub model list" },
+      "url": "https://cloud.tencent.com/document/product/1823/130051",
+      "publisher": "Tencent Cloud",
+      "publishedAt": "2026-11-17",
+      "collectedAt": "2026-11-20",
+      "verifiedAt": "2026-11-20",
+      "sourceExcerpt": "Hy4 和 Hy4 flash 的 TokenHub 模型行列出 1M 上下文、960k 最大输入、64k 最大输出，并列出结构化输出、Function Calling 和图片理解。",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "zh",
+      "type": "official",
+      "supportsClaimIds": ["c-hunyuan-hy4-tokenhub-context", "c-hunyuan-hy4-flash-tokenhub-context"]
+    },
+    {
       "id": "s-change-gemini-sampling-guide-20261026",
       "title": {
         "zh": "Gemini 3.6 Flash 与 3.5 Flash-Lite 参数迁移指南",
@@ -41016,23 +41535,6 @@
       "validTo": null
     },
     {
-      "id": "c-gpt5-1m",
-      "text": {
-        "zh": "旧演示记录中的 GPT-5 百万上下文传闻未获确认。",
-        "en": "The earlier GPT-5 million-context demo rumor remains unconfirmed."
-      },
-      "confidence": "unverified",
-      "sourceIds": ["s-gpt-5-20261001"],
-      "updatedAt": "2026-10-01",
-      "entityId": "e-gpt-5",
-      "observedAt": "2026-10-01",
-      "subject": "GPT-5",
-      "predicate": "catalog-review",
-      "objectOrValue": "reviewed",
-      "validFrom": "2026-10-01",
-      "validTo": null
-    },
-    {
       "id": "c-claude-align",
       "text": {
         "zh": "Sonnet 4.5 已宣布弃用；旧演示误拒率数字没有本次官方依据。",
@@ -41352,6 +41854,152 @@
       "confidence": "verified",
       "sourceIds": ["s-grok-build"],
       "updatedAt": "2026-10-03"
+    },
+    {
+      "id": "c-gemini-4-carbon-released",
+      "entityId": "e-gemini-4-carbon",
+      "text": {
+        "zh": "Gemini 4 Carbon 于 2026-11-10 发布。",
+        "en": "Gemini 4 Carbon was released on 2026-11-10."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-carbon-release"],
+      "updatedAt": "2026-11-20",
+      "subject": "Gemini 4 Carbon",
+      "predicate": "release",
+      "objectOrValue": "gemini-4-carbon",
+      "validFrom": "2026-11-10"
+    },
+    {
+      "id": "c-gemini-4-carbon-official-entry",
+      "entityId": "e-gemini-4-carbon",
+      "text": {
+        "zh": "官方资料列出的 API 型号为 gemini-4-carbon。",
+        "en": "The official API model ID is gemini-4-carbon."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-carbon-api"],
+      "updatedAt": "2026-11-20",
+      "subject": "Gemini 4 Carbon",
+      "predicate": "official-api-id",
+      "objectOrValue": "gemini-4-carbon"
+    },
+    {
+      "id": "c-kimi-k3-1-pro-released",
+      "entityId": "e-kimi-k3-1-pro",
+      "text": {
+        "zh": "Kimi K3.1 Pro 于 2026-10-24 发布。",
+        "en": "Kimi K3.1 Pro was released on 2026-10-24."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-kimi-k3-1-pro-release"],
+      "updatedAt": "2026-11-20",
+      "subject": "Kimi K3.1 Pro",
+      "predicate": "release",
+      "objectOrValue": "kimi-k3.1-pro",
+      "validFrom": "2026-10-24"
+    },
+    {
+      "id": "c-kimi-k3-1-pro-official-entry",
+      "entityId": "e-kimi-k3-1-pro",
+      "text": {
+        "zh": "官方资料列出的 API 型号为 kimi-k3.1-pro。",
+        "en": "The official API model ID is kimi-k3.1-pro."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-kimi-k3-1-pro-api"],
+      "updatedAt": "2026-11-20",
+      "subject": "Kimi K3.1 Pro",
+      "predicate": "official-api-id",
+      "objectOrValue": "kimi-k3.1-pro"
+    },
+    {
+      "id": "c-hunyuan-hy4-released",
+      "entityId": "e-hunyuan-hy4",
+      "text": {
+        "zh": "混元 Hy4 于 2026-11-04 发布。",
+        "en": "Tencent Hy4 was released on 2026-11-04."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-release"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4",
+      "predicate": "release",
+      "objectOrValue": "hy4",
+      "validFrom": "2026-11-04"
+    },
+    {
+      "id": "c-hunyuan-hy4-official-entry",
+      "entityId": "e-hunyuan-hy4",
+      "text": {
+        "zh": "官方资料列出的 API 型号为 hy4。",
+        "en": "The official API model ID is hy4."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-api"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4",
+      "predicate": "official-api-id",
+      "objectOrValue": "hy4"
+    },
+    {
+      "id": "c-hunyuan-hy4-tokenhub-context",
+      "entityId": "e-hunyuan-hy4",
+      "text": {
+        "zh": "腾讯云 TokenHub 的 hy4 型号列出 1M token 上下文窗口，最大输入为 960k token，最大输出为 64k token。",
+        "en": "Tencent Cloud TokenHub lists a 1M-token context window, 960k-token maximum input and 64k-token maximum output for hy4."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-tokenhub-hy4-model-list-20261117"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4",
+      "predicate": "context-window",
+      "objectOrValue": "1M tokens on Tencent Cloud TokenHub",
+      "validFrom": "2026-11-17"
+    },
+    {
+      "id": "c-hunyuan-hy4-flash-tokenhub-context",
+      "entityId": "e-hunyuan-hy4-flash",
+      "text": {
+        "zh": "腾讯云 TokenHub 的 hy4-flash 型号列出 1M token 上下文窗口，最大输入为 960k token，最大输出为 64k token。",
+        "en": "Tencent Cloud TokenHub lists a 1M-token context window, 960k-token maximum input and 64k-token maximum output for hy4-flash."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-tokenhub-hy4-model-list-20261117"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4 flash",
+      "predicate": "context-window",
+      "objectOrValue": "1M tokens on Tencent Cloud TokenHub",
+      "validFrom": "2026-11-17"
+    },
+    {
+      "id": "c-hunyuan-hy4-flash-released",
+      "entityId": "e-hunyuan-hy4-flash",
+      "text": {
+        "zh": "混元 Hy4 flash 于 2026-11-16 发布。",
+        "en": "Tencent Hy4 flash was released on 2026-11-16."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-flash-release"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4 flash",
+      "predicate": "release",
+      "objectOrValue": "hy4-flash",
+      "validFrom": "2026-11-16"
+    },
+    {
+      "id": "c-hunyuan-hy4-flash-official-entry",
+      "entityId": "e-hunyuan-hy4-flash",
+      "text": {
+        "zh": "官方资料列出的 API 型号为 hy4-flash。",
+        "en": "The official API model ID is hy4-flash."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-flash-api"],
+      "updatedAt": "2026-11-20",
+      "subject": "混元 Hy4 flash",
+      "predicate": "official-api-id",
+      "objectOrValue": "hy4-flash"
     },
     {
       "id": "c-gpt6-astra-official-specs",
@@ -49708,6 +50356,20 @@
         "dateKind": "release"
       },
       {
+        "id": "tl-gemini-4-carbon-release",
+        "date": "2026-11-10",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-carbon",
+        "title": { "zh": "Gemini 4 Carbon 发布", "en": "Gemini 4 Carbon released" },
+        "summary": {
+          "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
+          "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-carbon-release"],
+        "confidence": "verified"
+      },
+      {
         "id": "t-gemini-family-3-1-pro",
         "date": "2026-02-19",
         "title": { "zh": "Gemini 3.1 Pro Preview 发布", "en": "Gemini 3.1 Pro Preview released" },
@@ -52166,6 +52828,20 @@
         "releaseEntityId": "e-kimi-k3"
       },
       {
+        "id": "tl-kimi-k3-1-pro-release",
+        "date": "2026-10-24",
+        "dateKind": "release",
+        "releaseEntityId": "e-kimi-k3-1-pro",
+        "title": { "zh": "Kimi K3.1 Pro 发布", "en": "Kimi K3.1 Pro released" },
+        "summary": {
+          "zh": "Kimi K3.1 Pro 是公开权重的多模态版本，可从 Moonshot 官方平台调用。",
+          "en": "Kimi K3.1 Pro is an open-weight multimodal model available on the Moonshot API."
+        },
+        "kind": "release",
+        "sourceIds": ["s-kimi-k3-1-pro-release"],
+        "confidence": "verified"
+      },
+      {
         "id": "t-family-kimi-k2-7-code-review",
         "date": "2026-10-01",
         "title": { "zh": "Kimi K2.7 Code 型号核实", "en": "Kimi K2.7 Code catalog review" },
@@ -54078,6 +54754,34 @@
         "sourceIds": ["s-hy3-release"]
       },
       {
+        "id": "tl-hunyuan-hy4-release",
+        "date": "2026-11-04",
+        "dateKind": "release",
+        "releaseEntityId": "e-hunyuan-hy4",
+        "title": { "zh": "混元 Hy4 发布", "en": "Tencent Hy4 released" },
+        "summary": {
+          "zh": "混元 Hy4 正式版可通过腾讯云 TokenHub 调用，官方文档列出其视觉理解能力。",
+          "en": "Hy4 is available on Tencent Cloud TokenHub with documented visual understanding."
+        },
+        "kind": "release",
+        "sourceIds": ["s-hunyuan-hy4-release"],
+        "confidence": "verified"
+      },
+      {
+        "id": "tl-hunyuan-hy4-flash-release",
+        "date": "2026-11-16",
+        "dateKind": "release",
+        "releaseEntityId": "e-hunyuan-hy4-flash",
+        "title": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash released" },
+        "summary": {
+          "zh": "混元 Hy4 flash 是腾讯面向高频办公任务发布的轻量版本，独立于 Hy4 正式版。",
+          "en": "Hy4 flash is Tencent's separate lighter release for everyday high-volume tasks."
+        },
+        "kind": "release",
+        "sourceIds": ["s-hunyuan-hy4-flash-release"],
+        "confidence": "verified"
+      },
+      {
         "id": "t-hunyuan12h-a13b-instruct",
         "date": "2025-06-27",
         "dateKind": "release",
@@ -54503,6 +55207,70 @@
         },
         "confidence": "verified",
         "sourceIds": ["s-grok-release-notes"]
+      }
+    ],
+    "e-hunyuan-hy4-flash": [
+      {
+        "id": "tl-hunyuan-hy4-flash-release-detail",
+        "date": "2026-11-16",
+        "dateKind": "release",
+        "releaseEntityId": "e-hunyuan-hy4-flash",
+        "title": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash released" },
+        "summary": {
+          "zh": "混元 Hy4 flash 是腾讯面向高频办公任务发布的轻量版本，独立于 Hy4 正式版。",
+          "en": "Hy4 flash is Tencent's separate lighter release for everyday high-volume tasks."
+        },
+        "kind": "release",
+        "sourceIds": ["s-hunyuan-hy4-flash-release"],
+        "confidence": "verified"
+      }
+    ],
+    "e-hunyuan-hy4": [
+      {
+        "id": "tl-hunyuan-hy4-release-detail",
+        "date": "2026-11-04",
+        "dateKind": "release",
+        "releaseEntityId": "e-hunyuan-hy4",
+        "title": { "zh": "混元 Hy4 发布", "en": "Tencent Hy4 released" },
+        "summary": {
+          "zh": "混元 Hy4 正式版可通过腾讯云 TokenHub 调用，官方文档列出其视觉理解能力。",
+          "en": "Hy4 is available on Tencent Cloud TokenHub with documented visual understanding."
+        },
+        "kind": "release",
+        "sourceIds": ["s-hunyuan-hy4-release"],
+        "confidence": "verified"
+      }
+    ],
+    "e-kimi-k3-1-pro": [
+      {
+        "id": "tl-kimi-k3-1-pro-release-detail",
+        "date": "2026-10-24",
+        "dateKind": "release",
+        "releaseEntityId": "e-kimi-k3-1-pro",
+        "title": { "zh": "Kimi K3.1 Pro 发布", "en": "Kimi K3.1 Pro released" },
+        "summary": {
+          "zh": "Kimi K3.1 Pro 是公开权重的多模态版本，可从 Moonshot 官方平台调用。",
+          "en": "Kimi K3.1 Pro is an open-weight multimodal model available on the Moonshot API."
+        },
+        "kind": "release",
+        "sourceIds": ["s-kimi-k3-1-pro-release"],
+        "confidence": "verified"
+      }
+    ],
+    "e-gemini-4-carbon": [
+      {
+        "id": "tl-gemini-4-carbon-release-detail",
+        "date": "2026-11-10",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-carbon",
+        "title": { "zh": "Gemini 4 Carbon 发布", "en": "Gemini 4 Carbon released" },
+        "summary": {
+          "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
+          "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-carbon-release"],
+        "confidence": "verified"
       }
     ],
     "e-gpt-6-astra": [
@@ -58656,6 +59424,30 @@
         "importance": 0.82
       },
       {
+        "id": "node-e-gemini-4-carbon",
+        "entityId": "e-gemini-4-carbon",
+        "type": "model",
+        "importance": 0.9
+      },
+      {
+        "id": "node-e-kimi-k3-1-pro",
+        "entityId": "e-kimi-k3-1-pro",
+        "type": "model",
+        "importance": 0.9
+      },
+      {
+        "id": "node-e-hunyuan-hy4",
+        "entityId": "e-hunyuan-hy4",
+        "type": "model",
+        "importance": 0.9
+      },
+      {
+        "id": "node-e-hunyuan-hy4-flash",
+        "entityId": "e-hunyuan-hy4-flash",
+        "type": "model",
+        "importance": 0.9
+      },
+      {
         "id": "node-e-gemini-20-flash",
         "entityId": "e-gemini-20-flash",
         "type": "model",
@@ -60760,6 +61552,38 @@
         "sourceIds": ["s-grok-chat"]
       },
       {
+        "id": "r-gemini-4-carbon-family",
+        "fromId": "e-gemini-4-carbon",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-gemini-4-carbon-release"]
+      },
+      {
+        "id": "r-kimi-k3-1-pro-family",
+        "fromId": "e-kimi-k3-1-pro",
+        "toId": "e-kimi",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-kimi-k3-1-pro-release"]
+      },
+      {
+        "id": "r-hunyuan-hy4-family",
+        "fromId": "e-hunyuan-hy4",
+        "toId": "e-hunyuan",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-hunyuan-hy4-release"]
+      },
+      {
+        "id": "r-hunyuan-hy4-flash-family",
+        "fromId": "e-hunyuan-hy4-flash",
+        "toId": "e-hunyuan",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-hunyuan-hy4-flash-release"]
+      },
+      {
         "id": "r-gpt6-astra-family",
         "fromId": "e-gpt-6-astra",
         "toId": "e-gpt",
@@ -62262,6 +63086,42 @@
     "validAt": "2026-07-25"
   },
   "changes": [
+    {
+      "id": "change-release-e-hunyuan-hy4-flash",
+      "entityId": "e-hunyuan-hy4-flash",
+      "date": "2026-11-16",
+      "summary": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-flash-release"]
+    },
+    {
+      "id": "change-release-e-gemini-4-carbon",
+      "entityId": "e-gemini-4-carbon",
+      "date": "2026-11-10",
+      "summary": { "zh": "Gemini 4 Carbon 发布", "en": "Gemini 4 Carbon released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-carbon-release"]
+    },
+    {
+      "id": "change-release-e-hunyuan-hy4",
+      "entityId": "e-hunyuan-hy4",
+      "date": "2026-11-04",
+      "summary": { "zh": "混元 Hy4 发布", "en": "Tencent Hy4 released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-hunyuan-hy4-release"]
+    },
+    {
+      "id": "change-release-e-kimi-k3-1-pro",
+      "entityId": "e-kimi-k3-1-pro",
+      "date": "2026-10-24",
+      "summary": { "zh": "Kimi K3.1 Pro 发布", "en": "Kimi K3.1 Pro released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-kimi-k3-1-pro-release"]
+    },
     {
       "id": "change-event-t-api-shutdown-gpt4o-20240513-20261023",
       "entityId": "e-gpt-4o",

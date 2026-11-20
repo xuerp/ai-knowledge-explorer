@@ -1,4 +1,5 @@
 import { projectHomeOverview, type HomeOverview } from "@/domain/home-overview";
+import { projectEntityDetail } from "@/domain/entity-detail";
 import { projectUpdatesOverview, type UpdatesOverview } from "@/domain/updates-overview";
 import type {
   DataMode,
@@ -38,6 +39,11 @@ export interface EntityClaimPage {
 export interface KnowledgeRepository {
   mode: DataMode;
   getSnapshot: (signal?: AbortSignal) => Promise<KnowledgeSnapshot>;
+  getEntityPage: (
+    type: EntityType,
+    slug: string,
+    signal?: AbortSignal,
+  ) => Promise<KnowledgeSnapshot | null>;
   getHomeOverview: (signal?: AbortSignal) => Promise<HomeOverview>;
   getUpdatesOverview: (signal?: AbortSignal) => Promise<UpdatesOverview>;
   getEntities: (query?: EntityQuery, signal?: AbortSignal) => Promise<Entity[]>;
@@ -77,6 +83,10 @@ class DemoKnowledgeRepository implements KnowledgeRepository {
 
   async getSnapshot() {
     return loadOfflineSnapshot();
+  }
+
+  async getEntityPage(type: EntityType, slug: string) {
+    return projectEntityDetail(await this.getSnapshot(), type, slug);
   }
 
   async getHomeOverview() {
@@ -179,6 +189,14 @@ class HttpKnowledgeRepository implements KnowledgeRepository {
   readonly mode = "live" as const;
 
   constructor(private readonly baseUrl: string) {}
+
+  getEntityPage(type: EntityType, slug: string, signal?: AbortSignal) {
+    return this.request<KnowledgeSnapshot | null>(
+      `/api/v2/entity-pages/${encodeURIComponent(type)}/${encodeURIComponent(slug)}`,
+      {},
+      signal,
+    );
+  }
 
   private async request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal) {
     const response = await fetchWithNetworkRetry(`${this.baseUrl}${path}`, {

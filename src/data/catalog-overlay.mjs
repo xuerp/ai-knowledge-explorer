@@ -77,6 +77,12 @@ export function applyCatalogOverlays(baseline, extension, frontier) {
 
 export function publicCatalogSnapshot(catalog) {
   const snapshot = structuredClone(catalog);
+  const blockedClaimIds = new Set(
+    snapshot.reviewCandidates
+      .filter((candidate) => candidate.status !== "approved")
+      .map((candidate) => candidate.claim.id),
+  );
+  snapshot.claims = snapshot.claims.filter((claim) => !blockedClaimIds.has(claim.id));
   // Public knowledge is not a record of a visitor's activity. Real activity is
   // loaded from account APIs or explicit local preferences, never seed fixtures.
   for (const key of [

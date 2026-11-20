@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from .database import RagClaimDocumentRecord, RagClaimEmbeddingRecord
 from .entity_aliases import normalize_entity_alias
-from .query_intent import resolve_entity_type_intent
+from .query_intent import CODING_TOOL, TERMINAL, resolve_entity_type_intent
 from .schemas import (
     Claim,
     Entity,
@@ -450,6 +450,64 @@ class LexicalRagRetriever:
             fallback_reason = fallback_reason or "full-text-no-match"
             rows = list(session.scalars(base_statement).all())
         entity_type_by_id = {entity.id: entity.type for entity in snapshot.entities}
+        query_terms = self.tokens(question) - {
+            "what",
+            "which",
+            "how",
+            "the",
+            "and",
+            "for",
+            "with",
+            "about",
+            "什么",
+            "如何",
+            "是否",
+            "哪些",
+            "一下",
+            "请问",
+            "可以",
+            "有没有",
+        }
+
+        # A bigram from a source excerpt shared by dozens of claims cannot
+        # establish that each claim answers the query. An unnamed inquiry
+        # needs claim-level overlap or more than one term in its source.
+        def matches_claim(row):
+            overlap = query_terms & self.tokens(row.search_text)
+            if len(overlap) != 1:
+                return bool(overlap)
+            claim = Claim.model_validate_json(row.claim_json)
+            claim_text = " ".join(
+                text
+                for text in (
+                    claim.text.zh,
+                    claim.text.en,
+                    claim.predicate,
+                    claim.object_or_value,
+                    claim.text.technical.zh if claim.text.technical else None,
+                    claim.text.technical.en if claim.text.technical else None,
+                )
+                if text
+            )
+            return bool(overlap & self.tokens(claim_text))
+
+        relevant_rows = [
+            row
+            for row in rows
+            if entity_ids is not None or row.entity_id in search_entity_ids or matches_claim(row)
+        ]
+        if entity_ids is None and not matched_entity_ids and CODING_TOOL.search(question):
+            relevant_rows = [
+                row
+                for row in relevant_rows
+                if entity_type_by_id.get(row.entity_id) in {"agent", "tool", "application"}
+                and (
+                    not TERMINAL.search(question)
+                    or self.claim_mentions_terminal(Claim.model_validate_json(row.claim_json))
+                )
+            ]
+        if rows and not relevant_rows:
+            fallback_reason = "no-lexical-evidence"
         scored = sorted(
             (
                 (
@@ -461,7 +519,7 @@ class LexicalRagRetriever:
                     ),
                     row,
                 )
-                for row in rows
+                for row in relevant_rows
             ),
             key=lambda item: (-item[0], item[1].claim_id),
         )
@@ -876,6 +934,10 @@ class LexicalRagRetriever:
     def postgres_query_text(cls, question: str) -> str:
         return " OR ".join(sorted(cls.tokens(question)))
 
+    @staticmethod
+    def claim_mentions_terminal(claim: Claim) -> bool:
+        return bool(TERMINAL.search(claim.text.zh + " " + claim.text.en))
+
 
 class HybridRagRetriever:
     """可选混合检索层；依赖缺失或异常时始终安全降级到全文检索。"""
@@ -1010,6 +1072,20 @@ class HybridRagRetriever:
                 limit,
                 entity_ids=entity_ids,
             )
+            if (
+                entity_ids is None
+                and not lexical_result.diagnostics.matched_entity_ids
+                and CODING_TOOL.search(question)
+                and TERMINAL.search(question)
+            ):
+                entity_by_id = {entity.id: entity for entity in snapshot.entities}
+                citations = [
+                    item
+                    for item in citations
+                    if (entity := entity_by_id.get(item.claim.entity_id))
+                    and entity.type in {"agent", "tool", "application"}
+                    and self.lexical.claim_mentions_terminal(item.claim)
+                ]
         except Exception as exc:  # noqa: BLE001 -- 第三方供应商异常必须统一降级。
             LOGGER.warning(
                 "hybrid retrieval degraded to lexical",

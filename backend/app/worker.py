@@ -13,13 +13,13 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from .automation import automation_cycle_lock
 from .config import Settings
 from .database import Database
 from .email_delivery import EmailDeliveryService
 from .engagement import EngagementService
-from .fetching import SafeHttpFetcher
-from .ingestion import IngestionService
 from .operations import OperationsService
+from .runtime import create_services
 from .scheduler import IngestionScheduler
 
 
@@ -106,6 +106,13 @@ def run_cycle(
     if errors:
         result["errors"] = errors
     return result
+
+
+def run_extraction_cycle(services, session, result):
+    extraction = services.run_automatic_extraction(session)
+    result["extraction"] = extraction
+    if int(extraction.get("failed", 0)) > 0:
+        result.setdefault("errors", {})["extraction"] = extraction.get("errors", [])
 
 
 def next_interval_cycle(
@@ -210,40 +217,11 @@ def main() -> None:
     if settings.worker_stale_seconds < settings.worker_heartbeat_seconds * 2:
         parser.error("AI_RADAR_WORKER_STALE_SECONDS must be at least twice the heartbeat interval.")
 
-    database = Database(settings.database_url)
+    services = create_services(settings)
+    database = services.database
     if database.engine.dialect.name == "sqlite":
         database.create_all()
-    resolver = None
-    if settings.fetch_dns_mode == "https-google":
-        from .safe_dns import GoogleHttpsResolver
-
-        resolver = GoogleHttpsResolver()
-    scheduler = IngestionScheduler(
-        SafeHttpFetcher(settings.fetch_allowed_hosts, settings.fetch_max_bytes, resolver=resolver),
-        IngestionService(settings.fetch_allowed_hosts),
-        retry_base_minutes=settings.fetch_retry_base_minutes,
-        retry_max_minutes=settings.fetch_retry_max_minutes,
-        lease_minutes=settings.fetch_lease_minutes,
-    )
-    engagement = EngagementService()
-    email_delivery = EmailDeliveryService(
-        settings.smtp_host,
-        settings.smtp_port,
-        settings.smtp_username,
-        settings.smtp_password,
-        settings.smtp_from,
-        settings.smtp_starttls,
-        max_attempts=settings.email_max_attempts,
-        retry_base_seconds=settings.email_retry_base_seconds,
-        lease_seconds=settings.email_lease_seconds,
-        provider=settings.email_provider,
-        api_key=settings.email_api_key,
-        api_url=settings.email_api_url,
-    )
-    operations = OperationsService(
-        settings.worker_stale_seconds,
-        settings.auto_extraction_retry_minutes,
-    )
+    operations = services.operations
     scheduled = args.interval_seconds is not None or args.scheduled_once
     run_once = args.once or args.scheduled_once
     worker_id = (
@@ -274,16 +252,17 @@ def main() -> None:
             result: dict[str, object] | None = None
             cycle_error: Exception | None = None
             try:
-                with database.session() as session:
+                with automation_cycle_lock(database.engine), database.session() as session:
                     result = run_cycle(
                         session,
-                        scheduler,
-                        engagement,
-                        email_delivery,
+                        services.scheduler,
+                        services.engagement,
+                        services.email_delivery,
                         digest_timezone=settings.digest_timezone,
                         now=cycle_started,
                         heartbeat=cycle_heartbeat,
                     )
+                    run_extraction_cycle(services, session, result)
             except Exception as error:  # noqa: BLE001 - persist failure before continuing
                 cycle_error = error
 

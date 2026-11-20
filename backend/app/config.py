@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
+from .generation_runtime import GenerationConfig
+
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -60,6 +62,8 @@ class Settings:
     decision_interpretation_max_calls: int = 0
     decision_interpretation_user_ids: tuple[str, ...] = ()
     auto_extraction_max_snapshots_per_cycle: int = 0
+    auto_extraction_max_snapshots_per_day: int = 10
+    auto_extraction_review_backlog_limit: int = 100
     auto_extraction_max_candidates_per_snapshot: int = 5
     auto_extraction_retry_minutes: int = 360
     auto_approve_grounded_relations: bool = False
@@ -68,6 +72,8 @@ class Settings:
     retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
     rag_hybrid_enabled: bool = False
     rag_generation_enabled: bool = False
+    answer_generation: GenerationConfig | None = field(default=None, repr=False)
+    interpretation_generation: GenerationConfig | None = field(default=None, repr=False)
     embedding_provider: Literal["none", "cloudflare"] = "none"
     embedding_model: str = "@cf/baai/bge-m3"
     embedding_version: str = "cloudflare-managed:@cf/baai/bge-m3:2026-08-31-baseline"
@@ -97,7 +103,11 @@ class Settings:
     built_at: str | None = None
 
     def __post_init__(self) -> None:
-        if self.decision_interpretation_enabled:
+        if self.rag_generation_enabled and self.answer_generation is None:
+            raise ValueError(
+                "Answer generation requires explicit provider, tariffs and bounded budget configuration."
+            )
+        if self.decision_interpretation_enabled and self.interpretation_generation is None:
             if not all(
                 (
                     self.decision_interpretation_api_url,
@@ -131,6 +141,12 @@ class Settings:
         if not 0 <= self.auto_extraction_max_snapshots_per_cycle <= 10:
             raise ValueError(
                 "AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE must be between 0 and 10."
+            )
+        if not 1 <= self.auto_extraction_max_snapshots_per_day <= 100:
+            raise ValueError("Daily automatic extraction must allow between 1 and 100 snapshots.")
+        if not 1 <= self.auto_extraction_review_backlog_limit <= 5000:
+            raise ValueError(
+                "Automatic extraction review backlog limit must be between 1 and 5000."
             )
         if not 1 <= self.auto_extraction_max_candidates_per_snapshot <= 20:
             raise ValueError(
@@ -305,6 +321,12 @@ class Settings:
             auto_extraction_max_snapshots_per_cycle=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")
             ),
+            auto_extraction_max_snapshots_per_day=int(
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_DAY", "10")
+            ),
+            auto_extraction_review_backlog_limit=int(
+                os.getenv("AI_RADAR_AUTO_EXTRACTION_REVIEW_BACKLOG_LIMIT", "100")
+            ),
             auto_extraction_max_candidates_per_snapshot=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT", "5")
             ),
@@ -323,6 +345,17 @@ class Settings:
             rag_hybrid_enabled=legacy_hybrid_enabled,
             rag_generation_enabled=os.getenv("AI_RADAR_RAG_GENERATION_ENABLED", "false").lower()
             in {"1", "true", "yes"},
+            answer_generation=(
+                GenerationConfig.from_env()
+                if _extraction_bool("AI_RADAR_RAG_GENERATION_ENABLED")
+                else None
+            ),
+            interpretation_generation=(
+                GenerationConfig.from_env()
+                if _extraction_bool("AI_RADAR_DECISION_INTERPRETATION_ENABLED")
+                and _extraction_bool("AI_RADAR_INTERPRETATION_SHARED_ANSWER_BUDGET")
+                else None
+            ),
             embedding_provider=embedding_provider,
             embedding_model=os.getenv("AI_RADAR_EMBEDDING_MODEL", "@cf/baai/bge-m3"),
             embedding_version=os.getenv(

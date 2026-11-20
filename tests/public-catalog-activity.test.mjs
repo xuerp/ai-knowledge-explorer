@@ -11,7 +11,10 @@ test("public catalog preserves knowledge and prompts without invented visitor ac
   const result = publicCatalogSnapshot(base);
   assert.deepEqual(base, original);
   assert.deepEqual(result.entities, base.entities);
-  assert.deepEqual(result.claims, base.claims);
+  assert.deepEqual(
+    result.claims,
+    base.claims.filter((claim) => claim.id !== "c-gpt5-1m"),
+  );
   assert.deepEqual(result.evidence, base.evidence);
   assert.deepEqual(result.researchQuestions, base.researchQuestions);
   for (const key of [

@@ -107,6 +107,21 @@ def test_lexical_rag_refuses_to_index_unverified_or_unmapped_claims():
         assert session.get(RagClaimDocumentRecord, unresolved.id) is None
 
 
+def test_lexical_rag_rejects_incidental_bigrams_from_shared_source_excerpts():
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    retriever = LexicalRagRetriever()
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        snapshot = repository.public_snapshot(session)
+        question = "虚构的青桐湾游泳馆本周二几点关门？"
+        result = retriever.search(session, snapshot, question)
+
+    assert result.diagnostics.matched_entity_ids == []
+    assert result.citations == []
+
+
 def test_grounded_projection_indexes_timeline_and_relation_knowledge():
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)

@@ -61,6 +61,10 @@ test("Render 与网站由同一受测试门禁保护的 main 发布任务部署"
   assert.match(releaseJob, /node scripts\/deploy-render-staging\.mjs/);
   assert.match(
     releaseJob,
+    /deploy-render-staging\.mjs[\s\S]*wait-staging-release\.mjs --backend-only[\s\S]*wrangler deploy/,
+  );
+  assert.match(
+    releaseJob,
     /RENDER_STAGING_DEPLOY_HOOK: \$\{\{ secrets\.RENDER_STAGING_DEPLOY_HOOK \}\}/,
   );
   assert.doesNotMatch(releaseJob, /continue-on-error/);

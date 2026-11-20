@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import httpx
 import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
@@ -1070,6 +1071,8 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
             "failed": 0,
+            "reviewBacklog": 1,
+            "dailySlotsRemaining": 9,
         }
 
         second = automatic_client.post(
@@ -1099,6 +1102,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert failed.json()["status"] == "partial"
         assert failed.json()["result"]["extraction"]["processed"] == 0
         assert failed.json()["result"]["extraction"]["failed"] == 1
+        assert failed.json()["result"]["extraction"]["dailySlotsRemaining"] == 8
         retry_plan = automatic_client.get(
             "/api/v2/admin/extraction-plan",
             headers=admin_headers,
@@ -1110,6 +1114,151 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         )
         assert cooling_down.status_code == 200
         assert cooling_down.json()["result"]["extraction"]["planned"] == 0
+
+
+def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(tmp_path):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'scheduled-catalog.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        extraction_require_json_schema=True,
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_extraction_max_snapshots_per_day=2,
+        auto_extraction_review_backlog_limit=2,
+        auto_extraction_max_candidates_per_snapshot=1,
+    )
+    entity_id = "e-qa-release-mercury"
+    source_id = "qa-release-mercury"
+    source_url = "https://example.com/synthetic-release-mercury"
+    sentence = "QA Mercury supports 37000 tokens in the context window."
+    localized_name = {"zh": "QA Mercury", "en": "QA Mercury"}
+    current_etag = '"initial"'
+    provider_calls = []
+
+    def fetch(request):
+        assert str(request.url) == source_url
+        headers = {"etag": current_etag, "content-type": "text/plain"}
+        if request.headers.get("If-None-Match") == current_etag:
+            return httpx.Response(304, headers=headers)
+        return httpx.Response(200, text=f"{sentence}\nRevision {current_etag}", headers=headers)
+
+    def extract(request):
+        body = json.loads(request.content)
+        assert sentence in body["messages"][1]["content"]
+        provider_calls.append(body)
+        if len(provider_calls) > 1:
+            return httpx.Response(422, json={"error": {"message": "Synthetic failure"}})
+        fact = {
+            "subject": "QA Mercury",
+            "predicate": "context-window",
+            "objectOrValue": "37000 tokens",
+            "textZh": "QA Mercury 的上下文窗口支持 37000 tokens。",
+            "textEn": sentence,
+            "validFrom": None,
+            "validTo": None,
+        }
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps({"facts": [fact]})},
+                    }
+                ]
+            },
+        )
+
+    app = create_app(settings)
+    services = app.state.services
+    services.fetcher.resolver = lambda _: ("93.184.216.34",)
+    services.fetcher.transport = httpx.MockTransport(fetch)
+    services.extraction.transport = httpx.MockTransport(extract)
+    admin = {"X-Admin-Token": settings.admin_token}
+    automation = {"X-Automation-Token": settings.automation_token}
+    with TestClient(app) as client:
+        registered = client.post(
+            "/api/v2/admin/entities",
+            headers=admin,
+            json={
+                "id": entity_id,
+                "type": "model",
+                "slug": source_id,
+                "name": localized_name,
+                "summary": localized_name,
+                "status": "preview",
+                "tags": [],
+                "lastUpdatedAt": "2026-11-20",
+            },
+        )
+        assert registered.status_code == 201, registered.text
+        created = client.post(
+            "/api/v2/admin/sources",
+            headers=admin,
+            json={"id": source_id, "url": source_url, "title": "QA Mercury", "publisher": "QA"},
+        )
+        assert created.status_code == 201, created.text
+        assert client.post(f"/api/v2/admin/sources/{source_id}/probe", headers=admin).is_success
+        assert client.patch(
+            f"/api/v2/admin/sources/{source_id}", headers=admin, json={"fetchEnabled": True}
+        ).is_success
+
+        def cycle():
+            with services.database.session() as session:
+                source = session.get(SourceRecord, source_id)
+                source.next_fetch_at = datetime.now(UTC)
+                session.commit()
+            response = client.post("/api/v2/automation/run-cycle", headers=automation)
+            assert response.is_success, response.text
+            return response.json()
+
+        page = f"/api/v2/entity-pages/model/{source_id}"
+        search = f"/api/v2/entities/{entity_id}/claims?q=37000"
+        cached = client.get(page)
+        assert cached.is_success
+        first = cycle()["result"]
+        assert first["ingestion"]["succeeded"] == 1
+        assert first["extraction"]["candidatesCreated"] == 1
+        assert first["extraction"]["dailySlotsRemaining"] == 1
+        queue = client.get("/api/v2/admin/review-queue", headers=admin).json()
+        candidate = next(row for row in queue if row["entityId"] == entity_id)
+        assert candidate["status"] == "pending"
+        assert client.get(search).json()["total"] == 0
+        not_modified = client.get(page, headers={"If-None-Match": cached.headers["etag"]})
+        assert not_modified.status_code == 304
+
+        paused = cycle()["result"]
+        assert paused["ingestion"]["unchanged"] == 1
+        assert paused["extraction"]["pausedReason"] == "review-backlog"
+        assert len(provider_calls) == 1
+
+        approved = client.post(
+            f"/api/v2/admin/review-queue/{candidate['id']}/approve",
+            headers=admin,
+            json={"expectedVersion": candidate["version"], "reason": "Verified exact QA fixture."},
+        )
+        assert approved.is_success, approved.text
+        claim_id = candidate["claim"]["id"]
+        revised = client.get(page, headers={"If-None-Match": cached.headers["etag"]})
+        assert revised.status_code == 200 and revised.headers["etag"] != cached.headers["etag"]
+        assert any(row["id"] == claim_id for row in revised.json()["claims"])
+        assert client.get(search).json()["items"][0]["id"] == claim_id
+        assert any(row["sourceExcerpt"] == sentence for row in revised.json()["evidence"])
+
+        current_etag = '"updated"'
+        failed = cycle()
+        assert failed["status"] == "partial"
+        assert failed["result"]["ingestion"]["succeeded"] == 1
+        assert failed["result"]["extraction"]["failed"] == 1
+        assert cycle()["result"]["extraction"]["pausedReason"] == "daily-limit"
+        assert len(provider_calls) == 2
 
 
 def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
@@ -1881,6 +2030,7 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
         line: list(gemini_lines.values()).count(line) for line in set(gemini_lines.values())
     }
     assert line_counts == {
+        "gemini-4-frontier": 1,
         "gemini-pro": 9,
         "gemini-argon": 1,
         "gemini-flash": 9,
@@ -1905,7 +2055,8 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
     assert gemini_by_id["e-gemini-25-flash-lite"]["status"] == "active"
     assert gemini_by_id["e-gemini-4-pending"]["release"]["stage"] == "stable"
     assert gemini_by_id["e-gemini-4-pending"]["release"]["apiModelIds"] == ["gemini-4-argon"]
-    assert len({item["slug"] for item in gemini_versions.json()}) == 54
+    assert gemini_by_id["e-gemini-4-carbon"]["release"]["apiModelIds"] == ["gemini-4-carbon"]
+    assert len({item["slug"] for item in gemini_versions.json()}) == 55
     gemini_timeline = client.get("/api/v2/entities/e-gemini/timeline")
     assert gemini_timeline.status_code == 200
     assert {

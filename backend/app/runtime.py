@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from .answer_generation import CitedAnswerService
 from .auth import AuditService, AuthService
+from .catalog_revision import DetailSnapshotCache
 from .config import Settings
 from .database import (
     Database,
@@ -14,6 +15,7 @@ from .extraction import (
     StructuredExtractionService,
 )
 from .fetching import SafeHttpFetcher
+from .generation_runtime import BudgetedAnswerGenerator
 from .golden_questions import GoldenQuestionEvaluator
 from .ingestion import IngestionService
 from .operations import OperationsService
@@ -57,6 +59,7 @@ class ApplicationServices(
     email_delivery: EmailDeliveryService
     operations: OperationsService
     task_interpreter: Any
+    detail_snapshot_cache: DetailSnapshotCache = field(default_factory=DetailSnapshotCache)
 
 
 def create_services(
@@ -127,7 +130,12 @@ def create_services(
     )
     engagement = EngagementService(
         rag_retriever,
-        CitedAnswerService(enabled=app_settings.rag_generation_enabled),
+        CitedAnswerService(
+            BudgetedAnswerGenerator(database, app_settings.answer_generation)
+            if app_settings.rag_generation_enabled
+            else None,
+            enabled=app_settings.rag_generation_enabled,
+        ),
         task_meaning_service=TaskMeaningService(task_interpreter),
     )
     extraction = StructuredExtractionService(

@@ -192,7 +192,7 @@ Render 免费 API 可能需要冷启动，首次定时请求延迟不代表数�
 
 ## 6. 验收顺序
 
-当前发布分支是 `main`。Quality 在 push/PR 上执行，只有 `main` 的 push 才在前后端检查成功后发布已验证的 Cloudflare 构建，并通过私密部署钩子要求 Render 部署同一个完整 commit。Render Blueprint 仍跟踪 `main`，但 `autoDeployTrigger: off`，由 Quality 控制部署时机。独立 Staging acceptance 在 main 的 Quality 成功后运行，等待前端版本标记和 API `buildCommit` 对齐该提交，再执行直接 API 与同域代理冒烟。日常启动无需创建或保留历史开发分支。
+当前发布分支是 `main`。Quality 在 push/PR 上执行，只有 `main` 的 push 才在前后端检查成功后通过私密部署钩子请求 Render 部署已验证的提交。API 完成启动迁移，且 `/ready` 返回同一个完整 commit 后，再发布 Cloudflare 构建。Render Blueprint 仍跟踪 `main`，其 `autoDeployTrigger: off` 由 Quality 控制部署时机。独立 Staging acceptance 在 main 的 Quality 成功后运行，等待前端版本标记和 API `buildCommit` 对齐该提交，再执行直接 API 与同域代理冒烟。
 
 不能同时使用 Render 的 `After CI Checks Pass` 和等待 Render 的发布后验收。Render 会等待该提交的所有 CI 检查；验收又等待 Render 时可能互相阻塞。部署钩子明确指定已验证的 `ref`，避免部署时 `main` 已前进而取到未经这次测试的其他提交；Render 会关闭 Git 自动部署，后续提交仍经 Quality 的前后端门禁后部署。[Render 部署说明](https://render.com/docs/deploys)。
 

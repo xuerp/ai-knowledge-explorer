@@ -168,6 +168,11 @@ export function DecisionGuidanceView({
     !privateAdvice && guidance.nextAction.kind === "start" && guidance.outcome === "advice"
       ? guidance.nextAction.entryUrl
       : null;
+  const generationFallback = [
+    "generation-invalid",
+    "generation-provider-error",
+    "generation-unavailable",
+  ].includes(research.retrievalDiagnostics.generationFallbackReason ?? "");
   const singleStartId =
     guidance.nextAction.targetIds.length === 1
       ? guidance.nextAction.targetIds[0]
@@ -189,6 +194,14 @@ export function DecisionGuidanceView({
         {advice.headline}
       </OutcomeHeading>
       <p className="decision-outcome__summary">{advice.summary}</p>
+      {generationFallback && (
+        <p className="text-sm text-muted-foreground">
+          {t(
+            "模型综合暂不可用，以下依据来自已审核资料和条件筛选。",
+            "Model synthesis is unavailable. The findings below use reviewed evidence and your constraints.",
+          )}
+        </p>
+      )}
       {privateAdvice && (
         <p>
           <strong>{t("下一步：", "Next: ")}</strong>
@@ -266,6 +279,15 @@ export function DecisionGuidanceView({
         </div>
       ) : (
         <>
+          {!privateAdvice &&
+            !opened &&
+            guidance.nextAction.kind === "start" &&
+            instructionParagraphs[0] && (
+              <p>
+                <strong>{t("下一步：", "Next: ")}</strong>
+                {instructionParagraphs[0].split(/(?<=。)|(?<=[.!?])\s+/u)[0]}
+              </p>
+            )}
           {entryUrl && (
             <div className="decision-guidance__actions">
               <Button asChild>
@@ -383,19 +405,6 @@ export function DecisionGuidanceView({
             </div>
             {guidance.nextAction.kind === "start" && (
               <>
-                {entryUrl && (
-                  <p>
-                    {localDeployment
-                      ? t(
-                          "按部署文档确认资源和数据去向。",
-                          "Check resources and data handling against the deployment guide.",
-                        )
-                      : t(
-                          "使用前确认账号权限和费用。",
-                          "Check account access and pricing before use.",
-                        )}
-                  </p>
-                )}
                 {!!documentation.length && (
                   <p className="decision-guidance__references decision-guidance__documentation">
                     {documentation.map((source) => (

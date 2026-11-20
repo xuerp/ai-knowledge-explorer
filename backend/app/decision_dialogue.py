@@ -4,8 +4,16 @@ import re
 
 from .decision_clauses import clauses
 from .decision_intent import CATALOG, scenario_definition, task_workflow
+from .decision_requirements import context_requirements
 from .decision_semantics import context_meaning
-from .decision_task import NUMBER, daily_workload, number, understand_task
+from .decision_task import (
+    FIRST_PARTY_API,
+    MONTHLY_BUDGET_CEILING,
+    NUMBER,
+    daily_workload,
+    number,
+    understand_task,
+)
 from .schemas import DecisionClarification, DecisionClarificationOption, DecisionContext
 
 
@@ -28,13 +36,14 @@ def interpret_answer(answer):
     return answer.model_copy(update={"option_id": option}) if option else answer
 
 
-def unsupported_task(context: DecisionContext) -> bool:
+def unsupported_task(context: DecisionContext, *, has_grounded_plan: bool = False) -> bool:
     meaning = context_meaning(context)
-    if meaning is not None and meaning.state != "ambiguous" and meaning.scenario is None:
-        return True
-    workflow = task_workflow(context.task, meaning)
-    if workflow and workflow["scenario"] is None:
-        return True
+    if not has_grounded_plan:
+        if meaning is not None and meaning.state != "ambiguous" and meaning.scenario is None:
+            return True
+        workflow = task_workflow(context.task, meaning)
+        if workflow and workflow["scenario"] is None:
+            return True
     return understand_task(context.task).unsupported_media or (
         bool(
             re.search(
@@ -117,7 +126,7 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
     ):
         result.commercial_use_required = True
     monthly = re.search(
-        r"(?:每月|月预算|monthly budget)\s*(?:预算|不超过|最多|上限|≤|<=|of|under)?\s*([¥￥$]?)\s*(\d+(?:\.\d+)?)\s*(万)?\s*(元|CNY|USD|美元)?",
+        r"(?:每月|月预算|monthly budget)\s*(?:预算|不超过|最多|最高|上限|≤|<=|of|under)?\s*([¥￥$]?)\s*(\d+(?:\.\d+)?)\s*(万)?\s*(元|CNY|USD|美元)?",
         text,
         re.IGNORECASE,
     )
@@ -140,11 +149,7 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
             )
     if result.task_type == "unspecified" and result.minimum_context_tokens:
         result.task_type = "model-api"
-    amount = re.search(
-        rf"(?:每月|月预算)(?:预算)?\s*(?:最多|不超过|上限)?\s*(人民币|美元|CNY|USD|[¥￥$])?\s*({NUMBER})\s*(元|美元|CNY|USD)?",
-        text,
-        re.IGNORECASE,
-    )
+    amount = MONTHLY_BUDGET_CEILING.search(text)
     if amount:
         currency_text = (amount[1] or "") + (amount[3] or "")
         currency = (
@@ -172,10 +177,7 @@ def normalize_context(context: DecisionContext) -> DecisionContext:
                     "period": "month",
                 }
             )
-    if (
-        re.search(r"原厂\s*API|官方\s*API|first.party API", text, re.IGNORECASE)
-        and not result.budget.channel
-    ):
+    if FIRST_PARTY_API.search(text) and not result.budget.channel:
         result.budget.channel = "official"
     # A daily workload does not imply a billing month's active day count.
     # Leave monthly totals unknown so the existing cost clarification asks for them.
@@ -234,6 +236,7 @@ def task_parts(context: DecisionContext) -> list[tuple[str, dict]]:
 
 def analysis_context(context: DecisionContext) -> DecisionContext:
     result = context.model_copy(deep=True)
+    result._original_task = context._original_task or context.task
     if context_meaning(context) is not None:
         # The server interpretation already includes notes and validated answer
         # history. Prefixing lexical labels would invalidate its source digest.
@@ -288,6 +291,44 @@ def clarification_for(context: DecisionContext, language: str) -> DecisionClarif
         return None
     if len(context.intent_answers) >= 2:
         return None
+    if "upload-boundary" not in answered and any(
+        item.dimension == "upload" and item.scope == "unspecified" and item.strength == "hard"
+        for item in context_requirements(context)
+    ):
+        return DecisionClarification(
+            id="upload-boundary",
+            question=t("资料可以进入哪里？", "Where may the documents be processed?"),
+            reason=t(
+                "需要明确哪些部署方式能满足禁止上传的要求。",
+                "This determines which deployments meet the upload restriction.",
+            ),
+            options=[
+                DecisionClarificationOption(
+                    id="local-device",
+                    label=t("只允许在当前设备处理", "This device only"),
+                    description=t(
+                        "文件和内容都必须留在当前设备。",
+                        "Files and their contents stay on this device.",
+                    ),
+                ),
+                DecisionClarificationOption(
+                    id="organization",
+                    label=t("允许进入组织控制的环境", "An organization-controlled environment"),
+                    description=t(
+                        "只处理于组织批准并控制的环境。",
+                        "Processing stays within the approved organization boundary.",
+                    ),
+                ),
+                DecisionClarificationOption(
+                    id="unknown",
+                    label=t("还不确定", "Not sure yet"),
+                    description=t(
+                        "保留限制，先列出需要核对的条件。",
+                        "Keep the restriction and identify what needs verification.",
+                    ),
+                ),
+            ],
+        )
     text = context.task
     if (
         re.search(r"求职助手|career assistant|job.search assistant", text, re.IGNORECASE)
