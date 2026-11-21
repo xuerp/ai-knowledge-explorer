@@ -164,7 +164,7 @@ class ModelProductLine(CamelModel):
 class ModelReleaseMetadata(CamelModel):
     generation: str
     variant: str
-    positioning: LocalizedText | None = None
+    positioning: LocalizedText | None = Field(default=None, exclude_if=lambda value: value is None)
     release_id: str
     api_model_ids: list[str] = Field(default_factory=list)
     stage: Literal["stable", "preview", "pending", "deprecated", "retired"]
