@@ -9,9 +9,16 @@ from sqlalchemy import func, select
 
 from .database import EntryRequestRecord, KnowledgeEntityRecord, SourceRecord
 
+OPENAI_RELEASE_ROOTS = ("s-openai-api-changelog", "s-openai-models")
+OPENAI_RELEASE_SLUG = r"gpt-\d+(?:\.\d+)?-(?:astra|sol|terra|luna|pro)\Z"
+MARKDOWN_LINK = re.compile(r"\[([^\]\r\n]{1,120})\]\(([^)\s]{1,512})\)")
 DISCOVERY_ROOTS = {
     "s-google-model-card-index": ("deepmind.google", "/models/model-cards/", r"gemini-|gemma-"),
     "s-moonshot-research-index": ("www.kimi.ai", "/blog/", r"kimi-k"),
+    **{
+        source_id: ("developers.openai.com", "/api/docs/models/", OPENAI_RELEASE_SLUG)
+        for source_id in OPENAI_RELEASE_ROOTS
+    },
 }
 
 
@@ -26,11 +33,20 @@ def discover_release_leads(session, source, document, current):
     if policy is None or document.not_modified:
         return ReleaseDiscoveryResult()
     host, prefix, accepted_slug = policy
+    openai_index = source.id in OPENAI_RELEASE_ROOTS
+    links = document.links
+    if openai_index and document.content_type == "text/markdown":
+        links = tuple((url, label) for label, url in MARKDOWN_LINK.findall(document.content))
     candidates = {}
-    for href, label in document.links:
+    for href, label in links:
         try:
             parsed = urlsplit(urljoin(document.final_url or source.url, href))
             slug = parsed.path.removeprefix(prefix).rstrip("/")
+            if openai_index:
+                slug = slug.removesuffix(".md")
+            allowed_slug = (
+                r"[a-z0-9]+(?:[.-][a-z0-9]+)*" if openai_index else r"[a-z0-9]+(?:-[a-z0-9]+)*"
+            )
             if (
                 parsed.scheme != "https"
                 or parsed.hostname != host
@@ -39,14 +55,14 @@ def discover_release_leads(session, source, document, current):
                 or parsed.port not in {443, None}
                 or parsed.query
                 or not parsed.path.startswith(prefix)
-                or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug)
+                or not re.fullmatch(allowed_slug, slug)
                 or not re.match(accepted_slug, slug)
             ):
                 continue
         except ValueError:
             continue
         url = urlunsplit(("https", host, prefix + slug + "/", "", ""))
-        if host == "www.kimi.ai":
+        if openai_index or host == "www.kimi.ai":
             url = url.rstrip("/")
         display_name = label if label.lower() != "view model card" else slug.replace("-", " ")
         candidates[url] = (display_name[:120], slug)

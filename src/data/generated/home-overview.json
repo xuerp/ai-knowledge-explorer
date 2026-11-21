@@ -2,16 +2,16 @@
   "meta": {
     "mode": "demo",
     "freshness": "fresh",
-    "retrievedAt": "2026-11-20T00:00:00Z",
+    "retrievedAt": "2026-11-21T00:00:00Z",
     "message": {
       "zh": "当前展示固定示例快照，并非实时产品事实；重要结论请核对来源与日期。",
       "en": "Showing a fixed sample snapshot, not live product facts; verify important conclusions against sources and dates."
     }
   },
-  "catalogUpdatedAt": "2026-11-20",
-  "entityCount": 267,
-  "claimCount": 370,
-  "sourcedClaimCount": 370,
+  "catalogUpdatedAt": "2026-11-21",
+  "entityCount": 269,
+  "claimCount": 376,
+  "sourcedClaimCount": 376,
   "relationshipCount": 48,
   "entities": [
     {
@@ -20,7 +20,7 @@
       "slug": "gpt",
       "name": { "zh": "GPT 系列", "en": "GPT family" },
       "vendor": "OpenAI",
-      "latestVersion": "GPT-6 Astra · GPT-6.1 Sol · GPT-6 Luna"
+      "latestVersion": "GPT-6.2 Astra · GPT-6.2 Sol"
     },
     {
       "id": "e-claude",
@@ -79,6 +79,12 @@
       "latestVersion": "ERNIE 5.1 · 5.0 · X1.1 Preview · 4.5 Turbo"
     },
     {
+      "id": "e-openai",
+      "type": "company",
+      "slug": "openai",
+      "name": { "zh": "OpenAI", "en": "OpenAI" }
+    },
+    {
       "id": "e-mcp",
       "type": "framework",
       "slug": "mcp",
@@ -112,15 +118,6 @@
       "familyId": null,
       "vendor": "Tencent",
       "latestVersion": "Hy4 · Hy4 flash · Hy4 preview"
-    },
-    {
-      "id": "e-tencent",
-      "type": "company",
-      "slug": "tencent",
-      "name": { "zh": "腾讯", "en": "Tencent" },
-      "familyId": null,
-      "vendor": "Tencent",
-      "latestVersion": null
     },
     {
       "id": "e-minimax",
@@ -164,20 +161,20 @@
       "vendor": "SpaceXAI"
     },
     {
-      "id": "e-gemini-4-carbon",
+      "id": "e-gpt-62-astra",
       "type": "model",
-      "slug": "gemini-4-carbon",
-      "name": { "zh": "Gemini 4 Carbon", "en": "Gemini 4 Carbon" },
-      "familyId": "e-gemini",
-      "vendor": "Google"
+      "slug": "gpt-6.2-astra",
+      "name": { "zh": "GPT-6.2 Astra", "en": "GPT-6.2 Astra" },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI"
     },
     {
-      "id": "e-hunyuan-hy4",
+      "id": "e-gpt-62-sol",
       "type": "model",
-      "slug": "hunyuan-hy4",
-      "name": { "zh": "混元 Hy4", "en": "Tencent Hy4" },
-      "familyId": "e-hunyuan",
-      "vendor": "Tencent"
+      "slug": "gpt-6.2-sol",
+      "name": { "zh": "GPT-6.2 Sol", "en": "GPT-6.2 Sol" },
+      "familyId": "e-gpt",
+      "vendor": "OpenAI"
     },
     {
       "id": "e-hunyuan-hy4-flash",
@@ -190,13 +187,26 @@
   ],
   "evidence": [
     { "id": "s-traecode-overview", "url": "https://docs.trae.cn/ide_what-is-trae-code" },
-    {
-      "id": "s-hy4-announcement",
-      "url": "https://www.tencent.com/tencent-releases-and-open-sources-tencent-hy4-preview/"
-    },
-    { "id": "s-grok-build", "url": "https://x.ai/build" }
+    { "id": "s-grok-build", "url": "https://x.ai/build" },
+    { "id": "s-openai-catalog-20261001", "url": "https://developers.openai.com/api/docs/models" }
   ],
   "changes": [
+    {
+      "id": "change-release-e-gpt-62-sol",
+      "entityId": "e-gpt-62-sol",
+      "date": "2026-11-17",
+      "summary": { "zh": "GPT-6.2 Sol 发布", "en": "GPT-6.2 Sol released" },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-gpt-62-announcement", "s-gpt-6-2-sol-model-card"]
+    },
+    {
+      "id": "change-release-e-gpt-62-astra",
+      "entityId": "e-gpt-62-astra",
+      "date": "2026-11-17",
+      "summary": { "zh": "GPT-6.2 Astra 发布", "en": "GPT-6.2 Astra released" },
+      "confidence": "verified",
+      "sourceIds": ["s-openai-gpt-62-announcement", "s-gpt-6-2-astra-model-card"]
+    },
     {
       "id": "change-release-e-hunyuan-hy4-flash",
       "entityId": "e-hunyuan-hy4-flash",
@@ -204,22 +214,6 @@
       "summary": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash released" },
       "confidence": "verified",
       "sourceIds": ["s-hunyuan-hy4-flash-release"]
-    },
-    {
-      "id": "change-release-e-gemini-4-carbon",
-      "entityId": "e-gemini-4-carbon",
-      "date": "2026-11-10",
-      "summary": { "zh": "Gemini 4 Carbon 发布", "en": "Gemini 4 Carbon released" },
-      "confidence": "verified",
-      "sourceIds": ["s-gemini-4-carbon-release"]
-    },
-    {
-      "id": "change-release-e-hunyuan-hy4",
-      "entityId": "e-hunyuan-hy4",
-      "date": "2026-11-04",
-      "summary": { "zh": "混元 Hy4 发布", "en": "Tencent Hy4 released" },
-      "confidence": "verified",
-      "sourceIds": ["s-hunyuan-hy4-release"]
     }
   ],
   "featuredRelations": [
@@ -240,12 +234,13 @@
       "sourceIds": ["s-traecode-overview"]
     },
     {
-      "id": "r-intake-e-hunyuan-e-tencent",
-      "fromId": "e-hunyuan",
-      "toId": "e-tencent",
+      "id": "r1",
+      "fromId": "e-gpt",
+      "toId": "e-openai",
       "kind": "developed-by",
       "confidence": "verified",
-      "sourceIds": ["s-hy4-announcement"]
+      "sourceIds": ["s-openai-catalog-20261001"],
+      "label": { "zh": "OpenAI 官方型号目录", "en": "OpenAI official model catalog" }
     }
   ],
   "researchQuestions": [

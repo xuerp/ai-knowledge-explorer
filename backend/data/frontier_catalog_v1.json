@@ -175,7 +175,7 @@
       ],
       "method": "Retain all relation records; verify provider and integration links against actual official documentation and retract unsupported lineage, architecture, benchmark and competition labels. Original records remain in Git history."
     },
-    "updatedAt": "2026-11-20",
+    "updatedAt": "2026-11-21",
     "sourceReviewUpdatedAt": "2026-10-31",
     "sourceReviewScope": "Per-claim source comparison by Codex, not an independent human audit. Exact release dates remain unknown when a version suffix or approximate announcement is insufficient.",
     "scopedRelationReview": {
@@ -194,6 +194,262 @@
     }
   },
   "entities": [
+    {
+      "id": "e-gpt-62-astra",
+      "type": "model",
+      "slug": "gpt-6.2-astra",
+      "familyId": "e-gpt",
+      "name": {
+        "zh": "GPT-6.2 Astra",
+        "en": "GPT-6.2 Astra"
+      },
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
+      },
+      "aliases": [
+        "gpt-6.2-astra"
+      ],
+      "summary": {
+        "zh": "OpenAI GPT-6.2 系列。复杂推理、编程和专业任务。支持文本和图像输入，输出文本。",
+        "en": "OpenAI GPT-6.2 series. Demanding reasoning, coding and professional work. Accepts text and image inputs and returns text."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "GPT-6.2"
+      ],
+      "firstReleasedAt": "2026-11-17",
+      "lastUpdatedAt": "2026-11-21",
+      "metrics": [],
+      "specs": {
+        "contextWindow": "1,050,000 context · 922,000 max input · 128,000 max output tokens",
+        "inputPrice": "$8 USD / 1M tokens · ≤272K input",
+        "outputPrice": "$40 USD / 1M tokens · ≤272K input",
+        "modalities": "文本与图像输入 · 文本输出",
+        "toolUse": "工具调用通过 Responses API",
+        "availability": "OpenAI API"
+      },
+      "release": {
+        "generation": "GPT-6.2",
+        "variant": "Astra",
+        "releaseId": "gpt-6.2-astra",
+        "apiModelIds": [
+          "gpt-6.2-astra"
+        ],
+        "stage": "stable",
+        "productLine": {
+          "id": "gpt-6-2",
+          "name": {
+            "zh": "GPT-6.2",
+            "en": "GPT-6.2"
+          },
+          "positioning": {
+            "zh": "Astra 面向复杂任务，Sol 面向日常工作流。",
+            "en": "Astra for demanding tasks, Sol for everyday workflows."
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-17",
+        "lastVerifiedAt": "2026-11-21",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "OpenAI",
+            "modelId": "gpt-6.2-astra",
+            "url": "https://developers.openai.com/api/docs/models/gpt-6.2-astra"
+          }
+        ]
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "OpenAI GPT-6.2 系列。复杂推理、编程和专业任务。支持文本和图像输入，输出文本。",
+            "en": "OpenAI GPT-6.2 series. Demanding reasoning, coding and professional work. Accepts text and image inputs and returns text."
+          }
+        ],
+        "significance": {
+          "zh": "复杂推理、编程和专业任务。",
+          "en": "Demanding reasoning, coding and professional work."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "官方型号与上下文规格",
+              "en": "Official model ID and context limits"
+            },
+            "description": {
+              "zh": "官方 API 型号为 gpt-6.2-astra，上下文 1,050,000 tokens，最大输入 922,000，最大输出 128,000。",
+              "en": "OpenAI API model ID gpt-6.2-astra; 1,050,000-token context, up to 922,000 input and 128,000 output tokens."
+            },
+            "sourceIds": [
+              "s-gpt-6-2-astra-model-card"
+            ]
+          },
+          {
+            "title": {
+              "zh": "标准 API 文本单价",
+              "en": "Standard API text pricing"
+            },
+            "description": {
+              "zh": "OpenAI 标准文本价（输入不超过 272K tokens）每百万 tokens 为输入 $8、缓存输入 $0.40、输出 $40。",
+              "en": "OpenAI Standard text rates for up to 272K input tokens are $8 input, $0.40 cached input and $40 output per million tokens."
+            },
+            "sourceIds": [
+              "s-gpt-6-2-astra-model-card"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "选型试用",
+              "en": "Trial for model selection"
+            },
+            "description": {
+              "zh": "复杂推理、编程和专业任务。",
+              "en": "Demanding reasoning, coding and professional work."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "超过 272K 输入 tokens 时，整笔请求按长上下文档位收费。工具与其他处理档位须分别核对。",
+            "en": "Long-context rates apply to the entire request above 272K input tokens. Check tool charges and other processing tiers separately."
+          }
+        ],
+        "officialUrl": "https://developers.openai.com/api/docs/models/gpt-6.2-astra"
+      }
+    },
+    {
+      "id": "e-gpt-62-sol",
+      "type": "model",
+      "slug": "gpt-6.2-sol",
+      "familyId": "e-gpt",
+      "name": {
+        "zh": "GPT-6.2 Sol",
+        "en": "GPT-6.2 Sol"
+      },
+      "vendor": "OpenAI",
+      "origin": {
+        "zh": "海外",
+        "en": "Overseas"
+      },
+      "aliases": [
+        "gpt-6.2-sol"
+      ],
+      "summary": {
+        "zh": "OpenAI GPT-6.2 系列。日常编程和多步骤 Agent 工作流。支持文本和图像输入，输出文本。",
+        "en": "OpenAI GPT-6.2 series. Everyday coding and multistep agent workflows. Accepts text and image inputs and returns text."
+      },
+      "status": "active",
+      "tags": [
+        "具体版本",
+        "GPT-6.2"
+      ],
+      "firstReleasedAt": "2026-11-17",
+      "lastUpdatedAt": "2026-11-21",
+      "metrics": [],
+      "specs": {
+        "contextWindow": "1,050,000 context · 922,000 max input · 128,000 max output tokens",
+        "inputPrice": "$2 USD / 1M tokens · ≤272K input",
+        "outputPrice": "$10 USD / 1M tokens · ≤272K input",
+        "modalities": "文本与图像输入 · 文本输出",
+        "toolUse": "工具调用通过 Responses API",
+        "availability": "OpenAI API"
+      },
+      "release": {
+        "generation": "GPT-6.2",
+        "variant": "Sol",
+        "releaseId": "gpt-6.2-sol",
+        "apiModelIds": [
+          "gpt-6.2-sol"
+        ],
+        "stage": "stable",
+        "productLine": {
+          "id": "gpt-6-2",
+          "name": {
+            "zh": "GPT-6.2",
+            "en": "GPT-6.2"
+          },
+          "positioning": {
+            "zh": "Astra 面向复杂任务，Sol 面向日常工作流。",
+            "en": "Astra for demanding tasks, Sol for everyday workflows."
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-17",
+        "lastVerifiedAt": "2026-11-21",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "OpenAI",
+            "modelId": "gpt-6.2-sol",
+            "url": "https://developers.openai.com/api/docs/models/gpt-6.2-sol"
+          }
+        ]
+      },
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "OpenAI GPT-6.2 系列。日常编程和多步骤 Agent 工作流。支持文本和图像输入，输出文本。",
+            "en": "OpenAI GPT-6.2 series. Everyday coding and multistep agent workflows. Accepts text and image inputs and returns text."
+          }
+        ],
+        "significance": {
+          "zh": "日常编程和多步骤 Agent 工作流。",
+          "en": "Everyday coding and multistep agent workflows."
+        },
+        "keyPoints": [
+          {
+            "title": {
+              "zh": "官方型号与上下文规格",
+              "en": "Official model ID and context limits"
+            },
+            "description": {
+              "zh": "官方 API 型号为 gpt-6.2-sol，上下文 1,050,000 tokens，最大输入 922,000，最大输出 128,000。",
+              "en": "OpenAI API model ID gpt-6.2-sol; 1,050,000-token context, up to 922,000 input and 128,000 output tokens."
+            },
+            "sourceIds": [
+              "s-gpt-6-2-sol-model-card"
+            ]
+          },
+          {
+            "title": {
+              "zh": "标准 API 文本单价",
+              "en": "Standard API text pricing"
+            },
+            "description": {
+              "zh": "OpenAI 标准文本价（输入不超过 272K tokens）每百万 tokens 为输入 $2、缓存输入 $0.10、输出 $10。",
+              "en": "OpenAI Standard text rates for up to 272K input tokens are $2 input, $0.10 cached input and $10 output per million tokens."
+            },
+            "sourceIds": [
+              "s-gpt-6-2-sol-model-card"
+            ]
+          }
+        ],
+        "useCases": [
+          {
+            "title": {
+              "zh": "选型试用",
+              "en": "Trial for model selection"
+            },
+            "description": {
+              "zh": "日常编程和多步骤 Agent 工作流。",
+              "en": "Everyday coding and multistep agent workflows."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "超过 272K 输入 tokens 时，整笔请求按长上下文档位收费。工具与其他处理档位须分别核对。",
+            "en": "Long-context rates apply to the entire request above 272K input tokens. Check tool charges and other processing tiers separately."
+          }
+        ],
+        "officialUrl": "https://developers.openai.com/api/docs/models/gpt-6.2-sol"
+      }
+    },
     {
       "id": "e-gemini-4-carbon",
       "type": "model",
@@ -674,14 +930,14 @@
         "en": "Overseas"
       },
       "summary": {
-        "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
+        "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.2、GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
         "en": "GPT spans general reasoning, agents, images and voice. General lines are organized by numeric generation, then Astra, Sol, Terra, Luna or Pro variants; specialized models use separate interfaces."
       },
       "status": "active",
       "tags": ["LLM", "闭源", "多模态", "推理"],
-      "latestVersion": "GPT-6 Astra · GPT-6.1 Sol · GPT-6 Luna",
+      "latestVersion": "GPT-6.2 Astra · GPT-6.2 Sol",
       "firstReleasedAt": "2018-06-11",
-      "lastUpdatedAt": "2026-10-01",
+      "lastUpdatedAt": "2026-11-21",
       "capabilities": [
         {
           "zh": "复杂代码与知识工作",
@@ -703,7 +959,7 @@
       "knowledge": {
         "introduction": [
           {
-            "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
+            "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.2、GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
             "en": "GPT spans general reasoning, agents, images and voice. General lines are organized by numeric generation, then Astra, Sol, Terra, Luna or Pro variants; specialized models use separate interfaces."
           },
           {
@@ -722,10 +978,10 @@
               "en": "Choose a line by task"
             },
             "description": {
-              "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
+              "zh": "GPT 家族覆盖通用推理、专业 Agent、图像与语音。通用产品线按 GPT-6.2、GPT-6.1、GPT-6、GPT-5.6、GPT-5.5 等数字代际展示，同代下再区分 Astra、Sol、Terra、Luna 或 Pro；专用模型使用独立接口。",
               "en": "GPT spans general reasoning, agents, images and voice. General lines are organized by numeric generation, then Astra, Sol, Terra, Luna or Pro variants; specialized models use separate interfaces."
             },
-            "sourceIds": ["s-openai-catalog-20261001"]
+            "sourceIds": ["s-openai-catalog-20261001", "s-openai-gpt-62-announcement"]
           },
           {
             "title": {
@@ -744,10 +1000,10 @@
               "en": "Current catalog lines"
             },
             "description": {
-              "zh": "GPT-6 Astra · GPT-6.1 Sol · GPT-6 Luna",
-              "en": "GPT-6 Astra · GPT-6.1 Sol · GPT-6 Luna"
+              "zh": "GPT-6.2 Astra · GPT-6.2 Sol",
+              "en": "GPT-6.2 Astra · GPT-6.2 Sol"
             },
-            "sourceIds": ["s-openai-catalog-20261001"]
+            "sourceIds": ["s-openai-gpt-62-announcement"]
           }
         ],
         "useCases": [
@@ -33055,6 +33311,66 @@
   ],
   "evidence": [
     {
+      "id": "s-openai-gpt-62-announcement",
+      "title": {
+        "zh": "OpenAI 发布 GPT-6.2 Astra 和 Sol",
+        "en": "OpenAI announces GPT-6.2 Astra and Sol"
+      },
+      "url": "https://openai.com/index/introducing-gpt-6-2-astra-sol/",
+      "publisher": "OpenAI",
+      "publishedAt": "2026-11-17",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "OpenAI announced the GPT-6.2 Astra and Sol variants and documented their availability through the OpenAI API.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-gpt-62-astra-release",
+        "c-gpt-62-sol-release"
+      ]
+    },
+    {
+      "id": "s-gpt-6-2-astra-model-card",
+      "title": {
+        "zh": "GPT-6.2 Astra 官方型号文档",
+        "en": "GPT-6.2 Astra official model documentation"
+      },
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.2-astra",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "OpenAI API model ID gpt-6.2-astra; 1,050,000-token context, up to 922,000 input and 128,000 output tokens. OpenAI Standard text rates for up to 272K input tokens are $8 input, $0.40 cached input and $40 output per million tokens.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-gpt-62-astra-official-specs",
+        "c-gpt-62-astra-standard-price"
+      ]
+    },
+    {
+      "id": "s-gpt-6-2-sol-model-card",
+      "title": {
+        "zh": "GPT-6.2 Sol 官方型号文档",
+        "en": "GPT-6.2 Sol official model documentation"
+      },
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.2-sol",
+      "publisher": "OpenAI",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "OpenAI API model ID gpt-6.2-sol; 1,050,000-token context, up to 922,000 input and 128,000 output tokens. OpenAI Standard text rates for up to 272K input tokens are $2 input, $0.10 cached input and $10 output per million tokens.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": [
+        "c-gpt-62-sol-official-specs",
+        "c-gpt-62-sol-standard-price"
+      ]
+    },
+    {
       "id": "s-gemini-4-carbon-model-card",
       "title": { "zh": "Gemini 4 Carbon 官方模型卡", "en": "Gemini 4 Carbon model card" },
       "url": "https://deepmind.google/models/model-cards/gemini-4-carbon/",
@@ -41376,6 +41692,104 @@
   ],
   "claims": [
     {
+      "id": "c-gpt-62-astra-release",
+      "entityId": "e-gpt-62-astra",
+      "text": {
+        "zh": "GPT-6.2 Astra 于 2026-11-17 发布到 OpenAI API。",
+        "en": "GPT-6.2 Astra was released in the OpenAI API on 2026-11-17."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-openai-gpt-62-announcement"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Astra",
+      "predicate": "release",
+      "objectOrValue": "gpt-6.2-astra",
+      "validFrom": "2026-11-17"
+    },
+    {
+      "id": "c-gpt-62-astra-official-specs",
+      "entityId": "e-gpt-62-astra",
+      "text": {
+        "zh": "官方 API 型号为 gpt-6.2-astra，上下文 1,050,000 tokens，最大输入 922,000，最大输出 128,000。",
+        "en": "OpenAI API model ID gpt-6.2-astra; 1,050,000-token context, up to 922,000 input and 128,000 output tokens."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-gpt-6-2-astra-model-card"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Astra",
+      "predicate": "official-specs",
+      "objectOrValue": "gpt-6.2-astra"
+    },
+    {
+      "id": "c-gpt-62-astra-standard-price",
+      "entityId": "e-gpt-62-astra",
+      "text": {
+        "zh": "OpenAI 标准文本价（输入不超过 272K tokens）每百万 tokens 为输入 $8、缓存输入 $0.40、输出 $40。",
+        "en": "OpenAI Standard text rates for up to 272K input tokens are $8 input, $0.40 cached input and $40 output per million tokens."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-gpt-6-2-astra-model-card"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Astra",
+      "predicate": "pricing",
+      "objectOrValue": "$8 USD / 1M tokens · ≤272K input input; $40 USD / 1M tokens · ≤272K input output"
+    },
+    {
+      "id": "c-gpt-62-sol-release",
+      "entityId": "e-gpt-62-sol",
+      "text": {
+        "zh": "GPT-6.2 Sol 于 2026-11-17 发布到 OpenAI API。",
+        "en": "GPT-6.2 Sol was released in the OpenAI API on 2026-11-17."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-openai-gpt-62-announcement"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Sol",
+      "predicate": "release",
+      "objectOrValue": "gpt-6.2-sol",
+      "validFrom": "2026-11-17"
+    },
+    {
+      "id": "c-gpt-62-sol-official-specs",
+      "entityId": "e-gpt-62-sol",
+      "text": {
+        "zh": "官方 API 型号为 gpt-6.2-sol，上下文 1,050,000 tokens，最大输入 922,000，最大输出 128,000。",
+        "en": "OpenAI API model ID gpt-6.2-sol; 1,050,000-token context, up to 922,000 input and 128,000 output tokens."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-gpt-6-2-sol-model-card"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Sol",
+      "predicate": "official-specs",
+      "objectOrValue": "gpt-6.2-sol"
+    },
+    {
+      "id": "c-gpt-62-sol-standard-price",
+      "entityId": "e-gpt-62-sol",
+      "text": {
+        "zh": "OpenAI 标准文本价（输入不超过 272K tokens）每百万 tokens 为输入 $2、缓存输入 $0.10、输出 $10。",
+        "en": "OpenAI Standard text rates for up to 272K input tokens are $2 input, $0.10 cached input and $10 output per million tokens."
+      },
+      "confidence": "verified",
+      "sourceIds": [
+        "s-gpt-6-2-sol-model-card"
+      ],
+      "updatedAt": "2026-11-21",
+      "subject": "GPT-6.2 Sol",
+      "predicate": "pricing",
+      "objectOrValue": "$2 USD / 1M tokens · ≤272K input input; $10 USD / 1M tokens · ≤272K input output"
+    },
+    {
       "id": "c-gemini-4-carbon-released",
       "entityId": "e-gemini-4-carbon",
       "text": {
@@ -47541,6 +47955,28 @@
   ],
   "relations": [
     {
+      "id": "r-gpt-62-astra-family",
+      "fromId": "e-gpt-62-astra",
+      "toId": "e-gpt",
+      "kind": "part-of",
+      "confidence": "verified",
+      "sourceIds": [
+        "s-openai-gpt-62-announcement",
+        "s-gpt-6-2-astra-model-card"
+      ]
+    },
+    {
+      "id": "r-gpt-62-sol-family",
+      "fromId": "e-gpt-62-sol",
+      "toId": "e-gpt",
+      "kind": "part-of",
+      "confidence": "verified",
+      "sourceIds": [
+        "s-openai-gpt-62-announcement",
+        "s-gpt-6-2-sol-model-card"
+      ]
+    },
+    {
       "id": "r-gemini-4-carbon-family",
       "fromId": "e-gemini-4-carbon",
       "toId": "e-gemini",
@@ -49346,6 +49782,50 @@
     }
   ],
   "timeline": {
+    "e-gpt-62-astra": [
+      {
+        "id": "t-detail-gpt-62-astra-release",
+        "date": "2026-11-17",
+        "dateKind": "release",
+        "releaseEntityId": "e-gpt-62-astra",
+        "title": {
+          "zh": "GPT-6.2 Astra 发布",
+          "en": "GPT-6.2 Astra released"
+        },
+        "summary": {
+          "zh": "OpenAI GPT-6.2 系列。复杂推理、编程和专业任务。支持文本和图像输入，输出文本。",
+          "en": "OpenAI GPT-6.2 series. Demanding reasoning, coding and professional work. Accepts text and image inputs and returns text."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt-62-announcement",
+          "s-gpt-6-2-astra-model-card"
+        ],
+        "confidence": "verified"
+      }
+    ],
+    "e-gpt-62-sol": [
+      {
+        "id": "t-detail-gpt-62-sol-release",
+        "date": "2026-11-17",
+        "dateKind": "release",
+        "releaseEntityId": "e-gpt-62-sol",
+        "title": {
+          "zh": "GPT-6.2 Sol 发布",
+          "en": "GPT-6.2 Sol released"
+        },
+        "summary": {
+          "zh": "OpenAI GPT-6.2 系列。日常编程和多步骤 Agent 工作流。支持文本和图像输入，输出文本。",
+          "en": "OpenAI GPT-6.2 series. Everyday coding and multistep agent workflows. Accepts text and image inputs and returns text."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt-62-announcement",
+          "s-gpt-6-2-sol-model-card"
+        ],
+        "confidence": "verified"
+      }
+    ],
     "e-hunyuan-hy4-flash": [
       {
         "id": "tl-hunyuan-hy4-flash-release-detail",
@@ -51395,6 +51875,46 @@
       }
     ],
     "e-gpt": [
+      {
+        "id": "t-family-gpt-62-astra-release",
+        "date": "2026-11-17",
+        "dateKind": "release",
+        "releaseEntityId": "e-gpt-62-astra",
+        "title": {
+          "zh": "GPT-6.2 Astra 发布",
+          "en": "GPT-6.2 Astra released"
+        },
+        "summary": {
+          "zh": "OpenAI GPT-6.2 系列。复杂推理、编程和专业任务。支持文本和图像输入，输出文本。",
+          "en": "OpenAI GPT-6.2 series. Demanding reasoning, coding and professional work. Accepts text and image inputs and returns text."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt-62-announcement",
+          "s-gpt-6-2-astra-model-card"
+        ],
+        "confidence": "verified"
+      },
+      {
+        "id": "t-family-gpt-62-sol-release",
+        "date": "2026-11-17",
+        "dateKind": "release",
+        "releaseEntityId": "e-gpt-62-sol",
+        "title": {
+          "zh": "GPT-6.2 Sol 发布",
+          "en": "GPT-6.2 Sol released"
+        },
+        "summary": {
+          "zh": "OpenAI GPT-6.2 系列。日常编程和多步骤 Agent 工作流。支持文本和图像输入，输出文本。",
+          "en": "OpenAI GPT-6.2 series. Everyday coding and multistep agent workflows. Accepts text and image inputs and returns text."
+        },
+        "kind": "release",
+        "sourceIds": [
+          "s-openai-gpt-62-announcement",
+          "s-gpt-6-2-sol-model-card"
+        ],
+        "confidence": "verified"
+      },
       {
         "id": "t-family-gpt-6-astra-review",
         "date": "2026-09-03",

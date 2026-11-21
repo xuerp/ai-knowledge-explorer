@@ -6,7 +6,7 @@ A nonzero dimension does not mean every field is known. Missing prices, access c
 
 | Model           | Tier   | Releases | Product lines | Timeline | Capabilities | Limitations | Releases with pricing | Releases with access | Relations | Official sources |
 | --------------- | ------ | -------: | ------------: | -------: | -----------: | ----------: | --------------------: | -------------------: | --------: | ---------------: |
-| GPT family      | anchor |       40 |            17 |       75 |            3 |           3 |                    40 |                   16 |        51 |               71 |
+| GPT family      | anchor |       42 |            18 |       77 |            3 |           3 |                    42 |                   18 |        53 |               74 |
 | Claude family   | anchor |       23 |             4 |       34 |            3 |           3 |                    23 |                    5 |        28 |               41 |
 | Gemini family   | anchor |       55 |            13 |       66 |            3 |           3 |                    32 |                   36 |        58 |               47 |
 | DeepSeek family | core   |       19 |             4 |       26 |            3 |           3 |                    18 |                    4 |        22 |               29 |
@@ -28,6 +28,7 @@ Counts follow publicly documented releases and meaningful updates, not equal quo
 | GPT family      | GPT-4o                        |       2 |               2 |                 2 | 2024-05-13 → 2024-07-18 |
 | GPT family      | GPT-4.5                       |       1 |               1 |                 1 | 2025-02-27 → 2025-02-27 |
 | GPT family      | GPT-5                         |       3 |               3 |                 3 | 2025-08-07 → 2025-08-07 |
+| GPT family      | GPT-6.2                       |       2 |               2 |                 2 | 2026-11-17 → 2026-11-17 |
 | GPT family      | GPT-6                         |       3 |               3 |                 3 | 2026-09-03 → 2026-09-22 |
 | GPT family      | GPT-6.1                       |       1 |               1 |                 1 | 2026-09-29 → 2026-09-29 |
 | GPT family      | GPT Image                     |       4 |               4 |                 4 | 2025-04-23 → 2026-09-08 |

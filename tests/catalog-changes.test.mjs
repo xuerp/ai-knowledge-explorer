@@ -45,7 +45,7 @@ test("reviewed non-release events contain dated evidence, differences and affect
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");
   assert.equal(events.length, 81);
-  assert.equal(changes.length, 287);
+  assert.equal(changes.length, 289);
   assert.deepEqual(
     new Set(events.map((item) => item.kind)),
     new Set(["updated", "deprecated", "pricing", "availability", "benchmark"]),
@@ -140,11 +140,15 @@ test("all confirmed releases produce unique, date-exact, sourced changes across 
   const changes = catalogReleaseChanges(snapshot);
   const entities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
   // Lite 0428 remains in the catalog, but its suffix cannot establish a release day.
-  assert.equal(changes.length, 206);
+  assert.equal(changes.length, 208);
   assert.equal(new Set(changes.map((change) => change.entityId)).size, changes.length);
   assert.equal(new Set(changes.map((change) => entities.get(change.entityId).familyId)).size, 13);
-  assert.equal(changes[0].date, "2026-11-16");
-  assert.equal(entities.get(changes[0].entityId).release.releaseId, "hy4-flash");
+  const latest = changes.slice(0, 2);
+  assert.ok(latest.every((change) => change.date === "2026-11-17"));
+  assert.deepEqual(
+    new Set(latest.map((change) => entities.get(change.entityId).release.releaseId)),
+    new Set(["gpt-6.2-astra", "gpt-6.2-sol"]),
+  );
   assert.equal(
     snapshot.meta.retrievedAt.slice(0, 10),
     [

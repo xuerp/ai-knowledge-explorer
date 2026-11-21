@@ -151,7 +151,8 @@ test("all seven peer families have complete, sourced family and release profiles
   const sources = new Map(snapshot.evidence.map((source) => [source.id, source]));
   for (const family of manifest.models.filter((model) => model.entityId !== "e-gemini")) {
     const entity = snapshot.entities.find((item) => item.id === family.entityId);
-    const familyReviewedAt = entity.id === "e-kimi" ? "2026-11-20" : "2026-10-01";
+    const familyReviewedAt =
+      { "e-gpt": "2026-11-21", "e-kimi": "2026-11-20" }[entity.id] ?? "2026-10-01";
     assert.equal(entity.lastUpdatedAt, familyReviewedAt, entity.id);
     if (entity.id === "e-kimi") {
       assert.match(entity.latestVersion, /K3\.1 Pro/);
@@ -191,15 +192,18 @@ test("all seven peer families have complete, sourced family and release profiles
       const newlyPublished = ["e-kimi-k3-1-pro", "e-hunyuan-hy4", "e-hunyuan-hy4-flash"].includes(
         version.id,
       );
-      const verified = newlyPublished
-        ? "2026-11-20"
-        : lifecycleRefreshed
-          ? "2026-10-30"
-          : refreshed
-            ? "2026-10-29"
-            : enrichedIds.has(version.id)
-              ? "2026-10-05"
-              : "2026-10-01";
+      const verified =
+        version.release.generation === "GPT-6.2"
+          ? "2026-11-21"
+          : newlyPublished
+            ? "2026-11-20"
+            : lifecycleRefreshed
+              ? "2026-10-30"
+              : refreshed
+                ? "2026-10-29"
+                : enrichedIds.has(version.id)
+                  ? "2026-10-05"
+                  : "2026-10-01";
       assert.equal(version.release.lastVerifiedAt, verified);
       // A source or chronology correction does not re-verify older billing facts.
       assert.ok(version.lastUpdatedAt >= verified, version.id);
@@ -331,6 +335,7 @@ test("current representatives use reviewed identity even when release dates are 
     ["e-deepseek", "deepseek-flash", "e-deepseek-v41-flash"],
     ["e-doubao", "doubao-pro", "e-doubao-seed21-pro"],
     ["e-ernie", "ernie-open", "e-ernie-45-vl-28b-a3b"],
+    ["e-gpt", "gpt-6-2", "e-gpt-62-astra"],
     ["e-gpt", "gpt-6-1", "e-gpt-61-sol"],
   ]) {
     const versions = snapshot.entities
@@ -343,7 +348,7 @@ test("current representatives use reviewed identity even when release dates are 
   }
   assert.equal(
     groupModelProductLines(snapshot.entities.filter((e) => e.familyId === "e-gpt"))[0].id,
-    "gpt-6-1",
+    "gpt-6-2",
   );
 });
 
@@ -352,8 +357,9 @@ test("GPT generations show iteration and keep Terra beside same-generation tiers
     snapshot.entities.filter((entity) => entity.familyId === "e-gpt"),
   );
   assert.deepEqual(
-    lines.slice(0, 12).map((line) => line.name.en),
+    lines.slice(0, 13).map((line) => line.name.en),
     [
+      "GPT-6.2",
       "GPT-6.1",
       "GPT-6",
       "GPT-5.6",
@@ -367,6 +373,10 @@ test("GPT generations show iteration and keep Terra beside same-generation tiers
       "GPT-4.1",
       "GPT-4o",
     ],
+  );
+  assert.deepEqual(
+    lines[0].versions.map((version) => version.release.variant),
+    ["Astra", "Sol"],
   );
   const generation = lines.find((line) => line.id === "gpt-5-6");
   assert.deepEqual(
@@ -422,7 +432,7 @@ test("comparison chooses reviewed general representatives and excludes pending r
   const { defaultComparableVersionIds, isComparableModelRelease, resolveComparisonSelection } =
     await vite.ssrLoadModule("/src/lib/comparison-selection.ts");
   const ids = defaultComparableVersionIds(snapshot.entities);
-  assert.deepEqual(ids.slice(0, 2), ["e-gpt-61-sol", "e-claude-fable-5-1"]);
+  assert.deepEqual(ids.slice(0, 2), ["e-gpt-62-astra", "e-claude-fable-5-1"]);
   assert.ok(
     snapshot.entities
       .find((entity) => entity.id === ids[2])
