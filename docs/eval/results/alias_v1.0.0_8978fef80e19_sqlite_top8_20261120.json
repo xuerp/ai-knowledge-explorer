@@ -4,7 +4,7 @@
     "sampleCount": 80,
     "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
     "aliasCatalogVersion": "1.0.0",
-    "aliasCatalogSha256": "ef59005e65687f450c932ec5adce9bdf508332558641bcde9f3124bb71a2bd0a",
+    "aliasCatalogSha256": "d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60",
     "retrievalMode": "lexical",
     "databaseDialect": "sqlite",
     "topK": 8,

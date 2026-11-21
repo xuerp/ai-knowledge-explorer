@@ -2,7 +2,7 @@
 
 - Golden Set：v1.0.0（80 条）
 - 固定快照：`8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e`
-- 别名目录：v1.0.0 (`ef59005e65687f450c932ec5adce9bdf508332558641bcde9f3124bb71a2bd0a`)
+- 别名目录：v1.0.0 (`d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60`)
 - 数据库方言：`sqlite`；TopK=8
 - 评估脚本提交：`66082be31c6c1a33afce14d9aaaf948c9f13fd80`
 - Embedding：未启用
