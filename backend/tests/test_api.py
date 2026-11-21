@@ -2130,9 +2130,8 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
         line: list(gemini_lines.values()).count(line) for line in set(gemini_lines.values())
     }
     assert line_counts == {
-        "gemini-4-frontier": 1,
+        "gemini-4": 4,
         "gemini-pro": 9,
-        "gemini-argon": 1,
         "gemini-flash": 9,
         "gemini-flash-lite": 5,
         "gemini-live": 8,
@@ -2156,7 +2155,12 @@ def test_model_family_version_catalog_and_comparison(client: TestClient):
     assert gemini_by_id["e-gemini-4-pending"]["release"]["stage"] == "stable"
     assert gemini_by_id["e-gemini-4-pending"]["release"]["apiModelIds"] == ["gemini-4-argon"]
     assert gemini_by_id["e-gemini-4-carbon"]["release"]["apiModelIds"] == ["gemini-4-carbon"]
-    assert len({item["slug"] for item in gemini_versions.json()}) == 55
+    assert len({item["slug"] for item in gemini_versions.json()}) == 57
+    assert {
+        item["release"]["apiModelIds"][0]
+        for item in gemini_versions.json()
+        if item["release"]["productLine"]["id"] == "gemini-4"
+    } == {"gemini-4-argon", "gemini-4-carbon", "gemini-4-hydrogen", "gemini-4-neon"}
     gemini_timeline = client.get("/api/v2/entities/e-gemini/timeline")
     assert gemini_timeline.status_code == 200
     assert {

@@ -30,10 +30,38 @@ test("family latest change includes concrete releases without taking another fam
   const changes = [...snapshot.changes].reverse();
   const before = structuredClone(changes);
   const latest = latestFamilyChange(changes, "e-gemini", snapshot.entities);
-  assert.equal(latest.entityId, "e-gemini-4-carbon");
-  assert.equal(latest.date, "2026-11-10");
+  assert.equal(latest.entityId, "e-gemini-4-neon");
+  assert.equal(latest.date, "2026-11-18");
   assert.deepEqual(changes, before);
   assert.equal(latestFamilyChange(changes, "missing-family", snapshot.entities), undefined);
+});
+
+test("Gemini 4 has one discoverable group with four separately documented API models", () => {
+  const versions = snapshot.entities.filter((entity) => entity.familyId === "e-gemini");
+  const groups = groupModelProductLines(versions);
+  const line = groups[0];
+  assert.equal(line.id, "gemini-4");
+  assert.deepEqual(
+    line.versions.map((entity) => entity.release.apiModelIds[0]),
+    ["gemini-4-neon", "gemini-4-hydrogen", "gemini-4-carbon", "gemini-4-argon"],
+  );
+  assert.equal(line.versions.at(-1).slug, "gemini-4");
+  assert.ok(!groups.some((group) => ["gemini-argon", "gemini-4-frontier"].includes(group.id)));
+  const sources = new Map(snapshot.evidence.map((source) => [source.id, source]));
+  for (const entity of line.versions) {
+    assert.ok(isCurrentProductLineVersion(line, entity));
+    assert.ok(entity.release.positioning.zh && entity.knowledge.useCases[0].description.en);
+    assert.match(entity.specs.contextWindow, /1,048,576/);
+    const pricing = snapshot.claims.find(
+      (claim) => claim.entityId === entity.id && claim.predicate === "official-api-pricing",
+    );
+    assert.equal(
+      sources.get(pricing.sourceIds[0]).url,
+      `https://aistudio.google.com/docs/pricing#${entity.release.releaseId}`,
+    );
+  }
+  assert.match(line.versions[1].specs.availability, /free and paid/);
+  assert.match(line.versions[2].specs.inputPrice, /2026-12-01/);
 });
 
 test("deprecated and retired GPT API versions stay browsable without a current badge", () => {
@@ -433,11 +461,7 @@ test("comparison chooses reviewed general representatives and excludes pending r
     await vite.ssrLoadModule("/src/lib/comparison-selection.ts");
   const ids = defaultComparableVersionIds(snapshot.entities);
   assert.deepEqual(ids.slice(0, 2), ["e-gpt-62-astra", "e-claude-fable-5-1"]);
-  assert.ok(
-    snapshot.entities
-      .find((entity) => entity.id === ids[2])
-      .release.productLine.id.endsWith("-pro"),
-  );
+  assert.equal(ids[2], "e-gemini-4-neon");
   const pending = snapshot.entities.find((entity) => entity.id === "e-deepseek-r2");
   assert.equal(isComparableModelRelease(pending), false);
   assert.deepEqual(resolveComparisonSelection("e-deepseek-r2,e-gpt-56-terra", snapshot.entities), {

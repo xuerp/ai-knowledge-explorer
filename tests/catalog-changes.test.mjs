@@ -45,7 +45,7 @@ test("reviewed non-release events contain dated evidence, differences and affect
   const changes = catalogChanges(snapshot);
   const events = changes.filter((item) => item.kind !== "new");
   assert.equal(events.length, 81);
-  assert.equal(changes.length, 289);
+  assert.equal(changes.length, 291);
   assert.deepEqual(
     new Set(events.map((item) => item.kind)),
     new Set(["updated", "deprecated", "pricing", "availability", "benchmark"]),
@@ -140,10 +140,12 @@ test("all confirmed releases produce unique, date-exact, sourced changes across 
   const changes = catalogReleaseChanges(snapshot);
   const entities = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
   // Lite 0428 remains in the catalog, but its suffix cannot establish a release day.
-  assert.equal(changes.length, 208);
+  assert.equal(changes.length, 210);
   assert.equal(new Set(changes.map((change) => change.entityId)).size, changes.length);
   assert.equal(new Set(changes.map((change) => entities.get(change.entityId).familyId)).size, 13);
-  const latest = changes.slice(0, 2);
+  assert.equal(changes[0].entityId, "e-gemini-4-neon");
+  assert.equal(changes[0].date, "2026-11-18");
+  const latest = changes.slice(1, 3);
   assert.ok(latest.every((change) => change.date === "2026-11-17"));
   assert.deepEqual(
     new Set(latest.map((change) => entities.get(change.entityId).release.releaseId)),

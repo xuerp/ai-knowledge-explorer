@@ -9,9 +9,9 @@
     }
   },
   "catalogUpdatedAt": "2026-11-21",
-  "entityCount": 269,
-  "claimCount": 376,
-  "sourcedClaimCount": 376,
+  "entityCount": 271,
+  "claimCount": 386,
+  "sourcedClaimCount": 386,
   "relationshipCount": 48,
   "entities": [
     {
@@ -36,7 +36,7 @@
       "slug": "gemini",
       "name": { "zh": "Gemini 系列", "en": "Gemini family" },
       "vendor": "Google DeepMind",
-      "latestVersion": "4 Carbon · 4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite"
+      "latestVersion": "4 Carbon · 4 Neon · 4 Hydrogen · 4 Argon"
     },
     {
       "id": "e-deepseek",
@@ -177,12 +177,12 @@
       "vendor": "OpenAI"
     },
     {
-      "id": "e-hunyuan-hy4-flash",
+      "id": "e-gemini-4-neon",
       "type": "model",
-      "slug": "hunyuan-hy4-flash",
-      "name": { "zh": "混元 Hy4 flash", "en": "Tencent Hy4 flash" },
-      "familyId": "e-hunyuan",
-      "vendor": "Tencent"
+      "slug": "gemini-4-neon",
+      "name": { "zh": "Gemini 4 Neon", "en": "Gemini 4 Neon" },
+      "familyId": "e-gemini",
+      "vendor": "Google DeepMind"
     }
   ],
   "evidence": [
@@ -191,6 +191,14 @@
     { "id": "s-openai-catalog-20261001", "url": "https://developers.openai.com/api/docs/models" }
   ],
   "changes": [
+    {
+      "id": "change-release-e-gemini-4-neon",
+      "entityId": "e-gemini-4-neon",
+      "date": "2026-11-18",
+      "summary": { "zh": "Gemini 4 Neon 发布", "en": "Gemini 4 Neon released" },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-neon-launch-20261121"]
+    },
     {
       "id": "change-release-e-gpt-62-sol",
       "entityId": "e-gpt-62-sol",
@@ -206,14 +214,6 @@
       "summary": { "zh": "GPT-6.2 Astra 发布", "en": "GPT-6.2 Astra released" },
       "confidence": "verified",
       "sourceIds": ["s-openai-gpt-62-announcement", "s-gpt-6-2-astra-model-card"]
-    },
-    {
-      "id": "change-release-e-hunyuan-hy4-flash",
-      "entityId": "e-hunyuan-hy4-flash",
-      "date": "2026-11-16",
-      "summary": { "zh": "混元 Hy4 flash 发布", "en": "Tencent Hy4 flash released" },
-      "confidence": "verified",
-      "sourceIds": ["s-hunyuan-hy4-flash-release"]
     }
   ],
   "featuredRelations": [

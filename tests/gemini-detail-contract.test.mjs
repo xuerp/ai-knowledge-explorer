@@ -47,7 +47,13 @@ test("detail loader keeps relationship evidence and the latest change without th
     knowledgeRepository.getEntityPage = async (type, slug) =>
       projectEntityDetail(snapshot, type, slug);
 
-    for (const slug of ["gemini", "gemini-4-carbon"]) {
+    for (const [slug, entityId] of [
+      ["gemini", "e-gemini-4-neon"],
+      ["gemini-4", "e-gemini-4-pending"],
+      ["gemini-4-carbon", "e-gemini-4-carbon"],
+      ["gemini-4-hydrogen", "e-gemini-4-hydrogen"],
+      ["gemini-4-neon", "e-gemini-4-neon"],
+    ]) {
       const original = await knowledgeRepository.getEntityPage("model", slug);
       const { entity, page } = await Route.options.loader({ params: { slug } });
       assert.equal(entity.slug, slug);
@@ -55,7 +61,7 @@ test("detail loader keeps relationship evidence and the latest change without th
       assert.deepEqual(page.relations, original.graph.edges);
       assert.deepEqual(page.evidence, original.evidence);
       assert.deepEqual(page.timeline, original.timeline[entity.id]);
-      assert.equal(page.recentChange.entityId, "e-gemini-4-carbon");
+      assert.equal(page.recentChange.entityId, entityId);
       assert.equal("graph" in page, false);
       assert.equal("changes" in page, false);
     }
@@ -89,7 +95,7 @@ test("family reading modes expose a quiet boundary note and distinct line views"
     readFile("src/styles.css", "utf8"),
   ]);
   assert.match(route, /mode === "technical" \? \(/);
-  assert.match(route, /mode === "product" && \(/);
+  assert.match(route, /mode === "product" && !hasVariantPositions && \(/);
   assert.match(route, /className="model-family__all-versions"/);
   assert.match(article, /className="knowledge-boundary"/);
   assert.match(

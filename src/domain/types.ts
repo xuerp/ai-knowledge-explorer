@@ -132,6 +132,7 @@ export interface ModelProductLine {
 export interface ModelReleaseMetadata {
   generation: string;
   variant: string;
+  positioning?: LocalizedText;
   releaseId: string;
   apiModelIds: string[];
   stage: ModelReleaseStage;

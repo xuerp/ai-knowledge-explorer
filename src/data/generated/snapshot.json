@@ -1012,14 +1012,14 @@
       "vendor": "Google DeepMind",
       "origin": { "zh": "海外", "en": "Overseas" },
       "summary": {
-        "zh": "Google DeepMind 的多模态旗舰模型家族，原生支持文本、图像、音频与视频输入。",
-        "en": "Google DeepMind's multimodal flagship family with native text, image, audio and video inputs."
+        "zh": "Google Gemini 家族涵盖 Gemini 4、此前的 Pro 与 Flash，以及图像、语音、视频、向量等专用型号。Gemini 4 包含 Argon、Carbon、Hydrogen 和 Neon。",
+        "en": "The Google Gemini family includes Gemini 4, earlier Pro and Flash lines, and specialized models for images, speech, video and embeddings. The Gemini 4 generation includes Argon, Carbon, Hydrogen and Neon."
       },
       "status": "active",
       "tags": ["LLM", "闭源", "多模态", "长上下文"],
-      "latestVersion": "4 Carbon · 4 Argon · 3.8 Flash · 3.8 Live · 3.8 TTS · 3.5 Flash-Lite",
+      "latestVersion": "4 Carbon · 4 Neon · 4 Hydrogen · 4 Argon",
       "firstReleasedAt": "2023-12-06",
-      "lastUpdatedAt": "2026-11-20",
+      "lastUpdatedAt": "2026-11-21",
       "capabilities": [
         { "zh": "超长上下文分析", "en": "Ultra-long context analysis", "confidence": "verified" },
         {
@@ -11181,91 +11181,126 @@
       "slug": "gemini-4-carbon",
       "name": { "zh": "Gemini 4 Carbon", "en": "Gemini 4 Carbon" },
       "summary": {
-        "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
-        "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+        "zh": "面向难度较高的软件工程、数学与科学推理，以及需要多步分析的任务。",
+        "en": "For difficult software engineering, mathematical and scientific reasoning, and tasks that need multi-step analysis."
       },
-      "vendor": "Google",
-      "origin": { "zh": "美国", "en": "United States" },
+      "vendor": "Google DeepMind",
+      "origin": { "zh": "海外", "en": "Overseas" },
       "status": "active",
-      "tags": ["具体版本", "Gemini 4 通用前沿"],
+      "tags": ["具体版本", "Gemini 4", "多模态", "推理"],
       "firstReleasedAt": "2026-11-10",
-      "lastUpdatedAt": "2026-11-20",
-      "aliases": ["gemini-4-carbon"],
+      "lastUpdatedAt": "2026-11-21",
+      "aliases": ["gemini-4-carbon", "Gemini 4 Carbon"],
       "familyId": "e-gemini",
       "release": {
         "generation": "Gemini 4",
-        "variant": "Gemini 4 Carbon",
+        "variant": "Carbon",
+        "positioning": { "zh": "高难度深度推理", "en": "Deep reasoning for hard tasks" },
         "releaseId": "gemini-4-carbon",
         "apiModelIds": ["gemini-4-carbon"],
         "stage": "stable",
         "productLine": {
-          "id": "gemini-4-frontier",
-          "name": { "zh": "Gemini 4 通用前沿", "en": "Gemini 4 frontier" },
-          "positioning": { "zh": "Gemini 4 通用前沿", "en": "Gemini 4 frontier" }
+          "id": "gemini-4",
+          "name": { "zh": "Gemini 4", "en": "Gemini 4" },
+          "positioning": {
+            "zh": "同一代的四个通用型号，按日常执行、速度与推理深度选用。",
+            "en": "Four general-purpose models in the same generation, with different trade-offs in speed and reasoning depth."
+          }
         },
         "catalogCurrent": true,
         "releasedAt": "2026-11-10",
-        "lastVerifiedAt": "2026-11-20",
+        "lastVerifiedAt": "2026-11-21",
         "accessChannels": [
           {
             "type": "official-api",
-            "provider": "Google",
+            "provider": "Gemini Developer API",
+            "modelId": "gemini-4-carbon",
+            "url": "https://aistudio.google.com/docs/models/gemini-4-carbon"
+          },
+          {
+            "type": "first-party-product",
+            "provider": "Google AI Studio",
+            "url": "https://aistudio.google.com/prompts/new_chat?model=gemini-4-carbon"
+          },
+          {
+            "type": "managed-cloud",
+            "provider": "Google Cloud",
             "modelId": "gemini-4-carbon",
             "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
           }
         ]
       },
       "capabilities": [
+        { "zh": "高难度深度推理", "en": "Deep reasoning for hard tasks", "confidence": "verified" },
         {
-          "zh": "官方模型卡列出文本、图像、音频与视频输入，输入输出合计上下文最高为 1M tokens。",
-          "en": "The model card lists text, image, audio and video inputs and up to 1M combined input-output tokens.",
+          "zh": "支持函数调用、结构化输出、代码执行和 Google 搜索。",
+          "en": "Supports function calling, structured output, code execution and Google Search.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
-            "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+            "zh": "面向难度较高的软件工程、数学与科学推理，以及需要多步分析的任务。",
+            "en": "For difficult software engineering, mathematical and scientific reasoning, and tasks that need multi-step analysis."
           }
         ],
-        "significance": { "zh": "官方发布与入口", "en": "Official launch and access" },
+        "significance": { "zh": "高难度深度推理", "en": "Deep reasoning for hard tasks" },
         "keyPoints": [
           {
-            "title": { "zh": "型号与可用入口", "en": "Identity and availability" },
+            "title": { "zh": "官方型号定位", "en": "Official model positioning" },
             "description": {
-              "zh": "Gemini 4 Carbon 已面向付费开发者和企业开放 API。",
-              "en": "Gemini 4 Carbon is available via API to paying developers and enterprises."
+              "zh": "面向难度较高的软件工程、数学与科学推理，以及需要多步分析的任务。",
+              "en": "For difficult software engineering, mathematical and scientific reasoning, and tasks that need multi-step analysis."
             },
-            "sourceIds": ["s-gemini-4-carbon-release", "s-gemini-4-carbon-api"]
+            "sourceIds": ["s-gemini-4-carbon-release", "s-gemini-4-carbon-developer-spec-20261121"]
           },
           {
-            "title": { "zh": "输入和上下文", "en": "Inputs and context" },
+            "title": { "zh": "上下文与输出上限", "en": "Context and output limits" },
             "description": {
-              "zh": "官方模型卡列出文本、图像、音频与视频输入，输入输出合计上下文最高为 1M tokens。",
-              "en": "The model card lists text, image, audio and video inputs and up to 1M combined input-output tokens."
+              "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。",
+              "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window."
             },
-            "sourceIds": ["s-gemini-4-carbon-model-card"]
+            "sourceIds": ["s-gemini-4-carbon-developer-spec-20261121"]
+          },
+          {
+            "title": { "zh": "API 计费", "en": "API pricing" },
+            "description": {
+              "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $2.00，输出 $10.00。 上述价格截至 2026-11-30，2026-12-01 起为输入 $4.00、输出 $20.00。 Gemini Developer API 无免费层。",
+              "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API."
+            },
+            "sourceIds": ["s-gemini-4-carbon-developer-pricing-20261121"]
           }
         ],
         "useCases": [
           {
-            "title": { "zh": "公开资料分析", "en": "Public document analysis" },
+            "title": { "zh": "多步骤技术方案", "en": "Multi-step technical design" },
             "description": {
-              "zh": "使用公开资料试跑总结与结构化输出，并逐项核对出处。",
-              "en": "Try summarization and structured output on public documents and check every source."
+              "zh": "给出一份公开技术规范和验收项，请它输出方案、权衡与验证步骤，再逐项检查规格覆盖情况。",
+              "en": "Give it a public technical specification and acceptance criteria, then check its design, trade-offs and validation steps against the requirements."
             }
           }
         ],
         "limitations": [
           {
-            "zh": "实际使用前请核对账号权限、地区和计费条件。",
-            "en": "Check account access, region and billing terms before use."
+            "zh": "支持多模态输入，这个 API 型号的输出为文本。",
+            "en": "This API model accepts multimodal input and emits text."
+          },
+          {
+            "zh": "同步输出默认最多 65,536 token。启用长输出后可提高上限，输入和输出仍合计不超过 1,048,576 token。",
+            "en": "Synchronous output defaults to a 65,536-token limit. Long decode can raise it within the shared 1,048,576-token limit."
           }
         ],
-        "officialUrl": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/"
+        "officialUrl": "https://aistudio.google.com/docs/models/gemini-4-carbon"
       },
-      "specs": { "availability": "Gemini API paid tier / Google Cloud" },
+      "specs": {
+        "contextWindow": "1,048,576 shared input and output tokens",
+        "modalities": "Text, images, audio, video, PDF input · text output",
+        "toolUse": "Function calling, structured output, code execution, Google Search",
+        "availability": "Gemini Developer API (paid tier only)",
+        "inputPrice": "$2.00 / 1M tokens through 2026-11-30 · $4.00 / 1M tokens from 2026-12-01",
+        "outputPrice": "$10.00 / 1M tokens through 2026-11-30 · $20.00 / 1M tokens from 2026-12-01"
+      },
       "metrics": []
     },
     {
@@ -15538,90 +15573,117 @@
       "vendor": "Google DeepMind",
       "origin": { "zh": "海外", "en": "Overseas" },
       "summary": {
-        "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
-        "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+        "zh": "处理复杂编码、数学和科学任务。Google 将它定位为较 Carbon 响应更快、每轮 token 消耗更低的前沿推理型号。",
+        "en": "For complex coding, math and science. Google positions it as frontier reasoning with faster responses and lower token spend per turn than Carbon."
       },
       "status": "active",
-      "tags": ["具体版本", "Gemini 4", "推理", "多模态"],
-      "lastUpdatedAt": "2026-10-29",
+      "tags": ["具体版本", "Gemini 4", "多模态", "推理"],
+      "lastUpdatedAt": "2026-11-21",
       "release": {
         "generation": "Gemini 4",
         "variant": "Argon",
+        "positioning": { "zh": "高效率前沿推理", "en": "Efficient frontier reasoning" },
         "releaseId": "gemini-4-argon",
         "apiModelIds": ["gemini-4-argon"],
         "stage": "stable",
         "productLine": {
-          "id": "gemini-argon",
-          "name": { "zh": "Gemini Argon", "en": "Gemini Argon" },
+          "id": "gemini-4",
+          "name": { "zh": "Gemini 4", "en": "Gemini 4" },
           "positioning": {
-            "zh": "复杂软件工程、数学科学推理与多步 Agent",
-            "en": "Complex software engineering, mathematical and scientific reasoning, and multi-step agents"
+            "zh": "同一代的四个通用型号，按日常执行、速度与推理深度选用。",
+            "en": "Four general-purpose models in the same generation, with different trade-offs in speed and reasoning depth."
           }
         },
-        "lastVerifiedAt": "2026-10-29",
+        "catalogCurrent": true,
+        "releasedAt": "2026-10-13",
+        "lastVerifiedAt": "2026-11-21",
         "accessChannels": [
           {
             "type": "official-api",
             "provider": "Gemini Developer API",
             "modelId": "gemini-4-argon",
-            "url": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon"
+            "url": "https://aistudio.google.com/docs/models/gemini-4-argon"
+          },
+          {
+            "type": "first-party-product",
+            "provider": "Google AI Studio",
+            "url": "https://aistudio.google.com/prompts/new_chat?model=gemini-4-argon"
           }
-        ],
-        "catalogCurrent": true,
-        "releasedAt": "2026-10-13"
+        ]
       },
       "specs": {
-        "contextWindow": "1,048,576 统一输入与输出；默认同步最大输出 65,536，long decode 最高 1,048,576",
-        "inputPrice": null,
-        "outputPrice": null,
-        "modalities": "文本、图像、视频、音频与 PDF 输入；文本输出",
-        "toolUse": "函数调用、结构化输出、代码执行、搜索；Computer Use 为 Preview",
-        "availability": "Gemini API GA · Google AI Studio"
+        "contextWindow": "1,048,576 shared input and output tokens",
+        "modalities": "Text, images, audio, video, PDF input · text output",
+        "toolUse": "Function calling, structured output, code execution, Google Search",
+        "availability": "Gemini Developer API (paid tier only)",
+        "inputPrice": "$2.00 / 1M tokens through 2026-11-30 · $4.00 / 1M tokens from 2026-12-01",
+        "outputPrice": "$10.00 / 1M tokens through 2026-11-30 · $20.00 / 1M tokens from 2026-12-01"
       },
       "capabilities": [
+        { "zh": "高效率前沿推理", "en": "Efficient frontier reasoning", "confidence": "verified" },
         {
-          "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
-          "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents.",
+          "zh": "支持函数调用、结构化输出、代码执行和 Google 搜索。",
+          "en": "Supports function calling, structured output, code execution and Google Search.",
           "confidence": "verified"
         }
       ],
       "knowledge": {
         "introduction": [
           {
-            "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
-            "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+            "zh": "处理复杂编码、数学和科学任务。Google 将它定位为较 Carbon 响应更快、每轮 token 消耗更低的前沿推理型号。",
+            "en": "For complex coding, math and science. Google positions it as frontier reasoning with faster responses and lower token spend per turn than Carbon."
           }
         ],
-        "significance": {
-          "zh": "将现有待发布占位更新为官方正式型号",
-          "en": "Replaces the existing pending entry with the official stable model"
-        },
+        "significance": { "zh": "高效率前沿推理", "en": "Efficient frontier reasoning" },
         "keyPoints": [
           {
-            "title": { "zh": "正式 API 型号", "en": "Stable API model" },
+            "title": { "zh": "官方型号定位", "en": "Official model positioning" },
             "description": {
-              "zh": "Gemini 4 Argon 于 2026-10-13 正式发布，API 标识为 gemini-4-argon；面向复杂编程、推理与多步 Agent。",
-              "en": "Gemini 4 Argon reached GA on 2026-10-13 with API ID gemini-4-argon, for complex coding, reasoning and multi-step agents."
+              "zh": "处理复杂编码、数学和科学任务。Google 将它定位为较 Carbon 响应更快、每轮 token 消耗更低的前沿推理型号。",
+              "en": "For complex coding, math and science. Google positions it as frontier reasoning with faster responses and lower token spend per turn than Carbon."
             },
-            "sourceIds": ["s-google-gemini4-argon-20261029"]
+            "sourceIds": [
+              "s-google-gemini4-release-20261029",
+              "s-gemini-4-argon-developer-spec-20261121"
+            ]
           },
           {
-            "title": { "zh": "统一上下文与输出", "en": "Unified context and output" },
+            "title": { "zh": "上下文与输出上限", "en": "Context and output limits" },
             "description": {
-              "zh": "1,048,576 统一输入与输出；默认同步最大输出 65,536，long decode 最高 1,048,576",
-              "en": "1,048,576 tokens shared by input and output; default synchronous output 65,536, up to 1,048,576 with long decode."
+              "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。",
+              "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window."
             },
-            "sourceIds": ["s-google-gemini4-argon-20261029"]
+            "sourceIds": ["s-gemini-4-argon-developer-spec-20261121"]
+          },
+          {
+            "title": { "zh": "API 计费", "en": "API pricing" },
+            "description": {
+              "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $2.00，输出 $10.00。 上述价格截至 2026-11-30，2026-12-01 起为输入 $4.00、输出 $20.00。 Gemini Developer API 无免费层。",
+              "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API."
+            },
+            "sourceIds": ["s-gemini-4-argon-developer-pricing-20261121"]
           }
         ],
-        "useCases": [],
+        "useCases": [
+          {
+            "title": { "zh": "复杂代码审阅", "en": "Complex code review" },
+            "description": {
+              "zh": "用同一份公开代码和验收条件对照 Carbon，记录找出的问题、用时和 token 消耗。",
+              "en": "Review the same public code with Argon and Carbon, then compare findings, elapsed time and token use."
+            }
+          }
+        ],
         "limitations": [
           {
-            "zh": "价格本轮未核实；明确缓存不支持，仅支持隐式缓存；Computer Use 仍为预览。",
-            "en": "Pricing was not verified in this review. Explicit caching is unsupported; implicit caching is supported. Computer Use remains preview."
+            "zh": "支持多模态输入，这个 API 型号的输出为文本。",
+            "en": "This API model accepts multimodal input and emits text."
+          },
+          {
+            "zh": "同步输出默认最多 65,536 token。启用长输出后可提高上限，输入和输出仍合计不超过 1,048,576 token。",
+            "en": "Synchronous output defaults to a 65,536-token limit. Long decode can raise it within the shared 1,048,576-token limit."
           }
         ],
-        "officialUrl": "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon"
+        "officialUrl": "https://aistudio.google.com/docs/models/gemini-4-argon"
       },
       "firstReleasedAt": "2026-10-13"
     },
@@ -33270,6 +33332,258 @@
       },
       "latestVersion": null,
       "metrics": []
+    },
+    {
+      "id": "e-gemini-4-hydrogen",
+      "type": "model",
+      "slug": "gemini-4-hydrogen",
+      "name": { "zh": "Gemini 4 Hydrogen", "en": "Gemini 4 Hydrogen" },
+      "summary": {
+        "zh": "面向日常编码、调试和多步骤任务中的快速执行，Gemini Developer API 提供免费层。",
+        "en": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier."
+      },
+      "vendor": "Google DeepMind",
+      "origin": { "zh": "海外", "en": "Overseas" },
+      "status": "active",
+      "tags": ["具体版本", "Gemini 4", "多模态", "推理"],
+      "firstReleasedAt": "2026-11-12",
+      "lastUpdatedAt": "2026-11-21",
+      "aliases": ["gemini-4-hydrogen", "Gemini 4 Hydrogen"],
+      "familyId": "e-gemini",
+      "release": {
+        "generation": "Gemini 4",
+        "variant": "Hydrogen",
+        "positioning": { "zh": "快速日常执行", "en": "Fast day-to-day execution" },
+        "releaseId": "gemini-4-hydrogen",
+        "apiModelIds": ["gemini-4-hydrogen"],
+        "stage": "stable",
+        "productLine": {
+          "id": "gemini-4",
+          "name": { "zh": "Gemini 4", "en": "Gemini 4" },
+          "positioning": {
+            "zh": "同一代的四个通用型号，按日常执行、速度与推理深度选用。",
+            "en": "Four general-purpose models in the same generation, with different trade-offs in speed and reasoning depth."
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-12",
+        "lastVerifiedAt": "2026-11-21",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Gemini Developer API",
+            "modelId": "gemini-4-hydrogen",
+            "url": "https://aistudio.google.com/docs/models/gemini-4-hydrogen"
+          },
+          {
+            "type": "first-party-product",
+            "provider": "Google AI Studio",
+            "url": "https://aistudio.google.com/prompts/new_chat?model=gemini-4-hydrogen"
+          }
+        ]
+      },
+      "specs": {
+        "contextWindow": "1,048,576 shared input and output tokens",
+        "modalities": "Text, images, audio, video, PDF input · text output",
+        "toolUse": "Function calling, structured output, code execution, Google Search",
+        "availability": "Gemini Developer API (free and paid tiers)",
+        "inputPrice": "$1.50 / 1M tokens",
+        "outputPrice": "$7.50 / 1M tokens"
+      },
+      "capabilities": [
+        { "zh": "快速日常执行", "en": "Fast day-to-day execution", "confidence": "verified" },
+        {
+          "zh": "支持函数调用、结构化输出、代码执行和 Google 搜索。",
+          "en": "Supports function calling, structured output, code execution and Google Search.",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "面向日常编码、调试和多步骤任务中的快速执行，Gemini Developer API 提供免费层。",
+            "en": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier."
+          }
+        ],
+        "significance": { "zh": "快速日常执行", "en": "Fast day-to-day execution" },
+        "keyPoints": [
+          {
+            "title": { "zh": "官方型号定位", "en": "Official model positioning" },
+            "description": {
+              "zh": "面向日常编码、调试和多步骤任务中的快速执行，Gemini Developer API 提供免费层。",
+              "en": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier."
+            },
+            "sourceIds": [
+              "s-gemini-4-hydrogen-launch-20261121",
+              "s-gemini-4-hydrogen-developer-spec-20261121"
+            ]
+          },
+          {
+            "title": { "zh": "上下文与输出上限", "en": "Context and output limits" },
+            "description": {
+              "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。",
+              "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window."
+            },
+            "sourceIds": ["s-gemini-4-hydrogen-developer-spec-20261121"]
+          },
+          {
+            "title": { "zh": "API 计费", "en": "API pricing" },
+            "description": {
+              "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $1.50，输出 $7.50。 API 有免费层，受账号配额限制。",
+              "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $1.50, output $7.50. The API offers a free tier, subject to account quotas."
+            },
+            "sourceIds": ["s-gemini-4-hydrogen-developer-pricing-20261121"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "快速修改与验证", "en": "Quick edits and verification" },
+            "description": {
+              "zh": "先用免费层试跑一次低风险代码修改，检查输出能否通过已有测试，再评估速度是否满足日常使用。",
+              "en": "Try a low-risk code change on the free tier and check it against existing tests before judging whether it is fast enough for daily work."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "支持多模态输入，这个 API 型号的输出为文本。",
+            "en": "This API model accepts multimodal input and emits text."
+          },
+          {
+            "zh": "同步输出默认最多 65,536 token。启用长输出后可提高上限，输入和输出仍合计不超过 1,048,576 token。",
+            "en": "Synchronous output defaults to a 65,536-token limit. Long decode can raise it within the shared 1,048,576-token limit."
+          }
+        ],
+        "officialUrl": "https://aistudio.google.com/docs/models/gemini-4-hydrogen"
+      }
+    },
+    {
+      "id": "e-gemini-4-neon",
+      "type": "model",
+      "slug": "gemini-4-neon",
+      "name": { "zh": "Gemini 4 Neon", "en": "Gemini 4 Neon" },
+      "summary": {
+        "zh": "介于 Hydrogen 与 Carbon 之间，适合既有推理难度、又需要较快交付的工程与知识工作。",
+        "en": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround."
+      },
+      "vendor": "Google DeepMind",
+      "origin": { "zh": "海外", "en": "Overseas" },
+      "status": "active",
+      "tags": ["具体版本", "Gemini 4", "多模态", "推理"],
+      "firstReleasedAt": "2026-11-18",
+      "lastUpdatedAt": "2026-11-21",
+      "aliases": ["gemini-4-neon", "Gemini 4 Neon"],
+      "familyId": "e-gemini",
+      "release": {
+        "generation": "Gemini 4",
+        "variant": "Neon",
+        "positioning": { "zh": "速度与推理深度均衡", "en": "Balance of speed and reasoning" },
+        "releaseId": "gemini-4-neon",
+        "apiModelIds": ["gemini-4-neon"],
+        "stage": "stable",
+        "productLine": {
+          "id": "gemini-4",
+          "name": { "zh": "Gemini 4", "en": "Gemini 4" },
+          "positioning": {
+            "zh": "同一代的四个通用型号，按日常执行、速度与推理深度选用。",
+            "en": "Four general-purpose models in the same generation, with different trade-offs in speed and reasoning depth."
+          }
+        },
+        "catalogCurrent": true,
+        "releasedAt": "2026-11-18",
+        "lastVerifiedAt": "2026-11-21",
+        "accessChannels": [
+          {
+            "type": "official-api",
+            "provider": "Gemini Developer API",
+            "modelId": "gemini-4-neon",
+            "url": "https://aistudio.google.com/docs/models/gemini-4-neon"
+          },
+          {
+            "type": "first-party-product",
+            "provider": "Google AI Studio",
+            "url": "https://aistudio.google.com/prompts/new_chat?model=gemini-4-neon"
+          }
+        ]
+      },
+      "specs": {
+        "contextWindow": "1,048,576 shared input and output tokens",
+        "modalities": "Text, images, audio, video, PDF input · text output",
+        "toolUse": "Function calling, structured output, code execution, Google Search",
+        "availability": "Gemini Developer API (paid tier only)",
+        "inputPrice": "$3.00 / 1M tokens",
+        "outputPrice": "$15.00 / 1M tokens"
+      },
+      "capabilities": [
+        {
+          "zh": "速度与推理深度均衡",
+          "en": "Balance of speed and reasoning",
+          "confidence": "verified"
+        },
+        {
+          "zh": "支持函数调用、结构化输出、代码执行和 Google 搜索。",
+          "en": "Supports function calling, structured output, code execution and Google Search.",
+          "confidence": "verified"
+        }
+      ],
+      "knowledge": {
+        "introduction": [
+          {
+            "zh": "介于 Hydrogen 与 Carbon 之间，适合既有推理难度、又需要较快交付的工程与知识工作。",
+            "en": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround."
+          }
+        ],
+        "significance": { "zh": "速度与推理深度均衡", "en": "Balance of speed and reasoning" },
+        "keyPoints": [
+          {
+            "title": { "zh": "官方型号定位", "en": "Official model positioning" },
+            "description": {
+              "zh": "介于 Hydrogen 与 Carbon 之间，适合既有推理难度、又需要较快交付的工程与知识工作。",
+              "en": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround."
+            },
+            "sourceIds": [
+              "s-gemini-4-neon-launch-20261121",
+              "s-gemini-4-neon-developer-spec-20261121"
+            ]
+          },
+          {
+            "title": { "zh": "上下文与输出上限", "en": "Context and output limits" },
+            "description": {
+              "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。",
+              "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window."
+            },
+            "sourceIds": ["s-gemini-4-neon-developer-spec-20261121"]
+          },
+          {
+            "title": { "zh": "API 计费", "en": "API pricing" },
+            "description": {
+              "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $3.00，输出 $15.00。 Gemini Developer API 无免费层。",
+              "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $3.00, output $15.00. No free tier on the Gemini Developer API."
+            },
+            "sourceIds": ["s-gemini-4-neon-developer-pricing-20261121"]
+          }
+        ],
+        "useCases": [
+          {
+            "title": { "zh": "交互式原型", "en": "Interactive prototyping" },
+            "description": {
+              "zh": "给出同一份界面需求，让 Neon 和 Hydrogen 各完成一次原型，比较通过的验收项和交付时间。",
+              "en": "Give Neon and Hydrogen the same UI brief and compare which acceptance criteria each prototype meets and how long it takes."
+            }
+          }
+        ],
+        "limitations": [
+          {
+            "zh": "支持多模态输入，这个 API 型号的输出为文本。",
+            "en": "This API model accepts multimodal input and emits text."
+          },
+          {
+            "zh": "同步输出默认最多 65,536 token。启用长输出后可提高上限，输入和输出仍合计不超过 1,048,576 token。",
+            "en": "Synchronous output defaults to a 65,536-token limit. Long decode can raise it within the shared 1,048,576-token limit."
+          }
+        ],
+        "officialUrl": "https://aistudio.google.com/docs/models/gemini-4-neon"
+      }
     }
   ],
   "evidence": [
@@ -41762,6 +42076,146 @@
       "type": "official",
       "supportsClaimIds": ["c-portfolio-gpt45-20261104"],
       "contradictsClaimIds": null
+    },
+    {
+      "id": "s-gemini-4-argon-developer-spec-20261121",
+      "title": { "zh": "Gemini 4 Argon API 规格", "en": "Gemini 4 Argon API specifications" },
+      "url": "https://aistudio.google.com/docs/models/gemini-4-argon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-argon-developer-spec-20261121"]
+    },
+    {
+      "id": "s-gemini-4-argon-developer-pricing-20261121",
+      "title": { "zh": "Gemini 4 Argon API 定价", "en": "Gemini 4 Argon API pricing" },
+      "url": "https://aistudio.google.com/docs/pricing#gemini-4-argon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-argon-developer-pricing-20261121"]
+    },
+    {
+      "id": "s-gemini-4-carbon-developer-spec-20261121",
+      "title": { "zh": "Gemini 4 Carbon API 规格", "en": "Gemini 4 Carbon API specifications" },
+      "url": "https://aistudio.google.com/docs/models/gemini-4-carbon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-carbon-developer-spec-20261121"]
+    },
+    {
+      "id": "s-gemini-4-carbon-developer-pricing-20261121",
+      "title": { "zh": "Gemini 4 Carbon API 定价", "en": "Gemini 4 Carbon API pricing" },
+      "url": "https://aistudio.google.com/docs/pricing#gemini-4-carbon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-carbon-developer-pricing-20261121"]
+    },
+    {
+      "id": "s-gemini-4-hydrogen-developer-spec-20261121",
+      "title": { "zh": "Gemini 4 Hydrogen API 规格", "en": "Gemini 4 Hydrogen API specifications" },
+      "url": "https://aistudio.google.com/docs/models/gemini-4-hydrogen",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-hydrogen-developer-spec-20261121"]
+    },
+    {
+      "id": "s-gemini-4-hydrogen-developer-pricing-20261121",
+      "title": { "zh": "Gemini 4 Hydrogen API 定价", "en": "Gemini 4 Hydrogen API pricing" },
+      "url": "https://aistudio.google.com/docs/pricing#gemini-4-hydrogen",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $1.50, output $7.50. The API offers a free tier, subject to account quotas.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-hydrogen-developer-pricing-20261121"]
+    },
+    {
+      "id": "s-gemini-4-hydrogen-launch-20261121",
+      "title": { "zh": "Gemini 4 Hydrogen 发布公告", "en": "Gemini 4 Hydrogen launch" },
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/",
+      "publisher": "Google",
+      "publishedAt": "2026-11-12",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-hydrogen-released"]
+    },
+    {
+      "id": "s-gemini-4-neon-developer-spec-20261121",
+      "title": { "zh": "Gemini 4 Neon API 规格", "en": "Gemini 4 Neon API specifications" },
+      "url": "https://aistudio.google.com/docs/models/gemini-4-neon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-neon-developer-spec-20261121"]
+    },
+    {
+      "id": "s-gemini-4-neon-developer-pricing-20261121",
+      "title": { "zh": "Gemini 4 Neon API 定价", "en": "Gemini 4 Neon API pricing" },
+      "url": "https://aistudio.google.com/docs/pricing#gemini-4-neon",
+      "publisher": "Google",
+      "publishedAt": "",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $3.00, output $15.00. No free tier on the Gemini Developer API.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-neon-developer-pricing-20261121"]
+    },
+    {
+      "id": "s-gemini-4-neon-launch-20261121",
+      "title": { "zh": "Gemini 4 Neon 发布公告", "en": "Gemini 4 Neon launch" },
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon/",
+      "publisher": "Google",
+      "publishedAt": "2026-11-18",
+      "collectedAt": "2026-11-21",
+      "verifiedAt": "2026-11-21",
+      "sourceExcerpt": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround.",
+      "sourceExcerptKind": "summary",
+      "originalLanguage": "en",
+      "type": "official",
+      "supportsClaimIds": ["c-gemini-4-neon-released"]
     }
   ],
   "claims": [
@@ -48140,6 +48594,158 @@
       "validFrom": null,
       "validTo": null,
       "observedAt": "2026-11-04T13:11:10.444102+00:00"
+    },
+    {
+      "id": "c-gemini-4-argon-developer-spec-20261121",
+      "entityId": "e-gemini-4-pending",
+      "text": {
+        "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。 支持文本、图像、视频、音频和 PDF 输入，输出为文本。 支持函数调用、结构化输出、代码执行和 Google 搜索。",
+        "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-argon-developer-spec-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Argon",
+      "predicate": "official-api-specification",
+      "objectOrValue": "1,048,576 unified tokens; 65,536 default output; text output"
+    },
+    {
+      "id": "c-gemini-4-argon-developer-pricing-20261121",
+      "entityId": "e-gemini-4-pending",
+      "text": {
+        "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $2.00，输出 $10.00。 上述价格截至 2026-11-30，2026-12-01 起为输入 $4.00、输出 $20.00。 Gemini Developer API 无免费层。",
+        "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-argon-developer-pricing-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Argon",
+      "predicate": "official-api-pricing",
+      "objectOrValue": "Gemini Developer API Standard paid USD per million tokens: 2.00 input and 10.00 output through 2026-11-30; 4.00 input and 20.00 output from 2026-12-01"
+    },
+    {
+      "id": "c-gemini-4-carbon-developer-spec-20261121",
+      "entityId": "e-gemini-4-carbon",
+      "text": {
+        "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。 支持文本、图像、视频、音频和 PDF 输入，输出为文本。 支持函数调用、结构化输出、代码执行和 Google 搜索。",
+        "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-carbon-developer-spec-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Carbon",
+      "predicate": "official-api-specification",
+      "objectOrValue": "1,048,576 unified tokens; 65,536 default output; text output"
+    },
+    {
+      "id": "c-gemini-4-carbon-developer-pricing-20261121",
+      "entityId": "e-gemini-4-carbon",
+      "text": {
+        "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $2.00，输出 $10.00。 上述价格截至 2026-11-30，2026-12-01 起为输入 $4.00、输出 $20.00。 Gemini Developer API 无免费层。",
+        "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $2.00, output $10.00. These rates apply through 2026-11-30. From 2026-12-01: $4.00 input and $20.00 output. No free tier on the Gemini Developer API."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-carbon-developer-pricing-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Carbon",
+      "predicate": "official-api-pricing",
+      "objectOrValue": "Gemini Developer API Standard paid USD per million tokens: 2.00 input and 10.00 output through 2026-11-30; 4.00 input and 20.00 output from 2026-12-01"
+    },
+    {
+      "id": "c-gemini-4-hydrogen-developer-spec-20261121",
+      "entityId": "e-gemini-4-hydrogen",
+      "text": {
+        "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。 支持文本、图像、视频、音频和 PDF 输入，输出为文本。 支持函数调用、结构化输出、代码执行和 Google 搜索。",
+        "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-hydrogen-developer-spec-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Hydrogen",
+      "predicate": "official-api-specification",
+      "objectOrValue": "1,048,576 unified tokens; 65,536 default output; text output"
+    },
+    {
+      "id": "c-gemini-4-hydrogen-developer-pricing-20261121",
+      "entityId": "e-gemini-4-hydrogen",
+      "text": {
+        "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $1.50，输出 $7.50。 API 有免费层，受账号配额限制。",
+        "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $1.50, output $7.50. The API offers a free tier, subject to account quotas."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-hydrogen-developer-pricing-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Hydrogen",
+      "predicate": "official-api-pricing",
+      "objectOrValue": "Gemini Developer API Standard; paid USD 1.50 input and 7.50 output per million tokens"
+    },
+    {
+      "id": "c-gemini-4-hydrogen-released",
+      "entityId": "e-gemini-4-hydrogen",
+      "text": {
+        "zh": "Gemini 4 Hydrogen 于 2026-11-12 发布，Gemini Developer API 型号为 gemini-4-hydrogen。",
+        "en": "Gemini 4 Hydrogen launched on 2026-11-12 with Gemini Developer API model ID gemini-4-hydrogen."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-hydrogen-launch-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Hydrogen",
+      "predicate": "official-release-status",
+      "objectOrValue": "stable",
+      "validFrom": "2026-11-12"
+    },
+    {
+      "id": "c-gemini-4-neon-developer-spec-20261121",
+      "entityId": "e-gemini-4-neon",
+      "text": {
+        "zh": "输入与输出共用 1,048,576 token。默认同步输出上限为 65,536 token，启用长输出后上限为 1,048,576 token，并受共享窗口约束。 支持文本、图像、视频、音频和 PDF 输入，输出为文本。 支持函数调用、结构化输出、代码执行和 Google 搜索。",
+        "en": "Input and output share a 1,048,576-token window. The default synchronous output limit is 65,536 tokens. Long decode can reach 1,048,576 output tokens within the combined window. Accepts text, image, video, audio and PDF input, with text output. Supports function calling, structured output, code execution and Google Search."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-neon-developer-spec-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Neon",
+      "predicate": "official-api-specification",
+      "objectOrValue": "1,048,576 unified tokens; 65,536 default output; text output"
+    },
+    {
+      "id": "c-gemini-4-neon-developer-pricing-20261121",
+      "entityId": "e-gemini-4-neon",
+      "text": {
+        "zh": "Gemini Developer API 标准付费层按每百万 token 计价（美元），输出含思考 token。 输入 $3.00，输出 $15.00。 Gemini Developer API 无免费层。",
+        "en": "Standard paid Gemini Developer API rates are in USD per million tokens. Output includes thinking tokens. Input $3.00, output $15.00. No free tier on the Gemini Developer API."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-neon-developer-pricing-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Neon",
+      "predicate": "official-api-pricing",
+      "objectOrValue": "Gemini Developer API Standard; paid USD 3.00 input and 15.00 output per million tokens"
+    },
+    {
+      "id": "c-gemini-4-neon-released",
+      "entityId": "e-gemini-4-neon",
+      "text": {
+        "zh": "Gemini 4 Neon 于 2026-11-18 发布，Gemini Developer API 型号为 gemini-4-neon。",
+        "en": "Gemini 4 Neon launched on 2026-11-18 with Gemini Developer API model ID gemini-4-neon."
+      },
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-neon-launch-20261121"],
+      "updatedAt": "2026-11-21",
+      "observedAt": "2026-11-21",
+      "subject": "Gemini 4 Neon",
+      "predicate": "official-release-status",
+      "objectOrValue": "stable",
+      "validFrom": "2026-11-18"
     }
   ],
   "timeline": {
@@ -51990,6 +52596,34 @@
           "s-google-nano-banana21-model-20261029"
         ],
         "confidence": "verified"
+      },
+      {
+        "id": "tl-gemini-4-hydrogen-release",
+        "date": "2026-11-12",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-hydrogen",
+        "title": { "zh": "Gemini 4 Hydrogen 发布", "en": "Gemini 4 Hydrogen released" },
+        "summary": {
+          "zh": "面向日常编码、调试和多步骤任务中的快速执行，Gemini Developer API 提供免费层。",
+          "en": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-hydrogen-launch-20261121"],
+        "confidence": "verified"
+      },
+      {
+        "id": "tl-gemini-4-neon-release",
+        "date": "2026-11-18",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-neon",
+        "title": { "zh": "Gemini 4 Neon 发布", "en": "Gemini 4 Neon released" },
+        "summary": {
+          "zh": "介于 Hydrogen 与 Carbon 之间，适合既有推理难度、又需要较快交付的工程与知识工作。",
+          "en": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-neon-launch-20261121"],
+        "confidence": "verified"
       }
     ],
     "e-deepseek": [
@@ -55570,6 +56204,38 @@
         },
         "confidence": "verified",
         "sourceIds": ["s-grok-release-notes"]
+      }
+    ],
+    "e-gemini-4-hydrogen": [
+      {
+        "id": "tl-gemini-4-hydrogen-release",
+        "date": "2026-11-12",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-hydrogen",
+        "title": { "zh": "Gemini 4 Hydrogen 发布", "en": "Gemini 4 Hydrogen released" },
+        "summary": {
+          "zh": "面向日常编码、调试和多步骤任务中的快速执行，Gemini Developer API 提供免费层。",
+          "en": "For everyday coding, debugging and fast execution within multi-step workflows. The Gemini Developer API offers a free tier."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-hydrogen-launch-20261121"],
+        "confidence": "verified"
+      }
+    ],
+    "e-gemini-4-neon": [
+      {
+        "id": "tl-gemini-4-neon-release",
+        "date": "2026-11-18",
+        "dateKind": "release",
+        "releaseEntityId": "e-gemini-4-neon",
+        "title": { "zh": "Gemini 4 Neon 发布", "en": "Gemini 4 Neon released" },
+        "summary": {
+          "zh": "介于 Hydrogen 与 Carbon 之间，适合既有推理难度、又需要较快交付的工程与知识工作。",
+          "en": "Positioned between Hydrogen and Carbon for engineering and knowledge work that needs both reasoning depth and fast turnaround."
+        },
+        "kind": "release",
+        "sourceIds": ["s-gemini-4-neon-launch-20261121"],
+        "confidence": "verified"
       }
     ],
     "e-gpt-62-astra": [
@@ -60841,6 +61507,18 @@
         "entityId": "e-gemini-nano-banana-21",
         "type": "model",
         "importance": 0.9
+      },
+      {
+        "id": "node-e-gemini-4-hydrogen",
+        "entityId": "e-gemini-4-hydrogen",
+        "type": "model",
+        "importance": 0.9
+      },
+      {
+        "id": "node-e-gemini-4-neon",
+        "entityId": "e-gemini-4-neon",
+        "type": "model",
+        "importance": 0.9
       }
     ],
     "edges": [
@@ -63498,12 +64176,45 @@
         "kind": "part-of",
         "confidence": "verified",
         "sourceIds": ["s-google-gemini-lifecycle-20261029", "s-google-nano-banana21-model-20261029"]
+      },
+      {
+        "id": "r-gemini-4-hydrogen-family",
+        "fromId": "e-gemini-4-hydrogen",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-gemini-4-hydrogen-launch-20261121"]
+      },
+      {
+        "id": "r-gemini-4-argon-family",
+        "fromId": "e-gemini-4-pending",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-google-gemini4-release-20261029"]
+      },
+      {
+        "id": "r-gemini-4-neon-family",
+        "fromId": "e-gemini-4-neon",
+        "toId": "e-gemini",
+        "kind": "part-of",
+        "confidence": "verified",
+        "sourceIds": ["s-gemini-4-neon-launch-20261121"]
       }
     ],
     "capturedAt": "2026-07-25T00:00:00Z",
     "validAt": "2026-07-25"
   },
   "changes": [
+    {
+      "id": "change-release-e-gemini-4-neon",
+      "entityId": "e-gemini-4-neon",
+      "date": "2026-11-18",
+      "summary": { "zh": "Gemini 4 Neon 发布", "en": "Gemini 4 Neon released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-neon-launch-20261121"]
+    },
     {
       "id": "change-release-e-gpt-62-sol",
       "entityId": "e-gpt-62-sol",
@@ -63530,6 +64241,15 @@
       "kind": "new",
       "confidence": "verified",
       "sourceIds": ["s-hunyuan-hy4-flash-release"]
+    },
+    {
+      "id": "change-release-e-gemini-4-hydrogen",
+      "entityId": "e-gemini-4-hydrogen",
+      "date": "2026-11-12",
+      "summary": { "zh": "Gemini 4 Hydrogen 发布", "en": "Gemini 4 Hydrogen released" },
+      "kind": "new",
+      "confidence": "verified",
+      "sourceIds": ["s-gemini-4-hydrogen-launch-20261121"]
     },
     {
       "id": "change-release-e-gemini-4-carbon",

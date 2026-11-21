@@ -299,48 +299,59 @@ function EntityDetail() {
               <h2>{t("产品线导航", "Product-line navigation")}</h2>
               {productLineGroups.length > 0 ? (
                 <div className="model-family__line-nav">
-                  {productLineGroups.map((line) => (
-                    <div key={line.id}>
-                      <div className="model-family__line-nav-head">
-                        <strong>{pick(line.name, lang)}</strong>
-                        <span>
-                          {t(`${line.versions.length} 个版本`, `${line.versions.length} releases`)}
-                        </span>
-                      </div>
-                      <p>{pick(line.positioning, lang)}</p>
-                      <div className="model-family__line-nav-links">
-                        {line.versions.slice(0, 3).map((version) => (
-                          <Link
-                            key={version.id}
-                            to="/knowledge/model/$slug"
-                            params={{ slug: version.slug }}
-                          >
-                            <span>{modelDisplayName(version, lang)}</span>
-                            {isCurrentProductLineVersion(line, version) && (
-                              <em>{t("当前", "Current")}</em>
+                  {productLineGroups.map((line) => {
+                    const visibleVersions = line.versions.slice(
+                      0,
+                      line.versions.every((version) => version.release?.positioning) ? 4 : 3,
+                    );
+                    return (
+                      <div key={line.id}>
+                        <div className="model-family__line-nav-head">
+                          <strong>{pick(line.name, lang)}</strong>
+                          <span>
+                            {t(
+                              `${line.versions.length} 个版本`,
+                              `${line.versions.length} releases`,
                             )}
-                            <small>
-                              {version.release?.releasedAt ?? version.firstReleasedAt ?? "—"} ·{" "}
-                              {releaseStageLabel(version.release?.stage ?? "pending", t)}
-                            </small>
-                          </Link>
-                        ))}
-                        {line.versions.length > 3 && (
-                          <a
-                            className="model-family__line-nav-all"
-                            href={`#product-line-${line.id}`}
-                          >
-                            <span>
-                              {mode === "technical"
-                                ? t("查看完整版本链", "View full release history")
-                                : t("查看产品线与版本", "View line and releases")}
-                            </span>
-                            <em>{line.versions.length}</em>
-                          </a>
-                        )}
+                          </span>
+                        </div>
+                        <p>{pick(line.positioning, lang)}</p>
+                        <div className="model-family__line-nav-links">
+                          {visibleVersions.map((version) => (
+                            <Link
+                              key={version.id}
+                              to="/knowledge/model/$slug"
+                              params={{ slug: version.slug }}
+                            >
+                              <span>{modelDisplayName(version, lang)}</span>
+                              {!version.release?.positioning &&
+                                isCurrentProductLineVersion(line, version) && (
+                                  <em>{t("当前", "Current")}</em>
+                                )}
+                              <small>
+                                {version.release?.positioning
+                                  ? pick(version.release.positioning, lang)
+                                  : `${version.release?.releasedAt ?? version.firstReleasedAt ?? "—"} · ${releaseStageLabel(version.release?.stage ?? "pending", t)}`}
+                              </small>
+                            </Link>
+                          ))}
+                          {line.versions.length > visibleVersions.length && (
+                            <a
+                              className="model-family__line-nav-all"
+                              href={`#product-line-${line.id}`}
+                            >
+                              <span>
+                                {mode === "technical"
+                                  ? t("查看完整版本链", "View full release history")
+                                  : t("查看产品线与版本", "View line and releases")}
+                              </span>
+                              <em>{line.versions.length}</em>
+                            </a>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="model-detail__related-list">
@@ -718,9 +729,10 @@ function EntityDetail() {
                                 <em className={`is-${version.release?.stage ?? "pending"}`}>
                                   {releaseStageLabel(version.release?.stage ?? "pending", t)}
                                 </em>
-                                {isCurrentProductLineVersion(line, version) && (
-                                  <small>{t("当前版本", "Current release")}</small>
-                                )}
+                                {!version.release?.positioning &&
+                                  isCurrentProductLineVersion(line, version) && (
+                                    <small>{t("当前版本", "Current release")}</small>
+                                  )}
                               </span>
                               <span className="model-family__release-date">
                                 <small>{t("发布", "Released")}</small>
@@ -729,6 +741,11 @@ function EntityDetail() {
                                 </strong>
                               </span>
                             </div>
+                            {version.release?.positioning && (
+                              <p className="text-sm text-muted-foreground">
+                                {pick(version.release.positioning, lang)}
+                              </p>
+                            )}
                             <div className="model-family__release-specs">
                               <span>
                                 <small>{t("上下文", "Context")}</small>
@@ -1020,6 +1037,19 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
     (source) => relevantSourceIds.has(source.id) || officialUrls.has(source.url),
   );
   const sourceLinks = uniqueSourceLinks(evidence);
+  const pricingClaim = claims.find(
+    (claim) => claim.predicate === "official-api-pricing" && claim.confidence === "verified",
+  );
+  const pricingSource =
+    pricingClaim &&
+    evidence.find(
+      (source) => pricingClaim.sourceIds.includes(source.id) && source.type === "official",
+    );
+  const studioChannel = release?.positioning
+    ? release.accessChannels.find(
+        (channel) => channel.type === "first-party-product" && channel.url,
+      )
+    : undefined;
   const verifiedCount =
     claims.filter((claim) => claim.confidence === "verified").length +
     timeline.filter((event) => event.confidence === "verified").length +
@@ -1164,10 +1194,18 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                   {t("进入模型对比", "Compare this release")}
                 </a>
               )}
+              {studioChannel?.url && (
+                <a href={studioChannel.url} target="_blank" rel="noreferrer">
+                  <ExternalLink aria-hidden="true" />
+                  {t(`在 ${studioChannel.provider} 试用`, `Try in ${studioChannel.provider}`)}
+                </a>
+              )}
               {knowledge.officialUrl && (
                 <a href={knowledge.officialUrl} target="_blank" rel="noreferrer">
                   <ExternalLink aria-hidden="true" />
-                  {t("官方资料", "Official source")}
+                  {release?.positioning
+                    ? t("API 文档", "API documentation")
+                    : t("官方资料", "Official source")}
                 </a>
               )}
             </div>
@@ -1197,6 +1235,19 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
             <div className={`model-version__layout${showVersionAside ? "" : " is-compact"}`}>
               <div className="model-version__main">
                 <TabsContent value="overview">
+                  {knowledge.useCases.length > 0 && (
+                    <section className="model-version__panel">
+                      <h2>{t("可以怎么用", "What to try")}</h2>
+                      <ul className="model-version__use-cases">
+                        {knowledge.useCases.map((useCase) => (
+                          <li key={useCase.title.zh}>
+                            <strong>{pick(useCase.title, lang)}</strong>
+                            <p>{pick(useCase.description, lang)}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
                   <section className="model-version__panel">
                     <h2>{t("核心参数", "Key specifications")}</h2>
                     <div className="model-version__spec-grid">
@@ -1249,17 +1300,6 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                           "Recorded price snapshot. Check the official pricing page for current rates.",
                         )}
                       </p>
-                    </section>
-                  )}
-
-                  {knowledge.useCases.length > 0 && (
-                    <section className="model-version__panel">
-                      <h2>{t("典型应用场景", "Typical use cases")}</h2>
-                      <div className="model-version__use-cases">
-                        {knowledge.useCases.map((useCase) => (
-                          <span key={useCase.title.zh}>{pick(useCase.title, lang)}</span>
-                        ))}
-                      </div>
                     </section>
                   )}
 
@@ -1377,7 +1417,15 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                       </div>
                       <time>{entity.lastUpdatedAt}</time>
                     </div>
-                    {hasTokenPricing ? (
+                    {pricingSource && pricingClaim ? (
+                      <div className="model-version__pricing-basis">
+                        <p>{pick(pricingClaim.text, lang)}</p>
+                        <a href={pricingSource.url} target="_blank" rel="noreferrer">
+                          {t("查看官方计费表", "View official pricing")}{" "}
+                          <ExternalLink aria-hidden="true" />
+                        </a>
+                      </div>
+                    ) : hasTokenPricing ? (
                       <div className="model-version__price-grid is-large">
                         <div>
                           <span>{t("输入定价", "Input price")}</span>
@@ -1562,12 +1610,15 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                           <span>
                             <strong>{modelDisplayName(version, lang)}</strong>
                             <small>
-                              {version.release?.releasedAt ??
-                                version.firstReleasedAt ??
-                                t("日期未收录", "Date not catalogued")}
+                              {version.release?.positioning
+                                ? pick(version.release.positioning, lang)
+                                : (version.release?.releasedAt ??
+                                  version.firstReleasedAt ??
+                                  t("日期未收录", "Date not catalogued"))}
                             </small>
                           </span>
-                          {(version.id === entity.id || index === 0) && (
+                          {(version.id === entity.id ||
+                            (!version.release?.positioning && index === 0)) && (
                             <em>
                               {version.id === entity.id
                                 ? t("本页", "This page")
@@ -1577,6 +1628,20 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                         </Link>
                       ))}
                     </div>
+                    {release?.positioning &&
+                      productLineVersions.length >= 2 &&
+                      productLineVersions.length <= 4 && (
+                        <Link
+                          className="model-version__series-compare"
+                          to="/compare"
+                          search={{
+                            models: productLineVersions.map((version) => version.id).join(","),
+                          }}
+                        >
+                          <ArrowLeftRight aria-hidden="true" />
+                          {t("对比同系列型号", "Compare models in this series")}
+                        </Link>
+                      )}
                   </section>
 
                   {productLines.length > 1 && (
@@ -1826,6 +1891,7 @@ function FamilyLineSummary({
   return (
     <div className={`model-family__atlas is-${mode}`}>
       {lines.map((line) => {
+        const hasVariantPositions = line.versions.every((version) => version.release?.positioning);
         const inputPrice = line.latest.specs?.inputPrice;
         const outputPrice = line.latest.specs?.outputPrice;
         const channels = line.latest.release?.accessChannels
@@ -1853,17 +1919,42 @@ function FamilyLineSummary({
                 ))}
               </div>
             )}
-            <Link
-              className="model-family__atlas-latest"
-              to="/knowledge/model/$slug"
-              params={{ slug: line.latest.slug }}
-            >
-              <span>{t("代表版本", "Representative release")}</span>
-              <strong>{modelDisplayName(line.latest, lang)}</strong>
-              <span aria-hidden="true">→</span>
-            </Link>
+            {hasVariantPositions ? (
+              <div className="model-family__positioned-versions">
+                {line.versions.map((version) => (
+                  <Link
+                    key={version.id}
+                    to="/knowledge/model/$slug"
+                    params={{ slug: version.slug }}
+                  >
+                    <strong>{modelDisplayName(version, lang)}</strong>
+                    <small>{pick(version.release?.positioning ?? version.summary, lang)}</small>
+                  </Link>
+                ))}
+                {line.versions.length >= 2 && line.versions.length <= 4 && (
+                  <Link
+                    className="model-version__series-compare"
+                    to="/compare"
+                    search={{ models: line.versions.map((version) => version.id).join(",") }}
+                  >
+                    <ArrowLeftRight aria-hidden="true" />
+                    {t("对比同系列型号", "Compare models in this series")}
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <Link
+                className="model-family__atlas-latest"
+                to="/knowledge/model/$slug"
+                params={{ slug: line.latest.slug }}
+              >
+                <span>{t("代表版本", "Representative release")}</span>
+                <strong>{modelDisplayName(line.latest, lang)}</strong>
+                <span aria-hidden="true">→</span>
+              </Link>
+            )}
 
-            {mode === "product" && (
+            {mode === "product" && !hasVariantPositions && (
               <dl className="model-family__adoption-facts">
                 <div>
                   <dt>{t("可用入口", "Access")}</dt>
@@ -1891,7 +1982,7 @@ function FamilyLineSummary({
               </dl>
             )}
 
-            {line.versions.length > 1 && (
+            {line.versions.length > 1 && !hasVariantPositions && (
               <details className="model-family__all-versions">
                 <summary>
                   {t(

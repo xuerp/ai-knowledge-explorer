@@ -21,6 +21,7 @@ export function compareModelReleaseDates(left: Entity, right: Entity) {
 function productLinePriority(id: string) {
   const generation = /^gpt-(\d+)(?:-(\d+)|o)?$/.exec(id);
   if (generation) return -Number(generation[1]) * 100 - Number(generation[2] ?? 0);
+  if (id === "gemini-4") return 0;
   if (/(?:pro|astra|fable|max|flagship)$/.test(id)) return 10;
   if (id.endsWith("-opus")) return 15;
   if (/(?:sol|sonnet|plus)$/.test(id)) return 20;

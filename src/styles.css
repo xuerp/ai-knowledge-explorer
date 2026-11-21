@@ -7158,8 +7158,7 @@ a.decision-brief__claims {
   margin-top: 1.15rem;
 }
 
-.model-version__tags span,
-.model-version__use-cases span {
+.model-version__tags span {
   padding: 0.34rem 0.62rem;
   border: 1px solid color-mix(in srgb, var(--color-signal) 20%, var(--color-border));
   border-radius: 0.38rem;
@@ -7448,15 +7447,71 @@ a.decision-brief__claims {
 }
 
 .model-version__use-cases {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.model-version__use-cases span {
-  color: var(--color-ink-soft);
-  border-color: var(--color-border);
-  background: var(--color-card);
+.model-version__use-cases strong,
+.model-family__positioned-versions strong {
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.model-version__use-cases p,
+.model-version__pricing-basis p {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.model-version__pricing-basis a,
+.model-version__series-compare {
+  display: flex;
+  width: fit-content;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-signal);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.model-version__pricing-basis a:hover,
+.model-version__series-compare:hover {
+  text-decoration: underline;
+}
+
+.model-version__pricing-basis svg,
+.model-version__series-compare svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: none;
+}
+
+.model-family__positioned-versions {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.7rem;
+}
+
+.model-family__positioned-versions > a:not(.model-version__series-compare) {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.model-family__positioned-versions > a:hover strong {
+  color: var(--color-signal);
+}
+
+.model-family__positioned-versions small {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
 }
 
 .model-version__section-intro {
@@ -8004,7 +8059,7 @@ a.decision-brief__claims {
   }
 
   .model-version__meta span {
-    width: 100%;
+    width: auto;
   }
 
   .model-version__actions {
@@ -8016,8 +8071,14 @@ a.decision-brief__claims {
   }
 
   .model-version__tabs-bar [role="tablist"] {
-    gap: 1.05rem;
-    padding-inline: 1rem;
+    flex-wrap: wrap;
+    gap: 0 0.9rem;
+    padding: 0.2rem 0.85rem;
+    overflow: visible;
+  }
+
+  .model-version__tabs-bar [role="tab"] {
+    height: 2.75rem;
   }
 
   .model-version__panel {
