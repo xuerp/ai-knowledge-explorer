@@ -16,6 +16,8 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .database import DocumentSnapshotRecord, SourceRecord
+from .generation_runtime import BudgetedAnswerGenerator
+from .model_budget import ModelBudgetUnavailable
 from .schemas import (
     RELATION_KINDS,
     CandidateCreate,
@@ -29,6 +31,10 @@ from .schemas import (
 
 
 class ExtractionUnavailableError(RuntimeError):
+    pass
+
+
+class ExtractionBudgetUnavailable(ExtractionUnavailableError):
     pass
 
 
@@ -357,6 +363,8 @@ class StructuredExtractionService:
         require_usage: bool = False,
         transport: httpx.BaseTransport | None = None,
         contract_state_path: Path | None = None,
+        budgeted_generator: BudgetedAnswerGenerator | None = None,
+        budgeted_source_ids: tuple[str, ...] = (),
     ):
         self.api_url = api_url
         self.api_key = api_key
@@ -372,6 +380,8 @@ class StructuredExtractionService:
             model and (model == "gpt-6-astra" or model.startswith("gpt-6-astra-"))
         )
         self.transport = transport
+        self.budgeted_generator = budgeted_generator
+        self.budgeted_source_ids = budgeted_source_ids
         self._response_format_mode = "json_schema"
         self._contract_failure: str | None = None
         self.contract_state_path = contract_state_path
@@ -483,6 +493,14 @@ class StructuredExtractionService:
             return self._probe_result(
                 checked_at, started, host, error_code=error.code, detail=error.detail
             )
+        except ExtractionBudgetUnavailable:
+            return self._probe_result(
+                checked_at,
+                started,
+                host,
+                error_code="model_budget_unavailable",
+                detail="抽取预算不可用。未向模型供应商发送请求。",
+            )
         except httpx.HTTPStatusError as error:
             status_code = error.response.status_code
             if status_code in {401, 403}:
@@ -592,6 +610,8 @@ class StructuredExtractionService:
                 f"先前请求违反供应商契约（{self._contract_failure}）；已停止后续调用，"
                 "请核对供应商配置和回执，保留故障记录并经过明确复测授权后恢复。",
             )
+        if self.budgeted_generator:
+            return self._budgeted_completion(payload, schema, timeout_seconds)
         mode = "json_schema" if self.require_json_schema else self._response_format_mode
         retryable_statuses = {429, 502, 503, 504}
         deadline = perf_counter() + timeout_seconds
@@ -726,6 +746,43 @@ class StructuredExtractionService:
                 return body, mode
         raise RuntimeError("No structured response format was attempted.")
 
+    def _budgeted_completion(self, payload, schema, timeout_seconds):
+        receipt: dict[str, Any] = {}
+        metadata: dict[str, Any] = {
+            "model": self.model,
+            "requestCount": 0,
+            "responses": [],
+            "parametersForwardingVerified": False,
+        }
+        self._call_metadata.set(metadata)
+
+        def envelope(raw):
+            return {"choices": [{"finish_reason": "stop", "message": {"content": raw}}]}
+
+        def validate(raw):
+            extracted = _parse_extraction_envelope(envelope(raw), strict=True)
+            if len(extracted.facts) > schema["properties"]["facts"]["maxItems"]:
+                raise ValueError("Extraction exceeds the requested fact count.")
+
+        system, user = payload["messages"]
+        try:
+            raw = self.budgeted_generator.invoke(
+                {"instruction": system["content"], "source": user["content"], "schema": schema},
+                "automation",
+                "extraction",
+                validate,
+                timeout_seconds=timeout_seconds,
+                receipt=receipt,
+            )
+        except ModelBudgetUnavailable as error:
+            metadata["blockedBy"] = "model-budget"
+            raise ExtractionBudgetUnavailable(str(error)) from error
+        finally:
+            if receipt:
+                metadata["requestCount"] = 1
+                metadata["responses"].append(receipt)
+        return envelope(raw), "json_schema"
+
     def _probe_result(
         self,
         checked_at: datetime,
@@ -759,6 +816,9 @@ class StructuredExtractionService:
         relation_deficit: int = 0,
     ) -> list[CandidateCreate]:
         """Cover the document within one deadline, or fail without publishing a partial batch."""
+        self._call_metadata.set(None)
+        if self.budgeted_generator and source.id not in self.budgeted_source_ids:
+            raise ExtractionUnavailableError("Source is outside the approved extraction scope.")
         if not 1 <= max_candidates <= 30:
             raise ExtractionUnavailableError("Candidate limit must be between 1 and 30.")
         content = snapshot.content_text

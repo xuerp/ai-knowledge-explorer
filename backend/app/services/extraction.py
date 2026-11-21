@@ -17,6 +17,7 @@ from ..database import (
 )
 from ..extraction import (
     EXTRACTION_PIPELINE_VERSION,
+    ExtractionBudgetUnavailable,
     entity_reference_appears,
     extraction_audit_is_current,
 )
@@ -72,12 +73,7 @@ class ExtractionServices:
                 for row in recent_failures
                 if extraction_audit_is_current(row.detail_json)
             }
-        snapshots = session.scalars(
-            select(DocumentSnapshotRecord).order_by(
-                DocumentSnapshotRecord.observed_at.desc(),
-                DocumentSnapshotRecord.id.desc(),
-            )
-        ).all()
+        snapshots = self._extraction_snapshots(session)
         eligible: list[tuple[SourceRecord, DocumentSnapshotRecord]] = []
         seen_sources: set[str] = set()
         for snapshot_row in snapshots:
@@ -123,6 +119,16 @@ class ExtractionServices:
         )
         return eligible[:limit]
 
+    def _extraction_snapshots(self, session: Session):
+        statement = select(DocumentSnapshotRecord).order_by(
+            DocumentSnapshotRecord.observed_at.desc(), DocumentSnapshotRecord.id.desc()
+        )
+        if self.app_settings.extraction_generation:
+            statement = statement.where(
+                DocumentSnapshotRecord.source_id.in_(self.app_settings.extraction_source_ids)
+            )
+        return session.scalars(statement).all()
+
     def build_relation_backfill_plan(
         self,
         session: Session,
@@ -156,12 +162,7 @@ class ExtractionServices:
             for entity_id in priority_ids
         }
 
-        snapshots = session.scalars(
-            select(DocumentSnapshotRecord).order_by(
-                DocumentSnapshotRecord.observed_at.desc(),
-                DocumentSnapshotRecord.id.desc(),
-            )
-        ).all()
+        snapshots = self._extraction_snapshots(session)
         excluded = excluded_snapshot_ids or set()
         eligible: list[tuple[int, SourceRecord, DocumentSnapshotRecord]] = []
         seen_sources: set[str] = set()
@@ -508,11 +509,21 @@ class ExtractionServices:
             for evidence in evidence_items
         )
 
+    def automatic_extraction_enabled(self) -> bool:
+        return (
+            self.extraction.enabled
+            and self.app_settings.auto_extraction_max_snapshots_per_cycle > 0
+            and (
+                self.app_settings.environment != "production"
+                or self.extraction.budgeted_generator is not None
+            )
+        )
+
     def run_automatic_extraction(self, session: Session) -> dict[str, object]:
         limit = self.app_settings.auto_extraction_max_snapshots_per_cycle
         summary: dict[str, object] = {
             "configured": self.extraction.enabled,
-            "enabled": self.extraction.enabled and limit > 0,
+            "enabled": self.automatic_extraction_enabled(),
             "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
             "planned": 0,
             "processed": 0,
@@ -522,6 +533,8 @@ class ExtractionServices:
             "failed": 0,
         }
         if not summary["enabled"]:
+            if self.extraction.enabled and limit > 0:
+                summary["pausedReason"] = "monetary-budget-not-configured"
             return summary
         day_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
         attempted = (
@@ -669,7 +682,9 @@ class ExtractionServices:
                     backfill_attempts_this_cycle += 1
                 summary["failed"] = int(summary["failed"]) + 1
                 errors.append({"sourceId": source.id, "error": str(error)[:500]})
-                continue
+                if isinstance(error, ExtractionBudgetUnavailable):
+                    summary["pausedReason"] = "monetary-budget-unavailable"
+                    break
         if errors:
             summary["errors"] = errors
         if self.app_settings.relation_backfill_batch_id:

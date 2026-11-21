@@ -41,26 +41,15 @@ class SystemServices:
         session: Session,
     ) -> IntegrationStatus:
         sources = self.ingestion.list_sources(session)
-        extraction_host = (
-            urlsplit(self.app_settings.extraction_api_url).hostname
-            if self.app_settings.extraction_api_url
-            else None
-        )
+        extraction_host = urlsplit(self.extraction.api_url or "").hostname
         return IntegrationStatus(
-            extraction_configured=bool(
-                self.app_settings.extraction_api_url
-                and self.app_settings.extraction_api_key
-                and self.app_settings.extraction_model
-            ),
+            extraction_configured=self.extraction.enabled,
             extraction_pipeline_version=EXTRACTION_PIPELINE_VERSION,
             extraction_endpoint_host=extraction_host,
-            extraction_model=self.app_settings.extraction_model,
+            extraction_model=self.extraction.model,
             extraction_reasoning_effort=self.extraction.reasoning_effort,
             extraction_max_completion_tokens=self.extraction.max_completion_tokens,
-            automatic_extraction_enabled=(
-                self.extraction.enabled
-                and self.app_settings.auto_extraction_max_snapshots_per_cycle > 0
-            ),
+            automatic_extraction_enabled=self.automatic_extraction_enabled(),
             automatic_extraction_max_snapshots_per_cycle=(
                 self.app_settings.auto_extraction_max_snapshots_per_cycle
             ),

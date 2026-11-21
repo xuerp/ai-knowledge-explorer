@@ -15,6 +15,7 @@ from app.database import (
     AuditLogRecord,
     EmailOutboxRecord,
     KnowledgeRelationRecord,
+    ModelCallRecord,
     PublicationRecordRow,
     RagClaimDocumentRecord,
     ReviewJobRecord,
@@ -27,6 +28,7 @@ from app.extraction import (
     StructuredExtractionService,
 )
 from app.fetching import FetchedDocument, SafeHttpFetcher
+from app.generation_runtime import GenerationConfig
 from app.main import (
     DATABASE_SCHEMA_REVISION,
     RELATION_CLAIM_PREDICATES,
@@ -1116,26 +1118,79 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
         assert cooling_down.json()["result"]["extraction"]["planned"] == 0
 
 
-def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(tmp_path):
+def test_production_automation_pauses_extraction_without_monetary_budget(tmp_path):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'unbudgeted-extraction.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        environment="production",
+        automation_token="test-automation-token-with-at-least-32-characters",
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+    )
+    with TestClient(create_app(settings)) as client:
+        integrations = client.get(
+            "/api/v2/admin/integrations", headers={"X-Admin-Token": settings.admin_token}
+        ).json()
+        assert integrations["extractionConfigured"] is True
+        assert integrations["automaticExtractionEnabled"] is False
+        response = client.post(
+            "/api/v2/automation/run-cycle",
+            headers={"X-Automation-Token": settings.automation_token},
+        )
+        assert response.is_success, response.text
+        extraction = response.json()["result"]["extraction"]
+        assert extraction["enabled"] is False
+        assert extraction["pausedReason"] == "monetary-budget-not-configured"
+
+
+@pytest.mark.parametrize("budgeted", [False, True])
+def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(tmp_path, budgeted):
+    source_id = "qa-release-mercury"
+    extraction_generation = (
+        GenerationConfig(
+            endpoint="https://provider.example/v1/messages",
+            api_key="test-provider-key",
+            model="test-structured-model",
+            budget_id="test-scheduled-extraction",
+            month=datetime.now(UTC).strftime("%Y-%m"),
+            currency="CNY",
+            limit_units=73_192,
+            input_rate=1_000_000,
+            output_rate=2_000_000,
+            max_calls=2,
+            user_daily_calls=2,
+            user_ids=("automation",),
+            protocol="anthropic-messages",
+            billable_input_tokens=65_000,
+            billable_output_tokens=4_096,
+        )
+        if budgeted
+        else None
+    )
     settings = Settings(
         database_url=f"sqlite:///{(tmp_path / 'scheduled-catalog.db').as_posix()}",
         seed_snapshot_path=SEED_PATH,
         admin_token="test-admin-token",
         cors_origins=(),
         automation_token="test-automation-token-with-at-least-32-characters",
-        environment="test",
+        environment="production" if budgeted else "test",
         fetch_allowed_hosts=("example.com",),
         extraction_api_url="https://provider.example/v1/chat/completions",
         extraction_api_key="test-provider-key",
         extraction_model="test-structured-model",
         extraction_require_json_schema=True,
+        extraction_generation=extraction_generation,
+        extraction_source_ids=(source_id,) if budgeted else (),
         auto_extraction_max_snapshots_per_cycle=1,
         auto_extraction_max_snapshots_per_day=2,
         auto_extraction_review_backlog_limit=2,
         auto_extraction_max_candidates_per_snapshot=1,
     )
     entity_id = "e-qa-release-mercury"
-    source_id = "qa-release-mercury"
     source_url = "https://example.com/synthetic-release-mercury"
     sentence = "QA Mercury supports 37000 tokens in the context window."
     localized_name = {"zh": "QA Mercury", "en": "QA Mercury"}
@@ -1151,7 +1206,7 @@ def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(
 
     def extract(request):
         body = json.loads(request.content)
-        assert sentence in body["messages"][1]["content"]
+        assert sentence in body["messages"][0 if budgeted else 1]["content"]
         provider_calls.append(body)
         if len(provider_calls) > 1:
             return httpx.Response(422, json={"error": {"message": "Synthetic failure"}})
@@ -1164,6 +1219,17 @@ def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(
             "validFrom": None,
             "validTo": None,
         }
+        if budgeted:
+            return httpx.Response(
+                200,
+                json={
+                    "id": "msg_scheduled_extraction",
+                    "model": "test-structured-model",
+                    "stop_reason": "end_turn",
+                    "usage": {"input_tokens": 100, "output_tokens": 85},
+                    "content": [{"type": "text", "text": json.dumps({"facts": [fact]})}],
+                },
+            )
         return httpx.Response(
             200,
             json={
@@ -1180,7 +1246,10 @@ def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(
     services = app.state.services
     services.fetcher.resolver = lambda _: ("93.184.216.34",)
     services.fetcher.transport = httpx.MockTransport(fetch)
-    services.extraction.transport = httpx.MockTransport(extract)
+    if budgeted:
+        services.extraction.budgeted_generator.transport = httpx.MockTransport(extract)
+    else:
+        services.extraction.transport = httpx.MockTransport(extract)
     admin = {"X-Admin-Token": settings.admin_token}
     automation = {"X-Automation-Token": settings.automation_token}
     with TestClient(app) as client:
@@ -1209,6 +1278,22 @@ def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(
         assert client.patch(
             f"/api/v2/admin/sources/{source_id}", headers=admin, json={"fetchEnabled": True}
         ).is_success
+        if budgeted:
+            assert client.post(
+                "/api/v2/admin/sources",
+                headers=admin,
+                json={
+                    "id": "other-source",
+                    "url": "https://example.com/other-source",
+                    "title": "Outside scope",
+                    "publisher": "QA",
+                },
+            ).is_success
+            assert client.post(
+                "/api/v2/admin/sources/other-source/snapshots",
+                headers=admin,
+                json={"content": "This document is outside the approved model input."},
+            ).is_success
 
         def cycle():
             with services.database.session() as session:
@@ -1258,7 +1343,22 @@ def test_scheduled_collection_publishes_only_reviewed_facts_and_respects_limits(
         assert failed["result"]["ingestion"]["succeeded"] == 1
         assert failed["result"]["extraction"]["failed"] == 1
         assert cycle()["result"]["extraction"]["pausedReason"] == "daily-limit"
-        assert len(provider_calls) == 2
+        if budgeted:
+            assert failed["result"]["extraction"]["pausedReason"] == "monetary-budget-unavailable"
+            assert len(provider_calls) == 1
+            with services.database.session() as session:
+                allocations = session.scalars(
+                    select(ModelCallRecord).where(ModelCallRecord.purpose == "extraction")
+                ).all()
+            assert len(allocations) == 1
+            assert allocations[0].state == "validated"
+            assert allocations[0].reserved_units == 73_192
+            assert allocations[0].charged_units == 270
+            assert (
+                json.loads(allocations[0].receipt_json)["responseId"] == "msg_scheduled_extraction"
+            )
+        else:
+            assert len(provider_calls) == 2
 
 
 def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(

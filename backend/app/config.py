@@ -54,6 +54,8 @@ class Settings:
     extraction_require_json_schema: bool = False
     extraction_require_usage: bool = False
     extraction_contract_state_path: Path | None = None
+    extraction_generation: GenerationConfig | None = field(default=None, repr=False)
+    extraction_source_ids: tuple[str, ...] = ()
     decision_interpretation_enabled: bool = False
     decision_interpretation_api_url: str | None = None
     decision_interpretation_api_key: str | None = field(default=None, repr=False)
@@ -103,6 +105,15 @@ class Settings:
     built_at: str | None = None
 
     def __post_init__(self) -> None:
+        if self.extraction_generation and (
+            not self.extraction_source_ids
+            or self.extraction_generation.user_ids != ("automation",)
+            or self.extraction_generation.billable_input_tokens is None
+            or self.extraction_generation.billable_output_tokens is None
+        ):
+            raise ValueError(
+                "Budgeted extraction requires named sources and both billable token limits."
+            )
         if self.rag_generation_enabled and self.answer_generation is None:
             raise ValueError(
                 "Answer generation requires explicit provider, tariffs and bounded budget configuration."
@@ -317,6 +328,18 @@ class Settings:
                     "AI_RADAR_EXTRACTION_CONTRACT_STATE_PATH",
                     str(BACKEND_ROOT / "data/extraction_contract_state.json"),
                 )
+            ),
+            extraction_generation=(
+                GenerationConfig.from_env(
+                    "AI_RADAR_EXTRACTION_BUDGET_", service_subject="automation"
+                )
+                if _extraction_bool("AI_RADAR_EXTRACTION_BUDGET_ENABLED")
+                else None
+            ),
+            extraction_source_ids=tuple(
+                item.strip()
+                for item in os.getenv("AI_RADAR_EXTRACTION_SOURCE_IDS", "").split(",")
+                if item.strip()
             ),
             auto_extraction_max_snapshots_per_cycle=int(
                 os.getenv("AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE", "0")

@@ -128,6 +128,13 @@ python -c "from dotenv import load_dotenv; load_dotenv('.env'); from app.worker 
 
 采集器仅允许 HTTPS 和白名单域名，会阻止私网地址及重定向，限制响应体大小，并支持 ETag 与 Last-Modified 增量检查。
 
+生产环境中，定时采集可单独运行。定时使用模型抽取还需要独立的费用额度和经批准的信源。后台可以继续人工审核已有候选。
+
+- 在后端设置 `AI_RADAR_EXTRACTION_BUDGET_ENABLED=true`，用 `AI_RADAR_EXTRACTION_SOURCE_IDS` 指定本次允许发送给供应商的信源 ID。首次试用限定一个已核对的官方信源。
+- 在 Render 的 Environment 中配置前缀为 `AI_RADAR_EXTRACTION_BUDGET_` 的参数。`API_URL`、`API_KEY`、`MODEL` 和 `PROTOCOL` 分别指定完整端点、专用密钥、模型及协议。原生 Messages 用 `anthropic-messages`，Chat Completions 用 `openai-chat`。
+- `BUDGET_ID`、`BUDGET_MONTH`、`CURRENCY`、`LIMIT_UNITS`、`INPUT_RATE`、`OUTPUT_RATE`、`MAX_CALLS`、`USER_DAILY_CALLS`、`MAX_OUTPUT_TOKENS`、`BILLABLE_INPUT_TOKENS` 和 `BILLABLE_OUTPUT_TOKENS` 限定月份、费用和请求规模。金额和每百万 token 的费率以货币单位的百万分之一填写。抽取和决策使用不同预算 ID，分配的金额加历史用量须在获批总额内。`SPEND_CAP=0` 可暂停抽取请求并保留账本。
+- `AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE` 和每日快照上限控制抽取批量。应用在每笔模型请求前另行预留费用。额度不足、同时有未结算请求或先前回执缺失时，周期暂停模型请求，采集仍可运行。首次验收核对供应商实际用量、候选审核记录及批准后的公开页面。
+
 worker 会按照 `AI_RADAR_DIGEST_TIMEZONE`（默认 `Asia/Shanghai`）和每个账户设置的时间自动生成每日摘要。同一账户同一天最多生成一封，并且只收录上一次摘要之后产生的未读通知。
 
 管理员也可以使用 Bearer 令牌手动生成每日摘要：

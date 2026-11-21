@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { createServer } from "vite";
 
 const catalog = JSON.parse(await readFile("backend/data/frontier_catalog_v1.json", "utf8"));
 const gemini = catalog.entities.filter((entity) => entity.familyId === "e-gemini");
@@ -30,10 +31,37 @@ test("specialized current Gemini profiles keep concrete official specifications"
   }
 });
 
-test("detail page reads relationship evidence through the snapshot graph", async () => {
-  const route = await readFile("src/routes/knowledge_.model.$slug.tsx", "utf8");
-  assert.match(route, /snapshot\.graph\?\.edges \?\? \[\]/);
-  assert.doesNotMatch(route, /snapshot\.relations/);
+test("detail loader keeps relationship evidence and the latest change without the unused graph and history", async () => {
+  const vite = await createServer({
+    server: { middlewareMode: true, ws: false },
+    appType: "custom",
+    optimizeDeps: { noDiscovery: true },
+  });
+  try {
+    const { knowledgeRepository } = await vite.ssrLoadModule(
+      "/src/services/knowledge-repository.ts",
+    );
+    const { projectEntityDetail } = await vite.ssrLoadModule("/src/domain/entity-detail.ts");
+    const { Route } = await vite.ssrLoadModule("/src/routes/knowledge_.model.$slug.tsx");
+    const snapshot = JSON.parse(await readFile("src/data/generated/snapshot.json", "utf8"));
+    knowledgeRepository.getEntityPage = async (type, slug) =>
+      projectEntityDetail(snapshot, type, slug);
+
+    for (const slug of ["gemini", "gemini-4-carbon"]) {
+      const original = await knowledgeRepository.getEntityPage("model", slug);
+      const { entity, page } = await Route.options.loader({ params: { slug } });
+      assert.equal(entity.slug, slug);
+      assert.ok(original.graph.edges.length > 0);
+      assert.deepEqual(page.relations, original.graph.edges);
+      assert.deepEqual(page.evidence, original.evidence);
+      assert.deepEqual(page.timeline, original.timeline[entity.id]);
+      assert.equal(page.recentChange.entityId, "e-gemini-4-carbon");
+      assert.equal("graph" in page, false);
+      assert.equal("changes" in page, false);
+    }
+  } finally {
+    await vite.close();
+  }
 });
 
 test("short release tabs do not inherit the long product-line sidebar height", async () => {

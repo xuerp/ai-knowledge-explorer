@@ -83,6 +83,12 @@ const FAMILY_READING_CONTEXT: Record<
   },
 };
 
+type ModelPageData = Pick<KnowledgeSnapshot, "entities" | "evidence" | "claims" | "meta"> & {
+  timeline: NonNullable<KnowledgeSnapshot["timeline"][string]>;
+  relations: KnowledgeSnapshot["graph"]["edges"];
+  recentChange?: KnowledgeSnapshot["changes"][number];
+};
+
 export const Route = createFileRoute("/knowledge_/model/$slug")({
   loader: async ({ params }) => {
     const snapshot = await knowledgeRepository.getEntityPage("model", params.slug);
@@ -90,7 +96,19 @@ export const Route = createFileRoute("/knowledge_/model/$slug")({
     const entity =
       snapshot.entities.find((item) => item.type === "model" && item.slug === params.slug) ?? null;
     if (!entity) throw notFound();
-    return { entity, snapshot };
+    const { entities, evidence, claims, meta, timeline, graph, changes } = snapshot;
+    const page: ModelPageData = {
+      entities,
+      evidence,
+      claims,
+      meta,
+      timeline: timeline[entity.id] ?? [],
+      relations: graph?.edges ?? [],
+      recentChange: entity.familyId
+        ? changes.find((change) => change.entityId === entity.id)
+        : latestFamilyChange(changes, entity.id, entities),
+    };
+    return { entity, page };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "未找到 · AI Radar" }] };
@@ -108,24 +126,19 @@ export const Route = createFileRoute("/knowledge_/model/$slug")({
 });
 
 function EntityDetail() {
-  const { entity: e, snapshot } = Route.useLoaderData() as {
-    entity: Entity;
-    snapshot: KnowledgeSnapshot;
-  };
+  const { entity: e, page } = Route.useLoaderData();
   const { t, lang, mode, setMode } = useApp();
 
   if (e.familyId) {
-    return <ModelVersionDetail entity={e} snapshot={snapshot} />;
+    return <ModelVersionDetail entity={e} page={page} />;
   }
 
-  const { entities, evidence: allEvidence, timeline: allTimeline, graph } = snapshot;
-  const relations = graph.edges;
+  const { entities, evidence: allEvidence, relations, recentChange, meta } = page;
   const findEntity = (id: string) => entities.find((entity) => entity.id === id);
 
-  const timeline = familyEvolutionEvents(allTimeline[e.id] ?? []);
+  const timeline = familyEvolutionEvents(page.timeline);
   const hasMetrics = (e.metrics?.length ?? 0) > 0;
-  const reviewedClaims = snapshot.claims.filter((claim) => claim.entityId === e.id);
-  const recentChange = latestFamilyChange(snapshot.changes, e.id, entities);
+  const reviewedClaims = page.claims.filter((claim) => claim.entityId === e.id);
   const relatedRelations = relations.filter((r) => r.fromId === e.id || r.toId === e.id);
   const familyId = e.familyId ?? e.id;
   const familyVersions = entities
@@ -222,7 +235,7 @@ function EntityDetail() {
                       )}
                     </span>
                   )}
-                  <DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />
+                  <DemoBadge mode={meta.mode} retrievedAt={meta.retrievedAt} />
                 </div>
                 <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {displayName}
@@ -973,28 +986,27 @@ function EntityDetail() {
   );
 }
 
-function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: KnowledgeSnapshot }) {
+function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageData }) {
   const { t, lang } = useApp();
   const [activeTab, setActiveTab] = useState("overview");
-  const family = snapshot.entities.find((item) => item.id === entity.familyId);
+  const family = page.entities.find((item) => item.id === entity.familyId);
   const release = entity.release;
   const knowledge = entity.knowledge ?? createVersionKnowledge(entity, family);
-  const familyVersions = snapshot.entities
+  const familyVersions = page.entities
     .filter((item) => item.familyId === entity.familyId)
     .sort(compareModelReleaseDates);
   const productLineVersions = release?.productLine
     ? familyVersions.filter((item) => item.release?.productLine?.id === release.productLine?.id)
     : familyVersions;
   const productLines = groupModelProductLines(familyVersions);
-  const timeline = snapshot.timeline[entity.id] ?? [];
-  const claims = snapshot.claims.filter((claim) => claim.entityId === entity.id);
-  const recentChange = snapshot.changes.find((change) => change.entityId === entity.id);
+  const { timeline, recentChange, relations, meta } = page;
+  const claims = page.claims.filter((claim) => claim.entityId === entity.id);
   const relevantSourceIds = new Set([
     ...claims.flatMap((claim) => claim.sourceIds),
     ...timeline.flatMap((event) => event.sourceIds),
     ...(entity.metrics ?? []).flatMap((metric) => metric.sourceIds ?? []),
     ...(recentChange?.sourceIds ?? []),
-    ...(snapshot.graph?.edges ?? [])
+    ...relations
       .filter((relation) => relation.fromId === entity.id || relation.toId === entity.id)
       .flatMap((relation) => relation.sourceIds),
   ]);
@@ -1004,7 +1016,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
   const officialUrls = new Set(
     release?.accessChannels.map((channel) => channel.url).filter(Boolean),
   );
-  const evidence = snapshot.evidence.filter(
+  const evidence = page.evidence.filter(
     (source) => relevantSourceIds.has(source.id) || officialUrls.has(source.url),
   );
   const sourceLinks = uniqueSourceLinks(evidence);
@@ -1101,7 +1113,7 @@ function ModelVersionDetail({ entity, snapshot }: { entity: Entity; snapshot: Kn
                       {releaseStageLabel(release.stage, t)}
                     </span>
                   )}
-                  <DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />
+                  <DemoBadge mode={meta.mode} retrievedAt={meta.retrievedAt} />
                 </div>
                 <div className="model-version__meta">
                   <span>

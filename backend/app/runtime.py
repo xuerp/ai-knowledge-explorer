@@ -138,16 +138,27 @@ def create_services(
         ),
         task_meaning_service=TaskMeaningService(task_interpreter),
     )
+    extraction_config = app_settings.extraction_generation
     extraction = StructuredExtractionService(
-        app_settings.extraction_api_url,
-        app_settings.extraction_api_key,
-        app_settings.extraction_model,
+        extraction_config.endpoint if extraction_config else app_settings.extraction_api_url,
+        extraction_config.api_key if extraction_config else app_settings.extraction_api_key,
+        extraction_config.model if extraction_config else app_settings.extraction_model,
         response_timeout_seconds=app_settings.extraction_response_timeout_seconds,
-        reasoning_effort=app_settings.extraction_reasoning_effort,
-        max_completion_tokens=app_settings.extraction_max_completion_tokens,
+        reasoning_effort="low" if extraction_config else app_settings.extraction_reasoning_effort,
+        max_completion_tokens=(
+            extraction_config.max_output_tokens
+            if extraction_config
+            else app_settings.extraction_max_completion_tokens
+        ),
         require_json_schema=app_settings.extraction_require_json_schema,
         require_usage=app_settings.extraction_require_usage,
-        contract_state_path=app_settings.extraction_contract_state_path,
+        contract_state_path=None
+        if extraction_config
+        else app_settings.extraction_contract_state_path,
+        budgeted_generator=(
+            BudgetedAnswerGenerator(database, extraction_config) if extraction_config else None
+        ),
+        budgeted_source_ids=app_settings.extraction_source_ids,
     )
     email_delivery = EmailDeliveryService(
         app_settings.smtp_host,

@@ -18,6 +18,10 @@ from .database import ModelBudgetRecord as Budget
 from .database import ModelCallRecord as Call
 
 
+class ModelBudgetUnavailable(ValueError):
+    pass
+
+
 class ModelBudget:
     def __init__(self, database, config):
         self.database, self.config = database, config
@@ -29,7 +33,9 @@ class ModelBudget:
         cfg = self.config
         now = datetime.now(UTC)
         if user_id not in cfg.user_ids or now.strftime("%Y-%m") != cfg.month:
-            raise ValueError("Model access is outside the approved account/month scope.")
+            raise ModelBudgetUnavailable(
+                "Model access is outside the approved account/month scope."
+            )
         cost = self.cost(input_bound, output_bound)
         attempt_id = str(uuid4())
         with self.database.session() as session:
@@ -64,7 +70,9 @@ class ModelBudget:
                 )
             )
             if locked.rowcount != 1:
-                raise ValueError("Model budget is closed, exhausted, changed or in use.")
+                raise ModelBudgetUnavailable(
+                    "Model budget is closed, exhausted, changed or in use."
+                )
             daily = session.scalar(
                 select(func.count())
                 .select_from(Call)
@@ -75,7 +83,7 @@ class ModelBudget:
                 )
             )
             if daily >= cfg.user_daily_calls:
-                raise ValueError("Daily model allowance is exhausted.")
+                raise ModelBudgetUnavailable("Daily model allowance is exhausted.")
             session.add(
                 Call(
                     id=attempt_id,

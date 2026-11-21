@@ -85,8 +85,8 @@ class GenerationConfig:
         return profile
 
     @staticmethod
-    def spend_cap_from_env():
-        amount = os.getenv("AI_RADAR_ANSWER_SPEND_CAP", "").strip()
+    def spend_cap_from_env(prefix="AI_RADAR_ANSWER_"):
+        amount = os.getenv(prefix + "SPEND_CAP", "").strip()
         if not amount:
             return None
         if not re.fullmatch(r"[0-9]{1,4}(?:\.[0-9]{1,6})?", amount):
@@ -94,9 +94,9 @@ class GenerationConfig:
         return int(Decimal(amount) * 1_000_000)
 
     @classmethod
-    def from_env(cls):
+    def from_env(cls, prefix="AI_RADAR_ANSWER_", *, service_subject=None):
         def value(name):
-            return os.getenv("AI_RADAR_ANSWER_" + name, "").strip()
+            return os.getenv(prefix + name, "").strip()
 
         billable_input = value("BILLABLE_INPUT_TOKENS")
         billable_output = value("BILLABLE_OUTPUT_TOKENS")
@@ -112,12 +112,16 @@ class GenerationConfig:
             output_rate=int(value("OUTPUT_RATE") or "0"),
             max_calls=int(value("MAX_CALLS") or "0"),
             user_daily_calls=int(value("USER_DAILY_CALLS") or "0"),
-            user_ids=tuple(item.strip() for item in value("USER_IDS").split(",") if item.strip()),
+            user_ids=(
+                (service_subject,)
+                if service_subject
+                else tuple(item.strip() for item in value("USER_IDS").split(",") if item.strip())
+            ),
             protocol=value("PROTOCOL") or "openai-chat",
             max_output_tokens=int(value("MAX_OUTPUT_TOKENS") or "4096"),
             billable_input_tokens=int(billable_input) if billable_input else None,
             billable_output_tokens=int(billable_output) if billable_output else None,
-            spend_cap_units=cls.spend_cap_from_env(),
+            spend_cap_units=cls.spend_cap_from_env(prefix),
         )
 
 
@@ -158,7 +162,7 @@ class BudgetedAnswerGenerator:
 
         return self.invoke(request, user_id, "answer", validate)
 
-    def invoke(self, request, user_id, purpose, validate):
+    def invoke(self, request, user_id, purpose, validate, *, timeout_seconds=80, receipt=None):
         cfg = self.config
 
         def strict_schema(value):
@@ -180,8 +184,9 @@ class BudgetedAnswerGenerator:
         input_size_bound = (
             len(serialized.encode("utf-8")) + len(json.dumps(request["schema"]).encode()) + 4096
         )
-        if input_size_bound > 65000:
-            raise ValueError("Answer evidence exceeds the approved input bound.")
+        input_size_limit = cfg.billable_input_tokens if purpose == "extraction" else 65000
+        if input_size_limit is None or input_size_bound > input_size_limit:
+            raise ValueError("Model input exceeds the approved bound.")
         input_bound = max(cfg.billable_input_tokens or 0, input_size_bound)
         output_bound = cfg.billable_output_tokens or cfg.max_output_tokens
         adapter_type = (
@@ -193,7 +198,7 @@ class BudgetedAnswerGenerator:
             model=cfg.model,
             max_calls=1,
             max_output_tokens=cfg.max_output_tokens,
-            response_timeout_seconds=80,
+            response_timeout_seconds=min(80, timeout_seconds),
             transport=self.transport,
         )
         attempt = self.budget.reserve(user_id, purpose, input_bound, output_bound)
@@ -204,6 +209,8 @@ class BudgetedAnswerGenerator:
             validated = True
             return raw
         finally:
+            if receipt is not None:
+                receipt.update(adapter.last_exchange)
             self.budget.finish(
                 attempt,
                 adapter.last_exchange,
