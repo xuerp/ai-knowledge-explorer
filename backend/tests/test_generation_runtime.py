@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy import select
 
 from app.database import Database, ModelBudgetRecord, ModelCallRecord
+from app.decision_semantics import TaskMeaningService
 from app.generation_runtime import (
     BudgetedAnswerGenerator,
     BudgetedMeaningInterpreter,
@@ -15,6 +16,7 @@ from app.generation_runtime import (
 )
 from app.model_budget import ModelBudget
 from tests.test_answer_generation import grounded_citations, valid_payload
+from tests.test_decision_runtime import TASK, Adapter
 
 
 @pytest.fixture
@@ -201,18 +203,50 @@ def test_invalid_output_spends_once_and_blocks_followup(setup):
     assert len(requests) == 1
 
 
-def test_native_messages_uses_bounded_schema_and_counts_cached_tokens(setup):
+def test_native_opus_decision_defaults_to_medium_in_the_request_and_receipt(setup, monkeypatch):
     database, cfg = setup
-    cfg = replace(
-        cfg, protocol="anthropic-messages", endpoint="https://provider.example/v1/messages"
+    env = {
+        "API_URL": "https://provider.example/v1/messages",
+        "API_KEY": cfg.api_key,
+        "MODEL": "claude-opus-5-5",
+        "PROTOCOL": "anthropic-messages",
+        "BUDGET_ID": cfg.budget_id,
+        "BUDGET_MONTH": cfg.month,
+        "CURRENCY": cfg.currency,
+        "LIMIT_UNITS": str(cfg.limit_units),
+        "INPUT_RATE": str(cfg.input_rate),
+        "OUTPUT_RATE": str(cfg.output_rate),
+        "MAX_CALLS": str(cfg.max_calls),
+        "USER_DAILY_CALLS": str(cfg.user_daily_calls),
+        "USER_IDS": "test-owner",
+    }
+    for name, value in env.items():
+        monkeypatch.setenv(f"AI_RADAR_ANSWER_{name}", value)
+        monkeypatch.setenv(f"AI_RADAR_EXTRACTION_BUDGET_{name}", value)
+    monkeypatch.delenv("AI_RADAR_ANSWER_REASONING_EFFORT", raising=False)
+    monkeypatch.delenv("AI_RADAR_EXTRACTION_BUDGET_REASONING_EFFORT", raising=False)
+    cfg = GenerationConfig.from_env()
+    assert cfg.reasoning_effort == "medium"
+    assert cfg.profile()["reasoning_effort"] == "medium"
+    extraction_cfg = GenerationConfig.from_env(
+        "AI_RADAR_EXTRACTION_BUDGET_", service_subject="automation"
     )
+    assert extraction_cfg.reasoning_effort == "low"
+    assert "reasoning_effort" not in extraction_cfg.profile()
     citations = grounded_citations()[:1]
 
     def handler(request):
         body = json.loads(request.content)
         assert "tools" not in body and "cache_control" not in json.dumps(body)
         assert body["max_tokens"] == 4096 and "max_completion_tokens" not in body
+        assert body["output_config"]["effort"] == "medium"
         assert "minLength" not in json.dumps(body["output_config"]["format"]["schema"])
+        message = json.loads(body["messages"][0]["content"])
+        result = (
+            Adapter().interpret(message)
+            if "task" in message
+            else json.dumps(valid_payload(citations[0].claim.id))
+        )
         return httpx.Response(
             200,
             json={
@@ -221,17 +255,28 @@ def test_native_messages_uses_bounded_schema_and_counts_cached_tokens(setup):
                 "usage": {"input_tokens": 100, "output_tokens": 50, "cache_read_input_tokens": 20},
                 "content": [
                     {"type": "thinking", "thinking": "do not record reasoning"},
-                    {"type": "text", "text": json.dumps(valid_payload(citations[0].claim.id))},
+                    {"type": "text", "text": result},
                 ],
             },
         )
 
-    runtime = BudgetedAnswerGenerator(database, cfg, transport=httpx.MockTransport(handler))
-    runtime.generate("test task", citations, "zh", user_id="test-owner")
+    transport = httpx.MockTransport(handler)
+    interpreter = BudgetedMeaningInterpreter(database, cfg, transport=transport)
+    assert (
+        TaskMeaningService(interpreter).understand(TASK, owner_id="test-owner").status
+        == "validated"
+    )
+    BudgetedAnswerGenerator(database, cfg, transport=transport).generate(
+        "test task", citations, "zh", user_id="test-owner"
+    )
+    assert interpreter.diagnostics()["reasoningEffort"] == "medium"
     with database.session() as session:
-        call = session.scalar(select(ModelCallRecord))
-        assert call.charged_units == 220
-        assert "do not record reasoning" not in call.receipt_json
+        calls = session.scalars(select(ModelCallRecord)).all()
+        assert {call.purpose for call in calls} == {"understanding", "answer"}
+        for call in calls:
+            assert call.charged_units == 220
+            assert json.loads(call.receipt_json)["requestedEffort"] == "medium"
+            assert "do not record reasoning" not in call.receipt_json
 
 
 def test_request_tokens_and_billable_bounds_are_independent(setup):

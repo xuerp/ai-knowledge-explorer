@@ -135,6 +135,8 @@ python -c "from dotenv import load_dotenv; load_dotenv('.env'); from app.worker 
 - `BUDGET_ID`、`BUDGET_MONTH`、`CURRENCY`、`LIMIT_UNITS`、`INPUT_RATE`、`OUTPUT_RATE`、`MAX_CALLS`、`USER_DAILY_CALLS`、`MAX_OUTPUT_TOKENS`、`BILLABLE_INPUT_TOKENS` 和 `BILLABLE_OUTPUT_TOKENS` 限定月份、费用和请求规模。金额和每百万 token 的费率以货币单位的百万分之一填写。抽取和决策使用不同预算 ID，分配的金额加历史用量须在获批总额内。`SPEND_CAP=0` 可暂停抽取请求并保留账本。
 - `AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE` 和每日快照上限控制抽取批量。应用在每笔模型请求前另行预留费用。额度不足、同时有未结算请求或先前回执缺失时，周期暂停模型请求，采集仍可运行。首次验收核对供应商实际用量、候选审核记录及批准后的公开页面。
 
+当真实模型决策使用 `anthropic-messages` 连接 `claude-opus-5-5` 时，任务理解与综合回答默认发送 `output_config.effort=medium`。可在后端用 `AI_RADAR_ANSWER_REASONING_EFFORT` 显式指定 `low` 或 `medium`。思考强度属于费用审批配置的一部分。已有调用账本的预算更改后会拒绝继续调用，需先核对已用金额，再使用经批准的新预算 ID。抽取的费用配置独立。
+
 worker 会按照 `AI_RADAR_DIGEST_TIMEZONE`（默认 `Asia/Shanghai`）和每个账户设置的时间自动生成每日摘要。同一账户同一天最多生成一封，并且只收录上一次摘要之后产生的未读通知。
 
 管理员也可以使用 Bearer 令牌手动生成每日摘要：

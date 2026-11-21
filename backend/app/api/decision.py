@@ -23,7 +23,9 @@ def own_decision_interpretation(
             "remainingCalls",
             "blocked",
             "inFlightOrInterrupted",
+            "reasoningEffort",
         )
+        if key in diagnostics
     }
 
 

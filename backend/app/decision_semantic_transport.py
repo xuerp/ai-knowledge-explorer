@@ -14,6 +14,8 @@ import httpx
 
 
 class ChatTaskInterpreter:
+    supported_efforts = frozenset({"none", "low"})
+
     def __init__(
         self,
         *,
@@ -38,7 +40,7 @@ class ChatTaskInterpreter:
             raise ValueError("A model and bounded evaluation call budget are required.")
         if not 1 <= response_timeout_seconds <= 90:
             raise ValueError("The response timeout must stay within 1..90 seconds.")
-        if reasoning_effort not in {"none", "low"}:
+        if reasoning_effort not in self.supported_efforts:
             raise ValueError("Use an explicitly supported bounded parser reasoning mode.")
         self.reasoning_effort = reasoning_effort
         self.response_timeout_seconds = response_timeout_seconds

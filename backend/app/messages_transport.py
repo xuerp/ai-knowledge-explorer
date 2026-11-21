@@ -44,13 +44,19 @@ def transport_schema(schema):
 
 
 class MessagesTaskInterpreter(ChatTaskInterpreter):
+    supported_efforts = frozenset({"low", "medium"})
+
     def interpret(self, request):
         with self.lock:
             if self.blocked or self.calls >= self.max_calls:
                 raise ValueError("Model call allocation is closed.")
             self.calls += 1
         started = monotonic()
-        self.last_exchange = {"call": self.calls, "requestedOutputTokens": self.max_output_tokens}
+        self.last_exchange = {
+            "call": self.calls,
+            "requestedOutputTokens": self.max_output_tokens,
+            "requestedEffort": self.reasoning_effort,
+        }
         self.last_content = None
         try:
             with httpx.Client(

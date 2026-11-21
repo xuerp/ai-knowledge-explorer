@@ -21,8 +21,10 @@ export function DemoBadge({
     <Popover>
       <PopoverTrigger asChild>
         <button type="button" className={`data-status-badge ${className}`}>
-          <Info aria-hidden="true" />
-          {mode === "demo" ? t("示例快照", "Sample snapshot") : t("数据状态", "Data status")}
+          <span className="metadata-badge">
+            <Info aria-hidden="true" />
+            {mode === "demo" ? t("示例快照", "Sample snapshot") : t("数据状态", "Data status")}
+          </span>
         </button>
       </PopoverTrigger>
       <PopoverContent

@@ -150,6 +150,7 @@ class ModelBudget:
                         "httpStatus",
                         "responseId",
                         "requestedOutputTokens",
+                        "requestedEffort",
                         "returnedModel",
                         "promptTokens",
                         "completionTokens",

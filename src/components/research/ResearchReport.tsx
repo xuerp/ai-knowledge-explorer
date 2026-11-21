@@ -144,19 +144,13 @@ export function ResearchReport({
       <header className="border-b border-border bg-card/40">
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            {publicView ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-verified/40 bg-verified/10 px-2.5 py-1 text-xs font-medium text-verified">
-                <Globe2 className="h-3.5 w-3.5" />
-                {t("公开研究页", "Public research page")}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-signal/35 bg-signal/10 px-2.5 py-1 text-xs font-medium text-signal">
-                <FileText className="h-3.5 w-3.5" />
-                {t("私密研究记录", "Private research record")}
-              </span>
-            )}
-            {dataMode === "demo" && <DemoBadge />}
-            <span className="chip">
+            <span className={`metadata-badge ${publicView ? "is-public" : "is-private"}`}>
+              {publicView ? <Globe2 aria-hidden="true" /> : <FileText aria-hidden="true" />}
+              {publicView
+                ? t("公开研究页", "Public research page")
+                : t("私密研究记录", "Private research record")}
+            </span>
+            <span className="metadata-badge">
               {research?.decision?.guidance
                 ? guidanceStatusLabel(research.decision.guidance.outcome, lang)
                 : research?.decision && decisionPresentation(research, lang).allExcluded
@@ -167,6 +161,7 @@ export function ResearchReport({
                       ? t("分析已生成", "Analysis generated")
                       : t("证据不足", "Insufficient evidence")}
             </span>
+            {dataMode === "demo" && <DemoBadge />}
           </div>
           <h1 className="research-report__question">
             {research?.decision?.guidance

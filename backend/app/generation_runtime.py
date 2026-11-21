@@ -31,10 +31,15 @@ class GenerationConfig:
     billable_input_tokens: int | None = None
     billable_output_tokens: int | None = None
     spend_cap_units: int | None = None
+    reasoning_effort: str = "low"
 
     def __post_init__(self):
         if self.protocol not in {"openai-chat", "anthropic-messages"}:
             raise ValueError("Unsupported model transport protocol.")
+        if self.reasoning_effort != "low" and (
+            self.reasoning_effort != "medium" or self.protocol != "anthropic-messages"
+        ):
+            raise ValueError("Use low effort or medium effort with native Anthropic Messages.")
         if not (self.endpoint and self.api_key and self.model and self.user_ids):
             raise ValueError("Answer generation requires an explicit provider and account scope.")
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", self.budget_id):
@@ -82,6 +87,8 @@ class GenerationConfig:
             profile.pop("billable_input_tokens")
         if self.billable_output_tokens is None:
             profile.pop("billable_output_tokens")
+        if self.reasoning_effort == "low":
+            profile.pop("reasoning_effort")
         return profile
 
     @staticmethod
@@ -100,10 +107,19 @@ class GenerationConfig:
 
         billable_input = value("BILLABLE_INPUT_TOKENS")
         billable_output = value("BILLABLE_OUTPUT_TOKENS")
+        model = value("MODEL")
+        protocol = value("PROTOCOL") or "openai-chat"
+        default_effort = (
+            "medium"
+            if prefix == "AI_RADAR_ANSWER_"
+            and protocol == "anthropic-messages"
+            and model == "claude-opus-5-5"
+            else "low"
+        )
         return cls(
             endpoint=value("API_URL"),
             api_key=value("API_KEY"),
-            model=value("MODEL"),
+            model=model,
             budget_id=value("BUDGET_ID"),
             month=value("BUDGET_MONTH"),
             currency=value("CURRENCY"),
@@ -117,11 +133,12 @@ class GenerationConfig:
                 if service_subject
                 else tuple(item.strip() for item in value("USER_IDS").split(",") if item.strip())
             ),
-            protocol=value("PROTOCOL") or "openai-chat",
+            protocol=protocol,
             max_output_tokens=int(value("MAX_OUTPUT_TOKENS") or "4096"),
             billable_input_tokens=int(billable_input) if billable_input else None,
             billable_output_tokens=int(billable_output) if billable_output else None,
             spend_cap_units=cls.spend_cap_from_env(prefix),
+            reasoning_effort=value("REASONING_EFFORT") or default_effort,
         )
 
 
@@ -199,6 +216,7 @@ class BudgetedAnswerGenerator:
             max_calls=1,
             max_output_tokens=cfg.max_output_tokens,
             response_timeout_seconds=min(80, timeout_seconds),
+            reasoning_effort=cfg.reasoning_effort,
             transport=self.transport,
         )
         attempt = self.budget.reserve(user_id, purpose, input_bound, output_bound)
@@ -244,6 +262,7 @@ class BudgetedMeaningInterpreter:
                 "remainingCalls": max(0, cfg.max_calls - (row.used_calls if row else 0)),
                 "blocked": bool(row and row.blocked) or changed or cap_reached,
                 "inFlightOrInterrupted": bool(row and row.active_attempt_id),
+                "reasoningEffort": cfg.reasoning_effort,
                 "currency": cfg.currency,
                 "limitUnits": cfg.effective_limit_units,
                 "chargedUnits": charged_units,

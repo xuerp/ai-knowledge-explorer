@@ -214,48 +214,52 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
               ))}
             </div>
             <div className="knowledge-landing__freshness">
-              <CheckCircle2 aria-hidden="true" />
-              <span>{t("内容可追溯", "Traceable evidence")}</span>
-              <span aria-hidden="true">·</span>
-              <span>
-                {t("最后更新", "Updated")}: {lastUpdated || "—"}
+              <span className="knowledge-landing__freshness-copy">
+                <CheckCircle2 aria-hidden="true" />
+                <span>{t("内容可追溯", "Traceable evidence")}</span>
+                <span>
+                  {t("最后更新", "Updated")}{" "}
+                  {lastUpdated ? <time dateTime={lastUpdated}>{lastUpdated}</time> : "—"}
+                </span>
               </span>
               <DemoBadge mode={snapshot.meta.mode} retrievedAt={snapshot.meta.retrievedAt} />
             </div>
           </section>
 
           <section className="knowledge-landing__filters" aria-label={t("筛选", "Filters")}>
-            <span>{t("筛选", "Filter")}:</span>
             <div
               className="knowledge-landing__filter-group"
               role="group"
               aria-label={t("地区", "Region")}
             >
-              {(["all", "domestic", "overseas"] as const).map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  className={region === item ? "is-active" : undefined}
-                  aria-pressed={region === item}
-                  onClick={() => setRegion(item)}
-                >
-                  {region === item && <Check aria-hidden="true" />}
-                  {item === "all"
-                    ? t("全部地区", "All regions")
-                    : item === "domestic"
-                      ? t("国内", "Domestic")
-                      : t("海外", "Overseas")}
-                </button>
-              ))}
+              <span aria-hidden="true">{t("地区", "Region")}</span>
+              <div className="knowledge-landing__filter-options">
+                {(["all", "domestic", "overseas"] as const).map((item) => (
+                  <button
+                    type="button"
+                    key={item}
+                    className={region === item ? "is-active" : undefined}
+                    aria-pressed={region === item}
+                    onClick={() => setRegion(item)}
+                  >
+                    {region === item && <Check aria-hidden="true" />}
+                    {item === "all"
+                      ? t("全部地区", "All regions")
+                      : item === "domestic"
+                        ? t("国内", "Domestic")
+                        : t("海外", "Overseas")}
+                  </button>
+                ))}
+              </div>
             </div>
             {category === "model" && (
-              <>
-                <i aria-hidden="true" />
-                <div
-                  className="knowledge-landing__filter-group"
-                  role="group"
-                  aria-label={t("模型条件", "Model criteria")}
-                >
+              <div
+                className="knowledge-landing__filter-group"
+                role="group"
+                aria-label={t("模型条件", "Model criteria")}
+              >
+                <span aria-hidden="true">{t("特性", "Features")}</span>
+                <div className="knowledge-landing__filter-options">
                   {SIGNAL_FILTERS.filter((item) => item.id !== "all").map((item) => (
                     <button
                       type="button"
@@ -269,7 +273,7 @@ function KnowledgeContent({ snapshot }: { snapshot: KnowledgeSnapshot }) {
                     </button>
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </section>
 
