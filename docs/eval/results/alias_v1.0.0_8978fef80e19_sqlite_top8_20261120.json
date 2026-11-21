@@ -4,12 +4,12 @@
     "sampleCount": 80,
     "snapshotSha256": "8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e",
     "aliasCatalogVersion": "1.0.0",
-    "aliasCatalogSha256": "d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60",
+    "aliasCatalogSha256": "ef59005e65687f450c932ec5adce9bdf508332558641bcde9f3124bb71a2bd0a",
     "retrievalMode": "lexical",
     "databaseDialect": "sqlite",
     "topK": 8,
-    "evaluationCommit": "b035683b46521031c0f4c7b581818a44cc0a32f8",
-    "evaluatedAt": "2026-10-14T13:03:35.876006+00:00"
+    "evaluationCommit": "66082be31c6c1a33afce14d9aaaf948c9f13fd80",
+    "evaluatedAt": "2026-11-20T15:11:57.241055+00:00"
   },
   "before": {
     "metrics": {
@@ -393,10 +393,10 @@
           "c-codex-agent",
           "c-gemini-cli-agent",
           "c-manus-agent",
-          "c-claude-code-agent",
-          "c-devin-agent",
-          "claim-0ffb64747e7a0626d653",
-          "claim-14f5b73d8708bbc4a360"
+          "c-langgraph-framework",
+          "c-openai-agents-sdk-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-5aaf53f59267692a608e"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -878,9 +878,7 @@
           "claim-0bb5fe18f20b9d37d620",
           "claim-50c69855c226a60323a7",
           "claim-b4baf2feae10cc1faa7b",
-          "claim-c197b2fed5266444ac67",
-          "c-claude-align",
-          "c-claude-code-agent"
+          "claim-c197b2fed5266444ac67"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -888,8 +886,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 6,
+          "filteredCount": 189,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -1496,11 +1494,7 @@
           "claim-739edf11461045ce579e",
           "claim-c197b2fed5266444ac67",
           "claim-50c69855c226a60323a7",
-          "claim-651c65451adfbda8426e",
-          "c-autogen-framework",
-          "c-claude-align",
-          "c-claude-code-agent",
-          "c-codex-agent"
+          "claim-651c65451adfbda8426e"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -1508,8 +1502,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 4,
+          "filteredCount": 191,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -1527,11 +1521,7 @@
           "claim-50c69855c226a60323a7",
           "claim-739edf11461045ce579e",
           "claim-651c65451adfbda8426e",
-          "claim-c197b2fed5266444ac67",
-          "c-autogen-framework",
-          "c-claude-align",
-          "c-claude-code-agent",
-          "c-codex-agent"
+          "claim-c197b2fed5266444ac67"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -1539,8 +1529,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 4,
+          "filteredCount": 191,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -2395,8 +2385,7 @@
           "claim-651c65451adfbda8426e",
           "claim-739edf11461045ce579e",
           "claim-c9729d582aad30fb2ef1",
-          "claim-d8c42aa4195b98cd5d4f",
-          "c-autogen-framework"
+          "claim-d8c42aa4195b98cd5d4f"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.25,
@@ -2404,8 +2393,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 7,
+          "filteredCount": 188,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -3000,10 +2989,10 @@
           "c-codex-agent",
           "c-gemini-cli-agent",
           "c-manus-agent",
-          "c-claude-code-agent",
-          "c-devin-agent",
-          "claim-0ffb64747e7a0626d653",
-          "claim-14f5b73d8708bbc4a360"
+          "c-langgraph-framework",
+          "c-openai-agents-sdk-framework",
+          "claim-37d0d89648d2a393d0c3",
+          "claim-5aaf53f59267692a608e"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -3485,9 +3474,7 @@
           "claim-0bb5fe18f20b9d37d620",
           "claim-50c69855c226a60323a7",
           "claim-b4baf2feae10cc1faa7b",
-          "claim-c197b2fed5266444ac67",
-          "c-claude-align",
-          "c-claude-code-agent"
+          "claim-c197b2fed5266444ac67"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -3495,8 +3482,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 6,
+          "filteredCount": 189,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -4103,11 +4090,7 @@
           "claim-739edf11461045ce579e",
           "claim-c197b2fed5266444ac67",
           "claim-50c69855c226a60323a7",
-          "claim-651c65451adfbda8426e",
-          "c-autogen-framework",
-          "c-claude-align",
-          "c-claude-code-agent",
-          "c-codex-agent"
+          "claim-651c65451adfbda8426e"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -4115,8 +4098,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 4,
+          "filteredCount": 191,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -4134,11 +4117,7 @@
           "claim-50c69855c226a60323a7",
           "claim-739edf11461045ce579e",
           "claim-651c65451adfbda8426e",
-          "claim-c197b2fed5266444ac67",
-          "c-autogen-framework",
-          "c-claude-align",
-          "c-claude-code-agent",
-          "c-codex-agent"
+          "claim-c197b2fed5266444ac67"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.125,
@@ -4146,8 +4125,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 4,
+          "filteredCount": 191,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,
@@ -5002,8 +4981,7 @@
           "claim-651c65451adfbda8426e",
           "claim-739edf11461045ce579e",
           "claim-c9729d582aad30fb2ef1",
-          "claim-d8c42aa4195b98cd5d4f",
-          "c-autogen-framework"
+          "claim-d8c42aa4195b98cd5d4f"
         ],
         "claimRecallAtK": 1.0,
         "precisionAtK": 0.25,
@@ -5011,8 +4989,8 @@
         "passed": true,
         "diagnostics": {
           "candidateCount": 195,
-          "returnedCount": 8,
-          "filteredCount": 187,
+          "returnedCount": 7,
+          "filteredCount": 188,
           "elapsedMs": 0,
           "matchedEntityIds": [],
           "fallbackReason": null,

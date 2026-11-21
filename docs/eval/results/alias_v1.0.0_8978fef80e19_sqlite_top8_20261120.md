@@ -2,9 +2,9 @@
 
 - Golden Set：v1.0.0（80 条）
 - 固定快照：`8978fef80e19ef9fdd167fdbbca4d2746f5a4c5edf558966484443eebfe1f66e`
-- 别名目录：v1.0.0 (`d69625a6a6b17c5e4f1089ecd3a9f2958af2ee89e4860b7044e0cb8985e1fa60`)
+- 别名目录：v1.0.0 (`ef59005e65687f450c932ec5adce9bdf508332558641bcde9f3124bb71a2bd0a`)
 - 数据库方言：`sqlite`；TopK=8
-- 评估脚本提交：`b035683b46521031c0f4c7b581818a44cc0a32f8`
+- 评估脚本提交：`66082be31c6c1a33afce14d9aaaf948c9f13fd80`
 - Embedding：未启用
 
 | 范围 | Recall@8 | Precision@8 | Entity Recall@8 | 通过率 |
