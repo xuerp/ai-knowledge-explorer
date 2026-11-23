@@ -1170,29 +1170,29 @@ class ModelLedPoint(CamelModel):
     """One displayed sentence. `verified` must cite; `model-knowledge` never cites."""
 
     basis: Literal["verified", "model-knowledge"]
-    text_zh: str = Field(min_length=1, max_length=600)
-    text_en: str = Field(min_length=1, max_length=900)
-    claim_ids: list[str] = Field(default_factory=list, max_length=8)
+    text_zh: str = Field(min_length=1, max_length=240)
+    text_en: str = Field(min_length=1, max_length=400)
+    claim_ids: list[str] = Field(default_factory=list, max_length=4)
 
 
 class ModelLedCandidate(CamelModel):
     entity_id: str = Field(min_length=1, max_length=200)
     role: Literal["primary", "alternative"]
-    points: list[ModelLedPoint] = Field(min_length=1, max_length=4)
+    points: list[ModelLedPoint] = Field(min_length=1, max_length=3)
 
 
 class ModelLedPayload(CamelModel):
     """Model-proposed analysis. The host validates and may prune before display."""
 
-    understood_task_zh: str = Field(min_length=1, max_length=400)
-    understood_task_en: str = Field(min_length=1, max_length=600)
+    understood_task_zh: str = Field(min_length=1, max_length=200)
+    understood_task_en: str = Field(min_length=1, max_length=320)
     headline_zh: str = Field(min_length=1, max_length=120)
     headline_en: str = Field(min_length=1, max_length=200)
     summary: ModelLedPoint
-    candidates: list[ModelLedCandidate] = Field(default_factory=list, max_length=4)
-    tradeoffs: list[ModelLedPoint] = Field(default_factory=list, max_length=4)
-    gaps: list[ModelLedPoint] = Field(default_factory=list, max_length=6)
-    first_steps: list[ModelLedPoint] = Field(default_factory=list, max_length=4)
+    candidates: list[ModelLedCandidate] = Field(default_factory=list, max_length=3)
+    tradeoffs: list[ModelLedPoint] = Field(default_factory=list, max_length=3)
+    gaps: list[ModelLedPoint] = Field(default_factory=list, max_length=4)
+    first_steps: list[ModelLedPoint] = Field(default_factory=list, max_length=3)
     refused: bool = False
     refusal_reason: str | None = Field(default=None, max_length=400)
 

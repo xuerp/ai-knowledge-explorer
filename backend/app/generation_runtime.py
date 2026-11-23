@@ -231,7 +231,9 @@ class BudgetedAnswerGenerator:
                 "requirement; never recommend something the requirements exclude. An unknown price is "
                 "not free. Amount of evidence is not capability. Gaps: name what the user must still "
                 "check, especially requirements the evidence does not cover. Write for the user's "
-                "language, specifically about their task; no generic capability lists. Refuse only "
+                "language, specifically about their task; no generic capability lists. Be concise: "
+                "at most 3 candidates with up to 3 points each, 3 tradeoffs, 4 gaps and 3 first "
+                "steps; one sentence per point. Refuse only "
                 "when the request is not about choosing or using AI tools."
             ),
             "task": task,
@@ -247,9 +249,22 @@ class BudgetedAnswerGenerator:
         def validate(raw):
             ModelLedPayload.model_validate_json(raw)
 
-        return self.invoke(request, user_id, "analysis", validate)
+        # Low effort: the analysis must finish inside the gateway's response window.
+        return self.invoke(
+            request, user_id, "analysis", validate, timeout_seconds=50, reasoning_effort="low"
+        )
 
-    def invoke(self, request, user_id, purpose, validate, *, timeout_seconds=80, receipt=None):
+    def invoke(
+        self,
+        request,
+        user_id,
+        purpose,
+        validate,
+        *,
+        timeout_seconds=80,
+        receipt=None,
+        reasoning_effort=None,
+    ):
         cfg = self.config
 
         def strict_schema(value):
@@ -288,7 +303,7 @@ class BudgetedAnswerGenerator:
             max_calls=1,
             max_output_tokens=cfg.max_output_tokens,
             response_timeout_seconds=min(80, timeout_seconds),
-            reasoning_effort=cfg.reasoning_effort,
+            reasoning_effort=reasoning_effort or cfg.reasoning_effort,
             transport=self.transport,
         )
         attempt = self.budget.reserve(user_id, purpose, input_bound, output_bound)
