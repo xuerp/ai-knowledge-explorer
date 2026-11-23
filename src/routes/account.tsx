@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { safeReturnTo } from "@/domain/account-return";
 import { PasswordField, passwordMinLength } from "@/components/account/PasswordField";
+import { ResearchHistory } from "@/components/account/ResearchHistory";
 import { useApp } from "@/lib/app-state";
 import {
   authSessionExpiredEvent,
@@ -19,6 +20,7 @@ import {
   type DecisionInterpretationStatus,
   type FollowItem,
   type ResearchResult,
+  type ResearchSummary,
   type SessionUser,
   type UserNotification,
 } from "@/services/user-api";
@@ -39,6 +41,7 @@ function AccountPage() {
   const [following, setFollowing] = useState<FollowItem[]>([]);
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [research, setResearch] = useState<ResearchResult | null>(null);
+  const [history, setHistory] = useState<ResearchSummary[] | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -48,17 +51,20 @@ function AccountPage() {
 
   const loadAccountDetails = useCallback(
     async (activeToken: string) => {
-      const [nextFollowing, nextNotifications, nextInterpretation] = await Promise.allSettled([
-        userApi.following(activeToken),
-        userApi.notifications(activeToken),
-        userApi.decisionInterpretation(activeToken),
-      ]);
+      const [nextFollowing, nextNotifications, nextInterpretation, nextHistory] =
+        await Promise.allSettled([
+          userApi.following(activeToken),
+          userApi.notifications(activeToken),
+          userApi.decisionInterpretation(activeToken),
+          userApi.researchHistory(activeToken),
+        ]);
       if (readAuthToken() !== activeToken) return;
       if (nextFollowing.status === "fulfilled") setFollowing(nextFollowing.value);
       if (nextNotifications.status === "fulfilled") setNotifications(nextNotifications.value);
       setInterpretation(
         nextInterpretation.status === "fulfilled" ? nextInterpretation.value : null,
       );
+      setHistory(nextHistory.status === "fulfilled" ? nextHistory.value : null);
       if (nextFollowing.status === "rejected" || nextNotifications.status === "rejected") {
         setError(
           t(
@@ -103,6 +109,7 @@ function AccountPage() {
       setFollowing([]);
       setNotifications([]);
       setResearch(null);
+      setHistory(null);
     };
     window.addEventListener(authSessionExpiredEvent, expired);
     return () => window.removeEventListener(authSessionExpiredEvent, expired);
@@ -125,6 +132,7 @@ function AccountPage() {
     setNotifications([]);
     setInterpretation(null);
     setResearch(null);
+    setHistory(null);
     setToken(activeToken);
     setUser(sessionUser);
     const returnTo = safeReturnTo(
@@ -376,6 +384,7 @@ function AccountPage() {
                     setFollowing([]);
                     setNotifications([]);
                     setResearch(null);
+                    setHistory(null);
                   }
                 })
               }
@@ -405,6 +414,8 @@ function AccountPage() {
                   )}
           </p>
         </section>
+
+        <ResearchHistory history={history} />
 
         <section className="grid gap-5 lg:grid-cols-2">
           <form

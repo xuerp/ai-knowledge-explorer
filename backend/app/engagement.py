@@ -45,6 +45,7 @@ from .schemas import (
     NotificationView,
     ResearchCreate,
     ResearchStep,
+    ResearchSummaryView,
     ResearchView,
     RetrievalDiagnostics,
 )
@@ -1029,6 +1030,45 @@ class EngagementService:
             )
         row = session.scalar(statement)
         return self._research_view(row) if row else None
+
+    def list_research(
+        self, session: Session, user_id: str, *, limit: int = 30
+    ) -> list[ResearchSummaryView]:
+        """The owner's most recent records, newest first. Never another user's."""
+        rows = session.scalars(
+            select(ResearchRecord)
+            .where(ResearchRecord.user_id == user_id)
+            .order_by(ResearchRecord.created_at.desc())
+            .limit(max(1, min(limit, 100)))
+        ).all()
+        summaries = []
+        for row in rows:
+            try:
+                decision = json.loads(row.decision_json or "null") or {}
+                context = json.loads(row.decision_context_json or "null") or {}
+            except ValueError:
+                decision, context = {}, {}
+            model_led = decision.get("modelLed") or {}
+            guidance = decision.get("guidance") or {}
+            headline = (
+                model_led.get("headline")
+                or (guidance.get("recommendation") or {}).get("headline")
+                or row.summary
+            )
+            created = row.created_at
+            summaries.append(
+                ResearchSummaryView(
+                    id=row.id,
+                    question=(context.get("task") or row.question)[:300],
+                    headline=(headline or "")[:200],
+                    status=row.status,
+                    answer_mode=row.answer_mode,
+                    model_led=bool(model_led),
+                    published_slug=row.published_slug,
+                    created_at=created.replace(tzinfo=UTC) if created.tzinfo is None else created,
+                )
+            )
+        return summaries
 
     def publish_research(
         self, session: Session, research_id: str, user_id: str

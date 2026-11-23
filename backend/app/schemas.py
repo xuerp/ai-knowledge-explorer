@@ -1697,6 +1697,19 @@ class PublishedResearchView(ResearchView):
     pass
 
 
+class ResearchSummaryView(CamelModel):
+    """One row in the owner's history; no citations or decision payload."""
+
+    id: str
+    question: str
+    headline: str
+    status: Literal["ready", "insufficient-evidence", "failed", "cancelled"]
+    answer_mode: Literal["extractive", "generated"] = "extractive"
+    model_led: bool = False
+    published_slug: str | None = None
+    created_at: datetime
+
+
 class EmailOutboxView(CamelModel):
     id: str
     to_email: EmailStr

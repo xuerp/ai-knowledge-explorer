@@ -33,3 +33,12 @@ test("return destinations retain existing research flows and reject external or 
     assert.equal(safeReturnTo(path, origin, "admin"), "");
   }
 });
+
+test("an expired session returns to the saved research record", () => {
+  // /ask links here when a session expires with a result on screen.
+  const id = "2c577477-0ac5-4090-9e54-a5d70010305c";
+  const returnTo = `/research/${encodeURIComponent(id)}`;
+  for (const role of ["viewer", "admin"]) {
+    assert.equal(safeReturnTo(returnTo, origin, role), returnTo);
+  }
+});

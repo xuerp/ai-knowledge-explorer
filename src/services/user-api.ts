@@ -436,6 +436,17 @@ export interface ResearchResult {
   publishedAt?: string;
 }
 
+export interface ResearchSummary {
+  id: string;
+  question: string;
+  headline: string;
+  status: ResearchResult["status"];
+  answerMode: ResearchResult["answerMode"];
+  modelLed: boolean;
+  publishedSlug?: string | null;
+  createdAt: string;
+}
+
 export interface PublishedResearch extends ResearchResult {
   citations: NonNullable<ResearchResult["citations"]>;
 }
@@ -549,6 +560,8 @@ export const userApi = {
       { method: "POST", body: JSON.stringify(payload) },
       token,
     ),
+  researchHistory: (token: string, limit = 30) =>
+    request<ResearchSummary[]>(`/api/v2/research?limit=${limit}`, {}, token),
   researchDetail: (token: string, id: string) =>
     request<ResearchResult>(`/api/v2/research/${encodeURIComponent(id)}`, {}, token),
   decisionValidation: (token: string, id: string) =>
