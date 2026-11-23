@@ -175,6 +175,7 @@ export function ResearchReport({
             </span>
             <span>
               {research?.decision?.guidance &&
+              !research.decision.modelLed &&
               !research.decision.guidance.recommendation.entityIds.length
                 ? t("本次未指定具体产品", "No specific product selected")
                 : t(

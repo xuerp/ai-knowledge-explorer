@@ -449,3 +449,38 @@ def test_model_led_skips_accounts_outside_the_invite_list_without_calling_the_mo
     assert outcome.analysis is None
     assert outcome.fallback_reason == "generation-not-entitled"
     assert Scoped.calls == 0
+
+
+def test_exports_and_public_share_carry_the_model_analysis(api, world):  # noqa: F811
+    """Markdown, PDF and the public share report must not fall back to rule text."""
+    snapshot, _ = world
+    usable = {
+        entity.id
+        for entity in snapshot.entities
+        if "unavailable-version" not in constraint_failures(entity, [], context())
+    }
+    client, owner, _ = api
+    enable(api, AnalysisGenerator(usable))
+    result = create(api, SCREENSHOT)
+    assert result["decision"]["modelLed"]["candidates"], "fixture must cite a usable option"
+    research_id = result["id"]
+    markdown = client.get(
+        f"/api/v2/research/{research_id}/report", params={"format": "md"}, headers=owner
+    )
+    assert markdown.status_code == 200, markdown.text
+    text = markdown.text
+    assert "先做一轮小规模微调验证" in text
+    assert "（模型常识，未核验）" in text
+    assert "你想先把哪类工作交给 AI" not in text and "目前还不能确定你要完成的工作" not in text
+    assert "[1]" in text, "verified points cite numbered sources"
+    pdf = client.get(
+        f"/api/v2/research/{research_id}/report", params={"format": "pdf"}, headers=owner
+    )
+    assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
+    slug = client.post(f"/api/v2/research/{research_id}/publish", headers=owner).json()[
+        "publishedSlug"
+    ]
+    shared = client.get(f"/api/v2/share/{slug}/markdown")
+    assert shared.status_code == 200 and "先做一轮小规模微调验证" in shared.text
+    reopened = client.get(f"/api/v2/research/{research_id}", headers=owner).json()
+    assert reopened["decision"]["modelLed"]["headline"] == "先做一轮小规模微调验证"

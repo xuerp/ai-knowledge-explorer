@@ -1,3 +1,4 @@
+import { MODEL_LED_NOTICE, modelLedSections } from "@/domain/model-led-reading";
 import type {
   DecisionValidationItem,
   DecisionValidationReview,
@@ -63,8 +64,18 @@ export function decisionReportHtml(
   const body = [
     `<header><h1>${e(t("私人决策与验证报告", "Private decision and validation report"))}</h1><p>${e(saved ? t("已保存验证记录", "Saved validation notes") : t("包含尚未保存的验证草稿", "Includes unsaved validation draft"))}</p><p>${e(t("用户笔记属于私人记录，不是已核验公开事实。", "User notes are private records, not verified public facts."))}</p></header>`,
     ...privateConclusion,
-    `<h2>${e(t("公开资料分析与任务条件", "Public evidence and task conditions"))}</h2><p>${e(research.decisionContext?.task ?? research.question)}</p><p><strong>${e(presentation.headline)}</strong></p><p>${e(presentation.summary)}</p><p>${e(presentation.action)}</p>`,
-    ...(decision?.guidance
+    ...(decision?.modelLed
+      ? [
+          `<h2>${e(t("公开资料分析与任务条件", "Public evidence and task conditions"))}</h2><p>${e(research.decisionContext?.task ?? research.question)}</p><p><strong>${e(decision.modelLed.headline)}</strong></p><p>${e(decision.modelLed.summary.text)}${citation(decision.modelLed.summary.basis === "verified" ? decision.modelLed.summary.claimIds : [])}</p><p><small>${e(MODEL_LED_NOTICE[lang])}</small></p>`,
+          ...modelLedSections(decision.modelLed, entityName, lang).map(
+            (section) =>
+              `<h3>${e(section.title)}</h3><ul>${section.lines.map((line) => `<li>${e(line.text)}${citation(line.claimIds)}</li>`).join("")}</ul>`,
+          ),
+        ]
+      : [
+          `<h2>${e(t("公开资料分析与任务条件", "Public evidence and task conditions"))}</h2><p>${e(research.decisionContext?.task ?? research.question)}</p><p><strong>${e(presentation.headline)}</strong></p><p>${e(presentation.summary)}</p><p>${e(presentation.action)}</p>`,
+        ]),
+    ...(decision?.guidance && !decision.modelLed
       ? [
           ...(decision.guidance.outcome === "advice" && decision.guidance.nextAction.entryUrl
             ? [
@@ -91,9 +102,11 @@ export function decisionReportHtml(
       [t("核验时间", "Evaluated at"), decision?.asOf ?? research.createdAt],
     ]),
     `<h2>${e(t("分析采用的条件", "Applied conditions"))}</h2>${list(decision?.conditions ?? [])}`,
-    ...decisionPlanSections(decision?.guidance ? undefined : decision?.plan, entityName, lang).map(
-      (section) => `<h3>${e(section.title)}</h3>${list(section.lines)}`,
-    ),
+    ...decisionPlanSections(
+      decision?.guidance || decision?.modelLed ? undefined : decision?.plan,
+      entityName,
+      lang,
+    ).map((section) => `<h3>${e(section.title)}</h3>${list(section.lines)}`),
     ...(context
       ? [
           table([

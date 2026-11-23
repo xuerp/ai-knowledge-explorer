@@ -32,6 +32,88 @@ class Report:
     sections: list[Section]
 
 
+def _model_led_report(research, analysis, name, refs, t, language, sources, indexes) -> Report:
+    """Report for a validated model-led analysis; rule sections would contradict it."""
+
+    def line(item):
+        if item.basis == "verified":
+            return (item.text + " " + refs(item.claim_ids)).rstrip()
+        return item.text + t("（模型常识，未核验）", " (model knowledge, unverified)")
+
+    sections = [
+        Section(
+            t("结论与建议", "Conclusion and recommendation"),
+            [
+                analysis.headline,
+                line(analysis.summary),
+                t(
+                    "由模型根据已收录资料和自身常识分析：带引用的内容已核验；标为“模型常识，未核验”的内容请自行确认。明确提出的硬条件已由系统检查。",
+                    "Analysed by a model from the catalog and its own knowledge. Cited items are verified; items marked as model knowledge are unverified. Explicit hard requirements were checked by the system.",
+                ),
+            ],
+        ),
+        Section(t("理解的任务", "Understood task"), [analysis.understood_task]),
+    ]
+    for candidate in analysis.candidates:
+        role = t("首选", "primary") if candidate.role == "primary" else t("备选", "alternative")
+        sections.append(
+            Section(
+                f"{name(candidate.entity_id)}（{role}）",
+                [line(point) for point in candidate.points],
+                level=3,
+            )
+        )
+    for title, items in (
+        (t("主要取舍", "Main tradeoffs"), analysis.tradeoffs),
+        (t("还需要确认", "Still to check"), analysis.gaps),
+        (t("第一步", "First steps"), analysis.first_steps),
+    ):
+        if items:
+            sections.append(Section(title, [line(item) for item in items]))
+    if any(value != "current" for value in research.citation_states.values()):
+        sections[0].paragraphs.append(
+            t(
+                "历史引用已有变化，请重新分析后再决定。",
+                "Historical citations changed. Reanalyze before deciding.",
+            )
+        )
+    if indexes:
+        sections.append(
+            Section(
+                t("来源", "Sources"),
+                [
+                    f"[{indexes[key]}] {getattr(source.title, language)} — {source.publisher}\n"
+                    + source.url
+                    for key in indexes
+                    for source in [sources[key]]
+                ],
+            )
+        )
+    sections.append(
+        Section(
+            t("报告边界", "Report bounds"),
+            [
+                t(
+                    "本报告由模型分析生成并经系统校验。未执行产品业务测试；供应商条款与可用性仍需复核。",
+                    "This report is a validated model analysis. No product task tests were performed; provider terms and availability require rechecking.",
+                )
+            ],
+        )
+    )
+    decision = research.decision
+    timestamp = decision.as_of if decision else research.created_at
+    timestamp = timestamp.replace(tzinfo=UTC) if timestamp.tzinfo is None else timestamp
+    metadata = timestamp.astimezone(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d %H:%M") + t(
+        " 北京时间", " UTC+8"
+    )
+    return Report(
+        t("选型分析报告", "Selection analysis report"),
+        research.decision_context.task if research.decision_context else research.question,
+        metadata,
+        sections,
+    )
+
+
 def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: str) -> Report:
     def t(zh, en):
         return zh if language == "zh" else en
@@ -42,7 +124,13 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
 
     decision = research.decision
     guidance = decision.guidance if decision else None
-    focused = set(guidance.recommendation.entity_ids) if guidance else None
+    # A model-led analysis cites across the catalog; the rule recommendation's
+    # entity focus would drop the very sources its verified points rely on.
+    focused = (
+        set(guidance.recommendation.entity_ids)
+        if guidance and not (decision and decision.model_led)
+        else None
+    )
     citations = [
         item
         for item in research.citations
@@ -95,6 +183,9 @@ def build_report(research: ResearchView, snapshot: KnowledgeSnapshot, language: 
     )
     if not guidance and candidates and all(item.eligibility == "excluded" for item in candidates):
         summary = t("没有符合本次硬条件的候选。", "No candidate meets the selected constraints.")
+    model_led = decision.model_led if decision else None
+    if model_led:
+        return _model_led_report(research, model_led, name, refs, t, language, sources, indexes)
     sections = [Section(t("结论与建议", "Conclusion and recommendation"), [summary])]
     if guidance:
         sections[0].paragraphs.insert(0, guidance.recommendation.headline)
