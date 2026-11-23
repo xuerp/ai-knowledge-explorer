@@ -50,6 +50,12 @@
   display: grid;
   gap: 8px;
 }
+.decision-guidance p.decision-guidance__source {
+  margin-block-start: -10px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-muted-foreground);
+}
 .decision-guidance__reasons ul {
   margin: 0;
   padding-inline-start: 0;

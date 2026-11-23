@@ -1098,6 +1098,8 @@ class DecisionGuidanceRecommendation(CamelModel):
     reasons: list[DecisionTradeoff] = Field(default_factory=list)
     tradeoff: str | None = None
     premises: list[str] = Field(default_factory=list)
+    summary_source: Literal["rules", "model"] = "rules"
+    summary_claim_ids: list[str] = Field(default_factory=list)
 
 
 class DecisionGuidanceUnknown(CamelModel):
@@ -1157,10 +1159,73 @@ class GeneratedAnswerStatement(CamelModel):
 class GeneratedAnswerPayload(CamelModel):
     answer_zh: str = Field(min_length=1)
     answer_en: str = Field(min_length=1)
+    summary: GeneratedAnswerStatement | None = None
     statements: list[GeneratedAnswerStatement] = Field(default_factory=list)
     uncertainties: list[str] = Field(default_factory=list)
     refused: bool = False
     refusal_reason: str | None = None
+
+
+class ModelLedPoint(CamelModel):
+    """One displayed sentence. `verified` must cite; `model-knowledge` never cites."""
+
+    basis: Literal["verified", "model-knowledge"]
+    text_zh: str = Field(min_length=1, max_length=600)
+    text_en: str = Field(min_length=1, max_length=900)
+    claim_ids: list[str] = Field(default_factory=list, max_length=8)
+
+
+class ModelLedCandidate(CamelModel):
+    entity_id: str = Field(min_length=1, max_length=200)
+    role: Literal["primary", "alternative"]
+    points: list[ModelLedPoint] = Field(min_length=1, max_length=4)
+
+
+class ModelLedPayload(CamelModel):
+    """Model-proposed analysis. The host validates and may prune before display."""
+
+    understood_task_zh: str = Field(min_length=1, max_length=400)
+    understood_task_en: str = Field(min_length=1, max_length=600)
+    headline_zh: str = Field(min_length=1, max_length=120)
+    headline_en: str = Field(min_length=1, max_length=200)
+    summary: ModelLedPoint
+    candidates: list[ModelLedCandidate] = Field(default_factory=list, max_length=4)
+    tradeoffs: list[ModelLedPoint] = Field(default_factory=list, max_length=4)
+    gaps: list[ModelLedPoint] = Field(default_factory=list, max_length=6)
+    first_steps: list[ModelLedPoint] = Field(default_factory=list, max_length=4)
+    refused: bool = False
+    refusal_reason: str | None = Field(default=None, max_length=400)
+
+
+class ModelLedPrunedItem(CamelModel):
+    section: str
+    entity_id: str | None = None
+    reason: str
+
+
+class ModelLedAnalysis(CamelModel):
+    """Validated, displayable model-led result stored on the decision record."""
+
+    understood_task: str
+    headline: str
+    summary: DecisionModelLedLine
+    candidates: list[DecisionModelLedCandidate] = Field(default_factory=list)
+    tradeoffs: list[DecisionModelLedLine] = Field(default_factory=list)
+    gaps: list[DecisionModelLedLine] = Field(default_factory=list)
+    first_steps: list[DecisionModelLedLine] = Field(default_factory=list)
+    pruned: list[ModelLedPrunedItem] = Field(default_factory=list)
+
+
+class DecisionModelLedLine(CamelModel):
+    basis: Literal["verified", "model-knowledge"]
+    text: str
+    claim_ids: list[str] = Field(default_factory=list)
+
+
+class DecisionModelLedCandidate(CamelModel):
+    entity_id: str
+    role: Literal["primary", "alternative"]
+    points: list[DecisionModelLedLine] = Field(default_factory=list)
 
 
 class RetrievalDiagnostics(CamelModel):
@@ -1206,6 +1271,8 @@ class DecisionRecommendation(CamelModel):
     )
     reasons: list[DecisionTradeoff] = Field(default_factory=list)
     validation_entity_ids: list[str] = Field(default_factory=list)
+    summary_source: Literal["rules", "model"] = "rules"
+    summary_claim_ids: list[str] = Field(default_factory=list)
 
 
 class DecisionGap(CamelModel):
@@ -1538,6 +1605,7 @@ class DecisionResult(CamelModel):
     next_checks: list[str] = Field(default_factory=list)
     claim_ids: list[str] = Field(default_factory=list)
     plan: DecisionPlan | None = None
+    model_led: ModelLedAnalysis | None = None
 
 
 class ResearchView(CamelModel):

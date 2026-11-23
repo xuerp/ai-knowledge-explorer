@@ -10,6 +10,7 @@ import { DecisionPlan } from "./DecisionPlan";
 import { planDimensionName, trialQualificationLabel } from "@/domain/decision-plan-reading";
 import { DecisionChoice } from "./DecisionChoice";
 import { DecisionGuidanceView } from "./DecisionGuidanceView";
+import { ModelLedAnalysisView } from "./ModelLedAnalysisView";
 import { DecisionEvidenceRequests } from "./DecisionEvidenceRequests";
 import { decisionVerdict } from "@/domain/decision-verdict";
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,26 @@ export function DecisionBrief({
       lang={lang === "zh" ? "zh-CN" : "en"}
       aria-label={t("结构化决策说明", "Decision brief")}
     >
-      {decision.guidance ? (
+      {decision.modelLed && (
+        <ModelLedAnalysisView
+          research={research}
+          entityName={entityName}
+          outcomeLevel={outcomeLevel}
+        />
+      )}
+      {decision.modelLed && decision.guidance ? (
+        <details className="decision-result-disclosure model-led__rules">
+          <summary>{t("规则筛选结果（参考）", "Rule-based screening (reference)")}</summary>
+          <DecisionGuidanceView
+            key={research.id}
+            research={research}
+            outcomeLevel={3}
+            entityName={entityName}
+            isComparable={isComparable}
+            onRevision={onRevision}
+          />
+        </details>
+      ) : decision.guidance ? (
         <DecisionGuidanceView
           key={research.id}
           research={research}

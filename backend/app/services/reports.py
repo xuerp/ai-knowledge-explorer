@@ -28,6 +28,9 @@ class ReportsServices:
                         "generation-provider-error",
                         "generation-unavailable",
                         "generation-insufficient-evidence",
+                        "model-led-invalid",
+                        "model-led-provider-error",
+                        "model-led-unavailable",
                     }
                     else None,
                 ),

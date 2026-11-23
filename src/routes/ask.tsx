@@ -19,7 +19,7 @@ import {
 } from "@/services/user-api";
 import { DecisionBrief } from "@/components/research/DecisionBrief";
 import { DecisionGuide } from "@/components/research/DecisionGuide";
-import { describedPriority, guidanceStatusLabel } from "@/domain/decision-presentation";
+import { describedPriority, researchOutcomeLabel } from "@/domain/decision-presentation";
 import {
   decisionFingerprint,
   matchesDecisionFingerprint,
@@ -1179,7 +1179,7 @@ function AskPage() {
                       data-state={research.decision?.status ?? research.status}
                     >
                       {research.decision?.guidance
-                        ? guidanceStatusLabel(research.decision.guidance.outcome, lang)
+                        ? researchOutcomeLabel(research, lang)
                         : !token
                           ? t("预置资料", "Preset evidence")
                           : research.decision?.status === "conflict"
