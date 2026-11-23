@@ -395,7 +395,13 @@ class EngagementService:
         previous = session.get(ResearchRecord, revision_id)
         if previous:
             return self._research_view(previous)
-        if context and context.workflow_version == 2:
+        if (
+            context
+            and context.workflow_version == 2
+            # Model-led analysis states its own task understanding. A separate
+            # interpretation call would double latency and spend for one request.
+            and not (self.model_led and self.answer_service.enabled)
+        ):
             # Parse only a new revision. A provider's nondeterministic wording
             # must not change revision identity or trigger duplicate paid work.
             context = context.model_copy(

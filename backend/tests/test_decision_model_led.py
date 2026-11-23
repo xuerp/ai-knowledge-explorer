@@ -101,15 +101,16 @@ def test_constraint_1_verified_point_needs_a_real_citation_and_supported_numbers
                 point("没有引用的已核验说法。"),
                 point("引用了不存在的事实。", claim_ids=["claim-not-supplied"]),
                 point("LangGraph 的通过率为 99.7%。", claim_ids=[claim]),
-                point("LangGraph 支持有状态编排。", claim_ids=[claim]),
-            ]
+            ],
+            firstSteps=[point("LangGraph 支持有状态编排。", claim_ids=[claim])],
         ),
         citations,
         snapshot,
         context(),
         "zh",
     )
-    assert [line.text for line in result.tradeoffs] == ["LangGraph 支持有状态编排。"]
+    assert result.tradeoffs == []
+    assert [line.text for line in result.first_steps] == ["LangGraph 支持有状态编排。"]
     assert {item.reason for item in result.pruned} == {
         "verified-without-citation",
         "unknown-claim",
@@ -189,8 +190,8 @@ def test_constraint_4_model_knowledge_has_no_citation_or_specific_values(world):
                 point("单卡 A100 微调 7B 模型一般够用，但要实测显存。", "model-knowledge"),
                 point("这个模型大约每月 20 元。", "model-knowledge"),
                 point("它在测试中得到 85.2%。", "model-knowledge"),
-                point("它在 2025 年 3 月发布。", "model-knowledge"),
-            ]
+            ],
+            firstSteps=[point("它在 2025 年 3 月发布。", "model-knowledge")],
         ),
         citations,
         snapshot,
@@ -199,6 +200,7 @@ def test_constraint_4_model_knowledge_has_no_citation_or_specific_values(world):
     )
     assert [line.text for line in result.gaps] == ["单卡 A100 微调 7B 模型一般够用，但要实测显存。"]
     assert result.gaps[0].basis == "model-knowledge" and result.gaps[0].claim_ids == []
+    assert result.first_steps == []
     assert [item.reason for item in result.pruned] == [
         "model-knowledge-cited",
         "model-knowledge-specific-value",
@@ -381,3 +383,48 @@ def test_oversized_request_is_reported_and_spends_nothing(api):  # noqa: F811
     result = create(api, SCREENSHOT)
     assert result["decision"].get("modelLed") is None
     assert result["retrievalDiagnostics"]["generationFallbackReason"] == "model-led-too-large"
+
+
+def test_model_led_skips_the_separate_interpretation_call(api):  # noqa: F811
+    """One paid call per research: model-led analysis states its own understanding."""
+
+    class CountingMeaning:
+        calls = 0
+
+        def understand(self, *args, **kwargs):
+            CountingMeaning.calls += 1
+            raise AssertionError("interpretation must not run when model-led is enabled")
+
+    generator = AnalysisGenerator()
+    enable(api, generator)
+    api[0].app.state.services.engagement.task_meaning_service = CountingMeaning()
+    result = create(api, SCREENSHOT)
+    assert CountingMeaning.calls == 0 and len(generator.calls) == 1
+    assert result["decision"]["modelLed"]
+
+
+def test_analysis_requests_low_effort_and_a_short_timeout():
+    from app.generation_runtime import BudgetedAnswerGenerator
+
+    seen = {}
+
+    class Probe(BudgetedAnswerGenerator):
+        def __init__(self):
+            pass
+
+        def invoke(self, request, user_id, purpose, validate, **kwargs):
+            seen.update(kwargs, purpose=purpose)
+            return "{}"
+
+    Probe().analyze("task", [], "zh", user_id="u", context=None, catalog=[])
+    assert seen["purpose"] == "analysis"
+    assert seen["reasoning_effort"] == "low" and seen["timeout_seconds"] <= 50
+
+
+def test_output_bounds_stay_short():
+    schema = ModelLedPayload.model_json_schema(by_alias=True)
+    props = schema["properties"]
+    assert props["candidates"]["maxItems"] == 3
+    assert props["gaps"]["maxItems"] == 4
+    point = schema["$defs"]["ModelLedPoint"]["properties"]
+    assert point["textZh"]["maxLength"] <= 240
