@@ -9,8 +9,9 @@ from sqlalchemy.orm import Session
 
 from app.database import Base
 from app.decision_constraints import constraint_failures
-from app.decision_model_led import validate_model_led
-from app.rag import grounded_retrieval_citations
+from app.decision_model_led import fit_request, request_size, validate_model_led
+from app.generation_runtime import ANALYSIS_INPUT_LIMIT
+from app.rag import LexicalRagRetriever, grounded_retrieval_citations
 from app.repository import KnowledgeRepository
 from app.schemas import DecisionContext, ModelLedPayload
 
@@ -349,3 +350,34 @@ def test_invalid_model_output_falls_back_to_rules(api):  # noqa: F811
     result = create(api, SCREENSHOT)
     assert result["decision"].get("modelLed") is None
     assert result["retrievalDiagnostics"]["generationFallbackReason"]
+
+
+@pytest.mark.parametrize("task", [FINE_TUNE, SCREENSHOT])
+def test_real_request_fits_the_input_limit_with_useful_evidence(world, task):
+    """Regression: 40 full citations plus a 60-entity catalog exceeded 65,000 bytes."""
+    snapshot, citations = world
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        KnowledgeRepository(SEED).seed_catalog(session)
+        broad = LexicalRagRetriever().search(session, snapshot, task, limit=24).citations
+    merged = list({item.claim.id: item for item in [*broad, *citations]}.values())[:40]
+    requirements = context().model_dump(mode="json", by_alias=True)
+    fitted, catalog = fit_request(task, merged, snapshot, requirements, "zh")
+    assert request_size(task, fitted, catalog, requirements, "zh") <= ANALYSIS_INPUT_LIMIT
+    assert len(fitted) >= 30 and len(catalog) >= 30, "trimming must not gut the evidence"
+
+
+def test_oversized_request_is_reported_and_spends_nothing(api):  # noqa: F811
+    from app.generation_runtime import ModelInputTooLarge
+
+    class TooLarge(AnalysisGenerator):
+        def analyze(self, *args, **kwargs):
+            self.calls.append(1)
+            raise ModelInputTooLarge("Model input exceeds the approved bound.")
+
+    generator = TooLarge()
+    enable(api, generator)
+    result = create(api, SCREENSHOT)
+    assert result["decision"].get("modelLed") is None
+    assert result["retrievalDiagnostics"]["generationFallbackReason"] == "model-led-too-large"

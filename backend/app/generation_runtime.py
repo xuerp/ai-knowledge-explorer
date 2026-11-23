@@ -12,6 +12,34 @@ from .model_budget import ModelBudget
 from .schemas import GeneratedAnswerPayload
 
 
+class ModelInputTooLarge(ValueError):
+    """Raised before any reservation or transport; nothing is spent."""
+
+
+ANALYSIS_INPUT_LIMIT = 65000
+
+
+def compact_evidence(item):
+    """A citation reduced to the fields the model needs to reason and cite."""
+    claim = item.claim
+    entry = {
+        "claimId": claim.id,
+        "entityId": claim.entity_id,
+        "textZh": claim.text.zh,
+        "textEn": claim.text.en,
+    }
+    for key, value in (
+        ("predicate", claim.predicate),
+        ("value", claim.object_or_value),
+        ("validFrom", claim.valid_from),
+        ("validTo", claim.valid_to),
+    ):
+        if value:
+            entry[key] = value
+    entry["sourceTypes"] = sorted({evidence.type for evidence in item.evidence})
+    return entry
+
+
 @dataclass(frozen=True)
 class GenerationConfig:
     endpoint: str
@@ -210,7 +238,9 @@ class BudgetedAnswerGenerator:
             "language": language,
             "requirements": context,
             "catalog": catalog or [],
-            "evidence": [item.model_dump(mode="json", by_alias=True) for item in citations],
+            # Only what the model reasons over. Source records stay on the host
+            # and are re-resolved during validation and display.
+            "evidence": [compact_evidence(item) for item in citations],
             "schema": ModelLedPayload.model_json_schema(by_alias=True),
         }
 
@@ -241,9 +271,11 @@ class BudgetedAnswerGenerator:
         input_size_bound = (
             len(serialized.encode("utf-8")) + len(json.dumps(request["schema"]).encode()) + 4096
         )
-        input_size_limit = cfg.billable_input_tokens if purpose == "extraction" else 65000
+        input_size_limit = (
+            cfg.billable_input_tokens if purpose == "extraction" else ANALYSIS_INPUT_LIMIT
+        )
         if input_size_limit is None or input_size_bound > input_size_limit:
-            raise ValueError("Model input exceeds the approved bound.")
+            raise ModelInputTooLarge("Model input exceeds the approved bound.")
         input_bound = max(cfg.billable_input_tokens or 0, input_size_bound)
         output_bound = cfg.billable_output_tokens or cfg.max_output_tokens
         adapter_type = (

@@ -128,12 +128,22 @@ def test_budget_survives_new_process_instance_and_rejects_profile_increase(tmp_p
 
 
 @pytest.mark.parametrize("output,receipt", [("invalid", "invalid"), ("timeout", "failed")])
-def test_errors_close_persistent_budget_and_keep_redacted_receipt(tmp_path, output, receipt):
+def test_errors_keep_redacted_receipt_and_only_unreceipted_calls_close_budget(
+    tmp_path, output, receipt
+):
     runtime = make_runtime(tmp_path, Adapter(output))
     assert TaskMeaningService(runtime).understand(TASK, owner_id="owner").status == receipt
     replacement = make_runtime(tmp_path, Adapter())
-    assert TaskMeaningService(replacement).understand(TASK, owner_id="owner").status == "failed"
-    assert replacement.adapter.calls == 0 and replacement.diagnostics()["blocked"]
+    if output == "timeout":
+        # No usage receipt: spend cannot be reconciled, so the budget closes.
+        assert TaskMeaningService(replacement).understand(TASK, owner_id="owner").status == "failed"
+        assert replacement.adapter.calls == 0 and replacement.diagnostics()["blocked"]
+    else:
+        # A receipted invalid output is counted, not a lockout.
+        assert (
+            TaskMeaningService(replacement).understand(TASK, owner_id="owner").status == "validated"
+        )
+        assert replacement.adapter.calls == 1 and not replacement.diagnostics()["blocked"]
     with replacement.database.session() as session:
         row = session.scalar(select(AuditLogRecord))
         detail = json.loads(row.detail_json)

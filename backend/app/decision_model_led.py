@@ -15,6 +15,7 @@ import re
 
 from .answer_generation import _quoted_values
 from .decision_constraints import constraint_failures
+from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
 from .model_budget import ModelBudgetUnavailable
 from .schemas import (
     DecisionModelLedCandidate,
@@ -213,7 +214,7 @@ def validate_model_led(
     )
 
 
-def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 60) -> list[dict]:
+def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 40) -> list[dict]:
     """Entities the model may name: retrieved ones first, then other current products."""
     retrieved = []
     for item in citations:
@@ -233,8 +234,7 @@ def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 60)
             "type": entity.type,
             "name": entity.name.en,
             "vendor": entity.vendor,
-            "summary": entity.summary.en,
-            "tags": entity.tags,
+            "tags": entity.tags[:6],
         }
         for entity in ordered[:limit]
     ]
@@ -266,6 +266,7 @@ def run_model_led(
         if context is not None
         else None
     )
+    citations, catalog = fit_request(task, citations, snapshot, requirements, language)
     try:
         raw = generator.analyze(
             task,
@@ -273,10 +274,12 @@ def run_model_led(
             language,
             user_id=user_id,
             context=requirements,
-            catalog=catalog_digest(snapshot, citations),
+            catalog=catalog,
         )
         payload = ModelLedPayload.model_validate_json(raw)
         analysis = validate_model_led(payload, citations, snapshot, context, language)
+    except ModelInputTooLarge:
+        return ModelLedOutcome(None, "model-led-too-large")
     except ModelBudgetUnavailable:
         return ModelLedOutcome(None, "model-led-unavailable")
     except (ValueError, TypeError):
@@ -284,3 +287,40 @@ def run_model_led(
     except Exception:  # noqa: BLE001 -- provider failures must not leak or break research
         return ModelLedOutcome(None, "model-led-provider-error")
     return ModelLedOutcome(analysis, None, citations)
+
+
+# Instruction text and request envelope, measured generously.
+_INSTRUCTION_BYTES = 4000
+
+
+def request_size(task, citations, catalog, requirements, language) -> int:
+    """Same conservative bound as BudgetedAnswerGenerator.invoke uses."""
+    import json
+
+    schema = json.dumps(ModelLedPayload.model_json_schema(by_alias=True))
+    body = json.dumps(
+        {
+            "task": task,
+            "language": language,
+            "requirements": requirements,
+            "catalog": catalog,
+            "evidence": [compact_evidence(item) for item in citations],
+        },
+        ensure_ascii=False,
+    )
+    return len(body.encode()) + 2 * len(schema.encode()) + _INSTRUCTION_BYTES + 4096
+
+
+def fit_request(task, citations, snapshot, requirements, language):
+    """Drop the lowest-ranked evidence, then catalog rows, until the request fits."""
+    citations = list(citations)
+    catalog = catalog_digest(snapshot, citations)
+    while request_size(task, citations, catalog, requirements, language) > ANALYSIS_INPUT_LIMIT:
+        if len(citations) > 8:
+            citations.pop()
+            catalog = catalog_digest(snapshot, citations, limit=len(catalog))
+        elif len(catalog) > 10:
+            catalog = catalog[:-5]
+        else:
+            break
+    return citations, catalog

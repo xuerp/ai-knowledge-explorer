@@ -29,6 +29,7 @@ class ReportsServices:
                         "generation-unavailable",
                         "generation-insufficient-evidence",
                         "model-led-invalid",
+                        "model-led-too-large",
                         "model-led-provider-error",
                         "model-led-unavailable",
                     }
