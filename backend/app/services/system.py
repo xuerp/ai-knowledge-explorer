@@ -1,3 +1,4 @@
+import hmac
 from urllib.parse import urlsplit
 
 from fastapi import Response
@@ -7,11 +8,13 @@ from sqlalchemy.orm import Session
 
 from ..application_rules import DATABASE_SCHEMA_REVISION, SERVICE_RELEASE
 from ..auth import Principal
+from ..database import ModelBudgetRecord
 from ..extraction import (
     EXTRACTION_PIPELINE_VERSION,
 )
 from ..production_readiness import ProductionReadinessInputs, build_production_readiness
 from ..schemas import (
+    ExtractionBudgetStatus,
     HealthResponse,
     IntegrationStatus,
     ProductionReadiness,
@@ -100,6 +103,40 @@ class SystemServices:
             registered_sources=len(sources),
             automatic_sources=sum(source.fetch_enabled for source in sources),
             digest_timezone=self.app_settings.digest_timezone,
+            extraction_budget=self.extraction_budget_status(session),
+        )
+
+    def extraction_budget_status(self, session: Session) -> ExtractionBudgetStatus | None:
+        cfg = self.app_settings.extraction_generation
+        if cfg is None:
+            return None
+        endpoint = urlsplit(cfg.endpoint)
+        legacy_url = self.app_settings.extraction_api_url or ""
+        legacy_key = self.app_settings.extraction_api_key or ""
+        row = session.get(ModelBudgetRecord, cfg.budget_id)
+        budget = (
+            self.extraction.budgeted_generator.budget
+            if self.extraction.budgeted_generator
+            else None
+        )
+        changed = bool(row and budget and row.profile_sha256 != budget.profile)
+        return ExtractionBudgetStatus(
+            endpoint_host=endpoint.hostname,
+            endpoint_path=endpoint.path or "/",
+            same_endpoint_as_legacy=cfg.endpoint.strip() == legacy_url.strip(),
+            # Compared in memory only; neither value is returned or logged.
+            same_key_as_legacy=bool(legacy_key) and hmac.compare_digest(cfg.api_key, legacy_key),
+            model=cfg.model,
+            protocol=cfg.protocol,
+            budget_id=cfg.budget_id,
+            budget_month=cfg.month,
+            source_ids=list(self.app_settings.extraction_source_ids),
+            limit_calls=cfg.max_calls,
+            used_calls=row.used_calls if row else 0,
+            charged_units=row.charged_units if row else 0,
+            limit_units=cfg.effective_limit_units,
+            blocked=bool(row and row.blocked) or changed,
+            in_flight=bool(row and row.active_attempt_id),
         )
 
     def production_readiness(

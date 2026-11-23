@@ -730,3 +730,67 @@ def test_record_rejected_fact_counts_only_inside_an_active_call():
             "reason": "entity-ambiguous",
         }
     ]
+
+
+def test_budgeted_extraction_reports_provider_http_status_not_invalid_response(tmp_path):
+    from app.database import Database, ModelBudgetRecord
+    from app.generation_runtime import BudgetedAnswerGenerator, GenerationConfig
+
+    database = Database(f"sqlite:///{(tmp_path / 'budget-404.db').as_posix()}")
+    database.create_all()
+    cfg = GenerationConfig(
+        endpoint="https://provider.example/v1/chat/completions",
+        api_key="test-secret",
+        model="gpt-6.1-sol",
+        budget_id="extraction-test",
+        month=datetime.now(UTC).strftime("%Y-%m"),
+        currency="CNY",
+        limit_units=5_000_000,
+        input_rate=600_000,
+        output_rate=3_000_000,
+        max_calls=100,
+        user_daily_calls=20,
+        user_ids=("automation",),
+        max_output_tokens=8192,
+        billable_input_tokens=120_000,
+        billable_output_tokens=8192,
+    )
+    generator = BudgetedAnswerGenerator(
+        database, cfg, transport=httpx.MockTransport(lambda _: httpx.Response(404))
+    )
+    service = StructuredExtractionService(
+        cfg.endpoint,
+        cfg.api_key,
+        cfg.model,
+        budgeted_generator=generator,
+        budgeted_source_ids=("source-test",),
+    )
+    source = SourceRecord(
+        id="source-test",
+        url="https://example.com/spec",
+        title="Spec",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-test",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="GPT supports tools.",
+        observed_at=datetime.now(UTC),
+    )
+
+    with pytest.raises(
+        ExtractionUnavailableError, match="endpoint or configured model was not found"
+    ):
+        service.extract(source, snapshot, 5)
+
+    segment = service.call_metadata()["segments"][0]["providerCall"]
+    assert segment["requestCount"] == 1
+    assert segment["responses"][0]["httpStatus"] == 404
+    with database.session() as session:
+        # No usage receipt: the allocation stays closed until a new budget id is approved.
+        assert session.get(ModelBudgetRecord, cfg.budget_id).blocked is True

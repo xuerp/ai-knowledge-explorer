@@ -503,6 +503,26 @@ class RelationBackfillStatus(CamelModel):
     core_entities_below_requirement: int
 
 
+class ExtractionBudgetStatus(CamelModel):
+    """What budgeted extraction will actually send; never includes the API key."""
+
+    endpoint_host: str | None = None
+    endpoint_path: str | None = None
+    same_endpoint_as_legacy: bool
+    same_key_as_legacy: bool
+    model: str
+    protocol: str
+    budget_id: str
+    budget_month: str
+    source_ids: list[str]
+    limit_calls: int
+    used_calls: int
+    charged_units: int
+    limit_units: int
+    blocked: bool
+    in_flight: bool
+
+
 class IntegrationStatus(CamelModel):
     extraction_configured: bool
     extraction_pipeline_version: str
@@ -532,6 +552,7 @@ class IntegrationStatus(CamelModel):
     registered_sources: int
     automatic_sources: int
     digest_timezone: str
+    extraction_budget: ExtractionBudgetStatus | None = None
 
 
 class ExtractionProbeResult(CamelModel):

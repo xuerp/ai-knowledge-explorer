@@ -411,6 +411,23 @@ export interface IntegrationStatus {
   registeredSources: number;
   automaticSources: number;
   digestTimezone: string;
+  extractionBudget?: {
+    endpointHost?: string | null;
+    endpointPath?: string | null;
+    sameEndpointAsLegacy: boolean;
+    sameKeyAsLegacy: boolean;
+    model: string;
+    protocol: string;
+    budgetId: string;
+    budgetMonth: string;
+    sourceIds: string[];
+    limitCalls: number;
+    usedCalls: number;
+    chargedUnits: number;
+    limitUnits: number;
+    blocked: boolean;
+    inFlight: boolean;
+  } | null;
 }
 
 export interface ExtractionProbeResult {
