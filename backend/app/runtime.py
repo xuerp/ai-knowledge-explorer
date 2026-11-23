@@ -137,6 +137,7 @@ def create_services(
             enabled=app_settings.rag_generation_enabled,
         ),
         task_meaning_service=TaskMeaningService(task_interpreter),
+        model_led=app_settings.decision_model_led,
     )
     extraction_config = app_settings.extraction_generation
     extraction = StructuredExtractionService(

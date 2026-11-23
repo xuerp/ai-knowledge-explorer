@@ -44,6 +44,7 @@ class AnswerResult:
     answer_mode: Literal["extractive", "generated"]
     fallback_reason: str | None = None
     statements: tuple[GeneratedAnswerStatement, ...] = ()
+    lead: GeneratedAnswerStatement | None = None
 
 
 class CitedAnswerService:
@@ -100,6 +101,7 @@ class CitedAnswerService:
             ),
             "generated",
             statements=tuple(payload.statements),
+            lead=payload.summary,
         )
 
     @staticmethod
@@ -110,7 +112,9 @@ class CitedAnswerService:
         citations_by_claim = {item.claim.id: item for item in citations}
         if not payload.refused and not payload.statements:
             raise ValueError("A non-refusal answer must contain cited statements.")
-        for statement in payload.statements:
+        # The lead sentence is held to the same citation and value rules.
+        checked = [*payload.statements, *([payload.summary] if payload.summary else [])]
+        for statement in checked:
             supported_values: set[str] = set()
             for claim_id in statement.claim_ids:
                 citation = citations_by_claim.get(claim_id)

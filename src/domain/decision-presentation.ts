@@ -11,6 +11,12 @@ export function guidanceStatusLabel(outcome: string, lang: "zh" | "en") {
   return labels[outcome]?.[lang === "zh" ? 0 : 1] ?? outcome;
 }
 
+/** Status label for a guided result; a validated model-led analysis takes precedence. */
+export function researchOutcomeLabel(research: ResearchResult, lang: "zh" | "en") {
+  if (research.decision?.modelLed) return lang === "zh" ? "模型分析已生成" : "Model analysis ready";
+  return guidanceStatusLabel(research.decision?.guidance?.outcome ?? "", lang);
+}
+
 export function decisionStatusLabel(key: string, lang: "zh" | "en") {
   const labels: Record<string, [string, string]> = {
     eligible: ["可继续验证", "Ready for validation"],

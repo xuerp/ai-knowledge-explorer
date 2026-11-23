@@ -74,6 +74,7 @@ class Settings:
     retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
     rag_hybrid_enabled: bool = False
     rag_generation_enabled: bool = False
+    decision_model_led: bool = False
     answer_generation: GenerationConfig | None = field(default=None, repr=False)
     interpretation_generation: GenerationConfig | None = field(default=None, repr=False)
     embedding_provider: Literal["none", "cloudflare"] = "none"
@@ -117,6 +118,10 @@ class Settings:
         if self.rag_generation_enabled and self.answer_generation is None:
             raise ValueError(
                 "Answer generation requires explicit provider, tariffs and bounded budget configuration."
+            )
+        if self.decision_model_led and not self.rag_generation_enabled:
+            raise ValueError(
+                "AI_RADAR_DECISION_MODEL_LED requires AI_RADAR_RAG_GENERATION_ENABLED and its budget."
             )
         if self.decision_interpretation_enabled and self.interpretation_generation is None:
             if not all(
@@ -368,6 +373,7 @@ class Settings:
             rag_hybrid_enabled=legacy_hybrid_enabled,
             rag_generation_enabled=os.getenv("AI_RADAR_RAG_GENERATION_ENABLED", "false").lower()
             in {"1", "true", "yes"},
+            decision_model_led=_extraction_bool("AI_RADAR_DECISION_MODEL_LED"),
             answer_generation=(
                 GenerationConfig.from_env()
                 if _extraction_bool("AI_RADAR_RAG_GENERATION_ENABLED")

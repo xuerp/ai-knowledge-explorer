@@ -20,7 +20,7 @@ import { userApi } from "@/services/user-api";
 import { readAuthToken } from "@/services/auth-session";
 import { AuthSessionExpiredError, accountErrorMessage } from "@/services/auth-errors";
 import { ReportExportError } from "@/services/report-export";
-import { decisionPresentation, guidanceStatusLabel } from "@/domain/decision-presentation";
+import { decisionPresentation, researchOutcomeLabel } from "@/domain/decision-presentation";
 import { selectResearchEvidence } from "@/domain/research-evidence";
 import { getClaimDisplayDate } from "@/domain/claim-display";
 import type { ResearchResult } from "@/services/user-api";
@@ -152,7 +152,7 @@ export function ResearchReport({
             </span>
             <span className="metadata-badge">
               {research?.decision?.guidance
-                ? guidanceStatusLabel(research.decision.guidance.outcome, lang)
+                ? researchOutcomeLabel(research, lang)
                 : research?.decision && decisionPresentation(research, lang).allExcluded
                   ? t("无符合条件的候选", "No eligible candidate")
                   : research?.decision?.plan?.state === "needs-input"

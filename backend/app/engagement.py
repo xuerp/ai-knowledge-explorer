@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from .answer_generation import CitedAnswerService
+from .answer_generation import AnswerResult, CitedAnswerService
 from .database import (
     EmailOutboxRecord,
     FollowRecord,
@@ -138,6 +138,7 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
                     "workflow_state": "insufficient-evidence",
                     "plan": None,
                     "guidance": None,
+                    "model_led": None,
                     "risks": [],
                     "recommendation": DecisionRecommendation(summary=updates["summary"]),
                     "next_checks": [updates["summary"]],
@@ -209,10 +210,14 @@ class EngagementService:
         retriever: RagRetriever | None = None,
         answer_service: CitedAnswerService | None = None,
         task_meaning_service: TaskMeaningService | None = None,
+        *,
+        model_led: bool = False,
     ):
         self.retriever = retriever or LexicalRagRetriever()
         self.answer_service = answer_service or CitedAnswerService()
         self.task_meaning_service = task_meaning_service or TaskMeaningService()
+        # Model-led analysis replaces rule gating only when explicitly enabled.
+        self.model_led = model_led
 
     def follow(
         self,
@@ -471,6 +476,20 @@ class EngagementService:
                 )
             if decision.status != "ready":
                 status = "failed" if decision.status == "failed" else "insufficient-evidence"
+        model_led_outcome = None
+        if decision and workflow_v2 and self.model_led and self.answer_service.enabled:
+            # Model-led replaces rule gating, including clarification: the model
+            # states its assumptions and the rule question stays available below.
+            model_led_outcome = self._model_led(session, snapshot, payload, retrieval, user_id)
+            if model_led_outcome.analysis:
+                decision.model_led = model_led_outcome.analysis
+                status = "ready"
+                saved = {item.claim.id for item in retrieval.citations}
+                retrieval.citations = [
+                    *retrieval.citations,
+                    *(item for item in model_led_outcome.citations if item.claim.id not in saved),
+                ]
+                matched_claims = [item.claim for item in retrieval.citations]
         # Resolve constraints BEFORE synthesis. The model cannot promote an
         # excluded/unknown candidate, replace a choice or erase a blocking limit.
         generation_citations = retrieval.citations
@@ -494,19 +513,32 @@ class EngagementService:
                 "recommendation": decision.recommendation.model_dump(mode="json", by_alias=True),
                 "conditions": decision.conditions,
             }
+            if decision.guidance:
+                chosen = decision.guidance.recommendation
+                generation_context["choice"] = {
+                    "headline": chosen.headline,
+                    "entityIds": chosen.entity_ids,
+                    "primaryEntityId": chosen.primary_entity_id,
+                    "tradeoff": chosen.tradeoff,
+                }
             if decision.guidance and decision.guidance.outcome in {
                 "clarify",
                 "blocked",
                 "unsupported",
             }:
                 generation_citations = []
-        answer = self.answer_service.answer(
-            payload.question,
-            generation_citations,
-            payload.language,
-            user_id=user_id,
-            context=generation_context,
-        )
+        if model_led_outcome and model_led_outcome.analysis:
+            # One paid call per research. The validated model-led analysis is the
+            # synthesis; do not spend a second call on the legacy answer.
+            answer = AnswerResult(model_led_outcome.analysis.summary.text, "generated")
+        else:
+            answer = self.answer_service.answer(
+                payload.question,
+                generation_citations,
+                payload.language,
+                user_id=user_id,
+                context=generation_context,
+            )
         summary = answer.summary
         if not decision and answer.fallback_reason == "generation-insufficient-evidence":
             status = "insufficient-evidence"
@@ -525,9 +557,23 @@ class EngagementService:
                     )
                     for item in answer.statements
                 ]
+            if answer.lead and decision.guidance and decision.guidance.outcome == "advice":
+                # The model writes the lead sentence only for plain advice; conditional,
+                # clarify and blocked summaries keep the host's caveats verbatim. The
+                # headline, candidates and constraints remain host decisions.
+                recommendation.summary = (
+                    answer.lead.text_zh if payload.language == "zh" else answer.lead.text_en
+                )
+                recommendation.summary_source = "model"
+                recommendation.summary_claim_ids = answer.lead.claim_ids
             summary = recommendation.summary
         diagnostics = retrieval.diagnostics.model_copy(
-            update={"generation_fallback_reason": answer.fallback_reason}
+            update={
+                "generation_fallback_reason": (
+                    model_led_outcome.fallback_reason if model_led_outcome else None
+                )
+                or answer.fallback_reason
+            }
         )
         steps = [
             ResearchStep(
@@ -586,6 +632,33 @@ class EngagementService:
                 raise
             return self._research_view(existing)
         return self._research_view(row)
+
+    def _model_led(self, session, snapshot, payload, retrieval, user_id):
+        """Whole-catalog retrieval plus one model-led call; never raises."""
+        from .decision_model_led import run_model_led
+
+        context = payload.decision_context
+        task = (context.task if context else None) or payload.question
+        try:
+            broad = self.retriever.search(session, snapshot, task, limit=24)
+            session.commit()
+        except Exception:  # noqa: BLE001 -- retrieval failure keeps the rule path
+            session.rollback()
+            broad = retrieval
+        merged, seen = [], set()
+        for item in [*broad.citations, *retrieval.citations]:
+            if item.claim.id not in seen:
+                seen.add(item.claim.id)
+                merged.append(item)
+        return run_model_led(
+            self.answer_service.generator,
+            task,
+            merged[:40],
+            snapshot,
+            context,
+            payload.language,
+            user_id=user_id,
+        )
 
     @staticmethod
     def _build_decision(

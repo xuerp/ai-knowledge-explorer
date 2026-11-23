@@ -118,6 +118,8 @@ export interface DecisionGuidance {
     reasons: Array<{ dimension: string; finding: string; claimIds: string[] }>;
     tradeoff?: string | null;
     premises: string[];
+    summarySource?: "rules" | "model";
+    summaryClaimIds?: string[];
   };
   unknowns: Array<{
     candidateId?: string | null;
@@ -149,8 +151,26 @@ export interface DecisionGuidance {
   };
 }
 
+export interface ModelLedLine {
+  basis: "verified" | "model-knowledge";
+  text: string;
+  claimIds: string[];
+}
+
+export interface ModelLedAnalysis {
+  understoodTask: string;
+  headline: string;
+  summary: ModelLedLine;
+  candidates: Array<{ entityId: string; role: "primary" | "alternative"; points: ModelLedLine[] }>;
+  tradeoffs: ModelLedLine[];
+  gaps: ModelLedLine[];
+  firstSteps: ModelLedLine[];
+  pruned: Array<{ section: string; entityId?: string | null; reason: string }>;
+}
+
 export interface DecisionResult {
   guidance?: DecisionGuidance | null;
+  modelLed?: ModelLedAnalysis | null;
   plan?: {
     state:
       | "needs-input"
@@ -227,6 +247,8 @@ export interface DecisionResult {
     basis?: "sole-eligible" | "comparable-cost" | "validation-sequence" | "comparison-only";
     reasons?: Array<{ dimension: string; finding: string; claimIds: string[] }>;
     validationEntityIds?: string[];
+    summarySource?: "rules" | "model";
+    summaryClaimIds?: string[];
   };
   conditions: string[];
   tradeoffs: Array<{ dimension: string; finding: string; claimIds: string[] }>;

@@ -194,6 +194,19 @@ export function DecisionGuidanceView({
         {advice.headline}
       </OutcomeHeading>
       <p className="decision-outcome__summary">{advice.summary}</p>
+      {!privateAdvice && research.answerMode === "generated" && (
+        <p className="decision-guidance__source">
+          {advice.summarySource === "model"
+            ? t(
+                "这段结论和下方理由由模型根据已审核资料撰写；候选与条件筛选由规则完成。",
+                "This conclusion and the reasons below were written by a model from reviewed evidence; candidates and constraints were checked by rules.",
+              )
+            : t(
+                "下方理由由模型根据已审核资料撰写；结论与候选筛选由规则完成。",
+                "The reasons below were written by a model from reviewed evidence; the conclusion and candidate checks come from rules.",
+              )}
+        </p>
+      )}
       {generationFallback && (
         <p className="text-sm text-muted-foreground">
           {t(

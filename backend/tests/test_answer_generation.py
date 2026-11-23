@@ -139,3 +139,43 @@ def test_generation_provider_error_falls_back_to_extractive():
     assert result.answer_mode == "extractive"
     assert result.fallback_reason == "generation-provider-error"
     assert generator.calls == 1
+
+
+def test_generated_lead_sentence_is_validated_like_statements():
+    citations = grounded_citations()
+    payload = valid_payload(citations[0].claim.id)
+    payload["summary"] = {
+        "textZh": "就你的任务而言，可以先用它。",
+        "textEn": "For your task, start with it.",
+        "claimIds": [citations[0].claim.id],
+    }
+    result = CitedAnswerService(FakeGenerator(payload), enabled=True).answer(
+        "问题", citations, "zh"
+    )
+    assert result.answer_mode == "generated"
+    assert result.lead is not None and result.lead.text_zh == "就你的任务而言，可以先用它。"
+
+    payload["summary"]["claimIds"] = ["claim-not-retrieved"]
+    result = CitedAnswerService(FakeGenerator(payload), enabled=True).answer(
+        "问题", citations, "zh"
+    )
+    assert result.answer_mode == "extractive" and result.lead is None
+    assert result.fallback_reason == "generation-invalid"
+
+    payload["summary"] = {
+        "textZh": "它的通过率达到 99.7%。",
+        "textEn": "It reaches 99.7% accuracy.",
+        "claimIds": [citations[0].claim.id],
+    }
+    result = CitedAnswerService(FakeGenerator(payload), enabled=True).answer(
+        "问题", citations, "zh"
+    )
+    assert result.answer_mode == "extractive"
+
+
+def test_payload_without_lead_keeps_rule_summary():
+    citations = grounded_citations()
+    result = CitedAnswerService(
+        FakeGenerator(valid_payload(citations[0].claim.id)), enabled=True
+    ).answer("问题", citations, "zh")
+    assert result.answer_mode == "generated" and result.lead is None
