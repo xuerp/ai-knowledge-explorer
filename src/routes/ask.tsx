@@ -89,15 +89,22 @@ function AskPage() {
   const [commercialUse, setCommercialUse] = useState(false);
   const [revisionParent, setRevisionParent] = useState<string | undefined>();
   const [research, setResearch] = useState<ResearchResult | null>(null);
+  const researchIdRef = useRef<string | null>(null);
+  researchIdRef.current = research?.id ?? null;
   const [error, setError] = useState("");
   const [sessionExpired, setSessionExpired] = useState(false);
   const [busy, setBusy] = useState(false);
   const submissionInFlight = useRef(false);
   const [draftRestored, setDraftRestored] = useState(false);
 
+  const [expiredResultId, setExpiredResultId] = useState<string | null>(null);
   useEffect(() => {
     setToken(readAuthToken());
-    const handleSessionExpired = () => setToken("");
+    const handleSessionExpired = () => {
+      setToken("");
+      // Keep the saved result reachable; signing in returns to its record page.
+      setExpiredResultId((current) => current ?? researchIdRef.current);
+    };
     window.addEventListener(authSessionExpiredEvent, handleSessionExpired);
     return () => window.removeEventListener(authSessionExpiredEvent, handleSessionExpired);
   }, []);
@@ -1093,6 +1100,22 @@ function AskPage() {
                   </p>
                 )}
               </div>
+              {expiredResultId && !token && (
+                <div role="alert" className="ask-session-expired">
+                  <p>
+                    {t(
+                      "登录已过期。这条结果已保存，重新登录后会打开它，不需要重新提问。",
+                      "Your session expired. This result is saved; sign in again to reopen it without asking again.",
+                    )}
+                  </p>
+                  <Link
+                    to="/account"
+                    search={{ returnTo: `/research/${encodeURIComponent(expiredResultId)}` }}
+                  >
+                    {t("重新登录并打开这条结果", "Sign in and reopen this result")}
+                  </Link>
+                </div>
+              )}
               {busy && (
                 <p role="status">
                   {t(

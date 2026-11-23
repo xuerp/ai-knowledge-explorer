@@ -1,6 +1,6 @@
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 
 from ..decision_evidence_requests import (
     DecisionEvidenceRequestCreate,
@@ -14,6 +14,7 @@ from ..schemas import (
     DecisionValidationSave,
     DecisionValidationView,
     ResearchCreate,
+    ResearchSummaryView,
     ResearchView,
 )
 from .dependencies import ServicesDependency, SessionDependency, UserDependency
@@ -37,6 +38,19 @@ def create_research(
     return services.visible_research(
         revalidate_research(result, services.get_public_snapshot(session)), principal.role
     )
+
+
+@router.get("/api/v2/research", response_model=list[ResearchSummaryView])
+def research_history(
+    services: ServicesDependency,
+    principal: UserDependency,
+    session: SessionDependency,
+    response: Response,
+    limit: int = Query(30, ge=1, le=100),
+) -> list[ResearchSummaryView]:
+    """The signed-in owner's recent research, so a result never depends on tab storage."""
+    response.headers["Cache-Control"] = "no-store"
+    return services.engagement.list_research(session, principal.subject, limit=limit)
 
 
 @router.get("/api/v2/research/{research_id}", response_model=ResearchView)
