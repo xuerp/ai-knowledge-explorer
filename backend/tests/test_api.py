@@ -2365,6 +2365,7 @@ def test_admin_integration_status_never_exposes_secrets(client: TestClient):
         "fetchAllowedHosts": ["example.com"],
         "automaticSources": 0,
         "digestTimezone": "Asia/Shanghai",
+        "extractionBudget": None,
     }
     serialized = response.text.casefold()
     assert "secret" not in serialized
@@ -4444,3 +4445,59 @@ def test_auto_approval_shadow_report_flags_rule_approvals_that_humans_rejected(
     assert report["evaluatedCount"] == 2
     assert report["falseApprovalCount"] == 1
     assert report["readyToEnable"] is False
+
+
+def test_integration_status_describes_budgeted_extraction_without_secrets(tmp_path):
+    secret = "budget-secret-value-never-returned"
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'budget-status.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        environment="test",
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key=secret,
+        extraction_model="gpt-6.1-sol",
+        extraction_generation=GenerationConfig(
+            endpoint="https://provider.example/v1/chat/completions",
+            api_key=secret,
+            model="gpt-6.1-sol",
+            budget_id="extraction-2026-11-b",
+            month=datetime.now(UTC).strftime("%Y-%m"),
+            currency="CNY",
+            limit_units=5_000_000,
+            input_rate=600_000,
+            output_rate=3_000_000,
+            max_calls=100,
+            user_daily_calls=20,
+            user_ids=("automation",),
+            max_output_tokens=8192,
+            billable_input_tokens=120_000,
+            billable_output_tokens=8192,
+        ),
+        extraction_source_ids=("s-openai-api-changelog",),
+    )
+    with TestClient(create_app(settings)) as budget_client:
+        response = budget_client.get(
+            "/api/v2/admin/integrations", headers={"X-Admin-Token": "test-admin-token"}
+        )
+    assert response.status_code == 200
+    assert secret not in response.text
+    budget = response.json()["extractionBudget"]
+    assert budget == {
+        "endpointHost": "provider.example",
+        "endpointPath": "/v1/chat/completions",
+        "sameEndpointAsLegacy": True,
+        "sameKeyAsLegacy": True,
+        "model": "gpt-6.1-sol",
+        "protocol": "openai-chat",
+        "budgetId": "extraction-2026-11-b",
+        "budgetMonth": datetime.now(UTC).strftime("%Y-%m"),
+        "sourceIds": ["s-openai-api-changelog"],
+        "limitCalls": 100,
+        "usedCalls": 0,
+        "chargedUnits": 0,
+        "limitUnits": 5_000_000,
+        "blocked": False,
+        "inFlight": False,
+    }

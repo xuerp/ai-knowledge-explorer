@@ -814,6 +814,18 @@ class StructuredExtractionService:
         except ModelBudgetUnavailable as error:
             metadata["blockedBy"] = "model-budget"
             raise ExtractionBudgetUnavailable(str(error)) from error
+        except Exception as error:
+            # The budget module reports any unreconciled receipt as ValueError, which
+            # would otherwise surface as an invalid structured response and hide an
+            # HTTP rejection such as 404. Report the provider status instead.
+            status_code = receipt.get("httpStatus")
+            if isinstance(status_code, int) and status_code >= 400:
+                raise httpx.HTTPStatusError(
+                    f"Provider returned HTTP {status_code}",
+                    request=httpx.Request("POST", self.budgeted_generator.config.endpoint),
+                    response=httpx.Response(status_code),
+                ) from error
+            raise
         finally:
             if receipt:
                 metadata["requestCount"] = 1
