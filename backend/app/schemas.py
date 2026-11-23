@@ -364,6 +364,7 @@ ReviewReasonCategory = Literal[
     "conflict",
     "schema_error",
     "low_confidence",
+    "entity_unresolved",
 ]
 
 
@@ -869,6 +870,25 @@ class OperationsQueueSummary(CamelModel):
     email_failed: int
 
 
+class FreshnessTrack(CamelModel):
+    track: Literal["relation", "fact"]
+    budget_hours: int
+    open_count: int
+    overdue_count: int
+    oldest_open_at: datetime | None = None
+    oldest_open_age_hours: float | None = None
+    recent_decided_count: int
+    recent_decided_late_count: int
+
+
+class KnowledgeFreshness(CamelModel):
+    generated_at: datetime
+    status: Literal["on-track", "overdue"]
+    overdue_count: int
+    recent_window_days: int
+    tracks: list[FreshnessTrack]
+
+
 class OperationsDiagnostics(CamelModel):
     generated_at: datetime
     heartbeat_status: Literal["healthy", "stale", "missing"]
@@ -876,6 +896,29 @@ class OperationsDiagnostics(CamelModel):
     worker: WorkerStatusView | None = None
     recent_runs: list[AutomationRunView]
     queues: OperationsQueueSummary
+    freshness: KnowledgeFreshness | None = None
+
+
+class AutoApprovalShadowItem(CamelModel):
+    review_id: str
+    subject: str | None = None
+    predicate: str | None = None
+    object_or_value: str | None = None
+    human_decision: Literal["approved", "rejected"]
+    reason_category: str | None = None
+    rule_would_approve: bool
+    outcome: Literal["agreed-approval", "false-approval", "left-for-human", "agreed-rejection"]
+
+
+class AutoApprovalShadowReport(CamelModel):
+    evaluated_count: int
+    untraceable_count: int
+    agreed_approval_count: int
+    false_approval_count: int
+    left_for_human_count: int
+    agreed_rejection_count: int
+    ready_to_enable: bool
+    items: list[AutoApprovalShadowItem]
 
 
 class CandidateCreate(CamelModel):
@@ -1793,6 +1836,7 @@ class QualityMetrics(CamelModel):
     evaluation: EvaluationQualityMetrics
     evaluation_history: list[EvaluationQualityMetrics] = Field(default_factory=list)
     retrieval_implementation_sha256: str | None = None
+    freshness: KnowledgeFreshness | None = None
 
 
 class ReleaseBaseline(CamelModel):

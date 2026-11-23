@@ -3,6 +3,7 @@ import type { CandidateCreateRequest } from "@/domain/manual-candidate";
 import { expireAuthSession, readAuthToken } from "@/services/auth-session";
 import { apiAvailabilityError, authResponseError } from "@/services/auth-errors";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
+import type { KnowledgeFreshness } from "@/domain/knowledge-freshness";
 import type { ReviewReasonCategory } from "@/domain/review-decision";
 import type { AccountRole, AccountUpdate, ManagedUser, UserPage } from "@/domain/admin-users";
 
@@ -312,6 +313,7 @@ export interface OperationsDiagnostics {
     emailSending: number;
     emailFailed: number;
   };
+  freshness?: KnowledgeFreshness | null;
 }
 
 export interface DataQualityReport {

@@ -149,7 +149,7 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-10-candidate-schema-budget-v22"
+EXTRACTION_PIPELINE_VERSION = "2026-11-catalog-entity-subject-v23"
 
 
 def is_generic_license_fact(subject: str, predicate: str, object_or_value: str = "") -> bool:
@@ -402,6 +402,43 @@ class StructuredExtractionService:
     def call_metadata(self) -> dict[str, Any] | None:
         metadata = self._call_metadata.get()
         return dict(metadata) if metadata is not None else None
+
+    def record_document_scope(self, delta: Any, source_characters: int) -> None:
+        """Record whether the whole document or only its changed text was sent."""
+        metadata = (
+            None if delta is not None and delta.mode == "unchanged" else self._call_metadata.get()
+        )
+        if metadata is None:
+            # No provider call happened for this snapshot; never reuse a previous call's receipt.
+            metadata = {"requestCount": 0}
+            self._call_metadata.set(metadata)
+        metadata["documentScope"] = {
+            "mode": "full" if delta is None else delta.mode,
+            "documentCharacters": source_characters,
+            "sentCharacters": source_characters
+            if delta is None or delta.mode == "full"
+            else len(delta.text),
+            "changedLines": None if delta is None else delta.changed_lines,
+        }
+
+    def record_rejected_fact(
+        self, subject: str | None, predicate: str | None, object_or_value: str | None, reason: str
+    ) -> None:
+        """Record a fact discarded after extraction so the run audit keeps the denominator."""
+        metadata = self._call_metadata.get()
+        if metadata is None:
+            return
+        metadata["rejectedUnresolvedEntities"] = (
+            int(metadata.get("rejectedUnresolvedEntities", 0)) + 1
+        )
+        metadata.setdefault("rejectedFacts", []).append(
+            {
+                "subject": subject,
+                "predicate": predicate,
+                "objectOrValue": object_or_value,
+                "reason": reason,
+            }
+        )
 
     def _trip_contract(self, reason: str) -> None:
         self._contract_failure = reason
@@ -980,6 +1017,7 @@ class StructuredExtractionService:
         schema = _strict_schema(max_candidates)
         catalog_context = "\n".join(
             f"- {entity.id}: {entity.name.zh} | {entity.name.en}"
+            + (f" | aliases: {', '.join(entity.aliases)}" if entity.aliases else "")
             for entity in (catalog_entities or [])
         )
         priority_deficits = {
@@ -1063,6 +1101,12 @@ class StructuredExtractionService:
                         "For example, a source '2025.04.29: Qwen3 released' uses subject Qwen3, "
                         "objectOrValue 2025.04.29 and validFrom 2025-04-29. "
                         " Never use unresolved pronouns such as 'Both models' as the subject. "
+                        "The subject of every fact must be one listed catalog entity, written as its "
+                        "name or alias exactly as listed, and that name or alias must appear in the "
+                        "anchoring source segment. Omit facts whose subject is a feature, API, "
+                        "component, version label, paper section, pronoun such as 'our model', or "
+                        "any other name that is not a listed catalog entity. Do not report planned "
+                        "or future actions ('will introduce') as current facts. "
                         "Attribute self-reported results to the publisher; do not repeat 'best', "
                         "'leading', or 'state-of-the-art' as established fact. For benchmark claims, "
                         "preserve the benchmark variant, metric, tested setup and reasoning mode "
@@ -1150,6 +1194,7 @@ class StructuredExtractionService:
                 rawFacts=len(extracted.facts),
                 rejectedEvidenceAnchors=0,
                 rejectedIrrelevantFacts=0,
+                rejectedUnresolvedEntities=0,
                 rejectedFacts=[],
                 factLimitReached=len(extracted.facts) >= max_candidates,
                 sourceDateBasis="published" if snapshot.published_at else "unknown",

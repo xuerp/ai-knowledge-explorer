@@ -15,6 +15,7 @@ from ..database import (
     ReviewJobRecord,
     SourceRecord,
 )
+from ..document_delta import DocumentDelta, changed_text
 from ..extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionBudgetUnavailable,
@@ -118,6 +119,32 @@ class ExtractionServices:
             reverse=True,
         )
         return eligible[:limit]
+
+    def extraction_delta(
+        self, session: Session, snapshot_row: DocumentSnapshotRecord
+    ) -> DocumentDelta | None:
+        """Return the changed text when the previous snapshot was fully extracted.
+
+        None means extract the whole document: there is no previous version, or the
+        previous version was never extracted under the current pipeline, so its
+        facts cannot be assumed to be in the queue or catalog already.
+        """
+        previous_id = snapshot_row.previous_snapshot_id
+        if not previous_id:
+            return None
+        previous = session.get(DocumentSnapshotRecord, previous_id)
+        if previous is None:
+            return None
+        runs = session.scalars(
+            select(AuditLogRecord).where(
+                AuditLogRecord.action == "extraction.run",
+                AuditLogRecord.target_type == "document_snapshot",
+                AuditLogRecord.target_id == previous_id,
+            )
+        ).all()
+        if not any(extraction_audit_is_current(row.detail_json) for row in runs):
+            return None
+        return changed_text(previous.content_text, snapshot_row.content_text)
 
     def _extraction_snapshots(self, session: Session):
         statement = select(DocumentSnapshotRecord).order_by(
@@ -292,9 +319,26 @@ class ExtractionServices:
     ) -> tuple[list[ReviewQueueItem], int]:
         public_snapshot = self.get_catalog_snapshot(session)
         quality = self.quality_gate.report(public_snapshot)
+        delta = self.extraction_delta(session, snapshot_row)
+        if delta and delta.mode == "unchanged":
+            # Only whitespace or removed lines changed: nothing new to extract or pay for.
+            self.extraction.record_document_scope(delta, len(snapshot_row.content_text))
+            return [], 0
+        scoped_snapshot = (
+            DocumentSnapshotRecord(
+                id=snapshot_row.id,
+                source_id=snapshot_row.source_id,
+                content_hash=snapshot_row.content_hash,
+                content_text=delta.text,
+                observed_at=snapshot_row.observed_at,
+                published_at=snapshot_row.published_at,
+            )
+            if delta and delta.mode == "delta"
+            else snapshot_row
+        )
         candidates = self.extraction.extract(
             source,
-            snapshot_row,
+            scoped_snapshot,
             max_candidates,
             public_snapshot.entities,
             priority_entity_ids=quality.core_entities_below_five_relations,
@@ -306,6 +350,7 @@ class ExtractionServices:
             claims_remaining=quality.claims_remaining,
             relation_deficit=quality.core_relation_deficit,
         )
+        self.extraction.record_document_scope(delta, len(snapshot_row.content_text))
 
         def semantic_fingerprint(
             claim: Claim,
@@ -392,10 +437,16 @@ class ExtractionServices:
         duplicates_skipped = 0
         for candidate in candidates:
             assessment = self.quality_gate.assess(candidate, public_snapshot)
-            if assessment.resolved_entity_id:
-                candidate = candidate.model_copy(
-                    update={"entity_id": assessment.resolved_entity_id}
+            if not assessment.resolved_entity_id:
+                # 无法唯一归属目录实体的候选不可发布；入队只会产生必然驳回的审核负担。
+                self.extraction.record_rejected_fact(
+                    candidate.claim.subject,
+                    candidate.claim.predicate,
+                    candidate.claim.object_or_value,
+                    f"entity-{assessment.resolution}",
                 )
+                continue
+            candidate = candidate.model_copy(update={"entity_id": assessment.resolved_entity_id})
             if existing_row := open_rows_by_id.get(candidate.id):
                 previous_version = existing_row.version
                 merge_duplicate_evidence(existing_row, candidate)
@@ -443,11 +494,26 @@ class ExtractionServices:
     ) -> bool:
         if not self.app_settings.auto_approve_grounded_relations:
             return False
+        if row.status != "pending":
+            return False
+        return self.grounded_relation_rule_passes(session, row, source, snapshot_row)
+
+    def grounded_relation_rule_passes(
+        self,
+        session: Session,
+        row: ReviewJobRecord,
+        source: SourceRecord,
+        snapshot_row: DocumentSnapshotRecord,
+    ) -> bool:
+        """The auto-approval rule itself, independent of the switch and queue status.
+
+        The offline shadow report replays already-decided candidates through this
+        exact check, so its verdict matches what the live switch would have done.
+        """
         item = self.repository.to_queue_item(row)
         claim = item.claim
         if (
-            item.status != "pending"
-            or item.conflict_claim_ids
+            item.conflict_claim_ids
             or not item.entity_id
             or claim.predicate not in RELATION_CLAIM_PREDICATES
             or not claim.subject
@@ -642,6 +708,8 @@ class ExtractionServices:
                     {
                         "automatic": True,
                         "candidatesCreated": len(created),
+                        # Links each candidate to its snapshot for the offline auto-approval report.
+                        "candidateIds": [item.id for item in created],
                         "duplicatesSkipped": duplicates_skipped,
                         "relationsAutoApproved": auto_approved,
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,

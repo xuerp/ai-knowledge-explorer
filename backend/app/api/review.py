@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy import select, update
 
 from ..application_rules import review_decision_note, review_item_is_deterministically_invalid
+from ..auto_approval_shadow import auto_approval_shadow_report
 from ..database import (
     PublicationRecordRow,
     ReviewJobRecord,
@@ -21,6 +22,7 @@ from ..rag import (
 from ..repository import OPEN_REVIEW_STATUSES
 from ..review_revision import create_revision
 from ..schemas import (
+    AutoApprovalShadowReport,
     CandidateAssessment,
     CandidateCreate,
     Claim,
@@ -696,7 +698,7 @@ def batch_reject_invalid_reviews(
                     ReviewDecision(
                         expected_version=row.version,
                         reason_category=(
-                            "schema_error" if not item.entity_id else "unsupported_evidence"
+                            "entity_unresolved" if not item.entity_id else "unsupported_evidence"
                         ),
                         reason=("确定性队列治理：候选缺少可发布实体、直接证据或可定位原文锚点。"),
                     ),
@@ -960,3 +962,18 @@ def publication_history(
     session: SessionDependency,
 ) -> list[PublicationRecord]:
     return services.repository.publication_history(session)
+
+
+@router.get(
+    "/api/v2/admin/auto-approval-shadow",
+    response_model=AutoApprovalShadowReport,
+)
+def auto_approval_shadow(
+    services: ServicesDependency,
+    response: Response,
+    _: AdminDependency,
+    session: SessionDependency,
+) -> AutoApprovalShadowReport:
+    """Read-only: what grounded-relation auto-approval would have done to past decisions."""
+    response.headers["Cache-Control"] = "no-store"
+    return auto_approval_shadow_report(services, session)

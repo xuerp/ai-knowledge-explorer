@@ -400,6 +400,7 @@ def extract_source_candidates(
         snapshot_row.id,
         {
             "candidatesCreated": len(created),
+            "candidateIds": [item.id for item in created],
             "duplicatesSkipped": duplicates_skipped,
             "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
             "sourceId": source_id,

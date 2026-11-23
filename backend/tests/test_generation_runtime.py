@@ -360,3 +360,14 @@ def test_request_tokens_and_billable_bounds_are_independent(setup):
         assert receipt["requestedOutputTokens"] == 16384
         assert receipt["completionTokens"] == 17000
         assert receipt["responseId"] == "msg_test_123"
+
+
+def test_answer_generator_reports_invite_scope_without_reserving_budget(setup):
+    database, cfg = setup
+    generator = BudgetedAnswerGenerator(database, cfg)
+
+    assert generator.allows_user("test-owner")
+    assert not generator.allows_user("someone-else")
+    assert not generator.allows_user(None)
+    with database.session() as session:
+        assert session.scalars(select(ModelCallRecord)).all() == []

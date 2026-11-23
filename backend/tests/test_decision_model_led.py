@@ -428,3 +428,24 @@ def test_output_bounds_stay_short():
     assert props["gaps"]["maxItems"] == 4
     point = schema["$defs"]["ModelLedPoint"]["properties"]
     assert point["textZh"]["maxLength"] <= 240
+
+
+def test_model_led_skips_accounts_outside_the_invite_list_without_calling_the_model(world):
+    from app.decision_model_led import run_model_led
+
+    class Scoped:
+        calls = 0
+
+        def allows_user(self, user_id):
+            return user_id == "invited"
+
+        def analyze(self, *args, **kwargs):
+            Scoped.calls += 1
+            raise AssertionError("an account outside the invite list must not reach the model")
+
+    snapshot, citations = world
+    outcome = run_model_led(Scoped(), "任务", citations, snapshot, None, "zh", user_id="other")
+
+    assert outcome.analysis is None
+    assert outcome.fallback_reason == "generation-not-entitled"
+    assert Scoped.calls == 0

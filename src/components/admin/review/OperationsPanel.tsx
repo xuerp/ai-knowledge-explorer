@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 
 import { type OperationsDiagnostics, type OutboxEntry } from "@/services/admin-api";
 
+import { FreshnessPanel } from "./FreshnessPanel";
 import { DiagnosticCard, QueueMetric, StatusBadge } from "./shared";
 import { statusLabel, workerStateLabel } from "./review-status";
 import { asRecord, numberValue, stringValue, formatTime, formatDuration } from "@/lib/format";
@@ -194,6 +195,8 @@ export function OperationsPanel({
           )}
         </DiagnosticCard>
       </div>
+
+      <FreshnessPanel freshness={operations.freshness} />
 
       {operations.recentRuns.length > 0 && (
         <div className="mt-4 rounded-lg border border-border p-4">

@@ -145,12 +145,33 @@ def resolve_claim_entity_reference(claim: Claim, entities: list[Entity]) -> str 
     return next(iter(best_ids)) if len(best_ids) == 1 else None
 
 
+def _brand_product_match(
+    matches: list[str],
+    entities: list[Entity],
+    developed_by: set[tuple[str, str]],
+) -> str | None:
+    """Resolve a name shared only by one product and the company that develops it.
+
+    Official product documentation names the product (for example CrewAI) far more
+    often than its maker; the shared brand otherwise makes every such fact ambiguous.
+    """
+    if len(matches) != 2:
+        return None
+    by_id = {entity.id: entity for entity in entities if entity.id in matches}
+    companies = [entity_id for entity_id in matches if by_id[entity_id].type == "company"]
+    products = [entity_id for entity_id in matches if by_id[entity_id].type != "company"]
+    if len(companies) != 1 or len(products) != 1:
+        return None
+    return products[0] if (products[0], companies[0]) in developed_by else None
+
+
 @dataclass(slots=True)
 class KnowledgeQualityGate:
     def _resolve_entity(
         self,
         candidate: CandidateCreate,
         entities: list[Entity],
+        developed_by: set[tuple[str, str]] | None = None,
     ) -> tuple[str | None, str]:
         if candidate.entity_id:
             if any(entity.id == candidate.entity_id for entity in entities):
@@ -173,6 +194,8 @@ class KnowledgeQualityGate:
         ]
         if len(matches) == 1:
             return matches[0], "resolved"
+        if product_id := _brand_product_match(matches, entities, developed_by or set()):
+            return product_id, "resolved"
         referenced_entity_id = resolve_claim_entity_reference(candidate.claim, entities)
         if referenced_entity_id:
             return referenced_entity_id, "resolved"
@@ -183,7 +206,14 @@ class KnowledgeQualityGate:
         candidate: CandidateCreate,
         snapshot: KnowledgeSnapshot,
     ) -> CandidateAssessment:
-        resolved_entity_id, resolution = self._resolve_entity(candidate, snapshot.entities)
+        developed_by = {
+            (edge.from_id, edge.to_id)
+            for edge in snapshot.graph.edges
+            if edge.kind == "developed-by"
+        }
+        resolved_entity_id, resolution = self._resolve_entity(
+            candidate, snapshot.entities, developed_by
+        )
         claim = candidate.claim
         subject = _key(claim.subject)
         predicate = _key(claim.predicate)

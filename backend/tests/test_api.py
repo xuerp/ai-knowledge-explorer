@@ -985,6 +985,13 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert operations["heartbeatStatus"] == "healthy"
     assert operations["worker"]["lastCycleStatus"] == "succeeded"
     assert operations["recentRuns"][0]["id"] == payload["cycleId"]
+    # The review-latency state is visible live and persisted with the cycle record.
+    assert [track["budgetHours"] for track in operations["freshness"]["tracks"]] == [24, 72]
+    persisted = operations["recentRuns"][0]["result"]["freshness"]
+    assert persisted["status"] == payload["result"]["freshness"]["status"]
+    assert {track["track"] for track in persisted["tracks"]} == {"relation", "fact"}
+    quality = client.get("/api/v2/quality/metrics").json()
+    assert quality["freshness"]["status"] in {"on-track", "overdue"}
 
 
 def test_automation_cycle_extracts_each_new_stored_snapshot_once(
@@ -3728,7 +3735,7 @@ def test_extraction_plan_only_returns_latest_unprocessed_snapshot(
     assert not any(row["sourceId"] == "source-extraction-plan" for row in refreshed)
 
 
-def test_repeated_extraction_repairs_missing_entity_link_without_duplicate(
+def test_extraction_drops_unresolved_entity_then_queues_once_resolvable(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -3795,18 +3802,18 @@ def test_repeated_extraction_repairs_missing_entity_link_without_duplicate(
     endpoint = "/api/v2/admin/sources/source-entity-repair/extract"
     first = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
     assert first.status_code == 200
-    assert first.json()[0]["entityId"] is None
-
-    second = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
-    assert second.status_code == 200
-    assert second.json() == []
+    # An unattributable fact can never be published, so it must not reach reviewers.
+    assert first.json() == []
     queue = client.get(
         "/api/v2/admin/review-queue?scope=open&limit=500",
         headers=headers,
     ).json()
-    repaired = next(item for item in queue if item["id"] == "review-entity-repair")
-    assert repaired["entityId"] == "e-gemini-35-transcribe"
-    assert repaired["version"] == 2
+    assert not any(item["id"] == "review-entity-repair" for item in queue)
+
+    second = client.post(endpoint, headers=headers, json={"maxCandidates": 10})
+    assert second.status_code == 200
+    assert [item["id"] for item in second.json()] == ["review-entity-repair"]
+    assert second.json()[0]["entityId"] == "e-gemini-35-transcribe"
 
 
 def test_extraction_plan_prioritizes_sources_that_mention_relation_gaps(
@@ -4259,3 +4266,181 @@ def test_follow_notification_digest_and_private_research_flow(client: TestClient
     markdown = client.get(f"/api/v2/share/{slug}/markdown")
     assert markdown.status_code == 200
     assert "claim-gpt-notification" in markdown.text
+
+
+def test_updated_snapshot_extracts_only_new_text_after_a_full_first_pass(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    assert (
+        client.post(
+            "/api/v2/admin/sources",
+            headers=headers,
+            json={
+                "id": "source-delta",
+                "url": "https://example.com/changelog",
+                "title": "Changelog",
+                "publisher": "Example",
+            },
+        ).status_code
+        == 201
+    )
+    older = "\n".join(
+        ["# Changelog", "", "## 2026-11-01", "- GPT supports streaming."]
+        + [f"- Historical entry {index}." for index in range(40)]
+    )
+    sent: list[str] = []
+
+    def record(self, source, snapshot, *args, **kwargs):
+        sent.append(snapshot.content_text)
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "extract", record)
+    endpoint = "/api/v2/admin/sources/source-delta/extract"
+
+    first = client.post(
+        "/api/v2/admin/sources/source-delta/snapshots", headers=headers, json={"content": older}
+    )
+    assert first.status_code == 200
+    assert client.post(endpoint, headers=headers, json={"maxCandidates": 5}).status_code == 200
+    assert sent[-1] == older
+
+    newer = older.replace(
+        "# Changelog\n", "# Changelog\n\n## 2026-11-20\n- GPT adds tool search.\n"
+    )
+    second = client.post(
+        "/api/v2/admin/sources/source-delta/snapshots", headers=headers, json={"content": newer}
+    )
+    assert second.status_code == 200
+    assert second.json()["previousSnapshotId"] == first.json()["snapshotId"]
+    assert client.post(endpoint, headers=headers, json={"maxCandidates": 5}).status_code == 200
+
+    assert "- GPT adds tool search." in sent[-1]
+    assert "## 2026-11-20" in sent[-1]
+    assert "Historical entry 30." not in sent[-1]
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    latest = next(
+        item
+        for item in audit
+        if item["action"] == "extraction.run" and item["targetId"] == second.json()["snapshotId"]
+    )
+    scope = latest["detail"]["providerCall"]["documentScope"]
+    assert scope["mode"] == "delta"
+    assert scope["sentCharacters"] < scope["documentCharacters"] / 3
+
+
+def test_auto_approval_shadow_report_flags_rule_approvals_that_humans_rejected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    # The switch stays off: candidates queue for humans, the report replays the rule.
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'shadow.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+    )
+
+    def candidate(candidate_id: str, value: str) -> CandidateCreate:
+        return CandidateCreate.model_validate(
+            {
+                "id": candidate_id,
+                "claim": {
+                    "id": f"claim-{candidate_id}",
+                    "text": {"zh": f"GPT 系列使用 {value}。", "en": f"GPT family uses {value}."},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-{candidate_id}"],
+                    "updatedAt": "2026-11-23",
+                    "subject": "GPT family",
+                    "predicate": "uses",
+                    "objectOrValue": value,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-{candidate_id}",
+                        "title": {"zh": "官方关系说明", "en": "Official relation note"},
+                        "url": "https://example.com/shadow-relations",
+                        "publisher": "Example",
+                        "publishedAt": "2026-11-23",
+                        "collectedAt": "2026-11-23",
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    with TestClient(create_app(settings)) as shadow_client:
+        headers = {"X-Admin-Token": "test-admin-token"}
+        assert (
+            shadow_client.post(
+                "/api/v2/admin/sources",
+                headers=headers,
+                json={
+                    "id": "source-shadow",
+                    "url": "https://example.com/shadow-relations",
+                    "title": "Shadow relations",
+                    "publisher": "Example",
+                },
+            ).status_code
+            == 201
+        )
+        assert (
+            shadow_client.post(
+                "/api/v2/admin/sources/source-shadow/snapshots",
+                headers=headers,
+                json={"content": "GPT family uses MCP. GPT family uses LangChain."},
+            ).status_code
+            == 200
+        )
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("review-shadow-mcp", "MCP"),
+                candidate("review-shadow-langchain", "LangChain"),
+            ],
+        )
+        created = shadow_client.post(
+            "/api/v2/admin/sources/source-shadow/extract",
+            headers=headers,
+            json={"maxCandidates": 5},
+        )
+        assert created.status_code == 200
+        by_id = {item["id"]: item for item in created.json()}
+        assert {item["status"] for item in by_id.values()} == {"pending"}
+
+        approve = shadow_client.post(
+            "/api/v2/admin/review-queue/review-shadow-mcp/approve",
+            headers=headers,
+            json={"expectedVersion": by_id["review-shadow-mcp"]["version"]},
+        )
+        assert approve.status_code == 200
+        reject = shadow_client.post(
+            "/api/v2/admin/review-queue/review-shadow-langchain/reject",
+            headers=headers,
+            json={
+                "expectedVersion": by_id["review-shadow-langchain"]["version"],
+                "reasonCategory": "unsupported_evidence",
+            },
+        )
+        assert reject.status_code == 200
+
+        assert shadow_client.get("/api/v2/admin/auto-approval-shadow").status_code == 401
+        report = shadow_client.get("/api/v2/admin/auto-approval-shadow", headers=headers).json()
+
+    outcomes = {item["reviewId"]: item["outcome"] for item in report["items"]}
+    assert outcomes == {
+        "review-shadow-mcp": "agreed-approval",
+        "review-shadow-langchain": "false-approval",
+    }
+    assert report["evaluatedCount"] == 2
+    assert report["falseApprovalCount"] == 1
+    assert report["readyToEnable"] is False

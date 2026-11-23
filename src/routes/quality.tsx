@@ -8,6 +8,11 @@ import { DemoBadge, WorkspaceHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useApp } from "@/lib/app-state";
+import {
+  freshnessAgeLabel,
+  freshnessBudgetLabel,
+  type KnowledgeFreshness,
+} from "@/domain/knowledge-freshness";
 import { getQualityMetrics, type RetrievalEvaluation } from "@/services/quality-api";
 import latestRetrievalAttempt from "../../product/retrieval-evaluation-status.json";
 
@@ -181,6 +186,8 @@ function QualityPage() {
                   />
                 </div>
               </section>
+
+              {metrics.data.freshness && <FreshnessSection freshness={metrics.data.freshness} />}
 
               {latestRetrievalAttempt.status === "failed" && (
                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-5 text-sm leading-6">
@@ -446,6 +453,72 @@ function ScopeRow({ label, children }: { label: string; children: ReactNode }) {
       <dt className="font-medium">{label}</dt>
       <dd className="min-w-0 leading-6 text-muted-foreground">{children}</dd>
     </div>
+  );
+}
+
+function FreshnessSection({ freshness }: { freshness: KnowledgeFreshness }) {
+  const { t } = useApp();
+  const overdue = freshness.status === "overdue";
+  return (
+    <section aria-labelledby="review-freshness-heading">
+      <h2 className="flex items-center gap-2 text-xl font-semibold" id="review-freshness-heading">
+        <span className="text-signal">
+          <Clock3 className="h-5 w-5" />
+        </span>{" "}
+        {t("审核时限", "Review deadlines")}
+      </h2>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+        {t(
+          "候选进入人工审核队列后开始计时：可逐字核验的关系 24 小时内完成，其他事实 3 天内完成。",
+          "Timed from when a candidate enters the human review queue: verbatim-checkable relations within 24 hours, other facts within 3 days.",
+        )}
+      </p>
+      {overdue && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg border border-conflict/40 bg-conflict/5 p-4 text-sm">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-conflict" />
+          <span>
+            {t(
+              `${freshness.overdueCount} 条候选已超过审核时限，相关更新会晚于承诺时间发布。`,
+              `${freshness.overdueCount} candidates are past their review deadline; the related updates will publish later than committed.`,
+            )}
+          </span>
+        </div>
+      )}
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {freshness.tracks.map((track) => {
+          const late = track.overdueCount > 0;
+          return (
+            <div key={track.track} className={`paper-card p-5 ${late ? "border-conflict/40" : ""}`}>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="font-medium">
+                  {track.track === "relation"
+                    ? t("可逐字核验的关系", "Verbatim-checkable relations")
+                    : t("其他事实", "Other facts")}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {t("时限", "Deadline")} {freshnessBudgetLabel(track.budgetHours)}
+                </span>
+              </div>
+              <div
+                className={`mt-2 font-mono text-2xl font-semibold tracking-tight ${late ? "text-conflict" : ""}`}
+              >
+                {track.overdueCount}
+                <span className="ml-1 font-sans text-sm font-normal text-muted-foreground">
+                  {t("条超时", "overdue")} / {track.openCount} {t("条待审", "open")}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                {t("最久等待", "Longest wait")} {freshnessAgeLabel(track.oldestOpenAgeHours)} ·{" "}
+                {t(
+                  `近 ${freshness.recentWindowDays} 天完成 ${track.recentDecidedCount} 条，其中超时 ${track.recentDecidedLateCount} 条`,
+                  `Last ${freshness.recentWindowDays} days: ${track.recentDecidedCount} decided, ${track.recentDecidedLateCount} late`,
+                )}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

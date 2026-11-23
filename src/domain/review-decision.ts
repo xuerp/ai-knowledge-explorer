@@ -1,6 +1,11 @@
 export type ReviewAction = "approve" | "reject";
 export type ReviewReasonCategory =
-  "unsupported_evidence" | "duplicate" | "conflict" | "schema_error" | "low_confidence";
+  | "unsupported_evidence"
+  | "duplicate"
+  | "conflict"
+  | "schema_error"
+  | "low_confidence"
+  | "entity_unresolved";
 
 export const reviewReasonCategoryLabels: Record<ReviewReasonCategory, string> = {
   unsupported_evidence: "证据不足",
@@ -8,6 +13,7 @@ export const reviewReasonCategoryLabels: Record<ReviewReasonCategory, string> = 
   conflict: "事实冲突",
   schema_error: "结构错误",
   low_confidence: "置信度过低",
+  entity_unresolved: "无法归属实体",
 };
 
 type ReviewQueueState = {

@@ -1,3 +1,4 @@
+import type { KnowledgeFreshness } from "@/domain/knowledge-freshness";
 import { fetchWithNetworkRetry } from "@/services/fetch-with-retry";
 
 export interface QualityMetrics {
@@ -28,6 +29,7 @@ export interface QualityMetrics {
   };
   evaluation: RetrievalEvaluation;
   evaluationHistory?: RetrievalEvaluation[];
+  freshness?: KnowledgeFreshness | null;
 }
 
 export interface RetrievalEvaluation {

@@ -18,6 +18,7 @@ from .config import Settings
 from .database import Database
 from .email_delivery import EmailDeliveryService
 from .engagement import EngagementService
+from .freshness import knowledge_freshness
 from .operations import OperationsService
 from .runtime import create_services
 from .scheduler import IngestionScheduler
@@ -113,6 +114,12 @@ def run_extraction_cycle(services, session, result):
     result["extraction"] = extraction
     if int(extraction.get("failed", 0)) > 0:
         result.setdefault("errors", {})["extraction"] = extraction.get("errors", [])
+    try:
+        # Persist the review-latency state with each cycle so overdue periods stay auditable.
+        result["freshness"] = knowledge_freshness(session).model_dump(mode="json", by_alias=True)
+    except Exception as error:  # noqa: BLE001 - a summary must never fail the cycle
+        session.rollback()
+        result["freshness"] = {"error": str(error)[:200]}
 
 
 def next_interval_cycle(
