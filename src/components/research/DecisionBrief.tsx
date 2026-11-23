@@ -10,7 +10,7 @@ import { DecisionPlan } from "./DecisionPlan";
 import { planDimensionName, trialQualificationLabel } from "@/domain/decision-plan-reading";
 import { DecisionChoice } from "./DecisionChoice";
 import { DecisionGuidanceView } from "./DecisionGuidanceView";
-import { ModelLedAnalysisView } from "./ModelLedAnalysisView";
+import { ModelLedAnalysisView, ModelLedScreening } from "./ModelLedAnalysisView";
 import { DecisionEvidenceRequests } from "./DecisionEvidenceRequests";
 import { decisionVerdict } from "@/domain/decision-verdict";
 import { Button } from "@/components/ui/button";
@@ -122,19 +122,7 @@ export function DecisionBrief({
           outcomeLevel={outcomeLevel}
         />
       )}
-      {decision.modelLed && decision.guidance ? (
-        <details className="decision-result-disclosure model-led__rules">
-          <summary>{t("规则筛选结果（参考）", "Rule-based screening (reference)")}</summary>
-          <DecisionGuidanceView
-            key={research.id}
-            research={research}
-            outcomeLevel={3}
-            entityName={entityName}
-            isComparable={isComparable}
-            onRevision={onRevision}
-          />
-        </details>
-      ) : decision.guidance ? (
+      {decision.modelLed ? null : decision.guidance ? (
         <DecisionGuidanceView
           key={research.id}
           research={research}
@@ -291,378 +279,385 @@ export function DecisionBrief({
           />
         )}
       {workspace}
-      <details
-        className={`decision-audit${decision.guidance ? " decision-result-disclosure" : ""}`}
-      >
-        <summary>{t("其他候选与筛选依据", "Other options and screening")}</summary>
-        {decision.guidance && validationContent && !hasTrialCandidates && (
-          <DecisionEvidenceRequests research={research} entityName={entityName} />
-        )}
-        {validationContent && decision.plan?.state === "needs-input" && (
-          <DecisionEvidenceRequests
-            key={`evidence-${research.id}`}
-            research={research}
-            entityName={entityName}
-          />
-        )}
-        {validationContent && hasTrialCandidates && (
-          <div className="decision-maintenance">
-            <p>
-              {t(
-                "以下资料缺口属于其他未入选候选，不影响上方候选的试用。只在你想进一步考虑这些候选时处理。",
-                "These gaps concern other unqualified candidates and do not block trials above. Use this only to explore those alternatives.",
-              )}
-            </p>
+      {decision.modelLed && <ModelLedScreening research={research} entityName={entityName} />}
+      {!decision.modelLed && (
+        <details
+          className={`decision-audit${decision.guidance ? " decision-result-disclosure" : ""}`}
+        >
+          <summary>{t("其他候选与筛选依据", "Other options and screening")}</summary>
+          {decision.guidance && validationContent && !hasTrialCandidates && (
+            <DecisionEvidenceRequests research={research} entityName={entityName} />
+          )}
+          {validationContent && decision.plan?.state === "needs-input" && (
             <DecisionEvidenceRequests
               key={`evidence-${research.id}`}
               research={research}
               entityName={entityName}
             />
-          </div>
-        )}
-        {!!decision.recommendation.reasons?.length && (
-          <EvidenceBoundList
-            title={t("建议依据", "Recommendation basis")}
-            items={compactFindings(decision.recommendation.reasons)}
-          />
-        )}
-        {decision.scope && (
-          <details className="decision-scope">
-            <summary>{t("查看本次候选范围", "Inspect this candidate scope")}</summary>
-            <p>{decision.scope.selectionBasis}</p>
-            <p>
-              {t("已检查相关对象", "Relevant candidates checked")}{" "}
-              {decision.scope.consideredEntityIds.length} ·{" "}
-              {t("本报告展示", "Shown in this report")} {decision.candidates?.length ?? 0}
-            </p>
-            {!!decision.scope.omittedEntityIds.length && (
-              <p>
-                {t("未展示的候选：", "Candidates outside this report: ")}
-                {decision.scope.omittedEntityIds.map(entityName).join("、")}
-              </p>
-            )}
-          </details>
-        )}
-        <div className="decision-next-actions">
-          {decision.plan ? (
-            <DecisionPlan
-              plan={decision.plan}
-              entityName={entityName}
-              dimensionName={(key) => planDimensionName(key, lang)}
-            />
-          ) : (
-            <DecisionList title={t("下一步行动", "Next actions")} items={reading.nextChecks} />
           )}
-          <EvidenceBoundList
-            title={t("影响决定的风险与未知", "Risks and unknowns affecting the decision")}
-            items={decision.risks.map((item) => ({
-              finding: item.detail,
-              claimIds: item.claimIds,
-            }))}
-          />
-        </div>
-        {(reading.knownComparisons.length > 0 || reading.missingDimensions.length > 0) && (
-          <section
-            className="decision-comparison"
-            aria-label={t("同维度依据", "Evidence by dimension")}
-          >
-            <h3>{t("同维度依据", "Evidence by dimension")}</h3>
-            <p className="decision-comparison__note">
-              {t(
-                "未覆盖项保持未知。参数量、来源数量和不同测试成绩不作为能力排名。",
-                "Uncovered dimensions remain unknown. Model size, source counts and different tests do not establish a ranking.",
+          {validationContent && hasTrialCandidates && (
+            <div className="decision-maintenance">
+              <p>
+                {t(
+                  "以下资料缺口属于其他未入选候选，不影响上方候选的试用。只在你想进一步考虑这些候选时处理。",
+                  "These gaps concern other unqualified candidates and do not block trials above. Use this only to explore those alternatives.",
+                )}
+              </p>
+              <DecisionEvidenceRequests
+                key={`evidence-${research.id}`}
+                research={research}
+                entityName={entityName}
+              />
+            </div>
+          )}
+          {!!decision.recommendation.reasons?.length && (
+            <EvidenceBoundList
+              title={t("建议依据", "Recommendation basis")}
+              items={compactFindings(decision.recommendation.reasons)}
+            />
+          )}
+          {decision.scope && (
+            <details className="decision-scope">
+              <summary>{t("查看本次候选范围", "Inspect this candidate scope")}</summary>
+              <p>{decision.scope.selectionBasis}</p>
+              <p>
+                {t("已检查相关对象", "Relevant candidates checked")}{" "}
+                {decision.scope.consideredEntityIds.length} ·{" "}
+                {t("本报告展示", "Shown in this report")} {decision.candidates?.length ?? 0}
+              </p>
+              {!!decision.scope.omittedEntityIds.length && (
+                <p>
+                  {t("未展示的候选：", "Candidates outside this report: ")}
+                  {decision.scope.omittedEntityIds.map(entityName).join("、")}
+                </p>
               )}
-            </p>
-            {reading.knownComparisons.map((row, index) => {
-              const heading = comparisonRowHeading(row, lang);
-              const groundedCells = row.cells.filter((cell) => cell.state !== "unknown");
-              const unknownCells = row.cells.filter((cell) => cell.state === "unknown");
-              return (
-                <details
-                  key={row.id}
-                  className="decision-comparison__row"
-                  open={index < 2 && groundedCells.length <= 6}
-                >
-                  <summary>
-                    <h4>
-                      {heading.title}
-                      {heading.basis && (
-                        <small className="decision-comparison__basis">{heading.basis}</small>
-                      )}
-                    </h4>
-                    <span>
-                      {row.id.startsWith("api-price") && groundedCells.length === 1
-                        ? entityName(groundedCells[0].entityId)
-                        : t(
-                            `${groundedCells.length} 个候选有依据`,
-                            `${groundedCells.length} candidates with evidence`,
-                          )}
-                    </span>
-                  </summary>
-                  {unknownCells.length > 0 && (
-                    <details className="decision-comparison__note">
-                      <summary>
-                        {t(
-                          `${unknownCells.length} 个候选此项待核验`,
-                          `${unknownCells.length} candidates need evidence for this dimension`,
+            </details>
+          )}
+          <div className="decision-next-actions">
+            {decision.plan ? (
+              <DecisionPlan
+                plan={decision.plan}
+                entityName={entityName}
+                dimensionName={(key) => planDimensionName(key, lang)}
+              />
+            ) : (
+              <DecisionList title={t("下一步行动", "Next actions")} items={reading.nextChecks} />
+            )}
+            <EvidenceBoundList
+              title={t("影响决定的风险与未知", "Risks and unknowns affecting the decision")}
+              items={decision.risks.map((item) => ({
+                finding: item.detail,
+                claimIds: item.claimIds,
+              }))}
+            />
+          </div>
+          {(reading.knownComparisons.length > 0 || reading.missingDimensions.length > 0) && (
+            <section
+              className="decision-comparison"
+              aria-label={t("同维度依据", "Evidence by dimension")}
+            >
+              <h3>{t("同维度依据", "Evidence by dimension")}</h3>
+              <p className="decision-comparison__note">
+                {t(
+                  "未覆盖项保持未知。参数量、来源数量和不同测试成绩不作为能力排名。",
+                  "Uncovered dimensions remain unknown. Model size, source counts and different tests do not establish a ranking.",
+                )}
+              </p>
+              {reading.knownComparisons.map((row, index) => {
+                const heading = comparisonRowHeading(row, lang);
+                const groundedCells = row.cells.filter((cell) => cell.state !== "unknown");
+                const unknownCells = row.cells.filter((cell) => cell.state === "unknown");
+                return (
+                  <details
+                    key={row.id}
+                    className="decision-comparison__row"
+                    open={index < 2 && groundedCells.length <= 6}
+                  >
+                    <summary>
+                      <h4>
+                        {heading.title}
+                        {heading.basis && (
+                          <small className="decision-comparison__basis">{heading.basis}</small>
                         )}
-                      </summary>
-                      <p>{unknownCells.map((cell) => entityName(cell.entityId)).join("、")}</p>
-                    </details>
+                      </h4>
+                      <span>
+                        {row.id.startsWith("api-price") && groundedCells.length === 1
+                          ? entityName(groundedCells[0].entityId)
+                          : t(
+                              `${groundedCells.length} 个候选有依据`,
+                              `${groundedCells.length} candidates with evidence`,
+                            )}
+                      </span>
+                    </summary>
+                    {unknownCells.length > 0 && (
+                      <details className="decision-comparison__note">
+                        <summary>
+                          {t(
+                            `${unknownCells.length} 个候选此项待核验`,
+                            `${unknownCells.length} candidates need evidence for this dimension`,
+                          )}
+                        </summary>
+                        <p>{unknownCells.map((cell) => entityName(cell.entityId)).join("、")}</p>
+                      </details>
+                    )}
+                    <ul className="decision-comparison__cells">
+                      {groundedCells.map((cell) => (
+                        <li key={cell.entityId}>
+                          <strong>{entityName(cell.entityId)}</strong>
+                          {cell.facts.map((fact) => (
+                            <p key={fact.claimIds.join("-")}>
+                              {fact.finding}
+                              <span className="decision-brief__claims">
+                                {fact.claimIds.map((claimId, index) => (
+                                  <a
+                                    key={claimId}
+                                    href={`#claim-${claimId}`}
+                                    className="text-signal hover:underline"
+                                  >
+                                    {t("查看依据", "View evidence")} {index + 1}
+                                  </a>
+                                ))}
+                              </span>
+                            </p>
+                          ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                );
+              })}
+              {reading.missingDimensions.length > 0 && (
+                <div className="decision-coverage-summary">
+                  <h4>{t("尚不能比较的维度", "Dimensions awaiting evidence")}</h4>
+                  <p>{reading.missingDimensions.join("、")}</p>
+                  <p>
+                    {t(
+                      "规格与条款需补充明确来源；业务效果与速度需同口径实测。资料缺失不表示产品不支持。",
+                      "Specifications and terms need explicit sources; quality and speed need comparable tests. Missing evidence does not establish lack of support.",
+                    )}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+          {decision.candidates && decision.candidates.length > 0 && (
+            <section
+              className="decision-candidates"
+              aria-label={t("候选资格与证据覆盖", "Candidate eligibility and coverage")}
+            >
+              <div className="decision-candidates__title">
+                <h3>{t("候选资格与证据覆盖", "Candidate eligibility and coverage")}</h3>
+                <span>
+                  {t(
+                    `${decision.candidates.length} 个候选`,
+                    `${decision.candidates.length} candidates`,
                   )}
-                  <ul className="decision-comparison__cells">
-                    {groundedCells.map((cell) => (
-                      <li key={cell.entityId}>
-                        <strong>{entityName(cell.entityId)}</strong>
-                        {cell.facts.map((fact) => (
-                          <p key={fact.claimIds.join("-")}>
-                            {fact.finding}
-                            <span className="decision-brief__claims">
-                              {fact.claimIds.map((claimId, index) => (
+                </span>
+              </div>
+              <p>
+                {t(
+                  "先核对必要条件，再比较已知事实；依据覆盖反映资料完整度。",
+                  "Check necessary constraints, then compare known facts. Evidence coverage describes information completeness.",
+                )}
+              </p>
+              {reading.commonReasons.length > 0 && (
+                <div className="decision-candidates__shared">
+                  <h4>{t("共同的资格缺口", "Shared qualification gaps")}</h4>
+                  <ul>
+                    {reading.commonReasons.map(([reason, ids]) => (
+                      <li key={reason}>
+                        <span>{reason}</span>
+                        <small>
+                          {ids.length === decision.candidates!.length
+                            ? t("全部候选", "All candidates")
+                            : ids.map(entityName).join("、")}
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <ul className="decision-candidates__list">
+                {shownCandidates?.map((candidate) => (
+                  <li key={candidate.entityId}>
+                    <div className="decision-candidates__heading">
+                      <h4>{entityName(candidate.entityId)}</h4>
+                      <span>
+                        {trialQualificationLabel(decision, candidate.entityId, lang) ??
+                          (candidate.eligibility === "eligible"
+                            ? t("可继续验证", "Eligible for validation")
+                            : candidate.eligibility === "excluded"
+                              ? t("不符合硬条件", "Excluded by constraints")
+                              : candidate.eligibility === "conflict"
+                                ? t("证据冲突", "Conflicting evidence")
+                                : t("待补充资料", "Needs evidence"))}
+                      </span>
+                    </div>
+                    <p>
+                      {reading.coverage(candidate.entityId).features > 0 && (
+                        <>
+                          {t("功能描述", "Described features")}{" "}
+                          {reading.coverage(candidate.entityId).described}/
+                          {reading.coverage(candidate.entityId).features} ·{" "}
+                        </>
+                      )}
+                      {reading.coverage(candidate.entityId).hard > 0
+                        ? t(
+                            `硬条件依据 ${reading.coverage(candidate.entityId).verified}/${reading.coverage(candidate.entityId).hard}`,
+                            `Constraint evidence ${reading.coverage(candidate.entityId).verified}/${reading.coverage(candidate.entityId).hard}`,
+                          )
+                        : t("未设置硬条件", "No hard constraints set")}
+                      {!candidate.isConcreteVersion
+                        ? ` · ${t("尚未确定具体版本", "Exact version not established")}`
+                        : ""}
+                    </p>
+                    {reading.individualReasons(candidate.entityId).length > 0 && (
+                      <ul>
+                        {reading.individualReasons(candidate.entityId).map((reason) => (
+                          <li key={reason}>{reason}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {(!!candidate.strengths?.length ||
+                      !!candidate.gaps?.length ||
+                      candidate.claimIds.length > 0) && (
+                      <details className="decision-candidates__details">
+                        <summary>
+                          {t("查看资料与待核验项", "Inspect evidence and verification gaps")}
+                        </summary>
+                        {!!candidate.strengths?.length && (
+                          <EvidenceBoundList
+                            level={5}
+                            title={t(
+                              "与业务有关的功能描述",
+                              "Features described for this business",
+                            )}
+                            items={compactFindings(candidate.strengths)}
+                          />
+                        )}
+                        {!!candidate.gaps?.length && (
+                          <div className="decision-candidates__gaps">
+                            <h5>{t("待核验项与补充方向", "Verification gaps and next steps")}</h5>
+                            <ul>
+                              {candidate.gaps.map((gap) => (
+                                <li key={gap.dimension}>
+                                  <strong>{dimensionName(gap.dimension)}</strong>
+                                  {" · "}
+                                  {
+                                    {
+                                      "not-recorded": t("未收录", "Not recorded"),
+                                      "not-structured": t("资料未结构化", "Not structured"),
+                                      "not-current": t(
+                                        "资料当前不可用于核验",
+                                        "Evidence not current for verification",
+                                      ),
+                                      "needs-input": t("待补充条件", "Needs inputs"),
+                                      conflicting: t("事实冲突", "Conflicting facts"),
+                                      "requires-poc": t("待同口径实测", "Needs comparable testing"),
+                                    }[gap.reason]
+                                  }
+                                  <p>{gap.detail}</p>
+                                  {gap.claimIds.map((id) => (
+                                    <a
+                                      key={id}
+                                      href={`#claim-${id}`}
+                                      className="decision-brief__claims text-signal hover:underline"
+                                    >
+                                      {t("查看现有相关资料", "Inspect related evidence")}
+                                    </a>
+                                  ))}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {candidate.claimIds.length > 0 && (
+                          <div className="decision-candidates__references">
+                            <h5>{t("引用索引", "Citation index")}</h5>
+                            <div className="decision-brief__claims">
+                              {candidate.claimIds.map((id, index) => (
                                 <a
-                                  key={claimId}
-                                  href={`#claim-${claimId}`}
+                                  key={id}
+                                  href={`#claim-${id}`}
                                   className="text-signal hover:underline"
                                 >
                                   {t("查看依据", "View evidence")} {index + 1}
                                 </a>
                               ))}
-                            </span>
-                          </p>
-                        ))}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              );
-            })}
-            {reading.missingDimensions.length > 0 && (
-              <div className="decision-coverage-summary">
-                <h4>{t("尚不能比较的维度", "Dimensions awaiting evidence")}</h4>
-                <p>{reading.missingDimensions.join("、")}</p>
-                <p>
-                  {t(
-                    "规格与条款需补充明确来源；业务效果与速度需同口径实测。资料缺失不表示产品不支持。",
-                    "Specifications and terms need explicit sources; quality and speed need comparable tests. Missing evidence does not establish lack of support.",
-                  )}
-                </p>
-              </div>
-            )}
-          </section>
-        )}
-        {decision.candidates && decision.candidates.length > 0 && (
-          <section
-            className="decision-candidates"
-            aria-label={t("候选资格与证据覆盖", "Candidate eligibility and coverage")}
-          >
-            <div className="decision-candidates__title">
-              <h3>{t("候选资格与证据覆盖", "Candidate eligibility and coverage")}</h3>
-              <span>
-                {t(
-                  `${decision.candidates.length} 个候选`,
-                  `${decision.candidates.length} candidates`,
-                )}
-              </span>
-            </div>
-            <p>
-              {t(
-                "先核对必要条件，再比较已知事实；依据覆盖反映资料完整度。",
-                "Check necessary constraints, then compare known facts. Evidence coverage describes information completeness.",
-              )}
-            </p>
-            {reading.commonReasons.length > 0 && (
-              <div className="decision-candidates__shared">
-                <h4>{t("共同的资格缺口", "Shared qualification gaps")}</h4>
-                <ul>
-                  {reading.commonReasons.map(([reason, ids]) => (
-                    <li key={reason}>
-                      <span>{reason}</span>
-                      <small>
-                        {ids.length === decision.candidates!.length
-                          ? t("全部候选", "All candidates")
-                          : ids.map(entityName).join("、")}
-                      </small>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <ul className="decision-candidates__list">
-              {shownCandidates?.map((candidate) => (
-                <li key={candidate.entityId}>
-                  <div className="decision-candidates__heading">
-                    <h4>{entityName(candidate.entityId)}</h4>
-                    <span>
-                      {trialQualificationLabel(decision, candidate.entityId, lang) ??
-                        (candidate.eligibility === "eligible"
-                          ? t("可继续验证", "Eligible for validation")
-                          : candidate.eligibility === "excluded"
-                            ? t("不符合硬条件", "Excluded by constraints")
-                            : candidate.eligibility === "conflict"
-                              ? t("证据冲突", "Conflicting evidence")
-                              : t("待补充资料", "Needs evidence"))}
-                    </span>
-                  </div>
-                  <p>
-                    {reading.coverage(candidate.entityId).features > 0 && (
-                      <>
-                        {t("功能描述", "Described features")}{" "}
-                        {reading.coverage(candidate.entityId).described}/
-                        {reading.coverage(candidate.entityId).features} ·{" "}
-                      </>
-                    )}
-                    {reading.coverage(candidate.entityId).hard > 0
-                      ? t(
-                          `硬条件依据 ${reading.coverage(candidate.entityId).verified}/${reading.coverage(candidate.entityId).hard}`,
-                          `Constraint evidence ${reading.coverage(candidate.entityId).verified}/${reading.coverage(candidate.entityId).hard}`,
-                        )
-                      : t("未设置硬条件", "No hard constraints set")}
-                    {!candidate.isConcreteVersion
-                      ? ` · ${t("尚未确定具体版本", "Exact version not established")}`
-                      : ""}
-                  </p>
-                  {reading.individualReasons(candidate.entityId).length > 0 && (
-                    <ul>
-                      {reading.individualReasons(candidate.entityId).map((reason) => (
-                        <li key={reason}>{reason}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {(!!candidate.strengths?.length ||
-                    !!candidate.gaps?.length ||
-                    candidate.claimIds.length > 0) && (
-                    <details className="decision-candidates__details">
-                      <summary>
-                        {t("查看资料与待核验项", "Inspect evidence and verification gaps")}
-                      </summary>
-                      {!!candidate.strengths?.length && (
-                        <EvidenceBoundList
-                          level={5}
-                          title={t("与业务有关的功能描述", "Features described for this business")}
-                          items={compactFindings(candidate.strengths)}
-                        />
-                      )}
-                      {!!candidate.gaps?.length && (
-                        <div className="decision-candidates__gaps">
-                          <h5>{t("待核验项与补充方向", "Verification gaps and next steps")}</h5>
-                          <ul>
-                            {candidate.gaps.map((gap) => (
-                              <li key={gap.dimension}>
-                                <strong>{dimensionName(gap.dimension)}</strong>
-                                {" · "}
-                                {
-                                  {
-                                    "not-recorded": t("未收录", "Not recorded"),
-                                    "not-structured": t("资料未结构化", "Not structured"),
-                                    "not-current": t(
-                                      "资料当前不可用于核验",
-                                      "Evidence not current for verification",
-                                    ),
-                                    "needs-input": t("待补充条件", "Needs inputs"),
-                                    conflicting: t("事实冲突", "Conflicting facts"),
-                                    "requires-poc": t("待同口径实测", "Needs comparable testing"),
-                                  }[gap.reason]
-                                }
-                                <p>{gap.detail}</p>
-                                {gap.claimIds.map((id) => (
-                                  <a
-                                    key={id}
-                                    href={`#claim-${id}`}
-                                    className="decision-brief__claims text-signal hover:underline"
-                                  >
-                                    {t("查看现有相关资料", "Inspect related evidence")}
-                                  </a>
-                                ))}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {candidate.claimIds.length > 0 && (
-                        <div className="decision-candidates__references">
-                          <h5>{t("引用索引", "Citation index")}</h5>
-                          <div className="decision-brief__claims">
-                            {candidate.claimIds.map((id, index) => (
-                              <a
-                                key={id}
-                                href={`#claim-${id}`}
-                                className="text-signal hover:underline"
-                              >
-                                {t("查看依据", "View evidence")} {index + 1}
-                              </a>
-                            ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </details>
-                  )}
-                </li>
-              ))}
-            </ul>
-            {decision.candidates.length > 6 && (
-              <button
-                type="button"
-                className="text-signal hover:underline"
-                aria-expanded={expandedCandidates}
-                onClick={() => setExpandedCandidates((value) => !value)}
-              >
-                {expandedCandidates
-                  ? t("收起候选列表", "Show fewer candidates")
-                  : t(
-                      `查看其余 ${decision.candidates.length - 6} 个候选`,
-                      `Inspect ${decision.candidates.length - 6} remaining candidates`,
+                        )}
+                      </details>
                     )}
-              </button>
+                  </li>
+                ))}
+              </ul>
+              {decision.candidates.length > 6 && (
+                <button
+                  type="button"
+                  className="text-signal hover:underline"
+                  aria-expanded={expandedCandidates}
+                  onClick={() => setExpandedCandidates((value) => !value)}
+                >
+                  {expandedCandidates
+                    ? t("收起候选列表", "Show fewer candidates")
+                    : t(
+                        `查看其余 ${decision.candidates.length - 6} 个候选`,
+                        `Inspect ${decision.candidates.length - 6} remaining candidates`,
+                      )}
+                </button>
+              )}
+            </section>
+          )}
+          <details className="decision-supporting-details">
+            <summary>
+              {t("查看分析条件与补充依据", "Inspect applied conditions and additional evidence")}
+            </summary>
+            <div className="decision-brief__grid">
+              <DecisionList
+                title={t("分析采用的条件", "Applied conditions")}
+                items={decision.conditions}
+              />
+              <EvidenceBoundList
+                title={t("补充依据与边界", "Additional evidence and bounds")}
+                items={reading.extraEvidence}
+              />
+            </div>
+          </details>
+          <DecisionGuide kind="results" />
+          <div className="decision-brief__meta">
+            {research.citationStates &&
+              Object.values(research.citationStates).some((state) => state !== "current") && (
+                <span role="status">
+                  {t("历史引用已重新核验：", "Historical citations revalidated: ")}
+                  {
+                    Object.values(research.citationStates).filter((state) => state === "updated")
+                      .length
+                  }
+                  {t("条已更新，", " updated, ")}
+                  {
+                    Object.values(research.citationStates).filter(
+                      (state) => state === "unavailable",
+                    ).length
+                  }
+                  {t("条当前不可用。请重新运行选型。", " unavailable. Run the decision again.")}
+                </span>
+              )}
+            <span>
+              {t("证据截止", "Evidence as of")} {new Date(decision.asOf).toLocaleString()}
+            </span>
+            {compareIds.length >= 2 && (
+              <Link
+                to="/compare"
+                search={{ models: compareIds.join(","), research: research.id }}
+                className="font-medium text-signal hover:underline"
+              >
+                {t("打开模型对比", "Open model comparison")} →
+              </Link>
             )}
-          </section>
-        )}
-        <details className="decision-supporting-details">
-          <summary>
-            {t("查看分析条件与补充依据", "Inspect applied conditions and additional evidence")}
-          </summary>
-          <div className="decision-brief__grid">
-            <DecisionList
-              title={t("分析采用的条件", "Applied conditions")}
-              items={decision.conditions}
-            />
-            <EvidenceBoundList
-              title={t("补充依据与边界", "Additional evidence and bounds")}
-              items={reading.extraEvidence}
-            />
           </div>
         </details>
-        <DecisionGuide kind="results" />
-        <div className="decision-brief__meta">
-          {research.citationStates &&
-            Object.values(research.citationStates).some((state) => state !== "current") && (
-              <span role="status">
-                {t("历史引用已重新核验：", "Historical citations revalidated: ")}
-                {
-                  Object.values(research.citationStates).filter((state) => state === "updated")
-                    .length
-                }
-                {t("条已更新，", " updated, ")}
-                {
-                  Object.values(research.citationStates).filter((state) => state === "unavailable")
-                    .length
-                }
-                {t("条当前不可用。请重新运行选型。", " unavailable. Run the decision again.")}
-              </span>
-            )}
-          <span>
-            {t("证据截止", "Evidence as of")} {new Date(decision.asOf).toLocaleString()}
-          </span>
-          {compareIds.length >= 2 && (
-            <Link
-              to="/compare"
-              search={{ models: compareIds.join(","), research: research.id }}
-              className="font-medium text-signal hover:underline"
-            >
-              {t("打开模型对比", "Open model comparison")} →
-            </Link>
-          )}
-        </div>
-      </details>
+      )}
     </section>
   );
 }

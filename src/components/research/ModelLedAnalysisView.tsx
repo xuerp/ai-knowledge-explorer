@@ -1,4 +1,5 @@
 import { useApp } from "@/lib/app-state";
+import { screeningReason } from "@/domain/model-led-reading";
 import "./model-led.css";
 import type { ModelLedLine, ResearchResult } from "@/services/user-api";
 
@@ -121,5 +122,67 @@ export function ModelLedAnalysisView({
         prefix={t("步骤", "Step")}
       />
     </section>
+  );
+}
+
+export function ModelLedScreening({
+  research,
+  entityName,
+}: {
+  research: ResearchResult;
+  entityName: (id: string) => string;
+}) {
+  const { t, lang } = useApp();
+  const analysis = research.decision?.modelLed;
+  if (!analysis) return null;
+  const excluded = new Map<string, string>();
+  for (const item of analysis.pruned) {
+    const reason = item.entityId ? screeningReason(item.reason, lang) : null;
+    if (item.entityId && reason && !excluded.has(item.entityId))
+      excluded.set(item.entityId, reason);
+  }
+  const removed = analysis.pruned.filter((item) => !screeningReason(item.reason, lang)).length;
+  const citations = research.citations ?? [];
+  const sources = new Set(citations.flatMap((item) => item.evidence.map((source) => source.id)));
+  return (
+    <details className="decision-result-disclosure model-led__screening">
+      <summary>{t("其他候选与筛选依据", "Other options and screening")}</summary>
+      <div className="model-led__screening-body">
+        <section className="model-led__section">
+          <h4>{t("未入选的候选", "Options not recommended")}</h4>
+          {excluded.size ? (
+            <ul>
+              {[...excluded].map(([entityId, reason]) => (
+                <li key={entityId} className="model-led__excluded">
+                  <strong>{entityName(entityId)}</strong>
+                  <span>{reason}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              {t(
+                "模型提出的候选都没有违反你的硬条件，没有被系统剔除。",
+                "No proposed option violated your hard requirements.",
+              )}
+            </p>
+          )}
+        </section>
+        <section className="model-led__section">
+          <h4>{t("本次参考的资料", "Evidence used")}</h4>
+          <p>
+            {t(
+              `已收录资料中的 ${citations.length} 条事实，来自 ${sources.size} 个来源。`,
+              `${citations.length} facts from ${sources.size} sources in the catalog.`,
+            )}
+            {removed > 0 &&
+              t(
+                ` 另有 ${removed} 条模型内容因缺少依据或不符合规则，已在显示前删除。`,
+                ` ${removed} model statements were removed before display for missing support or rule violations.`,
+              )}
+          </p>
+        </section>
+      </div>
+    </details>
   );
 }
