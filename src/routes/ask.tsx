@@ -1087,8 +1087,8 @@ function AskPage() {
                 {!token && (
                   <p>
                     {t(
-                      "分析和保存个人任务需要登录，输入会保留。",
-                      "Sign in to analyze and save a personal task; your input is retained.",
+                      "分析和保存个人任务需要登录，输入会保留。登录后可获得基于已审核资料的回答；模型生成目前仅对受邀账号开放。",
+                      "Sign in to analyze and save a personal task; your input is retained. Signed-in users get answers drawn from reviewed evidence; model-generated answers are currently invite-only.",
                     )}
                   </p>
                 )}

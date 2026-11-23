@@ -13,6 +13,7 @@ from ..entry_requests import (
     create_entry_request,
 )
 from ..evaluation_scope import retrieval_implementation_fingerprint
+from ..freshness import knowledge_freshness
 from ..home_overview import HomeOverview, build_home_overview
 from ..repository import OPEN_REVIEW_STATUSES
 from ..schemas import (
@@ -103,6 +104,7 @@ def quality_metrics(
         evaluation=services.evaluation_quality_metrics(snapshot),
         evaluation_history=services.evaluation_quality_history(snapshot),
         retrieval_implementation_sha256=retrieval_implementation_fingerprint(),
+        freshness=knowledge_freshness(session),
     )
 
 

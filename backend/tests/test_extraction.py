@@ -666,3 +666,67 @@ def test_extraction_probe_distinguishes_dns_failure():
 
     assert result.error_code == "dns_resolution_failed"
     assert "域名" in result.detail
+
+
+def test_catalog_context_lists_aliases_and_requires_catalog_entity_subjects():
+    captured: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        request_json = json.loads(request.content)
+        captured["prompt"] = "\n".join(m["content"] for m in request_json["messages"])
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"facts":[]}'}}]})
+
+    source = SourceRecord(
+        id="source-alias",
+        url="https://example.com/alias",
+        title="Alias source",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    snapshot = DocumentSnapshotRecord(
+        id="snapshot-alias",
+        source_id=source.id,
+        content_hash="hash",
+        content_text="Claude 3.7 Sonnet supports extended thinking.",
+        observed_at=datetime.now(UTC),
+    )
+    entity = _catalog_entity("e-claude-sonnet-37", "Claude Sonnet 3.7")
+    entity.aliases = ["Claude 3.7 Sonnet"]
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        transport=httpx.MockTransport(handler),
+    )
+
+    assert service.extract(source, snapshot, 5, catalog_entities=[entity]) == []
+    assert (
+        "- e-claude-sonnet-37: Claude Sonnet 3.7 | Claude Sonnet 3.7 | aliases: Claude 3.7 Sonnet"
+        in (captured["prompt"])
+    )
+    assert "must be one listed catalog entity" in captured["prompt"]
+    assert "'will introduce'" in captured["prompt"]
+
+
+def test_record_rejected_fact_counts_only_inside_an_active_call():
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions", "test-secret", "structured-model"
+    )
+    service.record_rejected_fact("our model", "achieves", "28.4 BLEU", "entity-unresolved")
+    assert service.call_metadata() is None
+
+    service._call_metadata.set({"rejectedFacts": []})
+    service.record_rejected_fact("CrewAI", "requires", "Python", "entity-ambiguous")
+    metadata = service.call_metadata()
+    assert metadata["rejectedUnresolvedEntities"] == 1
+    assert metadata["rejectedFacts"] == [
+        {
+            "subject": "CrewAI",
+            "predicate": "requires",
+            "objectOrValue": "Python",
+            "reason": "entity-ambiguous",
+        }
+    ]

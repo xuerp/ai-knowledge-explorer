@@ -176,6 +176,9 @@ class BudgetedAnswerGenerator:
         self.budget = ModelBudget(database, config)
         self.transport = transport
 
+    def allows_user(self, user_id):
+        return user_id in self.config.user_ids
+
     def generate(self, question, citations, language, *, user_id=None, context=None):
         from .answer_generation import CitedAnswerService
 

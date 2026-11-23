@@ -179,3 +179,27 @@ def test_payload_without_lead_keeps_rule_summary():
         FakeGenerator(valid_payload(citations[0].claim.id)), enabled=True
     ).answer("问题", citations, "zh")
     assert result.answer_mode == "generated" and result.lead is None
+
+
+class ScopedGenerator(FakeGenerator):
+    def __init__(self, payload: dict, allowed: set[str]):
+        super().__init__(payload)
+        self.allowed = allowed
+
+    def allows_user(self, user_id):
+        return user_id in self.allowed
+
+
+def test_account_outside_invite_list_gets_extractive_answer_without_provider_call():
+    citations = grounded_citations()
+    generator = ScopedGenerator(valid_payload(citations[0].claim.id), {"invited-user"})
+    service = CitedAnswerService(generator, enabled=True)
+
+    outside = service.answer("问题", citations, "zh", user_id="other-user")
+    assert outside.answer_mode == "extractive"
+    assert outside.fallback_reason == "generation-not-entitled"
+    assert generator.calls == 0
+
+    invited = service.answer("问题", citations, "zh", user_id="invited-user")
+    assert invited.answer_mode == "generated"
+    assert generator.calls == 1

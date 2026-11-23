@@ -20474,7 +20474,7 @@
       "name": { "zh": "Claude Opus 3", "en": "Claude Opus 3" },
       "vendor": "Anthropic",
       "origin": { "zh": "海外", "en": "Overseas" },
-      "aliases": ["Claude Opus 3", "claude-3-opus-20240229"],
+      "aliases": ["Claude Opus 3", "Claude 3 Opus", "claude-3-opus-20240229"],
       "summary": {
         "zh": "Claude Opus 3：Claude Opus 3 的正式发布。",
         "en": "Claude Opus 3 is a documented historical release in the Claude Opus line."
@@ -21512,7 +21512,7 @@
       "capabilities": [
         { "zh": "能力与速度均衡", "en": "Balanced capability and speed", "confidence": "inferred" }
       ],
-      "aliases": ["Claude Sonnet 3", "claude-3-sonnet-20240229"],
+      "aliases": ["Claude Sonnet 3", "Claude 3 Sonnet", "claude-3-sonnet-20240229"],
       "metrics": [],
       "release": {
         "generation": "Claude Sonnet 3",
@@ -21757,7 +21757,7 @@
       "capabilities": [
         { "zh": "能力与速度均衡", "en": "Balanced capability and speed", "confidence": "inferred" }
       ],
-      "aliases": ["Claude Sonnet 3.7", "claude-3-7-sonnet-20250219"],
+      "aliases": ["Claude Sonnet 3.7", "Claude 3.7 Sonnet", "claude-3-7-sonnet-20250219"],
       "metrics": [],
       "release": {
         "generation": "Claude Sonnet 3.7",
@@ -22082,7 +22082,7 @@
       "name": { "zh": "Claude Haiku 3", "en": "Claude Haiku 3" },
       "vendor": "Anthropic",
       "origin": { "zh": "海外", "en": "Overseas" },
-      "aliases": ["Claude Haiku 3", "claude-3-haiku-20240307"],
+      "aliases": ["Claude Haiku 3", "Claude 3 Haiku", "claude-3-haiku-20240307"],
       "summary": {
         "zh": "Claude Haiku 3：Claude Haiku 3 的正式发布。",
         "en": "Claude Haiku 3 is a documented historical release in the Claude Haiku line."
@@ -22211,7 +22211,7 @@
       "name": { "zh": "Claude Haiku 3.5", "en": "Claude Haiku 3.5" },
       "vendor": "Anthropic",
       "origin": { "zh": "海外", "en": "Overseas" },
-      "aliases": ["Claude Haiku 3.5", "claude-3-5-haiku-20241022"],
+      "aliases": ["Claude Haiku 3.5", "Claude 3.5 Haiku", "claude-3-5-haiku-20241022"],
       "summary": {
         "zh": "Claude Haiku 3.5：2024-10-22 公告预告 Haiku 3.5；2024-11-04 官方云平台上线，以实际可用日记录版本发布。",
         "en": "Claude Haiku 3.5 is a documented historical release in the Claude Haiku line."

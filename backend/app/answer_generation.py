@@ -75,6 +75,10 @@ class CitedAnswerService:
             return AnswerResult(extractive, "extractive", "generation-disabled")
         if self.generator is None:
             return AnswerResult(extractive, "extractive", "generation-unavailable")
+        allows_user = getattr(self.generator, "allows_user", None)
+        if allows_user is not None and not allows_user(user_id):
+            # Model answers are invite-only; this is an account scope, not a service fault.
+            return AnswerResult(extractive, "extractive", "generation-not-entitled")
 
         try:
             raw = self.generator.generate(

@@ -15,6 +15,7 @@ import { DecisionChoice } from "./DecisionChoice";
 import { decisionComparisonRows } from "@/domain/decision-choice";
 import { planDimensionName } from "@/domain/decision-plan-reading";
 import { guidanceReasonText } from "@/domain/decision-reading";
+import { answerSourceNotice } from "@/domain/answer-source";
 import { copyTaskText } from "@/lib/copy-task-text";
 import "./decision-guidance.css";
 
@@ -168,11 +169,7 @@ export function DecisionGuidanceView({
     !privateAdvice && guidance.nextAction.kind === "start" && guidance.outcome === "advice"
       ? guidance.nextAction.entryUrl
       : null;
-  const generationFallback = [
-    "generation-invalid",
-    "generation-provider-error",
-    "generation-unavailable",
-  ].includes(research.retrievalDiagnostics.generationFallbackReason ?? "");
+  const sourceNotice = answerSourceNotice(research.retrievalDiagnostics.generationFallbackReason);
   const singleStartId =
     guidance.nextAction.targetIds.length === 1
       ? guidance.nextAction.targetIds[0]
@@ -207,11 +204,19 @@ export function DecisionGuidanceView({
               )}
         </p>
       )}
-      {generationFallback && (
+      {sourceNotice === "model-unavailable" && (
         <p className="text-sm text-muted-foreground">
           {t(
             "模型综合暂不可用，以下依据来自已审核资料和条件筛选。",
             "Model synthesis is unavailable. The findings below use reviewed evidence and your constraints.",
+          )}
+        </p>
+      )}
+      {sourceNotice === "invite-only" && (
+        <p className="text-sm text-muted-foreground">
+          {t(
+            "以下内容摘自已审核资料并按你的条件筛选；模型生成目前仅对受邀账号开放。",
+            "The findings below are drawn from reviewed evidence and filtered by your constraints; model-generated answers are currently invite-only.",
           )}
         </p>
       )}

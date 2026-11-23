@@ -16,6 +16,7 @@ from .database import (
     WorkerStatusRecord,
 )
 from .extraction import extraction_audit_is_current
+from .freshness import knowledge_freshness
 from .schemas import (
     AutomationRunView,
     OperationsDiagnostics,
@@ -335,6 +336,7 @@ class OperationsService:
                 email_sending=self._email_count(session, "sending"),
                 email_failed=self._email_count(session, "failed"),
             ),
+            freshness=knowledge_freshness(session, now=current),
         )
 
     def is_worker_healthy(

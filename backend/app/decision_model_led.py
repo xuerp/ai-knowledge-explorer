@@ -261,6 +261,10 @@ def run_model_led(
     """One budgeted call. Any failure returns a reason; the caller keeps the rule path."""
     if generator is None or not hasattr(generator, "analyze"):
         return ModelLedOutcome(None, "model-led-unavailable")
+    allows_user = getattr(generator, "allows_user", None)
+    if allows_user is not None and not allows_user(user_id):
+        # Invite-only account scope, not a provider fault; no budget is reserved.
+        return ModelLedOutcome(None, "generation-not-entitled")
     requirements = (
         context.model_dump(mode="json", by_alias=True, exclude={"notes", "parent_research_id"})
         if context is not None

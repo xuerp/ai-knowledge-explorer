@@ -1,0 +1,573 @@
+{
+  "description": "Live review rows rejected as schema_error by deterministic queue governance; every row lacked an entity link. Exported read-only 2026-11-22; reviewer identities omitted.",
+  "exportedAt": "2026-11-22T15:37:36.486Z",
+  "items": [
+    {
+      "id": "review-9438d5bc2520cde90440",
+      "subject": "Claude 3.7 Sonnet",
+      "predicate": "reduces-unnecessary-refusals-by",
+      "objectOrValue": "45%",
+      "textZh": "Anthropic 报告称，Claude 3.7 Sonnet 相较其前代产品减少了 45% 的不必要拒绝。",
+      "sourceUrl": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "sourceExcerpt": "Claude 3.7 Sonnet also makes more nuanced distinctions between harmful and benign requests, reducing unnecessary refusals by 45% compared to its predecessor."
+    },
+    {
+      "id": "review-7230d4b14f64c66a6525",
+      "subject": "Claude 3.7 Sonnet",
+      "predicate": "output-limit",
+      "objectOrValue": "128K tokens",
+      "textZh": "Claude 3.7 Sonnet 的思考预算可设定至最高输出上限 128K tokens。",
+      "sourceUrl": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "sourceExcerpt": "Second, when using Claude 3.7 Sonnet through the API, users can also control the budget for thinking: you can tell Claude to think for no more than N tokens, for any value of N up to its output limit of 128K tokens."
+    },
+    {
+      "id": "review-d6617d7be1e23a4f8e1f",
+      "subject": "Claude 3.7 Sonnet",
+      "predicate": "output-price",
+      "objectOrValue": "$15 per million output tokens",
+      "textZh": "Claude 3.7 Sonnet 的输出价格为每百万输出 token 15 美元。",
+      "sourceUrl": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "sourceExcerpt": "In both standard and extended thinking modes, Claude 3.7 Sonnet has the same price as its predecessors: $3 per million input tokens and $15 per million output tokens—which includes thinking tokens."
+    },
+    {
+      "id": "review-2787516dd5faeaf702d1",
+      "subject": "Claude 3.7 Sonnet",
+      "predicate": "input-price",
+      "objectOrValue": "$3 per million input tokens",
+      "textZh": "Claude 3.7 Sonnet 的输入价格为每百万输入 token 3 美元。",
+      "sourceUrl": "https://www.anthropic.com/news/claude-3-7-sonnet",
+      "sourceExcerpt": "In both standard and extended thinking modes, Claude 3.7 Sonnet has the same price as its predecessors: $3 per million input tokens and $15 per million output tokens—which includes thinking tokens."
+    },
+    {
+      "id": "review-8927656e68bb2bbf3129",
+      "subject": "LangSmith",
+      "predicate": "supports",
+      "objectOrValue": "evaluate outputs",
+      "textZh": "LangSmith 支持评估输出。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "> Use [LangSmith](https://docs.langchain.com/langsmith/observability.md) to trace requests, debug agent behavior, and evaluate outputs."
+    },
+    {
+      "id": "review-aac3e737ae9bf869d8c3",
+      "subject": "LangSmith",
+      "predicate": "supports",
+      "objectOrValue": "trace requests",
+      "textZh": "LangSmith 支持追踪请求。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "> Use [LangSmith](https://docs.langchain.com/langsmith/observability.md) to trace requests, debug agent behavior, and evaluate outputs."
+    },
+    {
+      "id": "review-76245d6a05c17dae9eb0",
+      "subject": "create_agent",
+      "predicate": "supports-extension-through",
+      "objectOrValue": "middleware",
+      "textZh": "create_agent 支持通过中间件逐步添加功能。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "> Start with `create_agent` as a minimal harness and add capabilities incrementally through middleware."
+    },
+    {
+      "id": "review-d4200ab805917e981dde",
+      "subject": "crews",
+      "predicate": "can-call",
+      "objectOrValue": "Amazon Bedrock Agents",
+      "textZh": "CrewAI 的 crews 可使用更新后的集成工具包直接调用 Amazon Bedrock Agents。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "> Call existing CrewAI automations or Amazon Bedrock Agents directly from your crews using the updated integration toolkit."
+    },
+    {
+      "id": "review-2136d5ebb91a7b7ffea4",
+      "subject": "agents",
+      "predicate": "supports-structured-outputs-using",
+      "objectOrValue": "Pydantic",
+      "textZh": "CrewAI 智能体支持使用 Pydantic 实现结构化输出。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "> Compose agents with tools, memory, knowledge, and structured outputs using Pydantic."
+    },
+    {
+      "id": "review-8f756e704d7275b2d79e",
+      "subject": "agents",
+      "predicate": "supports",
+      "objectOrValue": "knowledge",
+      "textZh": "CrewAI 智能体可配置知识。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "> Compose agents with tools, memory, knowledge, and structured outputs using Pydantic."
+    },
+    {
+      "id": "review-4f2ad06909510ed40ecb",
+      "subject": "agents",
+      "predicate": "supports",
+      "objectOrValue": "memory",
+      "textZh": "CrewAI 智能体可配置记忆。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "> Compose agents with tools, memory, knowledge, and structured outputs using Pydantic."
+    },
+    {
+      "id": "review-8c6fb140f227a919e871",
+      "subject": "agents",
+      "predicate": "supports",
+      "objectOrValue": "tools",
+      "textZh": "CrewAI 智能体可配置工具。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "> Compose agents with tools, memory, knowledge, and structured outputs using Pydantic."
+    },
+    {
+      "id": "review-91132b7786a1fe7bbeed",
+      "subject": "Fine-tuning support",
+      "predicate": "released-for",
+      "objectOrValue": "Gemini 1.5 Flash",
+      "textZh": "Gemini 1.5 Flash 开放微调支持。",
+      "sourceUrl": "https://ai.google.dev/gemini-api/docs/changelog",
+      "sourceExcerpt": "- Fine-tuning support released for Gemini 1.5 Flash."
+    },
+    {
+      "id": "review-a834daa3321b7813caf7",
+      "subject": "codex-mini-latest",
+      "predicate": "optimized-for",
+      "objectOrValue": "Codex CLI",
+      "textZh": "codex-mini-latest 针对与 Codex CLI 配合使用进行了优化。",
+      "sourceUrl": "https://developers.openai.com/api/docs/changelog.md",
+      "sourceExcerpt": "Launched [codex-mini-latest](https://developers.openai.com/api/docs/models/codex-mini-latest) in the API, optimized for use with the [Codex CLI](https://github.com/openai/codex)."
+    },
+    {
+      "id": "review-bb40e79934e665729582",
+      "subject": "omni-moderation",
+      "predicate": "supports-moderation-of",
+      "objectOrValue": "text and images",
+      "textZh": "OpenAI 列明 omni-moderation 可识别文本和图像中的潜在有害内容。",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "sourceExcerpt": "- [omni-moderation](/api/docs/models/omni-moderation-latest.md): Identify potentially harmful content in text and images"
+    },
+    {
+      "id": "review-9a835fbcc538f335da18",
+      "subject": "gpt-oss-120b",
+      "predicate": "fits-on",
+      "objectOrValue": "an H100 GPU",
+      "textZh": "OpenAI 表示 gpt-oss-120b 可装入一张 H100 GPU。",
+      "sourceUrl": "https://developers.openai.com/api/docs/models.md",
+      "sourceExcerpt": "- [gpt-oss-120b](/api/docs/models/gpt-oss-120b.md): Most powerful open-weight model, fits into an H100 GPU"
+    },
+    {
+      "id": "review-fd3d38d0944cefc5abe8",
+      "subject": "v7",
+      "predicate": "revised-on",
+      "objectOrValue": "2 Aug 2023",
+      "textZh": "v7 于 2023 年 8 月 2 日最后修订。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "[Submitted on 12 Jun 2017 (v1), last revised 2 Aug 2023 (this version, v7)]"
+    },
+    {
+      "id": "review-873659a1ed11eefe0a97",
+      "subject": "v1",
+      "predicate": "submitted-on",
+      "objectOrValue": "12 Jun 2017",
+      "textZh": "v1 于 2017 年 6 月 12 日提交。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "[Submitted on 12 Jun 2017 (v1), last revised 2 Aug 2023 (this version, v7)]"
+    },
+    {
+      "id": "review-18142ff56f6dc1d2f237",
+      "subject": "our model",
+      "predicate": "trained-on",
+      "objectOrValue": "eight GPUs",
+      "textZh": "该模型使用八个 GPU 进行训练。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature."
+    },
+    {
+      "id": "review-801929e1f35b64d9ea4c",
+      "subject": "our model",
+      "predicate": "trained-for",
+      "objectOrValue": "3.5 days",
+      "textZh": "该模型训练了 3.5 天。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature."
+    },
+    {
+      "id": "review-5e0f616df4b7b3dab9b0",
+      "subject": "our model",
+      "predicate": "benchmarked-on",
+      "objectOrValue": "the WMT 2014 English-to-French translation task",
+      "textZh": "该模型在 WMT 2014 英法翻译任务上进行了评测。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature."
+    },
+    {
+      "id": "review-4dccffe69c15753188ba",
+      "subject": "our model",
+      "predicate": "establishes",
+      "objectOrValue": "a new single-model state-of-the-art BLEU score of 41.8",
+      "textZh": "该模型创下 41.8 的单模型最高 BLEU 分数。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature."
+    },
+    {
+      "id": "review-2db383dd4ea89205e6e9",
+      "subject": "Our model",
+      "predicate": "improves-by",
+      "objectOrValue": "over 2 BLEU",
+      "textZh": "该模型比包括集成模型在内的现有最佳结果高出超过 2 BLEU。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU."
+    },
+    {
+      "id": "review-7db50bf96ac04e444efc",
+      "subject": "Our model",
+      "predicate": "benchmarked-on",
+      "objectOrValue": "the WMT 2014 English-to-German translation task",
+      "textZh": "该模型在 WMT 2014 英德翻译任务上进行了评测。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU."
+    },
+    {
+      "id": "review-dc5ef786e542d3dfdae9",
+      "subject": "Our model",
+      "predicate": "achieves",
+      "objectOrValue": "28.4 BLEU",
+      "textZh": "该模型达到 28.4 BLEU。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU."
+    },
+    {
+      "id": "review-6f332e44397286ebce86",
+      "subject": "these models",
+      "predicate": "requires",
+      "objectOrValue": "significantly less time to train",
+      "textZh": "这些模型所需训练时间显著更少。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train."
+    },
+    {
+      "id": "review-458e5f8a218799cad4f3",
+      "subject": "these models",
+      "predicate": "is",
+      "objectOrValue": "more parallelizable",
+      "textZh": "这些模型具有更强的并行性。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train."
+    },
+    {
+      "id": "review-c7308b23ec8044306254",
+      "subject": "these models",
+      "predicate": "achieves",
+      "objectOrValue": "superior in quality",
+      "textZh": "这些模型在质量上更优。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train."
+    },
+    {
+      "id": "review-2aaba4b475e626c4719d",
+      "subject": "the Transformer",
+      "predicate": "dispenses-with",
+      "objectOrValue": "recurrence and convolutions",
+      "textZh": "Transformer 摒弃了循环和卷积。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely."
+    },
+    {
+      "id": "review-9c37e6cd476215528fbf",
+      "subject": "the Transformer",
+      "predicate": "based-on",
+      "objectOrValue": "attention mechanisms",
+      "textZh": "Transformer 完全基于注意力机制。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely."
+    },
+    {
+      "id": "review-a81f933f141d33d8611f",
+      "subject": "the Transformer",
+      "predicate": "proposes",
+      "objectOrValue": "a new simple network architecture",
+      "textZh": "Transformer 是一种新的简单网络架构。",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "sourceExcerpt": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely."
+    },
+    {
+      "id": "review-0b404e3d84f8c959a4d2",
+      "subject": "This version",
+      "predicate": "accepted-and-published-at",
+      "objectOrValue": "NeurIPS 2024 Track Datasets and Benchmarks (Spotlight)",
+      "textZh": "该版本已被NeurIPS 2024 Track Datasets and Benchmarks（Spotlight）接收并发表。",
+      "sourceUrl": "https://arxiv.org/abs/2406.01574",
+      "sourceExcerpt": "This version has been accepted and published at NeurIPS 2024 Track Datasets and Benchmarks (Spotlight)"
+    },
+    {
+      "id": "review-4ad02e23612ee3a40920",
+      "subject": "arXiv:2406.01574",
+      "predicate": "has-version",
+      "objectOrValue": "v6",
+      "textZh": "该页面标示的当前版本是v6。",
+      "sourceUrl": "https://arxiv.org/abs/2406.01574",
+      "sourceExcerpt": "arXiv:2406.01574v6 [cs.CL] for this version)"
+    },
+    {
+      "id": "review-ca3af4e2b2f7e3945538",
+      "subject": "CrewAI",
+      "predicate": "run-with",
+      "objectOrValue": "crewai run",
+      "textZh": "CrewAI 项目通过 `crewai run` 运行。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "crewai run"
+    },
+    {
+      "id": "review-c78e9ae83b22a1f4c73e",
+      "subject": "CrewAI",
+      "predicate": "installed-with",
+      "objectOrValue": "crewai install",
+      "textZh": "CrewAI 项目通过 `crewai install` 安装依赖。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "crewai install"
+    },
+    {
+      "id": "review-ddf7ceda30b8c67dd2a0",
+      "subject": "CrewAI",
+      "predicate": "project-created-with",
+      "objectOrValue": "CREWAI_DMN=true crewai create",
+      "textZh": "CrewAI 项目通过 `CREWAI_DMN=true crewai create` 创建。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "CREWAI_DMN=true crewai create"
+    },
+    {
+      "id": "review-9fd28bed9dfe1bb715fb",
+      "subject": "CrewAI",
+      "predicate": "project-help-verified-by",
+      "objectOrValue": "crewai create --help",
+      "textZh": "CrewAI 项目创建帮助通过 `crewai create --help` 验证。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "crewai create --help"
+    },
+    {
+      "id": "review-4a62bf3f4780b34b0437",
+      "subject": "CrewAI",
+      "predicate": "cli-verified-by",
+      "objectOrValue": "crewai version",
+      "textZh": "CrewAI CLI 通过 `crewai version` 验证。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "crewai version"
+    },
+    {
+      "id": "review-2f39dd9fd5a259c49d8d",
+      "subject": "CrewAI",
+      "predicate": "cli-installed-with",
+      "objectOrValue": "uv tool install crewai",
+      "textZh": "CrewAI CLI 通过 `uv tool install crewai` 安装。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "uv tool install crewai"
+    },
+    {
+      "id": "review-d7c2691ec625c63c1cbb",
+      "subject": "CrewAI",
+      "predicate": "requires",
+      "objectOrValue": "Python >=3.10 and <3.14",
+      "textZh": "CrewAI 要求 Python >=3.10 且 <3.14。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "CrewAI requires Python >=3.10 and <3.14."
+    },
+    {
+      "id": "review-87085fa746a79ecd8b98",
+      "subject": "CrewAI",
+      "predicate": "uses-documentation-as-source-of-truth",
+      "objectOrValue": "https://docs.crewai.com/en/installation",
+      "textZh": "设置 CrewAI 时使用 https://docs.crewai.com/en/installation 作为事实来源。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "- https://docs.crewai.com/en/installation"
+    },
+    {
+      "id": "review-b070d23121bc8e269307",
+      "subject": "CrewAI",
+      "predicate": "uses-documentation-as-source-of-truth",
+      "objectOrValue": "https://docs.crewai.com/llms.txt",
+      "textZh": "设置 CrewAI 时使用 https://docs.crewai.com/llms.txt 作为事实来源。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "- https://docs.crewai.com/llms.txt"
+    },
+    {
+      "id": "review-5260ebb76805b899f529",
+      "subject": "CrewAI",
+      "predicate": "uses-documentation-as-source-of-truth",
+      "objectOrValue": "https://skills.crewai.com",
+      "textZh": "设置 CrewAI 时使用 https://skills.crewai.com 作为事实来源。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "- https://skills.crewai.com"
+    },
+    {
+      "id": "review-b442d6ce2b6c055eb054",
+      "subject": "CrewAI",
+      "predicate": "installed-with",
+      "objectOrValue": "npx skills add crewaiinc/skills",
+      "textZh": "CrewAI 的官方编码代理技能可通过 `npx skills add crewaiinc/skills` 安装。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "npx skills add crewaiinc/skills"
+    },
+    {
+      "id": "review-6f0aac46e6a9ba49b621",
+      "subject": "CrewAI",
+      "predicate": "has-official-skills",
+      "objectOrValue": "official CrewAI coding-agent skills",
+      "textZh": "CrewAI 提供官方的编码代理技能。",
+      "sourceUrl": "https://docs.crewai.com/index",
+      "sourceExcerpt": "First install the official CrewAI coding-agent skills if this environment supports npx:"
+    },
+    {
+      "id": "review-a7ad5916456bd820c42c",
+      "subject": "Docker",
+      "predicate": "recommended-for",
+      "objectOrValue": "DockerCommandLineCodeExecutor",
+      "textZh": "文档建议使用 Docker 来运行 DockerCommandLineCodeExecutor。",
+      "sourceUrl": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "sourceExcerpt": "We recommend using Docker to use DockerCommandLineCodeExecutor for execution of model-generated code."
+    },
+    {
+      "id": "review-930f26c9cc56b4553c18",
+      "subject": "Python",
+      "predicate": "requires",
+      "objectOrValue": "3.10 or later",
+      "textZh": "需要 Python 3.10 或更高版本。",
+      "sourceUrl": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "sourceExcerpt": "Python 3.10 or later is required."
+    },
+    {
+      "id": "review-1577326226a5fdb9b308",
+      "subject": "AgentChat",
+      "predicate": "recommended-for-local-installation",
+      "objectOrValue": "virtual environment",
+      "textZh": "对于本地安装 AgentChat，文档建议使用虚拟环境。",
+      "sourceUrl": "https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/installation.html",
+      "sourceExcerpt": "When installing AgentChat locally, we recommend using a virtual environment for the installation."
+    },
+    {
+      "id": "review-e84a5430bdc58ae5666c",
+      "subject": "All our open-weight models",
+      "predicate": "licensed-under",
+      "objectOrValue": "Apache 2.0",
+      "textZh": "所有开放权重模型均采用 Apache 2.0 许可。",
+      "sourceUrl": "https://raw.githubusercontent.com/QwenLM/Qwen3/main/README.md",
+      "sourceExcerpt": "All our open-weight models are licensed under Apache 2.0."
+    },
+    {
+      "id": "review-429a23d7c4bb054398b8",
+      "subject": "code_execution_20260521",
+      "predicate": "has-limit",
+      "objectOrValue": "90-second per-cell execution time limit",
+      "textZh": "code_execution_20260521 披露了每个单元格 90 秒的执行时间限制。",
+      "sourceUrl": "https://platform.claude.com/docs/en/release-notes/overview.md",
+      "sourceExcerpt": "* The [code execution tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool) now supports `code_execution_20260521`, which discloses the 90-second per-cell execution time limit in the tool description so Claude can budget long-running cells."
+    },
+    {
+      "id": "review-55a554e3f8c978ee8805",
+      "subject": "harness",
+      "predicate": "surrounds",
+      "objectOrValue": "model loop",
+      "textZh": "harness 围绕 model loop，包括 prompt、tools 和 middleware。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "The harness is everything around the model loop: the prompt, the tools, and any middleware that shapes behavior."
+    },
+    {
+      "id": "review-b048f5ad34cd51abff4a",
+      "subject": "Agent",
+      "predicate": "composed-of",
+      "objectOrValue": "Model + Harness",
+      "textZh": "Agent = Model + Harness。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "**Agent = Model + Harness.** LangChain provides `create_agent`: a minimal, highly configurable harness."
+    },
+    {
+      "id": "review-34b8fafe8fc309a2601a",
+      "subject": "create_agent",
+      "predicate": "is",
+      "objectOrValue": "agent harness",
+      "textZh": "create_agent 是一个最小化且高度可配置的 agent harness。",
+      "sourceUrl": "https://docs.langchain.com/oss/python/langchain/overview",
+      "sourceExcerpt": "> LangChain provides create_agent: a minimal, highly configurable agent harness."
+    },
+    {
+      "id": "review-b5d34fd9e8ca8f9ebd27",
+      "subject": "Assistants API",
+      "predicate": "recommended-replacement",
+      "objectOrValue": "Responses API and Conversations API",
+      "textZh": "Assistants API 的推荐替代项是 Responses API 和 Conversations API。",
+      "sourceUrl": "https://developers.openai.com/api/docs/deprecations.md",
+      "sourceExcerpt": "| 2026‑08‑26 | Assistants API | Responses API and Conversations API |"
+    },
+    {
+      "id": "review-f094d85eb632d7ffaa63",
+      "subject": "Sampling",
+      "predicate": "deprecated-as-of",
+      "objectOrValue": "protocol version `2026-07-28`",
+      "textZh": "Sampling 自协议版本 2026-07-28 起已弃用。",
+      "sourceUrl": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "sourceExcerpt": "Sampling is [deprecated](/specification/2026-07-28/deprecated) as of protocol version `2026-07-28`."
+    },
+    {
+      "id": "review-6f70eb5a8782ed821666",
+      "subject": "Stdio transport",
+      "predicate": "uses",
+      "objectOrValue": "standard input/output streams",
+      "textZh": "Stdio transport 使用标准输入/输出流。",
+      "sourceUrl": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "sourceExcerpt": "* **Stdio transport**: Uses standard input/output streams for direct process communication between local processes on the same machine, providing optimal performance with no network overhead."
+    },
+    {
+      "id": "review-14ac3a5cb9755c87501b",
+      "subject": "Transport layer",
+      "predicate": "defines",
+      "objectOrValue": "the communication mechanisms and channels that enable data exchange between clients and servers",
+      "textZh": "Transport layer 定义实现客户端与服务器之间数据交换的通信机制和通道。",
+      "sourceUrl": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "sourceExcerpt": "* **Transport layer**: Defines the communication mechanisms and channels that enable data exchange between clients and servers, including transport-specific connection establishment, message framing, and authorization."
+    },
+    {
+      "id": "review-6d0b4c9d0e7f4db2d6dc",
+      "subject": "Data layer",
+      "predicate": "defines",
+      "objectOrValue": "the JSON-RPC based protocol for client-server communication",
+      "textZh": "Data layer 定义基于 JSON-RPC 的客户端-服务器通信协议。",
+      "sourceUrl": "https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture",
+      "sourceExcerpt": "* **Data layer**: Defines the JSON-RPC based protocol for client-server communication, including capability and version discovery, and core primitives, such as tools, resources, prompts and notifications."
+    },
+    {
+      "id": "review-e88778a2911cb09fbfac",
+      "subject": "Usage API",
+      "predicate": "supports",
+      "objectOrValue": "the API key dimension",
+      "textZh": "Usage API 支持 API key 维度。",
+      "sourceUrl": "https://developers.openai.com/api/docs/changelog.md",
+      "sourceExcerpt": "The [Usage API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage) and [Costs API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) also support the API key dimension for programmatic reporting and analysis."
+    },
+    {
+      "id": "review-ee51bcb2d52d68a0e841",
+      "subject": "Traffic that increases too quickly",
+      "predicate": "returns",
+      "objectOrValue": "a `429` error with the `slow_down` code",
+      "textZh": "增长过快的流量可能返回带有 `slow_down` 代码的 `429` 错误。",
+      "sourceUrl": "https://developers.openai.com/api/docs/changelog.md",
+      "sourceExcerpt": "Traffic that increases too quickly can return a `429` error with the `slow_down` code."
+    },
+    {
+      "id": "review-3fe2950a5fa57a6bac50",
+      "subject": "Prompt Cache Diagnostics",
+      "predicate": "available-in",
+      "objectOrValue": "the Responses API",
+      "textZh": "Prompt Cache Diagnostics 现已在 Responses API 中正式可用。",
+      "sourceUrl": "https://developers.openai.com/api/docs/changelog.md",
+      "sourceExcerpt": "[Prompt Cache Diagnostics](https://developers.openai.com/api/docs/guides/prompt-caching/diagnostics) is now generally available in the Responses API for GPT-5.6 and later supported models."
+    },
+    {
+      "id": "review-ad9bddb0619e6739710b",
+      "subject": "Agents API",
+      "predicate": "released-as",
+      "objectOrValue": "public beta",
+      "textZh": "Agents API 已以公开测试版发布。",
+      "sourceUrl": "https://developers.openai.com/api/docs/changelog.md",
+      "sourceExcerpt": "Released the [Agents API](https://developers.openai.com/api/docs/guides/agents-api/overview) in public beta."
+    },
+    {
+      "id": "review-6ec8e91cfe87ac0fd398",
+      "subject": "File Search API",
+      "predicate": "available-as",
+      "objectOrValue": "public preview",
+      "textZh": "File Search API 以公开预览版提供。",
+      "sourceUrl": "https://ai.google.dev/gemini-api/docs/changelog",
+      "sourceExcerpt": "Launched the File Search API to public preview, enabling developers to"
+    }
+  ]
+}
