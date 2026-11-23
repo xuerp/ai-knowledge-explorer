@@ -176,7 +176,7 @@ def test_generator_sends_scoped_evidence_and_saves_only_redacted_receipt(setup):
         assert cfg.api_key not in call.receipt_json
 
 
-def test_invalid_output_spends_once_and_blocks_followup(setup):
+def test_invalid_output_is_charged_but_does_not_lock_the_budget(setup):
     database, cfg = setup
     requests = []
 
@@ -200,7 +200,42 @@ def test_invalid_output_spends_once_and_blocks_followup(setup):
     for _ in range(2):
         with pytest.raises(ValueError):
             generator.generate("task", grounded_citations()[:1], "zh", user_id="test-owner")
+    # A fully receipted invalid answer is charged and counted, not a lockout.
+    assert len(requests) == 2
+    with database.session() as session:
+        row = session.get(ModelBudgetRecord, cfg.budget_id)
+        assert row.blocked is False and row.used_calls == 2 and row.charged_units == 400
+        states = sorted(call.state for call in session.scalars(select(ModelCallRecord)))
+        assert states == ["failed", "failed"]
+
+
+def test_missing_receipt_still_locks_the_budget(setup):
+    database, cfg = setup
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "model": cfg.model,
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(valid_payload("unknown-claim"))},
+                    }
+                ],
+            },
+        )
+
+    generator = BudgetedAnswerGenerator(database, cfg, transport=httpx.MockTransport(handler))
+    for _ in range(2):
+        with pytest.raises(ValueError):
+            generator.generate("task", grounded_citations()[:1], "zh", user_id="test-owner")
+    # Spend cannot be reconciled without usage, so the allocation closes.
     assert len(requests) == 1
+    with database.session() as session:
+        assert session.get(ModelBudgetRecord, cfg.budget_id).blocked is True
 
 
 def test_native_opus_decision_defaults_to_medium_in_the_request_and_receipt(setup, monkeypatch):

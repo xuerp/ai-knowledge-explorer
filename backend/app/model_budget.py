@@ -1,8 +1,12 @@
 """Durable monetary reservation. One in-flight call per approved budget.
 
 Amounts are integer millionths of the configured currency. An interrupted or
-unreceipted call retains its maximum reservation and closes the budget. No retry
-or automatic month rollover can replenish an explicitly approved allocation.
+unreceipted call, or one whose receipt exceeds its bounds, retains its maximum
+reservation and closes the budget: spend can no longer be reconciled. A fully
+receipted call whose output fails validation is charged its actual cost and
+recorded as failed; it does not close the budget. The total call cap and the
+per-user daily cap bound repeated failures. No retry or automatic month rollover
+can replenish an explicitly approved allocation.
 """
 
 import hashlib
@@ -131,7 +135,9 @@ class ModelBudget:
                 .values(
                     charged_units=Budget.charged_units - row.reserved_units + reserved_charge,
                     active_attempt_id=None,
-                    blocked=not (validated and in_bounds),
+                    # Close only when spend cannot be reconciled. A receipted
+                    # validation failure is charged and counted, not a lockout.
+                    blocked=not in_bounds,
                 )
             )
             if settled.rowcount != 1:

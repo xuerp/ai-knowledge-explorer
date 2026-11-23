@@ -112,7 +112,9 @@ class BudgetedTaskInterpreter:
                 .where(Budget.id == self.budget_id, Budget.active_attempt_id == attempt_id)
                 .values(
                     active_attempt_id=None,
-                    blocked=state != "validated",
+                    # A receipted, in-bounds call whose output fails validation is
+                    # counted against the call cap but does not lock the budget.
+                    blocked=state not in {"validated", "invalid"},
                     known_tokens=Budget.known_tokens + known,
                     unknown_usage_calls=Budget.unknown_usage_calls + int(not known),
                     updated_at=datetime.now(UTC),
