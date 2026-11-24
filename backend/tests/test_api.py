@@ -1944,6 +1944,7 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
     add_review("valid")
     add_review("observed", fact_date=None, observed_at="2026-08-21T12:00:00Z")
     add_review("static", predicate="supports")
+    add_review("status-note", predicate="official-release-status")
     add_review("pending", status="pending")
     add_review("historical", lifecycle="superseded")
     add_review("undated", fact_date=None)
@@ -1959,7 +1960,19 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
     ] == [
         {
             "id": "change-claim-claim-change-valid",
-            "detail": None,
+            "detail": {
+                "description": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+                "before": {
+                    "zh": "来源未说明变化前的状态。",
+                    "en": "The source does not state the prior state.",
+                },
+                "after": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+                "affected": {"zh": "GPT 系列 的使用者", "en": "Users of GPT family"},
+                "action": {
+                    "zh": "发布说明以官方来源为准；接入前核对可用地区、价格和配额。",
+                    "en": "Confirm region, pricing and quotas in the official source before adopting.",
+                },
+            },
             "entityId": "e-gpt",
             "date": "2026-08-20",
             "summary": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
@@ -4501,3 +4514,66 @@ def test_integration_status_describes_budgeted_extraction_without_secrets(tmp_pa
         "blocked": False,
         "inFlight": False,
     }
+
+
+def test_reviewed_free_form_change_predicates_reach_updates_with_a_detail(client: TestClient):
+    """Extracted predicates such as feature-deprecated used to be dropped from /updates."""
+    rows = [
+        ("deprecation", "feature-deprecated", "fast mode", "deprecated"),
+        ("rollout", "released-to", "Responses API", "availability"),
+        ("static-limit", "maximum-context-window", "1M tokens", None),
+    ]
+    with client.app.state.database.session() as session:
+        for suffix, predicate, value, _ in rows:
+            claim_id = f"claim-free-{suffix}"
+            evidence_id = f"evidence-free-{suffix}"
+            claim = {
+                "id": claim_id,
+                "entityId": "e-gpt",
+                "text": {"zh": f"GPT {value}", "en": f"GPT {value}"},
+                "confidence": "verified",
+                "sourceIds": [evidence_id],
+                "updatedAt": "2026-11-24",
+                "validFrom": "2026-10-30",
+                "subject": "GPT",
+                "predicate": predicate,
+                "objectOrValue": value,
+            }
+            evidence = {
+                "id": evidence_id,
+                "title": {"zh": "官方更新日志", "en": "Official changelog"},
+                "url": f"https://example.com/changelog-{suffix}",
+                "publisher": "Example",
+                "publishedAt": "2026-10-30",
+                "collectedAt": "2026-11-23",
+                "type": "official",
+                "sourceExcerpt": f"GPT {value} on 2026-10-30.",
+            }
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-free-{suffix}",
+                    entity_id="e-gpt",
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence]),
+                    conflict_ids_json="[]",
+                    status="approved",
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC),
+                    reviewed_by="reviewer@example.com",
+                    version=1,
+                )
+            )
+        session.commit()
+
+    changes = {change["id"]: change for change in client.get("/api/v2/updates").json()["changes"]}
+    for suffix, _, value, kind in rows:
+        change = changes.get(f"change-claim-claim-free-{suffix}")
+        if kind is None:
+            assert change is None
+            continue
+        assert change["kind"] == kind
+        assert change["date"] == "2026-10-30"
+        assert change["detail"]["after"]["en"] == value
+        assert change["sourceIds"] == [f"evidence-free-{suffix}"]

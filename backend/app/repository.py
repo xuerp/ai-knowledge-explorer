@@ -11,7 +11,8 @@ from urllib.parse import urlparse
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from .catalog_changes import EVENT_PREDICATE_KINDS, catalog_changes
+from .catalog_changes import catalog_changes
+from .change_classification import change_kind_for_predicate, claim_change_detail
 from .database import (
     EntityAliasRecord,
     KnowledgeEntityRecord,
@@ -50,8 +51,6 @@ logger = logging.getLogger(__name__)
 
 # A validity date on a static capability or price does not make it a change.
 # Only predicates that state an event or an availability transition enter the feed.
-CHANGE_EVENT_PREDICATES = set(EVENT_PREDICATE_KINDS)
-
 RELATION_PREDICATES: dict[str, RelationKind] = {
     "developed-by": "developed-by",
     "developed by": "developed-by",
@@ -1035,6 +1034,7 @@ class KnowledgeRepository:
         # approved event claims, never the seed's editorial change cards.
         # A review date is not the date of the fact.
         entity_ids = {entity.id for entity in snapshot.entities}
+        entity_names = {entity.id: entity.name for entity in snapshot.entities}
         public_evidence = {evidence.id: evidence for evidence in snapshot.evidence}
         blocked_release_entities = {
             claim.entity_id
@@ -1064,7 +1064,7 @@ class KnowledgeRepository:
                 or entity_id not in entity_ids
                 or not fact_date
                 or fact_date > today
-                or claim.predicate not in CHANGE_EVENT_PREDICATES
+                or not (kind := change_kind_for_predicate(claim.predicate))
             ):
                 continue
             approved_evidence_ids = {item.id for item in self.approved_evidence(job)}
@@ -1079,7 +1079,6 @@ class KnowledgeRepository:
             )
             if not source_ids:
                 continue
-            kind = EVENT_PREDICATE_KINDS[claim.predicate]
             changes = [
                 change
                 for change in changes
@@ -1096,6 +1095,7 @@ class KnowledgeRepository:
                     date=fact_date,
                     summary=LocalizedText(zh=claim.text.zh, en=claim.text.en),
                     kind=kind,
+                    detail=claim_change_detail(claim, kind, entity_names[entity_id]),
                     confidence="verified",
                     source_ids=source_ids,
                 )

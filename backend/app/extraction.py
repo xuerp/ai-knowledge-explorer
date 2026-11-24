@@ -1129,6 +1129,12 @@ class StructuredExtractionService:
                         "preserve the benchmark variant, metric, tested setup and reasoning mode "
                         "when stated; omit the claim if those qualifications cannot be grounded. "
                         "Separate input and output prices into distinct facts with their units. "
+                        "When the source states a dated change, name the predicate after the change "
+                        "and set validFrom to the stated date: release or launch -> released-on; "
+                        "opening to an API, region, plan or platform -> available-in; deprecation, "
+                        "retirement or shutdown -> deprecated-on; a price change -> pricing-changed-on; "
+                        "a new or changed capability -> capability-updated-on. Use other predicates "
+                        "only for standing properties such as limits or supported inputs. "
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
