@@ -299,21 +299,32 @@ export function ResearchReport({
             open={research?.decision ? undefined : true}
           >
             <summary>
-              {t(`引用与来源（${claims.length} 条）`, `Citations and sources (${claims.length})`)}
+              {t("引用与来源", "Citations and sources")}
+              <span className="disclosure-count">
+                {t(`（${claims.length} 条）`, `(${claims.length})`)}
+              </span>
             </summary>
-            <section aria-labelledby="claims-title">
-              <div className="mb-4">
-                <p className="text-xs font-medium uppercase tracking-widest text-signal">
-                  {t("逐结论核验", "Claim-by-claim review")}
-                </p>
-                <h2
-                  id="claims-title"
-                  className="mt-1 font-serif text-2xl font-semibold text-foreground"
-                >
-                  {t("结论与证据", "Conclusions & evidence")}
-                </h2>
-              </div>
-              <div className="space-y-4">
+            <section
+              aria-labelledby={research?.decision ? undefined : "claims-title"}
+              aria-label={
+                research?.decision ? t("结论与证据", "Conclusions & evidence") : undefined
+              }
+            >
+              {/* Inside a result fold the summary already names this list. */}
+              {!research?.decision && (
+                <div className="mb-4">
+                  <p className="text-xs font-medium uppercase tracking-widest text-signal">
+                    {t("逐结论核验", "Claim-by-claim review")}
+                  </p>
+                  <h2
+                    id="claims-title"
+                    className="mt-1 font-serif text-2xl font-semibold text-foreground"
+                  >
+                    {t("结论与证据", "Conclusions & evidence")}
+                  </h2>
+                </div>
+              )}
+              <div className={research?.decision ? "research-claim-list" : "space-y-4"}>
                 {claims.map((claim, index) => (
                   <ClaimCard
                     key={claim.id}
@@ -321,6 +332,7 @@ export function ResearchReport({
                     number={index + 1}
                     evidenceById={evidenceById}
                     sourceIndex={sourceIndex}
+                    compact={!!research?.decision}
                   />
                 ))}
                 {!claims.length && (
@@ -335,17 +347,23 @@ export function ResearchReport({
             </section>
 
             <section aria-labelledby="sources-title">
-              <div className="mb-4">
-                <p className="text-xs font-medium uppercase tracking-widest text-signal">
-                  {t("出处", "Provenance")}
-                </p>
-                <h2
-                  id="sources-title"
-                  className="mt-1 font-serif text-2xl font-semibold text-foreground"
-                >
+              {research?.decision ? (
+                <h3 id="sources-title" className="research-claim-list__heading">
                   {t("原始资料", "Primary sources")}
-                </h2>
-              </div>
+                </h3>
+              ) : (
+                <div className="mb-4">
+                  <p className="text-xs font-medium uppercase tracking-widest text-signal">
+                    {t("出处", "Provenance")}
+                  </p>
+                  <h2
+                    id="sources-title"
+                    className="mt-1 font-serif text-2xl font-semibold text-foreground"
+                  >
+                    {t("原始资料", "Primary sources")}
+                  </h2>
+                </div>
+              )}
               <ol className="paper-card divide-y divide-border">
                 {sources.map((source, index) => (
                   <li key={source.id} id={`source-${source.id}`} className="scroll-mt-24">
@@ -461,16 +479,49 @@ function ClaimCard({
   number,
   evidenceById,
   sourceIndex,
+  compact = false,
 }: {
   claim: Claim;
   number: number;
   evidenceById: Map<string, Evidence>;
   sourceIndex: Map<string, number>;
+  compact?: boolean;
 }) {
   const { t, lang } = useApp();
   const sources = claim.sourceIds
     .map((id) => evidenceById.get(id))
     .filter((source): source is Evidence => Boolean(source));
+  if (compact) {
+    // Same light row as the /ask citation list: number, text, source links.
+    return (
+      <article id={`claim-${claim.id}`} className="ask-claim-row scroll-mt-24">
+        <span className="ask-claim-row__index">{String(number).padStart(2, "0")}</span>
+        <div className="min-w-0">
+          <p>{pick(claim.text, lang)}</p>
+          <div className="ask-claim-row__sources">
+            {sources.map((source) => (
+              <a
+                key={source.id}
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                title={pick(source.title, lang)}
+              >
+                [{sourceIndex.get(source.id)}] {source.publisher}
+                <span>{source.publishedAt}</span>
+                <ExternalLink size={12} aria-hidden="true" />
+              </a>
+            ))}
+            {!sources.length && (
+              <span className="text-conflict">
+                {t("该结论没有可访问来源。", "This claim has no accessible source.")}
+              </span>
+            )}
+          </div>
+        </div>
+      </article>
+    );
+  }
   const date = getClaimDisplayDate(claim, sources);
   const border: Record<Confidence, string> = {
     verified: "border-verified/40",
