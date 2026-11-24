@@ -1300,6 +1300,18 @@ class RetrievalDiagnostics(CamelModel):
     matched_entity_ids: list[str] = Field(default_factory=list)
     fallback_reason: str | None = None
     generation_fallback_reason: str | None = None
+    # Admin-only operational fields, omitted from everyone else's responses.
+    # Short rule/field code for a failed model analysis; never task or model text.
+    generation_fallback_detail: str | None = Field(
+        default=None, max_length=120, exclude_if=lambda v: v is None
+    )
+    generation_attempts: int | None = Field(
+        default=None, ge=0, le=2, exclude_if=lambda v: v is None
+    )
+    # Digest of the published catalog when this result was made.
+    catalog_fingerprint: str | None = Field(
+        default=None, max_length=64, exclude_if=lambda v: v is None
+    )
 
 
 class DecisionTradeoff(CamelModel):

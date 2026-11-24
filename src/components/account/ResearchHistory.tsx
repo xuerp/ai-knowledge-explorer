@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
+import { visiblePageNumbers } from "@/domain/change-navigation";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/app-state";
 import type { ResearchSummary } from "@/services/user-api";
 import "./research-history.css";
+
+const PAGE_SIZE = 10;
 
 /** The owner's saved results, so reopening never depends on tab storage. */
 export function ResearchHistory({
@@ -18,6 +21,12 @@ export function ResearchHistory({
   const [confirming, setConfirming] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(0);
+  const pageCount = Math.ceil((history?.length ?? 0) / PAGE_SIZE);
+  // Deleting the last record on a page must not leave an empty page selected.
+  const pageIndex = Math.min(page, Math.max(0, pageCount - 1));
+  const shown = history?.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE) ?? [];
+  const pageNumbers = visiblePageNumbers(pageIndex, pageCount);
   const remove = async (id: string) => {
     setDeleting(id);
     setError("");
@@ -58,7 +67,7 @@ export function ResearchHistory({
         </p>
       ) : (
         <ul className="research-history__list">
-          {history.map((item) => (
+          {shown.map((item) => (
             <li key={item.id} className="research-history__item">
               <div className="research-history__body">
                 <Link
@@ -135,6 +144,46 @@ export function ResearchHistory({
             </li>
           ))}
         </ul>
+      )}
+      {pageCount > 1 && (
+        <nav
+          className="updates-pagination research-history__pagination"
+          aria-label={t("研究记录分页", "Research pagination")}
+        >
+          <span>
+            {t(
+              `第 ${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, history!.length)} 条，共 ${history!.length} 条`,
+              `${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, history!.length)} of ${history!.length}`,
+            )}
+          </span>
+          <div className="updates-pagination__controls">
+            <button type="button" disabled={pageIndex === 0} onClick={() => setPage(pageIndex - 1)}>
+              {t("上一页", "Previous")}
+            </button>
+            <div className="updates-pagination__numbers">
+              {pageNumbers[0] > 0 && <span aria-hidden="true">…</span>}
+              {pageNumbers.map((index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={t(`第 ${index + 1} 页`, `Page ${index + 1}`)}
+                  aria-current={pageIndex === index ? "page" : undefined}
+                  onClick={() => setPage(index)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              {pageNumbers.at(-1)! < pageCount - 1 && <span aria-hidden="true">…</span>}
+            </div>
+            <button
+              type="button"
+              disabled={pageIndex + 1 >= pageCount}
+              onClick={() => setPage(pageIndex + 1)}
+            >
+              {t("下一页", "Next")}
+            </button>
+          </div>
+        </nav>
       )}
     </section>
   );

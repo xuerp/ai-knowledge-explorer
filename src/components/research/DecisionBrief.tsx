@@ -120,6 +120,7 @@ export function DecisionBrief({
           research={research}
           entityName={entityName}
           outcomeLevel={outcomeLevel}
+          canRequestChecks={!!validationContent || !!onRevision}
         />
       )}
       {decision.modelLed ? null : decision.guidance ? (

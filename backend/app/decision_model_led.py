@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import re
 
+from pydantic import ValidationError
+
 from .answer_generation import _quoted_values
 from .decision_constraints import constraint_failures
 from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
@@ -60,6 +62,94 @@ _DATE = re.compile(r"\b(?:19|20)\d{2}[-/年.]\s*\d{1,2}|\b(?:19|20)\d{2}\s*年")
 def _claims_free(text: str) -> bool:
     """True when text asserts something is free; negated warnings do not count."""
     return bool(_FREE.search(_NEGATED_FREE.sub(" ", text)))
+
+
+class ModelLedRejected(ValueError):
+    """Analysis rejected; `reason` is a short code safe to store and show to staff."""
+
+    def __init__(self, reason: str):
+        super().__init__(reason)
+        self.reason = reason
+
+
+# Output bounds the transport schema cannot express (maxItems/maxLength are
+# stripped for the gateway), so oversized model output is trimmed, not rejected.
+_LIST_LIMITS = {"candidates": 3, "tradeoffs": 3, "gaps": 4, "firstSteps": 3}
+_POINT_LIMIT = 3
+_TEXT_LIMITS = {
+    "understoodTaskZh": 200,
+    "understoodTaskEn": 320,
+    "headlineZh": 120,
+    "headlineEn": 200,
+    "textZh": 240,
+    "textEn": 400,
+}
+
+
+def _clip(value: str, limit: int) -> str:
+    return value if len(value) <= limit else value[: limit - 1].rstrip() + "…"
+
+
+def _trim_point(point):
+    if not isinstance(point, dict):
+        return point
+    point = dict(point)
+    for key in ("textZh", "textEn"):
+        if isinstance(point.get(key), str):
+            point[key] = _clip(point[key], _TEXT_LIMITS[key])
+    if isinstance(point.get("claimIds"), list):
+        point["claimIds"] = point["claimIds"][:4]
+    return point
+
+
+def parse_model_led(raw: str) -> tuple[ModelLedPayload, list[str]]:
+    """Strictly validate after trimming over-long lists and text to the limits.
+
+    Returns the payload and the trims applied, so a trim is recorded rather than
+    silently changing what the model wrote.
+    """
+    import json
+
+    try:
+        data = json.loads(raw)
+    except ValueError as error:
+        raise ModelLedRejected("output-not-json") from error
+    if not isinstance(data, dict):
+        raise ModelLedRejected("output-not-object")
+    trims: list[str] = []
+    for key, limit in _TEXT_LIMITS.items():
+        if isinstance(data.get(key), str) and len(data[key]) > limit:
+            data[key] = _clip(data[key], limit)
+            trims.append(f"text:{key}")
+    if "summary" in data:
+        data["summary"] = _trim_point(data["summary"])
+    for key, limit in _LIST_LIMITS.items():
+        items = data.get(key)
+        if isinstance(items, list):
+            if len(items) > limit:
+                trims.append(f"list:{key}:{len(items)}>{limit}")
+                items = items[:limit]
+            if key == "candidates":
+                trimmed = []
+                for candidate in items:
+                    if isinstance(candidate, dict) and isinstance(candidate.get("points"), list):
+                        candidate = dict(candidate)
+                        if len(candidate["points"]) > _POINT_LIMIT:
+                            trims.append("list:candidate.points")
+                        candidate["points"] = [
+                            _trim_point(point) for point in candidate["points"][:_POINT_LIMIT]
+                        ]
+                    trimmed.append(candidate)
+                items = trimmed
+            else:
+                items = [_trim_point(point) for point in items]
+            data[key] = items
+    try:
+        return ModelLedPayload.model_validate(data), trims
+    except ValidationError as error:
+        first = error.errors()[0] if error.errors() else {}
+        location = ".".join(str(part) for part in first.get("loc", ()))[:60]
+        raise ModelLedRejected(f"schema:{first.get('type', 'invalid')}:{location}") from error
 
 
 def _texts(point: ModelLedPoint) -> tuple[str, str]:
@@ -123,7 +213,7 @@ def validate_model_led(
 ) -> ModelLedAnalysis:
     """Prune non-compliant content. Raise ValueError when nothing safe remains."""
     if payload.refused:
-        raise ValueError("Model refused the analysis.")
+        raise ModelLedRejected("refused")
     by_claim = {item.claim.id: item for item in citations}
     entities = {entity.id: entity for entity in snapshot.entities}
     claims_by_entity: dict[str, list] = {}
@@ -145,8 +235,6 @@ def validate_model_led(
         return kept
 
     summary_problem = point_problem(payload.summary, by_claim)
-    if summary_problem:
-        raise ValueError(f"Summary rejected: {summary_problem}")
 
     candidates: list[DecisionModelLedCandidate] = []
     seen: set[str] = set()
@@ -186,12 +274,15 @@ def validate_model_led(
         all_values |= _quoted_values(
             item.claim.text.zh, item.claim.text.en, item.claim.object_or_value or ""
         )
-    if (
-        _RANKING.search(headline_text)
-        or _claims_free(headline_text)
-        or _quoted_values(payload.headline_zh, payload.headline_en) - all_values
-    ):
-        raise ValueError("Headline rejected.")
+    headline_problem = (
+        "evidence-volume-ranking"
+        if _RANKING.search(headline_text)
+        else "unverified-free"
+        if _claims_free(headline_text)
+        else "value-absent-from-claims"
+        if _quoted_values(payload.headline_zh, payload.headline_en) - all_values
+        else None
+    )
     # A pruned candidate must not survive in free text that recommends it.
     lead_text = (headline_text + " " + " ".join(_texts(payload.summary))).casefold()
     for item in pruned:
@@ -200,16 +291,47 @@ def validate_model_led(
         entity = entities[item.entity_id]
         names = {entity.name.zh, entity.name.en, *(entity.aliases or [])}
         if any(name and len(name) > 2 and name.casefold() in lead_text for name in names):
-            raise ValueError("Lead text recommends a candidate excluded by a hard requirement.")
+            # A real violation: never show a recommendation the rules excluded.
+            raise ModelLedRejected("lead-recommends-excluded")
     pick = (lambda zh, en: zh) if language == "zh" else (lambda zh, en: en)
+    tradeoffs = keep(payload.tradeoffs, "tradeoffs")
+    gaps = keep(payload.gaps, "gaps")
+    first_steps = keep(payload.first_steps, "first_steps")
+    summary = _line(payload.summary, language)
+    if summary_problem:
+        # Replace one bad lead sentence with the first compliant line instead of
+        # discarding the whole analysis.
+        pruned.append(ModelLedPrunedItem(section="summary", reason=summary_problem))
+        fallback = next(
+            (
+                line
+                for line in (
+                    *(point for item in candidates for point in item.points),
+                    *tradeoffs,
+                    *first_steps,
+                )
+            ),
+            None,
+        )
+        if fallback is None:
+            raise ModelLedRejected("summary:" + summary_problem)
+        summary = fallback
+    headline = pick(payload.headline_zh, payload.headline_en)
+    if headline_problem:
+        pruned.append(ModelLedPrunedItem(section="headline", reason=headline_problem))
+        primary = next((item for item in candidates if item.role == "primary"), None)
+        if primary is None:
+            raise ModelLedRejected("headline:" + headline_problem)
+        name = entities[primary.entity_id].name
+        headline = pick(f"可以先从 {name.zh} 开始", f"Start with {name.en}")
     return ModelLedAnalysis(
         understood_task=pick(payload.understood_task_zh, payload.understood_task_en),
-        headline=pick(payload.headline_zh, payload.headline_en),
-        summary=_line(payload.summary, language),
+        headline=headline,
+        summary=summary,
         candidates=candidates,
-        tradeoffs=keep(payload.tradeoffs, "tradeoffs"),
-        gaps=keep(payload.gaps, "gaps"),
-        first_steps=keep(payload.first_steps, "first_steps"),
+        tradeoffs=tradeoffs,
+        gaps=gaps,
+        first_steps=first_steps,
         pruned=pruned,
     )
 
@@ -241,18 +363,36 @@ def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 40)
 
 
 class ModelLedOutcome:
-    __slots__ = ("analysis", "citations", "fallback_reason")
+    __slots__ = ("analysis", "attempts", "citations", "detail", "fallback_reason")
 
     def __init__(
         self,
         analysis: ModelLedAnalysis | None,
         fallback_reason: str | None,
         citations: list[ResearchCitation] | None = None,
+        *,
+        detail: str | None = None,
+        attempts: int = 0,
     ):
         self.analysis = analysis
         self.fallback_reason = fallback_reason
         # Evidence supplied to the model; saved so every cited source resolves.
         self.citations = citations or []
+        # Short rule/field code for the last failure; never task text or model output.
+        self.detail = detail
+        self.attempts = attempts
+
+
+# Only output-shape problems are worth one corrective retry. Provider faults,
+# budget refusals and real rule violations would fail the same way again.
+_RETRYABLE = (
+    "output-not-json",
+    "output-not-object",
+    "schema:",
+    # A truncated or overlong answer: retry once and ask for a shorter one.
+    "transport:unfinished-response",
+    "transport:response-too-long",
+)
 
 
 def run_model_led(
@@ -271,26 +411,75 @@ def run_model_led(
         else None
     )
     citations, catalog = fit_request(task, citations, snapshot, requirements, language)
-    try:
-        raw = generator.analyze(
-            task,
-            citations,
-            language,
-            user_id=user_id,
-            context=requirements,
-            catalog=catalog,
-        )
-        payload = ModelLedPayload.model_validate_json(raw)
-        analysis = validate_model_led(payload, citations, snapshot, context, language)
-    except ModelInputTooLarge:
-        return ModelLedOutcome(None, "model-led-too-large")
-    except ModelBudgetUnavailable:
-        return ModelLedOutcome(None, "model-led-unavailable")
-    except (ValueError, TypeError):
-        return ModelLedOutcome(None, "model-led-invalid")
-    except Exception:  # noqa: BLE001 -- provider failures must not leak or break research
-        return ModelLedOutcome(None, "model-led-provider-error")
-    return ModelLedOutcome(analysis, None, citations)
+    previous_error = None
+    attempts = 0
+    for _ in range(2):
+        attempts += 1
+        try:
+            raw = generator.analyze(
+                task,
+                citations,
+                language,
+                user_id=user_id,
+                context=requirements,
+                catalog=catalog,
+                **({"previous_error": previous_error} if previous_error else {}),
+            )
+            payload, trims = parse_model_led(raw)
+            analysis = validate_model_led(payload, citations, snapshot, context, language)
+            analysis.pruned.extend(
+                ModelLedPrunedItem(section="output", reason="trimmed:" + item) for item in trims
+            )
+            return ModelLedOutcome(analysis, None, citations, attempts=attempts)
+        except ModelInputTooLarge:
+            return ModelLedOutcome(None, "model-led-too-large", attempts=attempts)
+        except ModelBudgetUnavailable:
+            return ModelLedOutcome(None, "model-led-unavailable", attempts=attempts)
+        except ModelLedRejected as error:
+            if attempts == 1 and error.reason.startswith(_RETRYABLE):
+                previous_error = error.reason
+                continue
+            return ModelLedOutcome(
+                None, "model-led-invalid", detail=error.reason, attempts=attempts
+            )
+        except (ValueError, TypeError) as error:
+            # The generator's own transport validation; the code is in the message.
+            reason = _short_reason(error)
+            if attempts == 1 and reason.startswith(_RETRYABLE):
+                previous_error = reason
+                continue
+            return ModelLedOutcome(None, "model-led-invalid", detail=reason, attempts=attempts)
+        except Exception as error:  # noqa: BLE001 -- provider faults must not leak or break research
+            return ModelLedOutcome(
+                None,
+                "model-led-provider-error",
+                detail="provider:" + type(error).__name__,
+                attempts=attempts,
+            )
+    return ModelLedOutcome(None, "model-led-invalid", detail=previous_error, attempts=attempts)
+
+
+# Fixed transport messages mapped to stable codes. Nothing from the model or the
+# user is copied into a stored reason.
+_TRANSPORT_REASONS = {
+    "did not finish normally": "transport:unfinished-response",
+    "Unexpected response content blocks": "transport:content-blocks",
+    "usage receipt": "transport:usage-receipt",
+    "allocation is closed": "transport:allocation-closed",
+    "exceeds its bound": "transport:response-too-long",
+    "Invalid structured response": "transport:invalid-structure",
+}
+
+
+def _short_reason(error: Exception) -> str:
+    reason = getattr(error, "reason", None)
+    if isinstance(reason, str):
+        return reason
+    message = str(error)
+    for fragment, code in _TRANSPORT_REASONS.items():
+        if fragment in message:
+            return code
+    return "error:" + type(error).__name__
 
 
 # Instruction text and request envelope, measured generously.

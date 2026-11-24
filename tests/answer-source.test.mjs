@@ -31,3 +31,14 @@ test("模型已生成、证据不足或未记录原因时不显示来源提示",
     assert.equal(answerSourceNotice(reason), null);
   }
 });
+
+test("模型分析失败时单独提示，并区分次数用完与校验失败", () => {
+  for (const reason of [
+    "model-led-invalid",
+    "model-led-provider-error",
+    "model-led-too-large",
+    "model-led-unavailable",
+  ]) {
+    assert.equal(answerSourceNotice(reason), "model-analysis-failed");
+  }
+});

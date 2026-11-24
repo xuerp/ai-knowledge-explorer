@@ -189,3 +189,18 @@
     white-space: normal;
   }
 }
+
+.decision-guidance__model-failed {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-muted);
+}
+.decision-guidance__model-failed p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+}

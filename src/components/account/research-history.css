@@ -106,6 +106,16 @@
   font-size: 0.75rem;
   color: var(--color-muted-foreground);
 }
+/* Reuses the updates pagination; its colour tokens are scoped to that page. */
+.research-history__pagination {
+  --updates-muted: var(--color-muted-foreground);
+  --updates-line: var(--color-border);
+  --updates-blue: var(--color-signal);
+  --updates-blue-hover: var(--color-signal-hover, var(--color-signal));
+  --updates-blue-soft: var(--color-signal-soft);
+  --updates-card: var(--color-card);
+  margin-block-start: 1rem;
+}
 @media (max-width: 640px) {
   .research-history__item {
     grid-template-columns: minmax(0, 1fr);

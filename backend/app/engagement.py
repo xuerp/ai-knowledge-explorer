@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import NAMESPACE_URL, uuid4, uuid5
 from zoneinfo import ZoneInfo
 
@@ -207,6 +207,22 @@ def revalidate_research(result: ResearchView, snapshot: KnowledgeSnapshot) -> Re
     return updated
 
 
+def catalog_fingerprint(snapshot: KnowledgeSnapshot) -> str:
+    """A short digest of the published facts a research result depends on."""
+    import hashlib
+
+    digest = hashlib.sha256()
+    for claim in sorted(snapshot.claims, key=lambda item: item.id):
+        digest.update(
+            f"{claim.id}|{claim.updated_at}|{claim.confidence}|{claim.valid_to or ''}\n".encode()
+        )
+    for evidence in sorted(snapshot.evidence, key=lambda item: item.id):
+        digest.update(f"{evidence.id}|{evidence.verified_at or ''}\n".encode())
+    for entity in sorted(snapshot.entities, key=lambda item: item.id):
+        digest.update(f"{entity.id}|{entity.status}|{entity.last_updated_at}\n".encode())
+    return digest.hexdigest()[:32]
+
+
 class EngagementService:
     def __init__(
         self,
@@ -398,6 +414,11 @@ class EngagementService:
         previous = session.get(ResearchRecord, revision_id)
         if previous:
             return self._research_view(previous)
+        duplicate = self._recent_duplicate(session, user_id, payload, snapshot)
+        if duplicate is not None:
+            # A double click, second tab or refresh resubmits the identical task.
+            # Return the record already made instead of paying for another one.
+            return self._research_view(duplicate)
         if (
             context
             and context.workflow_version == 2
@@ -540,6 +561,14 @@ class EngagementService:
             # One paid call per research. The validated model-led analysis is the
             # synthesis; do not spend a second call on the legacy answer.
             answer = AnswerResult(model_led_outcome.analysis.summary.text, "generated")
+        elif model_led_outcome is not None:
+            # Model analysis ran and failed. Show the rule result openly instead of
+            # quietly spending a second paid call that hides the failure.
+            answer = AnswerResult(
+                self.answer_service._extractive(generation_citations, payload.language),
+                "extractive",
+                model_led_outcome.fallback_reason,
+            )
         else:
             answer = self.answer_service.answer(
                 payload.question,
@@ -581,7 +610,12 @@ class EngagementService:
                 "generation_fallback_reason": (
                     model_led_outcome.fallback_reason if model_led_outcome else None
                 )
-                or answer.fallback_reason
+                or answer.fallback_reason,
+                "generation_fallback_detail": (
+                    model_led_outcome.detail if model_led_outcome else None
+                ),
+                "generation_attempts": (model_led_outcome.attempts if model_led_outcome else 0),
+                "catalog_fingerprint": catalog_fingerprint(snapshot),
             }
         )
         steps = [
@@ -641,6 +675,69 @@ class EngagementService:
                 raise
             return self._research_view(existing)
         return self._research_view(row)
+
+    DUPLICATE_WINDOW_SECONDS = 60
+
+    @staticmethod
+    def _submission_key(question, language, context) -> str:
+        """What the user actually typed and chose; server-derived fields are ignored."""
+        if context is None:
+            return language + "\n" + question
+        chosen = context.model_dump(
+            mode="json",
+            include={
+                "task",
+                "notes",
+                "priority",
+                "deployment",
+                "budget",
+                "exclusions",
+                "task_type",
+                "region",
+                "commercial_use_required",
+                "input_modalities",
+                "minimum_context_tokens",
+            },
+        )
+        return language + "\n" + question + "\n" + json.dumps(chosen, sort_keys=True)
+
+    def _recent_duplicate(self, session, user_id, payload, snapshot):
+        """The same owner's identical submission from the last minute, if any.
+
+        Reused only while every saved citation is still current: after a fact is
+        published, withdrawn or superseded, the same question is researched afresh.
+        """
+        if payload.parent_research_id or payload.clarification_answer:
+            return None
+        since = datetime.now(UTC) - timedelta(seconds=self.DUPLICATE_WINDOW_SECONDS)
+        key = self._submission_key(payload.question, payload.language, payload.decision_context)
+        fingerprint = catalog_fingerprint(snapshot)
+        rows = session.scalars(
+            select(ResearchRecord)
+            .where(
+                ResearchRecord.user_id == user_id,
+                ResearchRecord.question == payload.question,
+                ResearchRecord.created_at >= since,
+            )
+            .order_by(ResearchRecord.created_at.desc())
+            .limit(5)
+        ).all()
+        for row in rows:
+            saved = self._research_view(row)
+            saved_language = "zh" if re.search(r"[\u3400-\u9fff]", saved.question) else "en"
+            if saved_language != payload.language:
+                continue
+            saved_key = self._submission_key(
+                saved.question, payload.language, saved.decision_context
+            )
+            if saved_key != key:
+                continue
+            # Any publication, withdrawal or new fact changes the fingerprint, so
+            # the same question then gets fresh research instead of a stale copy.
+            if saved.retrieval_diagnostics.catalog_fingerprint != fingerprint:
+                continue
+            return row
+        return None
 
     def _model_led(self, session, snapshot, payload, retrieval, user_id):
         """Whole-catalog retrieval plus one model-led call; never raises."""
@@ -1085,6 +1182,12 @@ class EngagementService:
         )
         if not row:
             return False
+        from .knowledge_checks import delete_pending_checks
+
+        saved = self._research_view(row)
+        delete_pending_checks(
+            session, research_id, saved.decision.model_led if saved.decision else None
+        )
         session.execute(
             delete(DecisionEvidenceRequestRecord).where(
                 DecisionEvidenceRequestRecord.research_id == research_id
