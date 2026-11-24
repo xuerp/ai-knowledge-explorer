@@ -10,6 +10,12 @@ from ..decision_evidence_requests import (
 )
 from ..decision_validation import save_validation, validation_view
 from ..engagement import revalidate_research
+from ..knowledge_checks import (
+    KnowledgeCheckCreate,
+    KnowledgeCheckView,
+    create_knowledge_check,
+    knowledge_checks,
+)
 from ..schemas import (
     DecisionValidationSave,
     DecisionValidationView,
@@ -123,6 +129,34 @@ def request_decision_evidence(
     session: SessionDependency,
 ):
     return create_evidence_request(
+        session, research_id, principal.subject, payload, services.get_public_snapshot(session)
+    )
+
+
+@router.get(
+    "/api/v2/research/{research_id}/knowledge-checks", response_model=list[KnowledgeCheckView]
+)
+def research_knowledge_checks(
+    research_id: str,
+    principal: UserDependency,
+    session: SessionDependency,
+):
+    return knowledge_checks(session, research_id, principal.subject)
+
+
+@router.post(
+    "/api/v2/research/{research_id}/knowledge-checks",
+    response_model=KnowledgeCheckView,
+    status_code=201,
+)
+def request_knowledge_check(
+    services: ServicesDependency,
+    research_id: str,
+    payload: KnowledgeCheckCreate,
+    principal: UserDependency,
+    session: SessionDependency,
+):
+    return create_knowledge_check(
         session, research_id, principal.subject, payload, services.get_public_snapshot(session)
     )
 

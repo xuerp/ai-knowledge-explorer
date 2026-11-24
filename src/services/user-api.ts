@@ -436,6 +436,20 @@ export interface ResearchResult {
   publishedAt?: string;
 }
 
+export type KnowledgeCheckSection = "summary" | "candidate" | "tradeoffs" | "gaps" | "first_steps";
+
+export interface KnowledgeCheckPosition {
+  section: KnowledgeCheckSection;
+  index: number;
+  candidateIndex?: number | null;
+}
+
+export interface KnowledgeCheck extends KnowledgeCheckPosition {
+  id: string;
+  status: "pending" | "in-review" | "resolved" | "rejected";
+  createdAt: string;
+}
+
 export interface ResearchSummary {
   id: string;
   question: string;
@@ -560,8 +574,20 @@ export const userApi = {
       { method: "POST", body: JSON.stringify(payload) },
       token,
     ),
-  researchHistory: (token: string, limit = 30) =>
+  researchHistory: (token: string, limit = 100) =>
     request<ResearchSummary[]>(`/api/v2/research?limit=${limit}`, {}, token),
+  knowledgeChecks: (token: string, id: string) =>
+    request<KnowledgeCheck[]>(
+      `/api/v2/research/${encodeURIComponent(id)}/knowledge-checks`,
+      {},
+      token,
+    ),
+  requestKnowledgeCheck: (token: string, id: string, position: KnowledgeCheckPosition) =>
+    request<KnowledgeCheck>(
+      `/api/v2/research/${encodeURIComponent(id)}/knowledge-checks`,
+      { method: "POST", body: JSON.stringify(position) },
+      token,
+    ),
   deleteResearch: (token: string, id: string) =>
     request<void>(`/api/v2/research/${encodeURIComponent(id)}`, { method: "DELETE" }, token),
   researchDetail: (token: string, id: string) =>

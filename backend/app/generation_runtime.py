@@ -214,8 +214,19 @@ class BudgetedAnswerGenerator:
 
         return self.invoke(request, user_id, "answer", validate)
 
-    def analyze(self, task, citations, language, *, user_id=None, context=None, catalog=None):
+    def analyze(
+        self,
+        task,
+        citations,
+        language,
+        *,
+        user_id=None,
+        context=None,
+        catalog=None,
+        previous_error=None,
+    ):
         """Model-led decision analysis. The host validates the result afterwards."""
+        from .decision_model_led import parse_model_led
         from .schemas import ModelLedPayload
 
         request = {
@@ -236,7 +247,9 @@ class BudgetedAnswerGenerator:
                 "check, especially requirements the evidence does not cover. Write for the user's "
                 "language, specifically about their task; no generic capability lists. Be concise: "
                 "at most 3 candidates with up to 3 points each, 3 tradeoffs, 4 gaps and 3 first "
-                "steps; one sentence per point. Refuse only "
+                "steps; one sentence per point. Hard limits: textZh at most 240 characters, textEn "
+                "at most 400, headline at most 120 Chinese characters, understoodTask at most 200, "
+                "at most 4 claimIds per point. Return only the JSON object. Refuse only "
                 "when the request is not about choosing or using AI tools."
             ),
             "task": task,
@@ -248,9 +261,18 @@ class BudgetedAnswerGenerator:
             "evidence": [compact_evidence(item) for item in citations],
             "schema": ModelLedPayload.model_json_schema(by_alias=True),
         }
+        if previous_error:
+            # One corrective retry: state what failed, never resend private text twice.
+            request["previousAttemptError"] = (
+                "Your previous answer was rejected: "
+                + previous_error
+                + ". Fix it and respect the limits above."
+            )
 
         def validate(raw):
-            ModelLedPayload.model_validate_json(raw)
+            # Same tolerant parser the host uses: trimmable length/count overruns
+            # are not provider failures and must not be billed as invalid.
+            parse_model_led(raw)
 
         # Low effort: the analysis must finish inside the gateway's response window.
         return self.invoke(

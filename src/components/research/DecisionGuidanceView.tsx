@@ -170,6 +170,30 @@ export function DecisionGuidanceView({
       ? guidance.nextAction.entryUrl
       : null;
   const sourceNotice = answerSourceNotice(research.retrievalDiagnostics.generationFallbackReason);
+  const retry = async () => {
+    if (submitting.current || !research.decisionContext) return;
+    submitting.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      // A fresh research from the same saved task and conditions; no clarification.
+      const context = { ...research.decisionContext, intentAnswers: [] };
+      delete (context as { parentResearchId?: string }).parentResearchId;
+      const result = await userApi.research(readAuthToken(), {
+        question: research.question,
+        language: lang,
+        decisionContext: context,
+      });
+      if (onRevision) onRevision(result);
+      else window.location.assign(`/research/${encodeURIComponent(result.id)}`);
+    } catch (reason) {
+      setExpired(reason instanceof AuthSessionExpiredError);
+      setError(accountErrorMessage(reason, t));
+    } finally {
+      submitting.current = false;
+      setBusy(false);
+    }
+  };
   const singleStartId =
     guidance.nextAction.targetIds.length === 1
       ? guidance.nextAction.targetIds[0]
@@ -211,6 +235,34 @@ export function DecisionGuidanceView({
             "Model synthesis is unavailable. The findings below use reviewed evidence and your constraints.",
           )}
         </p>
+      )}
+      {sourceNotice === "model-analysis-failed" && (
+        <div className="decision-guidance__model-failed" role="status">
+          <p>
+            {research.retrievalDiagnostics.generationFallbackReason === "model-led-unavailable"
+              ? t(
+                  "模型分析这次没有运行：今天的调用次数或预算已用完。下面是根据已审核资料整理的结果。",
+                  "Model analysis did not run: today's call allowance or budget is used up. The result below is drawn from reviewed evidence.",
+                )
+              : research.retrievalDiagnostics.generationFallbackReason ===
+                  "model-led-provider-error"
+                ? t(
+                    "模型服务这次没有正常返回。下面是根据已审核资料整理的结果，可以稍后重新分析。",
+                    "The model service did not respond normally. The result below is drawn from reviewed evidence; try again later.",
+                  )
+                : t(
+                    "模型分析这次没有通过校验，已自动重试仍未成功。下面是根据已审核资料整理的结果。",
+                    "The model analysis failed validation, including one automatic retry. The result below is drawn from reviewed evidence.",
+                  )}
+          </p>
+          {research.decisionContext &&
+            !privateAdvice &&
+            research.retrievalDiagnostics.generationFallbackReason !== "model-led-unavailable" && (
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => void retry()}>
+                {busy ? t("正在重新分析…", "Analyzing again…") : t("重新分析", "Analyze again")}
+              </Button>
+            )}
+        </div>
       )}
       {sourceNotice === "invite-only" && (
         <p className="text-sm text-muted-foreground">
