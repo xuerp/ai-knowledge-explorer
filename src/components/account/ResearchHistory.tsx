@@ -7,7 +7,7 @@ import { useApp } from "@/lib/app-state";
 import type { ResearchSummary } from "@/services/user-api";
 import "./research-history.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 /** The owner's saved results, so reopening never depends on tab storage. */
 export function ResearchHistory({
