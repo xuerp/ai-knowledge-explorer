@@ -38,8 +38,8 @@ class ChatTaskInterpreter:
             raise ValueError("Use HTTPS or an explicitly configured loopback endpoint.")
         if not 1 <= max_calls <= 100 or not model.strip():
             raise ValueError("A model and bounded evaluation call budget are required.")
-        if not 1 <= response_timeout_seconds <= 90:
-            raise ValueError("The response timeout must stay within 1..90 seconds.")
+        if not 1 <= response_timeout_seconds <= 300:
+            raise ValueError("The response timeout must stay within 1..300 seconds.")
         if reasoning_effort not in self.supported_efforts:
             raise ValueError("Use an explicitly supported bounded parser reasoning mode.")
         self.reasoning_effort = reasoning_effort

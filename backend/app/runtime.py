@@ -145,6 +145,7 @@ def create_services(
         extraction_config.api_key if extraction_config else app_settings.extraction_api_key,
         extraction_config.model if extraction_config else app_settings.extraction_model,
         response_timeout_seconds=app_settings.extraction_response_timeout_seconds,
+        document_timeout_seconds=app_settings.extraction_document_timeout_seconds,
         reasoning_effort="low" if extraction_config else app_settings.extraction_reasoning_effort,
         max_completion_tokens=(
             extraction_config.max_output_tokens

@@ -305,7 +305,9 @@ class BudgetedAnswerGenerator:
             model=cfg.model,
             max_calls=1,
             max_output_tokens=cfg.max_output_tokens,
-            response_timeout_seconds=min(80, timeout_seconds),
+            # Extraction waits up to its configured per-segment deadline; interactive
+            # purposes keep the 80-second ceiling a user is willing to wait.
+            response_timeout_seconds=min(300 if purpose == "extraction" else 80, timeout_seconds),
             reasoning_effort=reasoning_effort or cfg.reasoning_effort,
             transport=self.transport,
         )
