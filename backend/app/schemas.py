@@ -1709,6 +1709,15 @@ class PublishedResearchView(ResearchView):
     pass
 
 
+class ResearchHistoryPage(CamelModel):
+    """One page of the owner's history plus the total, so every record is reachable."""
+
+    items: list[ResearchSummaryView]
+    total: int
+    offset: int
+    limit: int
+
+
 class ResearchSummaryView(CamelModel):
     """One row in the owner's history; no citations or decision payload."""
 
