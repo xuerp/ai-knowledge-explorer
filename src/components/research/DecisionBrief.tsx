@@ -10,7 +10,7 @@ import { DecisionPlan } from "./DecisionPlan";
 import { planDimensionName, trialQualificationLabel } from "@/domain/decision-plan-reading";
 import { DecisionChoice } from "./DecisionChoice";
 import { DecisionGuidanceView } from "./DecisionGuidanceView";
-import { ModelLedAnalysisView, ModelLedScreening } from "./ModelLedAnalysisView";
+import { ModelLedAnalysisView } from "./ModelLedAnalysisView";
 import { DecisionEvidenceRequests } from "./DecisionEvidenceRequests";
 import { decisionVerdict } from "@/domain/decision-verdict";
 import { Button } from "@/components/ui/button";
@@ -279,7 +279,6 @@ export function DecisionBrief({
           />
         )}
       {workspace}
-      {decision.modelLed && <ModelLedScreening research={research} entityName={entityName} />}
       {!decision.modelLed && (
         <details
           className={`decision-audit${decision.guidance ? " decision-result-disclosure" : ""}`}
