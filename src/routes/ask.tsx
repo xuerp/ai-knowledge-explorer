@@ -1271,10 +1271,13 @@ function AskPage() {
                     open={research.decision ? undefined : true}
                   >
                     <summary>
-                      {t(
-                        `引用与来源（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
-                        `Citations and sources (${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
-                      )}
+                      {t("引用与来源", "Citations and sources")}
+                      <span className="disclosure-count">
+                        {t(
+                          `（${factClaims.length + inferredClaims.length + unverifiedClaims.length} 条）`,
+                          `(${factClaims.length + inferredClaims.length + unverifiedClaims.length})`,
+                        )}
+                      </span>
                     </summary>
                     <p className="ask-result__citation-note">
                       {t(

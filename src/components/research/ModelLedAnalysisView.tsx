@@ -106,7 +106,10 @@ function Section({
   if (!lines.length) return null;
   return (
     <details className="decision-result-disclosure model-led__fold">
-      <summary>{t(`${title}（${lines.length} 条）`, `${title} (${lines.length})`)}</summary>
+      <summary>
+        {title}
+        <span className="disclosure-count">{t(`（${lines.length} 条）`, `(${lines.length})`)}</span>
+      </summary>
       <ul>
         {lines.map((line, index) => (
           <Line

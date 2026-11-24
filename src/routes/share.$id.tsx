@@ -117,10 +117,10 @@ function PublicResearchPage() {
             open={liveResearch.decision ? undefined : true}
           >
             <summary>
-              {t(
-                `引用与来源（${liveResearch.citations.length} 条）`,
-                `Citations and sources (${liveResearch.citations.length})`,
-              )}
+              {t("引用与来源", "Citations and sources")}
+              <span className="disclosure-count">
+                {t(`（${liveResearch.citations.length} 条）`, `(${liveResearch.citations.length})`)}
+              </span>
             </summary>
             <section className="space-y-3">
               {liveResearch.citations.map((citation, index) => (

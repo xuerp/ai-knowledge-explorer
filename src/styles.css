@@ -9172,6 +9172,21 @@ a.decision-brief__claims {
 .research-source-library.decision-result-disclosure > section + section {
   margin-block-start: 1.25rem;
 }
+/* The record page reuses the /ask citation rows, so both read the same. */
+.research-claim-list {
+  --ask-ink: var(--color-foreground);
+  --ask-muted: var(--color-muted-foreground);
+  --ask-line: var(--color-border);
+}
+.research-claim-list > .ask-claim-row:first-child {
+  border-top: 0;
+}
+.research-claim-list__heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
 @media print {
   .ask-source-library::details-content,
   .research-source-library::details-content {
