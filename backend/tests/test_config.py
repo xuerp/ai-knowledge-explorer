@@ -80,9 +80,28 @@ def test_resend_email_provider_requires_https_endpoint(monkeypatch):
 
 
 def test_extraction_response_timeout_is_configurable_and_bounded(monkeypatch):
-    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "84")
-    assert Settings.from_env().extraction_response_timeout_seconds == 84
+    settings = Settings.from_env()
+    assert settings.extraction_response_timeout_seconds == 180
+    assert settings.extraction_document_timeout_seconds == 600
 
-    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "86")
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "240")
+    assert Settings.from_env().extraction_response_timeout_seconds == 240
+
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "301")
     with pytest.raises(ValueError, match="EXTRACTION_RESPONSE_TIMEOUT_SECONDS"):
+        Settings.from_env()
+
+
+def test_extraction_document_timeout_fits_inside_the_cycle_lease(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS", "780")
+    assert Settings.from_env().extraction_document_timeout_seconds == 780
+
+    # 900s lease - 120s headroom = 780s at most.
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS", "781")
+    with pytest.raises(ValueError, match="EXTRACTION_DOCUMENT_TIMEOUT_SECONDS"):
+        Settings.from_env()
+
+    # The document deadline must cover at least one full response.
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS", "120")
+    with pytest.raises(ValueError, match="EXTRACTION_DOCUMENT_TIMEOUT_SECONDS"):
         Settings.from_env()

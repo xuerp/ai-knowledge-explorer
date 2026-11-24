@@ -413,3 +413,70 @@ def test_invalid_validity_dates_fail_instead_of_entering_the_review_queue(dates)
     source, snapshot = records("TailModel has a 128K context window.")
     with pytest.raises(ExtractionUnavailableError, match="invalid structured response"):
         service.extract(source, snapshot, 5)
+
+
+def test_each_segment_gets_its_own_response_deadline_within_the_document_deadline(monkeypatch):
+    """Provider queueing made one segment take ~80s; later segments must not inherit
+    only the leftover of a single shared deadline."""
+    import app.extraction as extraction_module
+
+    clock = {"now": 0.0}
+    monkeypatch.setattr(extraction_module, "perf_counter", lambda: clock["now"])
+    deadlines = []
+
+    def fake_segment(self, *args, timeout_seconds=None, **kwargs):
+        deadlines.append(timeout_seconds)
+        clock["now"] += 150  # each segment answers slowly but inside its own deadline
+        self._call_metadata.set({"requestCount": 1, "responses": []})
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "_extract_segment", fake_segment)
+    service = StructuredExtractionService(
+        "https://extract.example/v1",
+        "key",
+        "test",
+        response_timeout_seconds=180,
+        document_timeout_seconds=600,
+    )
+    source, snapshot = records("background\n" * 13000)  # three segments
+
+    assert service.extract(source, snapshot, 15) == []
+    assert deadlines == [180, 180, 180]
+    assert service.call_metadata()["coverageStatus"] == "full"
+
+
+def test_document_deadline_stops_before_an_unfinishable_segment(monkeypatch):
+    import app.extraction as extraction_module
+
+    clock = {"now": 0.0}
+    monkeypatch.setattr(extraction_module, "perf_counter", lambda: clock["now"])
+    deadlines = []
+
+    def fake_segment(self, *args, timeout_seconds=None, **kwargs):
+        deadlines.append(timeout_seconds)
+        clock["now"] += 170
+        self._call_metadata.set({"requestCount": 1, "responses": []})
+        return []
+
+    monkeypatch.setattr(StructuredExtractionService, "_extract_segment", fake_segment)
+    service = StructuredExtractionService(
+        "https://extract.example/v1",
+        "key",
+        "test",
+        response_timeout_seconds=180,
+        document_timeout_seconds=400,
+    )
+    source, snapshot = records("background\n" * 13000)
+
+    # The third segment only had 60s of the document deadline left, so it was capped.
+    assert service.extract(source, snapshot, 15) == []
+    assert deadlines == [180, 180, 60]
+
+    # Once the document deadline is spent, the next segment is not sent at all.
+    clock["now"] = 0.0
+    deadlines.clear()
+    service.document_timeout_seconds = 340
+    with pytest.raises(ExtractionUnavailableError, match="document_coverage_incomplete"):
+        service.extract(source, snapshot, 15)
+    assert deadlines == [180, 170]
+    assert service.call_metadata()["coverageStatus"] == "partial"

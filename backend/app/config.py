@@ -48,7 +48,8 @@ class Settings:
     extraction_api_url: str | None = None
     extraction_api_key: str | None = None
     extraction_model: str | None = None
-    extraction_response_timeout_seconds: int = 80
+    extraction_response_timeout_seconds: int = 180
+    extraction_document_timeout_seconds: int = 600
     extraction_reasoning_effort: str | None = None
     extraction_max_completion_tokens: int | None = None
     extraction_require_json_schema: bool = False
@@ -170,9 +171,20 @@ class Settings:
             )
         if not 1 <= self.auto_extraction_retry_minutes <= 1440:
             raise ValueError("AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES must be between 1 and 1440.")
-        if not 30 <= self.extraction_response_timeout_seconds <= 85:
+        if not 30 <= self.extraction_response_timeout_seconds <= 300:
             raise ValueError(
-                "AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS must be between 30 and 85."
+                "AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS must be between 30 and 300."
+            )
+        # A whole document must finish inside one automation-cycle lease, with
+        # headroom for collection, digests and the audit write that follow it.
+        if not (
+            self.extraction_response_timeout_seconds
+            <= self.extraction_document_timeout_seconds
+            <= self.automation_cycle_lease_seconds - 120
+        ):
+            raise ValueError(
+                "AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS must cover one response and "
+                "stay at least 120 seconds below AI_RADAR_AUTOMATION_CYCLE_LEASE_SECONDS."
             )
         if self.extraction_reasoning_effort not in {None, "low", "medium", "high", "xhigh", "max"}:
             raise ValueError(
@@ -316,7 +328,10 @@ class Settings:
             extraction_api_key=os.getenv("AI_RADAR_EXTRACTION_API_KEY") or None,
             extraction_model=os.getenv("AI_RADAR_EXTRACTION_MODEL") or None,
             extraction_response_timeout_seconds=int(
-                os.getenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "80")
+                os.getenv("AI_RADAR_EXTRACTION_RESPONSE_TIMEOUT_SECONDS", "180")
+            ),
+            extraction_document_timeout_seconds=int(
+                os.getenv("AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS", "600")
             ),
             extraction_reasoning_effort=os.getenv("AI_RADAR_EXTRACTION_REASONING_EFFORT") or None,
             extraction_max_completion_tokens=(

@@ -356,7 +356,8 @@ class StructuredExtractionService:
         api_key: str | None,
         model: str | None,
         *,
-        response_timeout_seconds: float = 80.0,
+        response_timeout_seconds: float = 180.0,
+        document_timeout_seconds: float = 600.0,
         reasoning_effort: str | None = None,
         max_completion_tokens: int | None = None,
         require_json_schema: bool = False,
@@ -370,6 +371,7 @@ class StructuredExtractionService:
         self.api_key = api_key
         self.model = model
         self.response_timeout_seconds = response_timeout_seconds
+        self.document_timeout_seconds = max(document_timeout_seconds, response_timeout_seconds)
         is_sol = bool(model and (model == "gpt-6.1-sol" or model.startswith("gpt-6.1-sol-")))
         self.reasoning_effort = reasoning_effort or ("low" if is_sol else None)
         self.max_completion_tokens = max_completion_tokens or (8192 if is_sol else None)
@@ -908,7 +910,10 @@ class StructuredExtractionService:
         results: list[CandidateCreate] = []
         fingerprints: set[tuple[str, str, str, str | None, str | None]] = set()
         for index, (start, end) in enumerate(segments):
-            remaining = self.response_timeout_seconds - (perf_counter() - started)
+            # Each segment gets its own response deadline; the document deadline only
+            # bounds the whole run. Provider queueing can exceed the model's own time.
+            document_remaining = self.document_timeout_seconds - (perf_counter() - started)
+            remaining = min(self.response_timeout_seconds, document_remaining)
             if remaining <= 0 or len(results) >= max_candidates:
                 diagnostics["coverageStatus"] = "partial"
                 self._call_metadata.set(diagnostics)
