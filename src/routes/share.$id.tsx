@@ -113,7 +113,7 @@ function PublicResearchPage() {
             </section>
           )}
           <details
-            className={`research-source-library${liveResearch.decision?.guidance ? " decision-result-disclosure" : ""}`}
+            className={`research-source-library${liveResearch.decision?.guidance || liveResearch.decision?.modelLed ? " decision-result-disclosure" : ""}`}
             open={liveResearch.decision ? undefined : true}
           >
             <summary>

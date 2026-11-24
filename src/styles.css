@@ -8456,6 +8456,18 @@ a.decision-brief__claims {
   line-height: 1.7;
 }
 
+/* One blue-to-white atmosphere behind every page in the app shell. */
+.app-shell__main--tinted {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-signal-soft) 48%, var(--color-background)),
+    var(--color-background) 18rem
+  );
+}
+/* Pages that paint their own canvas let the shared atmosphere show through. */
+.app-shell__main--tinted > .model-detail-page {
+  background: transparent;
+}
 /* Shared header atmosphere, with distinct title, controls and content regions. */
 .workspace-page {
   background: linear-gradient(

@@ -26,7 +26,13 @@ export function AppShell({ children, dark = false }: { children: ReactNode; dark
     >
       <TopNav />
       <PwaStatus dark={dark} />
-      <main className="flex-1 pb-24 md:pb-8">{children}</main>
+      <main
+        className={
+          "app-shell__main flex-1 pb-24 md:pb-8" + (dark ? "" : " app-shell__main--tinted")
+        }
+      >
+        {children}
+      </main>
       <BottomNav />
       <footer className="hidden border-t border-border bg-card/70 md:block">
         <div className="page-container py-3 text-[11px] text-muted-foreground flex flex-wrap gap-4 justify-between">

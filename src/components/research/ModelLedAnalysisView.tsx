@@ -44,14 +44,17 @@ function Section({
 }) {
   if (!lines.length) return null;
   return (
-    <section className="model-led__section">
-      <h4>{title}</h4>
+    <details className="decision-result-disclosure model-led__fold">
+      <summary>
+        {title}
+        <span className="model-led__count">{lines.length}</span>
+      </summary>
       <ul>
         {lines.map((line, index) => (
           <Line key={index} line={line} index={`${prefix} ${index + 1}`} />
         ))}
       </ul>
-    </section>
+    </details>
   );
 }
 

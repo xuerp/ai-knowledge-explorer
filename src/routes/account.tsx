@@ -415,7 +415,13 @@ function AccountPage() {
           </p>
         </section>
 
-        <ResearchHistory history={history} />
+        <ResearchHistory
+          history={history}
+          onDelete={async (id) => {
+            await userApi.deleteResearch(token, id);
+            setHistory((rows) => rows?.filter((row) => row.id !== id) ?? rows);
+          }}
+        />
 
         <section className="grid gap-5 lg:grid-cols-2">
           <form
