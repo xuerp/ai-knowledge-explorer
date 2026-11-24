@@ -72,6 +72,17 @@ def research_detail(
     )
 
 
+@router.delete("/api/v2/research/{research_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_research(
+    services: ServicesDependency,
+    research_id: str,
+    principal: UserDependency,
+    session: SessionDependency,
+) -> None:
+    if not services.engagement.delete_research(session, research_id, principal.subject):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Research not found.")
+
+
 @router.get("/api/v2/research/{research_id}/validation", response_model=DecisionValidationView)
 def research_validation(
     services: ServicesDependency,

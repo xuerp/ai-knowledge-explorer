@@ -562,6 +562,8 @@ export const userApi = {
     ),
   researchHistory: (token: string, limit = 30) =>
     request<ResearchSummary[]>(`/api/v2/research?limit=${limit}`, {}, token),
+  deleteResearch: (token: string, id: string) =>
+    request<void>(`/api/v2/research/${encodeURIComponent(id)}`, { method: "DELETE" }, token),
   researchDetail: (token: string, id: string) =>
     request<ResearchResult>(`/api/v2/research/${encodeURIComponent(id)}`, {}, token),
   decisionValidation: (token: string, id: string) =>

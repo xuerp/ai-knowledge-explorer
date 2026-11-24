@@ -295,7 +295,7 @@ export function ResearchReport({
 
           {decisionContent}
           <details
-            className={`research-source-library${research?.decision?.guidance ? " decision-result-disclosure" : ""}`}
+            className={`research-source-library${research?.decision?.guidance || research?.decision?.modelLed ? " decision-result-disclosure" : ""}`}
             open={research?.decision ? undefined : true}
           >
             <summary>

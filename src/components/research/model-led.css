@@ -81,21 +81,65 @@
   border-radius: 4px;
   color: var(--color-muted-foreground);
 }
+/* Secondary analysis parts fold so the conclusion and options lead. */
+.model-led__fold > summary {
+  font-weight: 600;
+}
+.model-led__fold > ul {
+  padding-inline: 2px;
+}
+.model-led__count {
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.6;
+  background: var(--color-muted);
+  color: var(--color-muted-foreground);
+}
+.model-led > .model-led__fold + .model-led__fold {
+  margin-block-start: -18px;
+}
+.model-led__screening > summary {
+  font-weight: 600;
+}
 .model-led__screening-body {
   display: grid;
-  gap: 18px;
-  padding-block: 12px 4px;
+  gap: 12px;
+}
+/* Each part is its own bordered panel: a clear heading over muted body text. */
+.model-led__screening-body > .model-led__section {
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-muted);
 }
 .model-led__screening-body p,
 .model-led__screening-body li {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.7;
   margin: 0;
+  color: var(--color-muted-foreground);
 }
 .model-led__screening-body h4 {
-  font-size: 1.0625rem;
-  font-weight: 650;
-  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+.model-led__screening-body h4::before {
+  content: "";
+  flex: 0 0 3px;
+  width: 3px;
+  height: 0.9em;
+  border-radius: 2px;
+  background: var(--color-signal);
+}
+.model-led__excluded strong {
+  color: var(--color-foreground);
 }
 .model-led__screening-body ul {
   margin: 0;

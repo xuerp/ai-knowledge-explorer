@@ -7,12 +7,14 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .answer_generation import AnswerResult, CitedAnswerService
 from .database import (
+    DecisionEvidenceRequestRecord,
+    DecisionValidationRecord,
     EmailOutboxRecord,
     FollowRecord,
     NotificationRecord,
@@ -1069,6 +1071,33 @@ class EngagementService:
                 )
             )
         return summaries
+
+    def delete_research(self, session: Session, research_id: str, user_id: str) -> bool:
+        """Permanently delete the owner's record and its private links.
+
+        Shared public maintenance requests (entry_requests) are kept; only this
+        record's private link to them is removed. A published share stops working.
+        """
+        row = session.scalar(
+            select(ResearchRecord).where(
+                ResearchRecord.id == research_id, ResearchRecord.user_id == user_id
+            )
+        )
+        if not row:
+            return False
+        session.execute(
+            delete(DecisionEvidenceRequestRecord).where(
+                DecisionEvidenceRequestRecord.research_id == research_id
+            )
+        )
+        session.execute(
+            delete(DecisionValidationRecord).where(
+                DecisionValidationRecord.research_id == research_id
+            )
+        )
+        session.delete(row)
+        session.commit()
+        return True
 
     def publish_research(
         self, session: Session, research_id: str, user_id: str

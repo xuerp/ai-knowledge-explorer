@@ -1267,7 +1267,7 @@ function AskPage() {
 
                 {factClaims.length + inferredClaims.length + unverifiedClaims.length > 0 && (
                   <details
-                    className={`ask-source-library${research.decision?.guidance ? " decision-result-disclosure" : ""}`}
+                    className={`ask-source-library${research.decision?.guidance || research.decision?.modelLed ? " decision-result-disclosure" : ""}`}
                     open={research.decision ? undefined : true}
                   >
                     <summary>
