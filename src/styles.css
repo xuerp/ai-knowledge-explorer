@@ -9142,8 +9142,9 @@ a.decision-brief__claims {
   font-size: 12px;
   font-weight: 400;
 }
-.ask-source-library > summary,
-.research-source-library > summary {
+/* Legacy libraries only; inside a result they use the shared disclosure style. */
+.ask-source-library:not(.decision-result-disclosure) > summary,
+.research-source-library:not(.decision-result-disclosure) > summary {
   cursor: pointer;
   min-height: 40px;
   padding-block: 8px;

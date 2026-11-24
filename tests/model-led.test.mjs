@@ -8,7 +8,9 @@ const vite = await createServer({
   optimizeDeps: { noDiscovery: true },
 });
 test.after(() => vite.close());
-const { modelLedSections } = await vite.ssrLoadModule("/src/domain/model-led-reading.ts");
+const { modelLedSections, screeningReason } = await vite.ssrLoadModule(
+  "/src/domain/model-led-reading.ts",
+);
 const { decisionReportHtml } = await vite.ssrLoadModule("/src/domain/decision-report-html.ts");
 const { researchOutcomeLabel } = await vite.ssrLoadModule("/src/domain/decision-presentation.ts");
 
@@ -123,4 +125,18 @@ test("HTML export shows the model analysis, not the contradictory rule clarifica
 
 test("status label prefers the validated model analysis", () => {
   assert.equal(researchOutcomeLabel(research, "zh"), "模型分析已生成");
+});
+
+test("only real hard-requirement removals produce a readable exclusion reason", () => {
+  assert.equal(
+    screeningReason("hard-requirement:unavailable-version", "zh"),
+    "版本已退役或尚未发布",
+  );
+  assert.equal(
+    screeningReason("hard-requirement:excluded,over-budget", "zh"),
+    "符合你的排除条件；已核验价格超出你的预算",
+  );
+  // Statement-level pruning is not a candidate exclusion and shows nothing.
+  assert.equal(screeningReason("model-knowledge-specific-value", "zh"), null);
+  assert.equal(screeningReason("hard-requirement:unknown-code", "zh"), null);
 });
