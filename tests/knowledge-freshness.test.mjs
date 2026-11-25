@@ -17,10 +17,14 @@ const { reviewReasonCategoryLabels, resolveReviewReasonCategory } = await vite.s
 
 test.after(async () => vite.close());
 
-test("审核时限按承诺口径显示：关系 24 小时，其他事实 3 天", () => {
+test("审核时限按承诺口径显示：关系 24 小时，其他事实和核验请求 3 天", () => {
   assert.equal(freshnessBudgetLabel(24), "24 小时");
   assert.equal(freshnessBudgetLabel(72), "3 天");
-  assert.deepEqual(freshnessTrackLabels, { relation: "可逐字核验的关系", fact: "其他事实" });
+  assert.deepEqual(freshnessTrackLabels, {
+    relation: "可逐字核验的关系",
+    fact: "其他事实",
+    verification: "用户请求核验",
+  });
 });
 
 test("等待时长在两天内按小时、之后按天显示，无待审时明确说明", () => {

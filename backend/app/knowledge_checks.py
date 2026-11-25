@@ -21,6 +21,8 @@ from .entry_requests import EntryRequestReceipt, receipt
 from .schemas import CamelModel, KnowledgeSnapshot
 
 Section = Literal["summary", "candidate", "tradeoffs", "gaps", "first_steps"]
+# Marks a queue entry as a verification request, so the review deadline can find it.
+VERIFY_REASON_PREFIX = "用户请求核验一条“模型常识，未核验”的内容："
 
 
 class KnowledgeCheckCreate(CamelModel):
@@ -108,7 +110,7 @@ def create_knowledge_check(
         # the product, staff start from the private research record instead.
         source_url=source or "https://airadar.rainza.cn/admin/review",
         reason=(
-            "用户请求核验一条“模型常识，未核验”的内容："
+            VERIFY_REASON_PREFIX
             + line.text[:600]
             + "。请找到官方来源；能证实时按既有事实审核流程发布为已核验事实，"
             "不能证实时驳回并说明原因。处理请求本身不会改变任何已发布内容。"

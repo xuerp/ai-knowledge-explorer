@@ -676,22 +676,41 @@ function AskPage() {
               </div>
               <details className="decision-preferences decision-more-conditions" lang={lang}>
                 <summary>
-                  {t("限制与偏好（可选）", "Limits and preferences (optional)")}
-                  {!!appliedLimits.length && (
-                    <span className="decision-preferences__count">
-                      {t(`已设置 ${appliedLimits.length} 项`, `${appliedLimits.length} set`)}
-                    </span>
-                  )}
+                  <span className="decision-fold__title">
+                    {t("限制与偏好", "Limits and preferences")}
+                    <span className="decision-fold__optional">{t("可选", "Optional")}</span>
+                  </span>
+                  <span className="decision-fold__summary">
+                    {appliedLimits.length
+                      ? t(`已设置 ${appliedLimits.length} 项`, `${appliedLimits.length} set`)
+                      : t("优先级、预算、部署方式", "Priority, budget, deployment")}
+                  </span>
                 </summary>
                 <p className="decision-preferences__hint">
                   {t(
-                    "不确定可以留空。只填写真正影响选择的条件；指定预算或部署方式后，会按这些条件核验。",
-                    "Leave uncertain requirements open. Set only limits that affect your choice; stated budgets and deployment requirements will be checked.",
+                    "只填会影响选择的条件，不确定就留空；填了的条件会按资料逐项核验。",
+                    "Set only limits that change your choice and leave the rest open; each one you set is checked against the evidence.",
                   )}
                 </p>
+                <div className="decision-examples" aria-label={t("示例场景", "Example scenarios")}>
+                  <span>{t("常见限制模板", "Common limit templates")}</span>
+                  {decisionExamples.map((example) => (
+                    <button
+                      key={example.id}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => applyExample(example)}
+                      title={example.task[lang]}
+                    >
+                      {example.label[lang]}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid gap-3 sm:grid-cols-3">
                   <DecisionSelect
                     label={t("首要优先级", "Top priority")}
+                    hint={t("决定候选怎么排序", "Decides how options are ordered")}
                     value={priority}
                     onChange={(value) => setPriority(value as DecisionContext["priority"])}
                     options={[
@@ -705,6 +724,10 @@ function AskPage() {
                   />
                   <DecisionSelect
                     label={t("预算", "Budget")}
+                    hint={t(
+                      "选“指定区间”才会核验月费用",
+                      "Monthly cost is checked only for a range",
+                    )}
                     value={budgetMode}
                     onChange={(value) => setBudgetMode(value as DecisionContext["budget"]["mode"])}
                     options={[
@@ -715,6 +738,7 @@ function AskPage() {
                   />
                   <DecisionSelect
                     label={t("部署方式", "Deployment")}
+                    hint={t("云服务、自有环境或本地设备", "Hosted, your environment or on-device")}
                     value={deployment}
                     onChange={(value) => setDeployment(value as DecisionContext["deployment"])}
                     options={[
@@ -815,13 +839,25 @@ function AskPage() {
                     </p>
                   </div>
                 )}
-                <details className="decision-more-conditions">
+                <details className="decision-more-conditions decision-fold--nested">
                   <summary>
-                    {t("高级筛选与指定产品", "Advanced filters and exact products")}
+                    <span className="decision-fold__title">
+                      {t("高级筛选与指定产品", "Advanced filters and exact products")}
+                    </span>
+                    <span className="decision-fold__summary">
+                      {t(
+                        "地区、上下文、输入类型、商用许可、指定产品、排除条件",
+                        "Region, context, inputs, licensing, exact products, exclusions",
+                      )}
+                    </span>
                   </summary>
                   <div className="grid gap-3 pt-4 sm:grid-cols-2">
                     <DecisionSelect
                       label={t("选型任务", "Selection task")}
+                      hint={t(
+                        "要选的是模型、编码产品还是框架",
+                        "A model, coding product or framework",
+                      )}
                       value={taskType}
                       onChange={(value) => {
                         setTaskType(value as NonNullable<DecisionContext["taskType"]>);
@@ -840,6 +876,7 @@ function AskPage() {
                     />
                     <DecisionInput
                       label={t("部署地区（可选）", "Hosting region (optional)")}
+                      hint={t("服务必须可用的地区", "Where the service must be available")}
                       value={region}
                       onChange={setRegion}
                       placeholder={t(
@@ -850,50 +887,53 @@ function AskPage() {
                     />
                     <DecisionInput
                       label={t("最低上下文 token（可选）", "Minimum context tokens (optional)")}
+                      hint={t("单次最多能输入多少内容", "How much one request must accept")}
                       value={minimumContext}
                       onChange={setMinimumContext}
                       type="number"
-                      helper={t(
-                        "100k = 100000；2000000 = 200万。按单次输入容量核验。",
-                        "100k = 100000; 2000000 is two million. Checked against input capacity per request.",
-                      )}
+                      placeholder={t("例如 100000（即 100k）", "For example 100000 (100k)")}
                     />
-                    <fieldset className="decision-input-modalities">
-                      <legend className="mb-2 text-xs font-medium">
-                        {t("必须支持的输入", "Required inputs")}
-                      </legend>
-                      {(
-                        [
-                          ["text", "文本", "Text"],
-                          ["image", "图像", "Image"],
-                          ["audio", "音频", "Audio"],
-                          ["video", "视频", "Video"],
-                        ] as const
-                      ).map(([value, zh, en]) => (
-                        <label key={value} className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={inputModalities.includes(value)}
-                            onChange={(event) =>
-                              setInputModalities(
-                                event.target.checked
-                                  ? [...inputModalities, value]
-                                  : inputModalities.filter((item) => item !== value),
-                              )
-                            }
-                          />
-                          {t(zh, en)}
-                        </label>
-                      ))}
-                    </fieldset>
-                    <label className="flex items-center gap-2 text-sm sm:col-span-2">
-                      <input
-                        type="checkbox"
-                        checked={commercialUse}
-                        onChange={(event) => setCommercialUse(event.target.checked)}
-                      />
-                      {t("必须有可核验的商用许可", "Require verified commercial-use permission")}
-                    </label>
+                    <div className="decision-capabilities">
+                      <fieldset className="decision-input-modalities">
+                        <legend className="decision-field__label">
+                          {t("必须支持的输入", "Required inputs")}
+                        </legend>
+                        <span className="decision-field__hint">
+                          {t("勾选的才会作为硬条件", "Only checked types are required")}
+                        </span>
+                        {(
+                          [
+                            ["text", "文本", "Text"],
+                            ["image", "图像", "Image"],
+                            ["audio", "音频", "Audio"],
+                            ["video", "视频", "Video"],
+                          ] as const
+                        ).map(([value, zh, en]) => (
+                          <label key={value} className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={inputModalities.includes(value)}
+                              onChange={(event) =>
+                                setInputModalities(
+                                  event.target.checked
+                                    ? [...inputModalities, value]
+                                    : inputModalities.filter((item) => item !== value),
+                                )
+                              }
+                            />
+                            {t(zh, en)}
+                          </label>
+                        ))}
+                      </fieldset>
+                      <label className="decision-capabilities__licence">
+                        <input
+                          type="checkbox"
+                          checked={commercialUse}
+                          onChange={(event) => setCommercialUse(event.target.checked)}
+                        />
+                        {t("必须有可核验的商用许可", "Require verified commercial-use permission")}
+                      </label>
+                    </div>
                     {commercialUse && (
                       <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
                         <legend className="mb-2 text-sm font-medium">
@@ -942,6 +982,10 @@ function AskPage() {
                   <div className="space-y-2 pt-4">
                     <DecisionSelect
                       label={t("具体版本或产品（可选）", "Exact version or product (optional)")}
+                      hint={t(
+                        "不选就从知识库里自动找候选",
+                        "Leave empty to find options from the catalog",
+                      )}
                       value=""
                       onChange={(value) => {
                         if (value && candidateEntityIds.length < 20)
@@ -986,6 +1030,7 @@ function AskPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <DecisionInput
                       label={t("排除条件（逗号分隔）", "Exclusions (comma-separated)")}
+                      hint={t("不想要的产品或条件", "Products or conditions to rule out")}
                       value={exclusions}
                       onChange={setExclusions}
                       maxLength={1000}
@@ -996,6 +1041,7 @@ function AskPage() {
                     />
                     <DecisionInput
                       label={t("补充说明（可选）", "Notes (optional)")}
+                      hint={t("只作参考，不会当成硬条件", "For context only, not enforced")}
                       value={notes}
                       onChange={setNotes}
                       maxLength={1000}
@@ -1070,20 +1116,6 @@ function AskPage() {
                     )}
                   </div>
                 )}
-                <div className="decision-examples" aria-label={t("示例场景", "Example scenarios")}>
-                  <span>{t("有明确限制？使用模板", "Have specific limits? Use a template")}</span>
-                  {decisionExamples.map((example) => (
-                    <button
-                      key={example.id}
-                      type="button"
-                      disabled={busy}
-                      onClick={() => applyExample(example)}
-                      title={example.task[lang]}
-                    >
-                      {example.label[lang]}
-                    </button>
-                  ))}
-                </div>
                 <DecisionGuide kind="inputs" />
               </details>
               <div className="decision-example-actions">
@@ -1487,15 +1519,18 @@ function DecisionSelect({
   value,
   onChange,
   options,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: Array<[string, string]>;
+  hint?: string;
 }) {
   return (
     <label className="decision-field">
-      <span className="text-xs font-medium text-foreground">{label}</span>
+      <span className="decision-field__label">{label}</span>
+      {hint && <span className="decision-field__hint">{hint}</span>}
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -1519,6 +1554,7 @@ function DecisionInput({
   type = "text",
   maxLength,
   helper,
+  hint,
 }: {
   label: string;
   value: string;
@@ -1527,11 +1563,13 @@ function DecisionInput({
   type?: "text" | "number";
   maxLength?: number;
   helper?: string;
+  hint?: string;
 }) {
   const helpId = useId();
   return (
     <label className="decision-field">
-      <span className="text-xs font-medium text-foreground">{label}</span>
+      <span className="decision-field__label">{label}</span>
+      {hint && <span className="decision-field__hint">{hint}</span>}
       <input
         aria-label={label}
         aria-describedby={helper ? helpId : undefined}

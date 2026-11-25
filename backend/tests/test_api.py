@@ -986,10 +986,14 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert operations["worker"]["lastCycleStatus"] == "succeeded"
     assert operations["recentRuns"][0]["id"] == payload["cycleId"]
     # The review-latency state is visible live and persisted with the cycle record.
-    assert [track["budgetHours"] for track in operations["freshness"]["tracks"]] == [24, 72]
+    assert [track["budgetHours"] for track in operations["freshness"]["tracks"]] == [24, 72, 72]
     persisted = operations["recentRuns"][0]["result"]["freshness"]
     assert persisted["status"] == payload["result"]["freshness"]["status"]
-    assert {track["track"] for track in persisted["tracks"]} == {"relation", "fact"}
+    assert {track["track"] for track in persisted["tracks"]} == {
+        "relation",
+        "fact",
+        "verification",
+    }
     quality = client.get("/api/v2/quality/metrics").json()
     assert quality["freshness"]["status"] in {"on-track", "overdue"}
 
