@@ -29,7 +29,7 @@ export const Route = createFileRoute("/account")({
   validateSearch: (search: Record<string, unknown>): { returnTo?: string } => ({
     returnTo: typeof search.returnTo === "string" ? search.returnTo : undefined,
   }),
-  head: () => ({ meta: [{ title: "Account · AI Radar" }] }),
+  head: () => ({ meta: [{ title: "账户 · AI Radar" }] }),
   component: AccountPage,
 });
 

@@ -1,5 +1,5 @@
 export interface FreshnessTrack {
-  track: "relation" | "fact";
+  track: "relation" | "fact" | "verification";
   budgetHours: number;
   openCount: number;
   overdueCount: number;
@@ -20,6 +20,7 @@ export interface KnowledgeFreshness {
 export const freshnessTrackLabels: Record<FreshnessTrack["track"], string> = {
   relation: "可逐字核验的关系",
   fact: "其他事实",
+  verification: "用户请求核验",
 };
 
 export function freshnessBudgetLabel(hours: number): string {

@@ -191,7 +191,7 @@ export function DecisionGuide({ kind }: { kind: "inputs" | "results" }) {
     <details className="decision-guide print-hidden" data-kind={kind}>
       <summary>
         {kind === "inputs"
-          ? t("这些条件分别是什么意思？", "What do these conditions mean?")
+          ? t("查看每个条件的详细说明", "Read the full explanation of each condition")
           : t(
               "如何理解结果、证据和验证状态？",
               "How should I read the results and validation states?",

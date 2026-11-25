@@ -892,7 +892,7 @@ class OperationsQueueSummary(CamelModel):
 
 
 class FreshnessTrack(CamelModel):
-    track: Literal["relation", "fact"]
+    track: Literal["relation", "fact", "verification"]
     budget_hours: int
     open_count: int
     overdue_count: int

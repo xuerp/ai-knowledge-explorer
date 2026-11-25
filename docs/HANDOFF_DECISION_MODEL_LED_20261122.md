@@ -66,3 +66,35 @@
 - 浏览器中的实际样式、移动端排版未看过。
 - 导出（Markdown/PDF，`research_report.py`）与公开分享页尚未包含模型分析内容，仍只输出规则结果。
 - 一次分析的实际 token 与费用未知；输入可能比旧回答生成大，需真实调用后确认是否低于 65,000 字节上限。
+
+## 规则代码清理计划（2026-11-25，暂不执行）
+
+结论：现在不删除。模型分析失败时，规则版结果就是页面上的兜底；补证请求（`decision_evidence_requests.py`）和使用记录（`decision_validation.py`）也直接调用 `EngagementService._build_decision`。模型分析的成功率还没有实测数据，删掉规则路径就没有兜底了。
+
+### 删除前提（全部满足才开始）
+
+1. 用 5 道固定题实测，模型分析成功率稳定（例如连续 20 次提问中失败不超过 1 次），失败原因都已记录且可解释。
+2. 补证请求和使用记录改为不依赖规则候选判断，或者确认保留一个最小化的资格判断模块。
+3. 用户确认，模型分析失败时只显示“暂时无法分析，请重试”，不再提供规则版结果。
+
+### 模块与依赖（2026-11-25 统计）
+
+| 模块 | 行数 | 被谁引用 | 相关测试文件 |
+|---|---|---|---|
+| decision_guidance | 872 | engagement | 15 |
+| decision_plan | 737 | decision_explanation、engagement | 4 |
+| decision_explanation | 679 | engagement | 3 |
+| decision_dialogue | 465 | decision_guidance、engagement | 6 |
+| decision_semantics | 405 | 12 个模块，含 schemas、runtime、generation_runtime | 10 |
+| decision_candidates | 290 | decision_explanation、decision_intake、engagement、research_report | 8 |
+| decision_stages | 262 | decision_guidance、decision_intent、decision_plan | 1 |
+| decision_workflow | 250 | engagement | 2 |
+| decision_intent | 157 | 8 个规则模块 | 5 |
+| decision_resolution | 93 | engagement | 4 |
+
+### 建议删除顺序
+
+1. **先删页面层：** `decision_guidance`、`decision_resolution`、`decision_dialogue`（澄清问题）。模型分析不再需要这些。
+2. **再删计划与解释：** `decision_plan`、`decision_explanation`、`decision_stages`、`decision_workflow`。
+3. **最后评估：** `decision_candidates`、`decision_intent`、`decision_semantics` 被报告导出、任务理解预算和数据结构引用，需要逐个改写调用方后再删，不能整块移除。
+4. 每一步删完都跑后端完整测试，相关测试一起删或改写，不能为了通过而跳过。
