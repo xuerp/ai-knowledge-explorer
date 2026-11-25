@@ -14,6 +14,7 @@ const {
   extractionFailureMessage,
   formatRolloutSummary,
   isAllowlistedSource,
+  nextSourceStep,
   selectRolloutSources,
 } = await vite.ssrLoadModule("/src/domain/source-rollout.ts");
 
@@ -194,4 +195,21 @@ test("抽取等待超时不显示为连接失败，并说明结果去哪里看",
     extractionFailureMessage("Source is outside the approved extraction scope."),
     "Source is outside the approved extraction scope.",
   );
+});
+
+test("灰掉的采集按钮旁边说明下一步该做什么", () => {
+  const base = {
+    active: true,
+    fetchEnabled: false,
+    collectionStrategy: "unverified",
+    lastSeenAt: null,
+    autoPausedAt: null,
+    recentProbePassed: false,
+  };
+  assert.match(nextSourceStep(base), /先点“连接预检”/);
+  assert.match(nextSourceStep({ ...base, recentProbePassed: true }), /启用自动采集/);
+  assert.match(nextSourceStep({ ...base, fetchEnabled: true }), /立即采集此信源/);
+  assert.match(nextSourceStep({ ...base, collectionStrategy: "manual" }), /人工采集/);
+  assert.match(nextSourceStep({ ...base, active: false }), /已停用/);
+  assert.equal(nextSourceStep({ ...base, fetchEnabled: true, lastSeenAt: "2026-11-25" }), null);
 });

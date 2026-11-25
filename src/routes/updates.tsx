@@ -18,6 +18,8 @@ import { pick, useApp } from "@/lib/app-state";
 import { modelDisplayName } from "@/lib/model-display";
 import { chronologicalChanges, visiblePageNumbers } from "@/domain/change-navigation";
 import { changeDetailFields } from "@/domain/change-presentation";
+import { changeContext } from "@/domain/change-context";
+import { ChangeContextDetails } from "@/components/updates/ChangeContextDetails";
 import {
   hasLinkedChangeSource,
   matchesChangeKinds,
@@ -152,6 +154,16 @@ function UpdatesPage() {
   const pageNumbers = visiblePageNumbers(pageIndex, pageCount);
   const selectedChange =
     latestChanges.find((change) => change.id === selectedId) ?? latestChanges[0];
+  const selectedContext = selectedChange
+    ? changeContext(selectedChange, snapshot.entities, filteredChanges)
+    : undefined;
+  // A related change may sit on another page of the current filtered list.
+  const openChange = (id: string) => {
+    const index = filteredChanges.findIndex((change) => change.id === id);
+    if (index < 0) return;
+    setPage({ key: pageKey, index: Math.floor(index / 6) });
+    setSelectedId(id);
+  };
   const selectedEntity = selectedChange ? entityById.get(selectedChange.entityId) : undefined;
   const selectedFamily = selectedEntity?.familyId
     ? entityById.get(selectedEntity.familyId)
@@ -552,6 +564,14 @@ function UpdatesPage() {
                         </div>
                       ))}
                     </dl>
+                  )}
+                  {selectedContext && (
+                    <ChangeContextDetails
+                      context={selectedContext}
+                      entityById={entityById}
+                      kindLabel={(kind) => changeKindLabel(kind, lang)}
+                      onSelectChange={openChange}
+                    />
                   )}
                   {selectedFamily && (
                     <EntityDetailLink
