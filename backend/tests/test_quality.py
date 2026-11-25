@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.dialects import postgresql
@@ -414,3 +415,33 @@ def test_freshness_counts_past_collection_window_without_future_dates():
     report = KnowledgeQualityGate().report(snapshot, now=now)
     assert report.fresh_evidence_count == 2
     assert report.fresh_evidence_ratio == 0.5
+
+
+def test_vendor_changelog_sources_are_catalogued_and_allowed():
+    """Vendors with models in the catalog but no collected source get an official changelog."""
+    import yaml
+
+    blueprint = yaml.safe_load(
+        (Path(__file__).resolve().parents[2] / "render.yaml").read_text(encoding="utf-8")
+    )
+    allowed = next(
+        item["value"]
+        for group in blueprint["envVarGroups"]
+        for item in group["envVars"]
+        if item["key"] == "AI_RADAR_FETCH_ALLOWED_HOSTS"
+    ).split(",")
+    by_id = {str(item["id"]): item for item in MACHINE_SOURCE_CATALOG}
+    expected = {
+        "s-deepseek-api-changelog": "DeepSeek",
+        "s-kimi-platform-changelog": "Moonshot AI",
+        "s-zhipu-new-releases": "Zhipu AI",
+        "s-minimax-model-release-notes": "MiniMax",
+        "s-xai-release-notes": "SpaceXAI",
+        "s-volcengine-ark-model-releases": "ByteDance Seed",
+    }
+    for source_id, publisher in expected.items():
+        source = by_id[source_id]
+        assert source["publisher"] == publisher
+        host = urlsplit(str(source["url"])).hostname
+        assert str(source["url"]).startswith("https://")
+        assert host in allowed, host

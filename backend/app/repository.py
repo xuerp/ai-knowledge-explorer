@@ -165,6 +165,50 @@ MACHINE_SOURCE_CATALOG = (
         "publisher": "Qoder",
         "fetch_interval_minutes": 1440,
     },
+    # Official dated changelogs for vendors with no collected source, checked on
+    # 2026-11-25 to return dated text through the site's own text extraction.
+    {
+        "id": "s-deepseek-api-changelog",
+        "url": "https://api-docs.deepseek.com/updates",
+        "title": "DeepSeek API 更新日志",
+        "publisher": "DeepSeek",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-kimi-platform-changelog",
+        "url": "https://platform.kimi.com/docs/changelog/index.md",
+        "title": "Kimi 开放平台更新日志",
+        "publisher": "Moonshot AI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-zhipu-new-releases",
+        "url": "https://docs.bigmodel.cn/cn/update/new-releases.md",
+        "title": "智谱开放平台新品发布",
+        "publisher": "Zhipu AI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-minimax-model-release-notes",
+        "url": "https://platform.minimax.io/docs/release-notes/models.md",
+        "title": "MiniMax 模型发布说明",
+        "publisher": "MiniMax",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-xai-release-notes",
+        "url": "https://docs.x.ai/developers/release-notes",
+        "title": "xAI 开发者发布说明",
+        "publisher": "SpaceXAI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-volcengine-ark-model-releases",
+        "url": "https://www.volcengine.com/docs/82379/1159178",
+        "title": "火山方舟模型发布公告",
+        "publisher": "ByteDance Seed",
+        "fetch_interval_minutes": 1440,
+    },
 )
 
 

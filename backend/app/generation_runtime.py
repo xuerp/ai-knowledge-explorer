@@ -82,8 +82,17 @@ class GenerationConfig:
             )
         if not 0 < self.input_rate <= 1_000_000_000 or not 0 < self.output_rate <= 1_000_000_000:
             raise ValueError("Explicit positive token tariffs are required.")
-        if not 1 <= self.max_calls <= 100 or not 1 <= self.user_daily_calls <= self.max_calls:
-            raise ValueError("Use a bounded 1..100 call allocation and per-user daily cap.")
+        # Extraction runs as the single automation account over many sources at a few
+        # fen per call, so its call allocation may be larger; the money limit still
+        # bounds spend. User-triggered answers keep the stricter 100-call allocation.
+        call_ceiling = 1000 if self.user_ids == ("automation",) else 100
+        if (
+            not 1 <= self.max_calls <= call_ceiling
+            or not 1 <= self.user_daily_calls <= self.max_calls
+        ):
+            raise ValueError(
+                f"Use a bounded 1..{call_ceiling} call allocation and per-user daily cap."
+            )
         if not 1 <= self.max_output_tokens <= 131072:
             raise ValueError("Requested model output must stay within 1..131072 tokens.")
         if (

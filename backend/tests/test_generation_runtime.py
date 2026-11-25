@@ -373,6 +373,28 @@ def test_answer_generator_reports_invite_scope_without_reserving_budget(setup):
         assert session.scalars(select(ModelCallRecord)).all() == []
 
 
+@pytest.mark.parametrize(
+    ("user_ids", "max_calls", "allowed"),
+    [
+        (("automation",), 1000, True),
+        (("automation",), 1001, False),
+        (("test-owner",), 100, True),
+        (("test-owner",), 101, False),
+        (("automation", "test-owner"), 101, False),
+    ],
+)
+def test_call_allocation_ceiling_is_wider_only_for_the_automation_account(
+    setup, user_ids, max_calls, allowed
+):
+    _, cfg = setup
+    build = lambda: replace(cfg, user_ids=user_ids, max_calls=max_calls)
+    if allowed:
+        assert build().max_calls == max_calls
+    else:
+        with pytest.raises(ValueError, match="call allocation"):
+            build()
+
+
 def test_a_call_in_progress_is_reported_as_busy_not_exhausted(setup):
     """A second request while the first still runs must not read as a spent allowance."""
     from app.model_budget import ModelBudgetBusy, ModelBudgetUnavailable

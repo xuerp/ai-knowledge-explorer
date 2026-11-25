@@ -149,6 +149,9 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
+# AI_RADAR_EXTRACTION_SOURCE_IDS=* : every active, automatically collected source.
+ALL_AUTOMATIC_SOURCES = "*"
+
 EXTRACTION_PIPELINE_VERSION = "2026-11-catalog-entity-subject-v23"
 
 
@@ -404,6 +407,11 @@ class StructuredExtractionService:
     def call_metadata(self) -> dict[str, Any] | None:
         metadata = self._call_metadata.get()
         return dict(metadata) if metadata is not None else None
+
+    def source_in_budget_scope(self, source: SourceRecord) -> bool:
+        if ALL_AUTOMATIC_SOURCES in self.budgeted_source_ids:
+            return bool(source.active and source.fetch_enabled and source.auto_paused_at is None)
+        return source.id in self.budgeted_source_ids
 
     def record_document_scope(self, delta: Any, source_characters: int) -> None:
         """Record whether the whole document or only its changed text was sent."""
@@ -868,7 +876,7 @@ class StructuredExtractionService:
     ) -> list[CandidateCreate]:
         """Cover the document within one deadline, or fail without publishing a partial batch."""
         self._call_metadata.set(None)
-        if self.budgeted_generator and source.id not in self.budgeted_source_ids:
+        if self.budgeted_generator and not self.source_in_budget_scope(source):
             raise ExtractionUnavailableError("Source is outside the approved extraction scope.")
         if not 1 <= max_candidates <= 30:
             raise ExtractionUnavailableError("Candidate limit must be between 1 and 30.")

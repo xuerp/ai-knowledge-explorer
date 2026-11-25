@@ -4581,3 +4581,72 @@ def test_reviewed_free_form_change_predicates_reach_updates_with_a_detail(client
         assert change["date"] == "2026-10-30"
         assert change["detail"]["after"]["en"] == value
         assert change["sourceIds"] == [f"evidence-free-{suffix}"]
+
+
+def test_wildcard_extraction_scope_follows_automatic_collection(tmp_path):
+    """AI_RADAR_EXTRACTION_SOURCE_IDS=* : enabling collection is enough to extract."""
+    extraction_generation = GenerationConfig(
+        endpoint="https://provider.example/v1/chat/completions",
+        api_key="test-provider-key",
+        model="gpt-6.2-sol",
+        budget_id="test-wildcard-scope",
+        month=datetime.now(UTC).strftime("%Y-%m"),
+        currency="CNY",
+        limit_units=5_000_000,
+        input_rate=600_000,
+        output_rate=3_000_000,
+        max_calls=100,
+        user_daily_calls=20,
+        user_ids=("automation",),
+        max_output_tokens=8192,
+        billable_input_tokens=120_000,
+        billable_output_tokens=8192,
+    )
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'wildcard-scope.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        environment="test",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url=extraction_generation.endpoint,
+        extraction_api_key=extraction_generation.api_key,
+        extraction_model=extraction_generation.model,
+        extraction_generation=extraction_generation,
+        extraction_source_ids=("*",),
+        auto_extraction_max_snapshots_per_cycle=1,
+    )
+    with TestClient(create_app(settings)) as wildcard_client:
+        headers = {"X-Admin-Token": "test-admin-token"}
+        for source_id in ("source-collected", "source-manual", "source-paused"):
+            assert (
+                wildcard_client.post(
+                    "/api/v2/admin/sources",
+                    headers=headers,
+                    json={
+                        "id": source_id,
+                        "url": f"https://example.com/{source_id}",
+                        "title": source_id,
+                        "publisher": "Example",
+                    },
+                ).status_code
+                == 201
+            )
+            assert (
+                wildcard_client.post(
+                    f"/api/v2/admin/sources/{source_id}/snapshots",
+                    headers=headers,
+                    json={"content": f"{source_id} changelog entry."},
+                ).status_code
+                == 200
+            )
+        services = wildcard_client.app.state.services
+        with wildcard_client.app.state.database.session() as session:
+            session.get(SourceRecord, "source-collected").fetch_enabled = True
+            paused = session.get(SourceRecord, "source-paused")
+            paused.fetch_enabled = True
+            paused.auto_paused_at = datetime.now(UTC)
+            session.commit()
+            planned = services.build_extraction_plan(session, 10, automatic_only=True)
+
+    assert [source.id for source, _ in planned] == ["source-collected"]
