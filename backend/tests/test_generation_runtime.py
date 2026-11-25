@@ -371,3 +371,33 @@ def test_answer_generator_reports_invite_scope_without_reserving_budget(setup):
     assert not generator.allows_user(None)
     with database.session() as session:
         assert session.scalars(select(ModelCallRecord)).all() == []
+
+
+def test_a_call_in_progress_is_reported_as_busy_not_exhausted(setup):
+    """A second request while the first still runs must not read as a spent allowance."""
+    from app.model_budget import ModelBudgetBusy, ModelBudgetUnavailable
+
+    database, cfg = setup
+    budget = ModelBudget(database, cfg)
+    first = budget.reserve("test-owner", "analysis", 10, 20)
+    with pytest.raises(ModelBudgetBusy):
+        budget.reserve("test-owner", "analysis", 10, 20)
+    budget.finish(
+        first,
+        {"promptTokens": 1, "completionTokens": 1, "totalTokens": 2, "returnedModel": cfg.model},
+        validated=True,
+        input_bound=10,
+        output_bound=20,
+    )
+    # Once the first call settles, the next one is admitted again.
+    second = budget.reserve("test-owner", "analysis", 10, 20)
+    assert second
+    # A genuinely closed budget still raises the plain error, not "busy".
+    with database.session() as session:
+        row = session.get(ModelBudgetRecord, cfg.budget_id)
+        row.active_attempt_id = None
+        row.blocked = True
+        session.commit()
+    with pytest.raises(ModelBudgetUnavailable) as error:
+        budget.reserve("test-owner", "analysis", 10, 20)
+    assert not isinstance(error.value, ModelBudgetBusy)

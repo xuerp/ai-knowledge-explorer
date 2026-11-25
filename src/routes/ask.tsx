@@ -10,7 +10,7 @@ import { SourceExcerpt } from "@/components/research/SourceExcerpt";
 import { selectResearchEvidence } from "@/domain/research-evidence";
 import { useKnowledgeSnapshot } from "@/hooks/use-knowledge";
 import { authSessionExpiredEvent, readAuthToken } from "@/services/auth-session";
-import { accountErrorMessage } from "@/services/auth-errors";
+import { accountErrorMessage, isRequestTimeout } from "@/services/auth-errors";
 import {
   AuthSessionExpiredError,
   userApi,
@@ -33,6 +33,9 @@ import {
   decisionStarters,
   decisionExampleContext,
 } from "@/domain/decision-examples";
+
+// Commas, the Chinese enumeration comma and semicolons all separate exclusions.
+const EXCLUSION_SEPARATORS = /[，,、；;]/;
 
 export const Route = createFileRoute("/ask")({
   head: () => ({
@@ -93,6 +96,7 @@ function AskPage() {
   researchIdRef.current = research?.id ?? null;
   const [error, setError] = useState("");
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const [busy, setBusy] = useState(false);
   const submissionInFlight = useRef(false);
   const [draftRestored, setDraftRestored] = useState(false);
@@ -291,7 +295,7 @@ function AskPage() {
         : {}),
     },
     exclusions: exclusions
-      .split(/[，,]/)
+      .split(EXCLUSION_SEPARATORS)
       .map((item) => item.trim())
       .filter(Boolean),
     candidateEntityIds,
@@ -422,7 +426,7 @@ function AskPage() {
       return;
     }
     const parsedExclusions = exclusions
-      .split(/[，,]/)
+      .split(EXCLUSION_SEPARATORS)
       .map((item) => item.trim())
       .filter(Boolean);
     if (parsedExclusions.length > 20 || parsedExclusions.some((item) => item.length > 200)) {
@@ -498,6 +502,7 @@ function AskPage() {
     setBusy(true);
     setError("");
     setSessionExpired(false);
+    setTimedOut(false);
     try {
       const parentId = research?.id ?? revisionParent;
       const parent = parentId ? await userApi.researchDetail(token, parentId) : null;
@@ -526,13 +531,21 @@ function AskPage() {
       setResearch(null);
       const expired = reason instanceof AuthSessionExpiredError;
       setSessionExpired(expired);
+      // A timeout often means the analysis is still running server-side; a
+      // blind retry would race it and be refused, so point to the history instead.
+      setTimedOut(!expired && isRequestTimeout(reason));
       setError(
         expired
           ? t(
               "登录已过期，请重新登录后继续。当前输入会保留。",
               "Your session expired. Sign in to continue; your inputs will be preserved.",
             )
-          : accountErrorMessage(reason, t),
+          : isRequestTimeout(reason)
+            ? t(
+                "页面等待超时，但分析可能仍在后台进行。请等 1–2 分钟，到“我的研究记录”查看结果；找不到再重新提交。",
+                "The page timed out, but the analysis may still be running. Wait a minute or two and check My research; resubmit only if it is not there.",
+              )
+            : accountErrorMessage(reason, t),
       );
     } finally {
       submissionInFlight.current = false;
@@ -1029,7 +1042,7 @@ function AskPage() {
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <DecisionInput
-                      label={t("排除条件（逗号分隔）", "Exclusions (comma-separated)")}
+                      label={t("排除条件（可用逗号或顿号分隔）", "Exclusions (comma-separated)")}
                       hint={t("不想要的产品或条件", "Products or conditions to rule out")}
                       value={exclusions}
                       onChange={setExclusions}
@@ -1162,6 +1175,11 @@ function AskPage() {
                   className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
                 >
                   {error}
+                  {timedOut && (
+                    <Link to="/account" className="ml-2 font-medium underline">
+                      {t("打开我的研究记录", "Open My research")}
+                    </Link>
+                  )}
                   {sessionExpired && (
                     <Link
                       to="/account"
