@@ -432,11 +432,11 @@ def test_vendor_changelog_sources_are_catalogued_and_allowed():
     ).split(",")
     by_id = {str(item["id"]): item for item in MACHINE_SOURCE_CATALOG}
     expected = {
-        "s-deepseek-api-changelog": "DeepSeek",
+        "s-deepseek-history-reviewed": "DeepSeek",
         "s-kimi-platform-changelog": "Moonshot AI",
         "s-zhipu-new-releases": "Zhipu AI",
         "s-minimax-model-release-notes": "MiniMax",
-        "s-xai-release-notes": "SpaceXAI",
+        "s-grok-release-notes": "SpaceXAI",
         "s-volcengine-ark-model-releases": "ByteDance Seed",
     }
     for source_id, publisher in expected.items():
@@ -445,3 +445,36 @@ def test_vendor_changelog_sources_are_catalogued_and_allowed():
         host = urlsplit(str(source["url"])).hostname
         assert str(source["url"]).startswith("https://")
         assert host in allowed, host
+
+
+def test_volcengine_source_migrates_to_its_final_page_without_undoing_an_admin_fix():
+    final_url = "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh"
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    repository = KnowledgeRepository(SEED_PATH)
+    with Session(engine) as session:
+        repository.seed_catalog(session)
+        row = session.get(SourceRecord, "s-volcengine-ark-model-releases")
+        assert row is not None and row.url == final_url
+
+        # Simulate the row seeded at the old redirecting URL, then fixed by an admin.
+        row.url = "https://www.volcengine.com/docs/82379/1159178"
+        row.fetch_url = final_url
+        row.fetch_enabled = True
+        row.last_probe_status = "passed"
+        session.commit()
+        repository.seed_catalog(session)
+        session.refresh(row)
+        assert row.url == final_url
+        assert row.fetch_enabled is True
+        assert row.last_probe_status == "passed"
+
+        # Without the admin fix the old URL is corrected and collection waits for a probe.
+        row.url = "https://www.volcengine.com/docs/82379/1159178"
+        row.fetch_url = None
+        session.commit()
+        repository.seed_catalog(session)
+        session.refresh(row)
+        assert row.url == final_url
+        assert row.fetch_enabled is False
+        assert row.last_probe_status is None

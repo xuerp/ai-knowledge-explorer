@@ -165,6 +165,7 @@ export interface ReviewQueueItem {
 export interface ReviewInventoryReport {
   generatedAt: string;
   openTotal: number;
+  decidedTotal?: number;
   byEntity: Record<string, number>;
   bySource: Record<string, number>;
   byMonth: Record<string, number>;
