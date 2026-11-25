@@ -2980,6 +2980,46 @@ a.decision-brief__claims {
   line-height: 1.65;
   overflow-wrap: anywhere;
 }
+.updates-change-context {
+  padding-top: 1rem;
+  border-top: 1px solid var(--updates-line);
+}
+.updates-change-context__note {
+  display: block;
+  color: var(--updates-muted);
+  font-size: 0.8rem;
+}
+.updates-change-context__list {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.updates-change-context__list a,
+.updates-change-context__list button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--updates-blue);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.updates-change-context__list a:hover,
+.updates-change-context__list button:hover {
+  text-decoration: underline;
+}
+.updates-change-context__list a:focus-visible,
+.updates-change-context__list button:focus-visible {
+  outline: 2px solid var(--updates-blue);
+  outline-offset: 2px;
+}
+.updates-change-context__tag {
+  margin-right: 0.4rem;
+  color: var(--updates-muted);
+  font-size: 0.75rem;
+}
 
 .entry-request-dialog {
   width: min(30rem, calc(100% - 2rem));
