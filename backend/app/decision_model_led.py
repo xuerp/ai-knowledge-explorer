@@ -152,6 +152,34 @@ def parse_model_led(raw: str) -> tuple[ModelLedPayload, list[str]]:
         raise ModelLedRejected(f"schema:{first.get('type', 'invalid')}:{location}") from error
 
 
+# A version continues a name when the next character extends it: a digit, a
+# point, a hyphen or a letter. "GPT-5" is not mentioned by "GPT-5.4", and
+# "Claude Opus 4" is not mentioned by "Claude Opus 4.5"; "GPT-5。" is.
+_NAME_CONTINUES = re.compile(r"[0-9A-Za-z.\-_]")
+# A space then a version number also extends it: "GPT Realtime 2.1".
+_SPACED_VERSION = re.compile(r"\s+v?\d")
+
+
+def mentions_name(text: str, name: str) -> bool:
+    """True when `name` appears in `text` as a whole name, not inside a longer one."""
+    needle = name.casefold()
+    haystack = text.casefold()
+    start = haystack.find(needle)
+    while start != -1:
+        before = haystack[start - 1] if start > 0 else ""
+        after_index = start + len(needle)
+        after = haystack[after_index] if after_index < len(haystack) else ""
+        # ASCII names need a boundary on the left too ("xgpt-5" is another word).
+        left_ok = not before or not (needle[:1].isascii() and _NAME_CONTINUES.match(before))
+        extended = bool(after and _NAME_CONTINUES.match(after)) or bool(
+            _SPACED_VERSION.match(haystack, after_index)
+        )
+        if left_ok and not extended:
+            return True
+        start = haystack.find(needle, start + 1)
+    return False
+
+
 def _texts(point: ModelLedPoint) -> tuple[str, str]:
     return point.text_zh, point.text_en
 
@@ -290,7 +318,7 @@ def validate_model_led(
             continue
         entity = entities[item.entity_id]
         names = {entity.name.zh, entity.name.en, *(entity.aliases or [])}
-        if any(name and len(name) > 2 and name.casefold() in lead_text for name in names):
+        if any(name and len(name) > 2 and mentions_name(lead_text, name) for name in names):
             # A real violation: never show a recommendation the rules excluded.
             raise ModelLedRejected("lead-recommends-excluded")
     pick = (lambda zh, en: zh) if language == "zh" else (lambda zh, en: en)
