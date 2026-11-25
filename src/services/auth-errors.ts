@@ -15,9 +15,27 @@ export class AuthSessionExpiredError extends AuthRequestError {
   }
 }
 
+/** The response did not arrive in time; the server may still finish the work. */
+export class RequestTimeoutError extends AuthRequestError {
+  constructor() {
+    super("服务响应超时，请重试。", "The service timed out. Try again.");
+    this.name = "RequestTimeoutError";
+  }
+}
+
+const BROWSER_TIMEOUT = "后端请求超时，请稍后重试；若已登录，其他后台数据仍可继续加载。";
+
+/** True for a gateway 504 or the browser's own request timeout. */
+export function isRequestTimeout(reason: unknown): boolean {
+  return (
+    reason instanceof RequestTimeoutError ||
+    (reason instanceof Error && reason.message === BROWSER_TIMEOUT)
+  );
+}
+
 export function apiAvailabilityError(status: number): AuthRequestError | null {
   if (status === 504) {
-    return new AuthRequestError("服务响应超时，请重试。", "The service timed out. Try again.");
+    return new RequestTimeoutError();
   }
   if (status === 502 || status === 503) {
     return new AuthRequestError(
@@ -59,7 +77,7 @@ export function accountErrorMessage(
   if (reason instanceof Error) {
     if (reason.message === "暂时无法连接后端 API，服务可能正在唤醒，请稍后刷新重试。")
       return t("暂时无法连接服务，请重试。", "The service is temporarily unavailable. Try again.");
-    if (reason.message === "后端请求超时，请稍后重试；若已登录，其他后台数据仍可继续加载。")
+    if (reason.message === BROWSER_TIMEOUT)
       return t("服务响应超时，请重试。", "The service timed out. Try again.");
   }
   return reason instanceof Error

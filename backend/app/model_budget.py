@@ -26,6 +26,10 @@ class ModelBudgetUnavailable(ValueError):
     pass
 
 
+class ModelBudgetBusy(ModelBudgetUnavailable):
+    """Another call on this budget is still running; not an exhausted allowance."""
+
+
 class ModelBudget:
     def __init__(self, database, config):
         self.database, self.config = database, config
@@ -74,6 +78,16 @@ class ModelBudget:
                 )
             )
             if locked.rowcount != 1:
+                row = session.get(Budget, cfg.budget_id)
+                if (
+                    row is not None
+                    and row.active_attempt_id is not None
+                    and not row.blocked
+                    and row.profile_sha256 == self.profile
+                ):
+                    # The previous request is still being answered. Telling the
+                    # user their allowance is spent would be wrong.
+                    raise ModelBudgetBusy("Another model call on this budget is in progress.")
                 raise ModelBudgetUnavailable(
                     "Model budget is closed, exhausted, changed or in use."
                 )

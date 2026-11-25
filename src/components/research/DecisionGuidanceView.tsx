@@ -9,7 +9,7 @@ import {
   type DecisionIntentAnswer,
   type ResearchResult,
 } from "@/services/user-api";
-import { accountErrorMessage } from "@/services/auth-errors";
+import { accountErrorMessage, isRequestTimeout } from "@/services/auth-errors";
 import { decisionResumePath } from "@/domain/decision-workflow";
 import { DecisionChoice } from "./DecisionChoice";
 import { decisionComparisonRows } from "@/domain/decision-choice";
@@ -143,7 +143,14 @@ export function DecisionGuidanceView({
       else window.location.assign(`/research/${encodeURIComponent(result.id)}`);
     } catch (reason) {
       setExpired(reason instanceof AuthSessionExpiredError);
-      setError(accountErrorMessage(reason, t));
+      setError(
+        isRequestTimeout(reason)
+          ? t(
+              "页面等待超时，但分析可能仍在后台进行。请等 1–2 分钟，到“我的研究记录”查看结果；找不到再重试。",
+              "The page timed out, but the analysis may still be running. Wait a minute or two and check My research; retry only if it is not there.",
+            )
+          : accountErrorMessage(reason, t),
+      );
     } finally {
       submitting.current = false;
       setBusy(false);
@@ -188,7 +195,14 @@ export function DecisionGuidanceView({
       else window.location.assign(`/research/${encodeURIComponent(result.id)}`);
     } catch (reason) {
       setExpired(reason instanceof AuthSessionExpiredError);
-      setError(accountErrorMessage(reason, t));
+      setError(
+        isRequestTimeout(reason)
+          ? t(
+              "页面等待超时，但分析可能仍在后台进行。请等 1–2 分钟，到“我的研究记录”查看结果；找不到再重试。",
+              "The page timed out, but the analysis may still be running. Wait a minute or two and check My research; retry only if it is not there.",
+            )
+          : accountErrorMessage(reason, t),
+      );
     } finally {
       submitting.current = false;
       setBusy(false);
@@ -239,29 +253,41 @@ export function DecisionGuidanceView({
       {sourceNotice === "model-analysis-failed" && (
         <div className="decision-guidance__model-failed" role="status">
           <p>
-            {research.retrievalDiagnostics.generationFallbackReason === "model-led-unavailable"
+            {research.retrievalDiagnostics.generationFallbackReason === "model-led-busy"
               ? t(
-                  "模型分析这次没有运行：今天的调用次数或预算已用完。下面是根据已审核资料整理的结果。",
-                  "Model analysis did not run: today's call allowance or budget is used up. The result below is drawn from reviewed evidence.",
+                  "上一次分析还在进行中，这次没有调用模型。稍后在“我的研究记录”里查看上一次的结果，不需要重复提交。",
+                  "Your previous analysis is still running, so the model was not called again. Check My research shortly; there is no need to resubmit.",
                 )
-              : research.retrievalDiagnostics.generationFallbackReason ===
-                  "model-led-provider-error"
+              : research.retrievalDiagnostics.generationFallbackReason === "model-led-unavailable"
                 ? t(
-                    "模型服务这次没有正常返回。下面是根据已审核资料整理的结果，可以稍后重新分析。",
-                    "The model service did not respond normally. The result below is drawn from reviewed evidence; try again later.",
+                    "模型分析这次没有运行：今天的调用次数或预算已用完。下面是根据已审核资料整理的结果。",
+                    "Model analysis did not run: today's call allowance or budget is used up. The result below is drawn from reviewed evidence.",
                   )
-                : t(
-                    "模型分析这次没有通过校验，已自动重试仍未成功。下面是根据已审核资料整理的结果。",
-                    "The model analysis failed validation, including one automatic retry. The result below is drawn from reviewed evidence.",
-                  )}
+                : research.retrievalDiagnostics.generationFallbackReason ===
+                    "model-led-provider-error"
+                  ? t(
+                      "模型服务这次没有正常返回。下面是根据已审核资料整理的结果，可以稍后重新分析。",
+                      "The model service did not respond normally. The result below is drawn from reviewed evidence; try again later.",
+                    )
+                  : t(
+                      "模型分析这次没有通过校验，已自动重试仍未成功。下面是根据已审核资料整理的结果。",
+                      "The model analysis failed validation, including one automatic retry. The result below is drawn from reviewed evidence.",
+                    )}
           </p>
           {research.decisionContext &&
             !privateAdvice &&
-            research.retrievalDiagnostics.generationFallbackReason !== "model-led-unavailable" && (
+            !["model-led-unavailable", "model-led-busy"].includes(
+              research.retrievalDiagnostics.generationFallbackReason ?? "",
+            ) && (
               <Button size="sm" variant="outline" disabled={busy} onClick={() => void retry()}>
                 {busy ? t("正在重新分析…", "Analyzing again…") : t("重新分析", "Analyze again")}
               </Button>
             )}
+          {research.retrievalDiagnostics.generationFallbackReason === "model-led-busy" && (
+            <a href="/account" className="decision-guidance__history-link">
+              {t("打开我的研究记录", "Open My research")}
+            </a>
+          )}
         </div>
       )}
       {sourceNotice === "invite-only" && (

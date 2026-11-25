@@ -18,7 +18,7 @@ from pydantic import ValidationError
 from .answer_generation import _quoted_values
 from .decision_constraints import constraint_failures
 from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
-from .model_budget import ModelBudgetUnavailable
+from .model_budget import ModelBudgetBusy, ModelBudgetUnavailable
 from .schemas import (
     DecisionModelLedCandidate,
     DecisionModelLedLine,
@@ -433,6 +433,8 @@ def run_model_led(
             return ModelLedOutcome(analysis, None, citations, attempts=attempts)
         except ModelInputTooLarge:
             return ModelLedOutcome(None, "model-led-too-large", attempts=attempts)
+        except ModelBudgetBusy:
+            return ModelLedOutcome(None, "model-led-busy", attempts=attempts)
         except ModelBudgetUnavailable:
             return ModelLedOutcome(None, "model-led-unavailable", attempts=attempts)
         except ModelLedRejected as error:

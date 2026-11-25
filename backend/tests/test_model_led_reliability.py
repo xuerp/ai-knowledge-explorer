@@ -134,3 +134,18 @@ def test_owner_requests_verification_of_one_unverified_line(api):  # noqa: F811
     assert client.delete(f"/api/v2/research/{research_id}", headers=owner).status_code == 204
     with client.app.state.database.session() as session:
         assert session.get(EntryRequestRecord, first.json()["id"]) is None
+
+
+def test_busy_budget_is_its_own_reason_and_not_retried(api):  # noqa: F811
+    from app.model_budget import ModelBudgetBusy
+
+    class Busy(AnalysisGenerator):
+        def analyze(self, *args, **kwargs):
+            self.calls.append(1)
+            raise ModelBudgetBusy("Another model call on this budget is in progress.")
+
+    generator = Busy()
+    enable(api, generator)
+    result = create(api, SCREENSHOT)
+    assert generator.calls == [1], "a busy budget is not retried"
+    assert result["retrievalDiagnostics"]["generationFallbackReason"] == "model-led-busy"

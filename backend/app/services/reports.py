@@ -32,6 +32,7 @@ class ReportsServices:
                         "model-led-too-large",
                         "model-led-provider-error",
                         "model-led-unavailable",
+                        "model-led-busy",
                         "generation-not-entitled",
                     }
                     else None,
