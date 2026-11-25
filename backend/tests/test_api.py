@@ -2739,6 +2739,8 @@ def test_review_inventory_is_read_only_and_classifies_duplicates(client: TestCli
 
     assert report.status_code == 200
     assert report.json()["openTotal"] == len(before)
+    decided = client.get("/api/v2/review/stats").json()["reviewedCount"]
+    assert report.json()["decidedTotal"] == decided
     assert report.json()["duplicateWithPublishedItems"] == 1
     assert report.json()["possibleUpdateGroups"] >= 1
     assert report.json()["riskCounts"]["high"] >= 2

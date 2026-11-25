@@ -425,6 +425,8 @@ class ReviewQueueItem(ReviewCandidate):
 class ReviewInventoryReport(CamelModel):
     generated_at: str
     open_total: int
+    # All human and automatic decisions; the admin page lists only the latest ones.
+    decided_total: int = 0
     by_entity: dict[str, int]
     by_source: dict[str, int]
     by_month: dict[str, int]

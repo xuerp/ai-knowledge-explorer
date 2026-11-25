@@ -132,3 +132,9 @@ export function partitionReviewBatchItems<T>(items: readonly T[], batchSize = 50
 function normalizeReviewAnchor(value: string | null | undefined): string {
   return value?.trim().toLocaleLowerCase().replace(/\s+/g, " ") ?? "";
 }
+
+/** Title for the review history fold. The page loads only the latest decisions. */
+export function reviewHistoryTitle(shown: number, total: number | null | undefined): string {
+  if (typeof total !== "number" || total <= shown) return `已处理审核历史（${shown}）`;
+  return `已处理审核历史（共 ${total} 条，显示最近 ${shown} 条）`;
+}

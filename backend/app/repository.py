@@ -99,6 +99,10 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
         "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
         "master/data/info_for_leaderboard.json"
     ),
+    # Seeded on 2026-11-25 at a URL that redirects off the allow-listed host.
+    "s-volcengine-ark-model-releases": (
+        "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh"
+    ),
 }
 
 MACHINE_SOURCE_CATALOG = (
@@ -168,7 +172,8 @@ MACHINE_SOURCE_CATALOG = (
     # Official dated changelogs for vendors with no collected source, checked on
     # 2026-11-25 to return dated text through the site's own text extraction.
     {
-        "id": "s-deepseek-api-changelog",
+        # Live catalogs already register this page as reviewed evidence under this id.
+        "id": "s-deepseek-history-reviewed",
         "url": "https://api-docs.deepseek.com/updates",
         "title": "DeepSeek API 更新日志",
         "publisher": "DeepSeek",
@@ -196,7 +201,7 @@ MACHINE_SOURCE_CATALOG = (
         "fetch_interval_minutes": 240,
     },
     {
-        "id": "s-xai-release-notes",
+        "id": "s-grok-release-notes",
         "url": "https://docs.x.ai/developers/release-notes",
         "title": "xAI 开发者发布说明",
         "publisher": "SpaceXAI",
@@ -204,7 +209,8 @@ MACHINE_SOURCE_CATALOG = (
     },
     {
         "id": "s-volcengine-ark-model-releases",
-        "url": "https://www.volcengine.com/docs/82379/1159178",
+        # www.volcengine.com redirects twice to this page on docs.volcengine.com.
+        "url": "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh",
         "title": "火山方舟模型发布公告",
         "publisher": "ByteDance Seed",
         "fetch_interval_minutes": 1440,
@@ -482,6 +488,11 @@ class KnowledgeRepository:
         for source_id, canonical_url in CANONICAL_SOURCE_URL_MIGRATIONS.items():
             row = session.get(SourceRecord, source_id)
             if row is None or row.url == canonical_url:
+                continue
+            # An administrator who already pointed collection at the canonical page
+            # keeps the probe and schedule; only the evidence URL is corrected.
+            if row.fetch_url and row.fetch_url.rstrip("/") == canonical_url.rstrip("/"):
+                row.url = canonical_url
                 continue
             row.url = canonical_url
             row.fetch_enabled = False

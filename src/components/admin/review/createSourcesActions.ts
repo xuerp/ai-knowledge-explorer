@@ -4,6 +4,7 @@ import { buildManualCandidate } from "@/domain/manual-candidate";
 
 import {
   describeProbeFailure,
+  extractionFailureMessage,
   formatRolloutSummary,
   selectRolloutSources,
   type RolloutOutcome,
@@ -204,7 +205,11 @@ export function createSourcesActions(state: ReviewState) {
         document.getElementById("review-queue")?.scrollIntoView({ behavior: "smooth" });
       });
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Candidate extraction failed.");
+      setError(
+        failure instanceof Error
+          ? extractionFailureMessage(failure.message)
+          : "Candidate extraction failed.",
+      );
     } finally {
       setBusy(false);
     }
@@ -229,7 +234,7 @@ export function createSourcesActions(state: ReviewState) {
         created.push(...(await adminApi.extractSource(token, item.sourceId, 5, item.snapshotId)));
       } catch (failure) {
         failures.push(
-          `${item.sourceTitle}：${failure instanceof Error ? failure.message : "抽取失败"}`,
+          `${item.sourceTitle}：${failure instanceof Error ? extractionFailureMessage(failure.message) : "抽取失败"}`,
         );
       }
     }

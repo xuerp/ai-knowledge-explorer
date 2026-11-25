@@ -129,3 +129,17 @@ export function formatRolloutSummary(outcomes: RolloutOutcome[]): string {
       : ""
   }`;
 }
+
+/**
+ * A long document can take minutes to extract; the browser and the edge proxy stop
+ * waiting long before the server does. A gateway or timeout error therefore does
+ * not mean extraction failed, so say where the outcome will appear instead.
+ */
+export function extractionFailureMessage(message: string): string {
+  const gateway =
+    /暂时无法连接服务|服务响应超时|后端请求超时|正在唤醒|timed out|temporarily unavailable|aborted/i;
+  if (gateway.test(message)) {
+    return "等待超时，后台可能仍在抽取；稍后刷新，在审核队列和自动任务记录中查看结果，不要立即重复抽取。";
+  }
+  return message;
+}

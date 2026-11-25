@@ -11,6 +11,7 @@ const vite = await createServer({
 const {
   describeProbeFailure,
   describeSourceAction,
+  extractionFailureMessage,
   formatRolloutSummary,
   isAllowlistedSource,
   selectRolloutSources,
@@ -179,4 +180,18 @@ test("批量接入汇总区分首次采集、运行中、自动重试和接入�
   assert.match(summary, /接入失败保持关闭 1 个/);
   assert.match(summary, /retrying（首次访问超时）/);
   assert.match(summary, /blocked（连接预检失败）/);
+});
+
+test("抽取等待超时不显示为连接失败，并说明结果去哪里看", () => {
+  for (const message of [
+    "暂时无法连接服务，请重试。",
+    "服务响应超时，请重试。",
+    "The operation was aborted.",
+  ]) {
+    assert.match(extractionFailureMessage(message), /后台可能仍在抽取/);
+  }
+  assert.equal(
+    extractionFailureMessage("Source is outside the approved extraction scope."),
+    "Source is outside the approved extraction scope.",
+  );
 });

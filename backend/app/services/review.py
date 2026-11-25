@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import HTTPException, status
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -621,9 +621,18 @@ class ReviewServices:
             update_key = (entity_key.casefold(), subject, predicate)
             update_values.setdefault(update_key, set()).add(value)
 
+        decided_total = int(
+            session.scalar(
+                select(func.count())
+                .select_from(ReviewJobRecord)
+                .where(ReviewJobRecord.status.in_(("approved", "rejected")))
+            )
+            or 0
+        )
         return ReviewInventoryReport(
             generated_at=now.isoformat(),
             open_total=len(open_items),
+            decided_total=decided_total,
             by_entity=dict(sorted(by_entity.items(), key=lambda pair: (-pair[1], pair[0]))),
             by_source=dict(sorted(by_source.items(), key=lambda pair: (-pair[1], pair[0]))),
             by_month=dict(sorted(by_month.items())),

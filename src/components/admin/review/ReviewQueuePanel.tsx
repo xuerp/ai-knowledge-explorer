@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { findClaimLifecycleMatches } from "@/domain/claim-lifecycle";
-import { reviewReasonCategoryLabels } from "@/domain/review-decision";
+import { reviewHistoryTitle, reviewReasonCategoryLabels } from "@/domain/review-decision";
 import { assessReviewItem } from "@/domain/review-priority";
 import { type ReviewLane } from "@/domain/review-lanes";
 
@@ -361,7 +361,7 @@ export function ReviewQueuePanel({ context }: { context: ReviewViewModel }) {
       {reviewHistory.length > 0 && (
         <details className="paper-card p-5">
           <summary className="cursor-pointer font-serif text-xl font-semibold">
-            已处理审核历史（{reviewHistory.length}）
+            {reviewHistoryTitle(reviewHistory.length, workspace.reviewInventory?.decidedTotal)}
           </summary>
           <div className="mt-4 divide-y divide-border">
             {reviewHistory.map((item) => (
