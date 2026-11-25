@@ -794,3 +794,68 @@ def test_budgeted_extraction_reports_provider_http_status_not_invalid_response(t
     with database.session() as session:
         # No usage receipt: the allocation stays closed until a new budget id is approved.
         assert session.get(ModelBudgetRecord, cfg.budget_id).blocked is True
+
+
+@pytest.mark.parametrize(
+    ("active", "fetch_enabled", "paused", "allowed"),
+    [
+        (True, True, False, True),
+        (True, False, False, False),
+        (False, True, False, False),
+        (True, True, True, False),
+    ],
+)
+def test_wildcard_budget_scope_covers_only_live_automatic_sources(
+    active, fetch_enabled, paused, allowed
+):
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        budgeted_generator=object(),
+        budgeted_source_ids=("*",),
+    )
+    source = SourceRecord(
+        id="any-source",
+        url="https://example.com/changelog",
+        title="Changelog",
+        publisher="Example",
+        active=active,
+        fetch_enabled=fetch_enabled,
+        auto_paused_at=datetime.now(UTC) if paused else None,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    assert service.source_in_budget_scope(source) is allowed
+
+
+def test_named_budget_scope_is_unchanged():
+    service = StructuredExtractionService(
+        "https://extractor.example/v1/chat/completions",
+        "test-secret",
+        "structured-model",
+        budgeted_generator=object(),
+        budgeted_source_ids=("source-a",),
+    )
+    named = SourceRecord(
+        id="source-a",
+        url="https://example.com/a",
+        title="A",
+        publisher="Example",
+        active=True,
+        fetch_enabled=False,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    other = SourceRecord(
+        id="source-b",
+        url="https://example.com/b",
+        title="B",
+        publisher="Example",
+        active=True,
+        fetch_enabled=True,
+        fetch_interval_minutes=240,
+        created_at=datetime.now(UTC),
+    )
+    assert service.source_in_budget_scope(named) is True
+    assert service.source_in_budget_scope(other) is False
