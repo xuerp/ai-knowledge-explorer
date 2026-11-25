@@ -1149,11 +1149,13 @@ class EngagementService:
                 decision, context = {}, {}
             model_led = decision.get("modelLed") or {}
             guidance = decision.get("guidance") or {}
-            headline = (
-                model_led.get("headline")
-                or (guidance.get("recommendation") or {}).get("headline")
-                or row.summary
+            # A clarifying question is not a title for a saved result: it reads
+            # as if the record asked the user something. Show the task instead.
+            asks_back = guidance.get("outcome") == "clarify" or bool(guidance.get("clarification"))
+            headline = model_led.get("headline") or (
+                None if asks_back else (guidance.get("recommendation") or {}).get("headline")
             )
+            headline = headline or (context.get("task") or row.question or row.summary)
             created = row.created_at
             summaries.append(
                 ResearchSummaryView(

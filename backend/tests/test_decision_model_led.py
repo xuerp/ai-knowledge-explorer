@@ -484,3 +484,57 @@ def test_exports_and_public_share_carry_the_model_analysis(api, world):  # noqa:
     assert shared.status_code == 200 and "先做一轮小规模微调验证" in shared.text
     reopened = client.get(f"/api/v2/research/{research_id}", headers=owner).json()
     assert reopened["decision"]["modelLed"]["headline"] == "先做一轮小规模微调验证"
+
+
+@pytest.mark.parametrize(
+    "text, name, mentioned",
+    [
+        # Live catalog: a retired version name is a prefix of current ones.
+        ("推荐 GPT-5.4 处理图表", "GPT-5", False),
+        ("Claude Opus 4.5 最稳", "Claude Opus 4", False),
+        ("Claude Sonnet 4.6 更快", "Claude Sonnet 4", False),
+        ("Gemini 3.5 Flash-Lite 更便宜", "Gemini 3.5 Flash", False),
+        ("GPT Realtime 2.1 适合语音", "GPT Realtime", False),
+        # A real mention of the excluded name is still caught.
+        ("推荐 GPT-5。", "GPT-5", True),
+        ("先试 GPT-5，再比较", "GPT-5", True),
+        ("用 Claude Opus 4 做", "Claude Opus 4", True),
+        ("首选通义千问", "通义千问", True),
+    ],
+)
+def test_excluded_names_match_whole_names_only(text, name, mentioned):
+    from app.decision_model_led import mentions_name
+
+    assert mentions_name(text, name) is mentioned
+
+
+def test_recommending_a_newer_version_is_not_blocked_by_a_retired_prefix(world):
+    """Regression: "GPT-5.4" in a headline read as the excluded "GPT-5"."""
+    snapshot, citations = world
+    retired = next(e for e in snapshot.entities if e.status == "deprecated" and e.type == "model")
+    current = f"{retired.name.en}.9 Ultra"
+    claim = cite(citations, "e-langgraph")
+    result = validate_model_led(
+        payload(
+            headlineZh=f"优先试 {current}",
+            headlineEn=f"Try {current} first",
+            candidates=[
+                {
+                    "entityId": retired.id,
+                    "role": "alternative",
+                    "points": [point("已退役版本。", "model-knowledge")],
+                },
+                {
+                    "entityId": "e-langgraph",
+                    "role": "primary",
+                    "points": [point("LangGraph 支持有状态编排。", claim_ids=[claim])],
+                },
+            ],
+        ),
+        citations,
+        snapshot,
+        context(),
+        "zh",
+    )
+    assert any(item.entity_id == retired.id for item in result.pruned)
+    assert result.headline == f"优先试 {current}"

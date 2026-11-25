@@ -45,3 +45,15 @@ def test_owner_can_delete_a_record_and_its_share_stops_working(api):  # noqa: F8
     ids = [row["id"] for row in client.get("/api/v2/research", headers=owner).json()]
     assert removed["id"] not in ids and kept["id"] in ids
     assert client.delete(f"/api/v2/research/{removed['id']}", headers=owner).status_code == 404
+
+
+def test_a_clarifying_question_is_not_used_as_the_record_title(api):  # noqa: F811
+    client, owner, _ = api
+    asked = create(api, "想用 AI 提高办公效率")
+    assert asked["decision"]["guidance"]["outcome"] == "clarify"
+    body = client.get("/api/v2/research", headers=owner).json()
+    # The paged shape ({items, total}) lands separately; accept either response.
+    row = (body["items"] if isinstance(body, dict) else body)[0]
+    assert row["id"] == asked["id"]
+    assert row["headline"] == "想用 AI 提高办公效率"
+    assert row["headline"] != asked["decision"]["guidance"]["recommendation"]["headline"]
