@@ -106,7 +106,16 @@ class Settings:
     build_commit: str = "local"
     built_at: str | None = None
 
+    @property
+    def extraction_all_automatic_sources(self) -> bool:
+        """AI_RADAR_EXTRACTION_SOURCE_IDS=* covers every automatically collected source."""
+        return self.extraction_source_ids == ("*",)
+
     def __post_init__(self) -> None:
+        if "*" in self.extraction_source_ids and self.extraction_source_ids != ("*",):
+            raise ValueError(
+                "AI_RADAR_EXTRACTION_SOURCE_IDS must be either * or a list of source ids."
+            )
         if self.extraction_generation and (
             not self.extraction_source_ids
             or self.extraction_generation.user_ids != ("automation",)

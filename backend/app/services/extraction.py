@@ -151,9 +151,20 @@ class ExtractionServices:
             DocumentSnapshotRecord.observed_at.desc(), DocumentSnapshotRecord.id.desc()
         )
         if self.app_settings.extraction_generation:
-            statement = statement.where(
-                DocumentSnapshotRecord.source_id.in_(self.app_settings.extraction_source_ids)
-            )
+            if self.app_settings.extraction_all_automatic_sources:
+                # Every source an admin has switched to automatic collection is in
+                # scope; enabling collection in the admin console is enough.
+                statement = statement.join(
+                    SourceRecord, SourceRecord.id == DocumentSnapshotRecord.source_id
+                ).where(
+                    SourceRecord.active.is_(True),
+                    SourceRecord.fetch_enabled.is_(True),
+                    SourceRecord.auto_paused_at.is_(None),
+                )
+            else:
+                statement = statement.where(
+                    DocumentSnapshotRecord.source_id.in_(self.app_settings.extraction_source_ids)
+                )
         return session.scalars(statement).all()
 
     def build_relation_backfill_plan(

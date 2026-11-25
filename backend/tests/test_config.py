@@ -105,3 +105,15 @@ def test_extraction_document_timeout_fits_inside_the_cycle_lease(monkeypatch):
     monkeypatch.setenv("AI_RADAR_EXTRACTION_DOCUMENT_TIMEOUT_SECONDS", "120")
     with pytest.raises(ValueError, match="EXTRACTION_DOCUMENT_TIMEOUT_SECONDS"):
         Settings.from_env()
+
+
+def test_extraction_source_wildcard_is_exclusive(monkeypatch):
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_SOURCE_IDS", "*")
+    assert Settings.from_env().extraction_all_automatic_sources is True
+
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_SOURCE_IDS", "s-openai-api-changelog")
+    assert Settings.from_env().extraction_all_automatic_sources is False
+
+    monkeypatch.setenv("AI_RADAR_EXTRACTION_SOURCE_IDS", "*,s-openai-api-changelog")
+    with pytest.raises(ValueError, match="EXTRACTION_SOURCE_IDS"):
+        Settings.from_env()
