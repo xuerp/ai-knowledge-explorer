@@ -1526,7 +1526,6 @@ def test_relation_backfill_is_audited_and_stops_at_the_configured_total_budget(
             "candidatesCreated": 0,
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
-            "newModelsAutoCreated": 0,
             "attemptsRemaining": 0,
             "eligibleSnapshots": 0,
             "relationDeficit": before.json()["relationDeficit"],
