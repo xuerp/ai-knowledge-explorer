@@ -422,6 +422,26 @@ class ReviewQueueItem(ReviewCandidate):
     superseded_by_claim_id: str | None = None
 
 
+class SpecUpdateCandidate(CamelModel):
+    entity_id: str
+    entity_name: LocalizedText
+    field: Literal["context_window", "input_price", "output_price", "released_at"]
+    card_value: str | None = None
+    fact_value: str
+    claim_id: str
+    claim_text: LocalizedText
+    valid_from: str | None = None
+    source_ids: list[str]
+
+
+class SpecAdoption(CamelModel):
+    entity_id: str
+    field: Literal["context_window", "input_price", "output_price", "released_at"]
+    claim_id: str
+    # The administrator may keep the card wording style; defaults to the fact value.
+    value: str | None = Field(default=None, min_length=1, max_length=200)
+
+
 class ReviewInventoryReport(CamelModel):
     generated_at: str
     open_total: int

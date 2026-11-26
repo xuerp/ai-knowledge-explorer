@@ -162,6 +162,27 @@ export interface ReviewQueueItem {
   supersededByClaimId?: string;
 }
 
+import type { SpecField } from "@/domain/spec-fields";
+
+export interface SpecUpdateCandidate {
+  entityId: string;
+  entityName: { zh: string; en: string };
+  field: SpecField;
+  cardValue?: string | null;
+  factValue: string;
+  claimId: string;
+  claimText: { zh: string; en: string };
+  validFrom?: string | null;
+  sourceIds: string[];
+}
+
+export interface SpecAdoption {
+  entityId: string;
+  field: SpecField;
+  claimId: string;
+  value?: string;
+}
+
 export interface ReviewInventoryReport {
   generatedAt: string;
   openTotal: number;
@@ -933,6 +954,16 @@ export const adminApi = {
     request<SourceView>(
       "/api/v2/admin/sources",
       { method: "POST", body: JSON.stringify(source) },
+      token,
+    ),
+
+  specUpdateCandidates: (token: string) =>
+    request<SpecUpdateCandidate[]>("/api/v2/admin/spec-update-candidates", {}, token),
+
+  adoptSpecUpdate: (token: string, adoption: SpecAdoption) =>
+    request<Entity>(
+      "/api/v2/admin/spec-update-candidates/adopt",
+      { method: "POST", body: JSON.stringify(adoption) },
       token,
     ),
 

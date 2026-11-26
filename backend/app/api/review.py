@@ -32,6 +32,8 @@ from ..schemas import (
     ClaimEntityRepairRequest,
     ClaimEntityResolutionRequest,
     ClaimEntityResolutionResult,
+    Entity,
+    LocalizedText,
     PublicationRecord,
     RelationClaimAuditReport,
     RelationClaimRepairItem,
@@ -44,6 +46,14 @@ from ..schemas import (
     ReviewPublicationStateRequest,
     ReviewQueueItem,
     ReviewRevisionRequest,
+    SpecAdoption,
+    SpecUpdateCandidate,
+)
+from ..spec_verification import (
+    adopt_spec,
+    card_value,
+    spec_field_for,
+    spec_update_candidates,
 )
 from .dependencies import AdminDependency, ReviewerDependency, ServicesDependency, SessionDependency
 
@@ -977,3 +987,71 @@ def auto_approval_shadow(
     """Read-only: what grounded-relation auto-approval would have done to past decisions."""
     response.headers["Cache-Control"] = "no-store"
     return auto_approval_shadow_report(services, session)
+
+
+@router.get(
+    "/api/v2/admin/spec-update-candidates",
+    response_model=list[SpecUpdateCandidate],
+)
+def spec_update_candidate_list(
+    services: ServicesDependency,
+    response: Response,
+    _: ReviewerDependency,
+    session: SessionDependency,
+) -> list[SpecUpdateCandidate]:
+    """Card fields whose latest reviewed fact differs from the curated value."""
+    response.headers["Cache-Control"] = "no-store"
+    return [
+        SpecUpdateCandidate(
+            entity_id=entity.id,
+            entity_name=entity.name,
+            field=basis.field,
+            card_value=basis.card_value,
+            fact_value=basis.claim.object_or_value or "",
+            claim_id=basis.claim.id,
+            claim_text=LocalizedText(zh=basis.claim.text.zh, en=basis.claim.text.en),
+            valid_from=basis.claim.valid_from,
+            source_ids=list(basis.claim.source_ids),
+        )
+        for entity, basis in spec_update_candidates(services.get_catalog_snapshot(session))
+    ]
+
+
+@router.post("/api/v2/admin/spec-update-candidates/adopt", response_model=Entity)
+def adopt_spec_update(
+    services: ServicesDependency,
+    payload: SpecAdoption,
+    principal: AdminDependency,
+    session: SessionDependency,
+) -> Entity:
+    """Write one reviewed spec value onto the entity card, keeping an audit record."""
+    snapshot = services.get_catalog_snapshot(session)
+    entity = next((item for item in snapshot.entities if item.id == payload.entity_id), None)
+    claim = next((item for item in snapshot.claims if item.id == payload.claim_id), None)
+    if entity is None or claim is None or claim.entity_id != entity.id:
+        raise HTTPException(status_code=404, detail="Entity or reviewed claim not found.")
+    if spec_field_for(claim) != payload.field:
+        raise HTTPException(status_code=422, detail="The claim does not describe this field.")
+    value = (payload.value or claim.object_or_value or "").strip()
+    try:
+        updated = services.repository.upsert_entity(
+            session, adopt_spec(entity, payload.field, value)
+        )
+    except ValueError as error:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    services.audit.record(
+        session,
+        principal,
+        "catalog.spec.adopted",
+        "entity",
+        entity.id,
+        {
+            "field": payload.field,
+            "previous": card_value(entity, payload.field),
+            "value": value,
+            "claimId": claim.id,
+        },
+    )
+    session.commit()
+    return updated

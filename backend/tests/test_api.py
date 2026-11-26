@@ -4652,3 +4652,101 @@ def test_wildcard_extraction_scope_follows_automatic_collection(tmp_path):
             planned = services.build_extraction_plan(session, 10, automatic_only=True)
 
     assert [source.id for source, _ in planned] == ["source-collected"]
+
+
+def test_reviewed_spec_change_is_listed_and_adopted_onto_the_card(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+
+    def approved(suffix: str, value: str, valid_from: str) -> None:
+        claim_id = f"claim-spec-{suffix}"
+        evidence_id = f"evidence-spec-{suffix}"
+        claim = {
+            "id": claim_id,
+            "entityId": "e-claude-45",
+            "text": {"zh": f"输入价格 {value}", "en": f"Input price {value}"},
+            "confidence": "verified",
+            "sourceIds": [evidence_id],
+            "updatedAt": "2026-11-26",
+            "subject": "Claude Sonnet 4.5",
+            "predicate": "standard-input-price",
+            "objectOrValue": value,
+            "validFrom": valid_from,
+        }
+        evidence = {
+            "id": evidence_id,
+            "title": {"zh": "官方价格", "en": "Official pricing"},
+            "url": f"https://example.com/pricing-{suffix}",
+            "publisher": "Anthropic",
+            "publishedAt": valid_from,
+            "collectedAt": "2026-11-26",
+            "type": "official",
+            "sourceExcerpt": f"Input {value}",
+        }
+        with client.app.state.database.session() as session:
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-spec-{suffix}",
+                    entity_id="e-claude-45",
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence]),
+                    conflict_ids_json="[]",
+                    status="approved",
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC),
+                    reviewed_by="reviewer@example.com",
+                    version=1,
+                )
+            )
+            session.commit()
+
+    # Same price in other words: not a change. A later, lower price: a change.
+    approved("same", "$3 USD per MTok", "2026-06-01")
+    assert not [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    approved("cut", "$2.50", "2026-11-20")
+    [candidate] = [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    assert candidate["field"] == "input_price"
+    assert candidate["cardValue"] == "$3 / 1M tokens"
+    assert candidate["factValue"] == "$2.50"
+    assert candidate["claimId"] == "claim-spec-cut"
+
+    payload = {
+        "entityId": "e-claude-45",
+        "field": "input_price",
+        "claimId": "claim-spec-cut",
+        "value": "$2.50 / 1M tokens",
+    }
+    assert (
+        client.post("/api/v2/admin/spec-update-candidates/adopt", json=payload).status_code == 401
+    )
+    adopted = client.post(
+        "/api/v2/admin/spec-update-candidates/adopt", headers=headers, json=payload
+    )
+    assert adopted.status_code == 200
+    assert adopted.json()["specs"]["inputPrice"] == "$2.50 / 1M tokens"
+    assert not [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    record = next(item for item in audit if item["action"] == "catalog.spec.adopted")
+    assert record["detail"]["previous"] == "$3 / 1M tokens"
+    assert record["detail"]["claimId"] == "claim-spec-cut"
+
+    mismatched = {**payload, "field": "context_window"}
+    assert (
+        client.post(
+            "/api/v2/admin/spec-update-candidates/adopt", headers=headers, json=mismatched
+        ).status_code
+        == 422
+    )
