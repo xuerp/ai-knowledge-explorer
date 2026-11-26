@@ -4750,3 +4750,401 @@ def test_reviewed_spec_change_is_listed_and_adopted_onto_the_card(client: TestCl
         ).status_code
         == 422
     )
+
+
+def test_a_release_of_an_unknown_model_creates_the_entity_when_approved(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    assert (
+        client.post(
+            "/api/v2/admin/sources",
+            headers=headers,
+            json={
+                "id": "source-new-model",
+                "url": "https://example.com/release-notes",
+                "title": "Release notes",
+                "publisher": "Anthropic",
+            },
+        ).status_code
+        == 201
+    )
+    page = (
+        "### November 9, 2026\n\n"
+        "* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work. "
+        "Claude Fable 5.2 has a 1M token context window."
+    )
+    assert (
+        client.post(
+            "/api/v2/admin/sources/source-new-model/snapshots",
+            headers=headers,
+            json={"content": page},
+        ).status_code
+        == 200
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        excerpt = (
+            "### November 9, 2026\n* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work."
+            if predicate == "released-on"
+            else "Claude Fable 5.2 has a 1M token context window."
+        )
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-fable-{suffix}",
+                "claim": {
+                    "id": f"claim-fable-{suffix}",
+                    "text": {"zh": f"Claude Fable 5.2 {value}", "en": f"Claude Fable 5.2 {value}"},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-fable-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-fable-{suffix}",
+                        "title": {"zh": "版本说明", "en": "Release notes"},
+                        "url": "https://example.com/release-notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": excerpt,
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda *args, **kwargs: [
+            candidate("release", "released-on", "2026-11-09", "2026-11-09"),
+            candidate("context", "context-window", "1M token context window"),
+        ],
+    )
+    created = client.post(
+        "/api/v2/admin/sources/source-new-model/extract", headers=headers, json={"maxCandidates": 5}
+    )
+    assert created.status_code == 200
+    by_id = {item["id"]: item for item in created.json()}
+    # Both facts are kept and attributed to the proposed entity instead of being dropped.
+    assert {item["entityId"] for item in by_id.values()} == {"e-claude-fable-5-2"}
+    assert "新模型" in by_id["review-fable-release"]["reviewReason"]
+    assert client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+
+    # The release fact is approved first: the entity is created under the Claude family.
+    release = client.post(
+        "/api/v2/admin/review-queue/review-fable-release/approve",
+        headers=headers,
+        json={"expectedVersion": by_id["review-fable-release"]["version"]},
+    )
+    assert release.status_code == 200
+    entity = client.get("/api/v2/entities/model/claude-fable-5-2").json()
+    assert entity["familyId"] == "e-claude"
+    assert entity["release"]["releasedAt"] == "2026-11-09"
+    assert entity["release"]["apiModelIds"] == ["claude-fable-5-2"]
+    assert entity["release"]["productLine"]["id"] == "claude-fable"
+
+    # The other fact now publishes against the new entity.
+    context = client.post(
+        "/api/v2/admin/review-queue/review-fable-context/approve",
+        headers=headers,
+        json={"expectedVersion": by_id["review-fable-context"]["version"]},
+    )
+    assert context.status_code == 200
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    assert [item for item in audit if item["action"] == "catalog.entity.created-from-review"]
+
+
+def test_any_fact_about_a_proposed_model_can_be_approved_first(client: TestClient, monkeypatch):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-mythos",
+            "url": "https://example.com/notes",
+            "title": "Notes",
+            "publisher": "Anthropic",
+        },
+    )
+    client.post(
+        "/api/v2/admin/sources/source-mythos/snapshots",
+        headers=headers,
+        json={
+            "content": "### November 9, 2026\n* Claude Fable 5.2 launched. It supports 128k max output tokens."
+        },
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-order-{suffix}",
+                "claim": {
+                    "id": f"claim-order-{suffix}",
+                    "text": {"zh": value, "en": value},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-order-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-order-{suffix}",
+                        "title": {"zh": "说明", "en": "Notes"},
+                        "url": "https://example.com/notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": f"Claude Fable 5.2 {value}",
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda *args, **kwargs: [
+            candidate("release", "launched-as", "2026-11-09", "2026-11-09"),
+            candidate("output", "maximum-output-tokens", "128k max output tokens"),
+        ],
+    )
+    created = {
+        item["id"]: item
+        for item in client.post(
+            "/api/v2/admin/sources/source-mythos/extract",
+            headers=headers,
+            json={"maxCandidates": 5},
+        ).json()
+    }
+    for review_id in ("review-order-output", "review-order-release"):
+        approved = client.post(
+            f"/api/v2/admin/review-queue/{review_id}/approve",
+            headers=headers,
+            json={"expectedVersion": created[review_id]["version"]},
+        )
+        assert approved.status_code == 200, approved.text
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    assert (
+        len([item for item in audit if item["action"] == "catalog.entity.created-from-review"]) == 1
+    )
+
+
+def test_automation_adds_an_officially_announced_new_model_without_review(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'auto-new-model.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_create_new_models=True,
+    )
+    page = (
+        "### November 9, 2026\n\n"
+        "* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work. "
+        "Claude Fable 5.2 has a 1M token context window."
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-auto-{suffix}",
+                "claim": {
+                    "id": f"claim-auto-{suffix}",
+                    "text": {"zh": f"Claude Fable 5.2 {value}", "en": f"Claude Fable 5.2 {value}"},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-auto-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-auto-{suffix}",
+                        "title": {"zh": "版本说明", "en": "Release notes"},
+                        "url": "https://example.com/release-notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": page,
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    with TestClient(create_app(settings)) as automatic_client:
+        admin = {"X-Admin-Token": "test-admin-token"}
+        automation = {"X-Automation-Token": "test-automation-token-with-at-least-32-characters"}
+        assert (
+            automatic_client.post(
+                "/api/v2/admin/sources",
+                headers=admin,
+                json={
+                    "id": "source-auto-new-model",
+                    "url": "https://example.com/release-notes",
+                    "title": "Release notes",
+                    "publisher": "Anthropic",
+                },
+            ).status_code
+            == 201
+        )
+        assert (
+            automatic_client.post(
+                "/api/v2/admin/sources/source-auto-new-model/snapshots",
+                headers=admin,
+                json={"content": page},
+            ).status_code
+            == 200
+        )
+        with automatic_client.app.state.database.session() as session:
+            row = session.get(SourceRecord, "source-auto-new-model")
+            row.fetch_enabled = True
+            row.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("release", "released-on", "2026-11-09", "2026-11-09"),
+                candidate("context", "context-window", "1M token context window"),
+            ],
+        )
+        cycle = automatic_client.post("/api/v2/automation/run-cycle", headers=automation)
+        assert cycle.status_code == 200
+        entity = automatic_client.get("/api/v2/entities/model/claude-fable-5-2")
+        assert entity.status_code == 200
+        assert entity.json()["familyId"] == "e-claude"
+        queue = {
+            item["id"]: item
+            for item in automatic_client.get("/api/v2/admin/review-queue", headers=admin).json()
+        }
+        # Only the release fact is approved automatically; other facts still wait for review.
+        assert queue["review-auto-release"]["status"] == "approved"
+        assert queue["review-auto-release"]["reviewMethod"] == "automation"
+        assert queue["review-auto-context"]["status"] == "pending"
+
+        # A wrongly added model can be withdrawn: the entity goes, its facts are closed.
+        withdrawn = automatic_client.post(
+            "/api/v2/admin/entities/e-claude-fable-5-2/withdraw",
+            headers=admin,
+            json={"reason": "误收录，撤回"},
+        )
+        assert withdrawn.status_code == 200
+        assert withdrawn.json() == {"retracted": 1, "rejected": 1}
+        assert automatic_client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+        # Seed entities were not created from review and cannot be withdrawn this way.
+        refused = automatic_client.post(
+            "/api/v2/admin/entities/e-claude/withdraw", headers=admin, json={"reason": "测试拒绝"}
+        )
+        assert refused.status_code == 409
+
+
+@pytest.mark.parametrize(
+    ("switch_on", "evidence_type"),
+    [(False, "official"), (True, "news")],
+)
+def test_a_new_model_waits_for_review_when_the_switch_is_off_or_the_source_is_not_official(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    switch_on: bool,
+    evidence_type: str,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'manual-new-model.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_create_new_models=switch_on,
+    )
+    page = "### November 9, 2026\n* We launched **Claude Fable 5.2** (`claude-fable-5-2`)."
+    release = CandidateCreate.model_validate(
+        {
+            "id": "review-manual-release",
+            "claim": {
+                "id": "claim-manual-release",
+                "text": {"zh": "Claude Fable 5.2 发布", "en": "Claude Fable 5.2 released"},
+                "confidence": "unverified",
+                "sourceIds": ["evidence-manual-release"],
+                "updatedAt": "2026-11-26",
+                "subject": "Claude Fable 5.2",
+                "predicate": "released-on",
+                "objectOrValue": "2026-11-09",
+                "validFrom": "2026-11-09",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-manual-release",
+                    "title": {"zh": "版本说明", "en": "Release notes"},
+                    "url": "https://example.com/release-notes",
+                    "publisher": "Anthropic",
+                    "publishedAt": "2026-11-09",
+                    "collectedAt": "2026-11-26",
+                    "sourceExcerpt": page,
+                    "type": evidence_type,
+                }
+            ],
+        }
+    )
+    with TestClient(create_app(settings)) as automatic_client:
+        admin = {"X-Admin-Token": "test-admin-token"}
+        automation = {"X-Automation-Token": "test-automation-token-with-at-least-32-characters"}
+        automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin,
+            json={
+                "id": "source-manual-new-model",
+                "url": "https://example.com/release-notes",
+                "title": "Release notes",
+                "publisher": "Anthropic",
+            },
+        )
+        automatic_client.post(
+            "/api/v2/admin/sources/source-manual-new-model/snapshots",
+            headers=admin,
+            json={"content": page},
+        )
+        with automatic_client.app.state.database.session() as session:
+            row = session.get(SourceRecord, "source-manual-new-model")
+            row.fetch_enabled = True
+            row.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+        monkeypatch.setattr(StructuredExtractionService, "extract", lambda *a, **k: [release])
+        assert (
+            automatic_client.post("/api/v2/automation/run-cycle", headers=automation).status_code
+            == 200
+        )
+        assert automatic_client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+        queue = automatic_client.get("/api/v2/admin/review-queue", headers=admin).json()
+        item = next(entry for entry in queue if entry["id"] == "review-manual-release")
+        assert item["status"] == "pending"

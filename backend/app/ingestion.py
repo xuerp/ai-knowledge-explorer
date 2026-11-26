@@ -19,6 +19,7 @@ from .fetching import PERMANENT_FETCH_FAILURE_KINDS, classify_fetch_failure_mess
 from .schemas import (
     CandidateCreate,
     DocumentIngestRequest,
+    Entity,
     IngestionResult,
     IngestionRunView,
     SourceCreate,
@@ -509,6 +510,7 @@ class IngestionService:
         queue_status: str = "pending",
         conflict_claim_ids: list[str] | None = None,
         review_reason: str | None = None,
+        proposed_entity: Entity | None = None,
     ) -> ReviewJobRecord | None:
         if session.get(ReviewJobRecord, payload.id):
             return None
@@ -528,6 +530,9 @@ class IngestionService:
             created_at=created_at,
             review_reason=review_reason,
             version=1,
+            proposed_entity_json=(
+                proposed_entity.model_dump_json(by_alias=True) if proposed_entity else None
+            ),
         )
         session.add(row)
         session.commit()

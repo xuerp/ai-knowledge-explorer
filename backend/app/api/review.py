@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Response, status
+from pydantic import BaseModel, Field
 from sqlalchemy import select, update
 
 from ..application_rules import review_decision_note, review_item_is_deterministically_invalid
@@ -946,6 +947,28 @@ def change_review_publication_state(
     )
     session.commit()
     return services.repository.to_queue_item(row)
+
+
+class EntityWithdrawal(BaseModel):
+    reason: str = Field(min_length=3, max_length=500)
+
+
+@router.post("/api/v2/admin/entities/{entity_id}/withdraw")
+def withdraw_review_created_entity(
+    services: ServicesDependency,
+    entity_id: str,
+    payload: EntityWithdrawal,
+    actor: AdminDependency,
+    session: SessionDependency,
+) -> dict[str, int]:
+    """Remove a model that was added from review, e.g. one added automatically by mistake."""
+    counts = services.withdraw_created_entity(entity_id, payload.reason.strip(), session, actor)
+    session.flush()
+    LexicalRagRetriever(include_derived_knowledge=False).sync_snapshot(
+        session, services.repository.public_snapshot(session)
+    )
+    session.commit()
+    return counts
 
 
 @router.post(

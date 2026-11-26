@@ -11418,3 +11418,98 @@ a.decision-brief__claims {
 .decision-candidates .decision-brief__list {
   margin-block: 0.875rem 0.5rem;
 }
+
+/* Updates filters on phones: every group uses the Region row layout. The label sits
+   in a fixed left column; options start at one shared left edge and wrapped options
+   return to that edge, so a lone last option stays left-aligned instead of centred. */
+@media (max-width: 640px) {
+  .updates-filter-panel {
+    --updates-filter-label: 4.25rem;
+    --updates-filter-gap: 0.5rem;
+  }
+  .updates-filter-panel .updates-filters__inner,
+  .updates-filter-panel .updates-filter-groups,
+  .updates-filter-more,
+  .updates-filter-short-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--updates-filter-gap);
+  }
+  .updates-filter-more {
+    margin-top: var(--updates-filter-gap);
+    padding-top: var(--updates-filter-gap);
+  }
+  /* The label takes no flex space (negative margin), so wrapped lines start under the
+     first option rather than under the label. */
+  .updates-filter-panel .updates-filter-group,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group,
+  .updates-filter-panel .updates-filter-group.is-wide,
+  .updates-filter-more .updates-filter-short-row .updates-filter-group,
+  .updates-filter-more .updates-filter-short-row .updates-filter-group + .updates-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0 0 0 var(--updates-filter-label);
+    border: 0;
+  }
+  .updates-filter-panel .updates-filter-group > span,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group > span,
+  .updates-filter-panel .updates-filter-group.is-wide > span,
+  .updates-filter-short-row .updates-filter-group > span {
+    display: flex;
+    flex: 0 0 var(--updates-filter-label);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    align-self: flex-start;
+    width: var(--updates-filter-label);
+    min-height: 2.75rem;
+    margin: 0 -0.35rem 0 calc(-1 * var(--updates-filter-label));
+    padding-right: 0.35rem;
+    text-align: left;
+    white-space: normal;
+  }
+  .updates-filter-panel .updates-filter-group > span > small {
+    font-size: 0.65rem;
+  }
+  .updates-filter-panel .updates-filter-group > button,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group > button,
+  .updates-filter-short-row .updates-filter-group > button {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding-inline: 0.75rem;
+    white-space: nowrap;
+  }
+  /* Dropdowns and the More-filters toggle use the same label column and left edge. */
+  .updates-filter-panel .updates-filter-select {
+    display: grid;
+    grid-template-columns: var(--updates-filter-label) minmax(0, 1fr);
+    align-items: center;
+    gap: 0;
+  }
+  .updates-filter-panel .updates-filter-select > label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .updates-filter-panel .updates-select-trigger {
+    max-width: none;
+  }
+  .updates-filter-panel .updates-select-trigger.mobile-filter-select-trigger {
+    justify-content: center;
+    padding-inline: 1.65rem;
+    text-align: center;
+  }
+  /* More filters starts at the panel edge, like the filter help below it. */
+  .updates-filter-panel .updates-filter-actions {
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+  .updates-filter-panel .updates-filter-help {
+    margin-top: var(--updates-filter-gap);
+  }
+}
