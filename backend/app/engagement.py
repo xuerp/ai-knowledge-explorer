@@ -751,8 +751,14 @@ class EngagementService:
         except Exception:  # noqa: BLE001 -- retrieval failure keeps the rule path
             session.rollback()
             broad = retrieval
+        # Retired, preview and rumoured versions stay in the catalog for history
+        # but are never offered to the model: it cannot recommend what it never sees.
+        usable = {entity.id for entity in snapshot.entities if entity.status == "active"}
         merged, seen = [], set()
         for item in [*broad.citations, *retrieval.citations]:
+            entity_id = item.claim.entity_id
+            if entity_id and entity_id not in usable:
+                continue
             if item.claim.id not in seen:
                 seen.add(item.claim.id)
                 merged.append(item)
