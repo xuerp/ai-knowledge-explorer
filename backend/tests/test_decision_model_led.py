@@ -140,6 +140,8 @@ def test_constraint_2_hard_exclusion_prunes_candidate_and_blocks_lead_text(world
     )
     assert result.candidates == []
     assert result.pruned[0].reason.startswith("hard-requirement:")
+    # The default headline names LangGraph. With nothing compliant to stand in,
+    # the analysis is still rejected rather than shown with the excluded name.
     with pytest.raises(ValueError):
         validate_model_led(
             payload(candidates=[candidate]),
@@ -148,6 +150,54 @@ def test_constraint_2_hard_exclusion_prunes_candidate_and_blocks_lead_text(world
             context(exclusions=["LangGraph"]),
             "zh",
         )
+
+
+def test_lead_naming_an_excluded_option_is_replaced_and_the_option_is_recorded(world):
+    """Headline/summary naming an excluded product is replaced, not shown, not fatal."""
+    snapshot, citations = world
+    langgraph = cite(citations, "e-langgraph")
+    usable = next(
+        e
+        for e in snapshot.entities
+        if e.status == "active" and e.type == "framework" and e.id != "e-langgraph"
+    )
+    result = validate_model_led(
+        payload(
+            headlineZh="建议先试 LangGraph",
+            headlineEn="Try LangGraph first",
+            summary=point("LangGraph 最适合你的编排需求。", "model-knowledge"),
+            candidates=[
+                {
+                    "entityId": "e-langgraph",
+                    "role": "primary",
+                    "points": [point("LangGraph 支持有状态编排。", claim_ids=[langgraph])],
+                },
+                {
+                    "entityId": usable.id,
+                    "role": "alternative",
+                    "points": [point("这个框架也能编排多步任务。", "model-knowledge")],
+                },
+            ],
+            tradeoffs=[point("先用小流程验证再扩大。", "model-knowledge")],
+        ),
+        citations,
+        snapshot,
+        context(exclusions=["LangGraph"]),
+        "zh",
+    )
+    shown = result.headline + " " + result.summary.text
+    assert "LangGraph" not in shown
+    assert [item.entity_id for item in result.candidates] == [usable.id]
+    assert result.candidates[0].role == "primary"
+    reasons = {
+        item.section: item.reason
+        for item in result.pruned
+        if item.section in {"headline", "summary"}
+    }
+    assert reasons == {
+        "headline": "recommends-excluded:e-langgraph",
+        "summary": "recommends-excluded:e-langgraph",
+    }
 
 
 def test_constraint_3_unknown_price_is_not_free_and_volume_is_not_ranking(world):
@@ -538,3 +588,30 @@ def test_recommending_a_newer_version_is_not_blocked_by_a_retired_prefix(world):
     )
     assert any(item.entity_id == retired.id for item in result.pruned)
     assert result.headline == f"优先试 {current}"
+
+
+def test_retired_versions_are_never_offered_to_the_model(world):
+    """Retired and rumoured versions stay in the catalog but not in the prompt."""
+    from app.decision_constraints import is_available_version
+    from app.decision_model_led import catalog_digest
+
+    snapshot, citations = world
+    unavailable = {e.id for e in snapshot.entities if not is_available_version(e)}
+    assert unavailable, "the seed catalog has retired versions to filter"
+    retired_citations = [item for item in citations if item.claim.entity_id in unavailable]
+    digest = catalog_digest(snapshot, retired_citations + citations, limit=500)
+    assert not {row["entityId"] for row in digest} & unavailable
+
+
+def test_previews_stay_available_like_the_rule_screening(world):
+    """A preview is not retired: both paths treat it as a usable version."""
+    from app.decision_constraints import constraint_failures, is_available_version
+
+    snapshot, _ = world
+    preview = snapshot.entities[0].model_copy(update={"status": "preview", "release": None})
+    assert is_available_version(preview)
+    assert "unavailable-version" not in constraint_failures(preview, [], context())
+    retired = preview.model_copy(update={"status": "deprecated"})
+    rumour = preview.model_copy(update={"status": "rumor"})
+    assert not is_available_version(retired) and not is_available_version(rumour)
+    assert "unavailable-version" in constraint_failures(retired, [], context())

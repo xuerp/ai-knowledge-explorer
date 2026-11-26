@@ -16,7 +16,7 @@ import re
 from pydantic import ValidationError
 
 from .answer_generation import _quoted_values
-from .decision_constraints import constraint_failures
+from .decision_constraints import constraint_failures, is_available_version
 from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
 from .model_budget import ModelBudgetBusy, ModelBudgetUnavailable
 from .schemas import (
@@ -311,16 +311,31 @@ def validate_model_led(
         if _quoted_values(payload.headline_zh, payload.headline_en) - all_values
         else None
     )
-    # A pruned candidate must not survive in free text that recommends it.
-    lead_text = (headline_text + " " + " ".join(_texts(payload.summary))).casefold()
+    # A pruned candidate must not survive in free text that recommends it. The
+    # offending headline or summary is replaced below, never shown as written.
+    summary_text = " ".join(_texts(payload.summary)).casefold()
+    excluded_names = []
     for item in pruned:
         if not item.reason.startswith("hard-requirement:") or item.entity_id not in entities:
             continue
         entity = entities[item.entity_id]
-        names = {entity.name.zh, entity.name.en, *(entity.aliases or [])}
-        if any(name and len(name) > 2 and mentions_name(lead_text, name) for name in names):
-            # A real violation: never show a recommendation the rules excluded.
-            raise ModelLedRejected("lead-recommends-excluded")
+        names = [
+            name
+            for name in {entity.name.zh, entity.name.en, *(entity.aliases or [])}
+            if name and len(name) > 2
+        ]
+        excluded_names.append((entity.id, names))
+
+    def names_excluded(text: str) -> str | None:
+        for entity_id, names in excluded_names:
+            if any(mentions_name(text, name) for name in names):
+                return entity_id
+        return None
+
+    if headline_problem is None and (hit := names_excluded(headline_text.casefold())):
+        headline_problem = "recommends-excluded:" + hit
+    if summary_problem is None and (hit := names_excluded(summary_text)):
+        summary_problem = "recommends-excluded:" + hit
     pick = (lambda zh, en: zh) if language == "zh" else (lambda zh, en: en)
     tradeoffs = keep(payload.tradeoffs, "tradeoffs")
     gaps = keep(payload.gaps, "gaps")
@@ -338,6 +353,8 @@ def validate_model_led(
                     *tradeoffs,
                     *first_steps,
                 )
+                # The stand-in must not reintroduce an excluded product either.
+                if not names_excluded(line.text.casefold())
             ),
             None,
         )
@@ -371,11 +388,16 @@ def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 40)
         if item.claim.entity_id and item.claim.entity_id not in retrieved:
             retrieved.append(item.claim.entity_id)
     entities = {entity.id: entity for entity in snapshot.entities}
-    ordered = [entities[key] for key in retrieved if key in entities] + [
+    # Only available versions may be proposed, retrieved or not; previews count.
+    ordered = [
+        entities[key]
+        for key in retrieved
+        if key in entities and is_available_version(entities[key])
+    ] + [
         entity
         for entity in snapshot.entities
         if entity.id not in retrieved
-        and entity.status == "active"
+        and is_available_version(entity)
         and entity.type not in {"company", "paper", "benchmark", "dataset"}
     ]
     return [
