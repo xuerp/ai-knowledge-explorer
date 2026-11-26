@@ -591,12 +591,27 @@ def test_recommending_a_newer_version_is_not_blocked_by_a_retired_prefix(world):
 
 
 def test_retired_versions_are_never_offered_to_the_model(world):
-    """Retired, preview and rumoured versions stay in the catalog but not in the prompt."""
+    """Retired and rumoured versions stay in the catalog but not in the prompt."""
+    from app.decision_constraints import is_available_version
     from app.decision_model_led import catalog_digest
 
     snapshot, citations = world
-    inactive = {e.id for e in snapshot.entities if e.status != "active"}
-    assert inactive, "the seed catalog has retired versions to filter"
-    retired_citations = [item for item in citations if item.claim.entity_id in inactive]
-    digest = catalog_digest(snapshot, retired_citations + citations)
-    assert not {row["entityId"] for row in digest} & inactive
+    unavailable = {e.id for e in snapshot.entities if not is_available_version(e)}
+    assert unavailable, "the seed catalog has retired versions to filter"
+    retired_citations = [item for item in citations if item.claim.entity_id in unavailable]
+    digest = catalog_digest(snapshot, retired_citations + citations, limit=500)
+    assert not {row["entityId"] for row in digest} & unavailable
+
+
+def test_previews_stay_available_like_the_rule_screening(world):
+    """A preview is not retired: both paths treat it as a usable version."""
+    from app.decision_constraints import constraint_failures, is_available_version
+
+    snapshot, _ = world
+    preview = snapshot.entities[0].model_copy(update={"status": "preview", "release": None})
+    assert is_available_version(preview)
+    assert "unavailable-version" not in constraint_failures(preview, [], context())
+    retired = preview.model_copy(update={"status": "deprecated"})
+    rumour = preview.model_copy(update={"status": "rumor"})
+    assert not is_available_version(retired) and not is_available_version(rumour)
+    assert "unavailable-version" in constraint_failures(retired, [], context())

@@ -16,7 +16,7 @@ import re
 from pydantic import ValidationError
 
 from .answer_generation import _quoted_values
-from .decision_constraints import constraint_failures
+from .decision_constraints import constraint_failures, is_available_version
 from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
 from .model_budget import ModelBudgetBusy, ModelBudgetUnavailable
 from .schemas import (
@@ -388,14 +388,16 @@ def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 40)
         if item.claim.entity_id and item.claim.entity_id not in retrieved:
             retrieved.append(item.claim.entity_id)
     entities = {entity.id: entity for entity in snapshot.entities}
-    # Only current products may be proposed, retrieved or not.
+    # Only available versions may be proposed, retrieved or not; previews count.
     ordered = [
-        entities[key] for key in retrieved if key in entities and entities[key].status == "active"
+        entities[key]
+        for key in retrieved
+        if key in entities and is_available_version(entities[key])
     ] + [
         entity
         for entity in snapshot.entities
         if entity.id not in retrieved
-        and entity.status == "active"
+        and is_available_version(entity)
         and entity.type not in {"company", "paper", "benchmark", "dataset"}
     ]
     return [
