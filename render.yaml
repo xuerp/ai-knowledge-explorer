@@ -19,8 +19,13 @@ envVarGroups:
       - key: AI_RADAR_FETCH_LEASE_MINUTES
         value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE
-        # 已授权批次 2026-09-core-relations-02 已完成；普通自动抽取保持关闭。
-        value: "0"
+        # 2026-11-26 用户同意打开普通自动抽取：每轮 1 个快照，每天最多 10 个（每个快照 1 次模型调用）。
+        value: "1"
+      - key: AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_DAY
+        value: "10"
+      # 官方原文逐字写明发布的新模型自动收录；误收录用 POST /api/v2/admin/entities/{id}/withdraw 撤回。
+      - key: AI_RADAR_AUTO_CREATE_NEW_MODELS
+        value: "true"
       - key: AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT
         value: "5"
       - key: AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES

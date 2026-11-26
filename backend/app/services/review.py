@@ -3,14 +3,18 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..application_rules import review_decision_note, review_item_has_anchored_excerpt
 from ..auth import Principal
 from ..database import (
+    AuditLogRecord,
+    EntityAliasRecord,
     KnowledgeEntityRecord,
+    KnowledgeRelationRecord,
+    KnowledgeTimelineRecord,
     PublicationRecordRow,
     ReviewJobRecord,
 )
@@ -20,6 +24,7 @@ from ..quality import (
 from ..repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES
 from ..schemas import (
     Claim,
+    Entity,
     GraphEdge,
     KnowledgeSnapshot,
     RelationClaimAuditItem,
@@ -37,6 +42,105 @@ class ReviewServices:
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A claim cannot be published without one valid knowledge entity.",
             )
+
+    def adopt_proposed_entity(
+        self, row: ReviewJobRecord, session: Session, actor: Principal
+    ) -> None:
+        """Create the new model a release claim introduces, once, when it is approved."""
+        if not row.proposed_entity_json or not row.entity_id:
+            return
+        if session.get(KnowledgeEntityRecord, row.entity_id) is not None:
+            return  # Another approved fact of the same batch already created it.
+        entity = Entity.model_validate_json(row.proposed_entity_json)
+        try:
+            self.repository.upsert_entity(session, entity)
+        except ValueError as error:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=f"The proposed model cannot be added: {error}",
+            ) from error
+        self.audit.record(
+            session,
+            actor,
+            "catalog.entity.created-from-review",
+            "entity",
+            entity.id,
+            {"reviewId": row.id, "familyId": entity.family_id, "name": entity.name.en},
+        )
+
+    def withdraw_created_entity(
+        self, entity_id: str, reason: str, session: Session, actor: Principal
+    ) -> dict[str, int]:
+        """Undo a model that review created: retract its facts and remove the entity.
+
+        Refuses entities that were not created from review, or that already carry
+        relations or timeline entries someone added by hand.
+        """
+        if session.get(KnowledgeEntityRecord, entity_id) is None:
+            raise HTTPException(status_code=404, detail="Entity not found.")
+        created = session.scalar(
+            select(AuditLogRecord.id).where(
+                AuditLogRecord.action == "catalog.entity.created-from-review",
+                AuditLogRecord.target_id == entity_id,
+            )
+        )
+        if created is None:
+            raise HTTPException(
+                status_code=409, detail="Only models added from review can be withdrawn here."
+            )
+        linked = (
+            session.scalar(
+                select(func.count())
+                .select_from(KnowledgeRelationRecord)
+                .where(
+                    (KnowledgeRelationRecord.from_id == entity_id)
+                    | (KnowledgeRelationRecord.to_id == entity_id)
+                )
+            )
+            or 0
+        )
+        linked += (
+            session.scalar(
+                select(func.count())
+                .select_from(KnowledgeTimelineRecord)
+                .where(KnowledgeTimelineRecord.entity_id == entity_id)
+            )
+            or 0
+        )
+        if linked:
+            raise HTTPException(
+                status_code=409,
+                detail="This model already has relations or timeline entries; edit it instead.",
+            )
+        now = datetime.now(UTC)
+        counts = {"retracted": 0, "rejected": 0}
+        for row in session.scalars(
+            select(ReviewJobRecord).where(ReviewJobRecord.entity_id == entity_id)
+        ):
+            if row.status == "approved" and row.lifecycle_status == "current":
+                row.lifecycle_status = "retracted"
+                counts["retracted"] += 1
+            elif row.status in OPEN_REVIEW_STATUSES:
+                row.status = "rejected"
+                row.reason_category = "entity_unresolved"
+                counts["rejected"] += 1
+            else:
+                continue
+            row.review_reason = reason
+            row.reviewed_by = actor.email
+            row.reviewed_at = now
+            row.version += 1
+        session.execute(delete(EntityAliasRecord).where(EntityAliasRecord.entity_id == entity_id))
+        session.execute(delete(KnowledgeEntityRecord).where(KnowledgeEntityRecord.id == entity_id))
+        self.audit.record(
+            session,
+            actor,
+            "catalog.entity.withdrawn",
+            "entity",
+            entity_id,
+            {"reason": reason, **counts},
+        )
+        return counts
 
     def approved_relation_rows(
         self,
@@ -209,6 +313,7 @@ class ReviewServices:
                 detail="A claim cannot be published without evidence.",
             )
         if action == "approved":
+            self.adopt_proposed_entity(row, session, actor)
             self.require_publishable_entity(row, session)
         if action == "rejected" and decision.reason_category is None:
             raise HTTPException(

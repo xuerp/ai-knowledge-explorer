@@ -70,6 +70,8 @@ class Settings:
     auto_extraction_max_candidates_per_snapshot: int = 5
     auto_extraction_retry_minutes: int = 360
     auto_approve_grounded_relations: bool = False
+    # Approve an official, verbatim-grounded release of an unknown model and add it to the catalog.
+    auto_create_new_models: bool = True
     relation_backfill_batch_id: str | None = None
     relation_backfill_max_snapshots: int = 0
     retrieval_mode: Literal["lexical", "hybrid"] = "lexical"
@@ -388,6 +390,8 @@ class Settings:
             auto_approve_grounded_relations=os.getenv(
                 "AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS", "false"
             ).lower()
+            in {"1", "true", "yes"},
+            auto_create_new_models=os.getenv("AI_RADAR_AUTO_CREATE_NEW_MODELS", "true").lower()
             in {"1", "true", "yes"},
             relation_backfill_batch_id=(os.getenv("AI_RADAR_RELATION_BACKFILL_BATCH_ID") or None),
             relation_backfill_max_snapshots=int(

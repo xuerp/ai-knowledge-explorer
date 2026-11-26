@@ -20,12 +20,7 @@ import { chronologicalChanges, visiblePageNumbers } from "@/domain/change-naviga
 import { changeDetailFields } from "@/domain/change-presentation";
 import { changeContext } from "@/domain/change-context";
 import { ChangeContextDetails } from "@/components/updates/ChangeContextDetails";
-import {
-  hasLinkedChangeSource,
-  matchesChangeKinds,
-  toggleChangeKind,
-  type ChangeKind,
-} from "@/domain/change-filters";
+import { matchesChangeKinds, toggleChangeKind, type ChangeKind } from "@/domain/change-filters";
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
@@ -59,8 +54,6 @@ function UpdatesPage() {
   const [domainFilter, setDomainFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [kindFilter, setKindFilter] = useState<ChangeKind[]>([]);
-  const [evidenceFilter, setEvidenceFilter] = useState("all");
-  const [sourceFilter, setSourceFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [selectedId, setSelectedId] = useState("");
@@ -103,9 +96,6 @@ function UpdatesPage() {
 
   const snapshot = liveSnapshot;
   const entityById = new Map(snapshot.entities.map((entity) => [entity.id, entity]));
-  const linkedSourceIds = new Set(
-    snapshot.evidence.filter((source) => source.url.trim()).map((source) => source.id),
-  );
   const eligibleChanges = snapshot.changes.filter((change) => {
     const entity = entityById.get(change.entityId);
     if (!entity) return false;
@@ -120,11 +110,6 @@ function UpdatesPage() {
       return false;
     if (typeFilter === "model" && entity.type !== "model") return false;
     if (typeFilter === "ecosystem" && entity.type === "model") return false;
-    if (evidenceFilter === "verified" && change.confidence !== "verified") return false;
-    if (evidenceFilter === "review" && change.confidence === "verified") return false;
-    const hasSource = hasLinkedChangeSource(change, linkedSourceIds);
-    if (sourceFilter === "linked" && !hasSource) return false;
-    if (sourceFilter === "missing" && hasSource) return false;
     return true;
   });
   const kindCounts = eligibleChanges.reduce<Record<string, number>>((counts, change) => {
@@ -142,8 +127,6 @@ function UpdatesPage() {
     domainFilter,
     typeFilter,
     [...kindFilter].sort().join(","),
-    evidenceFilter,
-    sourceFilter,
     sortOrder,
     familyFilter,
   ].join("|");
@@ -181,12 +164,10 @@ function UpdatesPage() {
   const linkedSourceCount = new Set(filteredChanges.flatMap((change) => change.sourceIds ?? []))
     .size;
   const advancedFilterCount =
-    [domainFilter !== "all", sourceFilter !== "all", sortOrder !== "newest"].filter(Boolean)
-      .length + kindFilter.length;
+    [domainFilter !== "all", sortOrder !== "newest"].filter(Boolean).length + kindFilter.length;
   const hasAnyFilter =
     timeFilter !== "all" ||
     typeFilter !== "all" ||
-    evidenceFilter !== "all" ||
     familyFilter !== "all" ||
     advancedFilterCount > 0;
   const resetFilters = () => {
@@ -194,8 +175,6 @@ function UpdatesPage() {
     setDomainFilter("all");
     setTypeFilter("all");
     setKindFilter([]);
-    setEvidenceFilter("all");
-    setSourceFilter("all");
     setSortOrder("newest");
     setFamilyFilter("all");
     setPage({ key: "", index: 0 });
@@ -252,20 +231,6 @@ function UpdatesPage() {
                   ]}
                 />
                 <FilterSelect
-                  label={t("核验状态", "Verification")}
-                  value={evidenceFilter}
-                  onChange={changeFilter(setEvidenceFilter)}
-                  description={t(
-                    "其他状态包括待核验、推断和冲突。",
-                    "Other statuses include pending, inferred and conflicting.",
-                  )}
-                  options={[
-                    { value: "all", label: t("全部状态", "All statuses") },
-                    { value: "verified", label: t("已核验", "Verified") },
-                    { value: "review", label: t("其他状态", "Other statuses") },
-                  ]}
-                />
-                <FilterSelect
                   label={t("模型家族", "Model family")}
                   value={familyFilter}
                   onChange={changeFilter(setFamilyFilter)}
@@ -308,16 +273,6 @@ function UpdatesPage() {
                       { value: "all", label: t("全部", "All") },
                       { value: "国内", label: t("国内", "Domestic") },
                       { value: "海外", label: t("海外", "Overseas") },
-                    ]}
-                  />
-                  <FilterGroup
-                    label={t("来源链接", "Source links")}
-                    value={sourceFilter}
-                    onChange={changeFilter(setSourceFilter)}
-                    options={[
-                      { value: "all", label: t("不限", "Any") },
-                      { value: "linked", label: t("有链接", "Linked") },
-                      { value: "missing", label: t("无链接", "Unlinked") },
                     ]}
                   />
                   <FilterGroup
@@ -365,24 +320,6 @@ function UpdatesPage() {
             <details className="updates-filter-help">
               <summary>{t("筛选说明", "About these filters")}</summary>
               <dl>
-                <div>
-                  <dt>{t("核验状态", "Verification")}</dt>
-                  <dd>
-                    {t(
-                      "「其他状态」包括待核验、推断和冲突。",
-                      "Other statuses include pending, inferred and conflicting.",
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t("来源链接", "Source links")}</dt>
-                  <dd>
-                    {t(
-                      "按条目是否附有原始资料链接筛选。",
-                      "Filter entries by whether they link to an original source.",
-                    )}
-                  </dd>
-                </div>
                 <div>
                   <dt>{t("对象", "Objects")}</dt>
                   <dd>
