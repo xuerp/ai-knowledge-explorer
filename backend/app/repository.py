@@ -28,6 +28,7 @@ from .entity_aliases import (
     load_entity_alias_catalog,
     normalize_entity_alias,
 )
+from .ingestion import DELETED_SOURCE_IDS
 from .quality import resolve_claim_entity_reference
 from .reviewed_claims import apply_reviewed_claims
 from .schemas import (
@@ -99,6 +100,9 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
         "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
         "master/data/info_for_leaderboard.json"
     ),
+    # ai.google.dev/gemini-api/docs/changelog now answers 301 to AI Studio, which
+    # serves the same official changelog as Markdown (checked 2026-11-27).
+    "s-google-gemini-api-changelog": "https://aistudio.google.com/docs/changelog",
     # Seeded on 2026-11-25 at a URL that redirects off the allow-listed host.
     "s-volcengine-ark-model-releases": (
         "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh"
@@ -106,13 +110,6 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
 }
 
 MACHINE_SOURCE_CATALOG = (
-    {
-        "id": "s-google-model-card-index",
-        "url": "https://deepmind.google/models/model-cards/",
-        "title": "Google DeepMind 模型卡目录",
-        "publisher": "Google DeepMind",
-        "fetch_interval_minutes": 240,
-    },
     {
         "id": "s-moonshot-research-index",
         "url": "https://www.moonshot.ai/",
@@ -143,7 +140,7 @@ MACHINE_SOURCE_CATALOG = (
     },
     {
         "id": "s-google-gemini-api-changelog",
-        "url": "https://ai.google.dev/gemini-api/docs/changelog",
+        "url": "https://aistudio.google.com/docs/changelog",
         "title": "Gemini API 官方更新日志",
         "publisher": "Google",
         "fetch_interval_minutes": 240,
@@ -444,6 +441,8 @@ class KnowledgeRepository:
         known_source_urls = set(session.scalars(select(SourceRecord.url)).all())
         # Stable collector IDs win URL deduplication; adding a public evidence
         # fragment must not remove a scheduled collector on a fresh database.
+        # Deleted sources must not be re-registered from the shipped seed.
+        known_source_ids |= set(DELETED_SOURCE_IDS)
         for machine_source in MACHINE_SOURCE_CATALOG:
             normalized_url = str(machine_source["url"]).rstrip("/")
             source_id = str(machine_source["id"])

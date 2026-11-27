@@ -209,8 +209,13 @@ def test_invalid_output_is_charged_but_does_not_lock_the_budget(setup):
         assert states == ["failed", "failed"]
 
 
-def test_missing_receipt_still_locks_the_budget(setup):
+CITATIONS = grounded_citations()[:1]
+CLAIM_ID = CITATIONS[0].claim.id
+
+
+def test_missing_usage_is_charged_its_reservation_and_locks_only_on_the_third(setup):
     database, cfg = setup
+    cfg = replace(cfg, max_calls=10, user_daily_calls=10, limit_units=100_000_000)
     requests = []
 
     def handler(request):
@@ -222,7 +227,7 @@ def test_missing_receipt_still_locks_the_budget(setup):
                 "choices": [
                     {
                         "finish_reason": "stop",
-                        "message": {"content": json.dumps(valid_payload("unknown-claim"))},
+                        "message": {"content": json.dumps(valid_payload(CLAIM_ID))},
                     }
                 ],
             },
@@ -230,12 +235,80 @@ def test_missing_receipt_still_locks_the_budget(setup):
 
     generator = BudgetedAnswerGenerator(database, cfg, transport=httpx.MockTransport(handler))
     for _ in range(2):
-        with pytest.raises(ValueError):
-            generator.generate("task", grounded_citations()[:1], "zh", user_id="test-owner")
-    # Spend cannot be reconciled without usage, so the allocation closes.
-    assert len(requests) == 1
+        result = generator.generate("task", CITATIONS, "zh", user_id="test-owner")
+        assert result is not None
+    with database.session() as session:
+        row = session.get(ModelBudgetRecord, cfg.budget_id)
+        calls = list(session.scalars(select(ModelCallRecord)))
+        # Unmetered calls keep the budget open and are charged their full reservation.
+        assert row.blocked is False and row.used_calls == 2
+        assert all(call.state == "usage-missing" for call in calls)
+        assert all(call.charged_units == call.reserved_units for call in calls)
+        assert row.charged_units == sum(call.reserved_units for call in calls)
+        assert json.loads(calls[0].receipt_json)["usageMissing"] is True
+
+    # The third unmetered call in a row closes the allocation.
+    with pytest.raises(ValueError):
+        generator.generate("task", CITATIONS, "zh", user_id="test-owner")
     with database.session() as session:
         assert session.get(ModelBudgetRecord, cfg.budget_id).blocked is True
+    assert len(requests) == 3
+
+
+def test_a_metered_call_resets_the_missing_usage_streak(setup):
+    database, cfg = setup
+    cfg = replace(cfg, max_calls=10, user_daily_calls=10, limit_units=100_000_000)
+    metered = iter([False, False, True, False, False])
+
+    def handler(request):
+        body = {
+            "model": cfg.model,
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {"content": json.dumps(valid_payload(CLAIM_ID))},
+                }
+            ],
+        }
+        if next(metered):
+            body["usage"] = {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
+        return httpx.Response(200, json=body)
+
+    generator = BudgetedAnswerGenerator(database, cfg, transport=httpx.MockTransport(handler))
+    for _ in range(5):
+        generator.generate("task", CITATIONS, "zh", user_id="test-owner")
+    with database.session() as session:
+        assert session.get(ModelBudgetRecord, cfg.budget_id).blocked is False
+
+
+def test_malformed_usage_or_wrong_model_still_locks_the_budget(setup):
+    database, cfg = setup
+    for body_extra in (
+        {"usage": {"prompt_tokens": 100}},
+        {"model": "some-other-model"},
+    ):
+
+        def handler(request, extra=body_extra):
+            body = {
+                "model": cfg.model,
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": json.dumps(valid_payload(CLAIM_ID))},
+                    }
+                ],
+            }
+            body.update(extra)
+            return httpx.Response(200, json=body)
+
+        budget_cfg = replace(cfg, budget_id="budget-" + next(iter(body_extra)))
+        generator = BudgetedAnswerGenerator(
+            database, budget_cfg, transport=httpx.MockTransport(handler)
+        )
+        with pytest.raises(ValueError):
+            generator.generate("task", CITATIONS, "zh", user_id="test-owner")
+        with database.session() as session:
+            assert session.get(ModelBudgetRecord, budget_cfg.budget_id).blocked is True
 
 
 def test_native_opus_decision_defaults_to_medium_in_the_request_and_receipt(setup, monkeypatch):

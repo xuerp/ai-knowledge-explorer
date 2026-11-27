@@ -6,10 +6,11 @@ from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit, urlunsplit
 from uuid import uuid4
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import delete, or_, select, update
 from sqlalchemy.orm import Session
 
 from .database import (
+    AuditLogRecord,
     DocumentSnapshotRecord,
     IngestionRunRecord,
     ReviewJobRecord,
@@ -51,6 +52,15 @@ MANUAL_SOURCE_IDS = {
 ARCHIVED_LOW_VALUE_SOURCE_IDS = {
     "s-community-rumor",
 }
+
+# Approved for deletion on 2026-11-27: a Hacker News rumor feed, the withdrawn
+# openai.com homepage placeholder and a model-card index that never collected.
+# None backs a published fact; the row is kept if anything references it.
+DELETED_SOURCE_IDS = (
+    "s-community-rumor",
+    "s-openai-gpt5",
+    "s-google-model-card-index",
+)
 
 
 def source_collection_policy(source_id: str) -> tuple[str, str]:
@@ -287,6 +297,54 @@ class IngestionService:
         if archived or manualized:
             session.commit()
         return {"archived": archived, "manualized": manualized}
+
+    def delete_retired_sources(self, session: Session, referenced_ids: set[str]) -> list[str]:
+        """Delete approved dead sources with their snapshots and run history.
+
+        A source still cited by published evidence or by any review job is kept.
+        """
+        review_refs = {
+            source_id
+            for evidence_ids in session.scalars(select(ReviewJobRecord.evidence_ids_json))
+            for source_id in json.loads(evidence_ids or "[]")
+        }
+        deleted: list[str] = []
+        for source_id in DELETED_SOURCE_IDS:
+            row = session.get(SourceRecord, source_id)
+            if row is None or source_id in referenced_ids or source_id in review_refs:
+                continue
+            session.execute(
+                delete(IngestionRunRecord).where(IngestionRunRecord.source_id == source_id)
+            )
+            snapshot_ids = select(DocumentSnapshotRecord.id).where(
+                DocumentSnapshotRecord.source_id == source_id
+            )
+            session.execute(
+                update(DocumentSnapshotRecord)
+                .where(DocumentSnapshotRecord.previous_snapshot_id.in_(snapshot_ids))
+                .values(previous_snapshot_id=None)
+            )
+            session.execute(
+                delete(DocumentSnapshotRecord).where(DocumentSnapshotRecord.source_id == source_id)
+            )
+            session.add(
+                AuditLogRecord(
+                    actor="system@ai-radar.local",
+                    action="source.deleted",
+                    target_type="source",
+                    target_id=source_id,
+                    detail_json=json.dumps(
+                        {"url": row.url, "title": row.title, "reason": "approved-retired-source"},
+                        ensure_ascii=False,
+                    ),
+                    created_at=datetime.now(UTC),
+                )
+            )
+            session.delete(row)
+            deleted.append(source_id)
+        if deleted:
+            session.commit()
+        return deleted
 
     def update_source(
         self,

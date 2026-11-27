@@ -755,3 +755,72 @@ def test_manual_source_retry_respects_active_fetch_lease(tmp_path: Path):
         assert row.fetch_lease_token is None
 
     database.dispose()
+
+
+def test_retired_sources_are_deleted_with_history_unless_still_referenced(tmp_path: Path):
+    from sqlalchemy import select
+
+    from app.database import AuditLogRecord, DocumentSnapshotRecord, IngestionRunRecord
+
+    database = Database(f"sqlite:///{(tmp_path / 'retired-sources.db').as_posix()}")
+    database.create_all()
+    ingestion = IngestionService(("example.com",))
+    now = datetime.now(UTC)
+
+    with database.session() as session:
+        for source_id in ("s-community-rumor", "s-openai-gpt5", "s-google-model-card-index"):
+            ingestion.create_source(
+                session,
+                SourceCreate(
+                    id=source_id,
+                    url=f"https://example.com/{source_id}",
+                    title=source_id,
+                    publisher="Example",
+                ),
+            )
+        first = DocumentSnapshotRecord(
+            id="snap-1",
+            source_id="s-community-rumor",
+            content_hash="a" * 64,
+            content_text="old",
+            observed_at=now,
+        )
+        second = DocumentSnapshotRecord(
+            id="snap-2",
+            source_id="s-community-rumor",
+            content_hash="b" * 64,
+            content_text="new",
+            observed_at=now,
+            previous_snapshot_id="snap-1",
+        )
+        session.add_all([first, second])
+        session.flush()
+        session.add(
+            IngestionRunRecord(
+                id="run-1",
+                source_id="s-community-rumor",
+                started_at=now,
+                finished_at=now,
+                status="succeeded",
+                change_type="changed",
+                snapshot_id="snap-2",
+            )
+        )
+        session.commit()
+
+        # s-openai-gpt5 is still cited by a published fact, so it must stay.
+        deleted = ingestion.delete_retired_sources(session, {"s-openai-gpt5"})
+
+        assert deleted == ["s-community-rumor", "s-google-model-card-index"]
+        assert session.get(SourceRecord, "s-community-rumor") is None
+        assert session.get(SourceRecord, "s-google-model-card-index") is None
+        assert session.get(SourceRecord, "s-openai-gpt5") is not None
+        assert session.scalars(select(DocumentSnapshotRecord)).all() == []
+        assert session.scalars(select(IngestionRunRecord)).all() == []
+        audits = session.scalars(
+            select(AuditLogRecord.target_id).where(AuditLogRecord.action == "source.deleted")
+        ).all()
+        assert sorted(audits) == ["s-community-rumor", "s-google-model-card-index"]
+        assert ingestion.delete_retired_sources(session, {"s-openai-gpt5"}) == []
+
+    database.dispose()

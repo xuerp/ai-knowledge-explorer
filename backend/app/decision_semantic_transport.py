@@ -27,6 +27,7 @@ class ChatTaskInterpreter:
         reasoning_effort: str = "low",
         max_output_tokens: int = 4096,
         transport=None,
+        tolerate_missing_usage: bool = False,
     ):
         parsed = urlsplit(endpoint)
         local = parsed.hostname in {"127.0.0.1", "localhost", "::1"}
@@ -52,6 +53,7 @@ class ChatTaskInterpreter:
         self.blocked = False
         self.lock = Lock()
         self.transport = transport
+        self.tolerate_missing_usage = tolerate_missing_usage
         self.last_exchange = {}
         self.last_content = None
 
@@ -108,13 +110,21 @@ class ChatTaskInterpreter:
             returned_model = body.get("model")
             if isinstance(returned_model, str):
                 self.last_exchange["returnedModel"] = returned_model[:120]
-            usage = body.get("usage", {})
+            usage = body.get("usage")
+            if usage is None and self.tolerate_missing_usage:
+                # Some gateways answer without a usage block. The budget ledger
+                # charges the full reservation for such a call instead.
+                self.last_exchange["usageMissing"] = True
+                usage = {}
+            elif not isinstance(usage, dict):
+                usage = {}
             total = usage.get("total_tokens")
-            if type(total) is not int or total <= 0:
-                raise ValueError("Missing usage receipt.")
-            with self.lock:
-                self.total_tokens += total
-            self.last_exchange["totalTokens"] = total
+            if not self.last_exchange.get("usageMissing"):
+                if type(total) is not int or total <= 0:
+                    raise ValueError("Missing usage receipt.")
+                with self.lock:
+                    self.total_tokens += total
+                self.last_exchange["totalTokens"] = total
             for source, target in (
                 ("prompt_tokens", "promptTokens"),
                 ("completion_tokens", "completionTokens"),

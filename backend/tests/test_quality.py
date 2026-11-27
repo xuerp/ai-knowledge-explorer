@@ -7,6 +7,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from app.database import Base, KnowledgeEntityRecord, SourceRecord
+from app.ingestion import DELETED_SOURCE_IDS
 from app.quality import (
     KnowledgeQualityGate,
     claim_semantic_fingerprint,
@@ -347,13 +348,17 @@ def test_seed_catalog_migrates_only_legacy_country_labels():
     try:
         with Session(engine) as session:
             repository.seed_catalog(session)
+            # Approved deletions are never re-registered from the shipped seed.
             expected_source_urls = {
-                source.url.rstrip("/") for source in repository.load_seed().evidence
+                source.url.rstrip("/")
+                for source in repository.load_seed().evidence
+                if source.id not in DELETED_SOURCE_IDS
             } | {str(source["url"]).rstrip("/") for source in MACHINE_SOURCE_CATALOG}
             assert len(session.scalars(select(SourceRecord)).all()) == len(expected_source_urls)
             assert session.get(SourceRecord, "s-openai-api-changelog") is not None
             assert session.get(SourceRecord, "s-openai-models") is not None
             assert session.get(SourceRecord, "s-openai-deprecations") is not None
+            assert all(session.get(SourceRecord, item) is None for item in DELETED_SOURCE_IDS)
             row = session.get(KnowledgeEntityRecord, "e-gpt")
             assert row is not None
             legacy = Entity.model_validate_json(row.payload_json)

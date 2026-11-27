@@ -50,6 +50,19 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
             services.ingestion.reconcile_historical_permanent_failures(session)
             services.ingestion.reconcile_misclassified_not_modified_failures(session)
             services.ingestion.reconcile_source_portfolio(session)
+            published = services.repository.public_snapshot(session)
+            services.ingestion.delete_retired_sources(
+                session,
+                {
+                    source_id
+                    for item in (
+                        *published.claims,
+                        *published.graph.edges,
+                        *(entry for entries in published.timeline.values() for entry in entries),
+                    )
+                    for source_id in item.source_ids
+                },
+            )
             services.clear_false_conflicts(session)
         yield
         if services.embedding_provider is not None:
