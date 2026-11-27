@@ -685,6 +685,7 @@ class ExtractionServices:
             "candidatesCreated": 0,
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
+            "newModelsAutoCreated": 0,
             "failed": 0,
         }
         if not summary["enabled"]:
@@ -832,6 +833,9 @@ class ExtractionServices:
                 )
                 summary["relationsAutoApproved"] = (
                     int(summary["relationsAutoApproved"]) + auto_approved
+                )
+                summary["newModelsAutoCreated"] = (
+                    int(summary["newModelsAutoCreated"]) + models_created
                 )
             except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
                 session.rollback()

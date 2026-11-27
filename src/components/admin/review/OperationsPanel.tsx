@@ -49,6 +49,7 @@ export function OperationsPanel({
         .map((value) => asRecord(value))
         .filter((value): value is Record<string, unknown> => value !== null)
     : [];
+  const extractionQuota = describeExtractionQuota(extraction);
   const digests = asRecord(latest?.result?.digests);
   const delivery = asRecord(latest?.result?.emailDelivery);
   const pendingOutbox = outbox
@@ -158,9 +159,11 @@ export function OperationsPanel({
                     完成 {numberValue(extraction, "processed")} · 候选{" "}
                     {numberValue(extraction, "candidatesCreated")} · 合并/跳过重复{" "}
                     {numberValue(extraction, "duplicatesSkipped")} · 自动批准{" "}
-                    {numberValue(extraction, "relationsAutoApproved")} · 失败{" "}
+                    {numberValue(extraction, "relationsAutoApproved")} · 新收录模型{" "}
+                    {numberValue(extraction, "newModelsAutoCreated")} · 失败{" "}
                     {numberValue(extraction, "failed")}
                   </div>
+                  {extractionQuota ? <div>{extractionQuota}</div> : null}
                   {extractionErrors.map((failure, index) => (
                     <div key={`${String(failure.sourceId)}-${index}`} className="text-conflict">
                       抽取失败：{stringValue(failure, "sourceId", "未知信源")} ·{" "}
@@ -257,4 +260,23 @@ export function OperationsPanel({
       )}
     </section>
   );
+}
+
+const EXTRACTION_PAUSE_LABELS: Record<string, string> = {
+  "daily-limit": "今日名额已用完",
+  "review-backlog": "待审积压已满",
+  "monetary-budget-not-configured": "未配置模型费用预算",
+  "monetary-budget-unavailable": "模型费用预算不可用",
+};
+
+/** Daily slots reset at 00:00 UTC (08:00 Beijing); older cycles did not record them. */
+function describeExtractionQuota(extraction: Record<string, unknown> | null): string {
+  const parts: string[] = [];
+  const remaining = extraction?.dailySlotsRemaining;
+  if (typeof remaining === "number") parts.push(`今日剩余名额 ${remaining}（北京时间 08:00 重置）`);
+  const reason = extraction?.pausedReason;
+  if (typeof reason === "string" && reason) {
+    parts.push(`已暂停：${EXTRACTION_PAUSE_LABELS[reason] ?? reason}`);
+  }
+  return parts.join(" · ");
 }

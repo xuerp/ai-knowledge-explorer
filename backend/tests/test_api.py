@@ -975,6 +975,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "candidatesCreated": 0,
         "duplicatesSkipped": 0,
         "relationsAutoApproved": 0,
+        "newModelsAutoCreated": 0,
         "failed": 0,
     }
 
@@ -1083,6 +1084,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
             "candidatesCreated": 0,
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
+            "newModelsAutoCreated": 0,
             "failed": 0,
             "reviewBacklog": 1,
             "dailySlotsRemaining": 9,
@@ -5034,6 +5036,7 @@ def test_automation_adds_an_officially_announced_new_model_without_review(
         )
         cycle = automatic_client.post("/api/v2/automation/run-cycle", headers=automation)
         assert cycle.status_code == 200
+        assert cycle.json()["result"]["extraction"]["newModelsAutoCreated"] == 1
         entity = automatic_client.get("/api/v2/entities/model/claude-fable-5-2")
         assert entity.status_code == 200
         assert entity.json()["familyId"] == "e-claude"
