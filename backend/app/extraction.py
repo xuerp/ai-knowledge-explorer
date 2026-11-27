@@ -29,6 +29,9 @@ from .schemas import (
     LocalizedText,
 )
 
+# Sources registered by entry-request automation for a single official page.
+REQUEST_SOURCE_PREFIX = "s-request-"
+
 
 class ExtractionUnavailableError(RuntimeError):
     pass
@@ -410,6 +413,10 @@ class StructuredExtractionService:
 
     def source_in_budget_scope(self, source: SourceRecord) -> bool:
         if ALL_AUTOMATIC_SOURCES in self.budgeted_source_ids:
+            if source.id.startswith(REQUEST_SOURCE_PREFIX):
+                # Registered for one entry request's official page and never
+                # scheduled; it draws on the same budget and daily slots.
+                return bool(source.active)
             return bool(source.active and source.fetch_enabled and source.auto_paused_at is None)
         return source.id in self.budgeted_source_ids
 

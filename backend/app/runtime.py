@@ -30,6 +30,7 @@ from .rag import (
 from .repository import KnowledgeRepository
 from .scheduler import IngestionScheduler
 from .services.catalog import CatalogServices
+from .services.entry_requests import EntryRequestServices
 from .services.extraction import ExtractionServices
 from .services.reports import ReportsServices
 from .services.review import ReviewServices
@@ -38,7 +39,12 @@ from .services.system import SystemServices
 
 @dataclass
 class ApplicationServices(
-    CatalogServices, ExtractionServices, ReviewServices, ReportsServices, SystemServices
+    CatalogServices,
+    ExtractionServices,
+    EntryRequestServices,
+    ReviewServices,
+    ReportsServices,
+    SystemServices,
 ):
     """One isolated service graph per app; no module-level mutable services."""
 

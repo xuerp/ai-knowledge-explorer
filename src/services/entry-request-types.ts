@@ -18,7 +18,17 @@ export interface EntryRequestView
   reviewerNote: string | null;
   entityId: string | null;
   version: number;
+  kind: EntryRequestKind;
+  autoState: EntryRequestAutoState | null;
+  autoDetail: string | null;
+  autoAttemptedAt: string | null;
+  candidateIds: string[];
+  candidatesOpen: number;
+  candidatesApproved: number;
+  candidatesRejected: number;
 }
+export type EntryRequestKind = "release" | "verification" | "evidence" | "visitor";
+export type EntryRequestAutoState = "candidates" | "no-evidence" | "failed" | "skipped";
 export interface EntryRequestDecision {
   status: Exclude<EntryRequestStatus, "pending">;
   version: number;

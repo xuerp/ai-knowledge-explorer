@@ -27,6 +27,7 @@ from .application_rules import (
     RELATION_PREDICATE_ANCHORS,
 )
 from .config import Settings
+from .entry_request_automation import rewrite_legacy_release_reasons
 from .runtime import create_services
 
 __all__ = [
@@ -51,6 +52,7 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
             services.ingestion.reconcile_misclassified_not_modified_failures(session)
             services.ingestion.reconcile_source_portfolio(session)
             services.clear_false_conflicts(session)
+            rewrite_legacy_release_reasons(session)
         yield
         if services.embedding_provider is not None:
             services.embedding_provider.close()

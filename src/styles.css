@@ -8685,6 +8685,10 @@ a.decision-brief__claims {
   gap: 0.75rem;
   margin-top: 1rem;
 }
+/* Search, then the type and status selects side by side. */
+.entry-requests-panel__filters {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
 .entry-requests-panel__filters select,
 .reviewed-facts__filters select {
   max-width: 100%;
@@ -8920,6 +8924,40 @@ a.decision-brief__claims {
 .entry-requests-panel__workflow a {
   color: var(--color-signal);
   text-decoration: underline;
+}
+.entry-request-row__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+.entry-request-row__header time {
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  /* Long and short titles put the date in the same place. */
+  .entry-request-row__header {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+.entry-request-row__progress {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  border-left: 3px solid var(--color-border);
+  border-radius: 0.25rem;
+  background: var(--color-muted);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+.entry-request-row__progress--done {
+  border-left-color: var(--color-verified);
+}
+.entry-request-row__progress--waiting {
+  border-left-color: var(--color-signal);
+}
+.entry-request-row__progress--action {
+  border-left-color: var(--color-conflict);
 }
 .entry-request-row__entity {
   width: 100%;

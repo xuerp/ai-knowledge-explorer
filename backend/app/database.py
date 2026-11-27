@@ -36,6 +36,15 @@ class EntryRequestRecord(Base):
     reviewer_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    # Automatic handling: None until tried, then candidates / no-evidence / failed /
+    # skipped. Staff decisions above stay authoritative.
+    auto_state: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    auto_detail: Mapped[str | None] = mapped_column(Text, nullable=True)
+    auto_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    auto_attempted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    candidate_ids_json: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class ReviewJobRecord(Base):
