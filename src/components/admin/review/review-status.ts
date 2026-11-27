@@ -10,6 +10,18 @@ export function statusLabel(status: "running" | "succeeded" | "partial" | "faile
         : "失败";
 }
 
+export function reviewStatusLabel(
+  status: "pending" | "approved" | "rejected" | "needs-more-evidence",
+): string {
+  return status === "pending"
+    ? "待审核"
+    : status === "needs-more-evidence"
+      ? "需人工确认"
+      : status === "approved"
+        ? "已批准"
+        : "已驳回";
+}
+
 export function workerStateLabel(
   state: "starting" | "running" | "idle" | "failed" | "stopped",
 ): string {
