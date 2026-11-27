@@ -42,10 +42,11 @@ test("信源策略保留批量安全预检和人工审核边界", () => {
   assert.match(blueprint, /AI_RADAR_AUTO_APPROVE_GROUNDED_RELATIONS\s+value: "false"/);
 });
 
-test("Render 普通自动抽取限量开启：每轮 1 个快照、每天最多 10 个", () => {
-  // 2026-11-26 用户同意打开，用于自动收录官方新模型；调大前需要再次确认。
+test("Render 普通自动抽取限量开启：每轮 1 个快照、每天最多 50 个", () => {
+  // 2026-11-26 用户同意打开，用于自动收录官方新模型；2026-11-27 用户把每日上限调到 50。
+  // 再调大前需要再次确认。
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_CYCLE[\s\S]*?value: "1"/);
-  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_DAY\s+value: "10"/);
+  assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_SNAPSHOTS_PER_DAY\s+value: "50"/);
   assert.match(blueprint, /AI_RADAR_AUTO_CREATE_NEW_MODELS[\s\S]*?value: "true"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_MAX_CANDIDATES_PER_SNAPSHOT\s+value: "5"/);
   assert.match(blueprint, /AI_RADAR_AUTO_EXTRACTION_RETRY_MINUTES\s+value: "360"/);
