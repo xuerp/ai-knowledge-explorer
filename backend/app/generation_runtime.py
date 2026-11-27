@@ -341,6 +341,9 @@ class BudgetedAnswerGenerator:
             response_timeout_seconds=min(300 if purpose == "extraction" else 80, timeout_seconds),
             reasoning_effort=reasoning_effort or cfg.reasoning_effort,
             transport=self.transport,
+            # The ledger reserves the maximum cost before sending, so an
+            # unmetered success can be charged that bound instead of failing.
+            tolerate_missing_usage=True,
         )
         attempt = self.budget.reserve(user_id, purpose, input_bound, output_bound)
         validated = False

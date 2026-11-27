@@ -691,6 +691,12 @@ class ExtractionServices:
             if self.extraction.enabled and limit > 0:
                 summary["pausedReason"] = "monetary-budget-not-configured"
             return summary
+        budget_status = self.extraction_budget_status(session)
+        if budget_status is not None and budget_status.blocked:
+            # A closed allocation would refuse every call; do not spend daily
+            # slots on reservations that cannot reach the provider.
+            summary["pausedReason"] = "monetary-budget-unavailable"
+            return summary
         day_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
         attempted = (
             session.scalar(

@@ -439,8 +439,8 @@ def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tm
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         KnowledgeRepository(seed_path).seed_catalog(session)
-        source = session.get(SourceRecord, "s-openai-gpt5")
-        assert source.active is False and source.fetch_enabled is False
+        # The withdrawn placeholder was deleted on 2026-11-27 and is never re-registered.
+        assert session.get(SourceRecord, "s-openai-gpt5") is None
         shutil.copyfile(
             DATA_DIR / "frontier_catalog_v1.json", tmp_path / "frontier_catalog_v1.json"
         )
@@ -449,11 +449,7 @@ def test_withdrawn_demo_provenance_preserves_relations_and_admin_source_edits(tm
         migrated = repository.public_snapshot(session)
         assert reviewed <= {edge.id for edge in migrated.graph.edges}
         assert all("s-openai-gpt5" not in edge.source_ids for edge in migrated.graph.edges)
-        source.title = "Administrator source title"
-        source.active = True
-        session.commit()
-        KnowledgeRepository(seed_path).seed_catalog(session)
-        assert source.active is True
+        assert session.get(SourceRecord, "s-openai-gpt5") is None
 
 
 def test_langgraph_canonical_source_keeps_history_and_administrator_changes():

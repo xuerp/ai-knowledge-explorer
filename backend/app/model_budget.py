@@ -4,7 +4,10 @@ Amounts are integer millionths of the configured currency. An interrupted or
 unreceipted call, or one whose receipt exceeds its bounds, retains its maximum
 reservation and closes the budget: spend can no longer be reconciled. A fully
 receipted call whose output fails validation is charged its actual cost and
-recorded as failed; it does not close the budget. The total call cap and the
+recorded as failed; it does not close the budget. A successful response whose
+provider omitted usage is charged its full reservation (an upper bound, so spend
+is never under-recorded) and keeps the budget open, unless that has happened
+MISSING_USAGE_LOCK_STREAK times in a row. The total call cap and the
 per-user daily cap bound repeated failures. No retry or automatic month rollover
 can replenish an explicitly approved allocation.
 """
@@ -20,6 +23,9 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from .database import ModelBudgetRecord as Budget
 from .database import ModelCallRecord as Call
+
+# Consecutive successful-but-unmetered responses tolerated before the budget closes.
+MISSING_USAGE_LOCK_STREAK = 3
 
 
 class ModelBudgetUnavailable(ValueError):
@@ -132,6 +138,15 @@ class ModelBudget:
             and receipt.get("returnedModel") == self.config.model
         )
         in_bounds = known and counts[0] <= input_bound and counts[1] <= output_bound
+        returned_model = receipt.get("returnedModel")
+        # HTTP 200 from the approved model with no usage block at all: the call is
+        # real but unmetered. Its full reservation is an upper bound on its cost.
+        unmetered = (
+            not known
+            and receipt.get("usageMissing") is True
+            and receipt.get("httpStatus") == 200
+            and returned_model in (None, self.config.model)
+        )
         with self.database.session() as session:
             row = session.get(Call, attempt_id)
             if row is None or row.state != "reserved":
@@ -140,6 +155,22 @@ class ModelBudget:
             # A provider overage is neither a validated call nor a missing
             # receipt. Record the full observed estimate and close allocation.
             reserved_charge = actual if in_bounds else row.reserved_units
+            if unmetered:
+                previous = session.scalars(
+                    select(Call.state)
+                    .where(Call.budget_id == row.budget_id, Call.id != attempt_id)
+                    .order_by(Call.created_at.desc())
+                    .limit(MISSING_USAGE_LOCK_STREAK - 1)
+                ).all()
+                # This is the third unmetered call in a row only if the two
+                # calls before it were unmetered too.
+                tolerated = not (
+                    len(previous) == MISSING_USAGE_LOCK_STREAK - 1
+                    and all(state == "usage-missing" for state in previous)
+                )
+            else:
+                tolerated = False
+            closes = not in_bounds and not tolerated
             settled = session.execute(
                 update(Budget)
                 .where(
@@ -151,13 +182,15 @@ class ModelBudget:
                     active_attempt_id=None,
                     # Close only when spend cannot be reconciled. A receipted
                     # validation failure is charged and counted, not a lockout.
-                    blocked=not in_bounds,
+                    blocked=closes,
                 )
             )
             if settled.rowcount != 1:
                 raise ValueError("Model reservation ownership changed.")
             row.charged_units = actual
-            if not known:
+            if unmetered:
+                row.state = "usage-missing"
+            elif not known:
                 row.state = "usage-unknown"
             elif not in_bounds:
                 row.state = "usage-out-of-bounds"
@@ -177,10 +210,11 @@ class ModelBudget:
                         "totalTokens",
                         "finishReason",
                         "elapsedMs",
+                        "usageMissing",
                     )
                     if key in receipt
                 }
             )
             session.commit()
-        if not in_bounds:
+        if closes:
             raise ValueError("Model receipt is unknown or outside approved bounds.")

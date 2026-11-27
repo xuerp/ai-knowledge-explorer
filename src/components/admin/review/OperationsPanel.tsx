@@ -266,7 +266,7 @@ const EXTRACTION_PAUSE_LABELS: Record<string, string> = {
   "daily-limit": "今日名额已用完",
   "review-backlog": "待审积压已满",
   "monetary-budget-not-configured": "未配置模型费用预算",
-  "monetary-budget-unavailable": "模型费用预算不可用",
+  "monetary-budget-unavailable": "模型费用预算已锁定，需更换预算 ID",
 };
 
 /** Daily slots reset at 00:00 UTC (08:00 Beijing); older cycles did not record them. */

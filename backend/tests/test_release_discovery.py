@@ -14,9 +14,9 @@ def test_discovery_queues_scoped_links_once_and_keeps_them_unpublished(tmp_path)
     database = Database(f"sqlite:///{(tmp_path / 'discovery.db').as_posix()}")
     database.create_all()
     root = SimpleNamespace(
-        id="s-google-model-card-index",
-        url="https://deepmind.google/models/model-cards/",
-        publisher="Google DeepMind",
+        id="s-moonshot-research-index",
+        url="https://www.kimi.ai/blog/",
+        publisher="Moonshot AI",
     )
     response = FetchedDocument(
         content="Official document index",
@@ -24,11 +24,11 @@ def test_discovery_queues_scoped_links_once_and_keeps_them_unpublished(tmp_path)
         etag=None,
         last_modified=None,
         links=(
-            ("/models/model-cards/gemini-next/", "Future example"),
-            ("/models/model-cards/gemini-next/#release", "Same example"),
-            ("https://external.invalid/models/model-cards/gemini-next", "Untrusted host"),
-            ("/models/model-cards/gemini-next/?query=redirect", "Out of scope"),
-            ("/models/model-cards/gemini-next%2Fother/", "Escaped path"),
+            ("/blog/kimi-k9", "Future example"),
+            ("/blog/kimi-k9#release", "Same example"),
+            ("https://external.invalid/blog/kimi-k9", "Untrusted host"),
+            ("/blog/kimi-k9?query=redirect", "Out of scope"),
+            ("/blog/kimi-k9%2Fother", "Escaped path"),
         ),
     )
     with database.session() as session:
@@ -41,7 +41,7 @@ def test_discovery_queues_scoped_links_once_and_keeps_them_unpublished(tmp_path)
         )
         request = session.scalar(select(EntryRequestRecord))
         assert request.status == "pending" and request.entity_id is None
-        assert request.source_url == "https://deepmind.google/models/model-cards/gemini-next/"
+        assert request.source_url == "https://www.kimi.ai/blog/kimi-k9"
 
 
 def test_openai_markdown_changelog_queues_only_official_general_model_pages(tmp_path):
@@ -97,7 +97,7 @@ def test_discovery_finishes_deferred_links_before_accepting_unchanged_index(tmp_
     database = Database(f"sqlite:///{(tmp_path / 'deferred.db').as_posix()}")
     database.create_all()
     now = datetime.now(UTC)
-    url = "https://deepmind.google/models/model-cards/"
+    url = "https://www.kimi.ai/blog/"
     validator = '"same-index"'
     modified = "Wed, 18 Nov 2026 00:00:00 GMT"
     requests = []
@@ -112,23 +112,20 @@ def test_discovery_finishes_deferred_links_before_accepting_unchanged_index(tmp_
             not_modified=bool(etag or last_modified),
             final_url=url,
             links=tuple(
-                (f"/models/model-cards/gemini-qa-{number}/", f"Synthetic release {number}")
-                for number in range(6)
+                (f"/blog/kimi-k{number}", f"Synthetic release {number}") for number in range(6)
             )
             if not (etag or last_modified)
             else (),
         )
 
-    scheduler = IngestionScheduler(
-        SimpleNamespace(fetch=fetch), IngestionService(("deepmind.google",))
-    )
+    scheduler = IngestionScheduler(SimpleNamespace(fetch=fetch), IngestionService(("www.kimi.ai",)))
     with database.session() as session:
         session.add(
             SourceRecord(
-                id="s-google-model-card-index",
+                id="s-moonshot-research-index",
                 url=url,
                 title="Test index",
-                publisher="Google DeepMind",
+                publisher="Moonshot AI",
                 active=True,
                 fetch_enabled=True,
                 fetch_interval_minutes=240,

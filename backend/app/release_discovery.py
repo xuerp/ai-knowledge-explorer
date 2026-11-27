@@ -13,7 +13,6 @@ OPENAI_RELEASE_ROOTS = ("s-openai-api-changelog", "s-openai-models")
 OPENAI_RELEASE_SLUG = r"gpt-\d+(?:\.\d+)?-(?:astra|sol|terra|luna|pro)\Z"
 MARKDOWN_LINK = re.compile(r"\[([^\]\r\n]{1,120})\]\(([^)\s]{1,512})\)")
 DISCOVERY_ROOTS = {
-    "s-google-model-card-index": ("deepmind.google", "/models/model-cards/", r"gemini-|gemma-"),
     "s-moonshot-research-index": ("www.kimi.ai", "/blog/", r"kimi-k"),
     **{
         source_id: ("developers.openai.com", "/api/docs/models/", OPENAI_RELEASE_SLUG)

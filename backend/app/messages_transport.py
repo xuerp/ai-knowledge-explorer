@@ -109,23 +109,32 @@ class MessagesTaskInterpreter(ChatTaskInterpreter):
                 self.last_exchange["httpStatus"] = response.status_code
                 response.raise_for_status()
                 body = response.json()
-            usage = body.get("usage", {})
-            counts = [
-                usage.get("input_tokens"),
-                usage.get("output_tokens"),
-                usage.get("cache_read_input_tokens", 0),
-                usage.get("cache_creation_input_tokens", 0),
-            ]
-            if any(type(value) is not int or value < 0 for value in counts):
-                raise ValueError("Missing or invalid model usage receipt.")
-            prompt, completion = counts[0] + counts[2] + counts[3], counts[1]
-            self.last_exchange.update(
-                promptTokens=prompt,
-                completionTokens=completion,
-                totalTokens=prompt + completion,
-                returnedModel=body.get("model"),
-                finishReason=body.get("stop_reason"),
-            )
+            usage = body.get("usage")
+            if usage is None and self.tolerate_missing_usage:
+                # Unmetered success: the ledger charges the full reservation.
+                self.last_exchange.update(
+                    usageMissing=True,
+                    returnedModel=body.get("model"),
+                    finishReason=body.get("stop_reason"),
+                )
+            else:
+                usage = usage if isinstance(usage, dict) else {}
+                counts = [
+                    usage.get("input_tokens"),
+                    usage.get("output_tokens"),
+                    usage.get("cache_read_input_tokens", 0),
+                    usage.get("cache_creation_input_tokens", 0),
+                ]
+                if any(type(value) is not int or value < 0 for value in counts):
+                    raise ValueError("Missing or invalid model usage receipt.")
+                prompt, completion = counts[0] + counts[2] + counts[3], counts[1]
+                self.last_exchange.update(
+                    promptTokens=prompt,
+                    completionTokens=completion,
+                    totalTokens=prompt + completion,
+                    returnedModel=body.get("model"),
+                    finishReason=body.get("stop_reason"),
+                )
             response_id = body.get("id")
             if isinstance(response_id, str) and re.fullmatch(r"[A-Za-z0-9_-]{1,128}", response_id):
                 self.last_exchange["responseId"] = response_id

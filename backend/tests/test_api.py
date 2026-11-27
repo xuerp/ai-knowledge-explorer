@@ -8,13 +8,14 @@ import pytest
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.config import Settings
 from app.database import (
     AuditLogRecord,
     EmailOutboxRecord,
     KnowledgeRelationRecord,
+    ModelBudgetRecord,
     ModelCallRecord,
     PublicationRecordRow,
     RagClaimDocumentRecord,
@@ -1158,6 +1159,69 @@ def test_production_automation_pauses_extraction_without_monetary_budget(tmp_pat
         extraction = response.json()["result"]["extraction"]
         assert extraction["enabled"] is False
         assert extraction["pausedReason"] == "monetary-budget-not-configured"
+
+
+def test_a_locked_extraction_budget_pauses_without_spending_daily_slots(tmp_path):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'locked-extraction.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="production",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        extraction_generation=GenerationConfig(
+            endpoint="https://provider.example/v1/chat/completions",
+            api_key="test-provider-key",
+            model="test-structured-model",
+            budget_id="locked-extraction-budget",
+            month=datetime.now(UTC).strftime("%Y-%m"),
+            currency="CNY",
+            limit_units=1_000_000,
+            input_rate=1_000_000,
+            output_rate=2_000_000,
+            max_calls=5,
+            user_daily_calls=5,
+            user_ids=("automation",),
+            billable_input_tokens=65_000,
+            billable_output_tokens=4_096,
+        ),
+        extraction_source_ids=("*",),
+        auto_extraction_max_snapshots_per_cycle=1,
+    )
+    app = create_app(settings)
+    services = app.state.services
+    with TestClient(app) as client:
+        with services.database.session() as session:
+            session.add(
+                ModelBudgetRecord(
+                    id="locked-extraction-budget",
+                    profile_sha256=services.extraction.budgeted_generator.budget.profile,
+                    limit_units=1_000_000,
+                    charged_units=0,
+                    used_calls=1,
+                    blocked=True,
+                )
+            )
+            session.commit()
+        response = client.post(
+            "/api/v2/automation/run-cycle",
+            headers={"X-Automation-Token": settings.automation_token},
+        )
+        assert response.is_success, response.text
+        extraction = response.json()["result"]["extraction"]
+        assert extraction["pausedReason"] == "monetary-budget-unavailable"
+        assert extraction["planned"] == 0
+        with services.database.session() as session:
+            reserved = session.scalar(
+                select(func.count())
+                .select_from(AuditLogRecord)
+                .where(AuditLogRecord.action == "extraction.reserved")
+            )
+        assert reserved == 0
 
 
 @pytest.mark.parametrize("budgeted", [False, True])
