@@ -17,6 +17,7 @@ const modelAnalysisFaults = new Set([
   "model-led-provider-error",
   "model-led-too-large",
   "model-led-unavailable",
+  "model-led-busy",
 ]);
 
 export function answerSourceNotice(reason: string | null | undefined): AnswerSourceNotice {

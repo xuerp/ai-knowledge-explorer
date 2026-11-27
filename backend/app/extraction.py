@@ -149,7 +149,10 @@ EXTRACTION_JSON_CONTRACT = (
     "Do not add fields, Markdown, commentary, or code fences."
 )
 
-EXTRACTION_PIPELINE_VERSION = "2026-11-catalog-entity-subject-v23"
+# AI_RADAR_EXTRACTION_SOURCE_IDS=* : every active, automatically collected source.
+ALL_AUTOMATIC_SOURCES = "*"
+
+EXTRACTION_PIPELINE_VERSION = "2026-11-new-models-dated-entries-v24"
 
 
 def is_generic_license_fact(subject: str, predicate: str, object_or_value: str = "") -> bool:
@@ -404,6 +407,11 @@ class StructuredExtractionService:
     def call_metadata(self) -> dict[str, Any] | None:
         metadata = self._call_metadata.get()
         return dict(metadata) if metadata is not None else None
+
+    def source_in_budget_scope(self, source: SourceRecord) -> bool:
+        if ALL_AUTOMATIC_SOURCES in self.budgeted_source_ids:
+            return bool(source.active and source.fetch_enabled and source.auto_paused_at is None)
+        return source.id in self.budgeted_source_ids
 
     def record_document_scope(self, delta: Any, source_characters: int) -> None:
         """Record whether the whole document or only its changed text was sent."""
@@ -868,7 +876,7 @@ class StructuredExtractionService:
     ) -> list[CandidateCreate]:
         """Cover the document within one deadline, or fail without publishing a partial batch."""
         self._call_metadata.set(None)
-        if self.budgeted_generator and source.id not in self.budgeted_source_ids:
+        if self.budgeted_generator and not self.source_in_budget_scope(source):
             raise ExtractionUnavailableError("Source is outside the approved extraction scope.")
         if not 1 <= max_candidates <= 30:
             raise ExtractionUnavailableError("Candidate limit must be between 1 and 30.")
@@ -1129,6 +1137,12 @@ class StructuredExtractionService:
                         "preserve the benchmark variant, metric, tested setup and reasoning mode "
                         "when stated; omit the claim if those qualifications cannot be grounded. "
                         "Separate input and output prices into distinct facts with their units. "
+                        "When the source states a dated change, name the predicate after the change "
+                        "and set validFrom to the stated date: release or launch -> released-on; "
+                        "opening to an API, region, plan or platform -> available-in; deprecation, "
+                        "retirement or shutdown -> deprecated-on; a price change -> pricing-changed-on; "
+                        "a new or changed capability -> capability-updated-on. Use other predicates "
+                        "only for standing properties such as limits or supported inputs. "
                         f" {EXTRACTION_JSON_CONTRACT}"
                     ),
                 },
@@ -1239,6 +1253,12 @@ class StructuredExtractionService:
                 fact.object_or_value,
                 claim_text=fact.text_en,
             )
+            if source_excerpt is None:
+                # Changelogs put the date on its own heading line above the entry.
+                dated = fact.object_or_value if _DATE_ONLY.match(fact.object_or_value) else None
+                dated = dated or heading_date(fact.object_or_value) or fact.valid_from
+                if dated:
+                    source_excerpt = locate_dated_entry(snapshot.content_text, fact.subject, dated)
             if source_excerpt is None:
                 if metadata is not None:
                     metadata["rejectedEvidenceAnchors"] += 1
@@ -1384,3 +1404,99 @@ def _classify_connect_error(error: httpx.ConnectError) -> tuple[str, str]:
     if "refused" in detail:
         return "connection_refused", "供应商拒绝了网络连接，请检查端口、访问控制和服务状态。"
     return "connection_failed", "无法连接供应商，请检查 API 地址和供应商服务状态。"
+
+
+_DATE_ONLY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_MONTHS = {
+    name: index
+    for index, names in enumerate(
+        (
+            ("january", "jan"),
+            ("february", "feb"),
+            ("march", "mar"),
+            ("april", "apr"),
+            ("may",),
+            ("june", "jun"),
+            ("july", "jul"),
+            ("august", "aug"),
+            ("september", "sep", "sept"),
+            ("october", "oct"),
+            ("november", "nov"),
+            ("december", "dec"),
+        ),
+        start=1,
+    )
+    for name in names
+}
+_ISO_HEADING = re.compile(r"(?<!\d)(\d{4})[-./年](\d{1,2})[-./月](\d{1,2})日?(?!\d)")
+_WORD_HEADING = re.compile(r"\b([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\b")
+
+
+def heading_date(line: str) -> str | None:
+    """ISO date of a changelog date heading such as '**2026-8-19**' or '### November 9, 2026'."""
+    text = re.sub(r"[*#`>_\s]+", " ", line).strip()
+    # A heading is short and is mostly the date; a sentence mentioning a date is not.
+    if not text or len(text) > 40:
+        return None
+    match = _ISO_HEADING.search(text)
+    if match:
+        year, month, day = (int(value) for value in match.groups())
+    else:
+        match = _WORD_HEADING.search(text)
+        month = _MONTHS.get(match.group(1).casefold()) if match else None
+        if not match or not month:
+            return None
+        day, year = int(match.group(2)), int(match.group(3))
+    try:
+        return date(year, month, day).isoformat()
+    except ValueError:
+        return None
+
+
+def locate_dated_entry(
+    content: str, subject: str, value_date: str, *, max_characters: int = 800
+) -> str | None:
+    """Quote a changelog entry whose date is a heading above the line naming the subject.
+
+    Changelogs put the date on its own line ('**2026-06-16**' then 'GLM-5.2 ... 上线'),
+    so subject and date never share a sentence. The quote keeps the heading and the
+    entry together, verbatim, so a reviewer sees what supports the date.
+    """
+    subject_key = subject.casefold().strip()
+    if not subject_key or not _DATE_ONLY.match(value_date):
+        return None
+    lines = content.splitlines()
+    current: tuple[int, str] | None = None
+    for index, line in enumerate(lines):
+        found = heading_date(line)
+        if found:
+            current = (index, found)
+            continue
+        if current is None or current[1] != value_date:
+            continue
+        # Markdown emphasis and code marks are formatting, not part of the name.
+        visible = re.sub(r"[*_`]+", " ", line).casefold()
+        # "GLM-5.3" must not match inside "GLM-5.3-Flash" (a different model).
+        boundary = (
+            r"(?<![A-Za-z0-9_.-])"
+            + re.escape(subject_key)
+            + r"(?![A-Za-z0-9_]|[.,]\d|-[A-Za-z0-9])"
+        )
+        if re.search(boundary, visible):
+            # Heading + the entry line that names the subject, both verbatim. Text in
+            # between belongs to other entries and is not part of this claim's quote.
+            entry = line.strip()
+            if len(entry) + len(lines[current[0]]) >= max_characters:
+                # One long bullet often holds several sentences; keep only the one
+                # that names the subject, still verbatim, under the same heading.
+                entry = next(
+                    (
+                        sentence.strip()
+                        for sentence in re.split(r"(?<=[.。!?！？])\s+", entry)
+                        if re.search(boundary, re.sub(r"[*_`]+", " ", sentence).casefold())
+                    ),
+                    entry,
+                )
+            quote = f"{lines[current[0]].strip()}\n{entry}"
+            return quote if len(quote) <= max_characters else None
+    return None

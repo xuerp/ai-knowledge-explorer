@@ -129,3 +129,43 @@ export function formatRolloutSummary(outcomes: RolloutOutcome[]): string {
       : ""
   }`;
 }
+
+/**
+ * A long document can take minutes to extract; the browser and the edge proxy stop
+ * waiting long before the server does. A gateway or timeout error therefore does
+ * not mean extraction failed, so say where the outcome will appear instead.
+ */
+export function extractionFailureMessage(message: string): string {
+  const gateway =
+    /暂时无法连接服务|服务响应超时|后端请求超时|正在唤醒|timed out|temporarily unavailable|aborted/i;
+  if (gateway.test(message)) {
+    return "等待超时，后台可能仍在抽取；稍后刷新，在审核队列和自动任务记录中查看结果，不要立即重复抽取。";
+  }
+  return message;
+}
+
+/**
+ * The admin source card disables collection and extraction until the previous step
+ * is done; say which step is next instead of leaving the buttons silently grey.
+ */
+export function nextSourceStep(source: {
+  active: boolean;
+  fetchEnabled: boolean;
+  collectionStrategy?: string;
+  lastSeenAt?: string | null;
+  autoPausedAt?: string | null;
+  recentProbePassed: boolean;
+}): string | null {
+  if (!source.active) return "信源已停用；启用后才能采集。";
+  if (source.collectionStrategy === "manual") {
+    return "此信源只能人工采集：在下方快照中录入候选事实。";
+  }
+  if (source.autoPausedAt) return "连续失败已暂停采集；修复入口后点“立即重新排队”。";
+  if (!source.fetchEnabled) {
+    return source.recentProbePassed
+      ? "预检已通过：点“启用自动采集”，之后可以立即采集和抽取。"
+      : "下一步：先点“连接预检”，通过后才能启用自动采集。";
+  }
+  if (!source.lastSeenAt) return "已启用：点“立即采集此信源”，有快照后才能 AI 抽取。";
+  return null;
+}

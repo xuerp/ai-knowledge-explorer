@@ -11,7 +11,8 @@ from urllib.parse import urlparse
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from .catalog_changes import EVENT_PREDICATE_KINDS, catalog_changes
+from .catalog_changes import catalog_changes
+from .change_classification import change_kind_for_predicate, claim_change_detail
 from .database import (
     EntityAliasRecord,
     KnowledgeEntityRecord,
@@ -50,8 +51,6 @@ logger = logging.getLogger(__name__)
 
 # A validity date on a static capability or price does not make it a change.
 # Only predicates that state an event or an availability transition enter the feed.
-CHANGE_EVENT_PREDICATES = set(EVENT_PREDICATE_KINDS)
-
 RELATION_PREDICATES: dict[str, RelationKind] = {
     "developed-by": "developed-by",
     "developed by": "developed-by",
@@ -99,6 +98,10 @@ CANONICAL_SOURCE_URL_MIGRATIONS = {
     "s-swebench": (
         "https://raw.githubusercontent.com/swe-bench/swe-bench.github.io/"
         "master/data/info_for_leaderboard.json"
+    ),
+    # Seeded on 2026-11-25 at a URL that redirects off the allow-listed host.
+    "s-volcengine-ark-model-releases": (
+        "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh"
     ),
 }
 
@@ -164,6 +167,52 @@ MACHINE_SOURCE_CATALOG = (
         "url": "https://changelog.qoder.com/zh/ide",
         "title": "Qoder IDE 官方更新日志",
         "publisher": "Qoder",
+        "fetch_interval_minutes": 1440,
+    },
+    # Official dated changelogs for vendors with no collected source, checked on
+    # 2026-11-25 to return dated text through the site's own text extraction.
+    {
+        # Live catalogs already register this page as reviewed evidence under this id.
+        "id": "s-deepseek-history-reviewed",
+        "url": "https://api-docs.deepseek.com/updates",
+        "title": "DeepSeek API 更新日志",
+        "publisher": "DeepSeek",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-kimi-platform-changelog",
+        "url": "https://platform.kimi.com/docs/changelog/index.md",
+        "title": "Kimi 开放平台更新日志",
+        "publisher": "Moonshot AI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-zhipu-new-releases",
+        "url": "https://docs.bigmodel.cn/cn/update/new-releases.md",
+        "title": "智谱开放平台新品发布",
+        "publisher": "Zhipu AI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-minimax-model-release-notes",
+        "url": "https://platform.minimax.io/docs/release-notes/models.md",
+        "title": "MiniMax 模型发布说明",
+        "publisher": "MiniMax",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-grok-release-notes",
+        "url": "https://docs.x.ai/developers/release-notes",
+        "title": "xAI 开发者发布说明",
+        "publisher": "SpaceXAI",
+        "fetch_interval_minutes": 240,
+    },
+    {
+        "id": "s-volcengine-ark-model-releases",
+        # www.volcengine.com redirects twice to this page on docs.volcengine.com.
+        "url": "https://docs.volcengine.com/docs/ark/model-release-announcement?lang=zh",
+        "title": "火山方舟模型发布公告",
+        "publisher": "ByteDance Seed",
         "fetch_interval_minutes": 1440,
     },
 )
@@ -439,6 +488,11 @@ class KnowledgeRepository:
         for source_id, canonical_url in CANONICAL_SOURCE_URL_MIGRATIONS.items():
             row = session.get(SourceRecord, source_id)
             if row is None or row.url == canonical_url:
+                continue
+            # An administrator who already pointed collection at the canonical page
+            # keeps the probe and schedule; only the evidence URL is corrected.
+            if row.fetch_url and row.fetch_url.rstrip("/") == canonical_url.rstrip("/"):
+                row.url = canonical_url
                 continue
             row.url = canonical_url
             row.fetch_enabled = False
@@ -1035,6 +1089,7 @@ class KnowledgeRepository:
         # approved event claims, never the seed's editorial change cards.
         # A review date is not the date of the fact.
         entity_ids = {entity.id for entity in snapshot.entities}
+        entity_names = {entity.id: entity.name for entity in snapshot.entities}
         public_evidence = {evidence.id: evidence for evidence in snapshot.evidence}
         blocked_release_entities = {
             claim.entity_id
@@ -1064,7 +1119,7 @@ class KnowledgeRepository:
                 or entity_id not in entity_ids
                 or not fact_date
                 or fact_date > today
-                or claim.predicate not in CHANGE_EVENT_PREDICATES
+                or not (kind := change_kind_for_predicate(claim.predicate))
             ):
                 continue
             approved_evidence_ids = {item.id for item in self.approved_evidence(job)}
@@ -1079,7 +1134,6 @@ class KnowledgeRepository:
             )
             if not source_ids:
                 continue
-            kind = EVENT_PREDICATE_KINDS[claim.predicate]
             changes = [
                 change
                 for change in changes
@@ -1096,6 +1150,7 @@ class KnowledgeRepository:
                     date=fact_date,
                     summary=LocalizedText(zh=claim.text.zh, en=claim.text.en),
                     kind=kind,
+                    detail=claim_change_detail(claim, kind, entity_names[entity_id]),
                     confidence="verified",
                     source_ids=source_ids,
                 )

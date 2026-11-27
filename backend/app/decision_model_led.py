@@ -16,9 +16,9 @@ import re
 from pydantic import ValidationError
 
 from .answer_generation import _quoted_values
-from .decision_constraints import constraint_failures
+from .decision_constraints import constraint_failures, is_available_version
 from .generation_runtime import ANALYSIS_INPUT_LIMIT, ModelInputTooLarge, compact_evidence
-from .model_budget import ModelBudgetUnavailable
+from .model_budget import ModelBudgetBusy, ModelBudgetUnavailable
 from .schemas import (
     DecisionModelLedCandidate,
     DecisionModelLedLine,
@@ -152,6 +152,34 @@ def parse_model_led(raw: str) -> tuple[ModelLedPayload, list[str]]:
         raise ModelLedRejected(f"schema:{first.get('type', 'invalid')}:{location}") from error
 
 
+# A version continues a name when the next character extends it: a digit, a
+# point, a hyphen or a letter. "GPT-5" is not mentioned by "GPT-5.4", and
+# "Claude Opus 4" is not mentioned by "Claude Opus 4.5"; "GPT-5。" is.
+_NAME_CONTINUES = re.compile(r"[0-9A-Za-z.\-_]")
+# A space then a version number also extends it: "GPT Realtime 2.1".
+_SPACED_VERSION = re.compile(r"\s+v?\d")
+
+
+def mentions_name(text: str, name: str) -> bool:
+    """True when `name` appears in `text` as a whole name, not inside a longer one."""
+    needle = name.casefold()
+    haystack = text.casefold()
+    start = haystack.find(needle)
+    while start != -1:
+        before = haystack[start - 1] if start > 0 else ""
+        after_index = start + len(needle)
+        after = haystack[after_index] if after_index < len(haystack) else ""
+        # ASCII names need a boundary on the left too ("xgpt-5" is another word).
+        left_ok = not before or not (needle[:1].isascii() and _NAME_CONTINUES.match(before))
+        extended = bool(after and _NAME_CONTINUES.match(after)) or bool(
+            _SPACED_VERSION.match(haystack, after_index)
+        )
+        if left_ok and not extended:
+            return True
+        start = haystack.find(needle, start + 1)
+    return False
+
+
 def _texts(point: ModelLedPoint) -> tuple[str, str]:
     return point.text_zh, point.text_en
 
@@ -283,16 +311,31 @@ def validate_model_led(
         if _quoted_values(payload.headline_zh, payload.headline_en) - all_values
         else None
     )
-    # A pruned candidate must not survive in free text that recommends it.
-    lead_text = (headline_text + " " + " ".join(_texts(payload.summary))).casefold()
+    # A pruned candidate must not survive in free text that recommends it. The
+    # offending headline or summary is replaced below, never shown as written.
+    summary_text = " ".join(_texts(payload.summary)).casefold()
+    excluded_names = []
     for item in pruned:
         if not item.reason.startswith("hard-requirement:") or item.entity_id not in entities:
             continue
         entity = entities[item.entity_id]
-        names = {entity.name.zh, entity.name.en, *(entity.aliases or [])}
-        if any(name and len(name) > 2 and name.casefold() in lead_text for name in names):
-            # A real violation: never show a recommendation the rules excluded.
-            raise ModelLedRejected("lead-recommends-excluded")
+        names = [
+            name
+            for name in {entity.name.zh, entity.name.en, *(entity.aliases or [])}
+            if name and len(name) > 2
+        ]
+        excluded_names.append((entity.id, names))
+
+    def names_excluded(text: str) -> str | None:
+        for entity_id, names in excluded_names:
+            if any(mentions_name(text, name) for name in names):
+                return entity_id
+        return None
+
+    if headline_problem is None and (hit := names_excluded(headline_text.casefold())):
+        headline_problem = "recommends-excluded:" + hit
+    if summary_problem is None and (hit := names_excluded(summary_text)):
+        summary_problem = "recommends-excluded:" + hit
     pick = (lambda zh, en: zh) if language == "zh" else (lambda zh, en: en)
     tradeoffs = keep(payload.tradeoffs, "tradeoffs")
     gaps = keep(payload.gaps, "gaps")
@@ -310,6 +353,8 @@ def validate_model_led(
                     *tradeoffs,
                     *first_steps,
                 )
+                # The stand-in must not reintroduce an excluded product either.
+                if not names_excluded(line.text.casefold())
             ),
             None,
         )
@@ -343,11 +388,16 @@ def catalog_digest(snapshot, citations: list[ResearchCitation], limit: int = 40)
         if item.claim.entity_id and item.claim.entity_id not in retrieved:
             retrieved.append(item.claim.entity_id)
     entities = {entity.id: entity for entity in snapshot.entities}
-    ordered = [entities[key] for key in retrieved if key in entities] + [
+    # Only available versions may be proposed, retrieved or not; previews count.
+    ordered = [
+        entities[key]
+        for key in retrieved
+        if key in entities and is_available_version(entities[key])
+    ] + [
         entity
         for entity in snapshot.entities
         if entity.id not in retrieved
-        and entity.status == "active"
+        and is_available_version(entity)
         and entity.type not in {"company", "paper", "benchmark", "dataset"}
     ]
     return [
@@ -433,6 +483,8 @@ def run_model_led(
             return ModelLedOutcome(analysis, None, citations, attempts=attempts)
         except ModelInputTooLarge:
             return ModelLedOutcome(None, "model-led-too-large", attempts=attempts)
+        except ModelBudgetBusy:
+            return ModelLedOutcome(None, "model-led-busy", attempts=attempts)
         except ModelBudgetUnavailable:
             return ModelLedOutcome(None, "model-led-unavailable", attempts=attempts)
         except ModelLedRejected as error:

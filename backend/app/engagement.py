@@ -23,7 +23,12 @@ from .database import (
 )
 from .decision_candidates import discover_candidates
 from .decision_comparison import build_comparisons
-from .decision_constraints import constraint_failures, current_claims, date_value
+from .decision_constraints import (
+    constraint_failures,
+    current_claims,
+    date_value,
+    is_available_version,
+)
 from .decision_dialogue import analysis_context, interpret_answer, normalize_context
 from .decision_explanation import explain_decision
 from .decision_guidance import build_guidance
@@ -751,8 +756,15 @@ class EngagementService:
         except Exception:  # noqa: BLE001 -- retrieval failure keeps the rule path
             session.rollback()
             broad = retrieval
+        # Retired, unreleased and rumoured versions stay in the catalog for history
+        # but are never offered to the model: it cannot recommend what it never sees.
+        # Previews remain available, matching the rule screening.
+        usable = {entity.id for entity in snapshot.entities if is_available_version(entity)}
         merged, seen = [], set()
         for item in [*broad.citations, *retrieval.citations]:
+            entity_id = item.claim.entity_id
+            if entity_id and entity_id not in usable:
+                continue
             if item.claim.id not in seen:
                 seen.add(item.claim.id)
                 merged.append(item)
@@ -1161,11 +1173,13 @@ class EngagementService:
                 decision, context = {}, {}
             model_led = decision.get("modelLed") or {}
             guidance = decision.get("guidance") or {}
-            headline = (
-                model_led.get("headline")
-                or (guidance.get("recommendation") or {}).get("headline")
-                or row.summary
+            # A clarifying question is not a title for a saved result: it reads
+            # as if the record asked the user something. Show the task instead.
+            asks_back = guidance.get("outcome") == "clarify" or bool(guidance.get("clarification"))
+            headline = model_led.get("headline") or (
+                None if asks_back else (guidance.get("recommendation") or {}).get("headline")
             )
+            headline = headline or (context.get("task") or row.question or row.summary)
             created = row.created_at
             summaries.append(
                 ResearchSummaryView(

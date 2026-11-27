@@ -75,3 +75,15 @@ def test_every_record_is_reachable_page_by_page(api):  # noqa: F811
     ).json()
     assert past_end["items"] == [] and past_end["total"] == 7
     assert client.get("/api/v2/research", params={"offset": -1}, headers=owner).status_code == 422
+
+
+def test_a_clarifying_question_is_not_used_as_the_record_title(api):  # noqa: F811
+    client, owner, _ = api
+    asked = create(api, "想用 AI 提高办公效率")
+    assert asked["decision"]["guidance"]["outcome"] == "clarify"
+    body = client.get("/api/v2/research", headers=owner).json()
+    # The paged shape ({items, total}) lands separately; accept either response.
+    row = (body["items"] if isinstance(body, dict) else body)[0]
+    assert row["id"] == asked["id"]
+    assert row["headline"] == "想用 AI 提高办公效率"
+    assert row["headline"] != asked["decision"]["guidance"]["recommendation"]["headline"]

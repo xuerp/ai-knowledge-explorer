@@ -2,7 +2,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from app.database import Database, ReviewJobRecord
+from app.database import Database, EntryRequestRecord, ReviewJobRecord
 from app.freshness import knowledge_freshness
 
 NOW = datetime(2026, 11, 23, 12, 0, tzinfo=UTC)
@@ -99,5 +99,45 @@ def test_empty_queue_is_on_track(tmp_path: Path):
     result = _freshness(tmp_path, [])
 
     assert result.status == "on-track"
-    assert [track.track for track in result.tracks] == ["relation", "fact"]
+    assert [track.track for track in result.tracks] == ["relation", "fact", "verification"]
     assert all(track.open_count == 0 for track in result.tracks)
+
+
+def _request(request_id, status, age_hours, *, verification=True, reviewed_after_hours=None):
+    from app.knowledge_checks import VERIFY_REASON_PREFIX
+
+    created = NOW - timedelta(hours=age_hours)
+    return EntryRequestRecord(
+        id=request_id,
+        name="核验：示例",
+        entity_type="model",
+        source_url="https://example.com/",
+        reason=(VERIFY_REASON_PREFIX if verification else "收录这个新模型：") + "示例内容。",
+        status=status,
+        created_at=created,
+        reviewed_at=(
+            created + timedelta(hours=reviewed_after_hours)
+            if reviewed_after_hours is not None
+            else None
+        ),
+        version=1,
+    )
+
+
+def test_verification_requests_have_their_own_three_day_track(tmp_path: Path):
+    result = _freshness(
+        tmp_path,
+        [
+            _request("v-fresh", "pending", 10),
+            _request("v-overdue", "in-review", 80),
+            _request("v-late", "resolved", 100, reviewed_after_hours=90),
+            # An ordinary catalog suggestion is not a verification request.
+            _request("other", "pending", 500, verification=False),
+        ],
+    )
+    track = {item.track: item for item in result.tracks}["verification"]
+    assert track.budget_hours == 72
+    assert (track.open_count, track.overdue_count) == (2, 1)
+    assert track.oldest_open_age_hours == 80.0
+    assert (track.recent_decided_count, track.recent_decided_late_count) == (1, 1)
+    assert result.status == "overdue" and result.overdue_count == 1

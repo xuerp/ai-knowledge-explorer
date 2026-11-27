@@ -72,6 +72,8 @@ class ReviewJobRecord(Base):
     target_claim_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     superseded_by_claim_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     decision_idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    # A new model the claim introduces; created as an entity only when approved.
+    proposed_entity_json: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class PublicationRecordRow(Base):

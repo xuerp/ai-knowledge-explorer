@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { isAssetLoadError, recoverStaleAssets } from "../lib/asset-recovery";
 import { AppProvider } from "@/lib/app-context";
+import { LocalizedTitle } from "@/lib/page-title";
 import { Toaster } from "@/components/ui/sonner";
 
 // A new URL also refreshes the browser's favicon cache from the old template mark.
@@ -150,6 +151,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
+        <LocalizedTitle />
         <Outlet />
         <Toaster position="top-right" closeButton richColors />
       </AppProvider>

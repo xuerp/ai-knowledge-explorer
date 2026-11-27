@@ -22,10 +22,10 @@ export function FreshnessPanel({ freshness }: { freshness?: KnowledgeFreshness |
         />
       </div>
       <p className="mt-1 text-xs leading-5 text-muted-foreground">
-        从候选进入审核队列开始计时。“近 {freshness.recentWindowDays}{" "}
-        天”统计已完成审核中超过时限的条数。
+        从候选或核验请求进入队列开始计时。“近 {freshness.recentWindowDays}{" "}
+        天”统计已完成审核中超过时限的条数。“用户请求核验”在下方“收录请求”中处理。
       </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {freshness.tracks.map((track) => {
           const late = track.overdueCount > 0;
           return (

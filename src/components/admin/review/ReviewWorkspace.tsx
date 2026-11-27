@@ -16,6 +16,7 @@ import { buildReviewViewModel } from "./review-view-model";
 import { OperationsPanel } from "./OperationsPanel";
 import { ProductionReadinessPanel } from "./ProductionReadinessPanel";
 import { ClaimEntityAuditPanel } from "./ClaimEntityAuditPanel";
+import { SpecUpdatesPanel } from "./SpecUpdatesPanel";
 import { RelationAuditPanel } from "./RelationAuditPanel";
 import { QualityPanel } from "./QualityPanel";
 import { IntegrationsPanel } from "./IntegrationsPanel";
@@ -269,6 +270,8 @@ export function ReviewWorkspace() {
             <ClaimEntityAuditPanel context={context} />
 
             <RelationAuditPanel context={context} />
+
+            <SpecUpdatesPanel token={token} canAdopt={user.role === "admin"} />
 
             <QualityPanel context={context} />
 

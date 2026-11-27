@@ -23,6 +23,7 @@ import {
 } from "@/domain/model-product-lines";
 import { ENTITY_TYPE_LABELS } from "@/domain/labels";
 import { modelSpecChinese } from "@/domain/model-spec";
+import { specBasis, type SpecBasis } from "@/domain/spec-fields";
 import { uniqueSourceLinks } from "@/domain/source-links";
 import { familyEvolutionEvents, latestFamilyChange } from "@/domain/family-evolution";
 import {
@@ -529,16 +530,24 @@ function EntityDetail() {
                         label={t("上下文窗口", "Context window")}
                         value={localizeModelSpec(e.specs.contextWindow, lang)}
                         mono
+                        basis={specBasis(
+                          e.id,
+                          "context_window",
+                          e.specs.contextWindow,
+                          page.claims,
+                        )}
                       />
                       <ProfileField
                         label={t("输入价格", "Input price")}
                         value={localizeModelSpec(e.specs.inputPrice, lang)}
                         mono
+                        basis={specBasis(e.id, "input_price", e.specs.inputPrice, page.claims)}
                       />
                       <ProfileField
                         label={t("输出价格", "Output price")}
                         value={localizeModelSpec(e.specs.outputPrice, lang)}
                         mono
+                        basis={specBasis(e.id, "output_price", e.specs.outputPrice, page.claims)}
                       />
                       <ProfileField
                         label={t("输入模态", "Modalities")}
@@ -1075,6 +1084,7 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
       label: t("上下文窗口", "Context window"),
       value: entity.specs?.contextWindow,
       hint: t("单次请求可处理的上下文", "Context available per request"),
+      basis: specBasis(entity.id, "context_window", entity.specs?.contextWindow, page.claims),
     },
     {
       label: t("输入 / 输出模态", "Input / output"),
@@ -1256,6 +1266,7 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                           <span>{item.label}</span>
                           <strong>{specValue(item.value)}</strong>
                           <small>{item.hint}</small>
+                          {"basis" in item && <SpecBasisNote basis={item.basis} />}
                         </div>
                       ))}
                     </div>
@@ -1288,10 +1299,26 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                         <div>
                           <span>{t("输入定价", "Input price")}</span>
                           <strong>{specValue(entity.specs?.inputPrice)}</strong>
+                          <SpecBasisNote
+                            basis={specBasis(
+                              entity.id,
+                              "input_price",
+                              entity.specs?.inputPrice,
+                              page.claims,
+                            )}
+                          />
                         </div>
                         <div>
                           <span>{t("输出定价", "Output price")}</span>
                           <strong>{specValue(entity.specs?.outputPrice)}</strong>
+                          <SpecBasisNote
+                            basis={specBasis(
+                              entity.id,
+                              "output_price",
+                              entity.specs?.outputPrice,
+                              page.claims,
+                            )}
+                          />
                         </div>
                       </div>
                       <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -1430,6 +1457,14 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                         <div>
                           <span>{t("输入定价", "Input price")}</span>
                           <strong>{specValue(entity.specs?.inputPrice)}</strong>
+                          <SpecBasisNote
+                            basis={specBasis(
+                              entity.id,
+                              "input_price",
+                              entity.specs?.inputPrice,
+                              page.claims,
+                            )}
+                          />
                           <small>
                             {t(
                               "官方口径；可能随地区与批量方案变化",
@@ -1440,6 +1475,14 @@ function ModelVersionDetail({ entity, page }: { entity: Entity; page: ModelPageD
                         <div>
                           <span>{t("输出定价", "Output price")}</span>
                           <strong>{specValue(entity.specs?.outputPrice)}</strong>
+                          <SpecBasisNote
+                            basis={specBasis(
+                              entity.id,
+                              "output_price",
+                              entity.specs?.outputPrice,
+                              page.claims,
+                            )}
+                          />
                           <small>
                             {t(
                               "使用前复核最新官方计费页",
@@ -2320,11 +2363,13 @@ function ProfileField({
   value,
   wide = false,
   mono = false,
+  basis,
 }: {
   label: string;
   value: string;
   wide?: boolean;
   mono?: boolean;
+  basis?: SpecBasis | null;
 }) {
   return (
     <div className={wide ? "sm:col-span-2" : undefined}>
@@ -2332,6 +2377,26 @@ function ProfileField({
       <dd className={`mt-1 leading-relaxed text-foreground ${mono ? "font-mono text-xs" : ""}`}>
         {value}
       </dd>
+      <SpecBasisNote basis={basis} />
     </div>
+  );
+}
+
+/** The reviewed fact behind a card value, or a note that a newer reviewed value differs. */
+function SpecBasisNote({ basis }: { basis?: SpecBasis | null }) {
+  const { t } = useApp();
+  if (!basis) return null;
+  const date = basis.claim.validFrom ?? basis.claim.updatedAt;
+  return (
+    <span
+      className={`mt-1 block text-[11px] font-normal leading-snug ${basis.differs ? "text-unverified" : "text-muted-foreground"}`}
+    >
+      {basis.differs
+        ? t(
+            `最新审核值为 ${basis.claim.objectOrValue}（${date}），待更新`,
+            `Latest reviewed value: ${basis.claim.objectOrValue} (${date}), pending update`,
+          )
+        : t(`已核实 · ${date}`, `Verified · ${date}`)}
+    </span>
   );
 }

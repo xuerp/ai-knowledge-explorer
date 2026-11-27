@@ -2980,6 +2980,46 @@ a.decision-brief__claims {
   line-height: 1.65;
   overflow-wrap: anywhere;
 }
+.updates-change-context {
+  padding-top: 1rem;
+  border-top: 1px solid var(--updates-line);
+}
+.updates-change-context__note {
+  display: block;
+  color: var(--updates-muted);
+  font-size: 0.8rem;
+}
+.updates-change-context__list {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.updates-change-context__list a,
+.updates-change-context__list button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--updates-blue);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.updates-change-context__list a:hover,
+.updates-change-context__list button:hover {
+  text-decoration: underline;
+}
+.updates-change-context__list a:focus-visible,
+.updates-change-context__list button:focus-visible {
+  outline: 2px solid var(--updates-blue);
+  outline-offset: 2px;
+}
+.updates-change-context__tag {
+  margin-right: 0.4rem;
+  color: var(--updates-muted);
+  font-size: 0.75rem;
+}
 
 .entry-request-dialog {
   width: min(30rem, calc(100% - 2rem));
@@ -9142,6 +9182,56 @@ a.decision-brief__claims {
   font-size: 12px;
   font-weight: 400;
 }
+/* Two-level folds on the input form: a title plus a muted line of contents. */
+.decision-fold__title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+.decision-fold__optional {
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+  background: var(--color-muted);
+}
+.decision-fold__summary {
+  margin-inline-start: 12px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-muted-foreground);
+}
+.decision-preferences > summary .decision-fold__summary,
+.decision-fold--nested > summary .decision-fold__summary {
+  flex: 1;
+  min-width: 0;
+}
+/* Narrow screens: the contents line wraps under the title instead of widening the form. */
+@media (max-width: 640px) {
+  :is(.decision-preferences, .decision-fold--nested) > summary {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  :is(.decision-preferences, .decision-fold--nested) > summary .decision-fold__summary {
+    flex-basis: 100%;
+    margin-inline-start: 22px;
+  }
+}
+.decision-fold--nested > summary .decision-fold__title {
+  font-size: 0.875rem;
+}
+.decision-preferences .decision-fold--nested {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+.decision-preferences > .decision-examples {
+  margin-block: 0 16px;
+}
 /* Legacy libraries only; inside a result they use the shared disclosure style. */
 .ask-source-library:not(.decision-result-disclosure) > summary,
 .research-source-library:not(.decision-result-disclosure) > summary {
@@ -9221,7 +9311,7 @@ a.decision-brief__claims {
   border-block: 1px solid var(--color-border);
   padding-block: 0.75rem;
 }
-.decision-more-conditions > summary,
+.decision-more-conditions:not(.decision-fold--nested):not(.decision-preferences) > summary,
 .decision-validation__items > summary {
   cursor: pointer;
   font-size: 0.875rem;
@@ -10199,6 +10289,17 @@ a.decision-brief__claims {
 .decision-field > span {
   line-height: 1.5;
 }
+/* Field label above a one-line plain explanation, then the control. */
+.decision-field__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+.decision-field__hint {
+  margin-top: -0.25rem;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
 .decision-field__help {
   font-size: 0.75rem;
   color: var(--color-muted-foreground);
@@ -10210,14 +10311,28 @@ a.decision-brief__claims {
   flex-wrap: wrap;
   align-content: start;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.375rem 0.75rem;
 }
 .decision-input-modalities legend {
   padding: 0;
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  margin-bottom: 0.375rem;
   line-height: 1.5;
+}
+/* Required inputs and the licence switch read as one capability group. */
+.decision-capabilities {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+.decision-capabilities__licence {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+.decision-input-modalities > .decision-field__hint {
+  flex-basis: 100%;
+  margin-top: -0.375rem;
 }
 .decision-input-modalities label {
   min-height: 2.5rem;
@@ -10252,6 +10367,12 @@ a.decision-brief__claims {
   cursor: pointer;
   padding-block: 0.5rem;
   font-weight: 500;
+}
+/* The full field glossary is reference material: a quiet link-like fold. */
+.decision-guide[data-kind="inputs"] > summary {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-signal);
 }
 .decision-scope p {
   margin-top: 0.5rem;
@@ -11296,4 +11417,99 @@ a.decision-brief__claims {
 }
 .decision-candidates .decision-brief__list {
   margin-block: 0.875rem 0.5rem;
+}
+
+/* Updates filters on phones: every group uses the Region row layout. The label sits
+   in a fixed left column; options start at one shared left edge and wrapped options
+   return to that edge, so a lone last option stays left-aligned instead of centred. */
+@media (max-width: 640px) {
+  .updates-filter-panel {
+    --updates-filter-label: 4.25rem;
+    --updates-filter-gap: 0.5rem;
+  }
+  .updates-filter-panel .updates-filters__inner,
+  .updates-filter-panel .updates-filter-groups,
+  .updates-filter-more,
+  .updates-filter-short-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--updates-filter-gap);
+  }
+  .updates-filter-more {
+    margin-top: var(--updates-filter-gap);
+    padding-top: var(--updates-filter-gap);
+  }
+  /* The label takes no flex space (negative margin), so wrapped lines start under the
+     first option rather than under the label. */
+  .updates-filter-panel .updates-filter-group,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group,
+  .updates-filter-panel .updates-filter-group.is-wide,
+  .updates-filter-more .updates-filter-short-row .updates-filter-group,
+  .updates-filter-more .updates-filter-short-row .updates-filter-group + .updates-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0 0 0 var(--updates-filter-label);
+    border: 0;
+  }
+  .updates-filter-panel .updates-filter-group > span,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group > span,
+  .updates-filter-panel .updates-filter-group.is-wide > span,
+  .updates-filter-short-row .updates-filter-group > span {
+    display: flex;
+    flex: 0 0 var(--updates-filter-label);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    align-self: flex-start;
+    width: var(--updates-filter-label);
+    min-height: 2.75rem;
+    margin: 0 -0.35rem 0 calc(-1 * var(--updates-filter-label));
+    padding-right: 0.35rem;
+    text-align: left;
+    white-space: normal;
+  }
+  .updates-filter-panel .updates-filter-group > span > small {
+    font-size: 0.65rem;
+  }
+  .updates-filter-panel .updates-filter-group > button,
+  .updates-filter-panel .updates-filter-groups > .updates-filter-group > button,
+  .updates-filter-short-row .updates-filter-group > button {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding-inline: 0.75rem;
+    white-space: nowrap;
+  }
+  /* Dropdowns and the More-filters toggle use the same label column and left edge. */
+  .updates-filter-panel .updates-filter-select {
+    display: grid;
+    grid-template-columns: var(--updates-filter-label) minmax(0, 1fr);
+    align-items: center;
+    gap: 0;
+  }
+  .updates-filter-panel .updates-filter-select > label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .updates-filter-panel .updates-select-trigger {
+    max-width: none;
+  }
+  .updates-filter-panel .updates-select-trigger.mobile-filter-select-trigger {
+    justify-content: center;
+    padding-inline: 1.65rem;
+    text-align: center;
+  }
+  /* More filters starts at the panel edge, like the filter help below it. */
+  .updates-filter-panel .updates-filter-actions {
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+  .updates-filter-panel .updates-filter-help {
+    margin-top: var(--updates-filter-gap);
+  }
 }

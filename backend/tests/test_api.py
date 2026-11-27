@@ -975,6 +975,7 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
         "candidatesCreated": 0,
         "duplicatesSkipped": 0,
         "relationsAutoApproved": 0,
+        "newModelsAutoCreated": 0,
         "failed": 0,
     }
 
@@ -986,10 +987,14 @@ def test_automation_cycle_uses_dedicated_token_and_records_heartbeat(client: Tes
     assert operations["worker"]["lastCycleStatus"] == "succeeded"
     assert operations["recentRuns"][0]["id"] == payload["cycleId"]
     # The review-latency state is visible live and persisted with the cycle record.
-    assert [track["budgetHours"] for track in operations["freshness"]["tracks"]] == [24, 72]
+    assert [track["budgetHours"] for track in operations["freshness"]["tracks"]] == [24, 72, 72]
     persisted = operations["recentRuns"][0]["result"]["freshness"]
     assert persisted["status"] == payload["result"]["freshness"]["status"]
-    assert {track["track"] for track in persisted["tracks"]} == {"relation", "fact"}
+    assert {track["track"] for track in persisted["tracks"]} == {
+        "relation",
+        "fact",
+        "verification",
+    }
     quality = client.get("/api/v2/quality/metrics").json()
     assert quality["freshness"]["status"] in {"on-track", "overdue"}
 
@@ -1079,6 +1084,7 @@ def test_automation_cycle_extracts_each_new_stored_snapshot_once(
             "candidatesCreated": 0,
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
+            "newModelsAutoCreated": 0,
             "failed": 0,
             "reviewBacklog": 1,
             "dailySlotsRemaining": 9,
@@ -1944,6 +1950,7 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
     add_review("valid")
     add_review("observed", fact_date=None, observed_at="2026-08-21T12:00:00Z")
     add_review("static", predicate="supports")
+    add_review("status-note", predicate="official-release-status")
     add_review("pending", status="pending")
     add_review("historical", lifecycle="superseded")
     add_review("undated", fact_date=None)
@@ -1959,7 +1966,19 @@ def test_changes_project_only_current_approved_dated_claims_with_anchored_eviden
     ] == [
         {
             "id": "change-claim-claim-change-valid",
-            "detail": None,
+            "detail": {
+                "description": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+                "before": {
+                    "zh": "来源未说明变化前的状态。",
+                    "en": "The source does not state the prior state.",
+                },
+                "after": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
+                "affected": {"zh": "GPT 系列 的使用者", "en": "Users of GPT family"},
+                "action": {
+                    "zh": "发布说明以官方来源为准；接入前核对可用地区、价格和配额。",
+                    "en": "Confirm region, pricing and quotas in the official source before adopting.",
+                },
+            },
             "entityId": "e-gpt",
             "date": "2026-08-20",
             "summary": {"zh": "审核事实 valid", "en": "Reviewed fact valid"},
@@ -2722,6 +2741,8 @@ def test_review_inventory_is_read_only_and_classifies_duplicates(client: TestCli
 
     assert report.status_code == 200
     assert report.json()["openTotal"] == len(before)
+    decided = client.get("/api/v2/review/stats").json()["reviewedCount"]
+    assert report.json()["decidedTotal"] == decided
     assert report.json()["duplicateWithPublishedItems"] == 1
     assert report.json()["possibleUpdateGroups"] >= 1
     assert report.json()["riskCounts"]["high"] >= 2
@@ -4501,3 +4522,632 @@ def test_integration_status_describes_budgeted_extraction_without_secrets(tmp_pa
         "blocked": False,
         "inFlight": False,
     }
+
+
+def test_reviewed_free_form_change_predicates_reach_updates_with_a_detail(client: TestClient):
+    """Extracted predicates such as feature-deprecated used to be dropped from /updates."""
+    rows = [
+        ("deprecation", "feature-deprecated", "fast mode", "deprecated"),
+        ("rollout", "released-to", "Responses API", "availability"),
+        ("static-limit", "maximum-context-window", "1M tokens", None),
+    ]
+    with client.app.state.database.session() as session:
+        for suffix, predicate, value, _ in rows:
+            claim_id = f"claim-free-{suffix}"
+            evidence_id = f"evidence-free-{suffix}"
+            claim = {
+                "id": claim_id,
+                "entityId": "e-gpt",
+                "text": {"zh": f"GPT {value}", "en": f"GPT {value}"},
+                "confidence": "verified",
+                "sourceIds": [evidence_id],
+                "updatedAt": "2026-11-24",
+                "validFrom": "2026-10-30",
+                "subject": "GPT",
+                "predicate": predicate,
+                "objectOrValue": value,
+            }
+            evidence = {
+                "id": evidence_id,
+                "title": {"zh": "官方更新日志", "en": "Official changelog"},
+                "url": f"https://example.com/changelog-{suffix}",
+                "publisher": "Example",
+                "publishedAt": "2026-10-30",
+                "collectedAt": "2026-11-23",
+                "type": "official",
+                "sourceExcerpt": f"GPT {value} on 2026-10-30.",
+            }
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-free-{suffix}",
+                    entity_id="e-gpt",
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence]),
+                    conflict_ids_json="[]",
+                    status="approved",
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC),
+                    reviewed_by="reviewer@example.com",
+                    version=1,
+                )
+            )
+        session.commit()
+
+    changes = {change["id"]: change for change in client.get("/api/v2/updates").json()["changes"]}
+    for suffix, _, value, kind in rows:
+        change = changes.get(f"change-claim-claim-free-{suffix}")
+        if kind is None:
+            assert change is None
+            continue
+        assert change["kind"] == kind
+        assert change["date"] == "2026-10-30"
+        assert change["detail"]["after"]["en"] == value
+        assert change["sourceIds"] == [f"evidence-free-{suffix}"]
+
+
+def test_wildcard_extraction_scope_follows_automatic_collection(tmp_path):
+    """AI_RADAR_EXTRACTION_SOURCE_IDS=* : enabling collection is enough to extract."""
+    extraction_generation = GenerationConfig(
+        endpoint="https://provider.example/v1/chat/completions",
+        api_key="test-provider-key",
+        model="gpt-6.2-sol",
+        budget_id="test-wildcard-scope",
+        month=datetime.now(UTC).strftime("%Y-%m"),
+        currency="CNY",
+        limit_units=5_000_000,
+        input_rate=600_000,
+        output_rate=3_000_000,
+        max_calls=100,
+        user_daily_calls=20,
+        user_ids=("automation",),
+        max_output_tokens=8192,
+        billable_input_tokens=120_000,
+        billable_output_tokens=8192,
+    )
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'wildcard-scope.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=(),
+        environment="test",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url=extraction_generation.endpoint,
+        extraction_api_key=extraction_generation.api_key,
+        extraction_model=extraction_generation.model,
+        extraction_generation=extraction_generation,
+        extraction_source_ids=("*",),
+        auto_extraction_max_snapshots_per_cycle=1,
+    )
+    with TestClient(create_app(settings)) as wildcard_client:
+        headers = {"X-Admin-Token": "test-admin-token"}
+        for source_id in ("source-collected", "source-manual", "source-paused"):
+            assert (
+                wildcard_client.post(
+                    "/api/v2/admin/sources",
+                    headers=headers,
+                    json={
+                        "id": source_id,
+                        "url": f"https://example.com/{source_id}",
+                        "title": source_id,
+                        "publisher": "Example",
+                    },
+                ).status_code
+                == 201
+            )
+            assert (
+                wildcard_client.post(
+                    f"/api/v2/admin/sources/{source_id}/snapshots",
+                    headers=headers,
+                    json={"content": f"{source_id} changelog entry."},
+                ).status_code
+                == 200
+            )
+        services = wildcard_client.app.state.services
+        with wildcard_client.app.state.database.session() as session:
+            session.get(SourceRecord, "source-collected").fetch_enabled = True
+            paused = session.get(SourceRecord, "source-paused")
+            paused.fetch_enabled = True
+            paused.auto_paused_at = datetime.now(UTC)
+            session.commit()
+            planned = services.build_extraction_plan(session, 10, automatic_only=True)
+
+    assert [source.id for source, _ in planned] == ["source-collected"]
+
+
+def test_reviewed_spec_change_is_listed_and_adopted_onto_the_card(client: TestClient):
+    headers = {"X-Admin-Token": "test-admin-token"}
+
+    def approved(suffix: str, value: str, valid_from: str) -> None:
+        claim_id = f"claim-spec-{suffix}"
+        evidence_id = f"evidence-spec-{suffix}"
+        claim = {
+            "id": claim_id,
+            "entityId": "e-claude-45",
+            "text": {"zh": f"输入价格 {value}", "en": f"Input price {value}"},
+            "confidence": "verified",
+            "sourceIds": [evidence_id],
+            "updatedAt": "2026-11-26",
+            "subject": "Claude Sonnet 4.5",
+            "predicate": "standard-input-price",
+            "objectOrValue": value,
+            "validFrom": valid_from,
+        }
+        evidence = {
+            "id": evidence_id,
+            "title": {"zh": "官方价格", "en": "Official pricing"},
+            "url": f"https://example.com/pricing-{suffix}",
+            "publisher": "Anthropic",
+            "publishedAt": valid_from,
+            "collectedAt": "2026-11-26",
+            "type": "official",
+            "sourceExcerpt": f"Input {value}",
+        }
+        with client.app.state.database.session() as session:
+            session.add(
+                ReviewJobRecord(
+                    id=f"review-spec-{suffix}",
+                    entity_id="e-claude-45",
+                    claim_id=claim_id,
+                    claim_json=json.dumps(claim),
+                    evidence_ids_json=json.dumps([evidence_id]),
+                    evidence_json=json.dumps([evidence]),
+                    conflict_ids_json="[]",
+                    status="approved",
+                    created_at=datetime.now(UTC),
+                    reviewed_at=datetime.now(UTC),
+                    reviewed_by="reviewer@example.com",
+                    version=1,
+                )
+            )
+            session.commit()
+
+    # Same price in other words: not a change. A later, lower price: a change.
+    approved("same", "$3 USD per MTok", "2026-06-01")
+    assert not [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    approved("cut", "$2.50", "2026-11-20")
+    [candidate] = [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    assert candidate["field"] == "input_price"
+    assert candidate["cardValue"] == "$3 / 1M tokens"
+    assert candidate["factValue"] == "$2.50"
+    assert candidate["claimId"] == "claim-spec-cut"
+
+    payload = {
+        "entityId": "e-claude-45",
+        "field": "input_price",
+        "claimId": "claim-spec-cut",
+        "value": "$2.50 / 1M tokens",
+    }
+    assert (
+        client.post("/api/v2/admin/spec-update-candidates/adopt", json=payload).status_code == 401
+    )
+    adopted = client.post(
+        "/api/v2/admin/spec-update-candidates/adopt", headers=headers, json=payload
+    )
+    assert adopted.status_code == 200
+    assert adopted.json()["specs"]["inputPrice"] == "$2.50 / 1M tokens"
+    assert not [
+        item
+        for item in client.get("/api/v2/admin/spec-update-candidates", headers=headers).json()
+        if item["entityId"] == "e-claude-45"
+    ]
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    record = next(item for item in audit if item["action"] == "catalog.spec.adopted")
+    assert record["detail"]["previous"] == "$3 / 1M tokens"
+    assert record["detail"]["claimId"] == "claim-spec-cut"
+
+    mismatched = {**payload, "field": "context_window"}
+    assert (
+        client.post(
+            "/api/v2/admin/spec-update-candidates/adopt", headers=headers, json=mismatched
+        ).status_code
+        == 422
+    )
+
+
+def test_a_release_of_an_unknown_model_creates_the_entity_when_approved(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    assert (
+        client.post(
+            "/api/v2/admin/sources",
+            headers=headers,
+            json={
+                "id": "source-new-model",
+                "url": "https://example.com/release-notes",
+                "title": "Release notes",
+                "publisher": "Anthropic",
+            },
+        ).status_code
+        == 201
+    )
+    page = (
+        "### November 9, 2026\n\n"
+        "* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work. "
+        "Claude Fable 5.2 has a 1M token context window."
+    )
+    assert (
+        client.post(
+            "/api/v2/admin/sources/source-new-model/snapshots",
+            headers=headers,
+            json={"content": page},
+        ).status_code
+        == 200
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        excerpt = (
+            "### November 9, 2026\n* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work."
+            if predicate == "released-on"
+            else "Claude Fable 5.2 has a 1M token context window."
+        )
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-fable-{suffix}",
+                "claim": {
+                    "id": f"claim-fable-{suffix}",
+                    "text": {"zh": f"Claude Fable 5.2 {value}", "en": f"Claude Fable 5.2 {value}"},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-fable-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-fable-{suffix}",
+                        "title": {"zh": "版本说明", "en": "Release notes"},
+                        "url": "https://example.com/release-notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": excerpt,
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda *args, **kwargs: [
+            candidate("release", "released-on", "2026-11-09", "2026-11-09"),
+            candidate("context", "context-window", "1M token context window"),
+        ],
+    )
+    created = client.post(
+        "/api/v2/admin/sources/source-new-model/extract", headers=headers, json={"maxCandidates": 5}
+    )
+    assert created.status_code == 200
+    by_id = {item["id"]: item for item in created.json()}
+    # Both facts are kept and attributed to the proposed entity instead of being dropped.
+    assert {item["entityId"] for item in by_id.values()} == {"e-claude-fable-5-2"}
+    assert "新模型" in by_id["review-fable-release"]["reviewReason"]
+    assert client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+
+    # The release fact is approved first: the entity is created under the Claude family.
+    release = client.post(
+        "/api/v2/admin/review-queue/review-fable-release/approve",
+        headers=headers,
+        json={"expectedVersion": by_id["review-fable-release"]["version"]},
+    )
+    assert release.status_code == 200
+    entity = client.get("/api/v2/entities/model/claude-fable-5-2").json()
+    assert entity["familyId"] == "e-claude"
+    assert entity["release"]["releasedAt"] == "2026-11-09"
+    assert entity["release"]["apiModelIds"] == ["claude-fable-5-2"]
+    assert entity["release"]["productLine"]["id"] == "claude-fable"
+
+    # The other fact now publishes against the new entity.
+    context = client.post(
+        "/api/v2/admin/review-queue/review-fable-context/approve",
+        headers=headers,
+        json={"expectedVersion": by_id["review-fable-context"]["version"]},
+    )
+    assert context.status_code == 200
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    assert [item for item in audit if item["action"] == "catalog.entity.created-from-review"]
+
+
+def test_any_fact_about_a_proposed_model_can_be_approved_first(client: TestClient, monkeypatch):
+    headers = {"X-Admin-Token": "test-admin-token"}
+    client.post(
+        "/api/v2/admin/sources",
+        headers=headers,
+        json={
+            "id": "source-mythos",
+            "url": "https://example.com/notes",
+            "title": "Notes",
+            "publisher": "Anthropic",
+        },
+    )
+    client.post(
+        "/api/v2/admin/sources/source-mythos/snapshots",
+        headers=headers,
+        json={
+            "content": "### November 9, 2026\n* Claude Fable 5.2 launched. It supports 128k max output tokens."
+        },
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-order-{suffix}",
+                "claim": {
+                    "id": f"claim-order-{suffix}",
+                    "text": {"zh": value, "en": value},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-order-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-order-{suffix}",
+                        "title": {"zh": "说明", "en": "Notes"},
+                        "url": "https://example.com/notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": f"Claude Fable 5.2 {value}",
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(
+        StructuredExtractionService,
+        "extract",
+        lambda *args, **kwargs: [
+            candidate("release", "launched-as", "2026-11-09", "2026-11-09"),
+            candidate("output", "maximum-output-tokens", "128k max output tokens"),
+        ],
+    )
+    created = {
+        item["id"]: item
+        for item in client.post(
+            "/api/v2/admin/sources/source-mythos/extract",
+            headers=headers,
+            json={"maxCandidates": 5},
+        ).json()
+    }
+    for review_id in ("review-order-output", "review-order-release"):
+        approved = client.post(
+            f"/api/v2/admin/review-queue/{review_id}/approve",
+            headers=headers,
+            json={"expectedVersion": created[review_id]["version"]},
+        )
+        assert approved.status_code == 200, approved.text
+    audit = client.get("/api/v2/admin/audit-log", headers=headers).json()
+    assert (
+        len([item for item in audit if item["action"] == "catalog.entity.created-from-review"]) == 1
+    )
+
+
+def test_automation_adds_an_officially_announced_new_model_without_review(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'auto-new-model.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_create_new_models=True,
+    )
+    page = (
+        "### November 9, 2026\n\n"
+        "* We launched **Claude Fable 5.2** (`claude-fable-5-2`), built for agentic work. "
+        "Claude Fable 5.2 has a 1M token context window."
+    )
+
+    def candidate(suffix, predicate, value, valid_from=None):
+        return CandidateCreate.model_validate(
+            {
+                "id": f"review-auto-{suffix}",
+                "claim": {
+                    "id": f"claim-auto-{suffix}",
+                    "text": {"zh": f"Claude Fable 5.2 {value}", "en": f"Claude Fable 5.2 {value}"},
+                    "confidence": "unverified",
+                    "sourceIds": [f"evidence-auto-{suffix}"],
+                    "updatedAt": "2026-11-26",
+                    "subject": "Claude Fable 5.2",
+                    "predicate": predicate,
+                    "objectOrValue": value,
+                    "validFrom": valid_from,
+                },
+                "evidence": [
+                    {
+                        "id": f"evidence-auto-{suffix}",
+                        "title": {"zh": "版本说明", "en": "Release notes"},
+                        "url": "https://example.com/release-notes",
+                        "publisher": "Anthropic",
+                        "publishedAt": "2026-11-09",
+                        "collectedAt": "2026-11-26",
+                        "sourceExcerpt": page,
+                        "type": "official",
+                    }
+                ],
+            }
+        )
+
+    with TestClient(create_app(settings)) as automatic_client:
+        admin = {"X-Admin-Token": "test-admin-token"}
+        automation = {"X-Automation-Token": "test-automation-token-with-at-least-32-characters"}
+        assert (
+            automatic_client.post(
+                "/api/v2/admin/sources",
+                headers=admin,
+                json={
+                    "id": "source-auto-new-model",
+                    "url": "https://example.com/release-notes",
+                    "title": "Release notes",
+                    "publisher": "Anthropic",
+                },
+            ).status_code
+            == 201
+        )
+        assert (
+            automatic_client.post(
+                "/api/v2/admin/sources/source-auto-new-model/snapshots",
+                headers=admin,
+                json={"content": page},
+            ).status_code
+            == 200
+        )
+        with automatic_client.app.state.database.session() as session:
+            row = session.get(SourceRecord, "source-auto-new-model")
+            row.fetch_enabled = True
+            row.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+        monkeypatch.setattr(
+            StructuredExtractionService,
+            "extract",
+            lambda *args, **kwargs: [
+                candidate("release", "released-on", "2026-11-09", "2026-11-09"),
+                candidate("context", "context-window", "1M token context window"),
+            ],
+        )
+        cycle = automatic_client.post("/api/v2/automation/run-cycle", headers=automation)
+        assert cycle.status_code == 200
+        assert cycle.json()["result"]["extraction"]["newModelsAutoCreated"] == 1
+        entity = automatic_client.get("/api/v2/entities/model/claude-fable-5-2")
+        assert entity.status_code == 200
+        assert entity.json()["familyId"] == "e-claude"
+        queue = {
+            item["id"]: item
+            for item in automatic_client.get("/api/v2/admin/review-queue", headers=admin).json()
+        }
+        # Only the release fact is approved automatically; other facts still wait for review.
+        assert queue["review-auto-release"]["status"] == "approved"
+        assert queue["review-auto-release"]["reviewMethod"] == "automation"
+        assert queue["review-auto-context"]["status"] == "pending"
+
+        # A wrongly added model can be withdrawn: the entity goes, its facts are closed.
+        withdrawn = automatic_client.post(
+            "/api/v2/admin/entities/e-claude-fable-5-2/withdraw",
+            headers=admin,
+            json={"reason": "误收录，撤回"},
+        )
+        assert withdrawn.status_code == 200
+        assert withdrawn.json() == {"retracted": 1, "rejected": 1}
+        assert automatic_client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+        # Seed entities were not created from review and cannot be withdrawn this way.
+        refused = automatic_client.post(
+            "/api/v2/admin/entities/e-claude/withdraw", headers=admin, json={"reason": "测试拒绝"}
+        )
+        assert refused.status_code == 409
+
+
+@pytest.mark.parametrize(
+    ("switch_on", "evidence_type"),
+    [(False, "official"), (True, "news")],
+)
+def test_a_new_model_waits_for_review_when_the_switch_is_off_or_the_source_is_not_official(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    switch_on: bool,
+    evidence_type: str,
+):
+    settings = Settings(
+        database_url=f"sqlite:///{(tmp_path / 'manual-new-model.db').as_posix()}",
+        seed_snapshot_path=SEED_PATH,
+        admin_token="test-admin-token",
+        cors_origins=("http://localhost:3000",),
+        automation_token="test-automation-token-with-at-least-32-characters",
+        environment="test",
+        jwt_secret="test-jwt-secret-that-is-long-enough-for-hs256",
+        fetch_allowed_hosts=("example.com",),
+        extraction_api_url="https://provider.example/v1/chat/completions",
+        extraction_api_key="test-provider-key",
+        extraction_model="test-structured-model",
+        auto_extraction_max_snapshots_per_cycle=1,
+        auto_create_new_models=switch_on,
+    )
+    page = "### November 9, 2026\n* We launched **Claude Fable 5.2** (`claude-fable-5-2`)."
+    release = CandidateCreate.model_validate(
+        {
+            "id": "review-manual-release",
+            "claim": {
+                "id": "claim-manual-release",
+                "text": {"zh": "Claude Fable 5.2 发布", "en": "Claude Fable 5.2 released"},
+                "confidence": "unverified",
+                "sourceIds": ["evidence-manual-release"],
+                "updatedAt": "2026-11-26",
+                "subject": "Claude Fable 5.2",
+                "predicate": "released-on",
+                "objectOrValue": "2026-11-09",
+                "validFrom": "2026-11-09",
+            },
+            "evidence": [
+                {
+                    "id": "evidence-manual-release",
+                    "title": {"zh": "版本说明", "en": "Release notes"},
+                    "url": "https://example.com/release-notes",
+                    "publisher": "Anthropic",
+                    "publishedAt": "2026-11-09",
+                    "collectedAt": "2026-11-26",
+                    "sourceExcerpt": page,
+                    "type": evidence_type,
+                }
+            ],
+        }
+    )
+    with TestClient(create_app(settings)) as automatic_client:
+        admin = {"X-Admin-Token": "test-admin-token"}
+        automation = {"X-Automation-Token": "test-automation-token-with-at-least-32-characters"}
+        automatic_client.post(
+            "/api/v2/admin/sources",
+            headers=admin,
+            json={
+                "id": "source-manual-new-model",
+                "url": "https://example.com/release-notes",
+                "title": "Release notes",
+                "publisher": "Anthropic",
+            },
+        )
+        automatic_client.post(
+            "/api/v2/admin/sources/source-manual-new-model/snapshots",
+            headers=admin,
+            json={"content": page},
+        )
+        with automatic_client.app.state.database.session() as session:
+            row = session.get(SourceRecord, "source-manual-new-model")
+            row.fetch_enabled = True
+            row.next_fetch_at = datetime.now(UTC) + timedelta(days=1)
+            session.commit()
+        monkeypatch.setattr(StructuredExtractionService, "extract", lambda *a, **k: [release])
+        assert (
+            automatic_client.post("/api/v2/automation/run-cycle", headers=automation).status_code
+            == 200
+        )
+        assert automatic_client.get("/api/v2/entities/model/claude-fable-5-2").status_code == 404
+        queue = automatic_client.get("/api/v2/admin/review-queue", headers=admin).json()
+        item = next(entry for entry in queue if entry["id"] == "review-manual-release")
+        assert item["status"] == "pending"

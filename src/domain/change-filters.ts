@@ -13,7 +13,3 @@ export function toggleChangeKind(selected: ChangeKind[], value: ChangeKind | "al
 export function matchesChangeKinds(change: ChangeEvent, selected: ChangeKind[]) {
   return selected.length === 0 || selected.includes(change.kind);
 }
-
-export function hasLinkedChangeSource(change: ChangeEvent, linkedSourceIds: Set<string>) {
-  return Boolean(change.sourceIds?.some((id) => linkedSourceIds.has(id)));
-}

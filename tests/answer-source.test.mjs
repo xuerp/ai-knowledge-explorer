@@ -38,6 +38,7 @@ test("模型分析失败时单独提示，并区分次数用完与校验失败",
     "model-led-provider-error",
     "model-led-too-large",
     "model-led-unavailable",
+    "model-led-busy",
   ]) {
     assert.equal(answerSourceNotice(reason), "model-analysis-failed");
   }

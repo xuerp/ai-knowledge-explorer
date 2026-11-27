@@ -7,7 +7,7 @@ const vite = await createServer({
   appType: "custom",
   optimizeDeps: { noDiscovery: true },
 });
-const { toggleChangeKind, matchesChangeKinds, hasLinkedChangeSource } = await vite.ssrLoadModule(
+const { toggleChangeKind, matchesChangeKinds } = await vite.ssrLoadModule(
   "/src/domain/change-filters.ts",
 );
 test.after(() => vite.close());
@@ -33,16 +33,4 @@ test("再次点击取消类型，全部与取消最后一个都恢复不限", ()
   assert.deepEqual(toggleChangeKind(["availability"], "availability"), []);
   assert.deepEqual(toggleChangeKind(selected, "all"), []);
   assert.deepEqual(selected, ["pricing", "availability"]);
-});
-
-test("核验和来源不是同一条件，失效引用不算可打开来源", () => {
-  const linked = new Set(["original"]);
-  assert.equal(hasLinkedChangeSource({ confidence: "verified", sourceIds: [] }, linked), false);
-  assert.equal(
-    hasLinkedChangeSource({ confidence: "unverified", sourceIds: ["original"] }, linked),
-    true,
-  );
-  assert.equal(hasLinkedChangeSource({ sourceIds: ["missing"] }, linked), false);
-  assert.equal(hasLinkedChangeSource({ sourceIds: ["missing", "original"] }, linked), true);
-  assert.equal(hasLinkedChangeSource({}, linked), false);
 });

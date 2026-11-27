@@ -10,6 +10,7 @@ import {
   describeProbeFailure,
   isAllowlistedSource,
   isVettedRolloutSource,
+  nextSourceStep,
 } from "@/domain/source-rollout";
 
 import { DataList } from "./shared";
@@ -416,6 +417,13 @@ export function SourcesPanel({ context }: { context: ReviewViewModel }) {
                     AI 抽取候选
                   </Button>
                 </div>
+                {(() => {
+                  const hint = nextSourceStep({
+                    ...source,
+                    recentProbePassed: isRecentProbePassed(source),
+                  });
+                  return hint ? <p className="mt-2 text-xs text-muted-foreground">{hint}</p> : null;
+                })()}
                 {sourceSnapshots[source.id] && (
                   <div className="mt-3 space-y-2 rounded-lg border border-border bg-muted/20 p-3">
                     {sourceSnapshots[source.id].length === 0 ? (

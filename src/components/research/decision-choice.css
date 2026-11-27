@@ -645,18 +645,36 @@
 }
 /* Disclosures reveal information; actions retain their own button hierarchy. */
 .decision-brief--choice summary,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+:is(
+    .decision-preferences,
+    .decision-fold--nested,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )
   > summary {
   cursor: pointer;
   list-style: none;
 }
 .decision-brief--choice summary::-webkit-details-marker,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+:is(
+    .decision-preferences,
+    .decision-fold--nested,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )
   > summary::-webkit-details-marker {
   display: none;
 }
 .decision-brief--choice summary::marker,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+:is(
+    .decision-preferences,
+    .decision-fold--nested,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )
   > summary::marker {
   content: "";
 }
@@ -673,6 +691,7 @@
     .decision-validation__records,
     .decision-trial-kit__protocol,
     .decision-preferences,
+    .decision-fold--nested,
     .ask-source-library,
     .ask-secondary-evidence,
     .research-source-library
@@ -692,7 +711,13 @@
 }
 /* A drawn chevron complements the label and retains native keyboard behavior. */
 .decision-brief--choice summary::before,
-:is(.decision-preferences, .ask-source-library, .ask-secondary-evidence, .research-source-library)
+:is(
+    .decision-preferences,
+    .decision-fold--nested,
+    .ask-source-library,
+    .ask-secondary-evidence,
+    .research-source-library
+  )
   > summary::before {
   content: "";
   display: inline-block;
@@ -708,6 +733,7 @@
 .decision-brief--choice details[open] > summary::before,
 :is(
     .decision-preferences,
+    .decision-fold--nested,
     .ask-source-library,
     .ask-secondary-evidence,
     .research-source-library
@@ -860,4 +886,9 @@
   .decision-trial-kit__actions > button:first-child {
     flex-basis: 100%;
   }
+}
+
+/* Input-form folds span the row so the muted contents line can truncate. */
+:is(.decision-preferences, .decision-fold--nested) > summary {
+  width: 100%;
 }

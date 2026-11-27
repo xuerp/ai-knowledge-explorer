@@ -20,12 +20,20 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from .application_rules import RELATION_CLAIM_PREDICATES
-from .database import ReviewJobRecord
+from .database import EntryRequestRecord, ReviewJobRecord
+from .knowledge_checks import VERIFY_REASON_PREFIX
 from .schemas import Claim, FreshnessTrack, KnowledgeFreshness
 
 OPEN_STATUSES = ("pending", "needs-more-evidence")
 DECIDED_STATUSES = ("approved", "rejected")
-TRACK_BUDGET_HOURS: dict[Literal["relation", "fact"], int] = {"relation": 24, "fact": 72}
+TRACK_BUDGET_HOURS: dict[Literal["relation", "fact", "verification"], int] = {
+    "relation": 24,
+    "fact": 72,
+    # A user asked to verify a "model knowledge" line; same budget as other facts.
+    "verification": 72,
+}
+VERIFY_OPEN_STATUSES = ("pending", "in-review")
+VERIFY_DECIDED_STATUSES = ("resolved", "rejected")
 RECENT_WINDOW_DAYS = 7
 
 
@@ -64,6 +72,30 @@ def knowledge_freshness(session: Session, *, now: datetime | None = None) -> Kno
         }
         for name in TRACK_BUDGET_HOURS
     }
+    requests = session.scalars(
+        select(EntryRequestRecord).where(
+            EntryRequestRecord.reason.startswith(VERIFY_REASON_PREFIX, autoescape=True),
+            or_(
+                EntryRequestRecord.status.in_(VERIFY_OPEN_STATUSES),
+                (EntryRequestRecord.status.in_(VERIFY_DECIDED_STATUSES))
+                & (EntryRequestRecord.reviewed_at >= recent_since),
+            ),
+        )
+    ).all()
+    for row in requests:
+        budget = timedelta(hours=TRACK_BUDGET_HOURS["verification"])
+        bucket = tracks["verification"]
+        created = _utc(row.created_at)
+        if row.status in VERIFY_OPEN_STATUSES:
+            bucket["open"] += 1
+            if current - created > budget:
+                bucket["overdue"] += 1
+            if bucket["oldest"] is None or created < bucket["oldest"]:
+                bucket["oldest"] = created
+        elif row.reviewed_at is not None:
+            bucket["decided"] += 1
+            if _utc(row.reviewed_at) - created > budget:
+                bucket["decided_late"] += 1
     for row in rows:
         name = _track(row)
         budget = timedelta(hours=TRACK_BUDGET_HOURS[name])

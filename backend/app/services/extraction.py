@@ -16,12 +16,14 @@ from ..database import (
     SourceRecord,
 )
 from ..document_delta import DocumentDelta, changed_text
+from ..entity_aliases import normalize_entity_alias
 from ..extraction import (
     EXTRACTION_PIPELINE_VERSION,
     ExtractionBudgetUnavailable,
     entity_reference_appears,
     extraction_audit_is_current,
 )
+from ..new_models import build_new_model, is_release_predicate, model_id_from, place_new_model
 from ..quality import (
     CORE_ENTITY_RELATION_REQUIREMENT,
     claim_semantic_fingerprint,
@@ -32,6 +34,7 @@ from ..repository import OPEN_REVIEW_STATUSES
 from ..schemas import (
     CandidateCreate,
     Claim,
+    Entity,
     RelationBackfillStatus,
     ReviewDecision,
     ReviewQueueItem,
@@ -120,6 +123,36 @@ class ExtractionServices:
         )
         return eligible[:limit]
 
+    def new_model_proposals(
+        self, candidates: list[CandidateCreate], source: SourceRecord, snapshot
+    ) -> dict[str, Entity]:
+        """Proposed entities for unknown models whose release this batch states."""
+        proposals: dict[str, Entity] = {}
+        today = datetime.now(UTC).date().isoformat()
+        for candidate in candidates:
+            claim = candidate.claim
+            name = (claim.subject or "").strip()
+            key = normalize_entity_alias(name)
+            if not name or key in proposals or not is_release_predicate(claim.predicate):
+                continue
+            if self.quality_gate.assess(candidate, snapshot).resolved_entity_id:
+                continue
+            placement = place_new_model(name, source.publisher, snapshot.entities)
+            if placement is None:
+                continue
+            excerpt = candidate.evidence[0].source_excerpt if candidate.evidence else None
+            released = claim.valid_from if claim.valid_from and claim.valid_from <= today else None
+            proposals[key] = build_new_model(
+                placement,
+                snapshot.entities,
+                released_at=released,
+                summary=claim.text.zh,
+                model_id=model_id_from(excerpt, name),
+                official_url=source.url,
+                verified_on=today,
+            )
+        return proposals
+
     def extraction_delta(
         self, session: Session, snapshot_row: DocumentSnapshotRecord
     ) -> DocumentDelta | None:
@@ -151,9 +184,20 @@ class ExtractionServices:
             DocumentSnapshotRecord.observed_at.desc(), DocumentSnapshotRecord.id.desc()
         )
         if self.app_settings.extraction_generation:
-            statement = statement.where(
-                DocumentSnapshotRecord.source_id.in_(self.app_settings.extraction_source_ids)
-            )
+            if self.app_settings.extraction_all_automatic_sources:
+                # Every source an admin has switched to automatic collection is in
+                # scope; enabling collection in the admin console is enough.
+                statement = statement.join(
+                    SourceRecord, SourceRecord.id == DocumentSnapshotRecord.source_id
+                ).where(
+                    SourceRecord.active.is_(True),
+                    SourceRecord.fetch_enabled.is_(True),
+                    SourceRecord.auto_paused_at.is_(None),
+                )
+            else:
+                statement = statement.where(
+                    DocumentSnapshotRecord.source_id.in_(self.app_settings.extraction_source_ids)
+                )
         return session.scalars(statement).all()
 
     def build_relation_backfill_plan(
@@ -434,9 +478,19 @@ class ExtractionServices:
                 existing_row.review_reason = "检测到重复事实，已合并新增证据。"
 
         created: list[ReviewQueueItem] = []
+        proposed_entity: dict[str, Entity] = {}
         duplicates_skipped = 0
+        # A release of an unknown model proposes a new entity; its other facts in the
+        # same batch then attach to that proposal instead of being dropped.
+        proposals = self.new_model_proposals(candidates, source, public_snapshot)
         for candidate in candidates:
             assessment = self.quality_gate.assess(candidate, public_snapshot)
+            proposed = proposals.get(normalize_entity_alias(candidate.claim.subject or ""))
+            if not assessment.resolved_entity_id and proposed is not None:
+                assessment = assessment.model_copy(
+                    update={"resolved_entity_id": proposed.id, "resolution": "resolved"}
+                )
+                proposed_entity[candidate.id] = proposed
             if not assessment.resolved_entity_id:
                 # 无法唯一归属目录实体的候选不可发布；入队只会产生必然驳回的审核负担。
                 self.extraction.record_rejected_fact(
@@ -473,12 +527,18 @@ class ExtractionServices:
                 reason = "Structured conflict detected against: " + ", ".join(
                     assessment.conflicting_claim_ids
                 )
+            new_entity = proposed_entity.get(candidate.id)
+            if new_entity is not None:
+                reason = (
+                    f"新模型：批准后自动收录 {new_entity.name.zh}（归入 {new_entity.family_id}）。"
+                )
             row = self.ingestion.submit_candidate(
                 session,
                 candidate,
                 queue_status=assessment.queue_status,
                 conflict_claim_ids=assessment.conflicting_claim_ids,
                 review_reason=reason,
+                proposed_entity=new_entity,
             )
             if row:
                 created.append(self.repository.to_queue_item(row))
@@ -497,6 +557,35 @@ class ExtractionServices:
         if row.status != "pending":
             return False
         return self.grounded_relation_rule_passes(session, row, source, snapshot_row)
+
+    def is_new_model_auto_approvable(
+        self,
+        row: ReviewJobRecord,
+        source: SourceRecord,
+        snapshot_row: DocumentSnapshotRecord,
+    ) -> bool:
+        """An official page states, verbatim, the release of a model the catalog lacks.
+
+        Only the release fact itself is approved; the new entity is created on approval.
+        Other facts about the new model still go through review.
+        """
+        if not self.app_settings.auto_create_new_models or row.status != "pending":
+            return False
+        if not row.proposed_entity_json or not row.entity_id:
+            return False
+        item = self.repository.to_queue_item(row)
+        claim = item.claim
+        if item.conflict_claim_ids or not is_release_predicate(claim.predicate):
+            return False
+        name = " ".join((claim.subject or "").casefold().split())
+        document = " ".join((snapshot_row.content_text or "").casefold().split())
+        if not name or name not in document:
+            return False
+        evidence_items = self.repository.approved_evidence(row)
+        return bool(evidence_items) and all(
+            evidence.type == "official" and str(evidence.url).rstrip("/") == source.url.rstrip("/")
+            for evidence in evidence_items
+        )
 
     def grounded_relation_rule_passes(
         self,
@@ -596,6 +685,7 @@ class ExtractionServices:
             "candidatesCreated": 0,
             "duplicatesSkipped": 0,
             "relationsAutoApproved": 0,
+            "newModelsAutoCreated": 0,
             "failed": 0,
         }
         if not summary["enabled"]:
@@ -680,6 +770,7 @@ class ExtractionServices:
                     per_snapshot,
                 )
                 auto_approved = 0
+                models_created = 0
                 for item in created:
                     row = session.get(ReviewJobRecord, item.id)
                     if row and self.is_grounded_relation_auto_approvable(
@@ -699,6 +790,19 @@ class ExtractionServices:
                             session,
                         )
                         auto_approved += 1
+                    elif row and self.is_new_model_auto_approvable(row, source, snapshot_row):
+                        # Approving the release fact creates the new model entity.
+                        self.decide_review(
+                            row.id,
+                            ReviewDecision(
+                                expected_version=row.version,
+                                reason="自动收录新模型：官方原文逐字写明该模型发布，且与现有目录无冲突。",
+                            ),
+                            "approved",
+                            principal,
+                            session,
+                        )
+                        models_created += 1
                 self.audit.record(
                     session,
                     principal,
@@ -712,6 +816,7 @@ class ExtractionServices:
                         "candidateIds": [item.id for item in created],
                         "duplicatesSkipped": duplicates_skipped,
                         "relationsAutoApproved": auto_approved,
+                        "newModelsAutoCreated": models_created,
                         "pipelineVersion": EXTRACTION_PIPELINE_VERSION,
                         "sourceId": source.id,
                         "providerCall": self.extraction.call_metadata(),
@@ -728,6 +833,9 @@ class ExtractionServices:
                 )
                 summary["relationsAutoApproved"] = (
                     int(summary["relationsAutoApproved"]) + auto_approved
+                )
+                summary["newModelsAutoCreated"] = (
+                    int(summary["newModelsAutoCreated"]) + models_created
                 )
             except Exception as error:  # noqa: BLE001 - persist diagnostics and retry later
                 session.rollback()

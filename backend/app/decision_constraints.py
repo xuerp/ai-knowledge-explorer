@@ -303,6 +303,24 @@ def context_values(claims: list[Claim], *, official_specs: bool = False) -> list
     return values
 
 
+def is_available_version(entity: Entity) -> bool:
+    """A version a user can adopt now. Previews count; retired or unreleased do not.
+
+    Shared by the rule screening and the model-led evidence filter so both agree
+    on which versions may be recommended.
+    """
+    if entity.status in {"deprecated", "rumor"}:
+        return False
+    release = entity.release
+    return not (
+        release
+        and (
+            release.stage in {"pending", "deprecated", "retired"}
+            or release.catalog_current is False
+        )
+    )
+
+
 def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionContext) -> list[str]:
     failures = []
     for check in requirement_checks(context, claims):
@@ -389,13 +407,7 @@ def constraint_failures(entity: Entity, claims: list[Claim], context: DecisionCo
     }
     if entity.type not in types[context.task_type]:
         failures.append("different-task-type")
-    if entity.status in {"deprecated", "rumor"} or (
-        entity.release
-        and (
-            entity.release.stage in {"pending", "deprecated", "retired"}
-            or entity.release.catalog_current is False
-        )
-    ):
+    if not is_available_version(entity):
         failures.append("unavailable-version")
     original_task = context._original_task or context.task
     offline_required = understand_task(original_task).offline or any(
