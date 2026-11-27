@@ -461,6 +461,13 @@ export interface ResearchSummary {
   createdAt: string;
 }
 
+export interface ResearchHistoryPage {
+  items: ResearchSummary[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
 export interface PublishedResearch extends ResearchResult {
   citations: NonNullable<ResearchResult["citations"]>;
 }
@@ -574,8 +581,12 @@ export const userApi = {
       { method: "POST", body: JSON.stringify(payload) },
       token,
     ),
-  researchHistory: (token: string, limit = 100) =>
-    request<ResearchSummary[]>(`/api/v2/research?limit=${limit}`, {}, token),
+  researchHistory: (token: string, offset = 0, limit = 5) =>
+    request<ResearchHistoryPage>(
+      `/api/v2/research?${new URLSearchParams({ offset: String(offset), limit: String(limit) })}`,
+      {},
+      token,
+    ),
   knowledgeChecks: (token: string, id: string) =>
     request<KnowledgeCheck[]>(
       `/api/v2/research/${encodeURIComponent(id)}/knowledge-checks`,

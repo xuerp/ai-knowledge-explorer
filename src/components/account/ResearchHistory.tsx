@@ -1,38 +1,56 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { visiblePageNumbers } from "@/domain/change-navigation";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/app-state";
-import type { ResearchSummary } from "@/services/user-api";
+import { userApi, type ResearchHistoryPage } from "@/services/user-api";
 import "./research-history.css";
 
 const PAGE_SIZE = 5;
 
 /** The owner's saved results, so reopening never depends on tab storage. */
-export function ResearchHistory({
-  history,
-  onDelete,
-}: {
-  history: ResearchSummary[] | null;
-  onDelete: (id: string) => Promise<void>;
-}) {
+export function ResearchHistory({ token }: { token: string }) {
   const { t, lang } = useApp();
   const [confirming, setConfirming] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
-  const pageCount = Math.ceil((history?.length ?? 0) / PAGE_SIZE);
-  // Deleting the last record on a page must not leave an empty page selected.
+  // `undefined` while loading, `null` when the page could not load.
+  const [data, setData] = useState<ResearchHistoryPage | null | undefined>(undefined);
+  const load = useCallback(
+    async (index: number) => {
+      if (!token) return;
+      try {
+        const next = await userApi.researchHistory(token, index * PAGE_SIZE, PAGE_SIZE);
+        // A deletion can leave the last page empty; step back to a real page.
+        if (!next.items.length && next.total > 0 && index > 0) {
+          setPage(Math.ceil(next.total / PAGE_SIZE) - 1);
+          return;
+        }
+        setData(next);
+      } catch {
+        setData(null);
+      }
+    },
+    [token],
+  );
+  useEffect(() => {
+    void load(page);
+  }, [load, page]);
+  const history = data === undefined ? undefined : data ? data.items : null;
+  const total = data?.total ?? 0;
+  const pageCount = Math.ceil(total / PAGE_SIZE);
   const pageIndex = Math.min(page, Math.max(0, pageCount - 1));
-  const shown = history?.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE) ?? [];
+  const shown = history ?? [];
   const pageNumbers = visiblePageNumbers(pageIndex, pageCount);
   const remove = async (id: string) => {
     setDeleting(id);
     setError("");
     try {
-      await onDelete(id);
+      await userApi.deleteResearch(token, id);
       setConfirming(null);
+      await load(page);
     } catch {
       setError(t("删除失败，请稍后重试。", "Could not delete. Try again later."));
     } finally {
@@ -45,20 +63,22 @@ export function ResearchHistory({
         <h2 id="research-history-heading" className="font-serif">
           {t("我的研究记录", "My research")}
         </h2>
-        {history && history.length > 0 && (
-          <span>{t(`${history.length} 条`, `${history.length} records`)}</span>
-        )}
+        {total > 0 && <span>{t(`共 ${total} 条`, `${total} records`)}</span>}
       </div>
       {error && (
         <p role="alert" className="research-history__error">
           {error}
         </p>
       )}
-      {history === null ? (
+      {history === undefined ? (
+        <p className="research-history__empty" role="status">
+          {t("正在加载研究记录…", "Loading research…")}
+        </p>
+      ) : history === null ? (
         <p className="research-history__empty" role="status">
           {t("记录暂时无法加载，刷新页面后重试。", "Records could not load. Reload to retry.")}
         </p>
-      ) : history.length === 0 ? (
+      ) : total === 0 ? (
         <p className="research-history__empty">
           {t(
             "还没有研究记录。在“帮我选择”提交一次后，结果会保存在这里。",
@@ -152,8 +172,8 @@ export function ResearchHistory({
         >
           <span>
             {t(
-              `第 ${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, history!.length)} 条，共 ${history!.length} 条`,
-              `${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, history!.length)} of ${history!.length}`,
+              `第 ${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, total)} 条，共 ${total} 条`,
+              `${pageIndex * PAGE_SIZE + 1}–${Math.min((pageIndex + 1) * PAGE_SIZE, total)} of ${total}`,
             )}
           </span>
           <div className="updates-pagination__controls">

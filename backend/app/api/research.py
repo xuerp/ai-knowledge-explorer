@@ -20,7 +20,7 @@ from ..schemas import (
     DecisionValidationSave,
     DecisionValidationView,
     ResearchCreate,
-    ResearchSummaryView,
+    ResearchHistoryPage,
     ResearchView,
 )
 from .dependencies import ServicesDependency, SessionDependency, UserDependency
@@ -46,17 +46,24 @@ def create_research(
     )
 
 
-@router.get("/api/v2/research", response_model=list[ResearchSummaryView])
+@router.get("/api/v2/research", response_model=ResearchHistoryPage)
 def research_history(
     services: ServicesDependency,
     principal: UserDependency,
     session: SessionDependency,
     response: Response,
-    limit: int = Query(30, ge=1, le=100),
-) -> list[ResearchSummaryView]:
-    """The signed-in owner's recent research, so a result never depends on tab storage."""
+    limit: int = Query(5, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+) -> ResearchHistoryPage:
+    """One page of the signed-in owner's research; every record stays reachable."""
     response.headers["Cache-Control"] = "no-store"
-    return services.engagement.list_research(session, principal.subject, limit=limit)
+    engagement = services.engagement
+    return ResearchHistoryPage(
+        items=engagement.list_research(session, principal.subject, limit=limit, offset=offset),
+        total=engagement.count_research(session, principal.subject),
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get("/api/v2/research/{research_id}", response_model=ResearchView)

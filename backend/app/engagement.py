@@ -7,7 +7,7 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -1142,14 +1142,26 @@ class EngagementService:
         row = session.scalar(statement)
         return self._research_view(row) if row else None
 
+    def count_research(self, session: Session, user_id: str) -> int:
+        return (
+            session.scalar(
+                select(func.count())
+                .select_from(ResearchRecord)
+                .where(ResearchRecord.user_id == user_id)
+            )
+            or 0
+        )
+
     def list_research(
-        self, session: Session, user_id: str, *, limit: int = 30
+        self, session: Session, user_id: str, *, limit: int = 30, offset: int = 0
     ) -> list[ResearchSummaryView]:
-        """The owner's most recent records, newest first. Never another user's."""
+        """The owner's records, newest first, one page at a time. Never another user's."""
         rows = session.scalars(
             select(ResearchRecord)
             .where(ResearchRecord.user_id == user_id)
-            .order_by(ResearchRecord.created_at.desc())
+            # The id breaks ties so pages never repeat or skip a record.
+            .order_by(ResearchRecord.created_at.desc(), ResearchRecord.id.desc())
+            .offset(max(0, offset))
             .limit(max(1, min(limit, 100)))
         ).all()
         summaries = []
