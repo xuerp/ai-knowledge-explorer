@@ -27,6 +27,7 @@ from ..new_models import build_new_model, is_release_predicate, model_id_from, p
 from ..quality import (
     CORE_ENTITY_RELATION_REQUIREMENT,
     claim_semantic_fingerprint,
+    conflict_review_reason,
     relation_semantic_fingerprint,
     resolve_unique_entity_reference,
 )
@@ -524,9 +525,7 @@ class ExtractionServices:
                 continue
             reason = None
             if assessment.conflicting_claim_ids:
-                reason = "Structured conflict detected against: " + ", ".join(
-                    assessment.conflicting_claim_ids
-                )
+                reason = conflict_review_reason(assessment.conflicting_claim_ids, public_snapshot)
             new_entity = proposed_entity.get(candidate.id)
             if new_entity is not None:
                 reason = (

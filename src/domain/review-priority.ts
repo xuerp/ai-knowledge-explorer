@@ -30,7 +30,7 @@ const sensitivePredicates = new Set([
 export function assessReviewItem(item: ReviewQueueItem, now: Date = new Date()): ReviewAssessment {
   const subject = normalize(item.claim.subject);
   const objectOrValue = normalize(item.claim.objectOrValue);
-  const batchSafe =
+  const anchored =
     item.status === "pending" &&
     item.conflictClaimIds.length === 0 &&
     Boolean(subject && objectOrValue) &&
@@ -46,6 +46,8 @@ export function assessReviewItem(item: ReviewQueueItem, now: Date = new Date()):
     sensitivePredicates.has(normalize(item.claim.predicate))
       ? "high"
       : "standard";
+  // Batch approval skips high-risk candidates, so the badge must not offer it either.
+  const batchSafe = anchored && risk === "standard";
   const newestEvidenceAt = item.evidenceItems.reduce<number>((latest, evidence) => {
     const parsed = Date.parse(evidence.publishedAt || evidence.collectedAt);
     return Number.isFinite(parsed) ? Math.max(latest, parsed) : latest;
