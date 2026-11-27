@@ -9,6 +9,7 @@ import { reviewHistoryTitle, reviewReasonCategoryLabels } from "@/domain/review-
 import { assessReviewItem } from "@/domain/review-priority";
 import { type ReviewLane } from "@/domain/review-lanes";
 
+import { reviewStatusLabel } from "./review-status";
 import type { ReviewViewModel } from "./review-view-model";
 export function ReviewQueuePanel({ context }: { context: ReviewViewModel }) {
   const {
@@ -156,7 +157,7 @@ export function ReviewQueuePanel({ context }: { context: ReviewViewModel }) {
                 </div>
                 <div className="flex flex-wrap justify-end gap-1.5">
                   <span className="h-fit rounded-full border border-border px-2.5 py-1 text-xs">
-                    {recentCandidateIds.has(item.id) ? "本次抽取" : item.status}
+                    {recentCandidateIds.has(item.id) ? "本次抽取" : reviewStatusLabel(item.status)}
                   </span>
                   <span
                     className={`h-fit rounded-full px-2.5 py-1 text-xs ${
@@ -185,7 +186,10 @@ export function ReviewQueuePanel({ context }: { context: ReviewViewModel }) {
                 <div className="mt-3 rounded-md border border-conflict/30 bg-conflict/10 p-3 text-sm">
                   {item.reasonNote ?? item.reviewReason}
                   {item.conflictClaimIds.length > 0 && (
-                    <div className="mt-1 font-mono text-xs">{item.conflictClaimIds.join(", ")}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      冲突事实编号：
+                      <span className="font-mono">{item.conflictClaimIds.join(", ")}</span>
+                    </div>
                   )}
                 </div>
               )}

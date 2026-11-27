@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import HTTPException, status
+from pydantic import ValidationError
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -19,10 +20,16 @@ from ..database import (
     ReviewJobRecord,
 )
 from ..quality import (
+    AMBIGUOUS_ENTITY_REASON,
+    CONFLICT_REASON_PREFIX,
+    LEGACY_AMBIGUOUS_REASON,
+    LEGACY_CONFLICT_REASON_PREFIX,
     claim_semantic_fingerprint,
+    conflict_review_reason,
 )
 from ..repository import OPEN_REVIEW_STATUSES, RELATION_PREDICATES
 from ..schemas import (
+    CandidateCreate,
     Claim,
     Entity,
     GraphEdge,
@@ -36,6 +43,62 @@ from ..schemas import (
 
 
 class ReviewServices:
+    def clear_false_conflicts(self, session: Session) -> int:
+        """Re-check open candidates against the current conflict rule.
+
+        The old rule flagged any differing value, including multi-valued predicates
+        such as availability. Only conflicts the current gate still finds are kept,
+        and legacy English review reasons are rewritten in Chinese.
+        """
+        rows = session.scalars(
+            select(ReviewJobRecord).where(ReviewJobRecord.status.in_(OPEN_REVIEW_STATUSES))
+        ).all()
+        snapshot = None
+        updated = 0
+        for row in rows:
+            reason = row.review_reason or ""
+            legacy_conflict = reason.startswith(LEGACY_CONFLICT_REASON_PREFIX)
+            legacy_ambiguous = reason == LEGACY_AMBIGUOUS_REASON
+            # Other reasons (for example a proposed new model) are kept as written.
+            conflict_reason = legacy_conflict or reason.startswith(CONFLICT_REASON_PREFIX)
+            stored = json.loads(row.conflict_ids_json or "[]")
+            if not (stored or legacy_conflict or legacy_ambiguous):
+                continue
+            try:
+                item = self.repository.to_queue_item(row)
+                candidate = CandidateCreate(
+                    id=row.id,
+                    entity_id=row.entity_id,
+                    claim=item.claim,
+                    evidence=item.evidence_items,
+                )
+            except ValidationError:
+                # A malformed open row must not block startup; reviewers still see it.
+                continue
+            snapshot = snapshot or self.get_catalog_snapshot(session)
+            assessment = self.quality_gate.assess(candidate, snapshot)
+            conflicts = assessment.conflicting_claim_ids
+            new_reason: str | None = row.review_reason
+            if conflicts and conflict_reason and (conflicts != stored or legacy_conflict):
+                new_reason = conflict_review_reason(conflicts, snapshot)
+            elif (not conflicts and conflict_reason) or legacy_ambiguous:
+                new_reason = (
+                    AMBIGUOUS_ENTITY_REASON if assessment.resolution == "ambiguous" else None
+                )
+            new_status = row.status
+            if row.status == "needs-more-evidence" and assessment.queue_status == "pending":
+                new_status = "pending"
+            if conflicts == stored and new_reason == row.review_reason and new_status == row.status:
+                continue
+            row.conflict_ids_json = json.dumps(conflicts)
+            row.review_reason = new_reason
+            row.status = new_status
+            row.version += 1
+            updated += 1
+        if updated:
+            session.commit()
+        return updated
+
     def require_publishable_entity(self, row: ReviewJobRecord, session: Session) -> None:
         if not row.entity_id or session.get(KnowledgeEntityRecord, row.entity_id) is None:
             raise HTTPException(

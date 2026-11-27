@@ -45,6 +45,56 @@ def _ratio(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4) if denominator else 0.0
 
 
+# A different value only contradicts a published fact when the predicate admits a
+# single value at a time. Availability, capabilities, integrations and similar
+# predicates hold several true values at once (an API in the EU and in the US).
+SINGLE_VALUED_PREDICATES = frozenset(
+    {
+        "context-window",
+        "has-context-window",
+        "maximum-context-window",
+        "supports-context-window",
+        "max-output-tokens",
+        "maximum-output-tokens",
+        "output-token-limit",
+        "input-price",
+        "output-price",
+        "input-token-price",
+        "output-token-price",
+        "standard-input-price",
+        "standard-output-price",
+        "released-on",
+        "released-at",
+        "release-date",
+        "deprecated-on",
+        "deprecated-at",
+        "scheduled-for-retirement-on",
+        "scheduled-api-shutdown-date",
+        "licensed-under",
+        "total-parameters",
+        "active-parameters",
+        "layer-count",
+        "legal-form",
+    }
+)
+
+
+CONFLICT_REASON_PREFIX = "与已发布事实取值不同："
+AMBIGUOUS_ENTITY_REASON = "主体名称同时匹配多个实体，请人工确认归属。"
+# Reasons written before the Chinese wording; startup reconciliation rewrites them.
+LEGACY_CONFLICT_REASON_PREFIX = "Structured conflict detected against:"
+LEGACY_AMBIGUOUS_REASON = "Entity resolution is ambiguous and requires human confirmation."
+
+
+def conflict_review_reason(conflict_ids: list[str], snapshot: KnowledgeSnapshot) -> str:
+    claims = {claim.id: claim for claim in snapshot.claims}
+    values = [
+        f"「{claims[claim_id].object_or_value}」" if claim_id in claims else claim_id
+        for claim_id in conflict_ids
+    ]
+    return CONFLICT_REASON_PREFIX + "已发布 " + "、".join(values) + "，请确认哪条正确。"
+
+
 FORMAL_CLAIM_REQUIREMENT = 150
 CORE_ENTITY_RELATION_REQUIREMENT = 5
 
@@ -219,7 +269,7 @@ class KnowledgeQualityGate:
         predicate = _key(claim.predicate)
         value = _key(claim.object_or_value)
         conflicts: list[str] = []
-        if subject and predicate and value:
+        if subject and predicate in SINGLE_VALUED_PREDICATES and value:
             for existing in snapshot.claims:
                 if (
                     existing.id != claim.id

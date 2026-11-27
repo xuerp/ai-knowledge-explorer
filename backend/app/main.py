@@ -50,6 +50,7 @@ def create_app(settings: Settings | None = None, *, task_interpreter=None) -> Fa
             services.ingestion.reconcile_historical_permanent_failures(session)
             services.ingestion.reconcile_misclassified_not_modified_failures(session)
             services.ingestion.reconcile_source_portfolio(session)
+            services.clear_false_conflicts(session)
         yield
         if services.embedding_provider is not None:
             services.embedding_provider.close()

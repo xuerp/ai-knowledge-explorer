@@ -15,7 +15,9 @@ from ..database import (
 )
 from ..entity_linkage import audit_claim_entity_links, classify_unlinked_claim
 from ..quality import (
+    AMBIGUOUS_ENTITY_REASON,
     claim_semantic_fingerprint,
+    conflict_review_reason,
 )
 from ..rag import (
     LexicalRagRetriever,
@@ -91,16 +93,15 @@ def submit_review_candidate(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Every claim source id must be included in the submitted evidence.",
         )
-    assessment = services.quality_gate.assess(payload, services.get_catalog_snapshot(session))
+    snapshot = services.get_catalog_snapshot(session)
+    assessment = services.quality_gate.assess(payload, snapshot)
     if assessment.resolved_entity_id and not payload.entity_id:
         payload = payload.model_copy(update={"entity_id": assessment.resolved_entity_id})
     reason = None
     if assessment.conflicting_claim_ids:
-        reason = "Structured conflict detected against: " + ", ".join(
-            assessment.conflicting_claim_ids
-        )
+        reason = conflict_review_reason(assessment.conflicting_claim_ids, snapshot)
     elif assessment.resolution == "ambiguous":
-        reason = "Entity resolution is ambiguous and requires human confirmation."
+        reason = AMBIGUOUS_ENTITY_REASON
     row = services.ingestion.submit_candidate(
         session,
         payload,

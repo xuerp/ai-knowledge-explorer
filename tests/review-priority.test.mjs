@@ -62,6 +62,8 @@ test("审核候选会区分批量安全、新鲜度和高风险", () => {
     evidenceItems: [{ ...item().evidenceItems[0], type: "community" }],
   });
   assert.equal(assessReviewItem(community, now).risk, "high");
+  // 高风险候选不会被批量批准，所以不能显示“可批量”。
+  assert.equal(assessReviewItem(community, now).batchSafe, false);
 
   const stale = item({
     id: "stale",
