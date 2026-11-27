@@ -19,6 +19,7 @@ from ..document_delta import DocumentDelta, changed_text
 from ..entity_aliases import normalize_entity_alias
 from ..extraction import (
     EXTRACTION_PIPELINE_VERSION,
+    REQUEST_SOURCE_PREFIX,
     ExtractionBudgetUnavailable,
     entity_reference_appears,
     extraction_audit_is_current,
@@ -90,7 +91,8 @@ class ExtractionServices:
             if snapshot_row.id in cooling_down_snapshot_ids:
                 continue
             source = session.get(SourceRecord, snapshot_row.source_id)
-            if not source or not source.active:
+            if not source or not source.active or source.id.startswith(REQUEST_SOURCE_PREFIX):
+                # Request pages are extracted once by entry-request automation.
                 continue
             eligible.append((source, snapshot_row))
 
@@ -719,6 +721,7 @@ class ExtractionServices:
         if remaining <= 0 or capacity <= 0:
             summary["pausedReason"] = "daily-limit" if remaining <= 0 else "review-backlog"
             return summary
+        regular_limit = limit
         # Conservative bound: each attempted snapshot can create up to this
         # many review jobs. Workers serialize the complete cycle.
         per_snapshot = min(capacity, self.app_settings.auto_extraction_max_candidates_per_snapshot)
@@ -862,6 +865,24 @@ class ExtractionServices:
                     break
         if errors:
             summary["errors"] = errors
+        # Entry requests use the slots scheduled snapshots left in this cycle, so the
+        # daily and per-cycle limits cover both. Skipped when the budget stopped.
+        request_slots = min(
+            int(summary["dailySlotsRemaining"]), regular_limit - int(summary["planned"])
+        )
+        if summary.get("pausedReason") is None:
+            requests = self.run_entry_request_automation(session, max(0, request_slots))
+            if any(requests.values()):
+                # Only cycles that touched a request carry the section.
+                summary["entryRequests"] = requests
+            summary["dailySlotsRemaining"] = int(summary["dailySlotsRemaining"]) - int(
+                requests["attempted"]
+            )
+            summary["candidatesCreated"] = int(summary["candidatesCreated"]) + int(
+                requests["candidatesCreated"]
+            )
+            if requests.get("pausedReason"):
+                summary["pausedReason"] = requests["pausedReason"]
         if self.app_settings.relation_backfill_batch_id:
             summary["relationBackfillAttemptsRemaining"] = max(
                 0,

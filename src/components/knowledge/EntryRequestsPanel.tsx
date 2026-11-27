@@ -6,6 +6,14 @@ import { adminApi } from "@/services/admin-api";
 import type { EntryRequestDecision, EntryRequestView } from "@/services/entry-request-types";
 import type { Entity } from "@/domain/types";
 import { useEntities } from "@/hooks/use-knowledge";
+import {
+  entryRequestKindHints,
+  entryRequestKindLabels,
+  entryRequestProgress,
+  hasOfficialPage,
+  needsPerson,
+  showsAutoDetail,
+} from "@/domain/entry-request-progress";
 
 const labels = { pending: "待审核", "in-review": "处理中", resolved: "已收录", rejected: "不收录" };
 
@@ -19,7 +27,11 @@ export function EntryRequestsPanel({ token }: { token: string }) {
   const [refresh, setRefresh] = useState(0);
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
+  const [kind, setKind] = useState("all");
   const [hasNext, setHasNext] = useState(false);
+  const visible = rows.filter(
+    (row) => kind === "all" || (kind === "action" ? needsPerson(row) : row.kind === kind),
+  );
   useEffect(() => {
     const reload = () => setRefresh((value) => value + 1);
     window.addEventListener("focus", reload);
@@ -59,7 +71,7 @@ export function EntryRequestsPanel({ token }: { token: string }) {
             收录请求
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            已提交的对象在这里处理；待审核请求不会直接出现在知识库。
+            系统会自动读取每条请求的官方页面，把找到的事实放进待审核队列。你只需要审核这些事实，审核完成后请求会自动结束。
           </p>
         </div>
         <Button
@@ -75,8 +87,8 @@ export function EntryRequestsPanel({ token }: { token: string }) {
         </Button>
       </div>
       <p className="entry-requests-panel__workflow">
-        核对官方资料 → <a href="#catalog-editor">在目录编辑器收录对象</a> → 选择对象并完成审核。
-        已收录后可直接打开资料页。决策补证必须关联原具体版本，先审核启用缺失事实；仅关联已有对象不能标记补证完成。
+        自动读取官方页面 → 生成待审事实 → <a href="#review-queue">在待审核队列审核</a> →
+        请求自动结束。只有标为“需要人工处理”的请求要你在这里操作。
       </p>
       <div className="entry-requests-panel__filters">
         <Input
@@ -89,6 +101,19 @@ export function EntryRequestsPanel({ token }: { token: string }) {
             setOffset(0);
           }}
         />
+        <select
+          aria-label="收录请求类型"
+          value={kind}
+          onChange={(event) => setKind(event.target.value)}
+        >
+          <option value="all">全部类型</option>
+          <option value="action">需要人工处理</option>
+          {Object.entries(entryRequestKindLabels).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
         <select
           aria-label="收录请求状态"
           value={status}
@@ -114,15 +139,15 @@ export function EntryRequestsPanel({ token }: { token: string }) {
         <p className="mt-3" role="status">
           正在加载请求…
         </p>
-      ) : error ? null : !rows.length ? (
+      ) : error ? null : !visible.length ? (
         <p className="mt-3 text-muted-foreground">
-          {query || status !== "all"
+          {query || status !== "all" || kind !== "all"
             ? "没有匹配请求，可清除搜索或切换状态。"
             : "尚无收录请求。成功提交后会保存在这里；可刷新查看。"}
         </p>
       ) : (
         <div className="mt-4 space-y-3">
-          {rows.map((row) => (
+          {visible.map((row) => (
             <EntryRequestRow
               key={row.id}
               row={row}
@@ -190,6 +215,7 @@ function EntryRequestRow({
     if (match) setEntityId(match.id);
   }, [entities, entityId, row.name, row.status]);
   const closed = row.status === "resolved" || row.status === "rejected";
+  const progress = entryRequestProgress(row);
   async function decide(status: EntryRequestDecision["status"]) {
     if (busy) return;
     if (note.trim().length < 2 || (status === "resolved" && !entityId.trim())) {
@@ -219,24 +245,39 @@ function EntryRequestRow({
   }
   return (
     <article className="entry-request-row rounded-md border p-4">
-      <div className="flex flex-wrap justify-between gap-2">
+      <div className="entry-request-row__header">
         <h3 className="font-semibold break-words">
           {row.name}{" "}
-          <span className="text-sm font-normal text-muted-foreground">· {labels[row.status]}</span>
+          <span
+            className="text-sm font-normal text-muted-foreground"
+            title={entryRequestKindHints[row.kind]}
+          >
+            · {entryRequestKindLabels[row.kind]}
+          </span>
         </h3>
         <time className="text-sm text-muted-foreground" dateTime={row.createdAt}>
           {new Date(row.createdAt).toLocaleString("zh-CN")}
         </time>
       </div>
-      <p className="mt-2 whitespace-pre-wrap break-words text-sm">{row.reason}</p>
-      <a
-        href={row.sourceUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-2 block break-all text-sm text-signal underline"
-      >
-        {row.sourceUrl}
-      </a>
+      <p className={`entry-request-row__progress entry-request-row__progress--${progress.tone}`}>
+        <span className="font-medium">{progress.label}</span>
+        {showsAutoDetail(row) && <span> · {row.autoDetail}</span>}
+      </p>
+      <p className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground">
+        {row.reason}
+      </p>
+      {hasOfficialPage(row) ? (
+        <a
+          href={row.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 block break-all text-sm text-signal underline"
+        >
+          {row.sourceUrl}
+        </a>
+      ) : (
+        <p className="mt-2 text-sm text-muted-foreground">没有官方页面链接</p>
+      )}
       <p className="mt-2 break-all text-xs text-muted-foreground">
         {(
           {
@@ -269,7 +310,9 @@ function EntryRequestRow({
         </p>
       ) : (
         <details className="entry-request-row__review mt-3">
-          <summary className="cursor-pointer text-sm font-medium">审核与关联收录</summary>
+          <summary className="cursor-pointer text-sm font-medium">
+            {needsPerson(row) ? "人工处理" : "手动处理（通常不需要）"}
+          </summary>
           <fieldset disabled={busy} className="mt-3 space-y-2">
             <label htmlFor={`note-${row.id}`} className="block text-sm">
               处理说明

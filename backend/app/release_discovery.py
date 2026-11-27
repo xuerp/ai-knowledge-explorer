@@ -5,13 +5,16 @@ from dataclasses import dataclass
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from uuid import NAMESPACE_URL, uuid5
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from .database import EntryRequestRecord, KnowledgeEntityRecord, SourceRecord
 
 OPENAI_RELEASE_ROOTS = ("s-openai-api-changelog", "s-openai-models")
 OPENAI_RELEASE_SLUG = r"gpt-\d+(?:\.\d+)?-(?:astra|sol|terra|luna|pro)\Z"
 MARKDOWN_LINK = re.compile(r"\[([^\]\r\n]{1,120})\]\(([^)\s]{1,512})\)")
+RELEASE_REASON_PREFIX = "官方目录发现新模型："
+# Requests queued before the Chinese wording; still counted and classified.
+LEGACY_RELEASE_REASON_PREFIX = "Official release discovery:"
 DISCOVERY_ROOTS = {
     "s-google-model-card-index": ("deepmind.google", "/models/model-cards/", r"gemini-|gemma-"),
     "s-moonshot-research-index": ("www.kimi.ai", "/blog/", r"kimi-k"),
@@ -73,7 +76,10 @@ def discover_release_leads(session, source, document, current):
         .select_from(EntryRequestRecord)
         .where(
             EntryRequestRecord.status.in_(("pending", "in-review")),
-            EntryRequestRecord.reason.startswith("Official release discovery:"),
+            or_(
+                EntryRequestRecord.reason.startswith(RELEASE_REASON_PREFIX),
+                EntryRequestRecord.reason.startswith(LEGACY_RELEASE_REASON_PREFIX),
+            ),
         )
     )
     limit = min(4, max(0, 50 - pending))
@@ -99,7 +105,7 @@ def discover_release_leads(session, source, document, current):
                 version=1,
                 status="pending",
                 created_at=current,
-                reason=f"Official release discovery: {source.publisher}. Verify model and release scope.",
+                reason=f"{RELEASE_REASON_PREFIX}{source.publisher} 官方模型目录出现新型号，请核对型号和发布范围。",
             )
         )
         count += 1
